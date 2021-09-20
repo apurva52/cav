@@ -1,0 +1,335 @@
+<app-loader [busy]='busy == true' [z_index]='"3"'></app-loader>
+
+<!-- <p-growl appendTo="body" [(value)]="msgs" [life]="3500" [style]="{'font-size':'14px'}" [baseZIndex]="4"></p-growl> -->
+<div class="header">
+    <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a routerLink="/home/home-sessions">
+            <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">Resource Baseline</div>
+        <div>
+            <button type="button" pButton icon="fa fa-refresh" (click)="Refresh()" label="Refresh"></button>
+        </div>
+    </div>
+</p-toolbar>
+<div class="main-box" [ngStyle]="{'height.px':'539'}">
+    <p-fieldset legend="Select Duration for Baseline Data" [ngStyle]="{'width':'100%'}" *ngIf='FilterDomainBaseline'>
+        <div class="ui-g">
+
+            <div class="ui-g-12 ui-md-2">
+                <p-radioButton name="timefilter" (click)="disableSpecifiedTime()" value='last' [(ngModel)]="Radioval"
+                    label="Last">
+                </p-radioButton>
+            </div>
+            <div class="ui-g-12 ui-md-5">
+                <p-dropdown [options]="lasttime" [(ngModel)]="lastval" [style]="{'width':'200px'}"
+                    [disabled]="lastdropdown">
+                </p-dropdown>
+            </div>
+
+        </div>
+
+        <div class="ui-g">
+
+            <div class="ui-g-12 ui-md-2">
+                <p-radioButton name="timefilter" (click)="disableLastTime()" [(ngModel)]="Radioval" value="specified"
+                    label="Specified">
+                </p-radioButton>&nbsp;
+            </div>
+
+            <div class="ui-g-12 ui-md-5">
+                From:
+                <p-calendar id='start' [showTime]="true" hour='00' [(ngModel)]="Fromval" minute='00' hourFormat="24"
+                    [disabled]="Fromdropdown" [maxDate]='maxDate' readonlyInput [inputStyle]="{'width':'200px'}">
+                </p-calendar>
+            </div>
+            <div class="ui-g-12 ui-md-4">
+                To:
+                <p-calendar id='end' [showTime]="true" hour='23' minute='59' [(ngModel)]="Toval" hourFormat="24"
+                    [disabled]="Todropdown" [maxDate]='maxDate' readonlyInput [inputStyle]="{'width':'200px'}">
+                </p-calendar>
+            </div>
+        </div>
+        <br>
+        <p-footer>
+            <button pButton type="submit" label="Generate Baseline" class="ui-button-info" style="margin-left: 44%;"
+                (click)="GenerateBaseline()"></button>
+        </p-footer>
+
+
+
+    </p-fieldset>
+    <div *ngIf='ShowDomainBaselineData'>
+
+        <br>
+        <div #widgetHeight [ngStyle]="{
+                                        height: isEnabledColumnFilter
+                                          ? 'calc(100vh - 215px)'
+                                          : 'calc(100vh - 172px)'
+                                      }">
+            <p-card class="content-body">
+                <p-table [value]="domainbaselinedata" [paginator]="true" [resizableColumns]="true" [rows]="10" [showCurrentPageReport]="true"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    class="scen-table">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th [ngStyle]="{'width.px':'57'}">Actions</th>
+                            <th pResizableColumn pSortableColumn="domain_name" [ngStyle]="{'width.px':'378'}">Domain
+                                Pattern
+                                <p-sortIcon field="domain_name"></p-sortIcon>
+                            </th>
+                            <th pResizableColumn pSortableColumn="duration">Duration(ms)
+                                <p-sortIcon field="duration"></p-sortIcon>
+                            </th>
+                            <th pResizableColumn title="Domain Name System" pSortableColumn="dns">DNS(ms)
+                                <p-sortIcon field="dns"></p-sortIcon>
+                            </th>
+                            <th pResizableColumn pSortableColumn="redirect_time">Redirect(ms)
+                                <p-sortIcon field="redirect_time"></p-sortIcon>
+                            </th>
+                            <th pResizableColumn pSortableColumn="connection_time">Connect(ms)
+                                <p-sortIcon field="connection_time"></p-sortIcon>
+                            </th>
+                            <th pResizableColumn title="Secure Socket Layer" pSortableColumn="secure_connection_time">
+                                SSL(ms)
+                                <p-sortIcon field="secure_connection_time"></p-sortIcon>
+                            </th>
+                            <th pResizableColumn pSortableColumn="wait">Wait(ms)
+                                <p-sortIcon field="wait"></p-sortIcon>
+                            </th>
+                        </tr>
+                    </ng-template>
+
+
+                    <ng-template pTemplate="body" let-data>
+                        <tr>
+                            <td>
+                                <p-checkbox (onChange)=SelectDomainCheckbox($event,data.domain_name)>
+                                </p-checkbox>
+                            </td>
+                            <td title="{{data.domain_name}}">{{data.domain_name}}</td>
+                            <td class="numberaligncolumn" pEditableColumn title="{{data.duration}}">
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <input [min]="10" [max]="12000" pInputText type="number"
+                                            (keyup)="editvaluechange($event,'duration')" [(ngModel)]="data.duration"
+                                            required>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{data.duration}}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                            <td class="numberaligncolumn" pEditableColumn title="{{data.dns}}">
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <input [min]="10" [max]="12000" pInputText type="number"
+                                            (keyup)="editvaluechange($event,'dns')" [(ngModel)]="data.dns" required>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{data.dns}}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                            <td class="numberaligncolumn" pEditableColumn title="{{data.redirect_time}}">
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <input [min]="10" [max]="12000" pInputText type="number"
+                                            (keyup)="editvaluechange($event,'redirect_time')"
+                                            [(ngModel)]="data.redirect_time" required>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{data.redirect_time}}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                            <td class="numberaligncolumn" pEditableColumn title="{{data.connection_time}}">
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <input [min]="10" [max]="12000" pInputText type="number"
+                                            (keyup)="editvaluechange($event,'connection_time')"
+                                            [(ngModel)]="data.connection_time" required>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{data.connection_time}}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                            <td class="numberaligncolumn" pEditableColumn title="{{data.secure_connection_time}}">
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <input [min]="10" [max]="12000" pInputText type="number"
+                                            (keyup)="editvaluechange($event,'secure_connection_time')"
+                                            [(ngModel)]="data.secure_connection_time" required>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{data.secure_connection_time}}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                            <td class="numberaligncolumn" pEditableColumn title="{{data.wait}}">
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <input [min]="10" [max]="12000" pInputText type="number"
+                                            (keyup)="editvaluechange($event,'wait')" [(ngModel)]="data.wait" required>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{data.wait}}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                        </tr>
+                    </ng-template>
+
+                </p-table>
+                <br>
+                <p-footer>
+                    <div style="text-align: center;">
+                        <button pButton type="button" pTooltip="Click Here To Update Resource Baseline Data"
+                            icon="fa fa-floppy-o" style="width: 63px;" id="savedisk" label="Save"
+                            (click)="SaveDomainBaseLine()"></button>&nbsp;
+                        <button pButton type="button" pTooltip="Click Here To Add New Domain Baseline" icon="fa fa-plus"
+                            style="width: 63px;" id="savedisk" label="Add" (click)="AddNewDomainBaseLine()"></button>
+                    </div>
+                </p-footer>
+            </p-card>
+        </div>
+
+
+        <div>
+        </div>
+
+
+        <p-dialog appendTo="body" [(visible)]="displaydomainpopup" header="Add New Domain Baseline" [responsive]="true"
+            showEffect="fade" [style]="{width: '54vw'}" [resizable]="false">
+
+            <div class="ui-grid ui-grid-responsive ui-fluid" style="height: 316px;">
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-4"><label>
+                            Domain Pattern
+                            <font style="color:red;">*</font>
+                        </label></div>
+                    <div class="ui-grid-col-8">
+                        <input id="disabled-input" type="text" size="30" pInputText [(ngModel)]="domainpattern"
+                            style="width: 312px;" />&nbsp;
+                        <p-checkbox value="true" binary="true" [(ngModel)]="regexspecific">
+                        </p-checkbox>&nbsp;
+                        <label>Regex</label>
+                    </div>
+                </div>
+                <br>
+                <br *ngIf="regexspecific == true">
+                <div *ngIf="regexspecific == true" class="ui-grid-row">
+                    <div class="ui-grid-col-4"><label>
+                            Regex Pattern
+                        </label></div>
+                    <div class="ui-grid-col-7">
+                        <input id="disabled-input" type="text" size="30" pInputText [(ngModel)]="regexpattern"
+                            style="width: 312px;" />&nbsp;
+
+                        <button type="button" pButton style="height: 20px;width: 63px;"
+                            (click)="RegexTest(domainpattern,regexpattern)" label="Test"></button>
+
+                    </div>
+
+                </div>
+                <br>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-4"><label>
+                            Duration
+                            <font style="color:red;">*</font>
+                        </label></div>
+                    <div class="ui-grid-col-5">
+                        <input id="disabled-input" [min]="10" [max]="12000" pInputText type="number"
+                            [(ngModel)]="duration" style="width: 74px;" />
+                        &nbsp;
+                        <label>(msec)</label>
+                    </div>
+
+                </div>
+
+                <br>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-4"><label>
+                            DNS
+                            <font style="color:red;">*</font>
+                        </label></div>
+                    <div class="ui-grid-col-5">
+                        <input id="disabled-input" [min]="10" [max]="12000" pInputText type="number" [(ngModel)]="dns"
+                            style="width: 74px;" />
+                        &nbsp;
+                        <label>(msec)</label>
+                    </div>
+
+                </div>
+                <br>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-4"><label>
+                            Redirect
+                            <font style="color:red;">*</font>
+                        </label></div>
+                    <div class="ui-grid-col-5">
+                        <input id="disabled-input" [min]="10" [max]="12000" pInputText type="number"
+                            [(ngModel)]="redirect" style="width: 74px;" />
+                        &nbsp;
+                        <label>(msec)</label>
+                    </div>
+                </div>
+                <br>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-4"><label>
+                            Correct
+                            <font style="color:red;">*</font>
+                        </label></div>
+                    <div class="ui-grid-col-5">
+                        <input id="disabled-input" [min]="10" [max]="12000" pInputText type="number"
+                            [(ngModel)]="connect" style="width: 74px;" />
+                        &nbsp;
+                        <label>(msec)</label>
+
+                    </div>
+                </div>
+                <br>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-4"><label>
+                            SSI
+                            <font style="color:red;">*</font>
+                        </label></div>
+                    <div class="ui-grid-col-5">
+                        <input id="disabled-input" [min]="10" [max]="12000" pInputText type="number" step="0.25"
+                            value="0.00" [(ngModel)]="
+                    secureconn" style="width: 74px;" />
+                        &nbsp;
+                        <label>(msec)</label>
+
+                    </div>
+                </div>
+                <br>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-4"><label>
+                            Wait
+                            <font style="color:red;">*</font>
+                        </label></div>
+                    <div class="ui-grid-col-5">
+                        <input id="disabled-input" [min]="10" [max]="12000" pInputText type="number" [(ngModel)]="wait"
+                            style="width: 74px;" />
+                        &nbsp;
+                        <label>(msec)</label>
+
+                    </div>
+                </div>
+
+
+
+            </div>
+
+            <p-footer>
+                <div style="text-align: center;">
+                    <button type="button" pButton icon="fa fa-check" (click)="AddDomainBaseline()"
+                        label="Save"></button>
+                </div>
+            </p-footer>
+        </p-dialog>

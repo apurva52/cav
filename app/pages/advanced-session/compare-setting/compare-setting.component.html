@@ -1,0 +1,173 @@
+<p-dialog
+  [(visible)]="visible"
+  [resizable]="true"
+  [modal]="true"
+  class="secondary-dialog compare-data"
+  [draggable]="false"
+  [closable]="false"
+  [style]="{ width: '30vw' }"
+  closeIcon="icons8 icons8-delete"
+>
+  <p-header>
+    <div class="compare-data-title">
+      <div>Compare Settings</div>
+      <div class="action-buttons">
+        <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+      </div>
+    </div>
+  </p-header>
+  <div class="p-grid p-col-12">
+    <div class="p-grid p-col-4">
+      <span class="label">Selected Test Run: </span>
+    </div>
+    <div class="p-grid p-col-6">
+      <p-dropdown
+        [options]="testRun"
+        [(ngModel)]="selectedTestRun"
+        optionLabel="label"
+        dropdownIcon="icons8 icons8-expand-arrow"
+      >
+      </p-dropdown>
+    </div>
+  </div>
+  <div class="p-col-12">
+    <p-tabView>
+      <p-tabPanel header="Side-By-Side Compare"> 
+          <div class="pv-15">
+            <div class="p-field-checkbox">
+                <p-radioButton name="dashboard" value="Dashboard" label="Dashboard"
+                    [(ngModel)]="showDashboardReport" inputId="opt">
+                </p-radioButton>
+                <ul class="list-option">
+                    <li>
+                        <p-radioButton name="duration" value="duration" label="Whole Test Duration"
+                        [(ngModel)]="showDashboardDuration" inputId="opt">
+                        </p-radioButton>
+                    </li>
+                    <li>
+                        <p-radioButton name="byphase" value="byphase" label="By Phase"
+                        [(ngModel)]="showDashboardDuration" inputId="opt">
+                        </p-radioButton>
+                        <p-dropdown
+                        [options]="duration"
+                        [(ngModel)]="selectDuration"
+                        optionLabel="label"
+                        dropdownIcon="icons8 icons8-expand-arrow" [disabled]="showDashboardDuration">
+                      </p-dropdown>
+                    </li>
+                    <li>
+                        <p-radioButton name="advsetting" value="advsetting" label="Advanced Settings"
+                        [(ngModel)]="showDashboardDuration" inputId="opt">
+                        </p-radioButton>
+                    </li>
+                </ul>
+            </div>
+            <div class="p-field-checkbox">
+                <p-radioButton name="report" value="Report" label="Report"
+                    [(ngModel)]="showDashboardReport" inputId="opt">
+                </p-radioButton>
+                <ul class="list-option">
+                    <li>
+                        <p-radioButton name="transaction" value="transaction" label="All Transaction"
+                        [(ngModel)]="showAdvancedSetting" inputId="opt">
+                        </p-radioButton>
+                    </li>
+                    <li>
+                        <p-radioButton name="bytemplate" value="bytemplate" label="By Template"
+                        [(ngModel)]="showAdvancedSetting" inputId="opt">
+                        </p-radioButton>
+                        <p-dropdown
+                        [options]="summary"
+                        [(ngModel)]="selectSummary"
+                        optionLabel="label"
+                        dropdownIcon="icons8 icons8-expand-arrow" [disabled]="showAdvancedSetting">
+                      </p-dropdown>
+                    </li>
+                    <li>
+                        <p-radioButton name="advsetting" value="advsetting" label="Advanced Settings"
+                        [(ngModel)]="showAdvancedSetting" inputId="opt">
+                        </p-radioButton>
+                    </li>
+                </ul>
+            </div>
+          </div>
+      </p-tabPanel>
+      <p-tabPanel header="Trend Compare"> 
+        <div class="pv-15">
+            <div class="p-field-checkbox">
+                <p-radioButton name="dashboard" value="Dashboard" label="Dashboard"
+                    [(ngModel)]="showTrendReport" inputId="opt">
+                </p-radioButton>
+                <ul class="list-option">
+                    <li>
+                        <p-radioButton name="duration" value="duration" label="Whole Test Duration"
+                        [(ngModel)]="showDashboardOptions" inputId="opt">
+                        </p-radioButton>
+                    </li>
+                    <li>
+                        <p-radioButton name="byphase" value="byphase" label="By Phase"
+                        [(ngModel)]="showDashboardOptions" inputId="opt">
+                        </p-radioButton>
+                        <p-dropdown
+                        [options]="duration"
+                        [(ngModel)]="selectDuration"
+                        optionLabel="label"
+                        dropdownIcon="icons8 icons8-expand-arrow" [disabled]="showDashboardOptions">
+                      </p-dropdown>
+                    </li>
+                    <li>
+                        <p-radioButton name="advsetting" value="advsetting" label="Advanced Settings"
+                        [(ngModel)]="showDashboardOptions" inputId="opt">
+                        </p-radioButton>
+                    </li>
+                </ul>
+            </div>
+            <div class="p-field-checkbox">
+                <p-radioButton name="report" value="Report" label="Report"
+                    [(ngModel)]="showTrendReport" inputId="opt">
+                </p-radioButton>
+                <ul class="list-option">
+                    <li>
+                        <p-radioButton name="transaction" value="transaction" label="All Transaction"
+                        [(ngModel)]="showReportOptions" inputId="opt">
+                        </p-radioButton>
+                    </li>
+                    <li>
+                        <p-radioButton name="bytemplate" value="bytemplate" label="By Template"
+                        [(ngModel)]="showReportOptions" inputId="opt">
+                        </p-radioButton>
+                        <p-dropdown
+                        [options]="summary"
+                        [(ngModel)]="selectSummary"
+                        optionLabel="label"
+                        dropdownIcon="icons8 icons8-expand-arrow" [disabled]="showReportOptions">
+                      </p-dropdown>
+                    </li>
+                    <li>
+                        <p-radioButton name="advsetting" value="advsetting" label="Advanced Settings"
+                        [(ngModel)]="showReportOptions" inputId="opt">
+                        </p-radioButton>
+                    </li>
+                </ul>
+            </div>
+          </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+
+  <div class="p-grid p-col-12 form-buttons p-col-align-end">    
+    <button
+      pButton
+      type="submit"
+      label="Apply"
+      class="ui-button-rounded ui-button-right"
+    ></button>
+    <button
+      pButton
+      type="button"
+      label="Cancel"
+      class="ui-outline-button ui-button-secondary"
+      (click)="closeDialog()"
+    ></button>
+  </div>
+</p-dialog>

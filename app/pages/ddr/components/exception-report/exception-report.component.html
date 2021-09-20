@@ -1,0 +1,610 @@
+<!-- <p-blockUI [blocked]="loading"></p-blockUI> -->
+<!-- <img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" /> -->
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+    <div class="p-col p-col-align-center text-center">
+        <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+    </div>
+</div>
+
+<div>
+    <div class="ddr-box">
+        <!--    <p-growl life=50000 [value]="errMsg" [sticky]="true"></p-growl> -->
+        <!-- COMMON TOOLBAR -->
+        <div class="ddr-toolbar">
+            <!-- <p-toolbar>
+    <div class="reportInfo">
+       <label class="headerInfo"><b>{{reportHeader}}</b></label>
+    </div>
+  </p-toolbar> -->
+  <div class="p-grid p-align-center p-justify-between ui-table-header">
+                <div>
+                    <!-- <label class="headerInfo"><b>Filter criteria : </b></label> -->
+                    <span title="{{completeTier}}">{{filterTierName}}</span>
+                    <span title="{{completeServer}}">{{filterServerName}}</span>
+                    <span title="{{completeInstance}}">{{filterInstanceName}}</span>
+                    <span title="{{completeGroupBy}}">{{filterGroupByStr}}</span>
+                    <span title="{{completeOrderBy}}">{{filterOrderByStr}}</span>
+                    <span>{{headerInfo}}</span>
+                    <span title="{{CompleteURL}}">{{URLstr}}</span>
+                </div>
+                <div>
+                    <span *ngIf="showDCMenu">
+                        <label>Data Center : </label>
+                        <p-dropdown [options]="dcList" (onChange)="getSelectedDC($event)" [(ngModel)]="selectedDC"
+                            [style]="{'width':'75px'}"></p-dropdown>
+                    </span>
+                    <!-- <label style="font-size: 12px;padding-left: 6px;">Download Reports as: </label> -->
+                    <button pButton icon="icons8 icons8-doc" *ngIf="showDownLoadReportIcon" class="btn-icon mx-3"  (click)='downloadReport("word")'
+                    pTooltip="Download Word Report"></button>
+                    <button pButton icon="icons8 icons8-spreadsheet-file" *ngIf="showDownLoadReportIcon" class="btn-icon mx-3"  (click)='downloadReport("excel")'
+                    pTooltip="Download Excel Report"></button>
+                    <button pButton icon="icons8 icons8-pdf-2" *ngIf="showDownLoadReportIcon" class="btn-icon mx-3"  (click)='downloadReport("pdf")'
+                    pTooltip="Download PDF Report"></button>
+                </div>
+          </div>
+        </div>
+
+        <!-- COMMON BOX SCROLLLBAR -->
+        <div class="ddruiscroll" [ngStyle]="{'height': 'calc(70vh - 15px)'}" style="overflow:auto;">
+            <div class="ui-g-12">
+                <p-accordion class="ddr-accordion">
+                    <!-- <p-growl life=5000 [(value)]="msgs"></p-growl> -->
+                    <p-toast></p-toast>
+                    <p-accordionTab header="Exception Stats" [selected]="false">
+                        <div class="ui-g">
+                            <p-card class="ui-g-6">
+                                <div class="ddr-graphpanel" *ngIf="showChart == true">
+                                    <highcharts-chart [Highcharts]="highcharts"
+                                        style="width: 100%; display: block; overflow: hidden;" [options]="options"
+                                        (click)="clickHandler($event)"></highcharts-chart>
+                                </div>
+                                <div *ngIf="showChart == false" style="text-align:center;">No Pie Chart found based on
+                                    current Filter Settings.</div>
+                            </p-card>
+                            <p-card class="ui-g-6">
+                                <div class="ddr-graphpanel" *ngIf="showChart == true">
+                                    <highcharts-chart [Highcharts]="highcharts"
+                                        style="width: 100%; display: block; overflow: hidden;" [options]="options1">
+                                        <!--series>
+        <point (select)="onPointSelect($event)"></point>
+    </series-->
+                                    </highcharts-chart>
+                                </div>
+                                <div *ngIf="showChart == false" style="text-align:center;">No Excpetion Time Graph found
+                                    based on current Filter Settings.</div>
+                            </p-card>
+                        </div>
+                    </p-accordionTab>
+                </p-accordion>
+            </div>
+
+            <div class="ui-g-12">
+                <p-accordion [multiple]="true" class="ddr-accordion">
+
+                    <p-accordionTab [selected]="true">
+                        <p-header>
+                            Aggregate Exception(s) {{aggHeaderInfo}}
+                        </p-header>
+                        <div>
+                           
+                                <button pButton icon="icons8 icons8-synchronize" *ngIf="showAllOption" class="btn-icon mx-3"   (click)="showAllAggData();"
+                                pTooltip="Show all data"></button>
+                        </div>
+                        <div class="p-grid p-justify-end p-align-center mb-6">
+
+                           
+                                <button pButton icon="icons8 icons8-menu" class="btn-icon mx-3"   (click)="showAllAggData();"
+                                pTooltip="{{toggleFilterTitleForAggException}}"></button>
+
+                            <p-multiSelect class="icon-button no-shadow" [options]="columnOptionsForAggException"
+                                [(ngModel)]="visibleColsForAggException" dropdownIcon="icons8 icons8-columns"
+                                (onChange)="showHideColumnForAggException($event)" pTooltip="Toggle Columns"
+                                [panelStyle]="{ minWidth: '200px' }" appendTo="body">
+                            </p-multiSelect>
+
+                            <button pButton icon="icons8 icons8-search" class="btn-icon mx-3"></button>
+                           
+                            <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                                placeholder="Search keyword" />
+
+                        </div>
+                        <div>
+
+
+                            <p-table #dt1 class="all-tables"
+                                (onRowSelect)="showExceptions($event,0)" [value]="filteredAggregateExceptionInfo"
+                                selectionMode="single" [scrollable]="true" scrollHeight="250px"
+                                [style]="{'height':'auto','max-height':'60vh','font-size':'12px'}"
+                                resizableColumns="true" [globalFilterFields]="visibleColsForAggException"
+                                reorderableColumns="true">
+                                <ng-template pTemplate="colgroup" let-columns>
+                                    <colgroup>
+                                        <ng-container *ngFor="let col of colsForAggException">
+                                            <col *ngIf="col.action" [style]="{'width': col.width+'px'}">
+                                        </ng-container>
+                                    </colgroup>
+                                </ng-template>
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <ng-container *ngFor="let col of colsForAggException">
+                                            <th *ngIf="col.action" [pSortableColumn]="col.field" pResizableColumn pReorderableColumn>
+                                                {{col.header}}
+                                                <p-sortIcon [field]="col.field"></p-sortIcon>
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                    <tr *ngIf="isToggleColumns">
+                                        <ng-container *ngFor="let col of colsForAggException">
+                                            <th *ngIf="col.action">
+                                                <input pInputText type="text"
+                                                    (input)="dt1.filter($event.target.value, col.field, 'contains')">
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-node>
+                                    <tr [pSelectableRow]="node">
+                                        <ng-container *ngFor="let col of colsForAggException">
+                                            <td *ngIf="col.action">
+                                                <!-- <span *ngIf="col.field == 'exceptionClassName'"
+                                                    pTooltip="{{node[col.field]}}" tooltipPosition="right"
+                                                    tooltipEvent="hover">{{node[col.field]}}</span>
+                                                <span *ngIf="col.field == 'throwingClassName'"
+                                                    pTooltip="{{node[col.field]}}" tooltipPosition="bottom"
+                                                    tooltipEvent="hover">{{node[col.field]}}</span>
+                                                <span *ngIf="col.field == 'exceptionCount'">
+                                                    {{node[col.field]}}
+                                                </span> -->
+                                                <span *ngIf="col.field!='exceptionCount'" pTooltip="{{node[col.field]}}"
+                                                    tooltipPosition="bottom" tooltipEvent="hover">
+                                                    {{node[col.field]}}
+                                                </span>
+                                                <a class="activeLink right" *ngIf="col.field=='exceptionCount'">
+                                                    {{node[col.field]}}
+                                                </a>
+                                            </td>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.colspan]="colsForAggException.length + 1" class="text-center">
+                                            <span>No Records Found</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+
+                            <!-- <p-dataTable class="scen-table scrollable-div" (onRowSelect) = "showExceptions($event,0)" [value]="filteredAggregateExceptionInfo" [globalFilter]="gbAgg" selectionMode="single" scrollHeight="300px" [style]="{'height':'auto','max-height':'60vh','font-size':'12px'}" resizableColumns="true" reorderableColumns="true">
+        <div *ngFor="let col of colsForAggException">
+            <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" (sortFunction)="sortColumnsOnCustom($event,filteredAggregateExceptionInfo)" [sortable]="col.sortable" [filter] = "col.filter" [style]="{'width': col.width+'px','text-align': col.align,'color': col.color}">
+                    <ng-template let-col let-node="rowData" *ngIf = "col.field == 'exceptionClassName'" pTemplate type="body">
+                            <span pTooltip="{{node[col.field]}}" tooltipPosition="right" tooltipEvent="hover">{{node[col.field]}}</span>
+                        </ng-template>
+                        <ng-template let-col let-node="rowData" *ngIf = "col.field == 'throwingClassName'" pTemplate type="body">
+                           <span pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</span>
+                       </ng-template>
+       
+                <ng-template let-col let-node="rowData" *ngIf = "col.field == 'exceptionCount'" pTemplate type="body">
+                    <span >
+                        {{node[col.field]}}
+                    </span>
+                </ng-template>
+            </p-column>
+        </div>
+       </p-dataTable> -->
+                        </div>
+                        <div *ngIf="!showAllOption"> {{aggoffset+1}} - {{aggoffset+agglimit}} of {{totalCountEx}} </div>
+                        <div *ngIf="showAllOption"> 1 - 1 of 1</div>
+                        <div *ngIf="showPaginationEX">
+                            <p-paginator [rows]="rowValueEx" [totalRecords]="totalCountEx"
+                                [rowsPerPageOptions]="paginatorArrEx" pageLinkSize="3"
+                                (onPageChange)="paginateAgg($event)"></p-paginator>
+                        </div>
+                    </p-accordionTab>
+                </p-accordion>
+            </div>
+
+            <div class="ui-g-12">
+                <p-accordion [multiple]="true" class="ddr-accordion">
+                    <p-accordionTab header="Exception(s) {{tableHeader}}" [selected]="true">
+                        <div class="p-grid p-justify-end p-align-center mb-6">
+
+                            <button pButton icon="icons8 icons8-menu" class="btn-icon mx-3"   (click)="toggleColumnFilterForException()"
+                            pTooltip="{{toggleFilterTitleForException}}"></button>
+
+                           
+                            <p-multiSelect class="icon-button no-shadow" [options]="columnOptionsForException"
+                                [(ngModel)]="visibleColsForException" dropdownIcon="icons8 icons8-columns"
+                                (onChange)="showHideColumnForException($event)" pTooltip="Toggle Columns"
+                                [panelStyle]="{ minWidth: '200px' }">
+                            </p-multiSelect>
+                            <button pButton icon="icons8 icons8-search" class="btn-icon mx-3"></button>
+                            <input pInputText type="text" (input)="dt2.filterGlobal($event.target.value, 'contains')"
+                                placeholder="Search keyword" />
+                        </div>
+                        <div>
+
+                            <p-table #dt2 class="all-tables" [value]="exceptionInfo"
+                                selectionMode="single" [scrollable]="true" scrollHeight="250px"
+                                [style]="{'height':'auto','max-height':'60vh','font-size':'12px'}"
+                                resizableColumns="true" reorderableColumns="true"
+                                [globalFilterFields]="visibleColsForException">
+                                <ng-template pTemplate="colgroup" let-columns>
+                                    <colgroup>
+                                        <ng-container *ngFor="let col of colsForException">
+                                            <col *ngIf="col.action" [style]="{'width': col.width+'px'}">
+                                        </ng-container>
+                                    </colgroup>
+                                </ng-template>
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <ng-container *ngFor="let col of colsForException">
+                                            <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action"
+                                                [pSortableColumn]="col.field" pReorderableColumn pResizableColumn>
+                                                {{col.header}}
+                                                <p-sortIcon [field]="col.field"></p-sortIcon>
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                    <tr *ngIf="isToggleColumnsExc">
+                                        <ng-container *ngFor="let col of colsForException">
+                                            <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action">
+                                                <input pInputText type="text"
+                                                    (input)="dt2.filter($event.target.value, col.field, 'contains')">
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-node>
+                                    <tr>
+                                        <ng-container *ngFor="let col of colsForException">
+                                            <td *ngIf="col.action">
+                                                <span *ngIf="col.field == 'exceptionClassName'" title="View Flow Path Report
+            {{node[col.field]}}">{{node[col.field].substring(node[col.field].lastIndexOf(".")+1,
+                                                    node[col.field].length)}}</span>
+                                                <span *ngIf="col.field == 'exceptionClassName' && showLink"
+                                                    class="ddr-table-left" (click)="openFPReport(node)" title="View Flow Path Report
+            {{node[col.field]}}">{{node[col.field].substring(node[col.field].lastIndexOf(".")+1,
+                                                    node[col.field].length)}}</span>
+                                                <span *ngIf="col.field == 'throwingClassName'"
+                                                    title="{{node[col.field]}}"
+                                                    >{{node[col.field]}}</span>
+                                                <!-- <span *ngIf="col.field == 'throwingMethodName'" class="ddr-table-left"
+                                                    title="View Stack Trace " (click)="openStackTrace(node)"> -->
+                                                <span>
+                                                    <a *ngIf="col.field == 'throwingMethodName'" class="activeLink"
+                                                        title="View Stack Trace"
+                                                        (click)="openStackTrace(node)">{{node[col.field]}}</a>
+                                                </span>
+                                                <span class="right"
+                                                    *ngIf="(col.field == 'timeStamp' || col.field == 'flowPathInstance'|| col.field == 'lineNumber')">
+                                                    {{node[col.field]}}
+                                                </span>
+                                                <span title="{{node[col.field]}}"
+                                                *ngIf="(col.field == 'message' || col.field == 'cause' || col.field == 'tierName' || col.field == 'serverName' || col.field == 'appName' || col.field == 'backendId')">
+                                                {{node[col.field]}}
+                                                </span>
+                                                <span
+                                                    *ngIf="(col.field != 'throwingMethodName') && (col.field != 'throwingClassName') && (col.field != ('exceptionClassName' && showLink)) && (col.field != 'exceptionClassName') && (col.field != 'timeStamp') && (col.field != 'flowPathInstance') && (col.field != 'lineNumber') && (col.field != 'message') && (col.field != 'cause') && (col.field != 'tierName') && (col.field != 'serverName') && (col.field != 'appName') && (col.field != 'backendId')"
+                                                    class="ddr-table-left">
+                                                    {{node[col.field]}}
+                                                </span>
+                                            </td>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.colspan]="colsForException.length + 1" class="text-center">
+                                            <span>No Records Found</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+
+                            <!-- <p-dataTable class="scen-table scrollable-div" [value]="exceptionInfo" selectionMode="single" [globalFilter]="gbException"  scrollHeight="300" [style]="{'height':'auto','max-height':'60vh','font-size':'12px'}" resizableColumns="true" reorderableColumns="true" sortField="timeStamp" sortOrder="1">
+           <div *ngFor = "let col of colsForException">
+            <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable" [filter] = "col.filter" [style]="{'width': col.width+'px','text-align': col.align}" >
+                <ng-template let-col let-node="rowData" *ngIf = "col.field == 'exceptionClassName'" pTemplate type="body">
+                    <span  title="View Flow Path Report
+{{node[col.field]}}">{{node[col.field].substring(node[col.field].lastIndexOf(".")+1, node[col.field].length)}}</span>
+                </ng-template>
+                <ng-template let-col let-node="rowData" *ngIf = "col.field == 'exceptionClassName' && showLink" pTemplate type="body">
+                    <span class ="ddr-table-left" (click)="openFPReport(node)" title="View Flow Path Report
+{{node[col.field]}}">{{node[col.field].substring(node[col.field].lastIndexOf(".")+1, node[col.field].length)}}</span>
+                </ng-template>
+                <ng-template let-col let-node="rowData" *ngIf = "col.field == 'throwingClassName'" pTemplate type="body">
+                    <span pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</span>
+                </ng-template>
+                <ng-template let-col let-node="rowData" *ngIf = "col.field == 'throwingMethodName'" pTemplate type="body">
+                    <span class ="ddr-table-left" title="View Stack Trace " (click)="openStackTrace(node)">
+                        {{node[col.field]}}
+                    </span>
+                </ng-template>
+            </p-column>
+           </div>
+       </p-dataTable> -->
+
+                            <div> {{offset+1}} - {{offset+limit}} of {{totalCount}} </div>
+                            <div *ngIf="showPagination">
+                                <p-paginator [rows]="rowValue" [totalRecords]="totalCount"
+                                    [rowsPerPageOptions]="paginatorArr" pageLinkSize="3"
+                                    (onPageChange)="paginate($event)"></p-paginator>
+                            </div>
+                        </div>
+
+                    </p-accordionTab>
+
+                    <p-dialog class="secondary-dialog foterDialog" header="Getting Source Code..." [(visible)]="loader" appendTo="body" width="500"
+                        height="75" [closable]="false" [resizable]="false" modal="modal" [responsive]="true">
+                        <div *ngIf="loader">
+                            <p-progressBar [value]="value"></p-progressBar>
+                        </div>
+                    </p-dialog>
+
+                    <div class="ui-g">
+                        <div class={{stackDivWidth}}>
+                            <p-accordionTab header="Stack Trace &nbsp;[{{stackTraceHeader}}]" [selected]="true">
+                                <p-header> Stack Trace &nbsp;<label
+                                        title="{{stackTraceHeaderTooltip}}">[{{stackTraceHeader}}]</label></p-header>
+                                <p-table class="scen-table all-tables" [value]="stackObj" selectionMode="single" [scrollable]="true" scrollHeight="250px">
+                                    <ng-template pTemplate="header">
+                                        <tr>
+                                            <th class="text-left">Stack Data</th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-node>
+                                        <tr>
+                                            <td>
+                                                <span>
+                                                    <a *ngIf="node['stack'].indexOf('%40') != -1" class="activeLink"
+                                                        title="{{createtoolTip(node['stack'].substring(node['stack'].indexOf('%50')+3, node['stack'].indexOf('%40')))}}"
+                                                        (click)="getSourceCode(node['stack'],'%40')">{{node['stack'].substring(0,node['stack'].indexOf('%50'))}}</a>
+                                                </span>
+                                                <span>
+                                                    <a *ngIf="node['stack'].indexOf('%40') == -1" class="activeLink"
+                                                        title="{{createtoolTip(node['stack'])}}"
+                                                        (click)="getSourceCode(node['stack'],'%70')">{{node['stack'].substring(node['stack'].indexOf('%70')+3,node['stack'].length)}}</a>
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage" let-columns>
+                                        <tr>
+                                            <td [attr.colspan]="3" class="text-center">
+                                                <span>No Records Found</span>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                                <!-- <p-dataTable class="scen-table" [value]="stackObj" selectionMode="single">
+         <p-column field="stack" header="Stack Data" [style]="{'font-size':'12px','text-align':'left'}">
+           <ng-template  let-col let-node="rowData" pTemplate type="body">
+               <span *ngIf="node[col.field].indexOf('%40') != -1" class ="ddr-table-left" title="{{createtoolTip(node[col.field].substring(node[col.field].indexOf('%50')+3, node[col.field].indexOf('%40')))}}" (click)="getSourceCode(node[col.field],'%40')">{{node[col.field].substring(0,node[col.field].indexOf('%50'))}}</span>
+                <span *ngIf="node[col.field].indexOf('%40') == -1" class ="ddr-table-left" title="{{createtoolTip(node[col.field])}}" (click)="getSourceCode(node[col.field],'%70')">{{node[col.field].substring(node[col.field].indexOf('%70')+3,node[col.field].length)}}</span>
+            </ng-template>
+         </p-column>
+      </p-dataTable> -->
+                            </p-accordionTab>
+                        </div>
+
+                        <div class="ui-g-6" *ngIf="showCode == true">
+                            <!-- Source Code Table -->
+                            <p-accordionTab [selected]="showCode" [style]="{'padding':'0px'}">
+                                <p-header>
+                                    Source Code{{stackTraceHeaderInfo}}
+                                </p-header>
+                                <div class="imageIcon">
+                                
+                                    <button pButton icon="las-camera-solid" class="btn-icon mx-3 py-3" (click)="displayVariableArgumentsPopup()"
+                                        pTooltip="View Recorded Variable(s)"></button>
+                                    
+                                    <button pButton icon="icons8-copy" *ngIf="showDownloadSourceCodeIcon" class="btn-icon mx-3" ngxClipboard
+                                        cbContent="newMethodBody" pTooltip="Copy Source Code"></button>
+
+                                    <button pButton icon="icons8-download" *ngIf="showDownloadSourceCodeIcon" class="btn-icon mx-3"
+                                        (click)="downLoadSourceCode(1)" pTooltip="Download Method Body"></button>
+                                    
+                                    <button pButton icon="icons8-download-2" *ngIf="showDownloadSourceCodeIcon" class="btn-icon mx-3"
+                                        (click)="downLoadSourceCode(2)" pTooltip="Download Class File"></button>
+
+                                    <!-- <img src="./assets/images/capturevariable.png" title="View Recorded Variable(s)"
+                                        (click)="displayVariableArgumentsPopup()"> -->
+                                    <!-- <img *ngIf="showDownloadSourceCodeIcon" src="./assets/images/copy.png"
+                                        cbContent="newMethodBody" ngxClipboard title="Copy Source Code" alt=""> -->
+                                    <!-- <img *ngIf="showDownloadSourceCodeIcon" src="./assets/images/downloadmethod.png"
+                                        title="Download Method Body" (click)="downLoadSourceCode(1)"> -->
+                                    <!-- <img *ngIf="showDownloadSourceCodeIcon" src="./assets/images/downloadclass.png"
+                                        title="Download Class File" (click)="downLoadSourceCode(2)"> -->
+                                </div>
+
+                                <!--<pre>-->
+                                <div style="font-size:14px;height:445px;background:#d5ecfd;overflow:auto;width: auto;"
+                                    [innerHtml]=methodBody></div>
+                                <!--</pre>-->
+
+                            </p-accordionTab>
+                        </div>
+
+                        <!-- Dialog popup for Local/Class/Methods Variables -->
+                        <p-dialog class="secondary-dialog foterDialog" header={{dialogHeaderName}}
+                            *ngIf="displayLocalVariable" [(visible)]="displayLocalVariable" responsive="true"
+                            showEffect="fade" resizable="true">
+                            <div class="modalPopUp">
+                                <p-accordion class="ddr-accordion">
+                                    <p-accordionTab header="Class Variables (Total: {{toalClassVars}})"
+                                        [selected]="true">
+                                        <div class="dialogContentText" *ngIf="showClassNoDataLbl"> Class variable is not
+                                            present </div>
+                                        <div *ngIf="showClassTableData">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th *ngFor="let col of columns" align="center">
+                                                            <span><b>{{col.header}}</b></span>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody *ngIf="classDataObj">
+                                                    <tr *ngFor="let data of classDataObj.var; let i = index;">
+                                                        <td> {{classDataObj.var[i]}} </td>
+                                                        <!--<td> {{classDataObj.value[i]}} </td>-->
+                                                        <td> {{classDataObj.type[i]}} </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </p-accordionTab>
+                                </p-accordion>
+                                <p-accordionTab header="Method Arguments (Total: {{totalMethodVars}})"
+                                    [selected]="true">
+                                    <div class="dialogContentText" *ngIf="showMethodNoDataLbl"> Method variable is not
+                                        present </div>
+                                    <div *ngIf="showMethodTableData">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th *ngFor="let col of columns" align="center">
+                                                        <span><b>{{col.header}}</b></span>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody *ngIf="methodDataObj">
+                                                <tr *ngFor="let data of methodDataObj.var; let i = index;">
+                                                    <td> {{methodDataObj.var[i]}} </td>
+                                                    <!--<td> {{methodDataObj.value[i]}} </td>-->
+                                                    <td> {{methodDataObj.type[i]}} </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </p-accordionTab>
+                                <p-accordionTab header="Local Variables (Total: {{totalLocalVars}})" [selected]="true">
+                                    <div class="dialogContentText" *ngIf="showLocalNoDataLbl"> Local variable is not
+                                        present </div>
+                                    <div *ngIf="showLocalTableData">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th *ngFor="let col of columns" align="center">
+                                                        <span><b>{{col.header}}</b></span>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody *ngIf="localDataObj">
+                                                <tr *ngFor="let data of localDataObj.var; let i = index;">
+                                                    <td> {{localDataObj.var[i]}} </td>
+                                                    <!--<td> {{localDataObj.value[i]}} </td>-->
+                                                    <td> {{localDataObj.type[i]}} </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </p-accordionTab>
+                                <p-accordionTab header="Thread Local Variables (Total: {{totalThreadVars}})"
+                                    [selected]="true">
+                                    <div class="dialogContentText" *ngIf="showThreadLocalNoDataLbl"> Thread Local
+                                        variable is not present </div>
+                                    <div *ngIf="showThreadLocalTableData">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Value</th>
+                                                    <th>Type</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody *ngIf="threadLocalDataObj">
+                                                <tr *ngFor="let data of threadLocalDataObj.var; let i = index;">
+                                                    <td> {{threadLocalDataObj.var[i]}} </td>
+
+                                                    <td title="Click to see Inside Object 
+Total Length: {{threadLocalDataObj.valueLength[i]}}" *ngIf="threadLocalDataObj.value[i].indexOf('(') != -1 && (threadLocalDataObj.value[i].indexOf('{')+1 != threadLocalDataObj.value[i].indexOf('}') && (threadLocalDataObj.value[i].indexOf('{') != 0)) ; else elseBlock"
+                                                        class="ddr-table-left"
+                                                        (click)="openInsideObject(threadLocalDataObj.value[i])">
+                                                        {{threadLocalDataObj.value[i].substring(0,
+                                                        threadLocalDataObj.value[i].indexOf("("))}}</td>
+                                                    <ng-template #elseBlock>
+                                                        <td
+                                                            title="{{showToolTipForValueLength(threadLocalDataObj.type[i],threadLocalDataObj.valueLength[i])}}">
+                                                            {{threadLocalDataObj.value[i]}}</td>
+                                                    </ng-template>
+                                                    <td> {{threadLocalDataObj.type[i]}} </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </p-accordionTab>
+
+                            </div>
+
+                        </p-dialog>
+
+                        <!-- Dialog used to open Inside Object -->
+                        <p-dialog class="secondary-dialog foterDialog" *ngIf="showInsideObjPopup"
+                            header={{headerInsideObj}} [(visible)]="showInsideObjPopup" responsive="true"
+                            showEffect="fade">
+
+                            <div class="modalPopUp">
+                                <div *ngIf="totalIndex!= '-1' && totalIndex!= '-101'"
+                                    style="color:#154771; font-size:13px;font-weight:bold;">Array Size: {{totalIndex}}
+                                </div>
+                                <div style="color:#154771; font-size:14px;font-weight:bold; text-align:center;padding-top: 8px;"
+                                    *ngIf="totalIndex == '-101'"> No data available</div>
+                                <br>
+                                <div *ngFor="let key of dataKey">
+                                    <div *ngIf="key!= -1">
+                                        <div style="color:#154771; font-size:13px;">Index = {{key}}</div>
+                                    </div>
+
+                                    <table *ngIf="totalIndex!= '-101'">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Value</th>
+                                                <th>Type</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let rowData of insideObjVariable.data[key]">
+                                                <td>{{rowData.name}} </td>
+                                                <td
+                                                    title="{{showToolTipForValueLength(rowData.type,rowData.valueLength)}}">
+                                                    {{rowData.val}} </td>
+                                                <td>{{rowData.type}} </td>
+                                            </tr>
+                                        <tbody>
+                                    </table>
+                                    <br />
+                                </div>
+
+                            </div>
+
+                        </p-dialog>
+
+                    </div>
+                </p-accordion>
+                <div> <img *ngIf="ajaxLoader" class="loadingIcon" src="/netstorm/images/ajax-loader.gif" /></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" [(visible)]="isCancelQuery" modal="modal"
+    [resizable]='false' [responsive]="true" height="120" >
+    <p-header>
+        <i class="icons8 icons8-info" style="color:red"></i>
+        <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+    </p-header>
+    <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+    <p-footer>
+
+        <button pButton type="button" label="Cancel" (click)="onCancelQuery();" [disabled]="isCancelQuerydata"
+            class="ui-button-rounded ui-button-secondary"></button>
+        <button pButton type="button" label="Wait" (click)="waitQuery();" label="Wait"
+            class="ui-button-rounded"></button>
+
+    </p-footer>
+</p-dialog>

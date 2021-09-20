@@ -1,0 +1,441 @@
+<div class="p-grid p-col-12  p-align-center">
+    <button pButton type="button" class="ui-button ui-button-secondary ui-button-rounded" label="Add new goal"
+        (click)="addGoal()"></button>
+</div>
+
+<p-table [value]="goaldata" [showCurrentPageReport]="true" [rowHover]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+    [paginator]="true" [totalRecords]="totalRecords" [rows]="1" [scrollable]="true" [resizableColumns]="true">
+    <ng-template pTemplate="header" let-columns>
+        <tr>
+            <th>Action</th>
+            <th>Goal Type</th>
+            <th>Mode</th>
+            <th>Page Value</th>
+            <th>Value2</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-data>
+        <tr>
+
+            <td class="icons-column">
+                <button pButton icon="icons8 icons8-edit" class="icon-button no-shadow" (click)="updategoal(data)"
+                    pTooltip="Edit"></button>
+                <button pButton icon="pi pi-trash" class="icon-button no-shadow" (click)="delete(data)"
+                    pTooltip="Delete"></button>
+            </td>
+            <td title=" {{data.type}}">
+                {{data.type}}
+            </td>
+            <td title=" {{data.mode}}">
+                {{data.mode}}
+            </td>
+            <td title="{{(data.pagearray == '') ? '-' : data.pagearray}}">
+                {{(data.pagearray == ''|| data.pagearray == "undefined") ? '-' : data.pagearray}}
+
+            </td>
+            <td title="{{(data.value2 == 'undefined' || data.value2 == '') ? '-' : data.value2}}">
+                {{(data.value2 == "undefined" || data.value2 == '') ? '-' : data.value2}}
+            </td>
+        </tr>
+    </ng-template>
+
+</p-table>
+
+
+<p-dialog [(visible)]="displayDialog" [baseZIndex]="10000100011" [resizable]="true" [modal]="true"
+    class="secondary-dialog" [draggable]="false" [style]="{width: '807px'}">
+    <p-header>
+        <div class="compare-data-title">
+            <div>
+                Add Goals
+            </div>
+        </div>
+    </p-header>
+    <div class="dialog-content">
+        <div class="ui-g ui-fluid">
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Goal Type:</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [style]="{'width':'271px'}" (click)="Option()" [options]="type" [(ngModel)]="Type">
+                    </p-dropdown>
+                </div>
+            </div>
+            <br>
+            <div class="ui-g-12">
+                <div class="ui-g-3">
+                    Goal Setup :
+                </div>
+                <div class="col-md-7" *ngIf='Type == "PAGE_GOAL"'>
+                    <div>
+                        <!-- radio Button -->
+                        <div class="ui-g-12" style="width:250px;margin-bottom:10px">
+                            <div class="ui-g-3">
+                                <p-radioButton name="group1" value="URL" label="URL" [(ngModel)]="Radioval"
+                                    inputId="opt1">
+                                </p-radioButton>
+                            </div>
+                            <div class="ui-g-4">
+                                <p-radioButton (click)="disableInputBox()" name="group1" value="PAGE" label="PAGE"
+                                    [(ngModel)]="Radioval" inputId="opt2"></p-radioButton>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf='Radioval == "URL"'>
+                        <div class="ui-g-12">
+                            <div class="ui-g-3">
+                                <span>
+                                    URL
+                                </span>
+                            </div>
+                            <div class="ui-g-4">
+                                <p-dropdown [style]="{'width':'184px'}" [options]="Page_mode" [(ngModel)]="mode">
+                                </p-dropdown>
+
+                            </div>
+                            <div class="ui-g-3"
+                                *ngIf='Type == "PAGE_GOAL" &&  Radioval == "URL" && (mode == "CONTAIN" || mode == "NOTCONTAIN")'>
+                                Regex &nbsp;
+                                <p-checkbox [(ngModel)]="checked" binary="true"></p-checkbox>
+
+                            </div>
+                        </div>
+                        <br>
+                        <div class="ui-g-12" *ngIf='checked == false'>
+                            <div class="ui-g-3">
+                                <span>
+                                    URL String
+                                </span>
+                            </div>
+                            <div class="ui-g-4">
+                                <input style="width:184px" type="text" placeholder="Enter URL" pInputText
+                                    [(ngModel)]="value2" />
+                            </div>
+                        </div>
+                        <div class="ui-g-12" *ngIf='checked == true'>
+                            <div class="ui-g-3">
+                                <span>
+                                    Regex
+                                </span>
+                            </div>
+                            <div class="ui-g-4">
+                                <span><b>/</b></span>
+                                <input style="width:169px" type="text" placeholder="Regex Pattern" pInputText
+                                    [(ngModel)]="value2" />
+                                <span><b>/</b></span>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="ui-g-12" *ngIf='checked == true'>
+                            <div class="ui-g-3">
+                                <span>
+                                    Test URL
+                                </span>
+                            </div>
+                            <div class="ui-g-3">
+                                <input style="width:184px" type="text" placeholder="Enter test URL" pInputText
+                                    [(ngModel)]="testurl" />
+                            </div>
+                            <div class="ui-g-3"
+                                *ngIf='checked == true && Radioval == "URL" && Type == "PAGE_GOAL" && (mode == "CONTAIN" || mode == "NOTCONTAIN") '>
+                                <button pButton type="button" label="Test"
+                                    style="font-family: serif;height: 22px;background-color: #409cf4;"
+                                    (click)="testReg()"></button>
+                            </div>
+                        </div>
+                        <br>
+                        <div
+                            *ngIf='regflag == true && checked == true && Radioval == "URL" && Type == "PAGE_GOAL" && (mode == "CONTAIN" || mode == "NOTCONTAIN")  '>
+                            <div class="col-md-9" style="float:right">
+                                <input style="width:184px;text-align: center;width: 184px;border: none;color: red;"
+                                    disabled type="text" pInputText [(ngModel)]="regResult" />
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+                    <div class="ui-g-12" *ngIf='Radioval == "PAGE"'>
+
+                        <div class="ui-g-3">
+                            <span>
+                                Page
+                            </span>
+                        </div>
+                        <div class="ui-g-4">
+
+                            <p-multiSelect defaultLabel='Select Page' [options]="npage" [(ngModel)]="pagelist"
+                                [style]="{'height' : '27px' , 'width':'271px'} "></p-multiSelect>
+                        </div>
+                        <!-- <p-multiSelect  [options]="npage" defaultLabel='Select Page' formControlName="pagelist" *ngIf="npage != null && npage.length > 0"  [style]="{'border-radius': '0','height': '33px'}"></p-multiSelect> -->
+                    </div>
+                </div>
+                <div *ngIf='Type == "CLICK_GOAL"'>
+                    <div>
+                        <!-- blank -->
+                    </div>
+                    <br>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <span> selector </span>
+                        </div>
+                        <div class="ui-g-4">
+                            <input style="width:184px" type="text" placeholder="CSS Selector" pInputText
+                                [(ngModel)]="value2" />
+                        </div>
+                    </div>
+                    <br>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <span> Page </span>
+                        </div>
+                        <div class="ui-g-4">
+                            <p-multiSelect defaultLabel='Select Page' [options]="npage" [(ngModel)]="pagelist"
+                                [style]="{'height' : '27px' , 'width':'184px'} "></p-multiSelect>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf='Type == "CONTENT_GOAL"'>
+                    <div></div>
+                    <br>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <span>Mode</span>
+                        </div>
+                        <div class="ui-g-4">
+                            <p-dropdown [style]="{'width':'184px'}" [options]="cont_mode" [(ngModel)]="mode">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <span> selector </span>
+                        </div>
+                        <div class="ui-g-4">
+                            <input style="width:184px" type="text" placeholder="CSS Selector" pInputText
+                                [(ngModel)]="value2" />
+                        </div>
+                    </div>
+                    <br>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <span> Page </span>
+                        </div>
+                        <div class="ui-g-4">
+                            <p-multiSelect defaultLabel='Select Page' [options]="npage" id="default"
+                                [(ngModel)]="pagelist" [style]="{'height' : '27px' , 'width':'184px'} "></p-multiSelect>
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+            </div>
+
+        </div>
+    </div>
+    <p-footer>
+        <div style="text-align: center;">
+            <button pButton type="button" label="Save" (click)="SaveGoal()"></button>
+            <button pButton type="button" label="reset" (click)="resetGoal()"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+<!--for editing goalinvariation-->
+
+<p-dialog [(visible)]="updatedisplayDialog" [baseZIndex]="10000100011" [resizable]="true" [modal]="true"
+    class="secondary-dialog" [draggable]="false" [style]="{width: '807px'}">
+    <p-header>
+        <div class="compare-data-title">
+            <div>
+                Edit Goals
+            </div>
+        </div>
+    </p-header>
+    <div class="dialog-content">
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Goal Type:</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [style]="{'width':'271px'}" (click)="updateOption()" [options]="type"
+                        [(ngModel)]="updateType"></p-dropdown>
+                </div>
+            </div>
+            <br>
+            <div class="ui-g-12">
+                <div class="ui-g-3">
+                    Goal Setup :
+                </div>
+                <div class="col-md-7" *ngIf='updateType == "PAGE_GOAL"'>
+                    <div>
+                        <!-- radio Button -->
+                        <div class="ui-g-12" style="width:250px;margin-bottom:10px">
+                            <div class="ui-g-3">
+                                <p-radioButton name="group1" value="URL" label="URL" [(ngModel)]="updateRadioval"
+                                    inputId="opt1"></p-radioButton>
+                            </div>
+                            <div class="ui-g-4">
+                                <p-radioButton (click)="updatedisableInputBox()" name="group1" value="PAGE" label="PAGE"
+                                    [(ngModel)]="updateRadioval" inputId="opt2"></p-radioButton>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf='updateRadioval == "URL"'>
+                        <div class="ui-g-12">
+                            <div class="ui-g-3">
+                                <span>
+                                    URL
+                                </span>
+                            </div>
+                            <div class="ui-g-4">
+                                <p-dropdown [style]="{'width':'184px'}" [options]="Page_mode" [(ngModel)]="updatemode">
+                                </p-dropdown>
+
+                            </div>
+                            <div class="ui-g-3"
+                                *ngIf='updateType == "PAGE_GOAL" &&  updateRadioval == "URL" && (updatemode == "CONTAIN" || updatemode == "NOTCONTAIN")'>
+                                Regex &nbsp;
+                                <p-checkbox [(ngModel)]="updatechecked" binary="true"></p-checkbox>
+
+                            </div>
+                        </div>
+                        <br>
+                        <div class="ui-g-12" *ngIf='updatechecked == false'>
+                            <div class="ui-g-3">
+                                <span>
+                                    URL String
+                                </span>
+                            </div>
+                            <div class="ui-g-4">
+                                <input style="width:184px" type="text" placeholder="Enter URL" pInputText
+                                    [(ngModel)]="updatevalue2" />
+                            </div>
+                        </div>
+                        <div class="ui-g-12" *ngIf='updatechecked == true'>
+                            <div class="ui-g-3">
+                                <span>
+                                    Regex
+                                </span>
+                            </div>
+                            <div class="ui-g-4">
+                                <span><b>/</b></span>
+                                <input style="width:203px" type="text" placeholder="Regex Pattern" pInputText
+                                    [(ngModel)]="updatevalue2" />
+                                <span><b>/</b></span>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="ui-g-12" *ngIf='updatechecked == true'>
+                            <div class="ui-g-3">
+                                <span>
+                                    Test URL
+                                </span>
+                            </div>
+                            <div class="ui-g-4">
+                                <input style="width:184px" type="text" placeholder="Enter test URL" pInputText
+                                    [(ngModel)]="testurl" />
+                            </div>
+                            <div class="ui-g-3"
+                                *ngIf='updatechecked == true && updateRadioval == "URL" && updateType == "PAGE_GOAL" && (updatemode == "CONTAIN" || updatemode == "NOTCONTAIN") '>
+                                <button pButton type="button" label="Test"
+                                    style="font-family: serif;height: 22px;background-color: #409cf4;"
+                                    (click)="testReg()"></button>
+                            </div>
+                        </div>
+                        <br>
+                        <div
+                            *ngIf='updateregflag == true && updatechecked == true && updateRadioval == "URL" && updateType == "PAGE_GOAL" && (updatemode == "CONTAIN" || updatemode == "NOTCONTAIN")  '>
+                            <div class="col-md-9" style="float:right">
+                                <input style="width:184px;text-align: center;width: 184px;border: none;color: red;"
+                                    disabled type="text" pInputText [(ngModel)]="updateregResult" />
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+                    <div class="ui-g-12" *ngIf='updateRadioval == "PAGE"'>
+
+                        <div class="ui-g-3">
+                            <span>
+                                Page
+                            </span>
+                        </div>
+                        <div class="ui-g-4">
+
+                            <p-multiSelect defaultLabel='Select Page' [options]="npage" [(ngModel)]="updatepagelist"
+                                [style]="{'height' : '27px' , 'width':'271px'} "></p-multiSelect>
+                        </div>
+                        <!-- <p-multiSelect  [options]="npage" defaultLabel='Select Page' formControlName="pagelist" *ngIf="npage != null && npage.length > 0"  [style]="{'border-radius': '0','height': '33px'}"></p-multiSelect> -->
+                    </div>
+                </div>
+                <div *ngIf='updateType == "CLICK_GOAL"'>
+                    <div>
+                        <!-- blank -->
+                    </div>
+                    <br>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <span> selector </span>
+                        </div>
+                        <div class="ui-g-4">
+                            <input style="width:184px" type="text" placeholder="CSS Selector" pInputText
+                                [(ngModel)]="updatevalue2" />
+                        </div>
+                    </div>
+                    <br>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <span> Page </span>
+                        </div>
+                        <div class="ui-g-4">
+                            <p-multiSelect defaultLabel='Select Page' [options]="npage" [(ngModel)]="updatepagelist"
+                                [style]="{'height' : '27px' , 'width':'184px'} "></p-multiSelect>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf='updateType == "CONTENT_GOAL"'>
+                    <div></div>
+                    <br>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <span>Mode</span>
+                        </div>
+                        <div class="ui-g-4">
+                            <p-dropdown [style]="{'width':'184px'}" [options]="cont_mode" [(ngModel)]="updatemode">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <span> selector </span>
+                        </div>
+                        <div class="ui-g-4">
+                            <input style="width:184px" type="text" placeholder="CSS Selector" pInputText
+                                [(ngModel)]="updatevalue2" />
+                        </div>
+                    </div>
+                    <br>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <span> Page </span>
+                        </div>
+                        <div class="ui-g-4">
+                            <p-multiSelect defaultLabel='Select Page' [options]="npage" id="default"
+                                [(ngModel)]="updatepagelist" [style]="{'height' : '27px' , 'width':'184px'} ">
+                            </p-multiSelect>
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+            </div>
+        </div>
+    </div>
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button pButton type="button" label="Update" (click)="updateSaveGoal()"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+<p-toast></p-toast>

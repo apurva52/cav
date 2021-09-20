@@ -1,0 +1,141 @@
+<div class="p-grid p-align-center w-100-p">
+    <div class="width-150">Query</div>
+    <div class="p-col-8">
+        <textarea pInputTextarea class="w-100-p" id="foo" name="query" readonly [rows]="4" [(ngModel)]="item['query']"></textarea>
+    </div>
+</div>
+ 
+<!-- <div class="p-col-12">
+    <p-checkbox  [(ngModel)]="item['executeRemote']" binary="true" label="Execute remotely" name="executeRemote">
+    </p-checkbox>
+</div> -->
+
+<!-- <app-remote-settings [item]="item" [type]="'db'"></app-remote-settings> -->
+
+    <!-- <div class="p-grid w-100-p p-align-center">
+        <div class="width-150">Remote Tier</div>
+        <div class="p-col-2">
+            <p-dropdown name="rmT" (onChange)="onTierChange(item['rT'])" [options]="tierList" [disabled] ="!item['executeRemote']"
+                [(ngModel)]="item['rT']" filter="true" placeholder="--Select Tier--" 
+                [style]="{'min-width': '100%'}" dropdownIcon="icons8 icons8-expand-arrow">
+            </p-dropdown>
+            </div>
+            <div class="p-col-2">
+                <input pInputText type="text" class="w-100-p" name="customTier" [(ngModel)]="item['cT']" [disabled]="item['rT'] != 'ct' || !item['executeRemote']"
+                    placeholder="Custom Tier" required>
+            </div>
+
+            <div class="width-100 text-right">{{rServerLabel}}</div>
+        <div class="p-col-2">
+            <p-dropdown name="rmS" [options]="serverList" [(ngModel)]="remServerVal" filter="true"
+                [disabled]="item['rT'] == '' || !item['executeRemote']" (onChange)="getServerIP(remServerVal)"
+                placeholder="--Select Server--" dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width': '100%'}">
+            </p-dropdown>
+            </div>
+
+              <div class="p-col-2">
+                <input pInputText type="text" class="w-100-p" name="customServer" [(ngModel)]="item['host']" style="margin-left: 10px;"
+                    [disabled]="!item['executeRemote'] || remServerVal != 'ct'" placeholder="{{rServerPlaceHolder}}"
+                     required>
+            </div>
+
+            <ng-container  *ngIf="showRmServer">
+                <div class="width-100 text-right">Display Name</div>
+                <div class="p-col-2">
+                    <input type="text" class="w-100-p" name="nd" pInputText [disabled]="!item['executeRemote'] || item['rT'] == ''"
+                        [(ngModel)]="item['rSDpName']">
+                </div>
+            </ng-container>
+    </div> -->
+
+    
+
+
+<div class="p-grid w-100-p p-align-center">
+
+    <div class="width-150">Username</div>
+    <div class="p-col-2">
+        <input type="text" pInputText name="uN" class="w-100-p" [(ngModel)]="item['user']" required>
+    </div>
+
+    <div class="width-100 text-right p-offset-2 mln-20">Password</div>
+    <div class="p-col-2">
+            <input type="password" pInputText name="paswrd" class="w-100-p" [(ngModel)]="item['pwd']" autofocus ngModel
+                autocomplete="new-password" required>
+        </div>
+
+        <div class="width-100 text-right">Port</div>
+        <div class="p-col-1">
+            <input type="number" pInputText  min="1" max="65535" class="w-100-p" name="port"
+                [(ngModel)]="item['port']" required>
+        </div>
+
+        <div class="width-140 text-right" *ngIf="driverCls == 'postgresql' || driverCls == 'ibmdb2app' || driverCls == 'mysql'">Database Name</div>
+    <div class="p-col-1">
+        <input type="text" *ngIf="driverCls == 'postgresql' || driverCls == 'ibmdb2app' || driverCls == 'mysql'" 
+             required name="dbName" class="w-100-p" [(ngModel)]="item['dbName']">
+    </div>
+
+    <div class="width-140 text-right" *ngIf="driverCls == 'oracle'">{{labelForOracleAuth}}</div>
+    <div class="p-col-1">
+        <input type="text" *ngIf="driverCls == 'oracle'"  tooltipPosition="bottom" name="sid"
+        class="w-100-p" [(ngModel)]="item['sid']" title="{{labelForOracleAuth}}" autocomplete="off" required>
+    </div>
+
+    <div class="width-140 text-right" *ngIf="driverCls == 'mssql'">Authentication Mode</div>
+    <div class="p-col-2" *ngIf="driverCls == 'mssql'">
+        <p-dropdown name="authList" required filter="true" [options]="authModeList"
+            [style]="{'min-width':'100%'}" [(ngModel)]="item['auth']" dropdownIcon="icons8 icons8-expand-arrow">
+        </p-dropdown>
+    </div>
+
+
+
+
+    
+</div>
+
+    <p-fieldset styleClass="mb-10" legend="SSL Configuration" [toggleable]="true" [collapsed]="true">
+        <div class="p-grid p-align-center w-100-p">
+            <div class="width-135">Trust Store Filepath</div> 
+                <div class="p-col-2">
+                    <input type="text" pInputText name="tsf" class="w-100-p" [(ngModel)]="item['tsf']" ngModel>
+                </div>
+
+                <div class="p-col-2 text-right">Trust Store Password</div>
+                <div class="p-col-2">
+                    <input type="password" pInputText  name="tsp" class="w-100-p"
+                        [(ngModel)]="item['tsp']" ngModel autocomplete="new-password">
+                </div>
+
+                <div class="p-col-2 text-right">Key Store Filepath</div>
+                <div class="p-col-2">
+                    <input type="text" pInputText name="tsf" class="w-100-p" [(ngModel)]="item['ksf']" ngModel>
+                </div>
+        </div>
+
+        <div class="p-grid p-align-center w-100-p">
+            <div class="width-135">Key Store Password</div>
+            <div class="p-col-2">
+                <input type="password" pInputText name="tsp" [(ngModel)]="item['ksp']"
+                     ngModel autocomplete="new-password" class="w-100-p">
+            </div>
+
+         
+
+       
+            <div class="p-col-2 text-right">SSL Type</div>
+            <div class="p-col-2">
+                    <p-dropdown name="sslList" required class="w-100-p" filter="true" [options]="sslTypeList"
+                        placeholder="--Select SSL Type--" [(ngModel)]="item['sslType']"  dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                </div>
+                <div class="p-col-2 p-offset-2">
+                    <input type="text" class="w-100-p" pInputText name="cusSSLType" [disabled]="item['sslType'] != 'Others'"
+                        [(ngModel)]="item['custSSL']" placeholder="Enter SSL Type" >
+                        </div>
+        </div>
+
+    </p-fieldset>
+
+<app-db-advance-settings [item]="item"></app-db-advance-settings>

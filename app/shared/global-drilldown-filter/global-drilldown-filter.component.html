@@ -1,0 +1,353 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+    blockScroll="true" appendTo="body">
+    <div class="sidebar-header">
+        <div class="sidebar-title p-grid p-justify-between">
+            <div>
+                <i class="icons8 icons8-clock"></i>
+                <span>Filter</span>
+            </div>
+            <i class="icons8-delete icons8" (click)="closeClick()"></i>
+        </div>
+    </div>
+
+    <div class="ui-fluid p-formgrid p-grid ph-10 pv-15" *ngIf="data">
+        <label class="label-margin">Report:</label>
+        <div class="p-grid p-col-12 w-100-p">
+            <div class="p-col-12 ">
+                <p-dropdown class="ui-dropdown-label" [options]="data.health" dropdownIcon="icons8-expand-arrow"
+                    [disabled]="true" [(ngModel)]="this.globalDrillDownFilterService.currentReport"
+                    (onChange)="changeReport()">
+                </p-dropdown>
+            </div>
+
+        </div>
+
+        <!-- <div class="p-grid p-col-12 w-100-p">
+            <div class="p-col-12 ">
+                <p-slideMenu #menu [model]="data.items" [popup]="true" (click)="onClickMenu($event)"></p-slideMenu>
+
+                <button pButton class="ui-button ui-button-secondary dd-slide-menu" (click)="menu.toggle($event)">
+                    <span class="text-left ui-text">
+                        {{selectedItem || 'select item'}}
+                    </span>
+                    <i class="icons8-expand-arrow slidemenu-icon"></i>
+                </button>
+            </div>
+        </div> -->
+
+        <!--  **********  Time Filter ***************  -->
+        <div class="p-grid p-col-12">
+            <div class='p-col-5'>
+                <p-checkbox value="val1" label="Time Filter" binary=true (onChange)="timeOptions()"
+                    [(ngModel)]="timeFilter"></p-checkbox>
+            </div>
+            <div class='p-col-6'>
+                <p-dropdown class="ui-dropdown-label" [options]="standardTime" placeholder="Select" [filter]=true
+                    [(ngModel)]="selectedTime" dropdownIcon="icons8-expand-arrow" placeholder="Select"
+                    [disabled]="!timeFilter" (onChange)="getPhaseOptions()">
+                </p-dropdown>
+            </div>
+        </div>
+        <div *ngIf="this.selectedTime == 'Custom Time'">
+            <div class='p-col-5'>
+                From :
+            </div>
+            <div>
+                <p-calendar [showSeconds]="true" [showIcon]="true" (onInput)="onStrDate($event)" dateFormat="mm/dd/yy"
+                    (onSelect)="onStrDate($event)" [monthNavigator]="true" [yearNavigator]="true" yearRange="1970:2030"
+                    [showTime]="true" [(ngModel)]="strDate" placeholder="mm/dd/yy hh:mm:ss">
+                </p-calendar>
+            </div>
+            <div class='p-col-5'>
+                To :
+            </div>
+            <div>
+                <p-calendar [showSeconds]="true" [showIcon]="true" (onInput)="onEndDate($event)" dateFormat="mm/dd/yy"
+                    (onSelect)="onEndDate($event)" [monthNavigator]="true" [yearNavigator]="true" yearRange="1970:2030"
+                    [showTime]="true" [(ngModel)]="endDate" placeholder="mm/dd/yy hh:mm:ss">
+                </p-calendar>
+            </div>
+        </div>
+
+        <p-accordion class="w-100-p">
+            <!-- <p-accordionTab *ngFor="let item of data.filterSection" class="accordion-header" header="{{item.name}}">
+                <div class="p-grid p-col-12" *ngFor="let dataFilter of item.data">
+                    <div class="p-col-5">
+                        <p-checkbox name="groupname" value="val1" label="{{dataFilter.check}}"></p-checkbox>
+                    </div>
+                    <div class="p-col-6">
+                        <p-dropdown class="ui-dropdown-label" [options]="dataFilter.selectValues" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                </div>
+            </p-accordionTab> -->
+            <!--  ********** Group by and order by filters ***************  -->
+            <div *ngIf="showGroupBy()">
+                <p-accordionTab class="accordion-header" header="Group By and Order By">
+                    <div class="p-grid p-col-12">
+                        <div class='p-col-5'>
+                            <p-checkbox value="val1" label="GroupBy" binary=true (onChange)="getGroupBy()"
+                                [(ngModel)]="checkGroup"></p-checkbox>
+                        </div>
+                        <div class='p-col-6'>
+                            <p-multiSelect class="ui-dropdown-label" [options]="groupBy" placeholder="Select"
+                                [filter]=true maxSelectedLabels="1" [(ngModel)]="selectedGroupBy"
+                                dropdownIcon="icons8-expand-arrow" placeholder="Select" [disabled]="!checkGroup"
+                                (onChange)="getOrderBy()">
+                            </p-multiSelect>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12">
+                        <div class='p-col-5'>
+                            <p-checkbox value="val1" label="OrderBy" binary=true (onChange)="getOrderBy()"
+                                [(ngModel)]="checkOrder" [disabled]="enableOrderBy()"></p-checkbox>
+                        </div>
+                        <div class='p-col-6'>
+                            <p-multiSelect class="ui-dropdown-label" [options]="orderBy" placeholder="Select"
+                                [filter]=true maxSelectedLabels="1" [(ngModel)]="selectedOrderBy"
+                                dropdownIcon="icons8-expand-arrow" placeholder="Select" [disabled]="!checkOrder">
+                            </p-multiSelect>
+                        </div>
+                    </div>
+                </p-accordionTab>
+            </div>
+
+            <p-accordionTab class="accordion-header" header="Common Filters">
+                <!--  **********  Tier Filter **************-->
+                <div class="p-grid p-col-12">
+                    <div class='p-col-5'>
+                        <p-checkbox value="val1" label="Tier" binary=true (onChange)="tierInfo()"
+                            [(ngModel)]="selectedTier"></p-checkbox>
+                    </div>
+                    <div class='p-col-6'>
+                        <!-- <p-dropdown class="ui-dropdown-label"   defaultLabel="Select" [options]="tierList"  [filter]=true  
+                        [(ngModel)]="tierName" dropdownIcon="icons8-expand-arrow"></p-dropdown> -->
+                        <p-multiSelect class="ui-dropdown-label" [options]="tierList" defaultLabel="Select"
+                            [filter]=true maxSelectedLabels="1" (onChange)="setDefaultServerAppFilter()"
+                            [(ngModel)]="tierName" dropdownIcon="icons8-expand-arrow" [disabled]="!selectedTier">
+                        </p-multiSelect>
+                    </div>
+                </div>
+                <!--  **********  Server Filter ***************  -->
+                <div class="p-grid p-col-12">
+                    <div class='p-col-5'>
+                        <p-checkbox value="val2" label="Server" binary=true
+                            [disabled]="!(this.selectedTier == true  && this.tierName.length > 0)"
+                            (onChange)="serverInfo()" [(ngModel)]="selectedServer"></p-checkbox>
+                    </div>
+                    <div class='p-col-6'>
+                        <p-multiSelect class="ui-dropdown-label" [options]="serverList" defaultLabel="Select"
+                            [filter]=true maxSelectedLabels="1" (onChange)="setDefaultAppFilter()"
+                            [disabled]="!selectedServer" [(ngModel)]="serverName" dropdownIcon="icons8-expand-arrow">
+                        </p-multiSelect>
+                    </div>
+                </div>
+                <!--  **********  App Filter ***************  -->
+                <div class="p-grid p-col-12">
+                    <div class='p-col-5'>
+                        <p-checkbox value="val3" label="Instance" binary=true
+                            [disabled]="!(this.selectedServer == true && this.serverName.length > 0)"
+                            (onChange)="appInfo()" [(ngModel)]="selectedApp"></p-checkbox>
+                    </div>
+                    <div class='p-col-6'>
+                        <p-multiSelect class="ui-dropdown-label" [options]="appList" defaultLabel="Select" [filter]=true
+                            maxSelectedLabels="1" [(ngModel)]="appName" (onChange)="appFilter()"
+                            [disabled]="!selectedApp" dropdownIcon="icons8-expand-arrow">
+                        </p-multiSelect>
+                    </div>
+                </div>
+                <!--  **********  Flowpath instance Filter **************-->
+                <div *ngIf="this.globalDrillDownFilterService.currentReport != 'DB Report' && this.globalDrillDownFilterService.currentReport != 'Hotspot' && this.globalDrillDownFilterService.currentReport != 'DBG_BT'
+                                && this.globalDrillDownFilterService.currentReport!= 'FPG_BT'">
+                    <div class="p-grid p-col-12">
+                        <div class='p-col-5'>
+                            <p-checkbox value="val1" label="FP Instance" title="Flowpath Instance" binary=true
+                                (onChange)="fpInstanceInfo()" [(ngModel)]="selectedFp"></p-checkbox>
+                        </div>
+                        <div class='p-col-6'>
+                            <input type="text" pInputText (keypress)="onlyNumberKeyAndComma($event)" size="6"
+                                [disabled]="!selectedFp" [(ngModel)]="fpInstance">
+                        </div>
+                    </div>
+                </div>
+                <!--  **********  Buisness Transaction (url) Filter **************-->
+                <div *ngIf="this.globalDrillDownFilterService.currentReport != 'Hotspot'">
+                    <div class="p-grid p-col-12">
+                        <div class='p-col-5'>
+                            <p-checkbox value="val5" title="Business Transaction" label="BT" binary=true
+                                (onChange)="btInfo()" [(ngModel)]="checkedBuisnessTransaction"></p-checkbox>
+                        </div>
+                        <div class='p-col-6'>
+                            <p-dropdown class="ui-dropdown-label" [options]="BTOptions" [filter]=true
+                                maxSelectedLabels="1" [(ngModel)]="selectedBuisnessTransaction"
+                                dropdownIcon="icons8-expand-arrow" placeholder="Select"
+                                [disabled]="!checkedBuisnessTransaction">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                </div>
+                <!--  ********** BT Category*****************  -->
+                <div *ngIf="this.globalDrillDownFilterService.currentReport != 'Hotspot'">
+                    <div class="p-grid p-col-12">
+                        <div class='p-col-5'>
+                            <p-checkbox value="val1" label="BT Category" binary=true (onChange)="btcheck()"
+                                [(ngModel)]="selectedBT"></p-checkbox>
+                        </div>
+                        <div class='p-col-6'>
+                            <p-dropdown class="ui-dropdown-label" [options]="BTCategory" defaultLabel="Select"
+                                [filter]=true maxSelectedLabels="1" [(ngModel)]="selectedBTCategory"
+                                dropdownIcon="icons8-expand-arrow" placeholder="Select" [disabled]="!selectedBT">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                </div>
+            </p-accordionTab>
+            <div *ngIf="this.globalDrillDownFilterService.currentReport == 'Flowpath'">
+                <p-accordionTab class="accordion-header" header="Flowpath Filter">
+
+                    <!--  **********  Response Time Filter ND***************  -->
+                    <div class="p-grid p-col-12">
+                        <div class='p-col-5'>
+                            <p-checkbox value="val1" label="Total Response" binary=true (onChange)="responseCheck()"
+                                [(ngModel)]="checkedResponseTime"></p-checkbox>
+                        </div>
+                        <div class='p-col-3'>
+                            <p-dropdown class="ui-dropdown-label" [options]="resCompareOptions" defaultLabel="Select"
+                                [filter]=true maxSelectedLabels="1" [(ngModel)]="resSelectedCompareOption"
+                                (onChange)="responseEqualCase()" dropdownIcon="icons8-expand-arrow" placeholder="Select"
+                                [disabled]="!checkedResponseTime">
+                            </p-dropdown>
+                        </div>
+                        <div class='p-col-4'>
+                            <input type="text" (keypress)="onlyNumberKey($event)" size="5" value="0"
+                                [disabled]="!checkedResponseTime" [(ngModel)]="responseTime" placeholder="ms">
+                        </div>
+                    </div>
+
+                    <!--  **********  Method Count Filter ***************  -->
+                    <div class="p-grid p-col-12">
+                        <div class='p-col-5'>
+                            <p-checkbox value="val1" label="Methods (>=)" binary=true (onChange)="methodCheck()"
+                                [(ngModel)]="checkedMethodCount"></p-checkbox>
+                        </div>
+                        <div class='p-col-3' style="width: 70px;">
+                            <input type="text" (keypress)="onlyNumberKey($event)" [disabled]="!checkedMethodCount"
+                                [(ngModel)]="minMethods" size="18">
+                        </div>
+                    </div>
+
+                    <!--  ********** Correlation ID *****************  -->
+
+                    <div class="p-grid p-col-12">
+                        <div class='p-col-5'>
+                            <p-checkbox value="val1" label="Corr ID" binary=true (onChange)="corelationcheck()"
+                                [(ngModel)]="checkedCorrId"></p-checkbox>
+                        </div>
+                        <div class="p-col-3">
+                            <input type="text" size="4" value="0" [disabled]="!checkedCorrId" [(ngModel)]="corrId"
+                                style="padding:inherit">
+                        </div>
+                        <div class='p-col-4'>
+                            <p-dropdown class="ui-dropdown-label" [options]="corrIdModeOptions" [filter]=true
+                                maxSelectedLabels="1" [(ngModel)]="selectedCorrIdMode"
+                                dropdownIcon="icons8-expand-arrow" [disabled]="!checkedCorrId" placeholder="Select">
+                            </p-dropdown>
+                        </div>
+                    </div>
+
+
+
+                    <!--  ********** Order By *****************  -->
+                    <div class="p-grid p-col-12">
+                        <div class='p-col-5'>
+                            <p-checkbox value="val1" label="Order By" binary=true (onChange)="fpOrderCheck()"
+                                [(ngModel)]="fpOrderByCheck"></p-checkbox>
+                        </div>
+                        <div class='p-col-6'>
+                            <p-dropdown class="ui-dropdown-label" [options]="fpOrderByOptions" placeholder="Select"
+                                [filter]=true maxSelectedLabels="1" [(ngModel)]="selectedFpOrderBy"
+                                dropdownIcon="icons8-expand-arrow" placeholder="Select" [disabled]="!fpOrderByCheck">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <!--  **********  Dynamic logging Filter ***************  -->
+                    <div class="p-field p-col-12">
+                        <div class='p-col-6'>
+                            <p-checkbox value="val1" label="Dynamic logging captured FP" (onChange)="DLCheck()" binary=true [(ngModel)]="checkDLFlag"></p-checkbox>
+                        </div>
+                    </div>
+					<!--  **********  Request/response Filter ***************  -->
+					<div class="p-field p-col-12">
+                        <div class='p-col-6'>
+                            <p-checkbox value="val1" label="Request/Response captured FP" (onChange)="ReqRespCheck()" binary=true [(ngModel)]="checkReqRespFlag"></p-checkbox>
+                        </div>
+                    </div>
+                </p-accordionTab>
+            </div>
+            <!--  ********** Method Timing Filters*****************  -->
+            <div *ngIf="this.globalDrillDownFilterService.currentReport == 'Method Timing'">
+                <p-accordionTab class="accordion-header" header="Method Timing Filter">
+                    <div class="p-grid p-col-12">
+                        <div class='p-col-5'>
+                            <p-checkbox value="val1" label="Top N Entities for Pie Charts"
+                                title="Top N Method(s) or Class or Package(s)" binary=true
+                                (onChange)="checkTopNEntity()" [(ngModel)]="checkNEntityforPie"></p-checkbox>
+                        </div>
+                        <div class='p-col-6'>
+                            <input type="text" pInputText (keypress)="onlyNumberKey($event)" size="6"
+                                [disabled]="!checkNEntityforPie" [(ngModel)]="selectedTopNEntity">
+                        </div>
+                    </div>
+                </p-accordionTab>
+            </div>
+            <!--  ********** DB request Filters*****************  -->
+            <div *ngIf="this.globalDrillDownFilterService.currentReport == 'DB Report'">
+                <p-accordionTab class="accordion-header" header="DB Query Filter">
+                    <div class="p-field p-col-12">
+                        <div class='p-col-6'>
+                            <p-checkbox value="val1" label="Top N Entities for Pie Charts"
+                                title="Top N Method(s) or Class or Package(s)" binary=true
+                                (onChange)="checkTopNQuery()" [(ngModel)]="checkNQueryforPie"></p-checkbox>
+                        </div>
+                        <div class='p-col-6'>
+                            <input type="text" (keypress)="onlyNumberKey($event)" size="6"
+                                [disabled]="!checkNQueryforPie" [(ngModel)]="selectedTopNQuery">
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12">
+                        <div class='p-col-5'>
+                            <p-checkbox value="val1" label="Order By" binary=true (onChange)="dbOrderBy()"
+                                [(ngModel)]="dbOrderByCheck"></p-checkbox>
+                        </div>
+                        <div class='p-col-6'>
+                            <p-dropdown class="ui-dropdown-label" [options]="dbOrderByOptions" defaultLabel="Select"
+                                [filter]=true maxSelectedLabels="1" [(ngModel)]="selectedDbOrderBy"
+                                dropdownIcon="icons8-expand-arrow" placeholder="Select" [disabled]="!dbOrderByCheck">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                </p-accordionTab>
+            </div>
+        </p-accordion>
+
+    </div>
+
+
+
+    <div class="sidepanel-footer p-grid w-100-p" style="position: fixed;bottom:0;">
+        <div class="p-col-1"></div>
+        <div class="p-col-4">
+            <button pButton type="reset" (click)="drillDownFilterReset()" label="RESET"
+                class="ui-outline-button ui-button-secondary"></button>
+        </div>
+        <div class="p-col-1"></div>
+        <div class="p-col-4">
+            <button pButton type="submit" (click)="drillDownFilterApply()" label="APPLY"
+                class="ui-button-rounded"></button>
+        </div>
+        <div class="p-col-2"></div>
+
+    </div>
+
+
+</p-sidebar>

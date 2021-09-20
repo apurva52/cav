@@ -1,0 +1,105 @@
+<p-sidebar
+  #sidebar
+  [(visible)]="visible"
+  [showCloseIcon]="false"
+  blockScroll="true"
+  [styleClass]="classes"
+>
+  <div class="sidebar-header">
+    <div class="sidebar-title">
+      <div class="inline">
+        <i class="icons8 icons8-clock"></i>
+        <span>Indices Filter</span>
+      </div>
+      <div class="inline">
+        <i class="icons8-delete sidebar-icon" (click)="hide()"></i>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-content">
+    <div class="p-grid">
+      <div class="p-col-12">
+        <div class="info-button">
+          <button
+            pButton
+            label="Refresh"
+            class="ui-outline-button ui-button-secondary"
+            (click)="indices.openRefreshDialog()"
+          ></button>
+          <button
+            pButton
+            label="Optimize"
+            class="ui-outline-button ui-button-secondary"
+            (click)="indices.openOptimizeDialog()"
+          ></button>
+          <button
+            pButton
+            label="Flush"
+            class="ui-outline-button ui-button-secondary"
+            (click)="indices.openFlushDialog()"
+          ></button>
+          <button
+            pButton
+            label="Clear Cache"
+            class="ui-outline-button ui-button-secondary cache-button"
+            (click)="indices.openCacheDialog()"
+          ></button>
+        </div>
+        <div>
+          <div class="ui-fluid">
+            <div class="p-field p-grid">
+              <label for="env" class="p-col-12 p-md-12">ENV:</label>
+              <div class="p-col-12 p-md-12">
+                <input id="env" type="text" pInputText />
+              </div>
+            </div>
+            <div class="p-field p-grid">
+              <label for="tier" class="p-col-12 p-md-2">Tier :</label>
+              <div class="p-col-12 p-md-12">
+                <input id="tier" type="text" pInputText />
+              </div>
+            </div>
+            <div class="p-field p-grid">
+              <label for="tier" class="p-col-12 p-md-2">Date :</label>
+              <div class="p-col-12 p-md-12">
+                <input
+                  pInputText
+                  class="customInput"
+                  readonly
+                  id="start-date-time"
+                  [owlDateTime]="customStartDateTime"
+                  placeholder="04:30 PM 23/04/2020"
+                  [owlDateTimeTrigger]="customStartDateTime"
+                  [selectMode]="'rangeFrom'"
+                />
+                <owl-date-time #customStartDateTime></owl-date-time>
+              </div>
+            </div>
+            <div class="p-field p-grid">
+              <label for="status" class="p-col-12 p-md-2">Status :</label>
+              <div class="p-col-12 p-md-12">
+                <p-dropdown
+                  [options]="inStatus"
+                  placeholder="Node Information"
+                  dropdownIcon="icons8-expand-arrow"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <button
+      pButton
+      label="CLOSE"
+      class="ui-outline-button ui-button-secondary"
+    ></button>
+    <button
+      pButton
+      label="APPLY"
+      class="ui-outline-button ui-button-primary"
+    ></button>
+  </div>
+</p-sidebar>

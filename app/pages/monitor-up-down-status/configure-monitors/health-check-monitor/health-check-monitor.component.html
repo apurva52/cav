@@ -1,0 +1,863 @@
+<div class="header">
+    <app-header></app-header>
+</div>
+
+<p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a class = "clickable" (click)="navigateToPage()">
+            <span class="icons8 icons8-left toolbar-icon-color"></span>
+        </a>
+        <div class="p-col ui-toolbar-text">Configure Health Check Monitor</div>
+    </div>
+</p-toolbar>
+
+<div class="content-body viewportHeight">
+    <form (ngSubmit)="sendRequestToServer()" #form="ngForm" ngNativeValidate>
+        <div class="serverHealthDiv">
+            <p-panel>
+                <p-header>
+                    <p-checkbox [binary]="true" name="isChk" [(ngModel)]="serverHealthEnable" ngDefaultControl>
+                    </p-checkbox>
+                    <span class="checkbox-label">Server Health Monitor</span>
+                </p-header>
+
+                <div class="">
+                    <p-tabView class="tabWauto mini-tab">
+                        <p-tabPanel header="Health Check Monitor">
+                            <div>
+                                <form (ngSubmit)="saveData()" #form="ngForm" ngNativeValidate>
+                                    <p-fieldset legend="Configuration" [toggleable]="true" [collapsed]="false">
+                                        <div class="p-grid p-align-center">
+                                            <div class="width-120">Health Check Type</div>
+                                            <div class="p-col-2">
+                                                <p-dropdown name="healthChkList"
+                                                    (onChange)="onTypeChange(heathCheckMonData.healthCheckType)"
+                                                    dropdownIcon="icons8 icons8-expand-arrow"
+                                                    [options]="healthCheckList" [style]="{'min-width':'100%'}"
+                                                    [(ngModel)]="heathCheckMonData.healthCheckType" ngDefaultControl>
+                                                </p-dropdown>
+                                            </div>
+
+                                            <div class="p-grid p-col-12 p-align-center">
+                                                <div class="width-120">Tier</div>
+                                                <div class="p-col-2">
+                                                    <p-dropdown name="list" required
+                                                        (onChange)="onTierChange(heathCheckMonData.tierName)"
+                                                        [options]="tierList" dropdownIcon="icons8 icons8-expand-arrow"
+                                                        placeholder="--Select Tier--" [style]="{'min-width':'100%'}"
+                                                        [(ngModel)]="heathCheckMonData.tierName" [filter]="true"
+                                                        ngDefaultControl>
+                                                    </p-dropdown>
+                                                </div>
+
+                                                <div class="p-grid p-col-2" *ngIf="heathCheckMonData.tierName === 'Others'">
+                                                    <input name="tierName" style="margin-left: 16px"
+                                                        placeholder="Enter tier name"
+                                                        [disabled]="heathCheckMonData.tierName != 'Others'" type="text"
+                                                        pInputText [(ngModel)]="heathCheckMonData.customTierName"
+                                                        required ngModel ngDefaultControl />
+                                                </div>
+
+                                                <div class="p-grid p-col-2" *ngIf="heathCheckMonData.tierName === 'Others'">
+                                                    <p-button type="button" title="View Matched Tier(s)"
+                                                        icon="icons8 icons8-ok"
+                                                        class="ui-button ui-button-rounded ui-button-right"
+                                                        (click)="testPattern(heathCheckMonData.customTierName)">
+                                                    </p-button>
+
+                                                <div class="p-grid p-col-2" *ngIf="heathCheckMonData.tierName === 'Others'"></div>
+                                                    <p-checkbox *ngIf="heathCheckMonData.healthCheckType != 'Socket'"
+                                                        (onChange)="patternEnableDisable(heathCheckMonData.patternEnable)"
+                                                        [(ngModel)]="heathCheckMonData.patternEnable" name="overide"
+                                                        binary=true label="Use topology" ngDefaultControl>
+                                                    </p-checkbox>
+                                                </div>
+
+                                                <div class="width-120 text-right">Server Name</div>
+                                                <div class="p-col-2" *ngIf="heathCheckMonData.tierName != 'Others'">
+                                                    <p-dropdown [style]="{'min-width':'100%'}" name="lists" required
+                                                        (onChange)="onServerChange(heathCheckMonData.serverName)"
+                                                        dropdownIcon="icons8 icons8-expand-arrow"
+                                                        [disabled]="heathCheckMonData.tierName == '' "
+                                                        placeholder="-- Select Server--" [options]="serverList"
+                                                        [(ngModel)]="heathCheckMonData.serverName" [filter]="true"
+                                                        ngDefaultControl>
+                                                    </p-dropdown>
+                                                </div>
+
+                                                <div class="p-col-2" *ngIf="heathCheckMonData.tierName == 'Others'  ">
+                                                    <input name="serverName" type="text"
+                                                        [disabled]="heathCheckMonData.patternEnable" required pInputText
+                                                        ngDefaultControl
+                                                        [(ngModel)]="heathCheckMonData.customServerName"
+                                                        placeholder="Enter server name" pattern="^[a-zA-Z0-9-_@.]*$"
+                                                        title="Enter valid server name. &#013;No special characters except (@,-,_,.) are allowed."
+                                                        required ngModel />
+                                                </div>
+                                            </div>
+
+                                            <div class="p-grid w-100-p p-align-center">
+                                                <div class="width-120"
+                                                    *ngIf="heathCheckMonData.healthCheckType != 'Http'">
+                                                    Host</div>
+                                                <div class="p-col-2"
+                                                    *ngIf="heathCheckMonData.healthCheckType != 'Http'">
+                                                    <input name="host"
+                                                        [disabled]="heathCheckMonData.patternEnable || heathCheckMonData.serverName == 'All Servers'" pattern="^((([0-9]{1,3}\.){3}[0-9]{1,3})|([A-Za-z][A-Za-z0-9-_.]*$))$"
+                                                        type="text" pInputText [(ngModel)]="heathCheckMonData.host"
+                                                        autofocus required ngModel ngDefaultControl />
+                                                </div>
+
+                                                <div class="width-120"
+                                                    *ngIf="heathCheckMonData.healthCheckType == 'Socket' ">Port</div>
+                                                <div class="p-col-2"
+                                                    *ngIf="heathCheckMonData.healthCheckType == 'Socket'">
+                                                    <input name="port" type="number" min="1" max="65535" autofocus
+                                                        required pInputText [(ngModel)]="heathCheckMonData.port" ngModel
+                                                        ngDefaultControl />
+                                                </div>
+                                            </div>
+
+                                            <div class="p-grid w-100-p p-align-center"
+                                                *ngIf="heathCheckMonData.healthCheckType != 'Ping'">
+                                                <div class="width-125"
+                                                    *ngIf="heathCheckMonData.healthCheckType == 'Http'">
+                                                    Service/Instance</div>
+                                                <div class="width-127"
+                                                    *ngIf="heathCheckMonData.healthCheckType == 'Socket'">Instance</div>
+                                                <div class="width-120">
+                                                    <input name="instnce" type="text"
+                                                        pattern="^[a-zA-Z0-9-_@.:/?!%*();,]*$"
+                                                        title="Enter valid instance name. &#013;Special characters such as hash(#), dollar($), pipe(|) and white spaces are not allowed."
+                                                        *ngIf="heathCheckMonData.healthCheckType != 'Ping'" pInputText
+                                                        [(ngModel)]="heathCheckMonData.instName" ngModel
+                                                        ngDefaultControl />
+                                                </div>
+
+                                                <div class="width-120"
+                                                    *ngIf="heathCheckMonData.healthCheckType == 'Http'">
+                                                    URL path</div>
+                                                <div class="p-col-2"
+                                                    *ngIf="heathCheckMonData.healthCheckType == 'Http'">
+                                                    <input name="url" type="text" autofocus required pInputText
+                                                        [(ngModel)]="heathCheckMonData.url" ngModel ngDefaultControl />
+                                                </div>
+                                            </div>
+
+                                            <div class="p-grid w-100-p p-align-center"
+                                                *ngIf="heathCheckMonData.healthCheckType == 'Http'">
+                                                <div class="width-120 ">Content Matching</div>
+                                                <div class="p-col-2">
+                                                    <p-dropdown [style]="{'width':'150px'}" name="cntlist" required
+                                                        [options]="contentList" [(ngModel)]="heathCheckMonData.cntMatch"
+                                                        ngDefaultControl>
+                                                    </p-dropdown>
+                                                </div>
+
+                                                <div class="p-col-2" *ngIf="heathCheckMonData.cntMatch == '1'">
+                                                    <input name="str" type="text" autofocus required pInputText
+                                                        placeholder="Search String"
+                                                        [(ngModel)]="heathCheckMonData.srchStr" ngModel
+                                                        ngDefaultControl />
+                                                </div>
+
+                                                <div class="p-col-2" *ngIf="heathCheckMonData.cntMatch == '2'">
+                                                    <input name="patt" type="text" autofocus required pInputText
+                                                        placeholder="Search Pattern"
+                                                        [(ngModel)]="heathCheckMonData.srchPttrn" ngModel
+                                                        ngDefaultControl />
+                                                </div>
+
+                                                <div class="p-col-4"
+                                                    *ngIf="heathCheckMonData.cntMatch == '1' || heathCheckMonData.cntMatch == '2'">
+                                                    <p-checkbox [(ngModel)]="heathCheckMonData.availonMatch"
+                                                        name="availonMatch" binary=true
+                                                        label="service is available content validation false"
+                                                        title="service is available content validation false"
+                                                        ngDefaultControl>
+                                                    </p-checkbox>
+                                                </div>
+                                            </div>
+
+                                            <div class="p-grid w-100-p p-align-center"
+                                                *ngIf="heathCheckMonData.healthCheckType == 'Http'">
+                                                <div class="width-120 ">Method</div>
+                                                <div class="p-col-2">
+                                                    <p-dropdown [style]="{'width':'150px'}" name="mthdlist" required
+                                                        [options]="methodList" [(ngModel)]="heathCheckMonData.method"
+                                                        ngDefaultControl>
+                                                    </p-dropdown>
+                                                </div>
+                                            </div>
+
+                                            <div class="p-grid w-100-p p-align-center pl-100 ml-20"
+                                                *ngIf="heathCheckMonData.healthCheckType == 'Http'">
+                                                <div class="p-col-2" *ngIf="heathCheckMonData.method == 'post'">
+                                                    <textarea ngDefaultControl [rows]="2" name="post" style="width: 191px;"
+                                                        placeholder="Enter post Body" title="Enter post Body" autofocus
+                                                        required pInputTextarea [(ngModel)]="heathCheckMonData.postMthd"
+                                                        ngModel>
+                                        </textarea>
+                                                </div>
+                                            </div>
+
+                                            <div class="p-grid w-100-p p-align-center"
+                                                *ngIf="heathCheckMonData.healthCheckType == 'Http' && heathCheckMonData.patternEnable">
+                                                <div class="width-120 ">
+                                                    <p-checkbox ngDefaultControl
+                                                        [(ngModel)]="heathCheckMonData.httpsEnable" name="httpsURL"
+                                                        binary=true label="Use secure protocol" title="HTTPs Protocol">
+                                                    </p-checkbox>
+                                                </div>
+
+                                                <div class="width-120 ">URL port</div>
+                                                <div class="p-col-2">
+                                                    <input ngDefaultControl name="portURL" type="number" min="1"
+                                                        max="65535" label="Port for URL" pInputText
+                                                        [(ngModel)]="heathCheckMonData.portForURL" ngModel />
+                                                </div>
+                                            </div>
+
+                                            <div class="p-col-12 w-100-p p-align-center">
+                                                <p-accordion>
+                                                    <p-accordionTab header="Advanced Settings">
+                                                        <div class="p-grid w-100-p p-align-center"
+                                                            *ngIf="heathCheckMonData.healthCheckType == 'Http'">
+                                                            <div class="width-120 ">User Name</div>
+                                                            <div class="p-col-2">
+                                                                <input ngDefaultControl name="usrNme" type="text"
+                                                                    pInputText [(ngModel)]="heathCheckMonData.user"
+                                                                    ngModel />
+                                                            </div>
+
+
+                                                            <div class="width-120">Password</div>
+                                                            <div class="p-col-2">
+                                                                <input ngDefaultControl name="psswrd" type="password"
+                                                                    pInputText [(ngModel)]="heathCheckMonData.pwd"
+                                                                    autocomplete="new-password" ngModel />
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="p-grid w-100-p p-align-center"
+                                                            *ngIf="heathCheckMonData.healthCheckType == 'Http'">
+                                                            <div class="width-120">HTTP Header</div>
+                                                            <div class="p-col-2">
+                                                                <input ngDefaultControl name="hdr" type="text"
+                                                                    pInputText [(ngModel)]="heathCheckMonData.header"
+                                                                    ngModel />
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="p-grid w-100-p p-align-center">
+                                                            <p-checkbox ngDefaultControl
+                                                                [(ngModel)]="heathCheckMonData.overideGlobalSettings"
+                                                                name="overide" binary=true
+                                                                label="Override global health check settings"
+                                                                (click)="overrideGlobalSettings(heathCheckMonData.overideGlobalSettings)">
+                                                            </p-checkbox>
+                                                        </div>
+
+                                                        <div class="p-grid w-100-p p-align-center"
+                                                            *ngIf='heathCheckMonData.overideGlobalSettings && heathCheckMonData.healthCheckType == "Ping"'>
+                                                            <div class="width-120 ">Packet Count</div>
+                                                            <div class="p-col-2">
+                                                                <input ngDefaultControl name="packet" type="number"
+                                                                    min="0" max="100" pInputText
+                                                                    [(ngModel)]="heathCheckMonData.pingPkt" ngModel />
+                                                            </div>
+
+                                                            <div class="width-140 ">
+                                                                Wait Interval in sec(s)
+                                                            </div>
+                                                            <div class="p-col-2">
+                                                                <input ngDefaultControl name="interval" type="number"
+                                                                    min="0.2" step="0.1" max="1" pInputText
+                                                                    [(ngModel)]="heathCheckMonData.pingIntrvl"
+                                                                    ngModel />
+                                                            </div>
+
+                                                            <div class="width-140 ">
+                                                                Interval in min(s)
+                                                            </div>
+                                                            <div class="p-col-2">
+                                                                <input ngDefaultControl name="pingIntvrl" type="number"
+                                                                    autofocus required min="1" pInputText
+                                                                    [(ngModel)]="heathCheckMonData.pingInterval"
+                                                                    ngModel />
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="p-grid w-100-p p-align-center"
+                                                            *ngIf='heathCheckMonData.overideGlobalSettings &&heathCheckMonData.healthCheckType == "Socket"'>
+                                                            <div class="width-120 ">Connection Timeout in sec(s)</div>
+                                                            <div class="p-col-2">
+                                                                <input ngDefaultControl name="connectionTimeOut"
+                                                                    type="number" pInputText
+                                                                    [(ngModel)]="heathCheckMonData.sockeTo" ngModel />
+                                                            </div>
+
+                                                            <div class="width-120 ">Interval in min(s)</div>
+                                                            <div class="p-col-2">
+                                                                <input ngDefaultControl name="sktIntvrl" type="number"
+                                                                    autofocus required min="1" pInputText
+                                                                    [(ngModel)]="heathCheckMonData.sktInterval"
+                                                                    ngModel />
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="p-grid w-100-p p-align-center pt-4"
+                                                            *ngIf='heathCheckMonData.overideGlobalSettings && heathCheckMonData.healthCheckType == "Http"'>
+                                                            <div class="p-grid w-100-p p-align-center">
+                                                                <div class="width-120">
+                                                                    <p-checkbox ngDefaultControl
+                                                                        [(ngModel)]="heathCheckMonData.useProxy"
+                                                                        name="proxy" binary=true label="Use Proxy">
+                                                                    </p-checkbox>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="p-grid w-100-p p-align-center"
+                                                                *ngIf="heathCheckMonData.useProxy">
+                                                                <div class="width-120">Proxy Host:Port</div>
+                                                                <div class="p-col-2">
+                                                                    <input ngDefaultControl name="url" type="text"
+                                                                        [disabled]="!heathCheckMonData.useProxy"
+                                                                        pInputText
+                                                                        [(ngModel)]="heathCheckMonData.httpUrl"
+                                                                        ngModel />
+                                                                </div>
+                                                                <div class="width-120">User Name</div>
+                                                                <div class="p-col-2">
+                                                                    <input ngDefaultControl name="usrname" type="text"
+                                                                        [disabled]="!heathCheckMonData.useProxy"
+                                                                        pInputText
+                                                                        [(ngModel)]="heathCheckMonData.httpUser"
+                                                                        pattern="^[a-zA-Z][a-zA-Z0-9_-]{0,31}$"
+                                                                        ngModel />
+                                                                </div>
+
+                                                                <div class="width-120">Password</div>
+                                                                <div class="p-col-2">
+                                                                    <input ngDefaultControl name="pswrd" type="password"
+                                                                        [disabled]="!heathCheckMonData.useProxy"
+                                                                        pInputText
+                                                                        [(ngModel)]="heathCheckMonData.httpPwd"
+                                                                        ngModel />
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="p-grid w-100-p p-align-center">
+                                                                <div class="width-230">
+                                                                    Connection Timeout in sec(s)
+                                                                </div>
+                                                                <div class="p-col-2">
+                                                                    <input ngDefaultControl name="cto" type="number"
+                                                                        pInputText
+                                                                        [(ngModel)]="heathCheckMonData.httpCTO"
+                                                                        ngModel />
+                                                                </div>
+
+                                                                <div class="width-170">
+                                                                    Response Timeout in sec(s)
+                                                                </div>
+                                                                <div class="p-col-2">
+                                                                    <input ngDefaultControl name="rto" type="number"
+                                                                        pInputText
+                                                                        [(ngModel)]="heathCheckMonData.httpRTO"
+                                                                        ngModel />
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="p-grid w-100-p p-align-center">
+                                                                <div class="width-230">
+                                                                    Status code for successful health check
+                                                                </div>
+                                                                <div class="p-col-2">
+                                                                    <input ngDefaultControl name="StatusCode" autofocus
+                                                                        required type="text" pInputText
+                                                                        title="Comma separated list of status code"
+                                                                        [(ngModel)]="heathCheckMonData.httpSc"
+                                                                        ngModel />
+                                                                </div>
+
+                                                                <div class="width-170 ">
+                                                                    Interval in min(s)
+                                                                </div>
+                                                                <div class="p-col-2">
+                                                                    <input ngDefaultControl name="httpIntvrl"
+                                                                        type="number" autofocus required min="1"
+                                                                        pInputText
+                                                                        [(ngModel)]="heathCheckMonData.httpInterval"
+                                                                        ngModel />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="p-grid w-100-p p-align-center pt-4"
+                                                            *ngIf="heathCheckMonData.healthCheckType == 'Http'">
+                                                            <!-- <div class="p-col-2"> -->
+                                                                <p-checkbox ngDefaultControl
+                                                                    [(ngModel)]="heathCheckMonData.cert" name="cert"
+                                                                    binary=true label="isCert"></p-checkbox>
+                                                            <!-- </div> -->
+                                                        </div>
+
+                                                        <div class="p-grid w-100-p p-align-center"
+                                                            *ngIf="heathCheckMonData.cert">
+                                                            <div class="width-120 ">
+                                                                KeyStore File Path
+                                                            </div>
+                                                            <div class="p-col-2">
+                                                                <input ngDefaultControl name="keyFile" type="text"
+                                                                    [disabled]="!heathCheckMonData.cert" pInputText
+                                                                    [(ngModel)]="heathCheckMonData.keyStrFile" autofocus
+                                                                    required ngModel />
+                                                            </div>
+
+                                                            <div class="width-120">
+                                                                KeyStore Password
+                                                            </div>
+                                                            <div class="p-col-2">
+                                                                <input ngDefaultControl name="keyPwd" type="password"
+                                                                    [disabled]="!heathCheckMonData.cert" pInputText
+                                                                    [(ngModel)]="heathCheckMonData.keyStrPwd" autofocus
+                                                                    required ngModel />
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="p-grid w-100-p p-align-center"
+                                                            *ngIf="heathCheckMonData.cert">
+                                                            <div class="width-120 ">
+                                                                TrustStore file path
+                                                            </div>
+                                                            <div class="p-col-2">
+                                                                <input ngDefaultControl name="trstFile" type="text"
+                                                                    [disabled]="!heathCheckMonData.cert" pInputText
+                                                                    [(ngModel)]="heathCheckMonData.trstStrFile" required
+                                                                    ngModel>
+                                                            </div>
+
+                                                            <div class="width-120">
+                                                                TrustStore password
+                                                            </div>
+                                                            <div class="p-col-2">
+                                                                <input ngDefaultControl name="trstPwd" type="password"
+                                                                    [disabled]="!heathCheckMonData.cert" pInputText
+                                                                    [(ngModel)]="heathCheckMonData.trstStrPwd" required
+                                                                    ngModel>
+                                                            </div>
+                                                        </div>
+                                                    </p-accordionTab>
+                                                </p-accordion>
+                                            </div>
+
+                                            <div class="p-col-12 p-grid p-justify-end p-align-end">
+                                                <button type="submit"
+                                                    class="ui-button ui-button-rounded ui-button-right" pButton
+                                                    *ngIf="!editMode" label="Add"></button>
+                                                <button type="submit"
+                                                    class="ui-button ui-button-rounded ui-button-right" pButton
+                                                    *ngIf="editMode" label="Update"></button>
+                                                <button type="button"
+                                                    class="ui-button ui-button-rounded ui-button-right" pButton
+                                                    (click)="closeConfiguration()" *ngIf="editMode"
+                                                    label="Cancel"></button>
+                                            </div>
+                                        </div>
+                                    </p-fieldset>
+                                </form>
+
+                                <div class="p-grid w-100-p p-align-center pt-10">
+                                    <p-accordion>
+                                        <p-accordionTab header="Configured Health Check Monitor(s)">
+                                            <p-treeTable class="healthChk-treeTable" [value]="heathCheckMonitorData"
+                                                selectionMode="single" [(selection)]="selectedFile">
+                                                <ng-template pTemplate="header">
+                                                    <tr>
+                                                        <th>Monitor Name</th>
+                                                        <th>Arguments</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </ng-template>
+
+                                                <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+                                                    <tr>
+                                                        <td>
+                                                            <p-treeTableToggler [rowNode]="rowNode">
+                                                            </p-treeTableToggler>
+                                                            {{rowData.nodeName}}
+                                                        </td>
+                                                        <td>
+                                                            <!-- <div style="text-align: center; width:100%">
+                                                    <mat-slide-toggle class="monconfig-ui"
+                                                        *ngIf="rowData['arguments'] == 'false' ||rowData['arguments'] == 'true'|| rowData['arguments'] == false ||rowData['arguments'] == true"
+                                                        [(ngModel)]="rowData.enabled"
+                                                        (change)="onCheckBoxChange(rowData, rowData.enabled)">
+                                                    </mat-slide-toggle>
+                                                </div> -->
+                                                            <span
+                                                                *ngIf="!(rowData['arguments'] == 'false' ||rowData['arguments'] == 'true' || rowData['arguments'] == false ||rowData['arguments'] == true)"
+                                                                title="{{rowData['arguments']}}">
+                                                                {{rowData.arguments}}
+                                                            </span>
+                                                        </td>
+
+                                                        <td>
+                                                            <span class="action-icon">
+                                                                <span
+                                                                    *ngIf="!(rowData['arguments'] == 'false' ||rowData['arguments'] == 'true' || rowData['arguments'] == false ||rowData['arguments'] == true)">
+                                                                    <!-- <i class="icons8-edit-2"
+                                                                        (click)="editHealthMonData(rowNode.node)" *ngIf="!(rowData['arguments'] == 'false' ||rowData['arguments'] == 'true' || rowData['arguments'] == false || 
+                                                                rowData['arguments'] == true)"
+                                                                        title="Edit Configured Data"></i> -->
+
+                                                                        <button type="button" class="btn-icon mr-5" title="Edit Configured Data" (click)="editHealthMonData(rowNode.node)" ><i class="icons8 icons8-edit" *ngIf="!(rowData['arguments'] == 'false' ||rowData['arguments'] == 'true' || rowData['arguments'] == false || 
+                                                                            rowData['arguments'] == true)"></i></button>
+                                                                </span>
+                                                                <button type="button" title="Delete Configured Monitor" (click)="deleteHealthMonData(rowNode.node)" class="btn-icon mr-5"><i class="icons8 icons8-trash"></i></button>
+                                                                <!-- <i class="icons8-delete-trash red-fg"
+                                                                    title="Delete Configured Monitor"
+                                                                    (click)="deleteHealthMonData(rowNode.node)"></i> -->
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </ng-template>
+                                            </p-treeTable>
+                                        </p-accordionTab>
+                                    </p-accordion>
+                                </div>
+                            </div>
+                        </p-tabPanel>
+
+                        <p-tabPanel header="Health Check Settings">
+                            <div class="p-align-center pt-10">
+                                <div class="p-grid w-100-p p-align-center" *ngIf="isFromHealthCheckDailog">
+                                    <div class="width-120">
+                                        <p-checkbox ngDefaultControl [(ngModel)]="enableHealthCheckMon"
+                                            name="enableHealth" binary="true" label="Enable Server Health Stats">
+                                        </p-checkbox>
+
+                                        <i class="fa fa-question-circle" title="Click to view monitor stats"
+                                            (click)="showHCStatsInfo('cm_server_health_status.gdf','Server Health Stats')"></i>
+                                    </div>
+
+                                    <div class="width-120">
+                                        <!-- <p-checkbox ngDefaultControl [(ngModel)]="enableServerHealthExt"
+                                            name="enableSerHealthExt" binary="true"
+                                            label="Enable Server Health Extended Stats"></p-checkbox> -->
+
+                                        <i class="fa fa-question-circle" title="Click to view monitor stats"
+                                            (click)="showHCStatsInfo('cm_server_health_status_v2.gdf','Server Health Extended Stats')"></i>
+                                    </div>
+                                </div>
+
+                                <div class="p-grid w-100-p p-align-center" *ngIf="isFromHealthCheckDailog">
+                                    <div class="width-120">
+                                        <p-checkbox [(ngModel)]="enableOverallServerHealthStats"
+                                            name="enableOverallChkMon" binary="true"
+                                            label="Enable Overall Server Health Stats" ngDefaultControl>
+                                        </p-checkbox>
+
+                                        <i class="fa fa-question-circle" title="Click to view monitor stats"
+                                            (click)="showHCStatsInfo('cm_overall_server_health_status.gdf','Overall Server Health Stats')"></i>
+                                    </div>
+
+                                    <div class="width-120">
+                                        <p-checkbox [(ngModel)]="enableOverallExt" ngDefaultControl
+                                            name="enableOverallSerHealthExt" binary="true"
+                                            label="Enable Overall Server Health Extended Stats"></p-checkbox>
+
+                                        <i class="fa fa-question-circle" title="Click to view monitor stats"
+                                            (click)="showHCStatsInfo('cm_overall_server_health_status_v2.gdf','Overall Server Health Extended Stats')"></i>
+                                    </div>
+                                </div>
+
+                                <div class="p-align-center">
+                                    <p-fieldset legend="Ping Health Check Settings" [toggleable]="true"
+                                        [collapsed]="false">
+                                        <div class="p-grid p-align-center">
+                                            <div class="width-120">Packet Count</div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="pckt" type="number" min="0" max="100"
+                                                    autofocus required pInputText [(ngModel)]="globalProps.pingPkt"
+                                                    ngModel />
+                                            </div>
+
+                                            <div class="width-140">Wait Interval in sec(s)</div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="intvrl" type="number" autofocus required
+                                                    step="0.1" min="0.2" max="1" pInputText
+                                                    [(ngModel)]="globalProps.pingIntrvl" ngModel />
+                                            </div>
+
+                                            <div class="width-120">
+                                                Thread Pool Size
+                                            </div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="tpSize" type="number" autofocus required
+                                                    pInputText [(ngModel)]="globalProps.pingTP" ngModel />
+                                            </div>
+                                        </div>
+
+                                        <div class="p-grid p-align-center">
+                                            <div class="width-120 ">
+                                                Interval in min(s)
+                                            </div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="intvrl" type="number" autofocus required
+                                                    min="1" pInputText [(ngModel)]="globalProps.pingInterval" ngModel />
+                                            </div>
+                                        </div>
+                                    </p-fieldset>
+                                </div>
+
+                                <div class="p-align-center pt-10">
+                                    <p-fieldset legend="HTTP  Health Check Settings" [toggleable]="true"
+                                        [collapsed]="false">
+                                        <div class="p-grid w-100-p p-align-center">
+                                            <div class="width-120">
+                                                <p-checkbox ngDefaultControl [(ngModel)]="globalProps.useProxy"
+                                                    name="proxy" binary=true label="Use Proxy">
+                                                </p-checkbox>
+                                            </div>
+                                        </div>
+
+                                        <div class="p-grid w-100-p p-align-center" *ngIf="globalProps.useProxy">
+                                            <div class="width-120 ">
+                                                Proxy Host:Port
+                                            </div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="globalUrl" type="text"
+                                                    [disabled]="!globalProps.useProxy" pInputText
+                                                    [(ngModel)]="globalProps.httpUrl" autofocus required ngModel />
+                                            </div>
+
+                                            <div class="width-120">
+                                                User Name
+                                            </div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="globalUser" type="text"
+                                                    [disabled]="!globalProps.useProxy" pInputText
+                                                    [(ngModel)]="globalProps.httpUser" autofocus required
+                                                    pattern="^[a-zA-Z][a-zA-Z0-9_-]{0,31}$" required ngModel />
+                                            </div>
+
+                                            <div class="width-120">
+                                                Password
+                                            </div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="globalpasswrd" type="password"
+                                                    [disabled]="!globalProps.useProxy" pInputText
+                                                    [(ngModel)]="globalProps.httpPwd" autocomplete="new-password">
+                                            </div>
+                                        </div>
+
+                                        <div class="p-grid w-100-p p-align-center">
+                                            <div class="width-250">
+                                                Connection Timeout in sec(s)
+                                            </div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="timeOut" type="number" pInputText
+                                                    autofocus required [(ngModel)]="globalProps.httpCTO" ngModel />
+                                            </div>
+
+
+                                            <div class="width-170">
+                                                Response Timeout in sec(s)
+                                            </div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="resTimeOut" type="number" autofocus
+                                                    required pInputText [(ngModel)]="globalProps.httpRTO" ngModel />
+                                            </div>
+
+                                            <div class="width-120">
+                                                Thread Pool Size
+                                            </div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="threadPool" type="number" autofocus
+                                                    required pInputText [(ngModel)]="globalProps.httpTP" ngModel />
+                                            </div>
+                                        </div>
+
+                                        <div class="p-grid w-100-p p-align-center">
+                                            <div class="width-250">
+                                                Status code for successful health check
+                                            </div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="globalStatusCode" autofocus required
+                                                    type="text" pInputText title="Comma separated list of status code"
+                                                    [(ngModel)]="globalProps.httpSc" ngModel />
+                                            </div>
+
+                                            <div class="width-170">
+                                                Interval in min(s)
+                                            </div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="intvrl" type="number" autofocus required
+                                                    min="1" pInputText [(ngModel)]="globalProps.httpInterval" ngModel />
+                                            </div>
+                                        </div>
+                                    </p-fieldset>
+
+                                </div>
+
+                                <div class="p-align-center pt-10">
+                                    <p-fieldset legend="Socket Health Check Settings" [toggleable]="true"
+                                        [collapsed]="false">
+                                        <div class="p-grid w-100-p p-align-center">
+                                            <div class="width-190">Connection Timeout in sec(s)</div>
+
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="socketCTO" type="number" min="0" autofocus
+                                                    required pInputText [(ngModel)]="globalProps.sockeTo" ngModel />
+                                            </div>
+
+                                            <div class="width-140">Interval in min(s)</div>
+                                            <div class="p-col-2">
+                                                <input ngDefaultControl name="intvrl" type="number" autofocus required
+                                                    min="1" pInputText [(ngModel)]="globalProps.sktInterval" ngModel />
+                                            </div>
+                                        </div>
+                                    </p-fieldset>
+                                </div>
+
+
+                                <div class="p-align-center pt-10">
+                                    <p-fieldset legend="Maintenance Settings" [toggleable]="true" [collapsed]="false">
+                                        <div class="p-grid w-100-p p-align-center" >
+                                        <div class="width-140">Maintenance URL</div>
+                                        <div class="p-col-2">
+                                            <input ngDefaultControl name="mURL" type="text" pInputText
+                                                [(ngModel)]="globalProps.mURL" ngModel />
+                                        </div>
+                                    </div>
+                                    </p-fieldset>
+                                </div>
+
+
+                            </div>
+                        </p-tabPanel>
+                    </p-tabView>
+                </div>
+
+
+                <!-- <app-tier-server></app-tier-server> -->
+            </p-panel>
+
+        </div>
+
+        <div class="p-grid p-align-center pt-10 tierServerBlock">
+            <div class="input-label width-100 ml-10 required-mark">Agent Tier</div>
+            <div class="p-col-2">
+                <p-dropdown ngDefaultControl [options]="agentTierList" placeholder="-- Select Tier --"
+                    dropdownIcon="icons8 icons8-expand-arrow" name="tlist" [(ngModel)]="agentTier"
+                    (onChange)="onAgentTierChange(agentTier)" [style]="{'min-width':'170px'}">
+                </p-dropdown>
+            </div>
+
+            <div class="input-label width-100 text-right mr-20 required-mark">Agent Server</div>
+            <div class="p-col-2">
+                <p-dropdown name="slist" [options]="agentServerList" ngDefaultControl placeholder="-- Select Server --"
+                    dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="agentServer" [style]="{'min-width':'170px'}">
+                </p-dropdown>
+            </div>
+        </div>
+
+
+        <div class="p-col-12 p-grid p-justify-end p-align-end">
+            <p-button type="submit" class="ui-button ui-button-rounded ui-button-right" label="{{addEditLabel}}">
+            </p-button>
+            <p-button type="submit" *ngIf="addEditLabel === 'Update'" label="Cancel"
+                class="ui-button ui-button-rounded ui-button-right" (click)="resetUI()">
+            </p-button>
+        </div>
+
+        <app-configured-monitor-info [showCols]="tableInfo" [techName]="techName" (logMonData)="editData($event)">
+        </app-configured-monitor-info>
+    </form>
+</div>
+
+<p-dialog class="secondary-dialog foterDialog" header="Matched Tier(s)" closeIcon="icons8-delete"
+    [(visible)]="showTestPatternDailog" modal="modal" [style]="{width: '600px'}" responsive="true">
+    <div class="p-grid p-align-center w-100-p mt-10">
+        <p-table class="all-tables" [columns]="tableTierCol" [resizableColumns]="true"
+        [value]="testPatternVal" [totalRecords]="testPatternVal.length"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+        [scrollable]="true" [rows]="5" [paginator]="true" [pageLinks]="3">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+              <col *ngFor="let col of columns">
+          </colgroup>
+      </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr class="scen-ptable-thead">
+            <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" pResizableColumn
+              [pSortableColumn]="col.field">
+              <div class="center">
+                {{ col.header }}
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+          <tr [pSelectableRow]="rowData">
+            <td *ngFor="let col of columns" title="{{ rowData[col.field] }}">
+              {{ rowData[col.field]}}
+            </td>
+
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="columns.length + 1" class="text-center">
+              <span>Empty Table</span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+
+
+
+
+
+        <!-- <p-table [value]="testPatternVal" [paginator]="true" [rows]="10"
+            [showCurrentPageReport]="true">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Tier Name</th>
+                </tr>
+            </ng-template>
+            <ng-template let-col let-json="rowData" pTemplate type="body">
+                <tr>
+                    <td title="{{json[col.field]}}">{{json[col.field]}}</td>
+                </tr>
+            </ng-template>
+        </p-table> -->
+    </div>
+
+
+
+    <!-- <div class="p-grid p-align-center p-justify-end m-5">
+      <p-button pButton type="button" class="ui-button-rounded ui-button-secondary" (click)="closePatternTest()" label="Close"></p-button>
+  </div> -->
+</p-dialog>
+
+
+<div class="loading-indicator" *ngIf="loading">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+    </p-progressSpinner>
+</div>
+
+
+    <p-confirmDialog #cd class="confirmdialog" [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+        <p-footer>
+            <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton icon="pi pi-check"
+                label={{acceptLable}} (click)="cd.accept()"></button>
+            <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton icon="pi pi-times"
+                label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+        </p-footer>
+    </p-confirmDialog>

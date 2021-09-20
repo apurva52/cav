@@ -1,0 +1,276 @@
+<div class="h-100-vh test-initialisation-container" #widget>
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/current-sessions">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                TEST INITIALISATION
+            </div>
+        </div>
+    </p-toolbar>
+
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="!data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+
+    <div *ngIf="data">
+        <div class="action-container">
+            <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p sessionStatus">
+                <div class="p-col-3 p-6">
+                    <span class="label label1">Session Initialisation Status</span>
+                </div>
+                <div class="p-col-3 p-6">
+                    <span class="label label1">Session :</span>
+                    <span class="label label2">3174</span>
+                </div>
+                <div class="p-col-3 p-6">
+                    <span class="label label1">Session Name :</span>
+                    <span class="label label2">Test Test</span>
+                </div>
+                <div class="p-col-3 p-6">
+                    <span class="label label1">Scenario Name :</span>
+                    <span class="label label2">Test</span>
+                </div>
+            </div>
+
+            
+
+            <div class="p-grid p-col-12 p-justify-between w-100-p no-padding">
+                <div class="p-col-8">
+                    <div class="p-grid p-justify-between p-align-center action-grid w-100-p">
+                        <div class="global-search-block">
+                            <div class="p-input-icon-left search-div-css">
+                                <i class="icons8 icons8-search"></i>
+                                <input #searchInput pInputText type="text" class="input-field-search"
+                                    (input)="testInitialisation.filterGlobal($event.target.value, 'contains')"
+                                    placeholder="Search" />
+                            </div>
+                        </div>
+        
+                        <div class="icons-container p-justify-between p-align-center">
+                            <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns"
+                                optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                                pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+                            </p-multiSelect>
+                            <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow"
+                                (click)="toggleFilters()" pTooltip="Column Filter"></button>
+                            <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow"
+                                pTooltip="Delete"></button>
+                            <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                                [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                            <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                                (click)="menu.toggle($event)" pTooltip="Download"></button>
+                        </div>
+                    </div>
+                    <ng-container>
+                        <div #widgetHeight [ngStyle]="{
+                    height: isEnabledColumnFilter
+                      ? 'calc(100vh - 215px)'
+                      : 'calc(100vh - 172px)'
+                  }">
+                            <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                                Select column to show
+                            </div>
+                            <p-card class="content-body">
+                                <p-table #testInitialisation [value]="data.data" [columns]="selectedColumns"
+                                    [showCurrentPageReport]="true"
+                                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                                    [paginator]="true" [totalRecords]="totalRecords"
+                                    [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                                    [rows]="data.paginator.rows" [responsive]="true" [scrollable]="true"
+                                    [globalFilterFields]="globalFilterFields"
+                                    scrollHeight="calc({{widgetHeight.offsetHeight}}px - 118px)" dataKey="stage">
+                                    <ng-template pTemplate="colgroup" let-columns>
+                                        <colgroup>
+                                            <col *ngFor="let col of columns" [style.width]="col.width" />
+                                        </colgroup>
+                                    </ng-template>
+                                    <ng-template pTemplate="header" let-columns>
+                                        <tr>
+                                            <th style="width: 5%"></th>
+                                            <th *ngFor="let col of columns; let i = index"
+                                                [pSortableColumn]="col.valueField">
+                                                <div class="text-left">
+                                                    {{ col.label }}
+                                                    <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                                        ariaLabel="Activate to sort"
+                                                        ariaLabelDesc="Activate to sort in descending order"
+                                                        ariaLabelAsc="Activate to sort in ascending order">
+                                                    </p-sortIcon>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <tr *ngFor="let headerRow of data.headers">
+                                            <ng-container *ngIf="isEnabledColumnFilter">
+                                                <th style="width: 5%"></th>
+                                                <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                    <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'custom'
+                      ">
+                                                        <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                            pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                            *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                            testInitialisation.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'custom'
+                          )
+                        " />
+                                                    </div>
+                                                    <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'contains'
+                      ">
+                                                        <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                            pTooltip="Will filter metric names which contains given text."
+                                                            *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                            testInitialisation.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'contains'
+                          )
+                        " />
+                                                    </div>
+                                                </th>
+                                            </ng-container>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-row let-expanded="expanded" let-columns="columns">
+                                        <tr>
+                                            <td style="width: 5%">
+                                                <a href="#" [pRowToggler]="row">
+                                                    <i
+                                                        [ngClass]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i>
+                                                </a>
+                                            </td>
+                                            <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                                <span *ngIf="!col.iconField">
+                                                    {{ row[col.valueField] }}
+                                                </span>
+                                                <span *ngIf="col.iconField && row[col.valueField]">
+                                                    <i [ngClass]="row[col.valueField]"></i>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+
+                                    <ng-template pTemplate="rowexpansion" let-row let-columns="columns">
+                                        <tr>
+                                            <td [attr.colspan]="columns.length + 1">
+                                                <div class="p-grid p-fluid expanded-row-data">
+                                                    <div class="p-col-12" *ngFor="let data of expandedRowData">
+                                                        <div *ngFor="let values of data | keyvalue">
+                                                            {{values.value}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+
+                                    <!-----------Empty table error handling--------------------->
+                                    <ng-template pTemplate="emptymessage" let-columns>
+                                        <tr>
+                                            <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                                <span *ngIf="error">Error while loading data</span>
+                                                <span *ngIf="emptyTable">Empty Table</span>
+                                                <span *ngIf="loading">Loading</span>
+                                                <span
+                                                    *ngIf="!empty && !loading && !error && searchInput.value.length">Nothing
+                                                    found
+                                                    matching
+                                                    "{{searchInput.value}}"</span>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </p-card>
+                        </div>
+                    </ng-container>
+                </div>
+
+                <div class="p-col-4 no-padding">
+                    <p-card>
+                        <div class="card-content ui-fluid">
+                            <div class="p-grid p-col-12 p-justify-between p-align-center w-100-p">
+                                <div class="p-col-5">
+                                    <div class="p-grid p-col-12">
+                                        <div class="p-col-2"><i class="icons8 icons8-user card-icons"></i></div>
+                                        <div class="p-col-10">
+                                            <span class="label2 p-col-12 p-md-6">User</span><br>
+                                            <span class="label1 p-col-12 p-md-6 pl-12">Akansha</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-grid p-col-12">
+                                        <div class="p-col-2"><i class="icons8 icons8-clock card-icons"></i></div>
+                                        <div class="p-col-10">
+                                            <span class="label2 p-col-12 p-md-6">User</span><br>
+                                            <span class="label1 p-col-12 p-md-6 pl-12">Indefinite</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-grid p-col-12">
+                                        <div class="p-col-2"><i class="icons8 icons8-error card-icons"></i></div>
+                                        <div class="p-col-10">
+                                            <span class="label2 p-col-12 p-md-6">Warning Count</span><br>
+                                            <span class="label1 p-col-12 p-md-6 pl-12">1</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-col-7">
+                                    <div class="p-grid p-col-12">
+                                        <div class="p-col-2"><i class="icons8 icons8-clock card-icons"></i></div>
+                                        <div class="p-col-10">
+                                            <span class="label2 p-col-12 p-md-6">Start Date Time</span><br>
+                                            <span class="label1 p-col-12 p-md-6 pl-12">09/22/20 15:39:06</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-grid p-col-12">
+                                        <div class="p-col-2"><i class="icons8 icons8-combo-chart card-icons"></i></div>
+                                        <div class="p-col-10">
+                                            <span class="label2 p-col-12 p-md-6">Scenario Type</span><br>
+                                            <span class="label1 p-col-12 p-md-6 pl-12">FCU - 1 VUser</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-grid p-col-12">
+                                        <div class="p-col-2"><i class="icons8 icons8-clock card-icons"></i></div>
+                                        <div class="p-col-10">
+                                            <span class="label2 p-col-12 p-md-6">Test Initialisation Elapsed</span><br>
+                                            <span class="label1 p-col-12 p-md-6 pl-12">00:00:18</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-grid p-align-stretch p-justify-center visual-chart-container">
+                                <div class="p-col-12" *ngFor="let chart of testInitChart.charts">
+                                    <app-chart [data]="chart"></app-chart>
+                                </div>
+                            </div>
+                        </div>
+                    </p-card>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

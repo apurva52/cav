@@ -1,0 +1,137 @@
+<div class="repeated-callout-container mh-10">
+    <ng-container>
+        <div class="p-grid p-align-center p-justify-between">
+            <div>
+                <div *ngIf="repeatedFQM != '-'">
+                    <a class="backPage" (click)="backDetails()"><i class="icons8-back"></i>Repeated Method Details</a>
+                    <span title="{{repeatedFQM}}">( {{substringFQM}} )</span>
+                </div>
+                <div *ngIf="repeatedFQM == '-'">
+                    <a class="backPage" (click)="backDetails()"><i class="icons8-back"></i>Repeated Callout Details</a>
+                    <span title="{{methodName}}">( {{substringFQM}} )</span>
+            </div>
+                <!-- <a class="backPage" (click)="backDetails()"><i class="icons8-back"></i> Repeated Callout Details</a> -->
+            </div>
+            <div class="repeated-callout-alert-group">
+                <!-- <div class="icons-group">  -->
+                    <!-- <button pButton icon="icons8 icons8-filter" class="ui-icon-button" (click)="toggleFilters()"></button> -->
+                    <!-- <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow left" (click)="toggleFilters()" pTooltip="Column Filter"></button> -->
+                    <p-multiSelect [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false" dropdownIcon='icons8 icons8-columns' pTooltip="Toggle Columns" [panelStyle]="{minWidth: '200px'}">
+                    </p-multiSelect>
+                    <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="dmenu.toggle($event);" pTooltip="Download"></button>
+                    <p-menu appendTo="ui-icon-button" #dmenu [popup]="true" styleClass="widget-menu" [model]="downloadItems" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                <!-- </div>  -->
+            </div>
+        </div>
+        <div class="p-grid loader-container vertical-container" *ngIf="loading && !dataForRepeatedMethods">
+            <div class="p-col p-col-align-center text-center">
+                <div>
+                    <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+                </div>
+            </div>
+        </div>
+        <div class="p-grid vertical-container" *ngIf="error">
+            <div class="p-col p-col-align-center text-center">
+                <p-message severity="error" text="{{error.msg}}"></p-message>
+            </div>
+        </div>
+        <div class="p-grid vertical-container" *ngIf="empty">
+            <div class="p-col p-col-align-center text-center">
+                <p-message severity="normal" text="No Data"></p-message>
+            </div>
+        </div>
+
+
+        <div #widgetHeight *ngIf="dataForRepeatedMethods && !loading" [ngStyle]="{'height':'calc(100vh - 315px)'}">
+            <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                Select column to show
+            </div>
+            <div class="p-grid">
+                <div class="repeated-call-table">
+                    <div class="p-col-12 no-padding">
+                        <p-card>
+                            <p-table #repeatedCallData
+                            class="all-tables"
+                            [columns]="selectedColumns"
+                            [value]="dataForRepeatedMethods"
+                            [rowHover]="true"
+                            [paginator]="showPagination"
+                            [rows]="repeatedMethodtable.paginator.rows"
+                            [rowsPerPageOptions]="repeatedMethodtable.paginator.rowsPerPageOptions"
+                            [(first)]="repeatedMethodtable.paginator.first"
+                            [showCurrentPageReport]="showPagination"
+                            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                            [responsive]="true"
+                            [scrollable]="true"
+                            scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 110px)"
+                            [resizableColumns]="true">
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                    <ng-container  *ngFor="let col of columns">
+                                        <col  [style.width]="col.width">
+                                    </ng-container>
+                                </colgroup>
+                            </ng-template>
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                        <th [style.width]="col.width" *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+                                            [pSortableColumn]="col.valueField" pResizableColumn>
+                                            <div class="elipseText">
+                                                {{ col.label }}
+                                                <p-sortIcon [field]="col.valueField" ariaLabel="Activate to sort"
+                                                    ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                </p-sortIcon>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    <!-- <tr *ngFor="let headerRow of repeatedMethodtable.headers">
+                                        <ng-container *ngIf="isEnabledColumnFilter">
+
+                                            <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                <div *ngIf="col.filter.isFilter === true && col.filter.type === 'custom'">
+                                                    <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="repeatedCallData.filter($event.target.value, col.valueField , 'custom')">
+                                                </div>
+                                                <div *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+                                                    <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="repeatedCallData.filter($event.target.value, col.valueField , 'contains')">
+                                                </div>
+                                            </th>
+                                        </ng-container>
+                                    </tr> -->
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+
+                                    <tr [ngStyle]="{'backgroundColor': row.rowBgColor}" [pSelectableRow]="row">
+                                        <td *ngFor="let col of columns" class="{{ col.classes }}" pTooltip = {{row[col.valueField]|f_ddr:col.format}} class="ui-resizable-column" (click)="showRowInfo(row)" >
+                                            {{ row[col.valueField] | f_ddr: col.format }}
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                                <!-----------Empty table error handling--------------------->
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                            <span *ngIf="error">Error while loading data</span>
+                                            <span *ngIf="emptyTable">Empty Table</span>
+                                            <span *ngIf="loading">Loading</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </p-card>
+                    </div>
+                </div>
+            </div>
+            <p-panel #pnl expandIcon="" collapseIcon="" [collapsed]="false" [toggleable]="true">
+              <div>
+		         <textarea pInputTextarea rows="5" style="width:100%;resize:none;" readonly>{{methodArguments}}</textarea>
+                </div>  
+            </p-panel>
+        </div>
+    </ng-container>
+    <p-dialog [(visible)]="displayDetails" [resizable]="true" [modal]="true" class="secondary-dialog" header="Dynamic Diagnostics Configuration" [draggable]="false" closeIcon="icons8-delete" [style]="{width: '50vw'}">
+        <app-diagnostics-configuration></app-diagnostics-configuration>
+    </p-dialog>
+</div>
+
+
+<!-- <app-flow-path-dialog #flowPathDialog></app-flow-path-dialog> -->

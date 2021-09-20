@@ -1,0 +1,119 @@
+<div class="ui-g" style="background: #98b2c1">
+  <div class="ui-g-3"></div>
+  <div class="ui-g-2"><img class="legendClass" src="./images/response_legend.png"> Response Time (ms)</div>
+  <div class="ui-g-1"><img class="legendClass" src="./images/page_legend.png"> TPS</div>
+  <div class="ui-g-1"><img class="legendClass" src="./images/error.png"> Error (%)</div>
+  <div class="ui-g-1"><img class="legendClass" src="./images/cpu_legend.png"> Scan/Min</div>
+  <div class="ui-g-2"><img class="legendClass" src="./images/order.png"> Ordered placed (per min)</div>
+  <div class="ui-g-2">
+    <p-checkbox name="group1" binary = 'dataContainer.$enableDB' [label]="dataContainer.$enableDB?'Hide DB':'Show DB'"
+      [(ngModel)]="dataContainer.$enableDB"></p-checkbox>
+  </div>
+</div>
+<div class="appMain" id="appMain">
+  <div id="appContainer" *ngFor="let app of appObj['appInfoList']" [style.border-color]="app['color']"
+    title="Major = {{app.major + app.minor | round}}, Critical = {{app.critical | round}}"
+    (click)="openExecDashboard(app.appName, appObj['storeName'])">
+    <div class="ui-g-12 appHeader" title="">
+      <div [ngClass]="app.disabledAlert?'alert-disabled ui-g-4':'app-window-tab ui-g-4'"
+        [title]="app.disabledAlert?'Normal Alerts':'Open Alerts'" (click)="openAlerts($event, app)">
+        <span><i class="fa fa-bell" [style.color]="app['color']" aria-hidden="true"></i> Alerts</span>
+      </div>
+      <!--db stats  -->
+      <div [ngClass]="dataContainer.$enableDB?'db-enabled ui-g-4':'db-disabled ui-g-4'"
+        [title]="'click to see db stats'" (click)="_transactionHandler.getDbStatsFromServer($event, app, appObj['storeName'])">
+        <span><i class="fa fa-database" [style.color]="app[''] " aria-hidden="true"></i> DBSTats</span>
+      </div>
+
+      <div [ngClass]="app.disabledDashboard?'alert-disabled ui-g-4':'app-window-tab ui-g-4'" title="open Webdashboard"
+        (click)="openWebdashboard(app,$event)">
+        <span><i class="fa fa-desktop" aria-hidden="true"></i> Dashboard</span>
+      </div>
+    </div>
+    <div class="ui-g-12" title="">
+      <div class="ui-g-1"></div>
+      <img class="app-img" src="./images/icon.jpg">
+      <div style="display: inline">
+        <label class="appLabel" [title]="app.appName" title="{{app.appName}}">{{app.appName}}</label>
+      </div>
+    </div>
+    <div class="ui-g-12 app-body" title="">
+
+      <div class="ui-g-2 app-data">
+        <img class="legendClass" src="./images/page_legend.png" title="TPS : {{app.tps | number:'.0-2'}}">
+        <!-- <label class="app-label"> TPS</label> --><br><br>
+        <label class="datalabel" title="TPS : {{app.tps | number:'.0-2'}}">{{app.tps | number:'.0-2'}}</label>
+      </div>
+      <div class="ui-g-2 app-data">
+        <img class="legendClass" src="./images/response_legend.png"
+          title="Response Time(ms) : {{app.res | number:'.0-2'}}">
+        <!-- <label class="app-label"> Response Time(ms) </label> --><br><br>
+        <label class="datalabel" title="Response Time(ms) : {{app.res | number:'.0-2'}}">{{app.res | round}}</label>
+      </div>
+      <div class="ui-g-2 app-data">
+        <img class="legendClass" src="./images/error.png" title="Error(%) : {{app.eps | number:'.0-2'}}">
+        <!-- <label class="app-label"> Error(%)</label> --><br><br>
+        <label class="datalabel" title="Error(%) : {{app.eps | number:'.0-2'}}">{{app.eps | round}}</label>
+      </div>
+      <div class="ui-g-2 app-data">
+        <img class="legendClass" src="./images/cpu_legend.png" title="Scan/Min : {{app.scan | number:'.0-2'}}">
+        <br><br>
+        <label class="datalabel" title="Error(%) : {{app.scan | number:'.0-2'}}">{{app.scan | round}}</label>
+      </div>
+      <div class="ui-g-2 app-data">
+        <img class="legendClass" src="./images/order.png"
+          title="Order Placed (per min): {{app.order | number:'.0-2'}}">
+        <!-- <i class="fa fa-qq" style="font-size:24px;color:brown"></i>-->
+        <br><br>
+        <label class="datalabel"
+          title="Order Placed (per min) : {{app.order | number:'.0-2'}}">{{app.order | round}}</label>
+      </div>
+    </div>
+  </div>
+
+
+  
+
+<!--For MYsqlDB the -->
+  <div class="ui-g appContainer" *ngIf="_transactionHandler.$showDBPanel && dataContainer.$enableDB">
+    <div class="ui-g-12">
+      <hr>
+      <h3>DB Stats({{dataContainer.$selectedApp}})</h3>
+      <span *ngIf = "!dataContainer.$selectedApp['dbAvailable']">Data not available for selected App</span>
+    </div>
+    <div class="ui-g-3 db-app" *ngFor="let item of _transactionHandler.$dbArr" (click)="openModule($event,item,'ed')">
+      <!-- <div class="ui-g" (click)="clickFun($event,'abc')"> -->
+      <div class="ui-g">
+        <div class="ui-g-4"></div>
+        <div class="ui-g-5 db-name" (click)="openModule($event,item,'db')">
+          <span ><i class="fa fa-database" aria-hidden="true"></i>DB Monitoring</span>
+        </div>
+        <div class="ui-g-3"></div>
+      </div>
+      <hr>
+      <div class = "ui-g-12">
+        <div class="ui-g-1"></div>
+        <img class="app-img" src="./images/icon.jpg">
+        <div style="display: inline">
+          <label class="appLabel" [title]="item.srcName" title="{{item.srcName}}">{{item.srcName}}</label>
+        </div>
+      </div>
+      <div class="ui-g t1">
+        <div class="ui-g-1"></div>
+        <div class="ui-g-3" title = "Total Server memory : {{item.totSrm | number:'.0-2'}}"><img src="./images/response_legend.png"></div>
+        <div class="ui-g-2" title = "Page wrt/sec: {{item.wrs | number:'.0-2'}}"><img src="./images/page_legend.png"></div>
+        <div class="ui-g-2" title = "Cache hit ratio {{item.chr | number:'.0-2'}}"><img src="./images/error.png"></div>
+        <div class="ui-g-2" title = "Total Transactions: {{item.totTrans | number:'.0-2'}}"><img src="./images/cpu_legend.png"></div>
+        <div class="ui-g-2" title = "Page read/sec: {{item.rps | number:'.0-2'}}"><img src="./images/order.png"></div>
+      </div>
+      <div class="ui-g t2">
+        <div class="ui-g-1"></div>
+        <div class="ui-g-3" title = "Total Server memory : {{item.totSrm | number:'.0-2'}}">{{item.totSrm | number:'.0-2'}}</div>
+        <div class="ui-g-2" title = "Page write/sec: {{item.wrs | number:'.0-2'}}">{{item.wrs | number:'.0-2'}}</div>
+        <div class="ui-g-2" title = "Cache hit ratio {{item.chr | number:'.0-2'}}">{{item.chr | number:'.0-2'}}</div>
+        <div class="ui-g-2" title = "Total Transactions: {{item.totTrans | number:'.0-2'}}">{{item.totTrans | number:'.0-2'}}</div>
+        <div class="ui-g-2" title = "Page read/sec: {{item.rps | number:'.0-2'}}">{{item.rps | number:'.0-2'}}</div>
+      </div>
+    </div>
+  </div>
+</div>

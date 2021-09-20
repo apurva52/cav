@@ -1,0 +1,101 @@
+<div class="transactionMainClass">
+    <div *ngIf="_transactionHandler.showScroller" style=" position: absolute;margin: 0.7% 0.4%;">
+        <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw storeloadingIcon"></i>
+    </div>
+    <div class="filterDiv">
+        <i class="fa fa-search" style="margin:11px 10px 0px 10px"></i>
+        <input class="inputShadow" #gb type="text" pInputText size="45" placeholder="Global Filter">
+        <span style="margin-left:200px">{{storeType}}: {{totalCount}}    ( AppName : {{this.appType}} )</span>
+    </div>
+    <div style="display: inline">
+        <button pButton (click)="showBackArrow = false;  ; onButtonClick() " [label]="aliasSV" *ngIf="showBackArrow"
+          icon="fa fa-arrow-left"></button>
+      </div>
+    <!-- 
+        <p-dataTable [value]="table2Arr" scrollHeight="100px" class="geoMapDivClass" [globalFilter]="gb" [responsive]="true" [rows]="3" [rowsPerPageOptions]="10"
+            [paginator]="true" [pageLinks]="3"> -->
+    <p-dataTable [value]="table2Arr" class="geoMapDivClass tableDimensions" [scrollable]="true" scrollHeight="450px"
+        [globalFilter]="gb" [responsive]="true" [rows]="15" [paginator]="true">
+        <!-- <p-header>{{datacontainer.$selectedGeoApp}} (Business Health)</p-header> -->
+        <p-column field="storeName" header="Store Name">
+            <ng-template pTemplate="header">
+                Store Name
+            </ng-template>
+            <ng-template pTemplate="body" let-col let-storeName="rowData">
+                <span [title]="storeName[col.field]" style="font-weight: 500">
+                    {{storeName[col.field]}}</span>
+            </ng-template>
+        </p-column>
+        <p-column *ngIf="showAlerts" field="critical" header="Critical">
+            <ng-template pTemplate="header">
+                Critical
+            </ng-template>
+            <ng-template pTemplate="body" let-col let-critical="rowData">
+                <span *ngIf="critical.critical == 0" style='float: right'>{{critical[col.field]}}</span>
+                <span *ngIf="critical.critical > 0" class="poc-values" style='float: right' title="click to open alert for {{critical.storeName}}"
+                    (click)="_transactionHandler.openAlertForSelectedStore(critical,'critical')"> 
+                    {{critical[col.field]}}</span>
+            </ng-template>
+        </p-column>
+        <p-column *ngIf="showAlerts" field="major" header="Major">
+            <ng-template pTemplate="header">
+                Major
+            </ng-template>
+            <ng-template pTemplate="body" let-col let-major="rowData">
+                <span *ngIf="major.major == 0" style='float: right'>{{major[col.field]}}</span>
+                <span *ngIf="major.major > 0" class="poc-values" style='float: right' title="click to open alert for {{major.storeName}}"
+                    (click)="_transactionHandler.openAlertForSelectedStore(major,'major')">
+                    {{major[col.field]}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="resTime" header="Response Time" [sortable]="true">
+            <ng-template pTemplate="header">
+                Response Time (ms)
+            </ng-template>
+            <ng-template pTemplate="body" let-col let-resTime="rowData">
+                <span style='float: right'>{{resTime[col.field] | round}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="pvs" header="PVS" [sortable]="true">
+            <ng-template pTemplate="header">
+                PVS
+            </ng-template>
+            <ng-template pTemplate="body" let-col let-pvs="rowData">
+                <span style='float: right'>{{pvs[col.field] | round}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="error" header="Error" [sortable]="true">
+            <ng-template pTemplate="header">
+                Error (%)
+            </ng-template>
+            <ng-template pTemplate="body" let-col let-error="rowData">
+                <span style='float: right'>{{error[col.field] | round}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="disableDash" header="">
+            <ng-template pTemplate="header">
+
+            </ng-template>
+            <ng-template pTemplate="body" let-col let-row="rowData">
+                <span *ngIf="row[col.field] === true" style='float: right'>
+                    <i class="fa fa-desktop disable-values" aria-hidden="true"></i>
+                </span>
+                <span *ngIf="row[col.field] === false" (click)='openDashboard(row, $event)' style='float: right'>
+                    <i class="fa fa-desktop poc-values" aria-hidden="true"></i>
+                </span>
+            </ng-template>
+        </p-column>
+    </p-dataTable>
+    <div>
+        <span><b>Download As: </b></span>
+        <button pButton type="button" pTooltip="Click to download PDF Report" (click)="onDownload('pdf')"
+            icon="fa fa-file-pdf-o" class="ui-button-success"></button>
+        <button pButton type="button" pTooltip="Click to download Excel Report" (click)="onDownload('excel')"
+            icon="fa fa-file-excel-o" class="ui-button-warning"></button>
+        <button pButton type="button" pTooltip="Click to download Word Report" (click)="onDownload('word')"
+            icon="fa fa-file-word-o" class="ui-button-info"></button>
+    </div>
+</div>
+<div>
+    <p-growl [(value)]="_graphicalKPIService.msgs"></p-growl>
+</div>

@@ -1,0 +1,430 @@
+<!-- <p>Hi this is new component</p>  -->
+
+<p-dialog class="primary-dialog" [showHeader]="false" appendTo="body" [dismissableMask]="true" [(visible)]="viewSourceCodeFlag" [modal]="true" [resizable]="false"> 
+    <div style="width: 1000px; margin: -12px -18px;" class="popins-fonts cav-fnt-12 px-15" > 
+    <div class="cav-d-flex cav-justify-content-between cav-p-2 header6 radius-top-left-1 radius-top-right-1 cav-fnt-14 cav-align-items-center">
+    <div class="py-6">Dynamic Logging</div>
+    <div (click)="closeDLDialog() "><i class="gui gui-x"></i></div>
+    </div>
+    <div class ="headerTab cav-fnt-14">
+      {{infoHeader}}
+    </div>
+    <div class="cav-p-2">
+    <div class="ui-g">
+    <div class="ui-g-4">
+    <div class="shadow4">
+    <div class="tabList">
+    <!--div class="cusTabs" [ngClass]="section ? 'active' : 'cusTabs'" (click)="clickEvent1()">Method Trace</div-->
+    <div class="cusTabs" [ngClass]="section ? 'cusTabs' : 'active'" (click)="clickEvent1()">Trace Point</div>
+    </div>
+    <div class="cusTabsContent scrollBars">
+    <ul class="incrementList" [ngClass]="section ? 'dnone' : 'incrementList'">
+                        <li *ngFor="let num of LineNumber;let i=index;"
+                         [class.selected]="num === selectedLine" (click)="changeToOccurenceTab(num,i)">
+                        <!-- <a  style="cursor:pointer;" (click)="changeTab(num)">  -->
+                        <a (click)="changeToOccurenceTab(num, i)"> 
+                              {{ num }}
+                              &nbsp;<span class="gui gui-x" (click)="deleteTrackPoint(i)"></span> &nbsp;
+                                <span class="fa fa-pencil" (click)="openTrackPoint(num)"></span>
+                              </a> 
+                        </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+    <div class="ui-g-8">
+    <div class="shadow4">
+    <p class="xmlHead">{{myLineHead}}<br>Click on any line to Add/Edit track point</p>
+    <div class="xmlCode scrollBars">
+      <p-table [value]="popuData" selectionMode="single" class="sourceCodeTable">
+          <ng-template pTemplate="colgroup">
+                            <colgroup>
+                                <col *ngFor="let col of lines">
+                            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-line>
+              <tr>
+                   <td style="width: 30px" class="cav-text-center">
+                        <span title="Linenumber"> {{line['lineNumber']}} </span>
+                   </td>
+                   <td style="width: 40px" class="cav-text-center" (click)="openClickedTrackPoint(line)">
+                      <a  title="breakpoint" style="cursor:pointer;">
+                          <span *ngIf="line['breakPoint']" class="circleText"> {{""}} </span>
+                      </a>
+                    </td>
+                    <td  [style.background]="(line['breakPoint'])  ? '' : ''">
+                        <span title="Code"> {{line['code']}} </span> 
+                    </td>
+            </tr>
+          </ng-template>
+      </p-table>
+    
+    <!-- -----------xml dummy content------- -->
+    </div>
+    </div>
+    </div>
+    <div class = "ui-g-4">
+      <!-- <button type="button"  class="buttons button-all" (click)="getProfileData()">Apply</button> -->
+      <!-- <p-splitButton label="Apply"  [model]="items"></p-splitButton>   -->
+    <div style ="margin-bottom: 10px;"> 
+      <label >Apply on: &nbsp; </label>
+      <p-dropdown [options]="ApplyArrDropDown" class="dropup" (click)="selectApplyType()"  [(ngModel)]="selectedApplyType" dropdownIcon="icons8 icons8-expand-arrow"  placeholder={{selectedApplyType}} [style]="{'width':'225px'}" [panelStyle]="{maxWidth:'225px'}"></p-dropdown>
+    </div>
+    <div *ngIf="selectedApplyType =='Selected Instance of Current Tier'" style ="margin-top: 10px;" > 
+      <label >Instances: &nbsp;&nbsp;</label>
+        <p-dropdown [options]="InstanceArrDropDown" class="dropup" (click)="selectInstance()"  [(ngModel)]="selectedInstance" dropdownIcon="icons8 icons8-expand-arrow"  placeholder="Select Instance" [style]="{'width':'225px'}" [panelStyle]="{maxWidth:'225px'}"></p-dropdown>
+    </div>
+    <div class="p-grid p-align-center p-justify-end pb-10">
+      <button pButton type="button" label="Apply" class="buttons button-all mx-6" (click)="checkApplyDetails()"></button>
+      <button pButton type="button" label="Close" class="buttons button-all"  (click)="closeDLDialog() "></button>
+    </div>
+      <!-- <p-dropdown [options]="InstanceArrDropDown" class="dropup" (click)="selectInstance()"  [(ngModel)]="selectedInstance"  placeholder="Select Instance"></p-dropdown> -->
+
+    <div *ngIf="showLowerPanel">
+    <p class="cav-mt-2 xmlHead header4 cav-d-flex cav-justify-content-center">Occurences</p>
+    <div class="shadow4" style="white-space: nowrap;overflow-x: auto;">
+        <ul class="cav-p-2">
+			      <li class="cav-mb-2" *ngFor = "let num of occurence" [class.selected]="num.occuerenceID === selectedOccurence" (click)="getCaptureVariable(num.line,num.occuerenceID)">
+                <a (click)="getCaptureVariable(num.line,num.occuerenceID)"> 
+                         <!-- occurences : {{num.occuerenceID}}  -->
+                       <span class="reflectText">{{num.colNo}}</span> {{ num.timestamp}} </a>
+                              </li>
+        </ul>
+    </div>
+    </div>
+    </div>
+    <div *ngIf="showLowerPanel" class="shadow4 bottomTabs scrollBars cav-relative">
+    <!-- -----------xml dummy content------- -->
+    
+    <p-tabView class="matTabview">
+
+    <p-tabPanel header="Recorded Variables" [selected]="true">
+    <div class="tabconten scrollBars sourceCodeTable" style="white-space: nowrap;overflow-x: auto;">
+    <ul>
+                  <li *ngFor="let num of captureVariables">
+                        [{{ num.timestamp}}] ( {{ num.type }} ) {{ num.contentType }} {{num.name}} = {{ num.content }} 
+                  </li>
+    </ul>
+    </div>
+    </p-tabPanel>
+    <p-tabPanel header="Logs">
+        <div class="tabconten scrollBars sourceCodeTable" style="white-space: nowrap;overflow-x: auto;">
+        <ul >
+              <li *ngFor = "let num of dynamicLogs" >
+                   [{{ num.timestamp}}] {{ num.content }}
+              </li>
+        </ul>
+        </div>
+    </p-tabPanel>
+    <p-tabPanel header="Stack Trace">
+      <div class="tabconten scrollBars sourceCodeTable">
+      <ul>
+            <li >
+                {{tempTrace}} 
+            </li>
+      </ul>
+      </div>
+
+    </p-tabPanel>
+    </p-tabView>
+    <!-- -----------xml dummy content------- -->
+    </div>
+    </div>
+    </div>
+    </div>
+    </p-dialog>
+
+
+<!-- to show the response 
+<p-growl life=10000 [(value)]="dlMessg"></p-growl> -->
+
+<p-dialog appendTo="body" [showHeader]="false" [(visible)]="openEditDialog" [modal]="true" [resizable]="false"> 
+    <div style="width: 800px; margin: -12px -18px;"> 
+    <div class="cav-d-flex cav-justify-content-between cav-p-2 header6 radius-top-left-1 radius-top-right-1 cav-fnt-14 cav-align-items-center">
+    <div>{{myMethodHead}}/Line:{{viewPopHeader}}</div>
+    <!-- <div (click)="viewVaraibleFlag=false"><i class="gui gui-x"></i></div> -->
+    </div>
+    <div class="cav-p-2">
+    
+    <p-tabView class="custom-tab">
+    <p-tabPanel header="Variable Selection">
+    
+    <div class="ui-g cav-mt-2 cav-align-items-center">
+
+
+    <!-- <div class="ui-g-3">
+      <div *ngIf="selectedTrackData" class="p-field-checkbox cav-fnt-weight600 cav-pt-1">
+      <span><input type="checkbox"  [(ngModel)]="selectedTrackData.traceAllArgs" (click) = "onMethodArgs()">
+      <label>All Method Arguments</label></span>
+      </div>
+      </div> -->
+
+    
+
+    <!-- <div *ngIf = "!selectedMethodArgs" class="ui-g cav-mt-1 cav-relative ui-g-3" >
+      <div *ngIf ="selectedTrackData" class="cav-d-flex cav-align-items-center">
+          <div class="ui-g-6 cav-text-right cav-fnt-weight600 cav-p-1" style="white-space: nowrap;">
+         <label>Method Arguments</label>
+        </div> 
+        <p-multiSelect appendTo="body"  defaultLabel="Select"
+             [options]="allMethodArgsList" maxSelectedLabels="2" [filter]=true 
+            [style]="{'width':'125px', 'white-space': 'nowrap','background': 'white'}"
+                  [(ngModel)]="selectedTrackData.methodArgList" [panelStyle]="{maxWidth:'120px'}" (onChange) = "setParamsOfDL()" ></p-multiSelect>
+        </div>
+    </div> -->
+    <div *ngIf= selectedTrackData class="ui-g-12">
+      <div class="ui-g-3 cav-fnt-weight600 cav-mt-1" style="white-space: nowrap;">
+        <p-radioButton name="methodArguments" [value]="selectedAllMethodArgs" (onClick)="onAllMethodArgs()" label="All Method Arguments" 
+        [(ngModel)]="traceMethodArgs"></p-radioButton>
+      </div>
+      <div class="ui-g-8 cav-fnt-weight600" style="white-space: nowrap;">
+        <p-radioButton name="methodArguments" [value]="selectedMethodArgs" 
+        label="Method Arguments" (onClick)="onMethodArgs()" [(ngModel)]="traceMethodArgs"></p-radioButton>
+        <p-multiSelect appendTo="body"  defaultLabel="Select" class="cav-p-1"
+     [options]="allMethodArgsList" maxSelectedLabels="2" [filter]=true 
+    [style]="{'width':'125px', 'white-space': 'nowrap','background': 'white','display':'inline-flex'}"
+          [(ngModel)]="selectedTrackData.methodArgList" [panelStyle]="{maxWidth:'120px'}" (onChange) = "setParamsOfDL()" 
+          [disabled]="!showdMethodArgsflag"></p-multiSelect>
+      </div>
+</div>
+
+    </div>
+
+   
+
+    
+    <div class="ui-g cav-mt-2 cav-align-items-center">
+      <!-- <div class="ui-g-3">
+        <div *ngIf="selectedTrackData" class="p-field-checkbox cav-fnt-weight600">
+        <span><input type="checkbox"  [(ngModel)]="selectedTrackData.traceAllClsFlds" (click)="openClassField()">
+        <label> All class Fields </label></span>
+        </div>
+      </div>
+  
+      <div *ngIf="!selectedClassField" class="ui-g cav-mt-1 cav-relative ui-g-3">
+        <div class="cav-d-flex cav-align-items-center" *ngIf ="selectedTrackData">
+          <div class="cav-mr-2 cav-text-right cav-fnt-weight600 cav-p-2" style="white-space: nowrap;"> Class Fields</div> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <p-multiSelect appendTo="body" class = " cav-mr-2" defaultLabel="Select" [options]="allClassFieldList" maxSelectedLabels="2" [filter]=true [style]="{'width':'125px', 'white-space': 'nowrap','background': 'white'}" 
+        [(ngModel)]="selectedTrackData.classFldList" [panelStyle]="{maxWidth:'120px'}" (onChange) = "setParamsOfDL()"></p-multiSelect>
+        </div>
+      </div> -->
+      <div *ngIf= selectedTrackData class="ui-g-12">
+        <div class="ui-g-3 cav-fnt-weight600 cav-mt-1" style="white-space: nowrap;">
+          <p-radioButton name="classFields" [value]="selectedAllClassFields" 
+          (onClick)="openAllClassField()" label="All class Fields" 
+          [(ngModel)]="traceClassFields"></p-radioButton>
+        </div>
+        <div class="ui-g-8 cav-fnt-weight600" style="white-space: nowrap;">
+          <p-radioButton name="classFields" [value]="selectedClassField" 
+          label="Class Fields" (onClick)="openClassField()" [(ngModel)]="traceClassFields"></p-radioButton> &nbsp;&nbsp;
+          <p-multiSelect appendTo="body"  defaultLabel="Select" class="cav-p-1 cav-ml-4"
+       [options]="allClassFieldList" maxSelectedLabels="2" [filter]=true 
+      [style]="{'width':'125px', 'white-space': 'nowrap','background': 'white','display':'inline-flex'}"
+            [(ngModel)]="selectedTrackData.classFldList" [panelStyle]="{maxWidth:'120px'}" (onChange) = "setParamsOfDL()" 
+            [disabled]="!showClassFieldsFlag"></p-multiSelect>
+        </div>
+    </div>
+  </div>
+
+    <div class="ui-g cav-mt-2 cav-align-items-center">
+      <!-- <div class="ui-g-3">
+        <div *ngIf="selectedTrackData" class="p-field-checkbox cav-fnt-weight600">
+          <span><input type="checkbox" [(ngModel)]="selectedTrackData.traceAllLclVars" (click)="openLocalVariable()">
+            <label> All local Variables </label></span>
+        </div>
+      </div>
+
+      <div *ngIf = "!selectedLocalVariables" class="ui-g cav-mt-1 cav-relative ui-g-3">
+        <div  class="cav-d-flex cav-align-items-center" *ngIf ="selectedTrackData">
+          <div class="cav-text-right cav-fnt-weight600 cav-mr-2 cav-p-2" style="white-space: nowrap;">
+            Local Variables
+          </div>     
+              <p-multiSelect appendTo="body" class = "cav-mr-2" defaultLabel="Select"
+               [options]="allLocalVarList" maxSelectedLabels="2" [filter]=true 
+              [style]="{'width':'125px', 'white-space': 'nowrap','background': 'white'}"
+          [(ngModel)]="selectedTrackData.localVarList" [panelStyle]="{maxWidth:'120px'}" (onChange) = "setParamsOfDL()" ></p-multiSelect>    
+          </div>
+      </div> -->
+      <div *ngIf= selectedTrackData class="ui-g-12">
+        <div class="ui-g-3 cav-fnt-weight600 cav-mt-1" style="white-space: nowrap;">
+          <p-radioButton name="localVariables" [value]="selectedAllLocalVariables" 
+          (onClick)="openAllLocalVariable()" label="All local Variables" 
+          [(ngModel)]="traceLocalVariables"></p-radioButton>
+        </div>
+        <div class="ui-g-8 cav-fnt-weight600" style="white-space: nowrap;">
+          <p-radioButton name="localVariables" [value]="selectedLocalVariables" 
+          label="Local Variables" (onClick)="openLocalVariable()" [(ngModel)]="traceLocalVariables"></p-radioButton> &nbsp;&nbsp;
+          <p-multiSelect appendTo="body"  defaultLabel="Select" class="cav-ml-2"
+       [options]="allLocalVarList" maxSelectedLabels="2" [filter]=true 
+      [style]="{'width':'125px', 'white-space': 'nowrap','background': 'white','display':'inline-flex'}"
+            [(ngModel)]="selectedTrackData.localVarList" [panelStyle]="{maxWidth:'120px'}" (onChange) = "setParamsOfDL()" 
+            [disabled]="!showLocalVariablesFlag"></p-multiSelect>
+        </div>
+    </div>
+    </div>
+    
+    <div class="ui-g cav-mt-2 cav-relative cav-p-1">
+      <!-- <div class="ui-g-3"> -->
+        <div *ngIf="selectedTrackData" class="p-field-checkbox cav-fnt-weight600">
+        <span><input type="checkbox" [(ngModel)]="selectedTrackData.traceRetVal">
+        <label>Method Return Value</label></span>
+        </div>
+        <!-- </div> -->
+  </div>
+
+  <div class="cav-mt-2 cav-d-flex cav-align-items-center cav-p-1 ">
+    <div *ngIf="selectedTrackData">
+     <div class="cav-fnt-weight600 cav-p-2 cav-d-flex cav-justify-content-between" style="width:350px"><label>Hit Limit</label>
+       <p-radioButton name="hitLimit" [value]="1" label="1" [(ngModel)]="selectedTrackData.hitLimit"></p-radioButton>
+       <p-radioButton name="hitLimit" [value]="5" label="5" [(ngModel)]="selectedTrackData.hitLimit"></p-radioButton>
+       <p-radioButton name="hitLimit" [value]="10" label="10" [(ngModel)]="selectedTrackData.hitLimit"></p-radioButton>
+       <p-radioButton name="hitLimit" [value]="100" label="100" [(ngModel)]="selectedTrackData.hitLimit"></p-radioButton>
+     </div>
+    </div>
+   </div>
+    
+    <div class="cav-mt-2 cav-d-flex cav-align-items-center">
+    <div class="cav-mr-2"><p-inputSwitch [(ngModel)]="checked"></p-inputSwitch></div>
+    <div class="cav-mr-2 cav-fnt-weight600">Enable Custom Logs</div>
+    <div class="cav-mr-2">
+    <div *ngIf ="selectedTrackData">
+    <input type="text" pInputText [disabled]="!checked" [(ngModel)]="selectedTrackData.message" placeholder="Enter Custom Logs" class="input-gui" style="width: 170px;">
+    <i class="fa fa-info-circle" style="color:blue;font-size: 16px;" (click)="openCustomLogsPopUp()" title="Help info"></i>
+    </div>
+    </div>
+    <!-- <div>
+      <span class="gui gui-info" (click)="openCustomLogsPopUp(i)"></span>
+    </div> -->
+    </div>
+    
+    <div class="cav-mx-n2 mt-3 mb-2"><hr class="hr-gray"></div>
+    
+    <div class="cav-d-flex cav-justify-content-between cav-align-items-center">
+    <div class="cav-d-flex cav-align-items-center">
+    <!--p-splitButton label="Apply" click="onApply()" [model]="items"></p-splitButton-->
+    <button type="button" (click)="onSave()" class="buttons button-all">Save</button>
+    <button type="button" (click)="onCancel()" class="buttons button-all">Cancel</button>
+    </div> 
+    </div>
+
+    </p-tabPanel>
+    <!-- <p-tabPanel header="Edit Track Point">
+    Content 2
+    </p-tabPanel> -->
+    </p-tabView>
+    
+    
+    </div>
+    </div>
+    </p-dialog>
+
+<!--Dialog for asking to add New Profile -->
+    <p-dialog class="ddr-dialog" appendTo="body" header="Add New Profile Confirmation" [(visible)]="confirmationPopup"  width="400" [responsive]="true">
+      <label>{{popupMsg}}</label>
+      <p-footer>
+        <div>
+          <button pButton type="button" label=" Add New Profile" (click)="addNewProfile()"></button>
+          <button pButton type="button" label="Current" (click)="closeConfirmation()" ></button>
+        </div>
+      </p-footer>
+    </p-dialog>
+
+    <!--Dialog for Adding New Profile -->
+
+<p-dialog class="profile-dialog"  appendTo="body" [resizable]="false" header="Add Profile" *ngIf="displayNewProfile" [(visible)]="displayNewProfile" modal="modal" width="500" responsive="true">
+  <form (ngSubmit)="saveNewProfile()" #groupForm="ngForm" ngNativeValidate>
+      <div class="ui-g">
+          <div class="ui-g-4">
+              <label> Profile Name</label>
+          </div>
+          <div class="ui-g-8">
+              <input name="profileName" type="text" size="30" class="configUI-profile-dialog" pInputText [(ngModel)]="profileDetail.profileName" title="Please enter valid profile name. &#013;Profile name is of maximum 50 characters.  &#013;First character must be Alpha.  &#013;Other characters are Alpha, Numeric, Dash or Underscore"
+                  autofocus required pattern="^[a-zA-Z][a-zA-Z0-9_-]{0,49}$" ngModel />
+          </div>
+      </div>
+      <div class="ui-g">
+          <div class="ui-g-4">
+              <label>Copy profile</label>
+          </div>
+          <div class="ui-g-8">
+              <input name="dropdown1" type="text" size="25" class='hidden-validator configinput' pInputText [(ngModel)]="profileDetail.selectedProfile" required ngModel/>
+              <p-dropdown [options]="profileListItem" dropdownIcon="icons8 icons8-expand-arrow" name="dropdown1" [style]="{'width':'210px'}" required [(ngModel)]="profileDetail.selectedProfile" placeholder="Select a Profile to be copied" appendTo="body"></p-dropdown>
+          </div>
+      </div>
+      <div class="ui-g">
+          <div class="ui-g-4">
+              <label>Description</label>
+          </div>
+          <div class="ui-g-8">
+              <textarea name="profileDesc" rows="2" cols="30" class="configUI-profile-dialog" pInputTextarea [(ngModel)]="profileDetail.profileDesc" ngModel></textarea>
+          </div>
+      </div>
+      <footer>
+          <div class="ui-dialog-buttonpane ui-wnameget-content ui-helper-clearfix">
+              <button type="button" pButton icon="fa fa-close" (click)="displayNewProfile=false" label="Cancel"></button>
+              <button type="submit" pButton icon="fa fa-check" label="Save"></button>
+          </div>
+      </footer>
+  </form>
+</p-dialog>
+
+      <!-- Dialog for Confirming Delete Track point -->
+      <p-confirmDialog header="Confirmation" icon="fa fa-question-circle" width="300" appendTo ="body"></p-confirmDialog>
+
+
+      <!--Dialog for successfull apply of track point -->
+    <p-dialog class="ddr-dialog" appendTo="body" header="DL Add info" [(visible)]="successPopup"  width="300" [responsive]="true" [resizable]="false">
+        <label>{{dlMessg}}</label>
+        <p-footer>
+          <div>
+            <button pButton type="button" label="Ok" (click)="successConfirmPopup()"></button> 
+          </div>
+        </p-footer>
+      </p-dialog>
+
+
+      <!--Dialog for Capture Message Value-->
+      <p-dialog class="ddr-dialog" appendTo="body" header="Instruction" [(visible)]="captureMessagePopup"  width="300" [responsive]="true" [resizable]="false">
+        <label> {{captureMessage}}</label>
+        <p-footer>
+          <div>
+            <button pButton type="button" label="Ok" (click)="successConfirmPopup()"></button> 
+          </div>
+        </p-footer>
+      </p-dialog>
+
+<!-- Dialog for showing info about the children's profile applied-->
+<p-dialog class="profile-dialog headerCss" header="Confirmation"  appendTo="body" [resizable]="false" *ngIf="confirmInfoDialog"
+    [(visible)]="confirmInfoDialog" modal="modal" width="500" responsive="true">
+    <form (ngSubmit)="getTraceDetails()" #groupForm="ngForm" ngNativeValidate>
+        <div style="font-size: 13px;color: #111113;">
+            Changing profile at current level will also override profiles applied at below levels:
+            <br><br>
+            <b>
+                <ul>
+                    <li *ngFor="let i of infoMsg">
+                        <span>{{i}}</span>
+                    </li>
+                </ul>
+            </b>
+            <br>
+        </div>
+        <footer>
+            <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+                <button type="button" (click)="getTraceDetails()" pButton icon="fa fa-check" label="Edit Selected"></button>
+                <button type="submit" pButton (click)="isOverride=true" icon="fa fa-check" label="Override All"></button>
+                <button type="button" pButton icon="fa fa-close" (click)="confirmInfoDialog=false" label="Cancel"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>
+
+<!--Dialog for not allowing trace point outside the method -->
+<p-dialog class="ddr-dialog" appendTo="body" header="Warning" [(visible)]="editMessagePopup"  width="300" [responsive]="true" [resizable]="false">
+  <label> {{editMessage}}</label>
+  <p-footer>
+    <div>
+      <button pButton type="button" label="Ok" (click)="successConfirmPopup()"></button> 
+    </div>
+  </p-footer>
+</p-dialog>

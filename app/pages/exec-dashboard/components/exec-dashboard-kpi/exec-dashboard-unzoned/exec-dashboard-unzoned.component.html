@@ -1,0 +1,209 @@
+<p-dataTable class="gridHeaderClass kpigrid" [tableStyle]="{'table-layout':'auto'}" [value]="_commonKpi.$kpiDataObj['grid_' + unzoneViewObj.DCs]">
+    <p-header>
+        <span style="float:left;cursor:pointer" (click)="toggleTable()">
+            <i class="fa fa-minus" pTooltip="Expand" tooltipPosition="right"  aria-hidden="true" *ngIf="expandTable"></i>
+            <i class="fa fa-plus" pTooltip="Collapse" tooltipPosition="right"  aria-hidden="true" *ngIf="!expandTable"></i>
+            {{unzoneViewObj.header}}
+        </span> 
+    </p-header>
+    <p-headerColumnGroup>
+        <p-row>
+            <p-column [styleClass]="kpi_tier_name"  header="Tier Name" [style]=" {'width': '22vh'}"></p-column>
+            <p-column [styleClass]="kpiMultiPvs"  header="TPS" colspan="6">
+                <ng-template pTemplate="header">
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i> TPS
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiMultiRes"  header="Response Time (ms)" colspan="3">
+                <ng-template pTemplate="header">
+                    <i class="fa fa-clock-o" aria-hidden="true"></i> Response Time (ms)
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiMultiCpu"  header="CPU Utilization (%)" colspan="3">
+                <ng-template pTemplate="header">
+                    <i class="fa fa-tasks" aria-hidden="true"></i> CPU Utilization (%)
+                </ng-template>
+            </p-column>
+        </p-row>
+
+        <!-- Defining Row Headers -->
+        <p-row *ngIf="expandTable">
+            <p-column  [styleClass]="kpiUpdtMins" [style]=" {'width': '8%'}">
+                <ng-template pTemplate="header">
+                    <span>Updated per Minute</span>
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiPvsPkyData">
+                <ng-template pTemplate="header">
+                    <span>Last 1 Min</span>
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiPvsPkyData">
+                <ng-template pTemplate="header">
+                    <span *ngIf="(_config.$actTimePeriod === 'Last_60_Minutes' || _config.$actTimePeriod === 'last_day')">Last 1 Hr</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_120_Minutes' ">Last 2 Hrs</span>
+                    <span *ngIf=" _config.$actTimePeriod === 'Last_240_Minutes' ">Last 4 Hrs</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_360_Minutes' ">Last 6 Hrs</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_480_Minutes' ">Last 8 Hrs</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_720_Minutes' ">Last 12 Hrs</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_1440_Minutes' ">Last 24 Hrs</span>
+                    <span *ngIf="(_config.$actTimePeriod === 'Today' || _config.$actTimePeriod === 'Yesterday' || _config.$actTimePeriod === 'Event Day' || _config.$actTimePeriod === 'Last Week Same Day' || _config.$actTimePeriod === 'Custom Date')">Average</span>
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiPvsPkyData">
+                <ng-template pTemplate="header">
+                    <span>Last 1 Min/VM</span>
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiPvsPkyData">
+                <ng-template pTemplate="header">
+                    <span *ngIf="(_config.$actTimePeriod === 'Last_60_Minutes' || _config.$actTimePeriod === 'last_day') ">Last 1 Hr/VM</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_120_Minutes' ">Last 2 Hrs/VM</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_240_Minutes' ">Last 4 Hrs/VM</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_360_Minutes' ">Last 6 Hrs/VM</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_480_Minutes' ">Last 8 Hrs/VM</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_720_Minutes' ">Last 12 Hrs/VM</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_1440_Minutes' ">Last 24 Hrs/VM</span>
+                    <span *ngIf="(_config.$actTimePeriod === 'Today' || _config.$actTimePeriod === 'Yesterday' || _config.$actTimePeriod === 'Event Day' || _config.$actTimePeriod === 'Last Week Same Day' || _config.$actTimePeriod === 'Custom Date')">Average/VM</span>
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiPvsPkyData">
+                <ng-template pTemplate="header">
+                    <span title="Total/per VM">Certified Capacity</span>
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiPvsPkyData">
+                <ng-template pTemplate="header">
+                    <span>Day's Max</span>
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiResScsData">
+                <ng-template pTemplate="header">
+                    <span>Last 1 Min</span>
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiResScsData">
+                <ng-template pTemplate="header">
+                    <span *ngIf="(_config.$actTimePeriod === 'Last_60_Minutes' || _config.$actTimePeriod === 'last_day')">Last 1 Hr</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_120_Minutes' ">Last 2 Hrs</span>
+                    <span *ngIf=" _config.$actTimePeriod === 'Last_240_Minutes' ">Last 4 Hrs</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_360_Minutes' ">Last 6 Hrs</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_480_Minutes' ">Last 8 Hrs</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_720_Minutes' ">Last 12 Hrs</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_1440_Minutes' ">Last 24 Hrs</span>
+                    <span *ngIf="(_config.$actTimePeriod === 'Today' || _config.$actTimePeriod === 'Yesterday' || _config.$actTimePeriod === 'Event Day' || _config.$actTimePeriod === 'Last Week Same Day' || _config.$actTimePeriod === 'Custom Date')">Average</span>
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiResScsData">
+                <ng-template pTemplate="header">
+                    <span>Day's 95th %Tile</span>
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiCpuPkyData">
+                <ng-template pTemplate="header">
+                    <span>Last 1 Min</span>
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiCpuPkyData">
+                <ng-template pTemplate="header">
+                    <span *ngIf="(_config.$actTimePeriod === 'Last_60_Minutes' || _config.$actTimePeriod === 'last_day')">Last 1 Hr</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_120_Minutes' ">Last 2 Hrs</span>
+                    <span *ngIf=" _config.$actTimePeriod === 'Last_240_Minutes' ">Last 4 Hrs</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_360_Minutes' ">Last 6 Hrs</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_480_Minutes' ">Last 8 Hrs</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_720_Minutes' ">Last 12 Hrs</span>
+                    <span *ngIf="_config.$actTimePeriod === 'Last_1440_Minutes' ">Last 24 Hrs</span>
+                    <span *ngIf="(_config.$actTimePeriod === 'Today' || _config.$actTimePeriod === 'Yesterday' || _config.$actTimePeriod === 'Event Day' || _config.$actTimePeriod === 'Last Week Same Day' || _config.$actTimePeriod === 'Custom Date')">Average</span>
+                </ng-template>
+            </p-column>
+            <p-column [styleClass]="kpiCpuPkyData">
+                <ng-template pTemplate="header">
+                    <span>Day's Max</span>
+                </ng-template>
+            </p-column>
+
+        </p-row>
+    </p-headerColumnGroup>
+
+    <!-- defining Coloumn Data rows -->
+    <span *ngIf="expandTable">
+
+        <p-column field="tier" [style]=" {'width': '4%'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span>
+                    <i class="{{car['icon']}}" aria-hidden="true" style="margin-right:5px"></i>{{car[col.field]}}</span>
+            </ng-template>
+        </p-column>
+
+        <!-- _commonKpi.seperateByComma(car[col.field], car.tier) -->
+        <!-- _commonKpi.getColDataForOthers(car[col.field], "PVS") -->
+        <!-- car.tier + ':\n' +  -->
+        <!-- PVS ZONE -->
+        <p-column field="pvsMint" [style]="{'text-align':'right'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer" >{{_commonKpi.getColDataForOthers(car[col.field],"PVS")||"-"}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="pvsHr" [style]="{'text-align':'right'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field],"PVS")||"-"}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="pvsjpmint" [style]="{'text-align':'right'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span [pTooltip]="car.tier + ':\n' + car['actpvsjpmint']" tooltipPosition="bottom" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field],"PVS")||"-"}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="pvsJphr" [style]="{'text-align':'right'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span [pTooltip]="car.tier + ':\n' + car['actpvsjpmint']" tooltipPosition="bottom" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field],"PVS") ||"-"}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="pvscerCap" [style]="{'text-align':'right'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span [pTooltip] = "car[col.field]?car.tier + ':\n' + car[col.field] + '\nNo. of Inst: ' + _commonKpi.seperateByComma(car['noOfVM']):'-'" tooltipPosition="top" style = "cursor:pointer" >{{_commonKpi.getColDataForOthers(car[col.field],"PVS")||"-"}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="pvsDmax" [style]="{'text-align':'right'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field],"PVS")||"-"}}</span>
+            </ng-template>
+        </p-column>
+
+
+        <!-- RES ZONE -->
+        <p-column field="resMint" [style]="{'text-align':'right'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field],"RES")||"-"}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="resHr" [style]="{'text-align':'right'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field],"RES")||"-"}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="respctl95" [style]="{'text-align':'right'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span [pTooltip]="car.tier + ':\n' + car.respctl95_tooltip ||'-'" tooltipPosition="top" style="cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field],"RES") || "-"}}</span>
+            </ng-template>
+        </p-column>
+
+ 
+        <!-- CPU ZONE  -->
+        <p-column field="cpuMint" [style]="{'text-align':'right'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer" >{{_commonKpi.getColDataForOthers(car[col.field],"CPU")||"-"}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="cpuHr" [style]="{'text-align':'right'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field],"CPU")||"-"}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="cpuDmax" [style]="{'text-align':'right'}">
+            <ng-template let-col let-car="rowData" pTemplate="body">
+                <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="left" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field],"CPU")||"-"}}</span>
+            </ng-template>
+        </p-column>
+    </span>
+</p-dataTable>

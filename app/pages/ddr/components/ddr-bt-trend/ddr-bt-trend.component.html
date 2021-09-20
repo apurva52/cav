@@ -1,0 +1,609 @@
+<!-- <p-growl life=5000 [value]="_ddrData.message"></p-growl> -->
+<p-toast></p-toast>
+<div class="flowmap-box" id="flowmap-box" [ngStyle]="{'height': screenHeight + 67 +'px'}" style="overflow:auto">
+  <div class="ddr-toolbar">
+  <div class="p-grid p-justify-between p-align-center ui-table-header">
+      <div>
+        <span id="filters" [innerHTML]="headerFilter"></span>
+        <span id="customFilter" title="{{tierToolTip}}">{{tierFilter}}</span>
+        </div>
+        <!--  {{headerFilter}} -->
+        <!-- <span *ngIf="urlParam.btCategory  == 'extbt'" [style.cursor]='pinter' [style.margin-left]="(marginForFilter == 0) ? '100%':(marginForFilter > 51) ? '22%' : (marginForFilter > 45) ? '24%' : (marginForFilter < 30) ? '32%' : (marginForFilter > 30 && marginForFilter < 45) ? '35%': '48%' ">
+          <i class="fa fa-filter" title="Filter" aria-hidden="true" (click)='displayFilterDialog = true'></i>
+        </span> -->
+        <div>
+        
+
+        <button pButton icon="icons8 icons8-doc" *ngIf="showDownLoadReportIcon" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReports("word")'
+                pTooltip="Download as Word Report"></button>
+                <button pButton icon="icons8 icons8-spreadsheet-file" *ngIf="showDownLoadReportIcon"tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReports("excel")'
+                pTooltip="Download as Excel Report"></button>
+                <button pButton icon="icons8 icons8-pdf-2" *ngIf="showDownLoadReportIcon" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReports("pdf")'
+                pTooltip="Download as PDF Report"></button>
+                <span>  
+                  <span *ngIf="showDCMenu">
+                    <label>Data Center : </label>
+                    <p-dropdown [options]="dcList" (onChange)="getSelectedDC($event)" [(ngModel)]="selectedDC"
+                      [style]="{'width':'75px'}"></p-dropdown>
+                  </span>
+                  <label class="ddr-timeLabel" style='cursor:pointer' (click)="openTimeFilter()">{{timeLabel}}</label>
+                </span>
+      </div>
+    </div>
+   
+  </div>
+  <div class="mb-25">
+  <p-accordion class="accordHeader" [multiple]='true'>
+    <p-accordionTab header="BT Trend Summary" [selected]="true">
+      <p-toolbar class='ddr-acc-toolbar'>
+        <div style="float:right;">
+          <!-- <label class = "selectedBtCheckbox" >Get URL ID For Selected BT:  </label>
+               <p-checkbox name="checkURLIdxForURLName" value="true" title = "Get URL Index for BT" [(ngModel)]="selectedCheckBoxValue"></p-checkbox> -->
+          <i *ngIf="urlParam.btCategory  == 'extbt'" class="icons8 icons8-columns" title="Filter" aria-hidden="true"
+            (click)='displayFilter()'></i>
+        </div>
+      </p-toolbar>
+      <div>
+
+        <p-table  [rows]="10" [paginator]="ipData && ipData.length>10"
+          [rowsPerPageOptions]="[10,50,100,200]" [pageLinks]="3" class="all-tables" [scrollable]="true" scrollHeight="450px"
+          (onRowSelect)=onClickshowGraphWithInfo($event) [(selection)]="selectedRowInfo" [value]="ipData"
+          selectionMode="single" resizableColumns="true" (sortFunction)="sortColumnsOnCustom($event,ipData)" [customSort]="true" columnResizeMode="expand">
+          <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+              <ng-container *ngFor="let col of cols">
+                <col class="width-120">
+              </ng-container>
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header">
+            <tr>
+              <ng-container *ngFor="let col of cols">
+                <th style="text-overflow: inherit; white-space:normal;" pResizableColumn [pSortableColumn]="col.field">
+                  <span>{{col.header}}
+                    <p-sortIcon *ngIf="col.header!='Action'" [field]="col.field"></p-sortIcon>
+                  </span>
+                  
+                </th>
+              </ng-container>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-node>
+            <tr>
+              <ng-container *ngFor="let col of cols">
+                <td>
+                  <div *ngIf="col.field == 'action'">
+                    <span [style]="{'margin-right':'5px'}">
+                   
+                      <i class="icons8 icons8-sand-clock" style="cursor: pointer" title='View Method Timing Report'
+                        (click)="openPieWindow(node)"></i>
+                    </span>
+                    <span [style]="{'margin-right':'5px'}">
+                      <i class="icons8 icons8-database" style="cursor: pointer" title='View DB Request Report'
+                        (click)="openLogAndQuery(node)"></i>
+                    </span>
+                    <span [style]="{'margin-right':'5px'}">
+                      <i class="icons8 icons8-compare" style="cursor: pointer" title='View Flowpath Analyzer'
+                        (click)="openFPAnalyzer(node)"></i>
+                    </span>
+                    <span *ngIf="" [style]="{'margin-right':'5px'}">
+                      <i class="icons8 icons8-self-service-kiosk" style="cursor: pointer" title='Group By Custom Data'
+                        (click)="openCustomPopUp(node)"></i>
+                    </span>
+                    <span [style]="{'margin-right':'5px'}">
+                      <i class="icons8 icons8-natural-user-interface-2" style="cursor: pointer" title='View BT IP Summary'
+                        (click)="openBTIPSummary(node)"></i>
+                    </span>
+                    <span *ngIf="displayAutoInst" [style]="{'margin-right':'5px'}">
+                      <label (click)="openAutoInstDialog(node)" class="icons8 icons8-zoom-in"
+                        title="Click to Start Auto Instrumentation"></label>
+                    </span>
+                    <span *ngIf="enableAggFlowmap == 1" [style]="{'margin-right':'5px'}">
+                      <i class="icons8 icons8-slack-new" style="cursor: pointer" aria-hidden="true"
+                        title='View Aggregate Transaction Flowmap' (click)="gettierData(node)"></i>
+                    </span>
+                  </div>
+                  <span *ngIf="col.field == 'tier'">
+                    <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom"
+                      tooltipEvent="hover">{{node[col.field].substring(0,42)}}</a>
+                  </span>
+                  <span *ngIf="col.field == 'bt'">
+                    <span style="text-align:left">{{node[col.field]}}</span>
+                  </span>
+                  <span *ngIf="col.field == 'calls' || col.field == 'count'">
+                    <a (click)="openFpReport(node,col.header)" title='View Flowpath Report'
+                      class="right activeLink">{{formatter(node[col.field])}}</a>
+                  </span>
+                  <span *ngIf="col.field == 'totalCount' && urlParam.btCategory != 'All' ">
+                    <span class="right">{{formatter(node[col.field])}}</span>
+                  </span>
+                  <span *ngIf="col.field == 'totalCount' && urlParam.btCategory == 'All'">
+                    <a *ngIf="node[col.field] != 0" (click)="openFpReport(node,col.field)" title='View Flowpath Report'
+                      class="right activeLink">{{(node[col.field])}}</a>
+                    <div *ngIf="node[col.field] == '0'">{{(node[col.field])}}</div>
+                  </span>
+                  <span *ngIf="col.field == 'percentage'">
+                    <span class="right">{{formatter(node[col.field])}}</span>
+                  </span>
+                  <span *ngIf="col.field == 'min'">
+                    <span class="right">{{formatter(node[col.field])}}</span>
+                  </span>
+                  <span *ngIf="col.field == 'max'">
+                    <span class="right">{{formatter(node[col.field])}}</span>
+                  </span>
+                  <span *ngIf="col.field == 'avg' || col.field == 'totalAvg' ">
+                    <span class="right">{{formatter(node[col.field])}}</span>
+                  </span>
+                  <span *ngIf="col.field == 'health'">
+                    <span *ngIf="node[col.field] == 'normal.png'">
+                      <img src="assets/images/normal.png" aria-hidden="true">
+                    </span>
+                    <span *ngIf="node[col.field] == 'greenup.png'">
+                      <img src="assets/images/greenup.png" aria-hidden="true">
+                    </span>
+                    <span *ngIf="node[col.field] == 'reddown.png'">
+                      <img src="assets/images/reddown.png" aria-hidden="true">
+                    </span>
+                  </span>
+                  <span *ngIf="col.field == 'chart1'">
+                    <app-ddr-chart [chartData]=node.callData></app-ddr-chart>
+                  </span>
+                  <span *ngIf="col.field == 'chart2'">
+                    <app-ddr-chart [chartData]=node.callData></app-ddr-chart>
+                  </span>
+                  <span *ngIf="col.field == 'chart3'">
+                    <app-ddr-chart [chartData]=node.errorData></app-ddr-chart>
+                  </span>
+                  <span *ngIf="col.field == 'res'">
+                    <a (click)="openBTTrendPopup(node)" title='View BT Stats'
+                      class="right activeLink">{{formatter(node[col.field])}}</a>
+                  </span>
+                  <span *ngIf="col.field == 'cps'">
+                    <span class="right">{{formatterCPS(node[col.field])}}</span>
+                  </span>
+                  <span *ngIf="col.field == 'eps'">
+                    <span class="right">{{formatter(node[col.field])}}</span>
+                  </span>
+                  <span
+                    *ngIf="col.field == 'errorCount' || col.field == 'normalCount' || col.field == 'slowCount'|| col.field == 'vslowCount'">
+                    <a *ngIf="node[col.field] != 0" (click)="openFpReport(node,col.field)" title='View Flowpath Report'
+                      class="right activeLink">{{(node[col.field])}}</a>
+                    <div class="right" *ngIf="node[col.field] == '0'">{{(node[col.field])}}</div>
+                  </span>
+                  <span
+                    *ngIf="col.field == 'errorAvg' || col.field == 'normalAvg' || col.field == 'errorPct' || col.field == 'normalAvg' || col.field == 'normalPct'|| col.field == 'oPct' || col.field == 'slowAvg'|| col.field == 'slowPct' || col.field == 'totalTPS'|| col.field == 'vslowAvg' || col.field == 'vslowPct'">
+                    <div class="right">{{(node[col.field])}}</div>
+                  </span>
+                  <span *ngIf="col.field == 'instance'">
+                    <span>{{urlParam.instanceName}}</span>
+                  </span>
+                </td>
+              </ng-container>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="cols.length + 1" class="text-center">
+                    <span>No Records Found</span>
+                </td>
+            </tr>
+        </ng-template>
+        </p-table>
+
+        <!-- <p-dataTable styleClass="borderless" [rows]="10" [paginator]="ipData && ipData.length>10"
+          [rowsPerPageOptions]="[10,50,100,200]" [pageLinks]="3" class="bt-trend-table scen-table"
+          (onRowSelect)=onClickshowGraphWithInfo($event) [(selection)]="selectedRowInfo" [value]="ipData"
+          selectionMode="single" resizableColumns="true">
+          <p-column *ngFor="let col of cols" [field]="col.field" [header]="col.header"
+            [style]="{'width': col.width +'px','text-align':col.alignment}" [sortable]="col.sortable"
+            (sortFunction)="sortColumnsOnCustom($event,ipData)">
+            <ng-template *ngIf="col.field == 'action'" let-col let-node="rowData" pTemplate="body">
+              <span [style]="{'margin-right':'5px'}">
+                <i class="icon ddrui-icon-method-timing" style="cursor: pointer" title='View Method Timing Report'
+                  (click)="openPieWindow(node)"></i>
+              </span>
+              <span [style]="{'margin-right':'5px'}">
+                <i class="icon ddrui-icon-databse" style="cursor: pointer" title='View DB Request Report'
+                  (click)="openLogAndQuery(node)"></i>
+              </span>
+              <span [style]="{'margin-right':'5px'}">
+                <i class="icon ddrui-icon-fp-analyzer" style="cursor: pointer" title='View Flowpath Analyzer'
+                  (click)="openFPAnalyzer(node)"></i>
+              </span>
+              <span *ngIf="showCustomDataIcon" [style]="{'margin-right':'5px'}">
+                <i class="icon ddrui-icon-custom-data" style="cursor: pointer" title='Group By Custom Data'
+                  (click)="openCustomPopUp(node)"></i>
+              </span>
+              <span [style]="{'margin-right':'5px'}">
+                <i class="icon ddrui-icon-bt-ip-summary" style="cursor: pointer" title='View BT IP Summary'
+                  (click)="openBTIPSummary(node)"></i>
+              </span>
+              <span *ngIf="displayAutoInst" [style]="{'margin-right':'5px'}">
+                <label (click)="openAutoInstDialog(node)" class="fa fa-search-plus"
+                  title="Click to Start Auto Instrumentation"></label>
+              </span>
+              <span *ngIf="enableAggFlowmap == 1" [style]="{'margin-right':'5px'}">
+                <i class="fa fa-snowflake-o" style="cursor: pointer" aria-hidden="true"
+                  title='View Aggregate Transaction Flowmap' (click)="gettierData(node)"></i>
+              </span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'tier'" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom"
+                tooltipEvent="hover">{{node[col.field].substring(0,42)}}</a>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'bt'" pTemplate type="body">
+              <span style="text-align:left">{{node[col.field]}}</span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'calls' || col.field == 'count'" pTemplate
+              type="body">
+              <span (click)="openFpReport(node,col.header)" title='View Flowpath Report'
+                class="ddr-table-left">{{formatter(node[col.field])}}</span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'totalCount' && urlParam.btCategory != 'All' "
+              pTemplate type="body">
+              <span>{{formatter(node[col.field])}}</span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'totalCount' && urlParam.btCategory == 'All' "
+              pTemplate type="body">
+              <div *ngIf="node[col.field] != 0" (click)="openFpReport(node,col.field)" title='View Flowpath Report'
+                class="ddr-table-right">{{(node[col.field])}}</div>
+              <div *ngIf="node[col.field] == '0'">{{(node[col.field])}}</div>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'percentage'" pTemplate type="body">
+              <span>{{formatter(node[col.field])}}</span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'min'" pTemplate type="body">
+              <span>{{formatter(node[col.field])}}</span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'max'" pTemplate type="body">
+              <span>{{formatter(node[col.field])}}</span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'avg'" pTemplate type="body">
+              <span>{{formatter(node[col.field])}}</span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'health'" pTemplate type="body">
+              <span *ngIf="node[col.field] == 'normal.png'">
+                <img src="images/normal.png" aria-hidden="true">
+              </span>
+              <span *ngIf="node[col.field] == 'greenup.png'">
+                <img src="images/greenup.png" aria-hidden="true">
+              </span>
+              <span *ngIf="node[col.field] == 'reddown.png'">
+                <img src="images/reddown.png" aria-hidden="true">
+              </span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'chart1'" pTemplate type="body">
+              <app-ddr-chart [chartData]=node.callData></app-ddr-chart>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'chart2'" pTemplate type="body">
+              <app-ddr-chart [chartData]=node.callData></app-ddr-chart>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'chart3'" pTemplate type="body">
+              <app-ddr-chart [chartData]=node.errorData></app-ddr-chart>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'res'" pTemplate type="body">
+              <span (click)="openBTTrendPopup(node)" title='View BT Stats'
+                class="ddr-table-left">{{formatter(node[col.field])}}</span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'cps'" pTemplate type="body">
+              <span>{{formatterCPS(node[col.field])}}</span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'eps'" pTemplate type="body">
+              <span>{{formatter(node[col.field])}}</span>
+            </ng-template>
+            <ng-template let-col let-node="rowData"
+              *ngIf="col.field == 'errorCount' || col.field == 'normalCount' || col.field == 'slowCount'|| col.field == 'vslowCount'"
+              pTemplate type="body">
+              <div *ngIf="node[col.field] != 0" (click)="openFpReport(node,col.field)" title='View Flowpath Report'
+                class="ddr-table-right">{{(node[col.field])}}</div>
+              <div *ngIf="node[col.field] == '0'">{{(node[col.field])}}</div>
+            </ng-template>
+            <ng-template let-col let-node="rowData"
+              *ngIf="col.field == 'errorAvg' || col.field == 'normalAvg' || col.field == 'errorPct' || col.field == 'normalAvg' || col.field == 'normalPct'|| col.field == 'oPct' || col.field == 'slowAvg'|| col.field == 'slowPct' || col.field == 'totalTPS'|| col.field == 'vslowAvg' || col.field == 'vslowPct'"
+              pTemplate type="body">
+              <div style="text-align:right">{{(node[col.field])}}</div>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'instance'" pTemplate type="body">
+              <span>{{urlParam.instanceName}}</span>
+            </ng-template>
+          </p-column>
+        </p-dataTable> -->
+      </div>
+      <div *ngIf='showPagination'>
+        <div> Total Records : {{totalCount.toLocaleString()}} </div>
+      </div>
+      <!-- <p-paginator rows="10" [totalRecords]="totalCount" [rowsPerPageOptions]="[10,50,100,200,300,400]"
+        pageLinkSize="3" (onPageChange)="paginate($event)"></p-paginator> -->
+    </p-accordionTab>
+  </p-accordion>
+  </div>
+  <div class='ddr-bt-trend-div' *ngIf="urlParam.btCategory  == 'extbt' && graphTab == true">
+    <p-checkbox class="ml-5" name="groupname" binary=true (onChange)="changeCompare()" [(ngModel)]="selectedValues"></p-checkbox>
+    <span class='selectedBtCheckbox'>Compare for selected {{timePeriodForCompare}} with previous </span>
+    <span>
+      <p-dropdown [style]="{'width':'100px'}" [options]="timeCompareList" [disabled]='isTotalTestRun'
+        [(ngModel)]="selectedCompareTime" placeholder="Select"></p-dropdown>
+      <button pButton type="button" label="Apply" [disabled]='isTotalTestRun' (click)="getCompareData()"></button>
+    </span>
+    <span *ngIf="showCompare">
+      Time Period:&nbsp;&nbsp;{{compareAppliedStrattime}} To {{compareAppliedEndtime}}</span>
+  </div>
+  <p-accordion *ngIf="showBtGraphs" class="accordHeader" (onOpen)="onTabOpen($event)" (onClose)="onTabClose($event)"
+    [multiple]='true'>
+    <p-accordionTab [selected]="graphTab">
+      <p-header>{{BtStatHeader}}</p-header>
+      <div>
+        <div style="border : 1px solid grey;height:250px">
+          <div class="ui-g-12">
+            <div class="ui-g-3" style="width:24%">
+              <highcharts-chart [Highcharts]="highcharts" [options]="options1"></highcharts-chart>
+            </div>
+            <div class="ui-g-3" style="width:24%">
+              <highcharts-chart [Highcharts]="highcharts" [options]="options2"></highcharts-chart>
+            </div>
+            <div class="ui-g-3" style="width:24%">
+              <highcharts-chart [Highcharts]="highcharts" [options]="options3"></highcharts-chart>
+            </div>
+            <div class="ui-g-3" style="width:28%">
+              <div id='piechartid'></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-accordionTab>
+  </p-accordion>
+</div>
+<p-dialog class="ddr-dialog" appendTo="body" [(visible)]="displayBtStatsDialog" [resizable]="false" [responsive]="true">
+  <p-header>
+    <span>BT Category Stats</span>
+    <span *ngIf="popupHealthIcon == 'normal.png'">
+      <img src="assets/images/normal.png" aria-hidden="true">
+    </span>
+    <span *ngIf="popupHealthIcon == 'greenup.png'">
+      <img src="assets/images/greenup.png" aria-hidden="true">
+    </span>
+    <span *ngIf="popupHealthIcon== 'reddown.png'">
+      <img src="assets/images/reddown.png" aria-hidden="true">
+    </span>
+  </p-header>
+  <div id='filter'></div>
+  <img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+  <p-blockUI [blocked]="loading"></p-blockUI>
+  <div class="ui-g-12">
+    <div id='pieTable'></div>
+  </div>
+  <!-- <div class="ui-g-12">
+    <div class="ui-g-4">
+      <highcharts-chart [Highcharts] = "highcharts" [options]="btChart1"></highcharts-chart>
+    </div>
+    <div class="ui-g-4">
+      <highcharts-chart [Highcharts] = "highcharts" [options]="btChart2"></highcharts-chart>
+    </div>
+    <div class="ui-g-4">
+      <highcharts-chart [Highcharts] = "highcharts" [options]="btChart3"></highcharts-chart>
+    </div>
+  </div> -->
+</p-dialog>
+<p-dialog class="scenmodal" header="BT Stats" [(visible)]="displayFilterDialog" [responsive]="true" [resizable]="false"
+  width="500" height="250">
+  <div class='ui-g'>
+    <div class='ui-g-6'>
+      <span style='margin-right:13px'>Business Transaction</span>
+    </div>
+    <div class='ui-g-6'>
+      <input type="text" (keypress)="noNegativeValue($event)" style='width:70%' pInputText [(ngModel)]="txtFilterBt" />
+    </div>
+  </div>
+  <div class='ui-g'>
+    <div class='ui-g-6'>
+      <span style='margin-right:13px'>Health </span>
+    </div>
+    <div class='ui-g-6'>
+      <p-dropdown appendTo="body" [style]="{'width':'150px'}" [options]="healthList" [(ngModel)]="selectedHealth">
+      </p-dropdown>
+    </div>
+
+  </div>
+  <div class='ui-g'>
+    <div class='ui-g-6'>
+      <span style='margin-right:13px'>Response Time (ms) </span>
+    </div>
+    <div class='ui-g-6'>
+      <p-dropdown [options]="compareList" appendTo='body' [(ngModel)]="selectedResponseTime"></p-dropdown>
+      <input type="text" (keypress)="validateRpts($event,'res')" style='width:60%' [(ngModel)]="txtFilterResponseTime"
+        pInputText />
+    </div>
+  </div>
+  <div class='ui-g'>
+    <div class='ui-g-6'>
+      <span style='margin-right:13px'>TPS </span>
+    </div>
+    <div class='ui-g-6'>
+      <p-dropdown appendTo='body' [options]="compareList" [(ngModel)]="selectedTps"></p-dropdown>
+      <input type="text" (keypress)="validateRpts($event,'tps')" style='width:60%' [(ngModel)]="txtFilterTps"
+        pInputText />
+    </div>
+
+  </div>
+  <div class='ui-g'>
+    <div class='ui-g-6'>
+      <span style='margin-right:13px'>Error/Sec</span>
+    </div>
+    <div class='ui-g-6'>
+      <p-dropdown appendTo='body' [options]="compareList" [(ngModel)]="selectedError"></p-dropdown>
+      <input type="text" (keypress)="valEnteredKeyN($event)" style='width:60%' [(ngModel)]="txtFilterError"
+        pInputText />
+    </div>
+
+  </div>
+  <p-footer>
+    <button pButton type="button" label="Apply" (click)="applyFilter()"></button>
+    <button pButton type="button" label="Reset" (click)="applyDefaultValue()"></button>
+    <button pButton type="button" label="Cancel" (click)="displayFilterDialog =false"></button>
+  </p-footer>
+</p-dialog>
+<p-dialog styleClass="ddr-dialog-box" header="Apply Time Period" appendTo="body" [(visible)]="display" [style]="{width: '27vw'}"
+  [resizable]="false" modal="modal" [responsive]="true">
+  <div *ngIf="display">
+    <span class="ui-g-12">
+      <span class="ui-g-2">
+        <label>Time Period : </label>
+      </span>
+      <span class="ui-g-10">
+        <p-dropdown [options]="timeFilterOptions" scrollHeight="100px" appendTo="body" [(ngModel)]="selectedValue"
+          [style]="{'width':'150px'}" (onChange)="openDateFilter($event)" placeholder={{appliedTimeLabel}}></p-dropdown>
+      </span>
+    </span>
+    <div class="ui-g-12">
+      <span id="eventDateFilter">
+
+      </span>
+      <span *ngIf="customFilterDisplay">
+
+        <span class='ui-g-12'>
+          <span class='ui-g-6'>
+            <span class='ui-g-3'>
+              From &nbsp;:
+            </span>
+            <span class='ui-g-3'>
+              <p-calendar readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" [monthNavigator]="true"
+                [yearNavigator]="true" yearRange="1970:2030" [(ngModel)]="startDate"></p-calendar>
+            </span>
+          </span>
+          <span class='ui-g-6' style='margin-top: 6px;'>
+            <input pInputText type='text' title='HH' [(ngModel)]="startHours" onkeypress='valEnteredKeyN(event);'
+              placeholder='HH' autocomplete='off' tabindex='1' style='width:10%' maxlength='2'> :
+            <input pInputText type='text' title='MM' [(ngModel)]="startMinutes" onkeypress='valEnteredKeyN(event);'
+              placeholder='MM' autocomplete='off' tabindex='1' style='width:10%' maxlength='2'> :
+            <input pInputText type='text' title='SS' onkeypress='valEnteredKeyN(event);' [(ngModel)]="startSeconds"
+              placeholder='SS' autocomplete='off' tabindex='1' style='width:10%' maxlength='2'>
+          </span>
+        </span>
+
+        <span class='ui-g-12'>
+          <span class='ui-g-6'>
+            <span class='ui-g-3'>
+              To &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :
+            </span>
+            <span class='ui-g-3'>
+              <p-calendar readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" [monthNavigator]="true"
+                [yearNavigator]="true" yearRange="1970:2030" [(ngModel)]="endDate"></p-calendar>
+            </span>
+          </span>
+          <span class='ui-g-6' style='margin-top: 6px;'>
+            <input pInputText type='text' title='HH' [(ngModel)]="endHours" placeholder='HH' autocomplete='off'
+              onkeypress='valEnteredKeyN(event);' tabindex='1' style='width:10%' maxlength='2'> :
+            <input pInputText type='text' title='MM' onkeypress='valEnteredKeyN(event);' [(ngModel)]="endMinutes"
+              placeholder='MM' autocomplete='off' tabindex='1' style='width:10%' maxlength='2'> :
+            <input pInputText type='text' title='SS' onkeypress='valEnteredKeyN(event);' [(ngModel)]="endSeconds"
+              placeholder='SS' autocomplete='off' tabindex='1' style='width:10%' maxlength='2'>
+          </span>
+        </span>
+      </span>
+    </div>
+
+    <p-footer>
+
+      <div class="p-grid p-align-center p-justify-end py-5">
+      
+        <button pButton type="button" label="Submit"(click)="submitFilterValue()" class="ui-button-rounded"></button>
+
+      </div>
+    </p-footer>
+  </div>
+</p-dialog>
+<p-dialog class="scenmodal" header="Group By Custom Data" [(visible)]="showCustomDialog" width="500" height="auto"
+  [resizable]="false" [responsive]="true" positionTop="153">
+  <div class='ui-g' style='padding:4px'>
+    <div class="ui-g-2" *ngFor="let item of customDataOtionsArr" style="width:20%; margin-top:5px; ">
+      <p-checkbox id={{item.id}} class="spanClass2" [(ngModel)]="item.modal" label="{{item.label}}"></p-checkbox>
+    </div>
+  </div>
+  <p-footer>
+    <button pButton type="button" label="Apply" (click)="openCustomDataScreen()"></button>
+    <button pButton type="button" label="Cancel"
+      (click)="showCustomDialog =false ; isCustomDataSelected=false"></button>
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog class="ddr-dialog" appendTo="body" header="Dynamic Diagnostics Configuration" [resizable]="false"
+  *ngIf="showAutoInstrPopUp" [(visible)]="showAutoInstrPopUp" modal="modal" width="500"
+  [contentStyle]="{'max-height':'560px'}" responsive="true">
+  <app-dynamic-diagnostics (resultAfterStart)="startInstrumentation($event)" (closeAIDDGui)="closeAIDDDialog($event)"
+    [passAIDDSettings]="argsForAIDDSetting"></app-dynamic-diagnostics>
+</p-dialog>
+<p-dialog class="scenmodal" header="Apply Time Period" [(visible)]="showCustomDialogforCompare" width="500"
+  height="auto" [resizable]="false" [responsive]="true" positionTop="153">
+  <span class='ui-g-12'>
+    <span class='ui-g-6'>
+      <span class='ui-g-3'>
+        From &nbsp;:
+      </span>
+      <span class='ui-g-3'>
+        <p-calendar readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" [monthNavigator]="true"
+          [yearNavigator]="true" yearRange="1970:2030" [(ngModel)]="startCDate"></p-calendar>
+      </span>
+    </span>
+    <span class='ui-g-6' style='margin-top: 6px;'>
+      <input pInputText type='text' title='HH' [(ngModel)]="startCHours" onkeypress='valEnteredKeyN(event);'
+        placeholder='HH' autocomplete='off' tabindex='1' style='width:12%' maxlength='2'> :
+      <input pInputText type='text' title='MM' [(ngModel)]="startCMinutes" onkeypress='valEnteredKeyN(event);'
+        placeholder='MM' autocomplete='off' tabindex='1' style='width:12%' maxlength='2'> :
+      <input pInputText type='text' title='SS' onkeypress='valEnteredKeyN(event);' [(ngModel)]="startCSeconds"
+        placeholder='SS' autocomplete='off' tabindex='1' style='width:12%' maxlength='2'>
+    </span>
+  </span>
+
+  <span class='ui-g-12'>
+    <span class='ui-g-6'>
+      <span class='ui-g-3'>
+        To &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :
+      </span>
+      <span class='ui-g-3'>
+        <p-calendar readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" [monthNavigator]="true"
+          [yearNavigator]="true" yearRange="1970:2030" [(ngModel)]="endCDate"></p-calendar>
+      </span>
+    </span>
+    <span class='ui-g-6' style='margin-top: 6px;'>
+      <input pInputText type='text' title='HH' [(ngModel)]="endCHours" placeholder='HH' autocomplete='off'
+        onkeypress='valEnteredKeyN(event);' tabindex='1' style='width:12%' maxlength='2'> :
+      <input pInputText type='text' title='MM' onkeypress='valEnteredKeyN(event);' [(ngModel)]="endCMinutes"
+        placeholder='MM' autocomplete='off' tabindex='1' style='width:12%' maxlength='2'> :
+      <input pInputText type='text' title='SS' onkeypress='valEnteredKeyN(event);' [(ngModel)]="endCSeconds"
+        placeholder='SS' autocomplete='off' tabindex='1' style='width:12%' maxlength='2'>
+    </span>
+  </span>
+
+
+  <p-footer>
+    <button pButton type="button" label="Apply" (click)="getSpecifiedData()"></button>
+
+  </p-footer>
+</p-dialog>
+
+<!--<p-dialog header="Tier Merge Configuration" [(visible)]="dialogForTierMerge">
+  <div class ="ui-g">
+    <div class ="ui-g-4">
+      <label>Start Index : </label>
+    </div>
+  <div class ="ui-g-8">
+    <input pInputText type='number' style="width:40%"  min="0" (keypress)="validateQty($event)"  [(ngModel)]="startIndexForAgg"> 
+  </div>
+  </div>
+  <div class="ui-g">
+      <div class ="ui-g-4">
+      <label>Last Index : </label>
+      </div>
+      <div class ="ui-g-8">
+      <input pInputText type='number'  min="1" (keypress)="validateQty($event)"  style="width:40%" [(ngModel)]="lastIndexForAgg"> 
+      </div>
+  </div>
+  <p-footer>
+      <div style="float:left">Note : Start Index is  not included</div>
+      <div>
+      <button pButton type="button" label="Apply" (click)="gettierData()"></button>
+      </div>
+     
+    </p-footer>
+</p-dialog>-->

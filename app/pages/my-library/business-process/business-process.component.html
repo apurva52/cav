@@ -1,0 +1,147 @@
+<div class="h-100-vh business-process-container">
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+    <div #widgetHeight [ngStyle]="{
+      height: isEnabledColumnFilter
+        ? 'calc(100vh - 157px)'
+        : 'calc(100vh - 115px)'
+    }">
+        <div class="action-container" *ngIf="data">
+            <div class="p-grid p-justify-between p-align-center action-grid w-100-p my-5">
+                <div class="global-search-block p-grid">
+                    <button type="button" class="btn-icon mx-3" (click)="businessSidebar.open()">
+                        <i class="icons8 icons8-filter"></i>
+                      </button>
+  
+                      <div class="type-search width-250">
+                        <i class="icons8 icons8 icons8-search btn-icon left-icon"></i>
+                        <input #searchInputTemplate pInputText type="text" class="pl-20"
+                            (input)="business.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                    </div>
+                </div>
+
+                <div class="icons-container p-justify-between p-align-center">
+                    <button pButton label="Add" class="ui-button ui-button-rounded add-template"></button>
+                    <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns"
+                        optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                        pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }" styleClass="dropdown-panel-left">
+                    </p-multiSelect>
+                    <button pButton icon="icons8 icons8-search-property" class="btn-icon mx-3"
+                        (click)="toggleFilters()" pTooltip="Column Filter"></button>
+                    <button pButton icon="icons8 icons8-installing-updates" class="btn-icon mx-3"
+                        (click)="menuDownload.toggle($event)" pTooltip="Download"></button>
+                    <p-menu #menuDownload [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                        [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                    <button pButton icon="icons8 icons8-tick-box" class="btn-icon mx-3" pTooltip=""></button>
+                </div>
+            </div>
+
+            <ng-container>
+                <div class="content">
+                    <p-table #business [resizableColumns]="true" [columns]="selectedColumns" [value]="data.data"
+                        [rowHover]="true" [paginator]="true" [rows]="data.paginator.rows"
+                        [totalRecords]="data.data.length" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                        [showCurrentPageReport]="true"
+                        class="all-tables"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                        [responsive]="true" [scrollable]="true"
+                        scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 150px)"
+                        [globalFilterFields]="globalFilterFields">
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                                <col *ngFor="let col of columns" [style.width]="col.width" />
+                            </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                                   
+                                    <span pTooltip="{{col.label}}">{{col.label}}</span>
+                                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField"
+                                            ariaLabel="Activate to sort"
+                                            ariaLabelDesc="Activate to sort in descending order"
+                                            ariaLabelAsc="Activate to sort in ascending order">
+                                        </p-sortIcon>
+                                    
+                                </th>
+                            </tr>
+                            <tr *ngFor="let headerRow of data.headers">
+                                <ng-container *ngIf="isEnabledColumnFilter">
+                                    <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                        <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'custom'
+                      ">
+                                            <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                *ngSwitchCase="col.label" pInputText type="text" (input)="
+                          business.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'custom'
+                          )
+                        " />
+                                        </div>
+                                        <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'contains'
+                      ">
+                                            <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                pTooltip="Will filter metric names which contains given text."
+                                                *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                business.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'contains'
+                          )
+                        " />
+                                        </div>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns">
+                            <tr>
+                                <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                    <span class="text-data">{{ row[col.valueField] }}</span>
+                                    <div class="row-extra">
+                                        <span *ngIf="col.iconField" class="icons8 icons8-edit-2"></span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <!-----------Empty table error handling--------------------->
+                        <ng-template pTemplate="emptymessage" let-columns>
+                            <tr>
+                                <td [attr.colspan]="columns.length + 1" class="text-center">
+                                    <span *ngIf="error">Error while loading data</span>
+                                    <span *ngIf="emptyTable">Empty Table</span>
+                                    <span *ngIf="loading">Loading</span>
+                                    <span
+                                        *ngIf="!emptyTable && !loading && !error && searchInputTemplate.value.length">Nothing
+                                        found
+                                        matching
+                                        "{{searchInputTemplate.value}}"</span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
+<app-business-process-filter #businessSidebar></app-business-process-filter>

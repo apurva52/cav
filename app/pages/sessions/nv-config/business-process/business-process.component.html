@@ -1,0 +1,229 @@
+<div class="template-container">
+    <div>
+        <div class="action-container">
+
+            <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                <div class="global-search-block">
+                    <div>
+
+                    </div>
+                    <div class="p-input-icon-left search-div-css">
+                        <i class="icons8 icons8-search"></i>
+                        <input #searchInput type="text" pInputText placeholder="Global Filter"
+                        (input)="template.filterGlobal($event.target.value, 'contains' )" style="width:70%">
+                    </div>
+                    <div class="p-input-icon-left search-div-css">
+                        <i class="icons8 icons8-search"></i>
+                        <input #searchInput type="text" pInputText placeholder="Global Filter"
+                        (input)="template.filterGlobal($event.target.value, 'custom' )" style="width:70%">
+                    </div>
+                </div>
+
+                <div class="icons-container p-justify-between p-align-center">
+
+                    <button pButton  *ngIf ="buttonflag" label="ADD NEW" (click)="openDialog()" title="Click Here to Add New Business Process"
+                        class="ui-button ui-button-rounded ui-button-secondary add-checkpoint mh-5">
+                        <p-confirmDialog appendTo="body"
+                        maskStyleClass="ui-dialog-mask ui-widget-overlay ui-dialog-visible ui-dialog-mask-scrollblocker">
+                        </p-confirmDialog>
+                    </button>
+                    <button pButton *ngIf ="buttonflag" label="Delete" (click)="deleteFromTable()" title="Click Here to Delete Business Process"
+                        class="ui-button ui-button-rounded ui-button-secondary add-checkpoint mh-5"></button>
+                    <button pButton  *ngIf ="buttonflag" label="Edit" (click)="showDialogToEditGroup()" title="Click Here to Edit Business Process"
+                        class="ui-button ui-button-rounded ui-button-secondary add-checkpoint mh-5"></button>
+		       <button pButton  *ngIf ="buttonflag" label="Save"  title="Click Here to Save FlowChart" (click)="saveUI()" title="Click Here to Save Business Process Flow"
+                        class="ui-button ui-button-rounded ui-button-secondary add-checkpoint mh-5"></button>
+                </div>
+            </div>
+        </div>
+
+        <ng-container>
+            <div #widgetHeight class="mh-10" [ngStyle]="{
+        height: !isEnabledColumnFilter
+        ? 'calc(100vh - 35px)'
+        : 'calc(100vh - 80px)'
+    }">
+
+
+               
+                    <p-table #template  [columns]="columns" [resizableColumns]="true" [selection]="selectedItems" selectionMode="single"
+                        (onRowSelect)="onRowSelectEditTable($event)" [value]="bprocess" [rowHover]="true"
+                        [loading]="busy" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                        [responsive]="true" [scrollable]="true"
+                        class="all-tables"
+                        scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 280px)">
+
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th rowspan="3" pResizableColumn>State</th>
+                                <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+                                    <!--{{col.header}}-->
+                                    <span title="{{col.header}}">{{col.header}}</span> 
+                                    <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                                        ariaLabelDesc="Activate to sort in descending order"
+                                        ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                                </th>
+                               <!-- <th pSortableColumn="checkoutfunnelflag"> Checkout BP
+                                    <p-sortIcon field="checkoutfunnelflag"></p-sortIcon>
+                                </th>-->
+
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-row let-data>
+                            <tr [pSelectableRow]="row">
+                                <td>
+                                    <i *ngIf="data.active == 1 " style="color: green;" class="pi pi-check"
+                                        title="Active"></i>
+                                    <i *ngIf="data.active == 0" style="color :red;" class="pi pi-times"
+                                        title="InActive"></i>
+
+                                </td>
+                                <td title="{{data.bpname}}">{{data.bpname}}</td>
+                                <td title="{{data.description}}">{{data.description}}</td>
+                                <td title="{{data.channel}}">{{data.channel}}
+                                </td>
+                                <td title="{{data.usersegmentid}}">{{data.usersegmentid}}</td>
+                                <td title="{{data.lastmodified}}">{{data.lastmodified}}</td>
+                                <td *ngIf="data.checkoutfunnelflag">
+                                    <span *ngIf='data.checkoutfunnelflag  == "1"' title="Yes">Yes</span>
+                                    <span *ngIf='data.checkoutfunnelflag  == "0"' title="NO">NO</span>
+                                </td>
+                            </tr>
+
+                        </ng-template>
+
+
+                    </p-table>
+              
+
+                <div *ngIf='flowchartpic == true' class="p-grid p-col-12"
+                    style=" position: relative;top: -6px; min-height:248px;">
+                    <app-flowchart [item]='item' [saveFlag]="saveFlag" [load]="load" [currentData]="currentData"
+                        [ranm]="rno">
+                    </app-flowchart>
+                </div>
+
+            </div>
+        </ng-container>
+    </div>
+   
+
+</div>
+
+
+
+
+
+<p-dialog header="Add Business Process" class="secondary-dialog" [(visible)]="addFlag" [responsive]="true"
+    showEffect="fade" [modal]="true" [style]="{width:'500px'}" [baseZIndex]="999">
+    
+        <div class="p-grid p-align-center">
+            <div class="ui-g-4"><label>BP Name: </label></div>
+            <div class="ui-g-8">
+                <input class="w-100-p" type="text" placeholder="Enter Name" pInputText [(ngModel)]="bpname" />
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center">
+            <div class="ui-g-4"><label>BP Description:</label></div>
+            <div class="ui-g-8">
+                <textarea pInputTextarea class="w-100-p" type="text" placeholder="Enter Description" pInputText
+                    [(ngModel)]="description"></textarea>
+            </div>
+        </div>
+      
+        <div class="p-grid p-align-center">
+            <div class="ui-g-4"><label>Active</label></div>
+            <div class="ui-g-8">
+                <p-dropdown [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow" [options]="status" [(ngModel)]="activech"  [baseZIndex]="10001" appendTo="body"></p-dropdown>
+            </div>
+        </div>
+       
+        <div class="p-grid p-align-center">
+            <div class="ui-g-4"><label>Checkout BP</label></div>
+            <div class="ui-g-8">
+                <p-dropdown [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow" [options]="checkoutflag"  [baseZIndex]="10001" appendTo="body"[(ngModel)]="checkoutfunnelflag">
+                </p-dropdown>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center">
+            <div class="ui-g-4"><label>Channel</label></div>
+            <div class="ui-g-8">
+                <p-dropdown placeholder="Select Channel" dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width':'100%'}" [options]="nchannel"
+                    [(ngModel)]="channel"  [baseZIndex]="10001" appendTo="body"></p-dropdown>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center">
+            <div class="ui-g-4"><label>User Segment</label></div>
+            <div class="ui-g-8"> 
+                <p-multiSelect defaultLabel='Select User Segment' [options]="usersegmentoption" dropdownIcon="icons8 icons8-expand-arrow"
+                    [(ngModel)]="usersegmentid" [style]="{'min-width':'100%'}" [baseZIndex]="10001" appendTo="body"  #select (onPanelHide)="onPanelHide(usersegmentid, select)"></p-multiSelect>
+            </div>
+        </div>
+   
+    <p-footer>
+        <div  style="text-align: center;">
+            <button type="button" id="savecpid" class="ui-button-rounded px-15" pButton (click)="dataForTable()" label="Save"></button>
+        </div>
+    </p-footer>
+
+</p-dialog>
+
+<p-dialog header="Update Business Process" class="secondary-dialog" [(visible)]="updateFlag"
+    [responsive]="true" showEffect="fade" [modal]="true" [style]="{width:'500px'}">
+  
+    <div class="p-grid p-align-center">
+            <div class="ui-g-4"><label>BP Name: </label></div>
+            <div class="ui-g-8">
+                <input class="w-100-p" type="text" placeholder="Enter Name" pInputText [(ngModel)]="updatebpname" />
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center">
+            <div class="ui-g-4"><label>BP Description:</label></div>
+            <div class="ui-g-8">
+                <textarea pInputTextarea class="w-100-p" type="text" placeholder="Enter Description" pInputText
+                    [(ngModel)]="updatedescription"></textarea>
+            </div>
+        </div>
+        <div class="p-grid p-align-center">
+            <div class="ui-g-4"><label>Active</label></div>
+            <div class="ui-g-8">
+                <p-dropdown [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow" [options]="status" [(ngModel)]="updateactivech" [baseZIndex]="10001" appendTo="body"></p-dropdown>
+            </div>
+        </div>
+        <div class="p-grid p-align-center">
+            <div class="ui-g-4"><label>Checkout BP</label></div>
+            <div class="ui-g-8">
+                <p-dropdown [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow" [options]="checkoutflag" [(ngModel)]="updatecheckoutfunnelflag" [baseZIndex]="10001" appendTo="body">
+                </p-dropdown>
+            </div>
+        </div>
+        <div class="p-grid p-align-center">
+            <div class="ui-g-4"><label>Channel</label></div>
+            <div class="ui-g-8">
+                <p-dropdown placeholder="Select Channel" dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width':'100%'}" [options]="nchannel" [baseZIndex]="10001" appendTo="body"
+                    [(ngModel)]="updatechannel"></p-dropdown>
+            </div>
+        </div>
+        <div class="p-grid p-align-center">
+            <div class="ui-g-4"><label>User Segment</label></div>
+            <div class="ui-g-8">
+                <p-multiSelect defaultLabel='Select User Segment' [options]="usersegmentoption" dropdownIcon="icons8 icons8-expand-arrow"
+                    [(ngModel)]="updateusersegmentid" [style]="{'min-width':'100%'}"  [baseZIndex]="10001" appendTo="body"  #select1 (onPanelHide)="onPanelHide(updateusersegmentid, select1)"></p-multiSelect>
+            </div>
+        </div>
+<!-- class="p-grid p-justify-end my-10" -->
+    <p-footer>
+        <div  style="text-align: center;">
+            <button type="button" id="savecpid" class="ui-button-rounded px-15" pButton (click)="updateTable()" label="Save"></button>
+        </div>
+    </p-footer>
+
+</p-dialog>
+<p-toast  key='add-bp-config'></p-toast>
+

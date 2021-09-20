@@ -1,0 +1,612 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+<div class="ddruiscroll" [ngStyle]="{'height': screenHeight + 67 +'px'}" style="overflow:auto;">
+    <p-accordion (onOpen)="onTopologyEntityTab()" (onClose)="onCloseMetadataTab()">
+        <p-accordionTab header="Metadata" [selected]="metadataAccordion">
+            <div class="ui-g-12">
+                <div class="ui-g-4">
+                    <div class="ddr-box" id="DDR-BOX" style="max-height:90vh;">
+                        <div class="ui-toolbar ui-widget ui-widget-header ui-corner-all ui-helper-clearfix">
+                            <button _ngcontent-c31="" label="Apply" pbutton="" type="button"
+                                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                style="float: right;" (click)="refreshTSI()">
+                                <span class="ui-button-text ui-clickable">
+                                    <i class="fa fa-refresh" aria-hidden="true" title="Refresh"></i>
+                                </span>
+                            </button>
+                            <div class="group-left">
+                                <span>Tier , Server and Instance Tables</span>
+                            </div>
+                        </div>
+                        <p-table class="scen-table " [value]="tierMetadata" [sortOrder]="-1" selectionMode="single"
+                        resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                        [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                        [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of metaTier">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of metaTier">
+                                    <td *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+                        <!-- <p-dataTable class="scen-table " [value]="tierMetadata" [sortOrder]="-1" selectionMode="single"
+                            resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                            [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                            [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of metaTier">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+                        <span>Total Tiers {{tierRecord}}</span>
+
+                        <p-table class="scen-table" [value]="serverMetadata" [sortOrder]="-1" selectionMode="single"
+                        resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                        [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                        [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of metaServer">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of metaServer">
+                                    <td *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+
+                        <!-- <p-dataTable class="scen-table" [value]="serverMetadata" [sortOrder]="-1" selectionMode="single"
+                            resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                            [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                            [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of metaServer">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+
+                        <span>Total Servers {{serverRecord}}</span>
+
+                        <p-table class="scen-table" [value]="instanceMetadata" [sortOrder]="-1"
+                        selectionMode="single" resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                        [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                        [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of metaInstance">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of metaInstance">
+                                    <td *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+
+                        <!-- <p-dataTable class="scen-table" [value]="instanceMetadata" [sortOrder]="-1"
+                            selectionMode="single" resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                            [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                            [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of metaInstance">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+
+                        <span>Total Instances {{instanceRecord}}</span>
+
+                    </div>
+                    <div class="ddr-box" id="DDR-BOX" style="max-height:80vh;">
+
+                        <p-table class="scen-table" [value]="backendMetadata" [sortOrder]="-1"
+                        selectionMode="single" resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                        [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                        [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of backend">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of backend">
+                                    <td *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+
+                        <!-- <p-dataTable class="scen-table" [value]="backendMetadata" [sortOrder]="-1"
+                            selectionMode="single" resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                            [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                            [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of backend">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+                        <span>Total Backends {{bRecord}} </span>
+                    </div>
+
+                </div>
+                <div class="ui-g-4">
+                    <div class="ddr-box" id="DDR-BOX" style="max-height:100vh;">
+                        <div class="ui-toolbar ui-widget ui-widget-header ui-corner-all ui-helper-clearfix">
+                            <button _ngcontent-c31="" label="Apply" pbutton="" type="button"
+                                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                style="float: right;" (click)="refreshPCMB()">
+                                <span class="ui-button-text ui-clickable">
+                                    <i class="fa fa-refresh" aria-hidden="true" title="Refresh"></i>
+                                </span>
+                            </button>
+                            <div class="group-left">
+                                <span>Package , Class , Method and Backend Tables</span>
+                            </div>
+                        </div>
+
+                        <p-table class="scen-table" [value]="packageMetadata" [totalRecords]="ptRecord"
+                        [sortOrder]="-1" selectionMode="single" resizableColumns="true" [scrollable]="true"
+                        scrollHeight="115px" [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}"
+                        [paginator]="true" [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of packageM">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of packageM">
+                                    <td [ngStyle]="{'width': col.width +'px','text-align':col.align}" *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+
+                        <!-- <p-dataTable class="scen-table" [value]="packageMetadata" [totalRecords]="ptRecord"
+                            [sortOrder]="-1" selectionMode="single" resizableColumns="true" [scrollable]="true"
+                            scrollHeight="115px" [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}"
+                            [paginator]="true" [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of packageM">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+                        <span>Total Package {{ptRecord}} </span>
+
+                        <p-table class="scen-table" [value]="classMetadata" [sortOrder]="-1" selectionMode="single"
+                        resizableColumns="true" scrollable="true" scrollHeight="115px"
+                        [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                        [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of classM">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of classM">
+                                    <td [ngStyle]="{'width': col.width +'px','text-align':col.align}" *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+
+                        <!-- <p-dataTable class="scen-table" [value]="classMetadata" [sortOrder]="-1" selectionMode="single"
+                            resizableColumns="true" scrollable="true" scrollHeight="115px"
+                            [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                            [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of classM">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width+'px','text-align': col.align}" [filter]="col.filter">
+
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+
+                        <span>Total Class {{cRecord}} </span>
+
+                        <p-table class="scen-table" [value]="methodMetadata" [sortOrder]="-1" selectionMode="single"
+                        resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                        [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                        [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of method">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of method">
+                                    <td [ngStyle]="{'width': col.width +'px','text-align':col.align}" *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+
+                        <!-- <p-dataTable class="scen-table" [value]="methodMetadata" [sortOrder]="-1" selectionMode="single"
+                            resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                            [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                            [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of method">
+
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+
+                        <span>Total Methods {{mRecord}} </span>
+
+                    </div>
+                </div>
+                <div class="ui-g-4">
+                    <div class="ddr-box" id="DDR-BOX" style="max-height:80vh;">
+                        <div class="ui-toolbar ui-widget ui-widget-header ui-corner-all ui-helper-clearfix">
+                            <button _ngcontent-c31="" label="Apply" pbutton="" type="button"
+                                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                style="float: right;" (click)="refreshTC()">
+                                <span class="ui-button-text ui-clickable">
+                                    <i class="fa fa-refresh" aria-hidden="true" title="Refresh"></i>
+                                </span>
+                            </button>
+                            <div class="group-left">
+                                <span>Tables Records Table</span>
+                            </div>
+                        </div>
+
+                        <p-table class="scen-table" [value]="tableMetadata" [sortOrder]="-1" selectionMode="single"
+                        resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                        [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                        [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of metaTable">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of metaTable">
+                                    <td [ngStyle]="{'width': col.width +'px','text-align':col.align}" *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+
+                        <!-- <p-dataTable class="scen-table" [value]="tableMetadata" [sortOrder]="-1" selectionMode="single"
+                            resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                            [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                            [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of metaTable">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+                        <span>Total Tables {{tRecord}}</span>
+                    </div>
+                    <div class="ddr-box" id="DDR-BOX" style="max-height:80vh;">
+                        <div class="ui-toolbar ui-widget ui-widget-header ui-corner-all ui-helper-clearfix">
+                            <button _ngcontent-c31="" label="Apply" pbutton="" type="button"
+                                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                style="float: right;" (click)="refreshBT()">
+                                <span class="ui-button-text ui-clickable">
+                                    <i class="fa fa-refresh" aria-hidden="true" title="Refresh"></i>
+                                </span>
+                            </button>
+                            <div class="group-left">
+                                <span>BT Table</span>
+                            </div>
+                        </div>
+
+                        <p-table class="scen-table" [value]="btMetadata" [sortOrder]="-1" selectionMode="single"
+                        resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                        [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                        [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of businessT">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of businessT">
+                                    <td [ngStyle]="{'width': col.width +'px','text-align':col.align}" *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+
+                        <!-- <p-dataTable class="scen-table" [value]="btMetadata" [sortOrder]="-1" selectionMode="single"
+                            resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                            [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                            [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of businessT">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+                        <span>Total BT {{btRecord}} </span>
+                    </div>
+
+                    <div class="ddr-box" id="DDR-BOX" style="max-height:80vh;">
+                        <div class="ui-toolbar ui-widget ui-widget-header ui-corner-all ui-helper-clearfix">
+                            <button _ngcontent-c31="" label="Apply" pbutton="" type="button"
+                                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                style="float: right;" (click)="refreshQP()">
+                                <span class="ui-button-text ui-clickable">
+                                    <i class="fa fa-refresh" aria-hidden="true" title="Refresh"></i>
+                                </span>
+                            </button>
+                            <div class="group-left">
+                                <span>Query Table</span>
+                            </div>
+                        </div>
+
+                        <p-table class="scen-table" [value]="pqMetadata" [sortOrder]="-1" selectionMode="single"
+                        resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                        [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                        [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of pquery">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of pquery">
+                                    <td [ngStyle]="{'width': col.width +'px','text-align':col.align}" *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+
+                        <!-- <p-dataTable class="scen-table" [value]="pqMetadata" [sortOrder]="-1" selectionMode="single"
+                            resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                            [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                            [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of pquery">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+                        <span>Total Query {{qRecord}} </span>
+                    </div>
+                </div>
+
+            </div>
+            <hr noshade>
+        </p-accordionTab>
+    </p-accordion>
+    <p-accordion (onOpen)="onMappingTabOpen()" (onClose)="onCloseMappingTab()">
+        <p-accordionTab header="Mapping" [selected]="mappingAccordion">
+            <div class="ui-g-12">
+                <div class="ui-g-4">
+                    <div class="ddr-box" id="DDR-BOX" style="max-height:80vh;">
+
+                        <p-table class="scen-table" [value]="tsiTierMapdata" [sortOrder]="-1" selectionMode="single"
+                        [(selection)]="selectedTierRow" resizableColumns="true" [scrollable]="true"
+                        scrollHeight="110px" [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}"
+                        (onRowClick)='onRowClickTier($event)' [paginator]="true" [rows]="10" [pageLinks]="3"
+                        [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of tsiTier">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of tsiTier">
+                                    <td [ngStyle]="{'width': col.width +'px','text-align':col.align}" *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+
+                        <!-- <p-dataTable class="scen-table" [value]="tsiTierMapdata" [sortOrder]="-1" selectionMode="single"
+                            [(selection)]="selectedTierRow" resizableColumns="true" [scrollable]="true"
+                            scrollHeight="110px" [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}"
+                            (onRowClick)='onRowClickTier($event)' [paginator]="true" [rows]="10" [pageLinks]="3"
+                            [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of tsiTier">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+                        <span>Total Tiers {{tsitRecord}} </span>
+                    </div>
+                </div>
+                <div class="ui-g-4">
+                    <div class="ddr-box" id="DDR-BOX" style="max-height:80vh;">
+
+                        <p-table class="scen-table" [value]="tsiServerMapdata" [sortOrder]="-1"
+                        selectionMode="single" [(selection)]="selectedServerRow" resizableColumns="true"
+                        [scrollable]="true" scrollHeight="115px"
+                        [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}"
+                        (onRowClick)='onRowClickServer($event)' [paginator]="true" [rows]="10" [pageLinks]="3"
+                        [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of tsiServer">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of tsiServer">
+                                    <td [ngStyle]="{'width': col.width +'px','text-align':col.align}" *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+
+                        <!-- <p-dataTable class="scen-table" [value]="tsiServerMapdata" [sortOrder]="-1"
+                            selectionMode="single" [(selection)]="selectedServerRow" resizableColumns="true"
+                            [scrollable]="true" scrollHeight="115px"
+                            [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}"
+                            (onRowClick)='onRowClickServer($event)' [paginator]="true" [rows]="10" [pageLinks]="3"
+                            [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of tsiServer">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+                        <span>Total Map Servers {{tsisRecord}} </span>
+                    </div>
+                </div>
+                <div class="ui-g-4">
+                    <div class="ddr-box" id="DDR-BOX" style="max-height:80vh;">
+                        <p-table class="scen-table" [value]="tsiServerMapdata" [sortOrder]="-1"
+                        selectionMode="single" [(selection)]="selectedServerRow" resizableColumns="true"
+                        [scrollable]="true" scrollHeight="115px"
+                        [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}"
+                        (onRowClick)='onRowClickServer($event)' [paginator]="true" [rows]="10" [pageLinks]="3"
+                        [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <ng-container *ngFor="let col of tsiInstance">
+                                    <th *ngIf="col.action"> 
+                                        <span >{{ col.header }}</span>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <ng-container *ngFor="let col of tsiInstance">
+                                    <td [ngStyle]="{'width': col.width +'px','text-align':col.align}" *ngIf="col.action">
+                                        {{node[col.field]}}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        </p-table>
+                        <!-- <p-dataTable class="scen-table" [value]="tsiInstanceMapdata" [sortOrder]="-1"
+                            selectionMode="single" resizableColumns="true" [scrollable]="true" scrollHeight="115px"
+                            [style]="{'height':'auto','overflow-x':'hidden','overflow':'unset'}" [paginator]="true"
+                            [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor="let col of tsiInstance">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                                    [sortable]="col.sortable" [filterMatchMode]='contains'
+                                    [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+                        <span>Total Map Instances {{tsiiRecord}} </span>
+                    </div>
+                </div>
+            </div>
+            <hr noshade>
+        </p-accordionTab>
+    </p-accordion>
+</div>

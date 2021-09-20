@@ -1,0 +1,83 @@
+<div class="h-100-vh project-container">
+  <div class="p-grid">
+    <div class="p-col-12">
+      <div *ngIf="data" class="horizontal-container">
+        <div class="p-grid">
+          <div class="panel-card">
+            <div *ngFor="let panel of data.panels; let i = index">
+              <div id="panel-{{ i + 1 }}" class="project-card">
+                <p-card #projectCard [style.width]="getCustomWidth()">
+                  <p-header>
+                    <span class="header-icon"> <i class="icons8 icons8-suitcase"></i> </span>
+                    <span class="selected-label"> {{ panel.label }} </span>
+                    <span class="btn-right">
+                      <button
+                        type="button"
+                        pButton
+                        icon="icons8 icons8-plus-math"
+                        class="ui-button ui-button-rounded"
+                        label="ADD"
+                      ></button>                     
+                    </span>
+                  </p-header>
+                  <div class="p-grid vertical-container" *ngIf="error">
+                    <div class="p-col p-col-align-center text-center">
+                      <p-message
+                        severity="error"
+                        text="Error while loading data."
+                      ></p-message>
+                    </div>
+                  </div>
+                  <div class="empty-container" *ngIf="empty">No data.</div>
+                  <div class="p-grid loader-container vertical-container" *ngIf="loading">
+                    <div class="p-col p-col-align-center text-center">
+                      <div>
+                        <i class="pi pi-spin pi-spinner"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="p-grid p-align-center">
+                    <div class="p-grid p-col-4">
+                        <span class="label">Environment</span>
+                    </div>
+                    <div class="p-col-8">
+                        <p-dropdown [options]="options" [(ngModel)]="selectedOption" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+                  </div>
+                  <div class="p-grid p-align-center">
+                    <div class="p-col-4 p-align-center">
+                        <span class="label">Component</span>
+                    </div>
+                    <div class="p-col-8">
+                        <p-dropdown [options]="options" [(ngModel)]="selectedOption" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+                  </div>
+                  <div class="data-list-container mt-40">
+                      <div class="pv-10">Data</div>
+                      <div class="list-table">
+                        <p-table [columns]="panel.headers" [value]="panel.data">
+                            <ng-template pTemplate="body" let-row let-columns="columns">
+                              <tr *ngFor="let headerRow of panel.headers">
+                                <td
+                                  *ngFor="let col of headerRow.cols"
+                                  [ngStyle]="{
+                                    'width.px':
+                                      col.label === 'Properties' ? '100' : '200'
+                                  }"
+                                >
+                                  {{ row[col.valueField] }}
+                                </td>
+                              </tr>
+                            </ng-template>
+                          </p-table>
+                      </div>                    
+                  </div>                 
+                </p-card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

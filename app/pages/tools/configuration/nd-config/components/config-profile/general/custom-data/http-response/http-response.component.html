@@ -1,0 +1,265 @@
+<div class="ui-g-12 configui-session-css">
+    <div class="ui-g-2">
+        <p-radioButton name="httpResponse" label="None" value="None" [disabled]="saveDisable" [(ngModel)]="selectedHTTPRepHdrType" (click)="getSelectedHTTPRepHdr()"></p-radioButton>
+    </div>
+    <div class="ui-g-2">
+        <p-radioButton name="httpResponse" label="Extract Value" value="Specific" [disabled]="saveDisable" [(ngModel)]="selectedHTTPRepHdrType" (click)="getSelectedHTTPRepHdr()"></p-radioButton>
+    </div> 
+    <div class="ui-g-2">
+        <p-radioButton name="httpResponse" label="All" value="All" [disabled]="saveDisable" [(ngModel)]="selectedHTTPRepHdrType" (click)="getSelectedHTTPRepHdr()"></p-radioButton>
+    </div>
+</div>
+
+<div *ngIf="selectedHTTPRepHdrType == 'Specific'" class="d-block">
+    <!--For showing HTTP Response Header list -->
+    <p-header class="p-grid p-align-center p-justify-between">
+        <span class="configui-float-css pt-6">HTTP Response Header based Custom Header Rule(s)</span>
+        <span class="configui-float" style="float: right;">
+            <button pButton type="button" class="ui-button-sucess mx-6 mb-6" title="Add" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-plus-math"></button>
+            <button pButton type="button" class="ui-button-sucess mx-6 mb-6" title="Add" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openAddHTTPRepDialog()" icon="icons8 icons8-plus-math"></button>
+            <button pButton type="button" class="ui-button-sucess mr-6 mb-6" title="Edit" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  icon="icons8 icons8-edit" ></button>
+            <button pButton type="button" class="ui-button-sucess mr-6 mb-6" title="Edit" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="editHTTPRepDialog()" icon="icons8 icons8-edit" ></button>
+            <button pButton type="button" class="ui-button-sucess mr-6 mb-6" title="Delete" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-trash"></button>
+            <button pButton type="button" class="ui-button-sucess mr-6 mb-6" title="Delete" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteHTTPRepHeader()" icon="icons8 icons8-trash"></button>
+        </span>
+    </p-header>
+    <p-table [value]="httpResponseHdrComponentInfo" [columns]="cols" [value]="httpResponseHdrComponentInfo" class="nde-ui all-tables" [(selection)]="selectedHTTPRepHeader" [rows]="5" [paginator]="httpResponseHdrComponentInfo?.length > 5 " [pageLinks]="3">
+        <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+                <col style="width:10%">
+                <col style="width:30%">
+                <col style="width:30%">
+                <col style="width:30%">
+            </colgroup>
+        </ng-template>
+        <!-- <ng-template pTemplate="header">
+            <tr>
+                <th>
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th>Response Header Name</th>
+                <th>Capture Mode</th>
+                <th>Header Names</th>
+          </tr>
+        </ng-template> -->
+        <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+            <tr>
+                <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                    <span class="width-10" *ngIf="col.field =='checkbox'"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></span>
+                    <span *ngIf="col.field !='checkbox'">
+                        {{col.header}}
+                        <p-sortIcon [field]="col.field"></p-sortIcon>
+                    </span>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template class="tableCss config-ui" pTemplate="body" let-application>
+            <tr>
+                <td class="text-center">
+                    <p-tableCheckbox [value]="application"></p-tableCheckbox>
+                </td>
+                <td class="tableCss" title="{{application.headerName}}">{{application.headerName}}</td>
+                <td class="tableCss" title="{{application.dumpMode}}">{{application.dumpMode}}</td>
+                <td class="tableCss" title="{{application.valueNames}}">{{application.valueNames}}</td>
+             </tr>
+        </ng-template>
+	<ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="4" style="text-align: center" >
+                    No records found
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+
+
+    <!-- <p-dataTable [value]="httpResponseHdrComponentInfo" class="nde-ui" [(selection)]="selectedHTTPRepHeader" [rows]="5" [paginator]="httpResponseHdrComponentInfo?.length > 5 " [pageLinks]="3"> -->
+        <!-- <p-header>
+            <span class="configui-float-css">HTTP Response Header based Custom Header Rule(s)</span>
+            <span class="configui-float">
+                <button pButton type="button" title="Add" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-plus"></button>
+                <button pButton type="button" title="Add" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openAddHTTPRepDialog()" icon="fa fa-plus"></button>
+                <button pButton type="button" title="Edit" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  icon="fa fa-pencil" ></button>
+                <button pButton type="button" title="Edit" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="editHTTPRepDialog()" icon="fa fa-pencil" ></button>
+                <button pButton type="button" class="ui-button-danger" title="Delete" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-trash"></button>
+                <button pButton type="button" class="ui-button-danger" title="Delete" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteHTTPRepHeader()" icon="fa fa-trash"></button>
+            </span>
+        </p-header> -->
+        <!-- <p-column [style]="{'width':'38px'}" selectionMode="multiple"></p-column>
+        <p-column class="col-overflow" field="headerName" header="Response Header Name" [sortable]="true">
+            <ng-template let-col let-application="rowData">
+                <span></span>
+            </ng-template>
+        </p-column>
+        <p-column class="col-overflow" field="dumpMode" header="Capture Mode" [sortable]="true">
+            <ng-template let-col let-application="rowData">
+                <span></span>
+            </ng-template>
+        </p-column>
+        <p-column class="col-overflow" field="valueNames" header="Header Names" [sortable]="true">
+            <ng-template let-col let-application="rowData">
+                <span></span>
+            </ng-template>
+        </p-column> -->
+    <!-- </p-dataTable> -->
+    <!-- Download reports as PDF,Excel and Word File  -->
+    <div class="p-grid p-align-center">
+        <label class="mr-5">Download Reports as: </label>
+        <button pButton class="icon-button no-shadow" pTooltip="Download Word file" tooltipPosition="top" icon="icons8 icons8-doc" (click)='downloadReports("WordFile")'></button>
+        <button pButton class="icon-button no-shadow" pTooltip="Download Excel file" tooltipPosition="top" icon="icons8 icons8-spreadsheet-file"  (click)='downloadReports("ExcelFile")'></button>
+        <button pButton class="icon-button no-shadow" pTooltip="Download PDF file" tooltipPosition="top" icon="icons8 icons8-pdf-2" (click)='downloadReports("PDFFile")'></button>
+    </div>
+</div>
+
+<!--Dialog for ADD and Edit HTTP Response Header (s)-->
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" header="{{isNew ? 'Add HTTP Response Header Rule(s)' : 'Edit HTTP Response Header Rule(s)'}}" *ngIf="httpResponseCustomDialog" [(visible)]="httpResponseCustomDialog" modal="modal" width="550" responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveADDEditHTTPRepHeader()" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="ui-g-4">
+                    <label>Response Header Name</label>
+                </div>
+                <div class="ui-g-5">
+                    <input name="headerName" type="text" size="40" pInputText [(ngModel)]="httpResponseHdrDetail.headerName" title="Please enter valid Response Header name.  &#013;Please enter maximum upto 256 characters." required pattern="[a-zA-Z0-9_-]{0,256}" autofocus
+                        ngModel/>
+                </div>
+            </div>
+            <div class="ui-g-12">
+                <div class="ui-g-4">
+                    <p-checkbox name="complete" label="Complete Value" [(ngModel)]="httpResponseHdrDetail.complete" binary="false"></p-checkbox>
+                </div>
+                <div class="ui-g-4">
+                    <p-checkbox name="specific" label="Extract Value" [(ngModel)]="httpResponseHdrDetail.specific" binary="false"></p-checkbox>
+                </div>
+            </div>
+            <div class="ui-g-12" *ngIf="httpResponseHdrDetail.specific">
+                <p-header class="p-grid p-align-center p-justify-between">
+                    <span class="configui-float-css">Extraction Rule(s)</span>
+                    <span class="configui-float">
+                       <button pButton type="button" class="ui-button-sucess mx-6 my-6" title="Add" (click)="openHTTPRepTypeValueDialog()" icon="icons8 icons8-plus-math"></button>
+                       <button pButton type="button" class="ui-button-sucess mr-6 my-6" title="Edit" (click)="openEditHTTPRepTypeDialog()" icon="icons8 icons8-edit" ></button>
+                       <button pButton type="button" class="ui-button-sucess mr-6 my-6" title="Delete" (click)="deleteRules()" icon="icons8 icons8-trash"></button>
+                    </span>
+                </p-header>
+                <p-table class="nde-ui all-tables" [value]="rulesDataInfo" [(selection)]="selectedRulesData" [rows]="5" [paginator]="rulesDataInfo?.length > 5" [pageLinks]="3">
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                            <col style="width:10%">
+                            <col style="width:40%">
+                            <col style="width:15%">
+                            <col style="width:15%">
+                            <col style="width:25%">
+                        </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+                            <th>Custom Header Name</th>
+                            <th>Data Type</th>
+                            <th>Left Bound</th>
+                            <th>Right Bound</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template class="tableCss config-ui" pTemplate="body" let-application>
+                        <tr>
+                            <td>
+                                <p-tableCheckbox [value]="application"></p-tableCheckbox>
+                            </td>
+                            <td class="tableCss" title="{{application.valName}}">{{application.valName}}</td>
+                            <td class="tableCss" title="{{application.customValTypeName}}">{{application.customValTypeName}}</td>
+                            <td class="tableCss" title="{{application.lb}}">{{application.lb}}</td>
+                            <td class="tableCss" title="{{application.rb}}">{{application.rb}}</td>
+                         </tr>
+                    </ng-template>
+                </p-table>
+
+                <!-- <p-dataTable class="nde-ui" [value]="rulesDataInfo" [(selection)]="selectedRulesData" [rows]="5" [paginator]="rulesDataInfo?.length > 5" [pageLinks]="3"> -->
+                    <!-- <p-header>
+                        <span class="configui-float-css">Extraction Rule(s)</span>
+                        <span class="configui-float">
+                           <button pButton type="button" title="Add" (click)="openHTTPRepTypeValueDialog()" icon="fa fa-plus"></button>
+                           <button pButton type="button" title="Edit" (click)="openEditHTTPRepTypeDialog()" icon="fa fa-pencil" ></button>
+                           <button pButton type="button"class="ui-button-danger" title="Delete" (click)="deleteRules()" icon="fa fa-trash"></button>
+                        </span>
+                    </p-header>
+                    <p-column [style]="{'width':'38px'}" selectionMode="multiple"></p-column>
+                    <p-column class="col-overflow" field="valName" header="Custom Header Name" [sortable]="true">
+                        <ng-template let-col let-application="rowData" pTemplate type="body">
+                            <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                        </ng-template>
+                    </p-column>
+                    <p-column class="col-overflow" field="customValTypeName" header="Data Type" [sortable]="true">
+                        <ng-template let-col let-application="rowData" pTemplate type="body">
+                            <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                        </ng-template>
+                    </p-column>
+                    <p-column class="col-overflow" field="lb" header="Left Bound" [sortable]="true">
+                        <ng-template let-col let-application="rowData" pTemplate type="body">
+                            <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column class="col-overflow" field="rb" header="Right Bound" [sortable]="true">
+                        <ng-template let-col let-application="rowData" pTemplate type="body">
+                            <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                <!-- </p-dataTable> -->
+            </div>
+        </div>
+        <p-footer>
+            <div class="p-grid p-align-center p-justify-end py-5">
+                <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="closeDialog()" label="Cancel"></button>
+                <button type="submit"  pButton class="ui-button-rounded  px-10" label="Save"></button>
+            </div>
+        </p-footer>
+    </form>
+</p-dialog>
+
+<!--Dialog for ADD Value Types-->
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" header="{{!isNewRule ? 'Add Extraction Rule ' : 'Edit Extraction Rule'}}" *ngIf="rulesDialog" [(visible)]="rulesDialog" modal="modal" width="590" responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveRules()" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="ui-g-2">
+                    <label>Custom Header Name</label>
+                </div>
+                <div class="ui-g-4">
+                    <input name="valName" type="text" size="20" pInputText [(ngModel)]="rulesDataDetail.valName" autofocus title="Please enter valid Custom Header Name.  &#013;Rule 1: Please enter maximum upto 50 characters. &#013;Rule 2: Whitespaces are not allowed  &#013;Rule 3: In between alphanumeric character only this set of special character will be accepted [_-@#%.] ."
+                        required pattern="[a-zA-Z0-9]+[a-zA-Z0-9-_%@#.]{0,49}$" (keydown.space)="$event.preventDefault()" autofocus ngModel/>
+                </div>
+                <div class="ui-g-2">
+                    <label>Data Type</label>
+                </div>
+                <div class="ui-g-4">
+		    <input name="customValueType" type="text" size="15" class='hidden-validator' pInputText [(ngModel)]="rulesDataDetail.customValTypeName" required ngModel/>                    
+                    <p-dropdown name="customValueType" dropdownIcon="icons8 icons8-expand-arrow" [style]="{'width':'62%'}" [options]="customValueType" [(ngModel)]="rulesDataDetail.customValTypeName" required ngModel placeholder="--Select type--"></p-dropdown>
+                </div>
+            </div>
+
+            <div class="ui-g-12">
+                <div class="ui-g-2">
+                    <label>Left Bound</label>
+                </div>
+                <div class="ui-g-4">
+                    <input name="lb" type="text" size="20" pInputText [(ngModel)]="rulesDataDetail.lb" title="Please enter valid Left bound.  &#013;Please enter maximum upto 50 characters." pattern="[^]{0,49}$" ngModel/>
+                </div>
+                <div class="ui-g-2">
+                    <label>Right Bound</label>
+                </div>
+                <div class="ui-g-4">
+                    <input name="rb" type="text" size="20" pInputText [(ngModel)]="rulesDataDetail.rb" title="Please enter valid Right bound.  &#013;Please enter maximum upto 50 characters." pattern="[^]{0,49}$" ngModel/>
+                </div>
+            </div>
+        </div>
+        <p-footer>
+            <div class="p-grid p-align-center p-justify-end py-5">
+                <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="rulesDialog = false" label="Cancel"></button>
+                <button type="submit"  pButton class="ui-button-rounded  px-10" label="Save"></button>
+            </div>
+        </p-footer>
+    </form>
+
+</p-dialog>

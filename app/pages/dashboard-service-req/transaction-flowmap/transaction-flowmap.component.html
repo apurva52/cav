@@ -1,0 +1,246 @@
+<div class="h-100-vh page-container home-page">
+    <!--div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/drilldown">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                TRANSACTION FLOWMAP
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div-->
+    <div class="aggregate-transaction-group h-100-vh">
+        <ng-container>
+            <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+                <div class="p-col p-col-align-center text-center">
+                    <div>
+                        <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-grid vertical-container" *ngIf="error">
+                <div class="p-col p-col-align-center text-center">
+                    <p-message severity="error" text="{{error.msg}}"></p-message>
+                </div>
+            </div>
+            <div class="p-grid vertical-container" *ngIf="empty">
+                <div class="p-col p-col-align-center text-center">
+                    <p-message severity="normal" text="No Data"></p-message>
+                </div>
+            </div>
+            <div #widgetHeight *ngIf="data" style="height: calc(100vh - 225px);">
+              <div class="p-grid p-justify-end w-100-p p-col-12">
+                <p-menu #menuItems [popup]="true" styleClass="widget-menu psitionSetMenuTrx" [model]="itemsall" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                <button pButton icon="icons8 icons8-menu-vertical" class="ui-icon-button" (click)="menuItems.toggle($event);" pTooltip="Menu"></button>
+              </div>
+                <div class="p-grid h-100-p">
+                    <!--div class="p-col-3 no-padding">
+                        <div class="box box box-stretched marginL">
+                            <div class="business-orderlist">
+                                <p-orderList [value]="data.businessJacket.data" header="Transaction Trends"
+                                    filter="filter" filterBy="businessTransaction">
+                                    <ng-template pTemplate="item" let-rowData>
+                                        <div class="ui-helper-clearfix">
+                                            <div class="list">
+                                                <span class="businessTran">{{rowData.businessTransaction}}</span>
+                                                <span class="startTime">{{rowData.startTime}}</span>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                </p-orderList>
+                            </div>
+                        </div>
+                    </div-->
+                    <div class="p-col-12 no-padding">
+                        <div class="aggregate-transaction-flowmap-table" *ngIf="isShowFlowmapTable">
+                            <div class="table-data h-100-p" *ngIf="!isShow">
+                                <div class="p-col-12 h-100-p">
+                                    <div class="h-100-p diagram-body">
+                                        <jsplumb-surface [surfaceId]="surfaceId" [toolkitId]="toolkitId" [view]="view"
+                                            [renderParams]="renderParams"></jsplumb-surface>
+                                        <div class="mini-view">
+                                            <jsplumb-miniview [surfaceId]="surfaceId"></jsplumb-miniview>
+                                            <div class="zoom-range">
+                                                <div>0</div>
+                                                <div>
+                                                    <p-slider [style]="{'width':'15em'}"></p-slider>
+                                                </div>
+                                                <div>
+                                                    100
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-grid" *ngIf="isShowRelatedGraph">
+                            <p-card>
+                                <p-header>
+                                    <div class="p-grid p-col-12 p-justify-between p-align-center w-100-p">
+                                        <div>Show Related Graph</div>
+                                        <div class="action-icons">
+                                            <i class="icons8-delete delete-icon" (click)="showFlowmapTable()"></i>
+                                        </div>
+                                    </div>
+                                </p-header>
+                                <div class="p-col-4" *ngFor="let chart of transactionFlowmapChart.charts">
+                                    <app-chart [data]="chart"></app-chart>
+                                </div>
+                            </p-card>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>
+<p-overlayPanel #outputNode class="solarPref" *ngIf="outputNodeOverlayData">
+    <ng-template pTemplate>
+        <div class="p-grid">
+          <div *ngIf="!(outputNodeOverlayData.tier === '-')">
+            <div class="p-col-12 no-padding">
+              <header>
+                <span>{{outputNodeOverlayData.nodeName}}</span>
+              </header>
+            </div>
+
+            <div class="p-col-12 info">
+              <div class="p-col-12">
+                <span class="title"> Tier: {{outputNodeOverlayData.tier}} </span>
+              </div>
+              <div class="p-col-12">
+                <span class="title"> Server: {{outputNodeOverlayData.server}} </span>
+              </div>
+              <div class="p-col-12">
+                <span class="title"> Instance: {{outputNodeOverlayData.instance}} </span>
+              </div>
+              <div class="p-col-12">
+                <span class="title"> Start Time: {{outputNodeOverlayData.startTime}} </span>
+              </div>
+              <div class="p-col-12">
+                <span class="title"> Total Duration: {{outputNodeOverlayData.totalDuration}} </span>
+              </div>
+              <div class="p-col-12">
+                <span class="title"> Percentage: {{outputNodeOverlayData.percentage}} </span>
+              </div>
+              <div class="p-col-12" *ngIf="outputNodeOverlayData.bt">
+                <span class="title"> BT: {{outputNodeOverlayData.bt}} </span>
+              </div>
+              <div class="p-col-12" *ngIf="outputNodeOverlayData.error">
+                <span class="title"> Error: {{outputNodeOverlayData.error}} </span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="(outputNodeOverlayData.tier === '-') && !(outputNodeOverlayData.instanceType === 'backend')">
+            <div class="p-col-12 no-padding">
+              <header>
+                <span>{{outputNodeOverlayData.nodeName | ellipsis: 12}}</span>
+              </header>
+            </div>
+            <div class="p-col-12 info">
+              <div class="p-col-12">
+                <span class="title" style="word-break: break-all;"> Name: {{outputNodeOverlayData.nodeName}} </span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="(outputNodeOverlayData.tier === '-') && (outputNodeOverlayData.instanceType === 'backend')">
+            <div class="p-col-12 no-padding">
+              <header>
+                <span>{{this.tierName}} : {{this.serverName}}</span>
+              </header>
+            </div>
+            <div class="p-col-12 info">
+              <div class="p-col-12">
+                <span class="title" style="word-break: break-all;"> Tier: {{this.tierName}} </span>
+              </div>
+              <div class="p-col-12">
+                <span class="title" style="word-break: break-all;"> Server: {{this.serverName}} </span>
+              </div>
+              <div class="p-col-12">
+                <span class="title" style="word-break: break-all;"> Instance: {{this.instanceName}} </span>
+              </div>
+            </div>
+          </div>
+          </div>
+    </ng-template>
+</p-overlayPanel>
+
+<p-overlayPanel #edgeData class="solarPref" *ngIf="outputNodeOverlayDataOnEdge" [style]="overlayPositionStyle">
+  <ng-template pTemplate>
+      <div class="p-grid">
+          <div class="p-col-12 no-padding">
+              <header>
+                  <span>{{outputNodeOverlayDataOnEdge.nodeName}}</span>
+              </header>
+          </div>
+
+          <div class="p-col-12 info">
+              <div class="p-col-12" *ngIf="outputNodeOverlayDataOnEdge.backendType === 'JDBC'">
+                  <span class="title"> Type: {{outputNodeOverlayDataOnEdge.backendType}} </span>
+              </div>
+              <div class="p-col-12">
+                  <span class="title"> Total Calls: {{outputNodeOverlayDataOnEdge.calls}} </span>
+              </div>
+              <div class="p-col-12">
+                  <span class="title"> Success Calls: {{outputNodeOverlayDataOnEdge.calls}} </span>
+              </div>
+              <div class="p-col-12">
+                  <span class="title"> Error Calls: 0 </span>
+              </div>
+              <div class="p-col-12">
+                  <span class="title"> Total Duration: {{outputNodeOverlayDataOnEdge.rspTime}} </span>
+              </div>
+              <div class="p-col-12">
+                  <span class="title"> Percentage: {{outputNodeOverlayDataOnEdge.percentage}} </span>
+              </div>
+              <!-- <div class="p-col-12" *ngIf="outputNodeOverlayDataOnEdge.bt">
+                  <span class="title"> BT: {{outputNodeOverlayDataOnEdge.bt}} </span>
+              </div>
+              <div class="p-col-12" *ngIf="outputNodeOverlayDataOnEdge.error">
+                  <span class="title"> Error: {{outputNodeOverlayDataOnEdge.error}} </span>
+              </div> -->
+          </div>
+      </div>
+  </ng-template>
+</p-overlayPanel>
+<p-dialog *ngIf = "isShowDbTable" [(visible)]="isShowDbTable" [resizable]="true" [modal]="true" class="secondary-dialog details"
+    header="DB Query" appendTo="body" [draggable]="false" closeIcon="icons8-delete"
+    [style]="{width: '100vw'}">
+    <app-db-queries></app-db-queries>
+</p-dialog>
+<p-dialog *ngIf = "isShowHttpTable" [(visible)]="isShowHttpTable" [resizable]="true" [modal]="true" class="secondary-dialog details"
+    header="HTTP Report" appendTo="body" [draggable]="false" closeIcon="icons8-delete"
+    [style]="{width: '100vw'}">
+    <app-http-report></app-http-report>
+</p-dialog>
+<p-dialog *ngIf = "isShowHsTable" [(visible)]="isShowHsTable" [resizable]="true" [modal]="true" class="secondary-dialog details"
+    header="HotSpot Report" appendTo="body" [draggable]="false" closeIcon="icons8-delete"
+    [style]="{width: '100vw'}">
+    <app-hotspot></app-hotspot>
+</p-dialog>
+<p-dialog *ngIf = "isShowMTTable" [(visible)]="isShowMTTable" [resizable]="true" [modal]="true" class="secondary-dialog details"
+    header="Method Timing Report" appendTo="body" [draggable]="false" closeIcon="icons8-delete"
+    [style]="{width: '100vw'}">
+    <app-method-timing></app-method-timing>
+</p-dialog>
+<p-dialog *ngIf = "isShowMCTTable" [(visible)]="isShowMCTTable" [resizable]="true" [modal]="true" class="secondary-dialog details"
+    header="Method Call Details Report" appendTo="body" [draggable]="false" closeIcon="icons8-delete"
+    [style]="{width: '100vw'}">
+    <app-method-call-details></app-method-call-details>
+</p-dialog>
+<p-dialog class="secondary-dialog foterDialog" [style]="{width: '60vw'}" header="Dynamic Diagnostics Configuration" [resizable]="false"
+    *ngIf="showAutoInstrPopUp" [(visible)]="showAutoInstrPopUp" modal="modal"
+    [contentStyle]="{'max-height':'500px'}" responsive="true">
+    <app-dynamic-diagnostics (resultAfterStart)="startInstrumentation($event)" (closeAIDDGui)="closeAIDDDialog($event)"
+        [passAIDDSettings]="argsForAIDDSetting"></app-dynamic-diagnostics>
+</p-dialog>

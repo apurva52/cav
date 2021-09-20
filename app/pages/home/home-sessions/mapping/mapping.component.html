@@ -1,0 +1,28 @@
+<div class="h-100-vh mapping-container">
+    <div class="header">
+      <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+      <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a (click)="navigate_to_replay()">
+          <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">Mapping</div>
+      </div>
+    </p-toolbar>
+    <div id="reports">
+      <div class="p-grid">
+        <div class="p-col-12 no-padding">
+          <div class="breadcrumbs">
+            <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+          </div>
+        </div>
+        <div class="p-col-12 no-padding main-table">
+          <p-tabMenu [model]="items"></p-tabMenu>
+          <div class="content-body">
+            <router-outlet></router-outlet>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

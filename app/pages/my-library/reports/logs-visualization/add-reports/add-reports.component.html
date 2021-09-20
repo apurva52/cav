@@ -1,0 +1,126 @@
+<div class="h-100-vh add-reports-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-col-10">
+                <div class="p-grid p-align-center">
+                    <a routerLink="/reports/logs-visualization">
+                        <i class="icons8 icons8-left toolbar-icon-color"></i>
+                    </a>
+                    <div class="p-col ui-toolbar-text">Reports</div>
+                </div>
+            </div>
+            <div class="p-col-2 text-right">
+                <button pButton type="button" class="ui-button ui-button-rounded" label="SAVE" (click)="saveReport()"></button>
+            </div>
+
+            <p-dialog [(visible)]="saveReports" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false" [style]="{width: '30vw'}">
+                <p-header>
+                    <div class="compare-data-title">
+                        <div>
+                            User Permissions
+                        </div>
+                        <div class="action-buttons">
+                            <i class="icons8 icons8-delete" (click)="closeReport()"></i>
+                        </div>
+                    </div>
+                </p-header>
+
+                <div class="dialog-content">
+                    <div class="p-col-12">
+                        <span class="content-header">Write/Modify Permissions:</span>
+                    </div>
+                    <div class="p-col-12">
+                        <p-checkbox class="checkbox-margin" name="groupname" value="val" label="Select All"></p-checkbox>
+                    </div>
+                    <div class="p-col-12">
+                        <p-checkbox class="checkbox-margin" name="groupname" value="val" label="Super User"></p-checkbox>
+                    </div>
+
+                    <div class="p-col-12">
+                        <span class="content-header">Read Permissions:</span>
+                    </div>
+                    <div class="p-col-12">
+                        <p-checkbox class="checkbox-margin" name="groupname" value="val" label="Select All"></p-checkbox>
+                    </div>
+                    <div class="p-col-12 ">
+                        <p-checkbox class="checkbox-margin" name="groupname" value="val" label="Super User"></p-checkbox>
+                    </div>
+                    <div class="p-col-12">
+                        <p-checkbox class="store-time-div" name="groupname" value="val" label="Store Time With Report"></p-checkbox>
+                    </div>
+
+                </div>
+                <p-footer>
+                    <div class="p-col-12 form-buttons">
+                        <button pButton type="submit" label="SAVE" class="ui-button-rounded"></button>
+                    </div>
+                </p-footer>
+            </p-dialog>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+    <div class="vertical-container">
+        <div class="p-grid">
+            <div class="p-col-10 p-justify-end">
+            <div class="p-input-icon-left search-div-css">
+                <i class="icons8 icons8-filter filter-icon" (click)="commonFilter.open()"></i>
+                <i class="icons8 icons8-search"></i>
+                <p-autoComplete [(ngModel)]="reportitem" [suggestions]="filteredReports"
+                    (completeMethod)="filterFields($event)" field="name" [size]="30" placeholder="" [minLength]="1"
+                    class="input-field-search" [dropdown]="true" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-autoComplete>
+                <i class="icons8 icons8-edit-2"></i>
+                <button pButton type="button" class="ui-button ui-button-rounded save-button" label="SAVE" (click)="saveSearchData.open()"></button>
+            </div>
+        </div>
+            <div class="p-col-2 icons-container p-justify-between p-align-center">
+                <button pButton icon="icons8 icons8-tune" class="icon-button no-shadow" pTooltip="Setting" (click)="menu1.toggle($event);"></button>
+                <p-menu #menu1 [popup]="true" styleClass="widget-menu" [model]="settingOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                <button pButton icon="icons8 icons8-star" class="icon-button no-shadow" pTooltip="Rating"></button>
+                <button pButton icon="icons8 icons8-synchronize" class="icon-button no-shadow" pTooltip="Refresh"></button>
+                <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow" pTooltip="Delete"></button>
+            </div>
+        </div>
+        <div class="p-grid">
+            <div class="p-col-1">
+                <label class="selected-label">Report Name: </label>
+            </div>
+            <div class="p-col-5">
+                <input type="text" pInputText />
+            </div>
+        </div>
+        <div class="p-grid">
+            <div class="p-col-12">
+                <p-card>
+                    <div class="p-col-12 text-right">
+                        <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary" (click)="toCreateVisualization()" label="Create Visualization">
+                        </button>
+                    </div>
+                    <p-orderList [value]="data.storeTier" header="" filter="filter" filterBy="label">
+                        <ng-template pTemplate="item" let-rowData>
+                            <div class="ui-helper-clearfix" (click)="showReport()">
+                                <div class="list">
+                                    <i class="icons8 icons8-futures"></i>
+                                    <span class="store-label">{{rowData.label}}</span>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-orderList>
+                </p-card>
+            </div>
+        </div>
+        <div class="p-grid" *ngIf="isShow">
+            <div class="p-col-3" *ngFor="let chart of data.charts">
+                <app-chart [data]="chart"></app-chart>
+            </div>
+        </div>
+    </div>
+
+    <app-commonfilter #commonFilter></app-commonfilter>
+
+    <app-save-dialog #saveSearchData></app-save-dialog>

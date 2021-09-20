@@ -1,0 +1,73 @@
+<form *ngIf="genExceptionData" (ngSubmit)="saveKeywordData(form)" #form="ngForm" ngNativeValidate>
+    <div class="tabsincontent">
+        <div class="header p-grid p-justify-between p-align-center">Settings
+            <div class="pull-right my-6">
+        <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordsDataToDefault()" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm"  [disabled]="isProfilePerm" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" label="Save"></button>
+            </div>
+        </div>
+        <p-panel class="hideheader">
+            <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader">
+                <div class="ui-g">
+
+                    <div class="ui-g-12">
+                        <!-- <div class="ui-g-1"></div> -->
+                        <div class="ui-g-2">
+                            <label>Fully Qualified Method Name</label>
+                        </div>
+
+                        <div class="ui-g-4" *ngIf="!isResetToDefault">
+                            <input name="fullName"  type="text" class="configui-fqm-css w-100-p" [(ngModel)]="genExceptionData.fullyqualifiedName" pInputText title="Please enter valid method name. &#013;Rule 1: Method name can include package,class and method name separated by dot(.) . &#013;Rule 2: Method name cannot include whitespaces."
+                                required pattern="[a-zA-Z]+[a-zA-Z0-9_$.]+(\(([;_$\/\[a-zA-Z0-9]*)\))+[;_$\/\[a-zA-Z0-9]*" (keydown.space)="$event.preventDefault()"  ngModel/>
+                        </div>
+                        <div class="ui-g-4" *ngIf="isResetToDefault">
+                            <input name="fullName" type="text" class="configui-fqm-css" [(ngModel)]="genExceptionData.fullyqualifiedName" pInputText title="Please enter valid method name. &#013;Rule 1: Method name can include package,class and method name separated by dot(.) . &#013;Rule 2: Method name cannot include whitespaces."
+                                 pattern="[a-zA-Z]+[a-zA-Z0-9_$.]+(\(([;_$\/\[a-zA-Z0-9]*)\))+[;_$\/\[a-zA-Z0-9]*" (keydown.space)="$event.preventDefault()"  ngModel/>
+                        </div>
+                    </div>
+
+                    <div class="ui-g-12">
+                        <!-- <div class="ui-g-1"></div> -->
+                        <div class="ui-g-2">
+                            <label>Exception Type</label>
+                        </div>
+                        
+                        <div class="ui-g-3">
+                            
+                            <p-dropdown name="exceptionType" dropdownIcon="icons8 icons8-expand-arrow" class="w-100-p" [style]="{'min-width': '100%'}" scrollHeight="150px" [(ngModel)]="genExceptionData.exceptionType" [options]="exceptionType" appendTo="body" required ngModel></p-dropdown>
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <!-- <div class="ui-g-1"></div> -->
+                        <div class="ui-g-2">
+                            <label>Exception Name</label>
+                        </div>
+
+                        <div class="ui-g-3" *ngIf="!isResetToDefault">
+                            <input name="exceptionName" class="w-100-p" type="text" size="30" [(ngModel)]="genExceptionData.exceptionName" pInputText autofocus required pattern="[a-zA-Z\.]*" (keydown.space)="$event.preventDefault()"  ngModel/>
+                        </div>
+                        <div class="ui-g-3" *ngIf="isResetToDefault">
+                            <input name="exceptionName" type="text" size="30" [(ngModel)]="genExceptionData.exceptionName" pInputText autofocus pattern="[a-zA-Z\.]*" (keydown.space)="$event.preventDefault()"  ngModel/>
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <!-- <div class="ui-g-1"></div> -->
+                        <div class="ui-g-2">
+                            <label>Percentage <b> (%)</b></label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Exception occurence ratio in Methods (%)"></i>
+                        </div>
+
+                        <div class="ui-g-1">
+                            <input type="number" name="percentage" min=0 max=100 [(ngModel)]="genExceptionData.percentage" required ngModel>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-panel>
+    </div>
+</form>

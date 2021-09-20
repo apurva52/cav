@@ -1,0 +1,400 @@
+<form (ngSubmit)="saveAutoInjectionDataOnFile()" #groupForm="ngForm" ngNativeValidate>
+    <div class="configUI ndegui-mainbox" style="height: fit-content">
+        <div class="p-grid p-align-center p-justify-between">
+            <span class="configui-float-css" style="margin-top: 2px">Auto Injection </span>
+            <span class="pull-right my-6">
+                <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+                <button pButton type="button" class="ui-button-sucess mr-6" title="Browse" (click)="openFileManager()" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  icon="icons8-opened-folder"></button>
+                <button pButton type="button" class="ui-button-sucess mr-6" title="Browse" (click)="openFileManager()" *ngIf="!isProfilePerm" [disabled]="saveDisable"  icon="icons8-opened-folder"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" title="Reset to Default" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" title="Reset to Default" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordsDataToDefault()" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" title="Reset" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="button"class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" title="Reset" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="resetKeywordData()" label="Undo All"></button>
+                <button pButton type="submit" title="Save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-save" label="Save"></button>
+                <button pButton type="submit" title="Save" *ngIf="!isProfilePerm" [disabled]="saveDisable" icon="icons8 icons8-save" label="Save"></button>
+            </span>
+        </div>
+        <div class="ui-g">
+                <div class="ui-g-12">
+                    <p-checkbox label="Auto Injection NV Tag" name="enabledAutoInject" [(ngModel)]="enableAutoInjection.enabledAutoInject" binary="true"></p-checkbox>
+                </div>
+        </div>
+
+        <div class="w-100-p">
+        <div class="ui-g p-align-center">
+            <div class="ui-g-2 pl-30">
+                <p-checkbox label="Content Type" [disabled]="!enableAutoInjection.enabledAutoInject" name="enabledContentTypeChecking" [(ngModel)]="enableAutoInjection.enabledContentTypeChecking" binary="true"></p-checkbox>
+            </div>
+            <div class="ui-g-4">
+                <!-- <input type="text" name="contentType" size="30" class='hidden-validator' [(ngModel)]="enableAutoInjection.contentType" pInputText required ngModel /> -->
+                <p-multiSelect name="contentType" [disabled]="!(enableAutoInjection.enabledAutoInject && enableAutoInjection.enabledContentTypeChecking)" [options]="contentTypes" [style]="{'min-width':'100%'}" [(ngModel)]="enableAutoInjection.contentType" dropdownIcon="icons8 icons8-expand-arrow" class="w-100-p"></p-multiSelect>
+            </div>
+            <div class="ui-g-2 text-right">
+                <label>Add custom content type</label> 
+            </div>
+            <div class="ui-g-4">
+                <p-chips class="input-chips w-100-p" [disabled]="!(enableAutoInjection.enabledAutoInject && enableAutoInjection.enabledContentTypeChecking)" [(ngModel)]="customContentType" name="customContentType" ngModel></p-chips>
+            </div>
+        </div>
+        </div>
+
+        <div class="ndegui-mainbox">
+            <div class="accordian-css">
+                <p-accordion class="ndagent">
+                    <p-accordionTab header="Auto Injection Policy Rules" [selected]="true">
+                        <p-header class="p-grid p-align-center p-justify-between ml-22 mtn-22">
+                            <span class="configui-float-css"> Auto Injection Policy Rule List </span>
+                            <span class="configui-float">
+                                <button pButton type="button" class="ui-button-sucess mx-6" title="Add Auto-Injection Policy Rule" *ngIf="isProfilePerm"
+                                    [disabled]="isProfilePerm" icon="icons8 icons8-plus-math"></button>
+                                <button pButton type="button" class="ui-button-sucess mx-6" title="Add Auto-Injection Policy Rule" *ngIf="!isProfilePerm"
+                                    [disabled]="saveDisable" (click)="openAddPolicyRuleDialog()" icon="icons8 icons8-plus-math"></button>
+                                <button pButton type="button" class="ui-button-sucess mr-6" title="Edit Auto-Injection Policy Rule" *ngIf="isProfilePerm"
+                                    [disabled]="isProfilePerm" icon="icons8 icons8-edit"></button>
+                                <button pButton type="button" class="ui-button-sucess mr-6" title="Edit Auto-Injection Policy Rule" *ngIf="!isProfilePerm"
+                                    [disabled]="saveDisable" (click)="openEditPolicyRuleDialog()" icon="icons8 icons8-edit"></button>
+                                <button pButton type="button" class="ui-button-sucess mr-6" title="Delete Auto-Injection Policy Rule(s)"
+                                    *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-trash"></button>
+                                <button pButton type="button" class="ui-button-sucess mr-6" title="Delete Auto-Injection Policy Rule(s)"
+                                    *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteAutoInjectionRule()"
+                                    icon="icons8 icons8-trash"></button>
+                            </span>
+                        </p-header>
+                            <p-table [columns]="cols" class="nde-ui all-tables" [style]="{'margin-top':'20px'}" [value]="nvautoinjectionPolicyData" [(selection)]="selectedAutoInjectionPolicyRule" [rows]="3" [paginator]="nvautoinjectionPolicyData?.length > 3" [pageLinks]="3">
+                               
+                                <ng-template pTemplate="colgroup" let-columns>
+                                    <colgroup>
+                                        <col style="width:7%">
+                                        <col style="width:20%">
+                                        <col style="width:20%">
+                                        <col style="width:20%">
+                                        <col style="width:30%">
+                                        <col style="width:20%">
+                                        <col style="width:20%">
+                                        <col style="width:20%">
+                                        
+                                    </colgroup>
+                            
+                            
+                                </ng-template>
+                               
+                                <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+                                    <tr>
+                                        <th>
+                                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                        </th>
+					<th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                                            {{col.header}}
+                                            <span *ngIf="col.field !=''">
+                                            <p-sortIcon [field]="col.field"></p-sortIcon>
+                                            </span>
+                                        </th>
+                                       <!-- <th>Rule Name</th>
+                                        <th>BT Name</th>
+                                        <th>HTTP URL</th>
+                                        <th>HTTP Method</th>
+                                        <th>Query Parameter</th>
+                                        <th>HTTP Header</th>
+                                        <th>Enabled</th>-->
+                                    </tr>
+                                </ng-template>
+                                <ng-template class="tableCss config-ui" pTemplate="body" let-autoInjection>
+                                    <tr>
+                                        <td class="text-center">
+                                            <p-tableCheckbox [value]="autoInjection"></p-tableCheckbox>
+                                        </td>
+                                        <td class="tableCss" title="{{autoInjection.ruleName}}">{{autoInjection.ruleName}}</td>
+                                        <td class="tableCss" title="{{autoInjection.btName}}">{{autoInjection.btName}}</td>
+                                        <td class="tableCss" title="{{autoInjection.httpUrl}}">{{autoInjection.httpUrl}}</td>
+                                        <td class="tableCss" title="{{autoInjection.httpMethod}}">{{autoInjection.httpMethod}}</td>
+                                        <td class="tableCss" title="{{autoInjection.queryParameter}}">{{autoInjection.queryParameter}}</td>
+                                        <td class="tableCss" title="{{autoInjection.httpHeader}}">{{autoInjection.httpHeader}}</td>
+                                        <td style="text-align: center" class="tableCss">
+                                            <span *ngIf="autoInjection.enabled == true" title="Enabled">
+                                                <i class="icons8 icons8-checked" style="color: green; font-size: 15px"></i>
+                                            </span>
+                                            <span *ngIf="autoInjection.enabled == false" title="Disabled">
+                                                <i class="icons8 icons8-unavailable" style="color: red; font-size: 15px"></i>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+				<ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.colspan]="8" style="text-align: center" >
+                                            No records found
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+
+                        <!-- Download reports as PDF,Excel and Word File  -->
+                        <div class="p-grid p-align-center">
+                            <label class="mr-5">Download Reports as: </label>
+                            <button pButton class="icon-button no-shadow" pTooltip="Download Word file" tooltipPosition="top" (click)='downloadPolicyRuleReports("WordFile")' icon="icons8 icons8-doc"></button>
+                            <button pButton class="icon-button no-shadow" pTooltip="Download Excel file" tooltipPosition="top" (click)='downloadPolicyRuleReports("ExcelFile")' icon="icons8 icons8-spreadsheet-file"></button>
+                            <button pButton class="icon-button no-shadow" pTooltip="Download PDF file" tooltipPosition="top" (click)='downloadPolicyRuleReports("PDFFile")' icon="icons8 icons8-pdf-2"></button>
+                        </div>
+            
+
+
+                    </p-accordionTab>
+                    <p-accordionTab header="Auto Injection Configuration" [selected]="false">
+                        <p-header class="p-grid p-align-center p-justify-between ml-22 mtn-22">
+                            <span class="configui-float-css"> Auto Injection Configuration Rule List </span>
+                            <span class="configui-float">
+                                <button pButton type="button" class="ui-button-sucess mx-6" title="Add Auto-Injection Configuration Rule" *ngIf="isProfilePerm"
+                                    [disabled]="isProfilePerm" icon="icons8 icons8-plus-math"></button>
+                                <button pButton type="button" class="ui-button-sucess mx-6" title="Add Auto-Injection Configuration Rule" *ngIf="!isProfilePerm"
+                                    [disabled]="saveDisable" (click)="openAddTagInjectionDialog()" icon="icons8 icons8-plus-math"></button>
+                                <button pButton type="button" class="ui-button-sucess mr-6" title="Edit Auto-Injection Configuration Rule" *ngIf="isProfilePerm"
+                                    [disabled]="isProfilePerm" icon="icons8 icons8-edit"></button>
+                                <button pButton type="button" class="ui-button-sucess mr-6" title="Edit Auto-Injection Configuration Rule" *ngIf="!isProfilePerm"
+                                    [disabled]="saveDisable" (click)="openEditTagInjectionDialog()" icon="icons8 icons8-edit"></button>
+                                <button pButton type="button" class="ui-button-sucess mr-6" title="Delete Auto-Injection Configuration Rule(s)"
+                                    *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-trash"></button>
+                                <button pButton type="button" class="ui-button-sucess mr-6" title="Delete Auto-Injection Configuration Rule(s)"
+                                    *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteTagInjectionRules()"
+                                    icon="icons8 icons8-trash"></button>
+                            </span>
+                        </p-header>
+
+                        <p-table [columns]="column" class="nde-ui all-tables" [value]="nvautoinjectionTagRuleData" [(selection)]="selectedAutoInjectionTagRule" [rows]="3" [paginator]="nvautoinjectionTagRuleData?.length > 3" [pageLinks]="3">
+                           
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                    <col style="width:7%">
+                                    <col style="width:20%">
+                                    <col style="width:20%">
+                                    <col style="width:20%">
+                                    
+                                </colgroup>
+                        
+                        
+                            </ng-template>
+                           
+                            <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+                                <tr>
+                                    <th>
+                                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                    </th>
+				    <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                                        {{col.header}}
+                                        <span *ngIf="col.field !=''">
+                                        <p-sortIcon [field]="col.field"></p-sortIcon>
+                                        </span>
+                                    </th>
+                                    <!--<th>Rule Name</th>
+                                    <th>HTML Tag</th>
+                                    <th>Script Path</th>-->
+                                </tr>
+                            </ng-template>
+                            <ng-template class="tableCss config-ui" pTemplate="body" let-autoInjectionConf>
+                                <tr>
+                                    <td class="text-center">
+                                        <p-tableCheckbox [value]="autoInjectionConf"></p-tableCheckbox>
+                                    </td>
+                                    <td class="tableCss" title="{{autoInjectionConf.ruleName}}">{{autoInjectionConf.ruleName}}</td>
+                                    <td class="tableCss" title="{{autoInjectionConf.htmlTag}}">{{autoInjectionConf.htmlTag}}</td>
+                                    <td class="tableCss" title="{{autoInjectionConf.src}}">{{autoInjectionConf.src}}</td>
+                                </tr>
+                            </ng-template>
+			    <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td [attr.colspan]="4" style="text-align: center" >
+                                        No records found
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                        <!-- Download reports as PDF,Excel and Word File  -->
+                        <div class="p-grid p-align-center">
+                            <label class="mr-5">Download Reports as: </label>
+                            <button pButton class="icon-button no-shadow" pTooltip="Download Word file" tooltipPosition="top" (click)='downloadTagRuleReports("WordFile")' icon="icons8 icons8-doc" ></button>
+                            <button pButton class="icon-button no-shadow" pTooltip="Download Excel file" tooltipPosition="top" (click)='downloadTagRuleReports("ExcelFile")' icon="icons8 icons8-spreadsheet-file" ></button>
+                            <button pButton class="icon-button no-shadow" pTooltip="Download PDF file" tooltipPosition="top" (click)='downloadTagRuleReports("PDFFile")' icon="icons8 icons8-pdf-2" ></button>
+                        </div>
+            
+                    </p-accordionTab>
+                </p-accordion>
+            </div>
+        </div>
+    </div>
+</form>
+
+<p-dialog class="secondary-dialog" [style]="{width: '65vw'}" header="{{isNewAutoInjectionPolicyRule ? 'Add Auto Injection Rule' : 'Edit Auto Injection Rule'}}" *ngIf="addEditAutoInjectionPolicyRuleDialog" [(visible)]="addEditAutoInjectionPolicyRuleDialog" modal="modal" width="720"
+    responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveAddEditAutoInject()" #groupForm="ngForm" ngNativeValidate>
+        <div class="p-grid p-align-center w-100-p">
+            <div class="ui-g-2">Rule Name</div>
+            <div class="ui-g-6">
+                <input name="ruleName" type="text" class="w-100-p" pInputText title="Please enter valid input. &#013;Rule 1: Input must not contains |(pipe) character.  &#013;Rule 2: Input must not be NA. &#013;Rule 3: Input is of maximum 255 characters."
+                    [(ngModel)]="autoInjectionPolicyRuleDialogData.ruleName" (keydown.space)="$event.preventDefault()" autofocus required pattern="^(?!.*\|).{0,254}$" ngModel />
+            </div>
+            <div class="ui-g-2 pl-50">Enabled</div>
+            <div class="ui-g-2">
+                <p-inputSwitch [(ngModel)]="autoInjectionPolicyRuleDialogData.enabled" name="enabled" class="configui-error-css-2"></p-inputSwitch>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center w-100-p">
+            <div class="ui-g-2">BT Name</div>
+            <div class="ui-g-6">
+                <input name="btName" type="text" class="w-100-p" pInputText title="Please enter valid input. &#013;Rule 1: Input must not contains |(pipe) character.  &#013;Rule 2: Input must not be NA. &#013;Rule 3: Input is of maximum 255 characters."
+                    (keydown.space)="$event.preventDefault()" [(ngModel)]="autoInjectionPolicyRuleDialogData.btName" pattern="^(?!.*\|).{0,254}$" ngModel />
+            </div>
+            <div class="ui-g-2 pl-50">Exclude</div>
+            <div class="ui-g-2">
+                <p-checkbox name="checkbox" value="val" [(ngModel)]="autoInjectionPolicyRuleDialogData.exclude" binary="true"></p-checkbox>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center w-100-p">
+            <div class="ui-g-2">HTTP URL</div>
+            <div class="ui-g-6">
+                <input name="httpUrl" type="text" class="w-100-p" pInputText title="Please enter valid input. &#013;Rule 1: Input must not contains |(pipe) character.  &#013;Rule 2: Input must not be NA. &#013;Rule 3: Input is of maximum 4096 characters."
+                    (keydown.space)="$event.preventDefault()" [(ngModel)]="autoInjectionPolicyRuleDialogData.httpUrl" pattern="^(?!.*\|).{0,4095}$" ngModel />
+            </div>
+            <div class="ui-g-2 pl-50">HTTP Method</div>
+            <div class="ui-g-2">
+                <!--input name="dropdown2" type="text" size="8" class='hidden-validator' pInputText [(ngModel)]="autoInjectionPolicyRuleDialogData.httpMethod" required ngModel /-->
+                <p-dropdown name="httpMethod" dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width':'100%'}" [options]="methodTypeList" placeholder="--Select--" [(ngModel)]="autoInjectionPolicyRuleDialogData.httpMethod" appendTo="body" ngModel></p-dropdown>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center w-100-p">
+            <div class="ui-g-2">File Extension</div>
+            <div class="ui-g-2">
+                <input name="extension" type="text" class="w-100-p" pInputText (keydown.space)="$event.preventDefault()" title="Please enter valid input. &#013;Rule 1: Input must not contains |(pipe) character.  &#013;Rule 2: Input must not be NA. &#013;Rule 3: Input is of maximum 255 characters."
+                    [(ngModel)]="autoInjectionPolicyRuleDialogData.extension" pattern="^(?!.*\|).{0,254}$" ngModel />
+            </div>
+            <div class="ui-g-2 pl-50">
+                <label>Content Type</label>
+            </div>
+            <div class="ui-g-2">
+                <input name="type" type="text" class="w-100-p" pInputText (keydown.space)="$event.preventDefault()" title="Please enter valid input. &#013;Rule 1: Input must not contains |(pipe) character.  &#013;Rule 2: Input must not be NA. &#013;Rule 3: Input is of maximum 255 characters."
+                    [(ngModel)]="autoInjectionPolicyRuleDialogData.type" pattern="^(?!.*\|).{0,254}$" ngModel />
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center w-100-p">
+            <div class="ui-g-2">Parameter Name</div>
+            <div class="ui-g-2">
+                <input name="parameterName" type="text" class="w-100-p" pInputText (input)="onParameterNameChange($event.target.value)" (keydown.space)="$event.preventDefault()" title="Please enter valid input. &#013;Rule 1: Input must not contains |(pipe) character.  &#013;Rule 2: Input must not contains %3A. &#013;Rule 3: Input must not be NA. &#013;Rule 4: Input is of maximum 255 characters."
+                    [(ngModel)]="autoInjectionPolicyRuleDialogData.parameterName" pattern="^(?!.*\|)(?!.*%3A).{0,254}$" ngModel />
+            </div>
+            <div class="ui-g-2 pl-50">Operation</div>
+            <div class="ui-g-2">
+                <!-- <input name="dropdown" type="text" size="12" class='hidden-validator input-chips' [disabled]="autoInjectionPolicyRuleDialogData.parameterName == '' || autoInjectionPolicyRuleDialogData.parameterName == null" pInputText [(ngModel)]="autoInjectionPolicyRuleDialogData.parameterOperation"
+                    required ngModel /> -->
+                <p-dropdown name="parameterOperation" dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width':'100%'}" [options]="operationList" [disabled]="autoInjectionPolicyRuleDialogData.parameterName == '' || autoInjectionPolicyRuleDialogData.parameterName == null" placeholder="--Select--" [(ngModel)]="autoInjectionPolicyRuleDialogData.parameterOperation"
+                    appendTo="body" ngModel></p-dropdown>
+            </div>
+            <div class="ui-g-2 pl-50">Value</div>
+            <div class="ui-g-2">
+                <input name="parameterValue"class="w-100-p" [disabled]="autoInjectionPolicyRuleDialogData.parameterName == '' || autoInjectionPolicyRuleDialogData.parameterName == null" type="text" size="15" pInputText title="Please enter valid input. &#013;Rule 1: Input must not contains |(pipe) character.  &#013;Rule 2: Input must not contains %3A. &#013;Rule 3: Input must not be NA. &#013;Rule 4: Input is of maximum 255 characters."
+                    (keydown.space)="$event.preventDefault()" [(ngModel)]="autoInjectionPolicyRuleDialogData.parameterValue" required pattern="^(?!.*\|)(?!.*%3A).{0,254}$" ngModel />
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center w-100-p">
+            <div class="ui-g-2">Header Name</div>
+            <div class="ui-g-2">
+                <input name="headerName" type="text" class="w-100-p" pInputText title="Please enter valid input. &#013;Rule 1: Input must not contains |(pipe) character. &#013;Rule 2: Input must not contains %3A. &#013;Rule 3: Input must not be NA. &#013;Rule 4: Input is of maximum 255 characters."
+                    (input)="onHeaderNameChange($event.target.value)" (keydown.space)="$event.preventDefault()" [(ngModel)]="autoInjectionPolicyRuleDialogData.headerName" pattern="^(?!.*\|)(?!.*%3A).{0,254}$" ngModel />
+            </div>
+            <div class="ui-g-2 pl-50">Operation</div>
+            <div class="ui-g-2">
+                <!-- <input name="dropdown1" type="text" size="12" class='hidden-validator' [disabled]="autoInjectionPolicyRuleDialogData.headerName == '' || autoInjectionPolicyRuleDialogData.headerName == null" pInputText [(ngModel)]="autoInjectionPolicyRuleDialogData.headerOperation"
+                    required ngModel /> -->
+                <p-dropdown name="headerOperation" dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width':'100%'}" [options]="operationList" [disabled]="autoInjectionPolicyRuleDialogData.headerName == '' || autoInjectionPolicyRuleDialogData.headerName == null" placeholder="--Select--" [(ngModel)]="autoInjectionPolicyRuleDialogData.headerOperation"
+                    appendTo="body" ngModel></p-dropdown>
+            </div>
+            <div class="ui-g-2 pl-50">Value</div>
+            <div class="ui-g-2">
+                <input name="headerValue" [disabled]="autoInjectionPolicyRuleDialogData.headerName == '' || autoInjectionPolicyRuleDialogData.headerName == null" type="text" class="w-100-p" pInputText title="Please enter valid input. &#013;Rule 1: Input must not contains |(pipe) character.  &#013;Rule 2: Input must not contains %3A. &#013;Rule 3: Input must not be NA. &#013;Rule 4: Input is of maximum 255 characters."
+                    (keydown.space)="$event.preventDefault()" [(ngModel)]="autoInjectionPolicyRuleDialogData.headerValue" required pattern="^(?!.*\|)(?!.*%3A).{0,254}$" ngModel />
+            </div>
+        </div>
+
+        <footer>
+            <div class="p-grid p-justify-end p-align-center my-10">
+                    <button type="button" class="ui-button-rounded ui-button-secondary mx-6 px-15" pButton (click)="addEditAutoInjectionPolicyRuleDialog=false" label="Cancel"></button>
+                    <button type="submit" class="ui-button-rounded mx-6 px-15" pButton label="Save"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>
+
+<p-dialog class="secondary-dialog" [style]="{width: '40vw'}" header="{{isNewAutoInjectionTagRule ? 'Add Auto Injection Configuration Rule' : 'Edit Auto Injection Configuration Rule'}}" *ngIf="addEditAutoInjectionTagRule" [(visible)]="addEditAutoInjectionTagRule" modal="modal" width="500"
+    responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveAddEditTagInject()" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g mt-15">
+            <div class="ui-g-2">
+                <label>Rule Name</label>
+            </div>
+            <div class="ui-g-5">
+                <input name="ruleName" type="text" class="w-100-p" pInputText title="Please enter valid input. &#013;Rule 1: Input must not contains |(pipe) character.   &#013;Rule 2: Input must not contains - . &#013;Rule 3: Input must not be NA. &#013;Rule 4: Input is of maximum 255 characters."
+                    (keydown.space)="$event.preventDefault()" [(ngModel)]="autoInjectionTagRuleDialogData.ruleName" autofocus required pattern="^(?!.*\|).{0,254}$" ngModel />
+            </div>
+            <div class="ui-g-2"></div>
+
+            <!-- <div class="ui-g-2">
+                <label>Enabled</label>
+            </div>
+            <div class="ui-g-1 config-ui">
+                <mat-slide-toggle [(ngModel)]="autoInjectionTagRuleDialogData.enabled" name="enabled" class="configui-error-css-2"></mat-slide-toggle>
+            </div> -->
+        </div>
+
+        <div class="ui-g">
+            <div class="ui-g-2">
+                <label>HTML Tag</label>
+            </div>
+            <div class="ui-g-5">
+                <input name="htmlTag" class="w-100-p" type="text" [(ngModel)]="autoInjectionTagRuleDialogData.htmlTag" pInputText title="Please enter valid input. &#013;Rule 1: Input must not contains |(pipe) character. &#013;Rule 2: Input must not contains - . &#013;Rule 3: Input must not be NA. &#013;Rule 4: Input is of maximum 255 characters."
+                    required pattern="^<[^<>|]{1,253}>$" ngModel />
+            </div>
+            <div class="ui-g-1" style="margin-top: 4px;">
+                <i class="icons8 icons8-info" aria-hidden="true" title="This field can only contain single HTML tag e.g:- <head> or </head>"></i>
+            </div>
+        </div>
+
+        <div class="ui-g">
+            <div class="ui-g-2"></div>
+            <div class="ui-g-4">
+                <p-radioButton name="beforeAfterTag" label="Inject Before Tag" value="1" [(ngModel)]="autoInjectionTagRuleDialogData.beforeAfterTag"></p-radioButton>
+            </div>
+            <div class="ui-g-4">
+                <p-radioButton name="beforeAfterTag" label="Inject After Tag" value="0" [(ngModel)]="autoInjectionTagRuleDialogData.beforeAfterTag"></p-radioButton>
+            </div>
+        </div>
+
+        <div class="ui-g">
+            <div class="ui-g-2">
+                <label>Script Path</label>
+            </div>
+            <div class="ui-g-8">
+                <input name="src" size="52" type="text" pInputTextarea (keydown.space)="$event.preventDefault()" title="Please enter valid input. &#013;Rule 1: Input must not contains |(pipe) character.  &#013;Rule 2: Input must not contains - . &#013;Rule 3: Input must not be NA. &#013;Rule 4: Input is of maximum 4096 characters."
+                    [(ngModel)]="autoInjectionTagRuleDialogData.src" required pattern="[a-zA-Z0-9_\/.@?*%#$:&=-]{0,4000}$" ngModel />
+            </div>
+        </div>
+
+        <footer>
+            <div class="p-grid p-justify-end p-align-center py-6">
+                    <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="addEditAutoInjectionTagRule=false" label="Cancel"></button>
+                    <button type="submit" pButton class="ui-button-rounded  px-10" label="Save"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>
+
+<!--Dialog to open file explorer dialog -->
+<!-- <p-dialog class="secondary-dialog browseTopCss headerCss" header="File Manager" *ngIf="openFileExplorerDialog" [(visible)]="openFileExplorerDialog" modal="modal" width="650" responsive="true" [resizable]="false"> -->
+
+    <!-- This will look for this component in the ProductUI at this path -
+         ..\ProductUI\gui\src\app\modules\file-explorer\components\config-nd-file-explorer-->
+
+     <!-- <app-config-nd-file-explorer></app-config-nd-file-explorer> -->
+<!-- </p-dialog> -->
+<app-file-manager #fileManager (eventBind)="getPath($event)"></app-file-manager>

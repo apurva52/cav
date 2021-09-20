@@ -1,0 +1,28 @@
+<div class="p-grid p-col-12 p-justify-start">
+    <div class="p-grid p-col-6 p-justify-start">
+        <div class="input-label">Remote Tier</div>
+            <p-dropdown name="rmT" (onChange)="onTierChange(useAsHier.rCon['rT'])" [options]="tierList" [disabled] ="!useAsHier.rCon['executeRemote']"
+                [(ngModel)]="useAsHier.rCon['rT']" filter="true" placeholder="--Select Tier--" class="my-select"
+                [style]="{'width': '200px'}">
+            </p-dropdown>
+            <input type="text" style="margin-left: 10px;" name="customTier" [(ngModel)]="useAsHier.rCon['cT']" [disabled]="useAsHier.rCon['rT'] != 'ct' || !useAsHier.rCon['executeRemote']"
+                placeholder="Custom Tier" required>
+    </div>
+
+    <div class="p-grid p-col-6 p-justify-start">
+        <div class="input-label">{{rServerLabel}}</div>
+            <p-dropdown name="rmS" [options]="serverList" [(ngModel)]="remServerVal" filter="true"
+                [disabled]="useAsHier.rCon['rT'] == '' || !useAsHier.rCon['executeRemote']" (onChange)="getServerIP(remServerVal)"
+                placeholder="--Select Server--" class="my-select" [style]="{'width': '200px'}">
+            </p-dropdown>
+        <input type="text" name="customServer" [(ngModel)]="useAsHier.rCon['host']" style="margin-left: 10px;"
+            [disabled]="!useAsHier.rCon['executeRemote'] || remServerVal != 'ct'" placeholder="{{rServerPlaceHolder}}"
+             required>
+    </div>
+
+    <div class="input-label" *ngIf="showRmServer">Display Name</div>
+    <div class="p-col-3" *ngIf="showRmServer">
+        <input type="text" name="nd" [disabled]="!useAsHier.rCon['executeRemote'] || useAsHier.rCon['rT'] == ''"
+            [(ngModel)]="useAsHier.rCon['rSDpName']">
+    </div>
+</div>

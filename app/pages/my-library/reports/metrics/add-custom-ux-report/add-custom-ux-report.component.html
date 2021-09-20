@@ -1,0 +1,134 @@
+<div class="h-100-vh custom-ux-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-col-10">
+                <div class="p-grid p-align-center">
+                    <a routerLink="/reports">
+                        <i class="icons8 icons8-left toolbar-icon-color"></i>
+                    </a>
+                    <div class="p-col ui-toolbar-text">ADD CUSTOM UX REPORT</div>
+                </div>
+            </div>
+            <div class="p-col-2 text-right">
+                <button pButton type="button" class="ui-button ui-button-rounded" label="SAVE"></button>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+
+    <div class="vertical-container">
+        <div class="p-grid">
+            <div class="p-col-12 heading">
+                DETAILS
+            </div>
+            <div class="p-col-2">
+                <div class="p-grid">
+                    <div class="p-col-12 p-bottom">
+                        <span class="">Report Name:</span>
+                    </div>
+                    <div class="p-col-12 p-top">
+                        <input pInputText class="custom-input-css" placeholder="">
+                    </div>
+                </div>
+            </div>
+            <div class="p-col-4">
+                <div class="p-grid">
+                    <div class="p-col-11 p-offset-1 p-bottom">
+                        <span class="">Report Description:</span>
+                    </div>
+                    <div class="p-col-11 p-offset-1 p-top">
+                        <input pInputText class="custom-input-css" placeholder="">
+                    </div>
+                </div>
+            </div>
+            <div class="p-col-3">
+                <div class="p-grid">
+                    <div class="p-col-4 p-offset-1">
+                        <span class="line-height">Report Group:</span>
+                    </div>
+                    <div class="p-col-6">
+                        <p-dropdown [options]="data.reportGroup" placeholder="Column" optionLabel="label"></p-dropdown>
+                    </div>
+                </div>
+            </div>
+            <div class="p-col-3">
+                <div class="p-grid">
+                    <div class="p-col-8 p-offset-2">
+                        <p-checkbox class="line-height" name="groupname" value="val" label="Visible to All Users">
+                        </p-checkbox>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-grid">
+            <div class="p-col-12">
+                <p-radioButton class="radio-type" name="groupname" value="val1" label="Session">
+                </p-radioButton>
+                <p-radioButton class="radio-type" name="groupname" value="val2" label="Pages">
+                </p-radioButton>
+            </div>
+        </div>
+        <p-accordion [multiple]="true">
+            <p-accordionTab header="Column Picker" [selected]="true">
+                <div class="p-grid">
+                    <div class="p-col-12 heading">
+                        Choose Reports Data Field
+                    </div>
+                    <div class="p-col-12">
+                        <div class="p-grid">
+                            <div *ngFor="let col of data.dataFields" class="dimension-block">
+                                <p-checkbox class="line-height" name="groupname" value="val" label="{{col.label}}">
+                                </p-checkbox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 heading">
+                        Choose Reports Dimensions
+                    </div>
+                    <div class="p-col-12">
+                        <div class="p-grid">
+                            <div *ngFor="let col of data.dimensions" class="dimension-block">
+                                <p-checkbox class="p-col-12 line-height" name="groupname1" value="val" label="{{col.label}}"></p-checkbox>
+                                <div class="p-col-12 ">
+                                    <p-dropdown class="dimension-dropdown" [options]="data.dimensionDropdown" placeholder="Column" optionLabel="label"></p-dropdown>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p-accordionTab>
+            <p-accordionTab header="Filters">
+                <div class="p-grid">
+                    <div class="p-col-12">
+                        <p-radioButton class="radio-type" name="groupname" value="val1" label="AND">
+                        </p-radioButton>
+                        <p-radioButton class="radio-type" name="groupname" value="val2" label="OR">
+                        </p-radioButton>
+                    </div>
+                </div>
+                <div class="p-grid">
+                    <div class="p-col-12" *ngFor="let item of filtersArray;let i = index">
+                        <div class="p-col-12">
+                            <p-dropdown class="filters-dropdown" [options]="data.dimensionDropdown" placeholder="Column" optionLabel="label"></p-dropdown>
+                            <p-dropdown class="filters-dropdown" [options]="data.dimensionDropdown" placeholder="Column" optionLabel="label"></p-dropdown>
+                            <p-dropdown class="filters-dropdown" [options]="data.dimensionDropdown" placeholder="Column" optionLabel="label"></p-dropdown>
+
+                            <i class="icons8 icons8-minus-sign clickable" (click)="removeFilter(i)"></i>
+
+                        </div>
+                    </div>
+
+                    <div class="p-col-12">
+                        <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary" label="ADD" (click)="addFilterList()">
+                        </button>
+                    </div>
+                </div>
+            </p-accordionTab>
+        </p-accordion>
+    </div>
+</div>

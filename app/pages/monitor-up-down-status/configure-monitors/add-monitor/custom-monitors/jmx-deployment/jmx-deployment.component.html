@@ -1,0 +1,245 @@
+<div>
+  <div class="p-grid w-100-p p-align-center py-5">
+    <div class="p-col-1" [ngClass]="setRequired? 'required-mark': ''">Instance Name</div>
+    <div class="ml-50">
+      <input pInputText type="text" [required]="setRequired" [(ngModel)]="item['instance']" pattern="^([A-Za-z][A-Za-z0-9-_.!;]*$)$"
+      name="inst" ngModel>
+    </div>
+
+    <div class="p-col-1 ml-40" [ngClass]="setRequired? 'required-mark': ''">Agent Type</div>
+    <div class="ml-15">
+      <p-dropdown name="agntlist" [required]="setRequired" placeholder="-- Select --" [options]="agentList"
+        [(ngModel)]="item['agent']" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+    </div>
+  </div>
+
+  <!-- JMX Remote Settings -->
+  <div class="p-grid w-100-p p-align-center">
+    <div class="p-col-2">
+      <p-radioButton name="JMX" value="setting" [(ngModel)]="item['jmxConn']" label="Connect using Host/Port" ngModel
+        (onClick)="item['jmxConnPID'] = ''" [disabled]="item['agent'] === 'BCI'"></p-radioButton>
+    </div>
+  </div>
+
+  <div>
+    <div class="p-grid w-100-p p-align-center">
+      <div class="p-grid p-col-1 p-align-center" style="width: 115px;">
+        <div class="width-150" [ngClass]="setRequired? 'required-mark': ''">Host</div>
+      </div>
+
+      <div class="p-grid p-col-2 p-align-center">
+        <div class="ml-39">
+          <input type="text" pInputText [disabled]="item['jmxConn'] != 'setting' || item['agent'] === 'BCI'"  pattern="^((([0-9]{1,3}\.){3}[0-9]{1,3})|([A-Za-z][A-Za-z0-9-_.]*$))$" [(ngModel)]="item['host']" name="host"
+            [required]="setRequired" ngModel>
+        </div>
+      </div>
+
+
+      
+      <div class="p-grid p-col-2 p-align-center ml-40">
+        <div [ngClass]="setRequired? 'required-mark': ''">Port</div>
+        <div class="ml-15">
+          <input type="number" min="1" max="65535" name="port" pInputText [disabled]="item['jmxConn'] != 'setting' || item['agent'] === 'BCI'"
+            [(ngModel)]="item['port']" class="w-100-p" [required]="setRequired" ngModel>
+        </div>
+      </div>
+
+      <div class="p-grid p-col-3 p-align-center">
+        <div class="p-grid p-align-center" >Username</div>
+        <div class="ml-15">
+          <input type="text" pInputText name="user" pattern="^([A-Za-z][A-Za-z0-9-_.@#!*]*$)$" [disabled]="item['jmxConn'] != 'setting' || item['agent'] === 'BCI'" [(ngModel)]="item['user']"
+            maxlength="64" ngModel>
+        </div>
+      </div>
+
+      <div class="p-grid p-col-3 p-align-center">
+        <div class="p-grid p-align-center">Password</div>
+        <div class="ml-15">
+          <input name="Pwd" type="password" autocomplete="new-password" pattern="^\S+( +\S+)*$" pInputText [(ngModel)]="item['pwd']"
+            [disabled]="item['jmxConn'] != 'setting' || item['agent'] === 'BCI'" ngModel />
+        </div>
+      </div>
+    </div>
+
+    <div class="p-grid w-100-p p-align-center mb-15">
+      <div class="width-150">JMX Connection URL</div>
+      <div class="p-col-4 ml-2">
+        <p-dropdown name="list" filter="true" placeholder="-- Select JMX URL--" [options]="jmxUrl"
+          [disabled]="item['jmxConn'] != 'setting' || item['agent'] === 'BCI'" [(ngModel)]="item['connURL']"
+          dropdownIcon="icons8 icons8-expand-arrow" ngModel>
+        </p-dropdown>
+      </div>
+      <div class="p-col-4">
+        <input type="text" name="otherConn" *ngIf="item['connURL'] == 'Other' && item['jmxConn'] == 'setting'"
+          pInputText [required]="setRequired" [(ngModel)]="item['otherConn']" ngModel>
+      </div>
+    </div>
+
+    <p-fieldset legend="SSL Configuration" [toggleable]="true" [collapsed]="true">
+      <div class="p-grid w-100-p p-align-center">
+        <div class="p-grid p-col-4 p-align-center">
+          <div class="width-150">Trust Store Filepath</div>
+          <div>
+            <input type="text" style="width: 250px;" pInputText name="tsf" [disabled]="item['jmxConn'] != 'setting' || item['agent'] === 'BCI'"
+              [(ngModel)]="item['tsf']" ngModel>
+          </div>
+        </div>
+        <div class="p-grid p-col-4 p-align-center">
+          <div class="width-150">Trust Store Password</div>
+          <div>
+            <input type="password" pInputText name="tsp" [disabled]="item['jmxConn'] != 'setting' || item['agent'] === 'BCI'"
+              autocomplete="new-password" [(ngModel)]="item['tsp']" ngModel>
+          </div>
+        </div>
+
+        <div class="p-grid p-col-4 p-align-center">
+          <div class="width-150">Trust Store Type</div>
+          <div>
+            <input type="text" pInputText name="tst" [disabled]="item['jmxConn'] != 'setting' || item['agent'] === 'BCI'" [(ngModel)]="item['tst']"
+              ngModel>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-grid w-100-p p-align-center">
+        <div class="p-grid p-col-4 p-align-center">
+          <div class="width-150">Key Store Filepath</div>
+          <div>
+            <input type="text" class="width-250" pInputText name="ksf" [disabled]="item['jmxConn'] != 'setting' || item['agent'] === 'BCI'" [(ngModel)]="item['ksf']"
+              ngModel>
+          </div>
+        </div>
+
+        <div class="p-grid p-col-4 p-align-center">
+          <div class="width-150">Key Store Password</div>
+          <div>
+            <input type="password" pInputText name="ksp" class="cav-ml-3 input-gui bg-2"
+              [disabled]="item['jmxConn'] != 'setting' || item['agent'] === 'BCI'" [(ngModel)]="item['ksp']" ngModel>
+          </div>
+        </div>
+
+        <div class="p-grid p-col-4 p-align-center">
+          <p-checkbox binary="true" label="Two Way SSL Enable" name="chk" [disabled]="item['jmxConn'] != 'setting' || item['agent'] === 'BCI'"
+            [(ngModel)]="item['sslEnable']" ngModel>
+          </p-checkbox>
+        </div>
+      </div>
+    </p-fieldset>
+  </div>
+
+  <div class="p-grid w-100-p p-align-center mb-10">
+    <p-radioButton name="pid" value="pid" [(ngModel)]="item['jmxConn']" (onClick)="item['jmxConnPID'] = 'procId'"
+      label="Connect using Process Id" ngModel [disabled]="item['agent'] === 'BCI'" ></p-radioButton>
+  </div>
+
+  <!-- JMX Connector using Process Id -->
+  <div class="p-grid w-100-p p-align-center mb-10"  style="padding-left: 2%;">
+    <div [ngClass]="setRequired? 'required-mark': ''">
+      <p-radioButton name="procId" value="procId" [(ngModel)]="item['jmxConnPID']" [disabled]="item['jmxConn'] != 'pid' || item['agent'] === 'BCI'"
+        label="Process Id" ngModel></p-radioButton>
+    </div>
+    <div class="ml-15">
+      <input pInputText type="number" min="1" max="214748347" [(ngModel)]="item['pid']" name="JMXpid"
+        [required]="setRequired"  class="width-300 ml-22" [disabled]="item['jmxConnPID'] != 'procId' || item['agent'] === 'BCI'" ngModel>
+    </div>
+  </div>
+
+  <!-- JMX Connector using Process Id File -->
+  <div class="p-grid w-100-p p-align-center mb-10"  style="padding-left: 2%;">
+    <div [ngClass]="setRequired? 'required-mark': ''">
+      <p-radioButton name="pidFile" value="pidFile" [(ngModel)]="item['jmxConnPID']" label="Process Id File"
+        [disabled]="item['jmxConn'] != 'pid' || item['agent'] === 'BCI'" ngModel></p-radioButton>
+    </div>
+    <div class="ml-15">
+      <input pInputText type="text" class="width-300" [(ngModel)]="item['pidFile']" name="pF"
+        [required]="setRequired" title="Provide absolute file path" [disabled]="item['jmxConnPID'] != 'pidFile' || item['agent'] === 'BCI'"
+        ngModel>
+    </div>
+  </div>
+
+  <!-- JMX Connector using Search Pattern -->
+  <div class="p-grid w-100-p p-align-center mb-10"  style="padding-left: 2%;">
+    <div class="cav-mr-3" [ngClass]="setRequired? 'required-mark': ''">
+      <p-radioButton name="sp" value="searchPattern" [disabled]="item['jmxConn'] != 'pid' || item['agent'] === 'BCI'"
+        label="Search Pattern (Not applicable for windows)" [(ngModel)]="item['jmxConnPID']" ngModel></p-radioButton>
+    </div>
+  </div> 
+
+  <div class="mb-10">
+
+      <p-table class="all-tables" [columns]="cols" [value]="item['adv']['oP']" [rows]="5" [(selection)]="selectedSrchPattern"
+        [pageLinks]="3">
+        <ng-template pTemplate="caption">
+          <div style="text-align: right">
+            <button pButton type="button" title="Add " class="mx-2" (click)="addSearchPattern()"
+              [disabled]="item['jmxConnPID'] != 'searchPattern' || item['jmxConn'] != 'pid' || item['agent'] === 'BCI'">Add</button>
+            <button pButton type="button" title="Edit " class="mx-3" (click)="editSearchPattern()"
+              [disabled]="item['jmxConnPID'] != 'searchPattern' || item['jmxConn'] != 'pid' || item['agent'] === 'BCI'">edit</button>
+            <button pButton type="button" title="Delete" class="mx-3" (click)="deleteSrchPatData()"
+              [disabled]="item['jmxConnPID'] != 'searchPattern' || item['jmxConn'] != 'pid' || item['agent'] === 'BCI'">delete</button>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th style="width:40px">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th *ngFor="let col of columns" style="width: 100%;">
+              {{col.header}}
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+          <tr>
+            <td class="text-center">
+              <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+            </td>
+            <td *ngFor="let col of columns">
+              {{rowData[col.field]}}
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="columns.length+1" class="noRecords" style="text-align: center;">No records found.
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+  
+  </div>
+
+  <div class="p-grid w-100-p p-align-center ">
+    <div class="width-150" [ngClass]="setRequired? 'required-mark': ''" style="margin-left: 6%;">Occurrence count
+    </div>
+    <div>
+      <input pInputText type="number" min="1" name="oCount" style="width: 67px;" [required]="setRequired"
+        [disabled]="item['jmxConnPID'] != 'searchPattern' || item['agent'] === 'BCI'" [(ngModel)]="item['occCount']" ngModel>
+    </div>
+  </div>
+</div>
+
+
+<p-dialog header={{dialogHeader}} class="secondary-dialog foterDialog" [(visible)]="showSrchDialog"  
+  [responsive]="true" modal="modal" [style]="{'width':'500px'}">
+  <form (ngSubmit)="saveSrchPattData()" #groupForm="ngForm" ngNativeValidate>
+    <div class="p-grid w-100-p p-align-center">
+      <div class="width-150" [ngClass]="setRequired? 'required-mark': ''" style="width: 16%;">Search Pattern</div>
+      <div>
+        <input type="text" style="width: 200px;" pInputText name="searchPattern" [required]="setRequired"
+          [(ngModel)]="jmxSp.pattern" ngModel>
+      </div>
+    </div>
+
+    <footer>
+      <div class="p-grid p-align-center p-justify-end py-5">
+        <button pButton type="button" label="Cancel" (click)="showSrchDialog = false;" class="ui-button-rounded ui-button-secondary mr-6"></button>
+        <button pButton type="submit" label="Save" class="ui-button-rounded"></button>
+
+    </div>
+    </footer>
+  </form>
+</p-dialog>

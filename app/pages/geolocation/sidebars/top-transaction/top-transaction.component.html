@@ -1,0 +1,165 @@
+<div class="transaction-jacket">
+      <div class="sidebar-header">
+            <div class="sidebar-title">
+                  <i class="icons8 icons8-back clickable" (click)="closeClick()"></i>
+                  <span>TOP 10 TRANSACTIONS: </span>
+            </div>
+      </div>
+
+      <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+            <div class="p-col p-col-align-center text-center" style="height: calc(100vh - 228px);">
+                  <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+            </div>
+      </div>
+
+      <div class="p-grid vertical-container" *ngIf="error">
+            <div class="p-col p-col-align-center text-center">
+                  <p-message severity="error" text="{{ error.msg }}"></p-message>
+            </div>
+      </div>
+
+      <div class="p-grid vertical-container" *ngIf="empty">
+            <div class="p-col p-col-align-center text-center">
+                  <p-message severity="normal" text="No Data"></p-message>
+            </div>
+      </div>
+
+      <div #widgetHeight *ngIf="data" class="top-trans-body">
+            <div class="p-grid">
+                  <div class="p-col-12">
+                        <div class="action-icons">
+                              
+                                    <!-- <button pButton icon="icons8 icons8-installing-updates" (click)="downloadMenu.toggle($event)"
+                                          class="ui-icon-button icon-button no-shadow" pTooltip="Download"></button>
+                                    <p-menu #downloadMenu [popup]="true" styleClass="widget-menu"
+                                          [model]="downloadOptions" [showTransitionOptions]="'0ms'"
+                                          [hideTransitionOptions]="'0ms'"></p-menu> -->
+                                          <i style="width: 2px;" pButton class="icons8 icons8-installing-updates icon-button no-shadow"(click)="downloadMenu.toggle($event);" pTooltip="Download"></i>
+                                <p-menu #downloadMenu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"[showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" appendTo="body"></p-menu>
+                              
+                              <div>
+                                    <!-- <button pButton *ngIf="data.topTransaction.tableFilter"
+                                          (click)="isColumnFilter = !isColumnFilter"
+                                          icon="icons8 icons8-search-property" 
+                                          class="ui-icon-button icon-button no-shadow" pTooltip="Column Filter"></button> -->
+                                          <i pTooltip="Column Filter" class="icons8 icons8-search-property filter-search-icon" (click)="isColumnFilter = !isColumnFilter"></i>
+    
+                              </div>
+                              <div>
+                                    <p-multiSelect class="ui-multiselect-secondary" [options]="cols"
+                                          [(ngModel)]="selectedColumns" optionLabel="label"
+                                          [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                                          pTooltip="Show/Hide Columns" [panelStyle]="{ minWidth: '180px' }">
+                                    </p-multiSelect>
+                              </div>
+                        </div>
+                  </div>
+                  <p-card class="min-pad">
+                        <p-table #transactionData [columns]="selectedColumns" [value]="data.topTransaction.data"
+                              [rowHover]="true" [paginator]="false" [responsive]="true" [scrollable]="true"
+                              scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 109px)">
+                              <!-- <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                          <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [style.width]="col.width"
+                                                [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.valueField"
+                                                class="text-left">
+                                                <div class="left">
+                                                      {{ col.label }}
+                                                </div>
+                                                <div *ngIf="col.isSort" class="right">
+                                                      <p-sortIcon *ngIf="col.isSort" field="col.isSort"
+                                                            class="text-right" ariaLabel="Activate to sort"
+                                                            ariaLabelDesc="Activate to sort in descending order"
+                                                            ariaLabelAsc="Activate to sort in ascending order">
+                                                      </p-sortIcon>
+                                                </div>
+                                          </th>
+                                    </tr>
+                                    <tr *ngFor="let headerRow of data.topTransaction.headers">
+                                          <ng-container *ngIf="isColumnFilter">
+                                                <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                      <div *ngIf="col.filter.isFilter === true &&
+                                                            col.filter.type === 'custom'">
+                                                            <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                                  pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                                  *ngSwitchCase="col.label" pInputText type="text"
+                                                                  (input)="transactionData.filter(
+                                                                        $event.target.value,
+                                                                        col.valueField,'custom')" />
+                                                      </div>
+                                                      <div
+                                                            *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+                                                            <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                                  pTooltip="Will filter metric names which contains given text."
+                                                                  *ngSwitchCase="col.label" pInputText type="text"
+                                                                  (input)="transactionData.filter(
+                                                                  $event.target.value,
+                                                                  col.valueField,
+                                                                  'contain')" />
+                                                      </div>
+                                                </th>
+                                          </ng-container>
+                                    </tr>
+                              </ng-template> -->
+                              <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                        <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.isSort && col.valueField" class="text-left" [style.width]="col.width">
+                                            <div class="left">
+                                                {{ col.label }}
+                                            </div>
+                                            <div *ngIf="col.isSort" class="right">
+                                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                </p-sortIcon>
+                                            </div>
+    
+                                        </th>
+                                    </tr>
+                                    <tr *ngFor="let headerRow of data.topTransaction.headers">
+                                        <ng-container *ngIf="isColumnFilter">
+    
+                                            <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                <div *ngIf="col.filter.isFilter === true && col.filter.type === 'custom'">
+                                                    <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="transactionData.filter($event.target.value, col.valueField , 'custom')">
+                                                </div>
+                                                <div *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+                                                    <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="transactionData.filter($event.target.value, col.valueField, 'contains')">
+                                                </div>
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+    
+    
+                                </ng-template>   
+                              <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                                    <tr [ngStyle]="{ backgroundColor: row.rowBgColor }" [pSelectableRow]="row">
+                                          <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}"
+                                          title="{{row[col.valueField]}}" [style.width]="col.width">
+                                                <span *ngIf="i == 0; else valueField">
+                                                      {{ row[col.valueField] | ellipsis:22 }}
+                                                </span>
+                                                <ng-template #valueField>
+                                                <span *ngIf="col.format">
+                                                            {{ row[col.valueField] | lt_1_gt_0_0 }}
+                                                </span>
+                                                      <span *ngIf="!col.format">{{ row[col.valueField] | lt_1_gt_0_0 }}</span>
+                                                </ng-template>
+                                                
+                                                
+                                          </td>
+                                    </tr>
+                              </ng-template>
+                              <!-----------Empty table error handling--------------------->
+                              <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                          <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                                <span *ngIf="error">Error while loading data</span>
+                                                <span *ngIf="emptyTable">Empty Table</span>
+                                                <span *ngIf="loading">Loading</span>
+                                          </td>
+                                    </tr>
+                              </ng-template>
+                        </p-table>
+                  </p-card>
+            </div>
+      </div>
+</div>

@@ -1,0 +1,232 @@
+<p-header>
+    
+   <!-- <span class="configui-float-css">
+        <p-checkbox name="groupname" class="px-6"  value="val1" [(ngModel)]="checkboxtrue" binary="true" [disabled]="true"></p-checkbox>
+    </span>
+    <span style="float: left; margin-top: 3px;">Enable Service Entry Points</span> 
+    <span style="float :right; margin-top:-3px;"> -->
+	<div class="p-grid p-align-center p-justify-end py-5">
+        <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+        <button pButton type="button" class="mx-3" title="{{isSerEntryPntFilters ? 'Show Filters' : 'Hide Filters'}}" icon="icons8 icons8-menu mr-6" (click)="showHideColumnFilter()"></button>
+        <button pButton type="button" class="ui-button-sucess mx-6" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-plus" title="Add Service Entry Point"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openServiceEntryDialog()" icon="icons8 icons8-plus-math" title="Add Service Entry Point"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6"*ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-edit" title="Edit service entry point"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openEditServiceEntryDialog()" icon="icons8 icons8-edit" title="Edit Service Entry Point"></button>
+        <button pButton class="ui-button-sucess mr-6" type="button" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-trash" title="Delete Service Entry points(s)"></button>
+        <button pButton class="ui-button-sucess mr-6" type="button" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteServiceEntryPoint()" icon="icons8 icons8-trash" title="Delete Service Entry Point(s)"></button>
+        <button type="submit" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  label="Save"></button>
+        <button type="submit" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveServiceEntryOnFile()" label="Save"></button>
+   <!-- </span> -->
+	</div>
+</p-header>
+<p-table #tt [columns]="cols" *ngIf="type" class="nde-ui config-ui all-tables"  [style]="{'margin-top':'10px'}" [scrollable]="true" scrollHeight="285px" [value]="serviceEntryData" [rows]="12" [paginator]="serviceEntryData?.length > 12" [pageLinks]="3" [(selection)]="selectedServiceEntryData">
+    <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+            <col style="width:7%">
+            <col style="width:18%">
+            <col style="width:45%">
+            <col style="width:22%">
+            <col style="width:50%">
+            <col style="width:12%">
+        </colgroup>
+    </ng-template>
+    <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+        <tr>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                <span class="width-50" *ngIf="col.field =='checkbox'"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></span>
+                <span *ngIf="col.field !='checkbox'">
+                    {{col.header}}
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+                </span>
+            </th>
+        </tr>
+        <tr *ngIf="isEnableColumnFilter">
+            <th *ngFor="let col of columns">
+            <span *ngIf="col.field !='checkbox'"><input style="width: 90%;" pInputText type="text" (input)="tt.filter($event.target.value, col.field, 'contains')"></span>
+            </th>
+        </tr>
+            <!-- <th>
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th>Service Entry Type</th>
+            <th>Service Entry Name</th>
+            <th>Enable Instrumentation</th>
+            <th>Description</th>
+            <th>Category</th> -->
+    </ng-template>
+    
+    <ng-template class="tableCss config-ui" pTemplate="body" let-service>
+        <tr>
+            <td class="text-center">
+                <p-tableCheckbox [value]="service"></p-tableCheckbox>
+            </td>
+            <td class="tableCss" title="{{service.entryType}}">{{service.entryType}}</td>
+            <td class="tableCss" title="{{service.name}}">{{service.name}}</td>
+            <td class="tableCss config-ui" style="text-align: center;">
+                <p-inputSwitch *ngIf="isProfilePerm" [disabled]="isProfilePerm" [(ngModel)]="service.enabled"></p-inputSwitch>
+                <p-inputSwitch *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="enableToggle(service)" [(ngModel)]="service.enabled"></p-inputSwitch>
+            </td>
+            <td class="tableCss" title="{{service.desc}}">{{service.desc}}</td>
+            <td class="tableCss" style="text-align: center;">
+                <span *ngIf="service.isCustomEntry==true" title="Custom Service Entry Point"> <i class="icons8 icons8-edit"></i></span>
+                <span *ngIf="service.isCustomEntry==false " title="Predefined Service Entry Point"><i class="icons8 icons8-export"></i></span>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-table #sep [columns]="cols1" *ngIf="!type" class="nde-ui all-tables config-ui" [style]="{'margin-top':'20px'}" [value]="serviceEntryData" [rows]="12" [paginator]="serviceEntryData?.length > 12" [pageLinks]="3" [(selection)]="selectedServiceEntryData">
+    <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+            <col style="width:5%">
+            <col style="width:15%">
+            <col style="width:20%">
+            <col style="width:25%">
+            <col style="width:10%">
+            <col style="width:30%">
+            <col style="width:15%">
+        </colgroup>
+    </ng-template>
+    <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+        <tr>
+            <!-- <th class="text-center">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th>Type</th>
+            <th>Module</th>
+            <th>Name</th>
+            <th>Enabled</th>
+            <th>Description</th>
+            <th>Category</th> -->
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                <span class="width-50" *ngIf="col.field =='checkbox'"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></span>
+                <span *ngIf="col.field !='checkbox'">
+                    {{col.header}}
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+                </span>
+            </th>
+        </tr>
+        <tr *ngIf="isEnableColumnFilter">
+            <th *ngFor="let col of columns">
+            <span *ngIf="col.field !='checkbox'"><input style="width: 90%;" pInputText type="text" (input)="sep.filter($event.target.value, col.field, 'contains')"></span>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template class="tableCss config-ui" pTemplate="body" let-service>
+        <tr>
+            <td class="text-center">
+                <p-tableCheckbox [value]="service"></p-tableCheckbox>
+            </td>
+            <td class="tableCss" title="{{service.entryType}}">{{service.entryType}}</td>
+            <td class="tableCss" title="{{service.module}}">{{service.module}}</td>
+            <td class="tableCss" title="{{service.name}}">{{service.name}}</td>
+            <td class="tableCss config-ui" style="text-align: center;">
+                <p-inputSwitch *ngIf="isProfilePerm" [disabled]="isProfilePerm" [(ngModel)]="service.enabled"></p-inputSwitch>
+                <p-inputSwitch *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="enableToggle(service)" [(ngModel)]="service.enabled"></p-inputSwitch>
+            </td>
+            <td class="tableCss" title="{{service.desc}}">{{service.desc}}</td>
+            <td class="tableCss" style="text-align: center;">
+                <span *ngIf="service.isCustomEntry==true" title="Custom Service Entry Point"> <i class="icons8 icons8-edit"></i></span>
+                <span *ngIf="service.isCustomEntry==false " title="Predefined Service Entry Point"><i class="icons8 icons8-lock"></i></span>
+            </td>
+        </tr>
+
+    </ng-template>
+</p-table>
+<!-- Download reports as PDF,Excel and Word File  -->
+<div class="p-grid p-align-center">
+    <label class="mr-5">Download Reports as: </label>
+    <button pButton class="icon-button no-shadow" pTooltip="Download Word file" tooltipPosition="top" icon="icons8 icons8-doc" (click)='downloadReports("WordFile")'></button>
+    <button pButton class="icon-button no-shadow" pTooltip="Download Excel file" tooltipPosition="top" icon="icons8 icons8-spreadsheet-file"  (click)='downloadReports("ExcelFile")'></button>
+    <button pButton class="icon-button no-shadow" pTooltip="Download PDF file" tooltipPosition="top" icon="icons8 icons8-pdf-2" (click)='downloadReports("PDFFile")'></button>
+</div>
+
+
+
+<!--Dialog for New Service Entry -->
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" header="{{isNewServiceEntryPoint ? 'Add Service Entry Point' : 'Edit Service Entry Point'}}" *ngIf="addEditServiceEntryDialog" [(visible)]="addEditServiceEntryDialog" modal="modal" width="700" responsive="true" [resizable]="false">
+
+    <form (ngSubmit)="saveServiceEntryPointService()" #groupForm="ngForm" ngNativeValidate>
+        <div class="p-grid p-align-center p-col-12">
+            <div class="ui-g-4">
+                <label>Service Entry Type</label>
+            </div>
+            <!-- <div class="ui-g-4">
+                <input name="dropdown" type="text" size="25" class='hidden-validator configinput' pInputText [(ngModel)]="serviceEntryPointDetail.entryTypeId" required ngModel/>
+                
+            </div> -->
+            <div class="ui-g-4">
+                
+            <p-dropdown [options]="entryPointType" [style]="{'width':'180px'}" name="entryTypeId" [(ngModel)]="serviceEntryPointDetail.entryTypeId" placeholder="--Select--" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center p-col-12" *ngIf="!type">
+            <div class="ui-g-4">
+                <label>Module</label>
+            </div>
+            <div class="ui-g-6">
+                <input name="module" type="text" size="60" pInputText [(ngModel)]="serviceEntryPointDetail.module" required (keydown.space)="$event.preventDefault()" required ngModel/>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center p-col-12">
+            <div class="ui-g-4">
+                <label>Service Entry Name</label>
+            </div>
+            <div class="ui-g-4">
+                <input name="name" type="text" size="60" class="w-100-p" pInputText [(ngModel)]="serviceEntryPointDetail.name" title="Please Enter valid Service Entry Name. &#013;Rule 1: It will accept alphanumeric characters.  &#013;Rule 2: It will not accept special charcters other then (. @ # & - _ /). &#013;Rule 3: It will not accept whitespaces. &#013;Rule 4: Service entry point name is of maximum 100 characters."
+                    required pattern="[a-zA-Z]+[a-zA-Z0-9_#@./&-]{0,99}$" (keydown.space)="$event.preventDefault()" ngModel/>
+            </div>
+        </div>
+        <div class="p-grid p-align-center p-col-12" *ngIf="!type">
+            <div class="ui-g-4">
+                <label>Fully Qualified Method Name</label>
+            </div>
+            <div class="ui-g-4">
+                <input name="fqm" type="text" size="60" class="w-100-p" pattern="[a-zA-Z]+[a-zA-Z0-9_$.]+(([;_$\/\[a-zA-Z0-9]*))+[;_$\/\[a-zA-Z0-9].*" (keydown.space)="$event.preventDefault()" pInputText [(ngModel)]="serviceEntryPointDetail.fqm" required ngModel/>
+            </div>
+        </div>
+        <div class="p-grid p-align-center p-col-12" *ngIf="type">
+            <div class="ui-g-4">
+                <label>Fully Qualified Method Name</label>
+            </div>
+            <div class="ui-g-4">
+                <input name="fqm" type="text" class="w-100-p" size="60" pattern="[a-zA-Z]+[a-zA-Z0-9_$.]+(\(([;_$\/\[a-zA-Z0-9]*)\))+[;_$\/\[a-zA-Z0-9]*" (keydown.space)="$event.preventDefault()" pInputText [(ngModel)]="serviceEntryPointDetail.fqm" required ngModel/>
+            </div>
+        </div>
+        <div class="p-grid p-align-center p-col-12" *ngIf="serviceEntryPointDetail.entryTypeId == '18'">
+            <div class="ui-g-4">
+                <label>Argument Index</label>
+            </div>
+            <div class="ui-g-8">
+                <input name="dropdown" type="text" class='hidden-validator' pInputText [(ngModel)]="serviceEntryPointDetail.argumentIndex" required ngModel/>
+                <p-dropdown [options]="argumentIndexSelecetItem" [style]="{'width':'171px'}" name="argumentIndex" [(ngModel)]="serviceEntryPointDetail.argumentIndex" (click)="validateArgAndGetArgumentsNumberList(serviceEntryPointDetail.fqm)"
+                    placeholder="-- Select --" required ngModel></p-dropdown>
+            </div>
+        </div>
+        <div class="p-grid p-align-center p-col-12 config-ui">
+            <div class="ui-g-4">
+                <label>Enable Instrumentation</label>
+            </div>
+            <div class="ui-g-4">
+                <p-inputSwitch [(ngModel)]="serviceEntryPointDetail.enabled" name="enabled" style="margin:0px 0px;"></p-inputSwitch>
+
+            </div>
+        </div>
+        <div class="p-grid p-align-center p-col-12">
+            <div class="ui-g-4">
+                <label>Description</label>
+            </div>
+            <div class="ui-g-4">
+                <textarea name="desc" rows="2" cols="60" [style]="{'width':'190%'}" pInputTextarea [(ngModel)]="serviceEntryPointDetail.desc" pattern="[^|]*" ngModel></textarea>
+            </div>
+        </div>
+        <footer style="float: right; display: block;">
+            <div class="p-grid p-align-center p-justify-end py-5">
+                <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="addEditServiceEntryDialog=false" label="Cancel"></button>
+                <button type="submit"  pButton class="ui-button-rounded  px-10" label="Save"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>

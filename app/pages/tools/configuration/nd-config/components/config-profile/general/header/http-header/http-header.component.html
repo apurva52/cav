@@ -1,0 +1,83 @@
+<div class="ui-g">
+    <div class="ui-g-12">
+        <p-checkbox name="captureHttpRequestHeader" label="Capture HTTP request headers" [(ngModel)]="data[0].enableHttpReq" binary="true"></p-checkbox>
+    </div>
+</div>
+
+<div class="ui-g" *ngIf="data[0].enableHttpReq">
+    <div class="ui-g-12" style="margin-left:13px">
+        <div class="ui-g-1">
+            <label>Header type</label></div>
+        <!-- <div class="ui-g-2"> -->
+            <!-- <p-dropdown class="nde-ui" name="customValueType" [style]="{'width':'60%'}" (click)="changeSpecificReq()" [options]="reqHeaderTypes" [(ngModel)]="data[0].headerMode" required ngModel></p-dropdown> -->
+        <!-- </div> -->
+            <div class="ui-g-1">
+                <p-radioButton name="customValueType" label="All" value="All" [disabled]="saveDisable" [(ngModel)]="data[0].headerMode" (click)="changeSpecificReq()"></p-radioButton>
+            </div>
+            <div class="ui-g-1">
+                <p-radioButton name="customValueType" label="Specified" value="Specified" [disabled]="saveDisable" [(ngModel)]="data[0].headerMode" (click)="changeSpecificReq()"></p-radioButton>
+            </div>
+        <div class="ui-g-7" *ngIf="(data[0].headerMode == 'Specified')">
+    	    <input type="text" size="30" style="margin-top: 11px;" class='hidden-validator' [(ngModel)]="data[0].headersName[0]" pInputText required ngModel/>       
+            <p-multiSelect class="multiselectdropReqResp headerhttpres nde-ui" [options]="specifiedReqHeaderType" [style]="{'min-width':'20%'}" [(ngModel)]="data[0].headersName" dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+            <!--<p-dropdown name="customValueType" [disabled]="!(selectedHeader == 'Specified')" [style]="{'width':'80%'}" [options]="specifiedHeaderType" [(ngModel)]="selectedHeaderType"  required ngModel placeholder="Custom value Type"></p-dropdown>-->
+        </div>
+    </div>
+    <div class="ui-g-12" style="margin-left:13px">
+        <div class="ui-g-2" style="width: 16.38%">
+            <p-checkbox name="httpCaptureMode" [disabled]="data[0].headerMode==0" label="Limit header values to" [(ngModel)]="data[0].captureMode" binary="true"></p-checkbox>
+            <!--<p-dropdown name="customValueType" [style]="{'width':'80%'}" [options]="captureMode" [(ngModel)]="selectedCaptureMode"  required ngModel placeholder="Select Capture Mode"></p-dropdown>-->
+        </div>
+        <div class="ui-g-5">
+            <input name="btName" style="text-align:right; width:15%" type="number" min=0 max="255" [disabled]="!data[0].captureMode" pInputText [(ngModel)]="data[0].briefVal" autofocus required ngModel/>
+            <label style="margin-right: 5px"> characters</label>
+        </div>
+    </div>
+</div>
+
+<div class="ui-g">
+    <div class="ui-g-12">
+        <p-checkbox name="captureHTTPRespFullFp" label="Capture HTTP response headers" [(ngModel)]="data[1].enableHttpResp" binary="true"></p-checkbox>
+    </div>
+</div>
+
+<div class="ui-g" *ngIf="data[1].enableHttpResp">
+    <div class="ui-g-12" style="margin-left:13px">
+        <div class="ui-g-1">
+            <label>Header type</label></div>
+        <!-- <div class="ui-g-2">
+            <p-dropdown class="nde-ui" name="headerModeResp" [style]="{'width':'60%'}" (click)="changeSpecificResp()"  [options]="resHeaderTypes" [(ngModel)]="data[1].headerModeResp" required ngModel></p-dropdown>
+        </div> -->
+        <div class="ui-g-1">
+            <p-radioButton name="headerModeResp" label="All" value="All" [disabled]="saveDisable" [(ngModel)]="data[1].headerModeResp" (click)="changeSpecificResp()"></p-radioButton>
+        </div>
+        <div class="ui-g-1">
+            <p-radioButton name="headerModeResp" label="Specified" value="Specified" [disabled]="saveDisable" [(ngModel)]="data[1].headerModeResp" (click)="changeSpecificResp()"></p-radioButton>
+        </div>
+        <div class="ui-g-7" *ngIf="(data[1].headerModeResp == 'Specified')">
+            <input name="headerMode" type="text" size="30" style="margin-top: 11px;" class='hidden-validator' [(ngModel)]="data[1].headersNameResp[0]" pInputText required ngModel/>
+            <p-multiSelect class="multiselectdropReqResp headerhttpres nde-ui" [options]="specifiedResHeaderType" [style]="{'min-width':'20%'}" [(ngModel)]="data[1].headersNameResp" dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+            <!--<p-dropdown name="customValueType" [disabled]="!(selectedHeader == 'Specified')" [style]="{'width':'80%'}" [options]="specifiedHeaderType" [(ngModel)]="selectedHeaderType"  required ngModel placeholder="Custom value Type"></p-dropdown>-->
+        </div>
+    </div>
+    <div class="ui-g-12" style="margin-left:13px">
+        <div class="ui-g-2" style="width: 16.38%">
+
+            <p-checkbox name="httpCaptureMode" [disabled]="data[1].headerModeResp==0" label="Limit header values to" [(ngModel)]="data[1].captureModeResp" binary="true"></p-checkbox>
+            <!--<p-dropdown name="customValueType" [style]="{'width':'80%'}" [options]="captureMode" [(ngModel)]="selectedCaptureMode"  required ngModel placeholder="Select Capture Mode"></p-dropdown>-->
+        </div>
+        <div class="ui-g-5">
+            <input name="btName" type="number" style="text-align:right; width:15%" min=0 max="255" [disabled]="!data[1].captureModeResp" pInputText [(ngModel)]="data[1].briefValResp" autofocus required ngModel/>
+            <label style="margin-right: 5px"> characters</label>
+        </div>
+    </div>
+</div>
+
+<div class="ui-g" *ngIf="agentType == 'Java'">
+    <div class="ui-g-12">
+            <p-checkbox name="isEnableBodyCapture" [(ngModel)]="data[2].isEnableBodyCapture" binary="true" ngModel
+                label="Enable HTTP body capture with size(in Bytes)"></p-checkbox>
+            <input name="bodyCaptureThreshold" style="width: 100px; margin-left: 5px" min="10000" type="number" pInputText
+                [(ngModel)]="data[2].bodyCaptureThreshold" [disabled]="!data[2].isEnableBodyCapture" required ngModel />
+    </div>
+</div>

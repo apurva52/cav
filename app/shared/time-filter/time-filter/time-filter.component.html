@@ -1,0 +1,49 @@
+<div class="p-5" [formGroup]="form">
+  <div class="p-grid p-align-center">
+    <div class="p-col-4">
+    <p-radioButton name="timefilter" label="Last" value="last" formControlName="mode"></p-radioButton>
+  </div>
+
+  <div class="p-col-8">
+    <p-dropdown [options]="lasttimeoption" class="" dropdownIcon="icons8 icons8-expand-arrow" formControlName="last" 
+    [disabled]="form.controls['mode'].value != 'last'" >
+    </p-dropdown>
+    </div>
+
+    <div class="p-col-12">
+      <p-radioButton name="timefilter" label="custom" value="custom" formControlName="mode"></p-radioButton>
+      </div>
+
+      <label class="p-col-4">Starts At</label>
+
+      <div class="p-col-8">
+        <div class="type-search">
+        <i class="icons8 icons8-calendar left-icon"></i>
+        <input pInputText readonly id="start-date-time" [owlDateTime]="customStartDateTime"
+          placeholder="" [owlDateTimeTrigger]="customStartDateTime" (ngModelChange)="onTimeFilterCustomTimeChange(true)"
+          [disabled]="form.controls['mode'].value == 'last'?true:null"
+          [selectMode]="'rangeFrom'" [max]='maxDate' formControlName="startTime" class="w-100-p">
+          <owl-date-time [disabled]="form.controls['mode'].value == 'last'" #customStartDateTime tooltipZIndex="100001005" [pickerType]="pickerType" ></owl-date-time>
+        </div>
+      </div>
+
+      <label class="p-col-4">Ends At</label> 
+
+      <div class="p-col-8">
+        <div class="type-search">
+          <i class="icons8 icons8-calendar left-icon"></i>
+        <input pInputText readonly id="start-date-time" [owlDateTime]="customEndDateTime"
+          placeholder="" [owlDateTimeTrigger]="customEndDateTime" (ngModelChange)="onTimeFilterCustomTimeChange(false)"
+          [selectMode]="'rangeTo'" [max]='maxDate' formControlName="endTime"  
+          [disabled]="form.controls['mode'].value == 'last'?true:null" class="w-100-p">
+        <owl-date-time [disabled]="form.controls['mode'].value == 'last'" #customEndDateTime tooltipZIndex="100001005" [pickerType]="pickerType"></owl-date-time>
+        <p-message *ngIf="invalid" severity="error" [text]="errormsg">
+        </p-message>
+        </div>
+      </div>
+
+  </div>
+
+  <!--Duration Filter-->
+
+</div>

@@ -1,0 +1,63 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+      blockScroll="true" appendTo="body" styleClass="time-filter" [baseZIndex]="100">
+      <div class="sidebar-header">
+            <div class="sidebar-title">
+                  <div>
+                        <i class="icons8 icons8-star-filled"></i>
+                        <span>Http Filter</span>
+                  </div>
+                  <div class="action-icons">
+                        <i class="icons8-delete" (click)="hide()"></i>
+                  </div>
+            </div>
+      </div>
+
+    <div class="sidebar-content">
+        <div class="form-content">
+            <div class="p-grid p-col-12 p-justify-between p-align-center">
+                <p-radioButton name="last" label="Preset" value="last" [(ngModel)]="timefilter"></p-radioButton>
+                <p-dropdown [options]="duration" optionLabel="label" class=""
+                    dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="lasttime" [disabled]="timefilter !== 'last'"></p-dropdown>
+            </div>
+            <div class="p-grid p-col-12 p-justify-between p-align-center">
+                <p-radioButton name="last" label="custom" value="custom" [(ngModel)]="timefilter"></p-radioButton>
+            </div>
+            <div class="p-grid p-col-12 p-justify-between p-align-center">
+                    <label>From:</label>
+                        <div class="p-input-icon-left search-div-css">
+                            <i class="icons8 icons8-calendar"></i>
+                            <input pInputText class="customInput" readonly id="start-date-time"
+                                [owlDateTime]="customStartDateTime"
+                                [owlDateTimeTrigger]="customStartDateTime"
+                                (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'"
+                                [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame" 
+                                 [disabled]="timefilter === 'last' ? true:null"> 
+                            <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                            <p-message *ngIf="invalidDate" severity="error"
+                                text="Start date and End date should not be the same.">
+                            </p-message>
+                        </div>
+            </div>
+            <div class="p-grid p-col-12 p-justify-between p-align-center">
+                    <label>To:</label>
+                    <div class="p-input-icon-left search-div-css">
+                        <i class="icons8 icons8-calendar"></i>
+                        <input pInputText class="customInput" readonly id="start-date-time"
+                            [owlDateTime]="customEndDateTime"
+                            [owlDateTimeTrigger]="customEndDateTime" (ngModelChange)="onTimeFilterCustomTimeChange()"
+                            [selectMode]="'rangeTo'" [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame" 
+                             [disabled]="timefilter === 'last' ? true:null"> 
+                        <owl-date-time #customEndDateTime tooltipZIndex="100001005"></owl-date-time>
+                        <p-message *ngIf="invalidDate" severity="error"
+                            text="Start date and End date should not be the same.">
+                        </p-message>
+                    </div>
+            </div>
+           
+        </div>            
+    </div>
+    <div class="sidebar-footer">
+        <button pButton type="reset" label="Reset" class="ui-outline-button ui-button-secondary px-15 mx-6" (click)="reset()"></button>
+        <button pButton type="submit" label="Apply" class="ui-button-rounded px-15 mx-6" (click)="setTimeFilter()"></button>
+    </div>
+</p-sidebar>

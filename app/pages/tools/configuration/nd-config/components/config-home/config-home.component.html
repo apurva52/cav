@@ -1,0 +1,250 @@
+<!-- table for APPLICATION Detail -->
+<div class="ui-g mat-card-css">
+  <div class="ui-g-6 d-flex" *ngIf ="!noAppPerm">
+      <div class="ui-cards">
+      <p-header class="p-grid p-justify-between pb-6">
+      <!-- <mat-card-subtitle class="mat-card-subtitle-css"> -->
+        <div class="header-Name pt-6 font-weight-600">APPLICATION LIST {{applicationMsg}}
+
+          <i class="icons8 icons8-help mx-6" style="color: rgb(0, 0, 0)" title="Help" (click)="sendHelpNotification('Application')"></i>
+        </div>
+        <div class="header-button">
+            
+          <a [routerLink]="[ ROUTING_PATH + '/application-list']">
+            <button pButton type="button"  title="Configure application list" *ngIf="appPerm" label="Show All" class="ui-button-rounded ui-button-secondary mr-5"></button></a>
+          <a [routerLink]="[ ROUTING_PATH + '/application-list']"><button pButton type="button" title="Configure application list" *ngIf="!appPerm" label="Configure" class="ui-button-rounded ui-button-secondary mr-5"></button></a>
+        </div>
+
+      <!-- </mat-card-subtitle> -->
+      
+      </p-header>
+      <div class="table-css">
+
+        <p-table [value]="applicationInfo" class="all-tables" [scrollable]="true" scrollHeight="173px">
+          <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+              <col style="width:50px"> 
+             
+            </colgroup>
+          </ng-template>
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th></th>
+                <th>Name</th>
+                <th>Topology Applied</th>
+                <th>Last Updated On</th>
+            </tr>
+          </ng-template>
+          <ng-template class="tableCss config-ui" pTemplate="body" let-application>
+          <tr>
+            <td class="text-center"> <i class="icons8 icons8-spinner spin font-18" style="color: #073c77" title="Running Application" *ngIf="runningApp==application.name"></i></td>
+              <td class="tableCss">
+                
+              <span title="Click to open '{{application.name}}' topology details">
+                <a class="hyperlink" (click)="routeToTreemain(application['dcId'], application['name'],'application')">{{application.name}}</a>
+              </span>
+             
+              </td>
+              <td class="tableCss" title="{{application.topology}}">{{application.topology}}</td>
+              <td class="tableCss text-right" title="{{application.timestamp}}">{{application.timestamp}}</td>
+          </tr>
+        </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+
+  <!-- table for PROFILE Detail -->
+  <div class="ui-g-6 d-flex" *ngIf ="!noProfilePerm">
+
+      <div class="ui-cards">
+      <p-header class="p-grid p-justify-between pb-6">
+        <div class="header-Name pt-6 font-weight-600">PROFILE LIST {{profileInfoMsg}}
+
+          <i class="icons8 icons8-help mx-6" style="color: #000;" title="Help"  (click)="sendHelpNotification('Profile')"></i>
+        </div>
+        <div class="header-button">
+         
+          <a [routerLink]="[ ROUTING_PATH + '/profile/profile-list']"><button pButton type="button" title="Configure profile list" *ngIf="profilePerm" label="Show All" class="ui-button-rounded ui-button-secondary mr-5"></button></a>
+          <a [routerLink]="[ ROUTING_PATH + '/profile/profile-list']"><button pButton type="button" title="Configure profile list" *ngIf="!profilePerm" label="Configure" class="ui-button-rounded ui-button-secondary mr-5"></button></a>
+         
+        </div>
+      </p-header>
+      <div class="table-css">
+
+        <p-table [value]="profileInfo" class="all-tables" [scrollable]="true" scrollHeight="173px">
+          <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+              <col style="width:50px"> 
+             
+            </colgroup>
+          </ng-template>
+
+          <ng-template pTemplate="header">
+            <tr>
+              <th></th>
+                <th>Name</th>
+                <th>Agent</th>
+                <th>Last Updated On</th>
+            </tr>
+        </ng-template>
+
+        <ng-template class="tableCss config-ui" pTemplate="body" let-profile>
+          <tr>
+            <td class="text-center"><i class="icons8 icons8-filled-circle px-4" style="color: mediumseagreen;" title="Active profile (Used in running Application)" *ngIf="appliedProfileList.includes(profile['name'])"></i></td>
+              <td class="tableCss">
+                
+                <span title="Click to open '{{profile.name}}' profile configuration">
+                <a class="hyperlink" (click)="routeToConfiguration(profile['id'], profile['name'], profile,profile['agent'])" >{{profile.name}}</a>
+                </span>
+                
+		<span><img border='0' width='15' height='15' style='margin-bottom: -3px; margin-left: 4px; margin-right: 4px; cursor:pointer'
+                  title="Dynamic logging applied" src='./assets/images/dl.png' *ngIf="dlAppliedProfileList.includes(profile['name'])"></span>
+              </td>
+              <td class="tableCss">
+                  <span title="{{profile.agent}}" *ngIf="profile.agent == 'Dot Net'"><i class="cav microsoft-dot-net" style="color: #007ad9;"></i><label style="margin-left:5px;">{{profile.agent}}</label></span>
+                  <span title="{{profile.agent}}" *ngIf="profile.agent == 'NodeJS'"><i class="icons8 icons8-node-js" style="color: mediumseagreen;"></i><label style="margin-left:5px;">{{profile.agent}}</label></span>
+                  <span title="{{profile.agent}}" *ngIf="profile.agent == 'Java'"><i class="icons8 icons8-java" style="color: #e91224;"></i><label style="margin-left:5px;">{{profile.agent}}</label></span>
+                  <span title="{{profile.agent}}" *ngIf="profile.agent == 'Php'"><i class="icons8 icons8-php-logo" style="color: #000;"></i><label style="margin-left:5px;">{{profile.agent}}</label></span>
+                  <span title="{{profile.agent}}" *ngIf="profile.agent == 'Python'"><i class="icons8 icons8-python" style="color: #116fbf;"></i><label style="margin-left:5px;">{{profile.agent}}</label>Python</span>
+                  <span title="{{profile.agent}}" *ngIf="profile.agent == '-'">{{profile.agent}}</span>              
+              </td>
+              <td class="tableCss text-right" title="{{profile.timestamp}}">{{profile.timestamp}}</td>
+
+          </tr>
+      </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- table for TOPOLOGY INFO -->
+<div class="ui-g mat-card-css">
+  <div class="ui-g-6 d-flex" *ngIf ="!noTopoPerm">
+      <div class="ui-cards">
+      <p-header class="p-grid p-justify-between pb-6">
+
+        <div class="header-Name pt-6 font-weight-600">TOPOLOGY LIST {{topologyInfoMsg}}
+          <i class="icons8 icons8-help mx-6" style="color: rgb(0, 0, 0)" title="Help"  (click)="sendHelpNotification('Topology')"></i>
+        </div>
+        <div class="header-button">
+         
+          <!-- <a> <button pButton type="button" title="Import topologies" label="Import Topologies" *ngIf="topoPermission" [disabled]="topoPermission" class="button-color" icon="fa-download"></button></a>
+          <a (click)="importTopologyDialog()"> <button pButton type="button" title="Import topologies" label="Import Topologies" class="button-color" icon="fa-download" *ngIf="!topoPermission"></button></a> -->
+                    <a  [routerLink]="[ ROUTING_PATH + '/topology-list']"><button pButton type="button" title="Show Topology List" label="Show All" class="ui-button-rounded ui-button-secondary mr-5"></button></a>
+
+        </div>
+      </p-header>
+      <div class="table-css">
+
+        <p-table [value]="topologyInfo" class="all-tables" [scrollable]="true" scrollHeight="173px"> 
+          <ng-template pTemplate="header">
+            <tr>
+                <th>Name</th>
+                <th>Last Updated On</th>
+            </tr>
+        </ng-template>
+        <ng-template class="tableCss config-ui" pTemplate="body" let-application>
+          <tr>
+              <td class="tableCss">
+                <span title="Click to open '{{application.name}}' topology details">
+                  <a class="hyperlink" (click)="routeToTreemain(application['id'], application['name'],'topology')">{{application.name}}</a>
+                </span>
+              </td>
+              <td class="tableCss text-right" title="{{application.timestamp}}">{{application.timestamp}}</td>
+          </tr>
+      </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+  <!--<div class="ui-g-7">
+        <md-card class="md-card-css">
+            <md-card-subtitle class="md-card-subtitle-css">
+                <div class="header-Name">ND AGENT STATUS</div>
+                <div class="header-button">
+                    <a [routerLink]="[ ROUTING_PATH + '/nd-agent']"><button pButton type="button" icon="fa-info" label="Show All" class="ui-button-info"></button></a>
+                </div>
+            </md-card-subtitle>
+
+            <div class="table-css">
+                <p-dataTable [value]="agentsInfo" class="nde-ui">
+                    <p-column rowStyleClass="col-overflow" field="tier" header="Tier">
+                        <template let-col let-application="rowData" pTemplate>
+                            <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                        </template>
+                    </p-column>
+                    <p-column rowStyleClass="col-overflow" field="server" header="Server">
+                        <template let-col let-application="rowData" pTemplate>
+                            <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                        </template>
+                    </p-column>
+                    <p-column rowStyleClass="col-overflow" field="instance" header="Instance">
+                        <template let-col let-application="rowData" pTemplate>
+                            <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                        </template>
+                    </p-column>
+                    <p-column rowStyleClass="col-overflow" field="installDir" header="Installation Dir">
+                        <template let-col let-application="rowData" pTemplate>
+                            <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                        </template>
+                    </p-column>
+                    <p-column rowStyleClass="col-overflow" field="version" header="Version">
+                        <template let-col let-application="rowData" pTemplate>
+                            <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                        </template>
+                    </p-column>
+                    <p-column rowStyleClass="col-overflow" field="bciRunningSince" header="Running Since">
+                        <template let-col let-application="rowData" pTemplate>
+                            <span title="{{application[col.field]}}" style="float:right">{{application[col.field]}}</span>
+                        </template>
+                    </p-column>
+                    <p-column rowStyleClass="col-overflow" field="state" header="State">
+                        <template let-col let-application="rowData" pTemplate>
+                            <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                        </template>
+                    </p-column>
+                </p-dataTable>
+
+            </div>
+        </md-card>
+    </div>-->
+</div>
+
+<!--Adding dialog for import topologies-->
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" [resizable]="false" header="Import Topologies" *ngIf="importTopo" [(visible)]="importTopo"
+  modal="modal" responsive="true">
+  <form (ngSubmit)="importTopology()" #form="ngForm" ngNativeValidate>
+    <div class="ui-g-12">
+      <div class="ui-g-5">
+        Select a topology to import
+      </div>
+      <div class="ui-g-6">
+        <input name="dropdown" type="text" size="5" class='hidden-validator'  pInputText [(ngModel)]="selectedTopology" required ngModel/>
+        <p-dropdown name="dropdown" [style]="{'width':'205px'}" [options]="topologyList" [(ngModel)]="selectedTopology" placeholder="--Select--" appendTo="body"
+          required></p-dropdown>
+      </div>
+    </div>
+    <p-footer>
+
+      <div class="p-grid p-align-center py-5 p-justify-end">
+        <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="importTopo=false" label="Cancel"></button>
+        <button type="submit" pButton class="ui-button-rounded  px-10" label="Import"></button>
+        </div>
+    </p-footer>
+</form>
+</p-dialog>
+
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" header="Message" *ngIf="isHomePermDialog" [(visible)]="isHomePermDialog" responsive="true" modal=true [resizable]="true" [closable] = "false" [closeOnEscape] = "false">
+        <div>
+                <label>Access denied for Application,Profile and Topology,click OK to redirect on permitted features </label>
+            </div>
+    <footer>
+        <div class="p-grid p-align-center py-5 p-justify-end">
+          <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="redirectToPage()" label="OK"></button>
+            
+        </div>
+    </footer>
+</p-dialog>

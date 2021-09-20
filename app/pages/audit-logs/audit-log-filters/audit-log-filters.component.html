@@ -1,0 +1,124 @@
+<p-sidebar #sidebar class="audit-log-sidebar" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="1000" blockScroll="true" appendTo="body">
+    <div class="sidebar-header">
+        <div class="sidebar-title p-grid p-justify-between">
+            <div>
+                <i class="icons8 icons8-filter"></i>
+                <span>Advanced Filters </span>
+            </div>
+            <i class="icons8-delete icons8" style="cursor: pointer;" (click)="closeClick()"></i>
+        </div>
+    </div>
+
+    <div class="sidebar-content">
+      <div>
+    <div class="ui-fluid p-formgrid ph-10 pv-15">
+        <div class="p-col-12 mv-15">
+            <p-checkbox name="group1" [binary]="true" (onChange)="onTimeFilterTypeChangeForAudit()" label="Preset" [(ngModel)]="preset" inputId="binary"></p-checkbox>
+        </div>
+        <div class="p-field p-col-12" *ngIf="!preset">
+            <label>Time Period</label>
+            <div class="filter-tmpValue mt-8">Custom</div>
+        </div>
+        <div class="p-field pr-3 w-100-p" *ngIf="!preset">
+            <label class="p-col-12 pb-0 font-weight-500">Start and End Date Time</label>
+
+            <div class="p-col-12">
+                <!-- <div class="type-search">
+            <input pInputText class="pl-5" [owlDateTime]="customStartDateTime" [selectMode]="'range'"
+             placeholder="Date Time" #dateTime="ngModel"
+            [(ngModel)]="customTimeFrame" (ngModelChange)="onTimeFilterCustomTimeChange()"
+            [max]="customTimeFrameMax">
+
+            <span [owlDateTimeTrigger]="customStartDateTime">
+                <i style="cursor: pointer;margin-top: 2px;
+              margin-right: 2px;" title="Click to open Calender."   class="right-icon icons8 icons8-calendar"></i>
+                
+              </span>
+            <owl-date-time #customStartDateTime></owl-date-time>
+            </div> -->
+            <!-- <div class="type-search">
+                <p-calendar class="w-100-p"  inputId="range"
+               [(ngModel)]="customTimeFrame" (ngModelChange)="onTimeFilterCustomTimeChange()" selectionMode="range"
+                inputStyleClass="pl-6 w-100-p"></p-calendar>
+               <i class="right-icon icons8 icons8-calendar" style="pointer-events: none;"></i>
+            </div> -->
+            <div>
+                <p-calendar [(ngModel)]="rangeDates" showTime="true" showOnFocus="true" showSeconds="true" selectionMode="range"
+                    [readonlyInput]="false" hourFormat="24" [showIcon]="true"></p-calendar>
+            </div>
+            </div>
+            <!-- <div class="p-col-12">
+                <p-message *ngIf="invalidDate" severity="error" text="End date and Start date should not be the same."></p-message>
+                <p-message *ngIf="dateTime.invalid && dateTime.errors.owlDateTimeMax" severity="error" text="Date cannot exceed current time."></p-message>
+              </div> -->
+        </div>
+        <p-slideMenu #menu [model]="options" [popup]="true" (click)="prepareValue()"></p-slideMenu>
+        <button *ngIf="preset" pButton class="w-25-p ui-button ui-button-custom mh-10" (click)="menu.toggle($event)">
+            <span class="text-left p-col-10 left"> {{ selectedPreset['label'] || "Specified Time" }} </span>
+            <i class="p-col-2 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+        </button>
+        <div *ngIf="preset">
+            <div class="p-field p-col-12">
+                <label for="view-by">Start Date Time</label><br>
+                <div class="filter-tmpValue mt-8">{{auditLogsData.startDate }}</div>
+            </div>
+            <div class="p-field p-col-12 ">
+                <label for="view-by">End Date Time</label>
+                <div class="filter-tmpValue mt-8 ">{{auditLogsData.endDate }}</div>
+            </div>
+        </div>
+        <div class="p-col-12 mv-15">
+            <p-checkbox name="group2" [binary]="true" label="Include Inactive Sessions" [(ngModel)]="include" inputId="binary">  </p-checkbox>
+        </div>
+        
+        <p-accordion class="w-100-p">
+            <p-accordionTab  class="accordion-header" header="Activity" [selected]="true">
+                <div class="p-grid p-col-12" >
+                    <ul class="chips-list">
+                        <li class="chips-item" *ngFor="let action of selectedActivityList" title="{{action.name}}"><span>{{action.name}}</span>
+                            <!-- <i class="icons8-delete" style="cursor: pointer;" (click)="remove($event)"></i>  -->
+                          </li>
+                    </ul>
+
+                    <p-listbox [options]="activityList" [(ngModel)]="selectedActivityList"  [multiple]="true" [checkbox]="true" [filter]="false" optionLabel="name" [showToggleAll]="false" (onClick)="toggleActivityFilter($event)">
+                        <ng-template let-action let-i="index" pTemplate="item">
+                            <!-- (click)="toggleActivityFilter(action)" -->
+                            <div class="ui-helper-clearfix" >
+                                <span>{{action.label}}</span>
+                                <span class="icon" title={{action.value.tooltip}} > <i class={{action.value.icon}}></i></span>
+                            </div>
+                        </ng-template>
+
+                    </p-listbox>
+                </div>
+            </p-accordionTab>
+            <p-accordionTab  class="accordion-header" header="Module">
+                <div class="p-grid p-col-12" >
+                    <ul class="chips-list">
+                        <li class="chips-item" *ngFor="let action of selectedModuleList" title="{{action.name}}"><span>{{action.name | ellipsis: 15}}</span>
+                           <!-- <i class="icons8-delete" style="cursor: pointer;" (click)="remove($event)"></i></li> -->
+                    </ul>
+
+                    <p-listbox [options]="moduleList" [(ngModel)]="selectedModuleList"  [multiple]="true" [checkbox]="true" [filter]="false" optionLabel="name" [showToggleAll]="false" (onClick)="toggleModuleFilter($event)">
+                        <ng-template let-action let-i="index" pTemplate="item">
+                            <div class="ui-helper-clearfix" >
+                                <span>{{action.label}}</span>
+                                <span class="icon" title={{action.value.tooltip}} > <i class={{action.value.icon}}></i></span>
+                            </div>
+                        </ng-template>
+
+                    </p-listbox>
+                </div>
+            </p-accordionTab>
+        </p-accordion>
+    </div>
+
+        <div class="p-grid p-justify-center p-align-center">
+            <button pButton type="reset" (click)="resetFilters()" label="RESET" class="ui-outline-button ui-button-secondary px-15 mx-3"></button>
+            <button pButton type="submit" (click)="applyFilters()" label="APPLY" class="ui-button-rounded  px-15 mx-3"></button>
+       </div>
+
+  </div>
+</div>
+
+</p-sidebar>

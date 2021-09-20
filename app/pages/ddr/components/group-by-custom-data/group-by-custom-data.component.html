@@ -1,0 +1,318 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+
+<div class="ddr-box">
+  <!-- COMMON TOOLBAR -->
+  <div class="ddr-toolbar">
+    <!--<p-toolbar>
+      <div class="reportInfo">
+        <label class="headerInfo">
+          <b>{{strTitle}}</b>
+        </label>
+      </div>
+    </p-toolbar>-->
+    <p-toolbar>
+      <div class='ui-toolbar-group-left'>
+        <!--<label class='headerInfo'>
+          <b>Filter Criteria : </b>
+        </label>-->
+        <label class='headerInfo'>{{filterCriteria}}</label>
+      </div>
+    </p-toolbar>
+  </div>
+  <!-- DDR UI SCROLL -->
+  <div class="ddruiscroll" [ngStyle]="{'height': screenHeight+'px'}" style="overflow:auto;">
+    <div class="ui-g-12">
+      <p-accordion class="ddr-accordion">
+        <p-accordionTab header="Graphical View" [selected]="false">
+          <div class="ui-g">
+            <div class="ui-g-6">
+              <div class="ddr-graphpanel" *ngIf="showChart; else pieChart">
+                <highcharts-chart [Highcharts]="highcharts" [options]="options"></highcharts-chart>
+              </div>
+              <ng-template #pieChart>No Pie Chart found based on current Filter Settings.</ng-template>
+            </div>
+            <div class="ui-g-6">
+              <div class="ddr-graphpanel" *ngIf="showBarChart; else barChart">
+                <highcharts-chart [Highcharts]="highcharts" [options]="options1"></highcharts-chart>
+              </div>
+              <ng-template #barChart>No RespTime Time Graph found based on current Filter Settings or Data length is
+                less than 5</ng-template>
+            </div>
+          </div>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+
+    <div style="overflow:auto" class="main-box">
+      <p-accordion class="ddr-accordion">
+        <p-accordionTab header="Tabular View [Aggregate BusinessTransaction ]" [selected]="true">
+          <p-toolbar>
+            <div class="ui-toolbar-group-right" style="text-align: right">
+              <p-multiSelect title="Show/Hide columns" [options]="columnOptions"
+                class="dashboard-lowerPanel-multiSelect ddr-multiselect-down" (onChange)="showHideColumn($event)"
+                [(ngModel)]="visibleCols"></p-multiSelect>
+              <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o fa"></button>
+              <img src="./images/showall.png" *ngIf="showAllOption" height="21px" width="21px" title="Show all data"
+                style="float:right;cursor:pointer;">
+              <i class="fa fa-search" style="margin:0 0 0 0"></i>
+              <input #gt type="text" pInputText size="50" style="width: 30% !important;" placeholder="Search">
+              <span *ngIf="showDownLoadReportIcon">
+                <img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' title="Word Report"
+                  (click)='downloadReports("word", "1")' src='./images/iconWord.gif'>
+                <img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' title="Excel Report"
+                  (click)='downloadReports("excel", "1")' src='./images/iconExcel.gif'>
+                <img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' title="PDF Report"
+                  (click)='downloadReports("pdf","1")' src='./images/iconPDF.gif'>
+              </span>
+            </div>
+          </p-toolbar>
+          <div style="overflow:auto">
+
+            <p-table class="scen-table" [value]="dataValue" scrollHeight="340px"
+              [style]="{'height':'240px','font-size':'12px'}" resizableColumns="true" reorderableColumns="true"
+              columnResizeMode="expand">
+              <ng-template pTemplate="header">
+                <tr>
+                  <ng-container *ngFor="let col of btCols">
+                    <th *ngIf="col.action">
+                      <span>{{col.header}}</span>
+                    </th>
+                  </ng-container>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-node>
+                <tr>
+                  <ng-container *ngFor="let col of btCols">
+                    <td *ngIf="col.action">
+                      <div class="ddr-table-left"
+                        *ngIf="(col.field == 'BusinesTransaction' && !(node[col.field] == '0'))"
+                        (click)="oenPieChart(node)">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalOverallCount' && node[col.field] == '0')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right"
+                        *ngIf="(col.field == 'TotalOverallCount' && !(node[col.field] == '0'))"
+                        (click)="openFlowpathReport(node, '')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalNormalCount' && node[col.field] == '0')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right"
+                        *ngIf="(col.field == 'TotalNormalCount' && !(node[col.field] == '0'))"
+                        (click)="openFlowpathReport(node, '10')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalSlowCount' && node[col.field] == '0')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalSlowCount' && !(node[col.field] == '0'))"
+                        (click)="openFlowpathReport(node, '11')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right"
+                        *ngIf="(col.field == 'TotalVerySlowCount' && node[col.field] == '0')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right"
+                        *ngIf="(col.field == 'TotalVerySlowCount' && !(node[col.field] == '0'))"
+                        (click)="openFlowpathReport(node, '12')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalErrorCount' && node[col.field] == '0')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalErrorCount' && !(node[col.field] == '0'))"
+                        (click)="openFlowpathReport(node, '13')">
+                        {{node[col.field]}} </div>
+                      <div
+                        *ngIf="!(col.field == 'BusinesTransaction') && !(col.field == 'TotalOverallCount') && !(col.field == 'TotalNormalCount')
+                   && !(col.field == 'TotalSlowCount') && !(col.field == 'TotalVerySlowCount') && !(col.field == 'TotalErrorCount')">
+                        {{node[col.field]}} </div>
+                    </td>
+                  </ng-container>
+                </tr>
+              </ng-template>
+            </p-table>
+
+            <!-- <p-dataTable class="scen-table" [value]="dataValue" scrollHeight="340px" [globalFilter]="gt"
+              [style]="{'height':'240px','font-size':'12px'}" resizableColumns="true" reorderableColumns="true"
+              columnResizeMode="expand">
+              <div *ngFor="let col of btCols">
+                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [filter]="col.filter"
+                  [sortable]="col.sortable" (sortFunction)="CustomsortOnColumnsforbtTable($event,dataValue)"
+                  [style]="{'width':'100px', 'text-align': 'right'}">
+                  <ng-template pTemplate type="header">
+                    <a pTooltip="{{col.tooltip}}" tooltipPosition="right" tooltipEvent="hover">{{col.header}}</a>
+                  </ng-template>
+                  <ng-template let-col let-node="rowData" pTemplate type="body">
+                    <div class="ddr-table-left" *ngIf="(col.field == 'BusinesTransaction' && !(node[col.field] == '0'))"
+                      (click)="oenPieChart(node)">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalOverallCount' && node[col.field] == '0')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalOverallCount' && !(node[col.field] == '0'))"
+                      (click)="openFlowpathReport(node, '')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalNormalCount' && node[col.field] == '0')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalNormalCount' && !(node[col.field] == '0'))"
+                      (click)="openFlowpathReport(node, '10')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalSlowCount' && node[col.field] == '0')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalSlowCount' && !(node[col.field] == '0'))"
+                      (click)="openFlowpathReport(node, '11')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalVerySlowCount' && node[col.field] == '0')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right"
+                      *ngIf="(col.field == 'TotalVerySlowCount' && !(node[col.field] == '0'))"
+                      (click)="openFlowpathReport(node, '12')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalErrorCount' && node[col.field] == '0')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalErrorCount' && !(node[col.field] == '0'))"
+                      (click)="openFlowpathReport(node, '13')">
+                      {{node[col.field]}} </div>
+                    <div
+                      *ngIf="!(col.field == 'BusinesTransaction') && !(col.field == 'TotalOverallCount') && !(col.field == 'TotalNormalCount')
+                   && !(col.field == 'TotalSlowCount') && !(col.field == 'TotalVerySlowCount') && !(col.field == 'TotalErrorCount')">
+                      {{node[col.field]}} </div>
+                  </ng-template>
+                </p-column>
+              </div>
+            </p-dataTable> -->
+          </div>
+        </p-accordionTab>
+      </p-accordion>
+
+      <p-accordion class="ddr-accordion">
+        <p-accordionTab [header]="CustomTable" [selected]="true">
+          <p-toolbar>
+            <div class="ui-toolbar-group-right" style="text-align: right">
+              <p-multiSelect title="Show/Hide columns" [options]="columnOptions1"
+                class="dashboard-lowerPanel-multiSelect ddr-multiselect-down"
+                (onChange)="showHideColumnForCustomData($event)" [(ngModel)]="visibleCols1"></p-multiSelect>
+              <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o fa"></button>
+              <img src="./images/showall.png" *ngIf="showAllOption" height="21px" width="21px" title="Show all data"
+                style="float:right;cursor:pointer;">
+              <i class="fa fa-search" style="margin:0 0 0 0"></i>
+              <input #gb type="text" pInputText size="50" style="width: 30% !important;" placeholder="Search">
+              <span *ngIf="showDownLoadReportIcon1">
+                <img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' title="PDF report"
+                  (click)='downloadReports("pdf", "2")' src='./images/iconPDF.gif'>
+                <img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' title="WORD report"
+                  (click)='downloadReports("word", "2")' src='./images/iconWord.gif'>
+                <img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' title="EXCEL report"
+                  (click)='downloadReports("excel", "2")' src='./images/iconExcel.gif'>
+              </span>
+            </div>
+          </p-toolbar>
+          <div style="overflow:auto">
+
+            <p-table class="scen-table" [value]="dataValue1" scrollHeight="340px"
+            [style]="{'height':'240px','font-size':'12px'}" resizableColumns="true" reorderableColumns="true"
+            columnResizeMode="expand">
+              <ng-template pTemplate="header">
+                <tr>
+                  <ng-container *ngFor="let col of cols">
+                    <th *ngIf="col.action">
+                      <span>{{col.header}}</span>
+                    </th>
+                  </ng-container>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-node>
+                <tr>
+                  <ng-container *ngFor="let col of cols">
+                    <td *ngIf="col.action">
+                      <div class="ddr-table-left" *ngIf="(col.field == 'BusinesTransaction' && !(node[col.field] == ''))">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalOverallCount' && node[col.field] == '0')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalOverallCount' && !(node[col.field] == '0'))"
+                        (click)="openFlowpathReport(node, '')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalNormalCount' && node[col.field] == '0')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalNormalCount' && !(node[col.field] == '0'))"
+                        (click)="openFlowpathReport(node, '10')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalSlowCount' && node[col.field] == '0')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalSlowCount' && !(node[col.field] == '0'))"
+                        (click)="openFlowpathReport(node, '11')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalVerySlowCount' && node[col.field] == '0')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right"
+                        *ngIf="(col.field == 'TotalVerySlowCount' && !(node[col.field] == '0'))"
+                        (click)="openFlowpathReport(node, '12')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalErrorCount' && node[col.field] == '0')">
+                        {{node[col.field]}} </div>
+                      <div class="ddr-table-right" *ngIf="(col.field == 'TotalErrorCount' && !(node[col.field] == '0'))"
+                        (click)="openFlowpathReport(node, '13')">
+                        {{node[col.field]}} </div>
+                      <div
+                        *ngIf="!(col.field == 'BusinesTransaction') && !(col.field == 'TotalOverallCount') && !(col.field == 'TotalNormalCount')
+                         && !(col.field == 'TotalSlowCount') && !(col.field == 'TotalVerySlowCount') && !(col.field == 'TotalErrorCount')">
+                        {{node[col.field]}}
+                      </div>
+                    </td>
+                  </ng-container>
+                </tr>
+              </ng-template>
+            </p-table>
+
+            <!-- <p-dataTable class="scen-table" [value]="dataValue1" scrollHeight="340px" [globalFilter]="gb"
+              [style]="{'height':'240px','font-size':'12px'}" resizableColumns="true" reorderableColumns="true"
+              columnResizeMode="expand">
+              <div *ngFor="let col of cols">
+                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [filter]="col.filter"
+                  [sortable]="col.sortable" (sortFunction)="CustomsortOnColumnsforCustom($event,dataValue1)"
+                  [style]="{'width':'100px', 'text-align': 'right'}">
+                  <ng-template let-col let-node="rowData" pTemplate type="body">
+                    <div class="ddr-table-left" *ngIf="(col.field == 'BusinesTransaction' && !(node[col.field] == ''))">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalOverallCount' && node[col.field] == '0')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalOverallCount' && !(node[col.field] == '0'))"
+                      (click)="openFlowpathReport(node, '')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalNormalCount' && node[col.field] == '0')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalNormalCount' && !(node[col.field] == '0'))"
+                      (click)="openFlowpathReport(node, '10')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalSlowCount' && node[col.field] == '0')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalSlowCount' && !(node[col.field] == '0'))"
+                      (click)="openFlowpathReport(node, '11')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalVerySlowCount' && node[col.field] == '0')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right"
+                      *ngIf="(col.field == 'TotalVerySlowCount' && !(node[col.field] == '0'))"
+                      (click)="openFlowpathReport(node, '12')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalErrorCount' && node[col.field] == '0')">
+                      {{node[col.field]}} </div>
+                    <div class="ddr-table-right" *ngIf="(col.field == 'TotalErrorCount' && !(node[col.field] == '0'))"
+                      (click)="openFlowpathReport(node, '13')">
+                      {{node[col.field]}} </div>
+                    <div
+                      *ngIf="!(col.field == 'BusinesTransaction') && !(col.field == 'TotalOverallCount') && !(col.field == 'TotalNormalCount')
+                       && !(col.field == 'TotalSlowCount') && !(col.field == 'TotalVerySlowCount') && !(col.field == 'TotalErrorCount')">
+                      {{node[col.field]}} </div>
+                  </ng-template>
+                </p-column>
+              </div>
+            </p-dataTable> -->
+          </div>
+          <div *ngIf='paginationFlag'>
+            <div> {{customOffset+1}} - {{customOffset+customLimit}} of {{customTotalCount}} </div>
+            <p-paginator rows="50" [rowsPerPageOptions]="[50,100,200,400]" pageLinkSize="3"
+              (onPageChange)="paginate($event)"></p-paginator>
+          </div>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+    <!-- <p-growl life=50000 [value]="msgs" [sticky]="true"></p-growl> -->
+    <p-toast></p-toast>
+  </div>
+</div>

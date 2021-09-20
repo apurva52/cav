@@ -1,0 +1,285 @@
+<div class="h-100-vh alert-config-container">
+    <div class="vertical-container overflow">
+        <div class="p-col-12">
+            <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+                <div class="p-col p-col-align-center text-center">
+                    <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+                </div>
+            </div>
+            <div class="p-grid vertical-container" *ngIf="error">
+                <div class="p-col p-col-align-center text-center">
+                    <p-message severity="error" text="{{ error.msg }}"></p-message>
+                </div>
+            </div>
+            <div class="p-grid vertical-container" *ngIf="empty">
+                <div class="p-col p-col-align-center text-center">
+                    <p-message severity="normal" text="No Data"></p-message>
+                </div>
+            </div>
+            <div class="p-grid p-col-12 p-justify-start p-align-center action-grid w-100-p">
+                <div class="p-field-radiobutton p-5">
+                    <p-radioButton name="city" value="agentsetting" [(ngModel)]="settings" inputId="agent_setting">
+                    </p-radioButton>
+                    <label class="lable-size">Agent Setting</label>
+                </div>
+                <div class="p-field-radiobutton p-5">
+                    <p-radioButton name="city" value="ndcsetting" [(ngModel)]="settings" inputId="ndc_setting">
+                    </p-radioButton>
+                    <label class="lable-size">NDC Setting</label>
+                </div>
+                <div class="p-field-radiobutton p-5">
+                    <p-radioButton name="city" value="settings" [(ngModel)]="settings" inputId="city3">
+                    </p-radioButton>
+                    <label class="lable-size">Setting</label>
+                </div>
+            </div>
+            <!-- Agent setting Table -->
+            <div *ngIf="data">
+                <div *ngIf="settings == 'agentsetting'">
+                    <div class="action-container p-grid p-col-12">
+                        <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                            <div class="global-search-block">
+                                <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-search"></i>
+                                    <input #searchInput pInputText type="text" class="input-field-search" (input)="agentSetting.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                                </div>
+                            </div>
+
+                            <div class="icons-container p-justify-between p-align-center">
+                                <button pButton icon="icons8 icons8-trash" class="icon-button no-shadow" pTooltip="Delete"></button>
+                                <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" (click)="toggleFilters()" pTooltip="Column Filter"></button>
+                                <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+                                </p-multiSelect>
+                                <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow" (click)="menu.toggle($event)" pTooltip="Download"></button>
+                                <button pButton label="ADD" (click)="addsetting.open()" class="ui-button ui-button-rounded ui-button-secondary"></button>
+                            </div>
+                        </div>
+                        <ng-container>
+                            <p-panel header="User Configured Agent setting(s) List" class="myPanelContent ui-panel">
+                                <div #widgetHeight [ngStyle]="{
+                        height: isEnabledColumnFilter
+                        ? 'calc(100vh - 165px)'
+                        : 'calc(100vh - 170px)'
+                      }">
+                                    <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                                        Select column to show
+                                    </div>
+                                    <p-card class="content-body">
+                                        <p-table #agentSetting [value]="data.agentSetting.data" [columns]="selectedColumns" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true" [totalRecords]="data.agentSetting.data.length"
+                                            [rowsPerPageOptions]="data.agentSetting.paginator.rowsPerPageOptions" [rows]="data.agentSetting.paginator.rows" [responsive]="true" [scrollable]="true" [globalFilterFields]="globalFilterFields" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 264px)">
+                                            <ng-template pTemplate="colgroup" let-columns>
+                                                <colgroup>
+                                                    <col *ngFor="let col of columns" [style.width]="col.width" />
+                                                </colgroup>
+                                            </ng-template>
+                                            <ng-template pTemplate="header" let-columns>
+                                                <tr>
+                                                    <th [style]="{ width: '4%' }">
+                                                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                                    </th>
+                                                    <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                                                        <div class="text-left">
+                                                            {{ col.label }}
+                                                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                            </p-sortIcon>
+                                                        </div>
+                                                    </th>
+                                                </tr>
+                                                <tr *ngFor="let headerRow of data.headers">
+                                                    <ng-container *ngIf="isEnabledColumnFilter">
+                                                        <th></th>
+                                                        <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                            <div *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'custom'
+                          ">
+                                                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                        agentSetting.filter(
+                                $event.target.value,
+                                col.valueField,
+                                'custom'
+                              )
+                            " />
+                                                            </div>
+                                                            <div *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'contains'
+                          ">
+                                                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                        agentSetting.filter(
+                                $event.target.value,
+                                col.valueField,
+                                'contains'
+                              )
+                            " />
+                                                            </div>
+                                                        </th>
+                                                    </ng-container>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template pTemplate="body" let-row let-columns="columns">
+                                                <tr [pSelectableRow]="row">
+                                                    <td [style]="{ width: '4%' }" class="text-center">
+                                                        <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                                                    </td>
+                                                    <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                                        {{ row[col.valueField] }}
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+
+                                            <!-----------Empty table error handling--------------------->
+                                            <ng-template pTemplate="emptymessage" let-columns>
+                                                <tr>
+                                                    <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                                        <span *ngIf="error">Error while loading data</span>
+                                                        <span *ngIf="emptyTable">Empty Table</span>
+                                                        <span *ngIf="loading">Loading</span>
+                                                        <span *ngIf="!empty && !loading && !error && searchInput.value.length">Nothing
+                                                    found
+                                                    matching
+                                                    "{{searchInput.value}}"</span>
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    </p-card>
+                                </div>
+                            </p-panel>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+            <!--End Agent setting Table -->
+
+            <!-- NDC setting Table -->
+            <div *ngIf="data.ndcSetting">
+                <div *ngIf="settings == 'ndcsetting'">
+                    <div class="action-container p-grid p-col-12">
+                        <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                            <div class="global-search-block">
+                                <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-search"></i>
+                                    <input #searchInput pInputText type="text" class="input-field-search" (input)="ndcSetting.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                                </div>
+                            </div>
+
+                            <div class="icons-container p-justify-between p-align-center">
+                                <button pButton icon="icons8 icons8-trash" class="icon-button no-shadow" pTooltip="Delete"></button>
+                                <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" (click)="toggleFilters()" pTooltip="Column Filter"></button>
+                                <p-multiSelect class="icon-button no-shadow" [options]="statCols" [(ngModel)]="selectedStatColumns" optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+                                </p-multiSelect>
+                                <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow" (click)="menu.toggle($event)" pTooltip="Download"></button>
+                                <button pButton label="ADD" (click)="addsetting.open()" class="ui-button ui-button-rounded ui-button-secondary"></button>
+                            </div>
+                        </div>
+                        <ng-container>
+                            <p-panel header="User Configured NDC setting(s) List" class="myPanelContent ui-panel">
+                                <div #widgetHeight [ngStyle]="{
+                        height: isEnabledColumnFilter1
+                        ? 'calc(100vh - 165px)'
+                        : 'calc(100vh - 170px)'
+                      }">
+                                    <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                                        Select column to show
+                                    </div>
+                                    <p-card class="content-body">
+                                        <p-table #ndcSetting [value]="data.ndcSetting.data" [columns]="selectedStatColumns" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true" [totalRecords]="data.ndcSetting.data.length"
+                                            [rowsPerPageOptions]="data.ndcSetting.paginator.rowsPerPageOptions" [rows]="data.ndcSetting.paginator.rows" [responsive]="true" [scrollable]="true" [globalFilterFields]="globalFilterFields" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 264px)">
+                                            <ng-template pTemplate="colgroup" let-columns>
+                                                <colgroup>
+                                                    <col *ngFor="let col of columns" [style.width]="col.width" />
+                                                </colgroup>
+                                            </ng-template>
+                                            <ng-template pTemplate="header" let-columns>
+                                                <tr>
+                                                    <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                                                        <div class="text-left">
+                                                            {{ col.label }}
+                                                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                            </p-sortIcon>
+                                                        </div>
+                                                    </th>
+                                                </tr>
+                                                <tr *ngFor="let headerRow of data.headers">
+                                                    <ng-container *ngIf="isEnabledColumnFilter1">
+                                                        <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                            <div *ngIf="
+                    col.filter.isFilter === true &&
+                    col.filter.type === 'custom'
+                  ">
+                                                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                            ndcSetting.filter(
+                        $event.target.value,
+                        col.valueField,
+                        'custom'
+                      )
+                    " />
+                                                            </div>
+                                                            <div *ngIf="
+                    col.filter.isFilter === true &&
+                    col.filter.type === 'contains'
+                  ">
+                                                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                            ndcSetting.filter(
+                        $event.target.value,
+                        col.valueField,
+                        'contains'
+                      )
+                    " />
+                                                            </div>
+                                                        </th>
+                                                    </ng-container>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template pTemplate="body" let-row let-columns="columns">
+                                                <tr [pSelectableRow]="row">
+                                                    <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                                        {{ row[col.valueField] }}
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+
+                                            <!-----------Empty table error handling--------------------->
+                                            <ng-template pTemplate="emptymessage" let-columns>
+                                                <tr>
+                                                    <td [attr.colSpan]="columns.length + 1" class="text-center">
+                                                        <span *ngIf="error">Error while loading data</span>
+                                                        <span *ngIf="emptyTable">Empty Table</span>
+                                                        <span *ngIf="loading">Loading</span>
+                                                        <span *ngIf="!empty && !loading && !error && searchInput.value.length">Nothing
+                                                    found
+                                                    matching
+                                                    "{{searchInput.value}}"</span>
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    </p-card>
+                                </div>
+                            </p-panel>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+            <!--End NDC setting Table -->
+            <!-- Setting -->
+            <div *ngIf="settings == 'settings'">
+                <p-panel header="Settings" class="myPanelContent ui-panel">
+                    <div class="p-grid p-col-12">
+                        <div class="p-col-4 p-grid p-align-center">
+                            <span class="label">RTC TIMEOUT (Sec)</span>
+                        </div>
+                        <div class="p-col-8">
+                            <input type="text" size="20" placeholder="60" pInputText />
+                        </div>
+                    </div>
+                </p-panel>
+            </div>
+            <!-- End Setting-->
+        </div>
+    </div>
+</div>
+<app-add-settings #addsetting></app-add-settings>

@@ -1,0 +1,22 @@
+<div class="tier-status-widget mx-5 border-1 p-10">
+  <div class="p-grid p-justify-end mb-5">
+    <button pButton class="ui-button-rounded px-15"  label="Close" (click)="_dataHandlerService.$showDashboard = false"></button>
+  </div>
+
+  <!-- <div class="ts-graphs-widget" *ngFor="let chart of chartArr;let i = index" -->
+    <div class="p-grid">
+      <div class="p-col-4" *ngFor="let val of _dataHandlerService.$enabeSystemMetrices; let i = index">
+
+   
+      <div class="ts-graphs-widget border-1"  *ngIf ="_dataHandlerService.$enabeSystemMetrices[i]['metrics'] == true">
+      <!-- <div class = "graphWidget" *ngIf = "val.tierName == 'tps-metrics' && _dataHandlerService.$enabeSystemMetrices['tps-metrics']">TPS</div>
+      <div class = "graphWidget" *ngIf = "val.tierName == 'res-metrics' && _dataHandlerService.$enabeSystemMetrices['res-metrics']">res</div>
+      <div class = "graphWidget" *ngIf = "val.tierName == 'cpu-metrics' && _dataHandlerService.$enabeSystemMetrices['cpu-metrics']">cpu</div>
+      <div class = "graphWidget" *ngIf = "val.tierName == 'err-metrics' && _dataHandlerService.$enabeSystemMetrices['err-metrics']">err</div> -->
+        <exec-dashboard-hchart [options]="_chartProviderService.$chartArr[i]">
+        </exec-dashboard-hchart>
+      </div>
+    </div>
+
+  </div>
+</div>

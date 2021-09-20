@@ -1,0 +1,205 @@
+<div class="derived-metric-container">
+  <p-dialog [(visible)]="visible" [modal]="true" class="derived-metric" [draggable]="false"
+    [resizable]="false" [closable]="false">
+    <p-header>
+      <div class="p-grid">
+        <div class="derived-title" (click)="closeDerivedWindow()">
+          <i class="icons8 icons8-back toolbar-icon-color"></i>
+          Add Derived Metric
+        </div>
+        <div class="action-buttons">
+          <i class="icons8 icons8-help" (click)="help.show('derivedAdvanced', 'Derived Metrics (Advanced)')"></i>
+          <button pButton label="Cancel" class="ui-outline-button ui-button-secondary"
+            (click)="closeDerivedWindow()"></button>
+          <button pButton label="Save" class="ui-outline-button ui-button-primary" (click)="saveChanges(customTree)"></button>
+        </div>
+      </div>
+    </p-header>
+    <div class="content-body">
+      <div class="p-grid">
+        <div class="p-col-12 details">
+          <p-panel header="Details" [showHeader]="false">
+            <div class="p-grid">
+              <div class="ui-fluid">
+
+                <label for="derivedName" class="labelName" style="padding-left: 0px;">Derived Metric Name</label>
+                <div class="inputes">
+                  <input id="derivedName" [(ngModel)]="derivedName" type="text" pInputText />
+                </div>
+
+                <label for="groupName" class="labelName">Group Name</label>
+                <div class="inputes">
+                  <input id="derivedGroupName" [disabled]="disabledGroupName" [(ngModel)]="derivedGroupName" type="text"
+                    pInputText />
+                </div>
+
+                <label for="description" class="labelName">Description</label>
+                <div class="inputes2">
+                  <input id="description" [(ngModel)]="description" type="text" pInputText />
+                </div>
+              </div>
+            </div>
+          </p-panel>
+        </div>
+        <div class="p-col-12 metric-expression">
+          <p-panel header="Metric Expression">
+            <div>
+              <div class="p-grid add-graph-operations">
+                <div class="group-name">
+                  <h3>Metric Group</h3>
+                  <p-dropdown [options]="groupList" [(ngModel)]="groupName" dropdownIcon="icons8-expand-arrow"
+                    (onChange)="changedGroupName()" placeholder="Select Group" [filter]="true"></p-dropdown>
+                </div>
+                <div class="graph-name">
+                  <h3>Metric Name</h3>
+                  <p-dropdown placeholder="Select Graph" [options]="graphList" [(ngModel)]="graphName"
+                    dropdownIcon="icons8-expand-arrow" [filter]="true" ></p-dropdown>
+                </div>
+                <div class="indices">
+                  <h3>Subject</h3>
+                  <div>
+                    <p-radioButton name="all" value="All" label="All" [(ngModel)]="indices" class="pr-5">
+                    </p-radioButton>
+                    <p-radioButton name="specified" value="Specified" label="Specified" class="pr-5"
+                      [(ngModel)]="indices"></p-radioButton>
+                    <!-- <input *ngIf="indices == 'Specified'" type="box" value={{addedGraph}} > -->
+                    <button pButton label="Select" class="ui-outline-button ui-button-secondary"
+                      dropdownIcon="icons8-expand-arrow" [disabled]="indices == 'All'"
+                      (click)="openDerivedIndecesWindow(dmIndices)"></button>
+                  </div>
+                </div>
+                <div class="function">
+                  <h3>Function</h3>
+                  <p-dropdown [options]="data.functions" [(ngModel)]="function" dropdownIcon="icons8-expand-arrow"
+                    placeholder="Select Functions"></p-dropdown>
+                </div>
+                <div class="operators">
+                  <h3>Operators</h3>
+                  <p-multiSelect [maxSelectedLabels]="1" [options]="data.operators" [(ngModel)]="selectedOperators"
+                    dropdownIcon="icons8-expand-arrow">
+                    <ng-template let-value pTemplate="selectedItems">
+                      <div *ngFor="let val of value" class="ui-multiselected-item-token">
+                        <span>{{ val }}</span>
+                      </div>
+                      <span *ngIf="!value || value.length === 0">Select Operator</span>
+                    </ng-template>
+                    <ng-template let-operator pTemplate="item">
+                      <div class="operator-item">{{ operator.label }}</div>
+                    </ng-template>
+                  </p-multiSelect>
+                </div>
+                <div class="update-graph">
+                  <button style="margin-top: 22px;" pButton label="{{ !updateGraphMode?'Add': 'Update'}}"
+                    class="ui-outline-button ui-button-secondary" icon="pi pi-check" iconPos="right"
+                    (click)="addUpdateGraph($event)"></button>
+                </div>
+              </div>
+              <div class="p-grid">
+                <div class="p-col-12 derived-graph-bucket">
+                  <div class="graph-details" *ngFor="let graph of addedGraph let i=index"
+                    (click)="selectGraph(i, graph)" [ngClass]="graph.updateGraph? 'selected' : 'graph-details'">
+                    <div class="graph-section-1">
+                      <div class="token-index" [ngStyle]="{'backgroundColor': graph.colorForGraph}"
+                        title={{graph.expression}}>{{ graph.index }}</div>
+                      <div class="token" title={{graph.groupInfo}}>
+                        <b>Metric Group: &nbsp;</b> {{ graph.groupName }}
+                      </div>
+                      <div class="token" title={{graph.graphInfo}}>
+                        <b>Metric Name:&nbsp; </b> {{ graph.graphName }}
+                      </div>
+                      <div class="token" title={{graph.expressionAllSpecfied}}><b>Subject: &nbsp;</b>{{
+                        graph.specifiedAdvExpValue }}</div>
+                      <div *ngIf="graph.function" class="token"><b>Function: &nbsp;</b> {{ graph.function }}</div>
+                      <!--<div *ngIf="graph.operator && graph.operator.length > 0" class="token">{{ graph.operator }}</div> -->
+                      <div>
+                        <div class="token" *ngIf="graph.operator && graph.operator.length > 0"> <b>Operator:
+                            &nbsp;</b>{{ graph.newOperator }}</div>
+                      </div>
+
+                    </div>
+                    <div *ngIf="!graph.updateGraph" class="token-icon">
+                      <i class="icons8 icons8-delete-trash" (click)="deleteGraph(i)"></i>
+                      <span></span>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="p-col-12 derived-graph-visual">
+                  <div class="graph-operations">
+                    <div class="generate-operation">
+                      <div class="formula ph-5">
+                        <input type="text" pInputText style="width: 400px;text-transform:uppercase"
+                          [(ngModel)]="graphOperationExpression">
+                      </div>
+                      <div class="formula-type">
+                        <div class="fm-type-dropdown ph-5">
+                          <label class="ph-5">Apply</label>
+                          <p-dropdown class="formula-background" [disabled]="disableRollUp" [options]="rollUpList"
+                            [(ngModel)]="rollup" dropdownIcon="icons8-expand-arrow" placeholder="No Aggregation"
+                            (onChange)="changedRollUp()">
+                          </p-dropdown>
+                        </div>
+                        <div class="fm-type-dropdown ph-5">
+                          <label for="using" class="ph-5">using</label>
+                          <p-dropdown class="formula-background" [disabled]="disableBy" [options]="byList"
+                            [(ngModel)]="by" dropdownIcon="icons8-expand-arrow" placeholder="None">
+                          </p-dropdown>
+                        </div>
+                        <div class="fm-type-dropdown ph-5 onMultiselect">
+                          <label for="on" class="ph-5">on</label>
+                          <p-multiSelect class="formula-background" [disabled]="disableOn" [options]="onList"
+                            [(ngModel)]="on" defaultLabel="None" dropdownIcon="icons8-expand-arrow" [showHeader]=false
+                            (onChange)="changedOn($event)"></p-multiSelect>
+                          <!-- <p-dropdown  [options]="onList" [(ngModel)]="on" dropdownIcon="icons8-expand-arrow" placeholder="None">
+                          </p-dropdown> -->
+                        </div>
+                        <div class="ph-5">
+                          <button pButton label="Display" class="ui-outline-button ui-button-secondary"
+                            (click)="applyTest()"></button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="view-formula" *ngIf="showFormula">
+                      <div class="token">
+                        {{ "{Http Request}{Http Request Completed/Sec}" }}
+                      </div>
+                      +
+                      <div class="token">
+                        {{ "{Http Request}{Http Request First Byte/Sec}" }}
+                      </div>
+                      /
+                      <div class="token">{{ "{Monitor Status}{All}" }}</div>
+                    </div>
+                  </div>
+
+                </div>
+                <div class="p-col-12 notes">
+                  <span><b>Allowed operators: (, ), +, -, * and / </b></span>
+                </div>
+                <div class="generated-graph" style="margin-left: 5px;">
+                  <div *ngIf="generatedChart">
+                    <app-chart [setChart]="generatedChart" [data]="generatedChart"></app-chart>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </p-panel>
+        </div>
+      </div>
+    </div>
+    <div id="centerpoint">
+      <p-confirmDialog styleClass="centerpointAd" key="derivedMetrics" header="Error" acceptLabel="Ok" rejectLabel="Cancel"  [(visible)]="dialogVisible"></p-confirmDialog>
+      </div>
+      <div class="loading-indicator" *ngIf="isBlockUI">
+        <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+        </p-progressSpinner>
+    </div>
+  </p-dialog>
+</div>
+<app-derived-metric-indices #dmIndices [derivedMetric]=this></app-derived-metric-indices>
+<app-confirmation-dialog #confirmDialog></app-confirmation-dialog>
+<app-informative-dialog #informativeDialog [data]="content"></app-informative-dialog>
+<app-help #help ></app-help>
+<!-- <app-custom-metrics #customTree [derivedMetric] = this></app-custom-metrics> -->

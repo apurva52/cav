@@ -1,0 +1,119 @@
+<!--component html goes here -->
+
+<!-- <p-blockUI [blocked]="loading"></p-blockUI> -->
+
+<div class="ddr-box">
+
+    <!-- COMMON TOOLBAR -->
+    <div class="ddr-toolbar">
+        <p-toolbar>
+            <div class='group-left'>
+                <span title="{{completeTier}}">{{filterTierName}}</span>
+                <span title="{{completeServer}}">{{filterServerName}}</span>
+                <span title="{{completeInstance}}">{{filterInstanceName}}</span>
+                <span title="{{CompleteURL}}">{{urlStr}}</span>
+                <span title="{{completeGroupBy}}">{{filterGroupByStr}}</span>
+                <span title="{{completeOrderBy}}">{{filterOrderByStr}}</span> 
+                <label class='headerInfo'>{{headerInfo}}</label>
+            </div>
+       <div class='group-right'>
+            <span *ngIf="showDCMenu">
+                    <label>Data Center : </label>
+                    <p-dropdown [options]="dcList" (onChange)="getSelectedDC($event)" [(ngModel)]="selectedDC" [style]="{'width':'75px'}"></p-dropdown>
+                  </span>
+                    <!--  <label (click)="showDialog()" title="Time Filter" class="fa fa-cog" *ngIf="fpTodbFilter == false"></label>  -->
+                    <span *ngIf="showDownloadOption" title="Download Word Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("word")' src='./images/iconWord.gif'></span>
+                    <span *ngIf="showDownloadOption" title="Download Excel Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("excel")' src='./images/iconExcel.gif'></span>
+                    <span *ngIf="showDownloadOption" title="Download PDF Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("pdf")' src='./images/iconPDF.gif'></span>
+                  </div>
+        </p-toolbar>
+    </div>
+    <div class="ddruiscroll" [ngStyle]="{'height': screenHeight+'px'}" style="overflow:auto;">
+            <p-accordion class="ddr-accordion">
+                <p-accordionTab [selected]='false' header="{{totalQueryCount}}">
+                    <div class = 'ui-g' style="overflow:auto">
+                       <div class = 'ui-g-6'>
+                            <div class="ddr-graphpanel" *ngIf="showChartForBT == true">
+                                <highcharts-chart [options]="btOptions" (click)="clickHandlerBTCount($event)"
+                                    [Highcharts] = "highcharts">
+                                </highcharts-chart>
+                            </div>
+                        <div *ngIf="showChartForBT == false" style="text-align:center;">No Pie Chart found based on current Filter Settings.</div>
+                    </div> 
+                        <div class = 'ui-g-6'>
+                                <div class="ddr-graphpanel" *ngIf="showChartForRespTime == true">
+                                    <highcharts-chart [options]="respOptions" (click)="clickHandlerResponseTime($event)"
+                                    [Highcharts] = "highcharts">
+                                </highcharts-chart>
+                                </div>
+                            <div *ngIf="showChartForRespTime == false" style="text-align:center;">No Response Time Pie Chart found based on current Filter Settings.</div>
+                        </div> 
+                    </div>
+                </p-accordionTab>
+            </p-accordion>
+            <p-accordion class="ddr-accordion dynamic-column-width-acc">
+        <p-accordionTab [selected]= 'true' header="{{headerName}}">
+        <!-- <p-growl life=5000 [(value)]="msgs"></p-growl>    -->
+ 
+                <p-toolbar>
+                    <div class="ui-toolbar-group-right" style="text-align: right">
+                        <button pButton type="button" title={{toggleFilterTitle}} icon="fa fa-bars" (click)="toggleColumnFilter()"></button>
+                        <p-multiSelect title="Show/Hide columns" [options]="columnOptions" class="dashboard-lowerPanel-multiSelect ddr-multiselect-down" (onChange)="showHideColumn($event)"
+                            [(ngModel)]="visibleCols"></p-multiSelect>
+                        <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o fa"></button>
+                        <img src="./images/showall.png" *ngIf="showAllOption" height="21px" width="21px" title="Show all data" style="float:right;cursor:pointer;"
+                            (click)="showAllData();">
+                        <i class="fa fa-search" style="margin:0 0 0 0"></i>
+                        <input #gb type="text" pInputText size="15"  placeholder="Search">
+                    </div>
+                </p-toolbar>
+        <div class='ui-g' style="overflow:auto">
+            <p-table class="scen-table" [value]="dbQueryData" scrollHeight="340px" [style]="{'height':'auto','font-size':'12px'}"
+            resizableColumns="true" reorderableColumns=" true">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th [ngStyle]="{'width' : col.header == 'Business Transaction' || col.header == 'Query Count' ? dynamicWidthColumn + 'px' : '0px'}" *ngFor="let col of cols" [ngSwitch]="col.header"> 
+                            <span *ngSwitchCase="col.header">{{ col.header }}</span>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-node>
+                    <tr>
+                        <td *ngFor="let col of cols" [ngStyle]="{'width' : col.header == 'Business Transaction' || col.header == 'Query Count' ? dynamicWidthColumn + 'px' : '0px'}">
+                            <span  *ngIf=" node[col.field] != '0'" class="ddr-table-right"  (click)="openQueryCount(node)">{{node[col.field]}}</span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+                    <!-- <p-dataTable class="scen-table"  [value]="dbQueryData" [globalFilter]="gb" scrollHeight="340px" [style]="{'height':'auto','font-size':'12px'}"
+            resizableColumns="true" reorderableColumns=" true">
+            <div *ngFor="let col of cols">
+                <p-column *ngIf="col.action" [field]="col.field" [filter] = "col.filter" [header]="col.header" [style]="{'width': dynamicWidthColumn +'px' ,'text-align': col.align}" (sortFunction)= "sortColumnsOnCustom($event, dbQueryData)" [sortable]="col.sortable">
+               <ng-template let-col let-node="rowData" *ngIf="(col.field == 'count') "   pTemplate type="body">
+                    <span  *ngIf=" node[col.field] != '0' " class="ddr-table-right"  (click)="openQueryCount(node)">{{node[col.field]}}</span>
+               </ng-template>
+                </p-column>
+            </div>
+        </p-dataTable> -->
+    </div>
+    <div *ngIf="!showAllOption"> {{offset+1}} - {{offset+limit}} of {{totalCount}} </div>
+    <div *ngIf="showAllOption"> 1 - 1 of 1</div>
+	<div *ngIf="showPagination">
+        <p-paginator rows="50" [totalRecords]="totalCount"  [rowsPerPageOptions]="[50,100,200,400]" pageLinkSize="3" (onPageChange)="paginate($event)"></p-paginator>
+	</div>
+
+    </p-accordionTab>
+</p-accordion>
+    </div>
+</div>
+  <p-dialog class="ddr-dialog"   appendTo="body" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true"> 
+  <p-header>
+      <i class="fa fa-info-circle" style="color:red"></i>
+      <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+  </p-header>  
+  <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+  <p-footer>
+  <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait" style="height: 25px;"></button>
+  <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" label="Cancel" style="height: 25px;"></button>
+  </p-footer>
+</p-dialog>

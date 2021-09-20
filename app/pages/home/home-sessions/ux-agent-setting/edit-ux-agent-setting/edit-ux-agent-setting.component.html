@@ -1,0 +1,144 @@
+<div class="sql-activity-conatiner">
+
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/ux-agent-setting">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                EDIT UX AGENT SETTING
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="p-col-12 p-col-nogutter">
+        <div class="breadcrumbs">
+            <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+        </div>
+    </div>
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="busy">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+
+
+    <div class="p-grid p-justify-between p-align-center" [ngStyle]="{'border-bottom': '2px solid #cdc2c2'}">
+        <div class="heapsize p-col-12 mt-5  p-align-center">
+            <div class="cmondisplay">
+                <label for="note" class="">Profile Name</label>
+                <div class="mt-10">
+                    <label class="display">
+                        {{name}}
+                    </label>
+                </div>
+            </div>
+            <div class="cmondisplay">
+                <label for="note" class="">Channel Name</label>
+                <div class="mt-10">
+                    <label class="display">
+                        {{channelvalue}}
+                    </label>
+                </div>
+            </div>
+
+
+            <div class="cmondisplay">
+                <label for="note" class="">STATUS</label>
+                <div class="mt-10">
+                    <label class="display">
+                        {{Status}}
+                    </label>
+                </div>
+            </div>
+
+            <div class="cmondisplay">
+                <label for="note" class="">Application Name</label>
+                <div class="mt-10">
+                    <ng-container *ngIf="type == '0'">
+                        <label class="display">
+                            Web Application
+                        </label>
+                    </ng-container>
+                    <ng-container *ngIf="type == '4'">
+                        <label class="display">
+                            React Native App
+                        </label>
+                    </ng-container>
+                    <ng-container *ngIf="type == '1'">
+                        <label class="display">
+                            Android App
+                        </label>
+                    </ng-container>
+                    <ng-container *ngIf="type == '2'">
+                        <label class="display">
+                            Windows App
+                        </label>
+                    </ng-container>
+                    <ng-container *ngIf="type == '3'">
+                        <label class="display">
+                            IOS App
+                        </label>
+                    </ng-container>
+                </div>
+            </div>
+
+            <div class="mt-12">
+                <button pButton type="button" title="Click Here To Apply Your Changes" id="hpdvalidate"
+                    [disabled]="!adminUser || HPDValidate" (click)="Activate()" class="btn-success ui-button-rounded"
+                    label="APPLY"></button>
+            </div>
+            <div class="btn-display mt-12">
+                <button pButton type="button" title="Click Here To Open Version History"
+                    class="ui-button-secondary ui-button-rounded p-align-center" label="VERSION HISTORY"
+                    (click)="OpenSideBar()"></button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="p-grid p-col-12 edit-ux">
+        <app-dynamic-form form *ngIf='configgui == true && busy == false' (result)="getResult($event)"
+            [jsonData]="jsonFile" [panelPosition]="sidePanelPosition" [metadataMap]="dynamicmetadata"
+            [btnStyle]="btnstyle" [readOnly]=readonly style="width: 100%;"></app-dynamic-form>
+    </div>
+
+    <div class="loading-indicator" *ngIf="savebusy">
+        <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4">
+        </p-progressSpinner>
+    </div>
+</div>
+<p-sidebar #sidebar [(visible)]="display" position="right" [showCloseIcon]="true" blockScroll="true">
+    <!-- <p-sidebar appendTo="body" [(visible)]="display" position="right" styleClass="netvision-bg"
+    [style]="{'overflow': 'scroll'}"> -->
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <div>
+                <i class="icons8 icons8-star-filled"></i>
+                <span>Version History</span>
+            </div>
+        </div>
+    </div>
+    <div>
+
+        <h3 *ngIf="noversions == 'true'">No Records Found</h3>
+
+        <p-orderList [value]="filelist" filterBy="label" filterPlaceholder="Search Version ..."
+            *ngIf='previousversions == "true"'>
+            <ng-template let-item pTemplate="item">
+                <div class="ui-helper-clearfix">
+                    <button pButton type="button" [label]="item.label" class="ui-button-secondary"
+                        (click)="VersionData(item.value)" [disabled]="!adminUser"
+                        pTooltip="Click to restore this version" style="width: 100%;height:3em"></button>
+                </div>
+            </ng-template>
+        </p-orderList>
+    </div>
+</p-sidebar>
+<p-confirmDialog appendTo="body" header="Confirmation"
+    maskStyleClass="ui-dialog-mask ui-widget-overlay ui-dialog-visible ui-dialog-mask-scrollblocker"
+    icon="fa fa-question-circle" width="425"></p-confirmDialog>
+<p-toast key="edit-ux"></p-toast>

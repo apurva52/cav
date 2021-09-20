@@ -1,0 +1,25 @@
+<div [style.width]="obj.w + 4 + 'px'" [style.height]="obj.h + 4+'px'" class="flowchart-object flowchart-question"
+    [pTooltip]="obj.text">
+    <div>
+        <svg [attr.width]="obj.w" [attr.height]="obj.h" [ngStyle]="{overflow : overflow ? 'visible':null}">
+            <path
+                [attr.d]="'M ' + obj.w/2 + ' 0 L ' + obj.w + ' ' + obj.h/2 + ' L ' + obj.w/2 + ' ' + obj.h + ' L 0 ' + obj.h/2 + ' Z'"
+                class="outer" [ngStyle]="{stroke :obj.dirty ? 'red':null}" />
+            <path
+                [attr.d]="'M ' + obj.w/2 + ' 10 L ' + (obj.w-10) + ' ' + obj.h/2 + ' L ' + obj.w/2 + ' ' + (obj.h-10) + ' L 10 ' + obj.h/2 + ' Z'"
+                class="inner" />
+            <text text-anchor="middle" [attr.x]="obj.w/2" [attr.y]="obj.h/2"
+                dominant-baseline="central">{{obj.text}}</text>
+        </svg>
+    </div>
+
+    <div class="node-edit node-action" title="Edit Node" (click)="editNode(obj)">
+        <i class="icons8 icons8-edit-2 btn-icon"></i>
+    </div>
+    <div class="node-delete node-action" title="Remove Node" (click)="deleteNode(obj)">
+        <i class="icons8 icons8-trash btn-icon"></i>
+    </div>
+
+    <jtk-source port-type="source" filter=".outer"></jtk-source>
+    <jtk-target port-type="target"></jtk-target>
+</div>

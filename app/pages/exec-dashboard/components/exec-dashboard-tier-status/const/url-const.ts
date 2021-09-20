@@ -1,0 +1,25 @@
+export const TIER_INFO_JSON = `https://204.62.12.119:4431/DashboardServer/v2/geoend2end/ExecDashbaord/tierInfo?GRAPH_KEY=Last_60_Minutes&reqTestRunNum=11127&sessLoginName=Cavisson&valueType=average&flowMapName=default&dcName=SCS&resolution=Auto&serverType=0&nonZeroIP=true&globalRenaming=true&isAll=SCS&isIncDisGraph=false&_=1528981435064`;
+export const CRITICAL = "#FF0000";
+export const NORMAL = "#1F9223";
+export const IP_NORMAL = "#4169E1";
+export const MAJOR = "#F69606";
+export const RENAME_TIER = '/dashboard/view/tierInfoUtils.jsp?operName=renameTier';
+export const RENAME_GROUP = 'DashboardServer/RestService/KPIWebService/renameGroupName';
+export const DELETE_GROUP = 'DashboardServer/RestService/KPIWebService/deleteGroup';
+export const DC_INFO = 'node/ALL/dcinfo';
+// export const DC_INFO = 'DashboardServer/RestService/KPIWebService/DCInfo'; 
+export const ONLINE_FLOWMAP_LIST = 'DashboardServer/RestService/KPIWebService/OnlineFlowMapList'
+export const SERVER_TIME = 'DashboardServer/RestService/KPIWebService/TierServerTime';
+export const TIER_GROUP_LIST = `DashboardServer/RestService/KPIWebService/TierGroupList`;
+export const TIER_INFO = `/v2/geoend2end/ExecDashbaord/tierInfo`;
+export const DEFAULT_FLOWMAP = `DashboardServer/RestService/KPIWebService/DefaultFlowMap`;
+export const RENAME_FLOWMAP = `DashboardServer/RestService/KPIWebService/renameFlowMap`;
+export const ONLINE_FLOWMAP_INFO = `DashboardServer/RestService/KPINgWebService/OnlineCopyFlowInfo`;
+export const SAVE_ONLINE_FLOWMAP = `DashboardServer/RestService/KPIWebService/saveOnlineFlowMap`
+export const SAVE_FLOWMAP_COORDINATES = `DashboardServer/RestService/KPIWebService/saveFlowMapCoordinates`
+export const RENAME_TIERNAME = `DashboardServer/RestService/KPIWebService/RenameTier`;
+export const SHARED_FLOWMAP = `DashboardServer/RestService/KPIWebService/SharedFlowMap`;
+export const DELETE_FLOWMAP = `DashboardServer/RestService/KPIWebService/DeleteFlowMap`;
+export const ONLINE_COPY_FLOWINFO = `DashboardServer/RestService/KPINgWebService/OnlineCopyFlowInfo`;
+export const GLOBAL_RENAMING = `DashboardServer/RestService/KPIWebService/GlobalRenaming`;
+export const nonZeroIP = `DashboardServer/RestService/KPIWebService/nonZeroIP`;

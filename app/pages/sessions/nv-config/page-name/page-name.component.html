@@ -1,0 +1,145 @@
+<div class="h-100-vh page-container" #widget>
+
+    <div class="action-container">
+        <div class="p-grid px-10 py-5 p-justify-between p-align-center action-grid w-100-p">
+            <div class="w-25-p">
+                <div class="type-search">
+                    <i class="icons8 icons8-search btn-icon left-icon"></i>
+                    <input pInputText type="text" #searchInput class="pl-20 w-100-p"
+                        (input)="page.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                </div>
+            </div>
+            <div class="icons-container p-justify-between p-align-center">
+
+                <i pButton class="icons8 icons8-search-property icon-button no-shadow column-filter"
+                    (click)="toggleFilters()" pTooltip="Column Filter"></i>
+
+                <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                    [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+
+
+                <button pButton *ngIf="buttonflag" type="button" class="ui-button ui-button-secondary ui-button-rounded"
+                    label="ADD NEW" (click)="pageName.showDialog(null, false)" pTooltip="ADD NEW"></button>
+            </div>
+
+        </div>
+    </div>
+    <p-toast key="nv-config-page"></p-toast>
+
+    <div #widgetHeight [ngStyle]="{
+        height: isEnabledColumnFilter
+          ? 'calc(100vh - 215px)'
+          : 'calc(100vh - 172px)'
+      }">
+        <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+            Select column to show
+        </div>
+        <div class="content-body px-10">
+
+            <p-table #page [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true"
+                [totalRecords]="totalRecords" class="all-tables"
+                [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [rows]="data.paginator.rows"
+                [scrollable]="true" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 120px)"
+                [globalFilterFields]="globalFilterFields" [responsive]="true" selectionMode="single" editMode="row"
+                [resizableColumns]="true" (onRowSelect)="onRowSelectEditTable($event)">
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col *ngFor="let col of columns" [style.width]="col.width">
+                    </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                            <div class="text-left">
+                                {{ col.label }}
+                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                    ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                    ariaLabelAsc="Activate to sort in ascending order">
+                                </p-sortIcon>
+                            </div>
+                        </th>
+                        <th [style]="{ width: '5%' }" *ngIf="buttonflag">Action</th>
+
+                    </tr>
+                    <tr *ngFor="let headerRow of data.headers">
+                        <ng-container *ngIf="isEnabledColumnFilter">
+
+                            <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                <div *ngIf=" col.filter.isFilter === true && col.filter.type === 'custom'">
+                                    <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label"
+                                        pInputText type="text" (input)="
+                                      page.filter( $event.target.value,col.valueField,'custom')" />
+                                </div>
+                                <div *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+                                    <input class="w-100-p" pTooltip="Enter text to search" *ngSwitchCase="col.label"
+                                        pInputText type="text" (input)="page.filter(
+                                          $event.target.value,col.valueField,'contains')" />
+                                </div>
+                            </th>
+                        </ng-container>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns">
+                    <tr [pSelectableRow]="row">
+                        <td *ngFor="let col of columns" class="{{ col.classes }}">
+                            <!-- <span>
+                                    {{ row[col.valueField] }}
+                                </span>  -->
+                            <span pTooltip="{{row.name}}" *ngIf='col.valueField == "name"'>{{row.name}}</span>
+                            <span pTooltip="{{row.pattern}}" *ngIf='col.valueField == "pattern"'>{{row.pattern}}</span>
+                            <span *ngIf='col.valueField =="tPageMethod"'>
+                                <span *ngIf='row.tPageMethod  == "1"' pTooltip="Url Regular Expression">
+                                    Url Regular Expression
+                                </span>
+                                <span *ngIf='row.tPageMethod  == "2"' pTooltip="JavaScript Variable">
+                                    JavaScript Variable
+                                </span>
+                            </span>
+                            <!-- <span pTooltip = {{(row.variableName == 'undefined' || row.variableName == "undefined") ? '-' :row.variableName}}  -->
+                            <span [pTooltip]="(row.variableName == 'undefined' ) ? '-' : row.variableName"
+                                *ngIf='col.valueField == "variableName"'>
+                                {{(row.variableName == "undefined" || row.variableName == "null" || row.variableName == "") ? '-' :
+                                row.variableName}}</span>
+                            <span *ngIf="col.iconField ">
+                                <div class="p-grid p-justify-center">
+                                    <i class="icons8 icons8-edit-2 pr-5 page-name-edit-icon" pTooltip="Edit"
+                                        (click)="pageName.showDialog(row, true)"></i>
+                                    <i class="icons8 icons8-delete-trash" (click)="deletePage(row)"
+                                        pTooltip="Delete"></i>
+                                </div>
+                            </span>
+                        </td>
+                        <td [style]="{ width: '5%' }" *ngIf="buttonflag">
+
+                            <div class="p-grid p-justify-center">
+                                <i class="icons8 icons8-edit-2 pr-5 page-name-edit-icon" pTooltip="Edit"
+                                    (click)="pageName.showDialog(row, true)"></i>
+                                <i class="icons8 icons8-delete-trash" (click)="deletePage(row)" pTooltip="Delete"></i>
+                            </div>
+
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage" let-columns>
+                    <tr>
+                        <td [attr.colspan]="columns.length + 1" class="text-center">
+                            <span *ngIf="error">Error while loading data</span>
+                            <span *ngIf="emptyTable">Empty Table</span>
+                            <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i>Loading</span>
+                            <span *ngIf="!empty && !loading && !error && searchInput.value.length">Nothing found
+                                matching
+                                "{{searchInput.value}}"</span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+        </div>
+    </div>
+</div>
+
+<app-page-name-crud #pageName (adddata)='addPage($event)' (datae)='savePageName($event)'></app-page-name-crud>
+<app-delete-entry #deleteEntry></app-delete-entry>
+<p-confirmDialog appendTo="body" header="Confirmation" icon="las-question-circle-solid" width="425"
+maskStyleClass="ui-dialog-mask ui-widget-overlay ui-dialog-visible ui-dialog-mask-scrollblocker"></p-confirmDialog>

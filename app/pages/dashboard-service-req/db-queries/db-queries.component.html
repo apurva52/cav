@@ -1,0 +1,165 @@
+<div class="db-queries-container h-100-vh">
+    <ng-container>
+        <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+            <div class="p-col p-col-align-center text-center">
+                <div>
+                    <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+                </div>
+            </div>
+        </div>
+        <div class="p-grid vertical-container" *ngIf="error">
+            <div class="p-col p-col-align-center text-center">
+                <p-message severity="error" text="{{error.msg}}"></p-message>
+            </div>
+        </div>
+        <div class="p-grid vertical-container" *ngIf="empty">
+            <div class="p-col p-col-align-center text-center">
+                <p-message severity="normal" text="No Data"></p-message>
+            </div>
+        </div>
+
+        <div #widgetHeight *ngIf="data" class="mh-10" [ngStyle]="{'height': data.tableFilter ? 'calc(100vh - 180px)' : 'calc(100vh - 135px)'}">
+            <div  class="hotspot-summary-panel">
+                <div class="charts-panel pb-10">
+                    <p-panel *ngIf="data.charts[0]" #chartPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="chartPnl.collapsed" [ngClass]="chartPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                        <p-header class="cav-panel-header pt-5">
+                            <div class="panel-title" (click)="chartPnl.toggle($event)">
+                                <span [class]="chartPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                <!-- </span> Slow DB Calls By Response Time [Total Query Count: {{totalQueryCount}}] -->
+                            </span> {{headerName}} [Total Query Count: {{totalQueryCount}}]
+                            </div>
+                        </p-header>
+                        <div class="p-grid p-align-stretch p-justify-center work-in-progress">
+                            <div class="p-col" *ngFor="let chart of data.charts">
+                                <app-chart [data]="chart" (click)="clickHandler($event)"></app-chart>
+                            </div>
+
+                        </div>
+                    </p-panel>
+                </div>
+            </div>
+            <div class="p-grid">
+                <div class="p-col-12 db-queries-alert-group">
+                    <div class="dbQueries-search-box">
+                        <input #searchInput type="text" [value]="" class="w-100-p" pInputText size="50" placeholder="Search" *ngIf="isShowSearch" (input)="dbQueries.filterGlobal($event.target.value, 'contains')" class="search-box" />
+                        <button pButton icon="icons8 icons8-search" (click)="isShowSearch = !isShowSearch" class="icon-button no-shadow"></button>
+                    </div>
+                    <p-menu #menu [popup]="true" styleClass="widget-menu psitionSetMenu" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                    <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                    <button pButton *ngIf = "refreshTable" icon="icons8 icons8-synchronize" class="ui-icon-button" (click)="refreshData()" pTooltip="Refresh Table Data"></button>
+                    <button *ngIf="data.tableFilter" pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" pTooltip="Toggle Filter" [tooltipZIndex]="100000" (click)="isShowColumnFilter = !isShowColumnFilter"></button>
+                    <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+                    </p-multiSelect>
+                </div>
+            </div>
+            <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                Select column to show
+            </div>
+            <div class="db-queries-table">
+                <p-card>
+                    <p-table #dbQueries class="all-tables" [resizableColumns]="true" [columns]="selectedColumns" sortField="avg" [sortOrder]="-1" [value]="dbQueriesData"  [rowHover]="true" [paginator]="showPagination" [rows]="data.paginator.rows" [lazy]="false" (onLazyLoad)="loadPagination($event)" [totalRecords]="totalRecords" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                        [showCurrentPageReport]="showPagination" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true" [scrollable]="true" [globalFilterFields]="globalFilterFields" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 190px)">
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                            <col *ngFor="let col of columns">
+                            </colgroup>
+                            </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th  *ngFor="let col of columns" pResizableColumn [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.valueField" class="text-left" pTooltip={{col.label}}>
+                                    <div class="elipseText"> {{ col.label }} </div>
+                                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                        </p-sortIcon>
+                                </th>
+                            </tr>
+                            <tr *ngFor="let headerRow of data.headers">
+                                <ng-container *ngIf="isShowColumnFilter">
+                                    <th *ngIf="isCheckbox" class="columnwidth"></th>
+                                    <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                        <div *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'custom'
+                          ">
+                                            <input class="w-100-p" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                            dbQueries.filter(
+                                $event.target.value,
+                                col.value,
+                                'custom'
+                              )
+                            " />
+                                        </div>
+                                        <div *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'contain'
+                          ">
+                                            <input class="w-100-p" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                            dbQueries.filter(
+                                $event.target.value,
+                                col.valueField,
+                                'contains'
+                              )
+                            " />
+                                        </div>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                            <tr [ngStyle]="{'backgroundColor': row.rowBgColor}" [pSelectableRow]="row">
+                                <td *ngFor="let col of columns" class="{{ col.classes }}"  title="{{row[col.valueField]}}" class="ui-resizable-column" (click)="showRowInfo(row)">
+                                    <span *ngIf="!isFromWidget">
+                                        {{ row[col.valueField] | ellipsis: 35}}
+                                    </span>
+                                    <span *ngIf="col.label == 'Query Count' && isFromWidget" title="View Flowpath Report" (click) = "openFlowpath(row)" >
+                                        <a class="activeLink">
+                                            {{ row[col.valueField] | ellipsis: 35}}
+                                        </a>
+                                    </span>
+                                    <span *ngIf="col.label == 'Error Count' && isFromWidget" (click) = "openExceptionReport(row)">
+                                        <span *ngIf="row[col.valueField] != 0">
+                                            <a class="activeLink">
+                                                {{ row[col.valueField] | ellipsis: 35}}
+                                            </a>
+                                        </span>
+                                        <span *ngIf="row[col.valueField] == 0">
+                                            {{ row[col.valueField] | ellipsis: 35}}
+                                        </span>
+                                    </span>
+                                    <span *ngIf="!(col.label == 'Query Count') && !(col.label == 'Error Count') && isFromWidget">
+                                        {{ row[col.valueField] | ellipsis: 35}}
+                                    </span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <!-----------Empty table error handling--------------------->
+                        <ng-template pTemplate="emptymessage" let-columns>
+                            <tr>
+                                <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                    <span *ngIf="error">Error while loading data</span>
+                                    <span *ngIf="emptyTable">Empty Table</span>
+                                    <span *ngIf="loading">Loading</span>
+                                    <span *ngIf="!empty && !loading && !error && searchInput && searchInput.nativeElement.value.length  ">Nothing
+                                        found matching
+                                        "{{searchInput.nativeElement.value}}"</span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </p-card>
+            </div>
+            <p-panel #pnl expandIcon="" collapseIcon="" [collapsed]="false" [toggleable]="true">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title" (click)="pnl.toggle($event)">
+                                <span [class]="pnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                </span> Query
+                       </div>
+                    </div>
+                </p-header>
+              <div>
+		 <textarea pInputTextarea rows="5" style="width:100%;resize:none;" readonly>{{queryName}}</textarea>
+                </div>
+            </p-panel>
+        </div>
+    </ng-container>
+</div>

@@ -1,0 +1,208 @@
+<div class="h-100-vh page-container compare-flowpath-page">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <!-- <a routerLink="/drilldown/flow-path"> -->
+        <i class="icons8 icons8-left toolbar-icon-color" (click)="back()" ></i>
+      <!-- </a> -->
+      <div class="p-col ui-toolbar-text">COMPARE FLOWPATHS</div>
+    </div>
+  </p-toolbar>
+  <div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+  </div>
+  <div class="p-grid p-col-12 filter-group">
+    <div>{{ selectedFilter }}</div>
+  </div>
+
+  <div class="flowpath-compare-wrapper">
+    <div class="p-grid">
+      <div class="p-col-12">
+        <div *ngIf="data" class="horizontal-container">
+          <div class="p-grid">
+            <div class="panel-card">
+              <div *ngFor="let panel of data.comparefp; let i = index">
+                <div id="panel-{{ i + 1 }}" class="compare-flowpath-card">
+                  <p-card #compareFlowPathCard [style.width]="getCustomWidth()">
+                    <p-header>
+                      <span class="selected-label"> {{ panel.label }} </span>
+                      <span class="btn-right">
+                        <button
+                          type="button"
+                          pButton
+                          class="ui-button-secondary ui-button-rounded"
+                          label="VIEW DETAILS"
+                        ></button>
+                        <button
+                          type="button"
+                          pButton
+                          icon="icons8 icons8-delete"
+                          class="ui-icon-button cross-button"
+                          (click)="removeMe(i+1)"
+                        ></button>
+                      </span>
+                    </p-header>
+                    <div class="p-grid vertical-container" *ngIf="error">
+                      <div class="p-col p-col-align-center text-center">
+                        <p-message
+                          severity="error"
+                          text="Error while loading data."
+                        ></p-message>
+                      </div>
+                    </div>
+                    <div class="empty-container" *ngIf="empty">No data.</div>
+                    <div
+                      class="p-grid loader-container vertical-container"
+                      *ngIf="loading"
+                    >
+                      <div class="p-col p-col-align-center text-center">
+                        <div>
+                          <i class="pi pi-spin pi-spinner"></i>
+                        </div>
+                      </div>
+                    </div>
+                    <p-table [columns]="panel.headers" [value]="panel.data">
+                      <!-- <p-table [columns]="data.panels" [value]="data"> -->
+                      <ng-template
+                        pTemplate="body"
+                        let-row
+                        let-columns="columns"
+                      >
+                        <tr *ngFor="let headerRow of panel.headers">
+                          <td *ngFor="let col of headerRow.cols" [ngStyle]="{'width.px': col.label === 'Properties' ? '100' : '200'}">
+                            {{ row[col.valueField] }}
+                          </td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+
+                    <div class="card-sub-section">
+                      <p-card >
+                        <p-header>
+                          <span class="selected-label"> DB Request </span>
+                          <span class="btn-right">
+                            <button
+                              type="button"
+                              pButton
+                              icon="icons8 icons8-menu-vertical"
+                              class="ui-icon-button"
+                            ></button>
+                          </span>
+                        </p-header>
+                        <div class="p-grid vertical-container" *ngIf="error">
+                          <div class="p-col p-col-align-center text-center">
+                            <p-message
+                              severity="error"
+                              text="Error while loading data."
+                            ></p-message>
+                          </div>
+                        </div>
+                        <div class="empty-container" *ngIf="empty">
+                          No data.
+                        </div>
+                        <div
+                          class="p-grid loader-container vertical-container"
+                          *ngIf="loading"
+                        >
+                          <div class="p-col p-col-align-center text-center">
+                            <div>
+                              <i class="pi pi-spin pi-spinner"></i>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="img-svg">
+                          <img src="assets/icons/wip.svg" />
+                        </div>
+                        <div></div>
+                      </p-card>
+
+                      <p-card >
+                        <p-header>
+                          <span class="selected-label"> DB Request </span>
+                          <span class="btn-right">
+                            <button
+                              type="button"
+                              pButton
+                              icon="icons8 icons8-menu-vertical"
+                              class="ui-icon-button"
+                            ></button>
+                          </span>
+                        </p-header>
+                        <div class="p-grid vertical-container" *ngIf="error">
+                          <div class="p-col p-col-align-center text-center">
+                            <p-message
+                              severity="error"
+                              text="Error while loading data."
+                            ></p-message>
+                          </div>
+                        </div>
+                        <div class="empty-container" *ngIf="empty">
+                          No data.
+                        </div>
+                        <div
+                          class="p-grid loader-container vertical-container"
+                          *ngIf="loading"
+                        >
+                          <div class="p-col p-col-align-center text-center">
+                            <div>
+                              <i class="pi pi-spin pi-spinner"></i>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="img-svg">
+                          <img src="assets/icons/wip.svg" />
+                        </div>
+                        <div></div>
+                      </p-card>
+
+                      <p-card >
+                        <p-header>
+                          <span class="selected-label"> DB Request </span>
+                          <span class="btn-right">
+                            <button
+                              type="button"
+                              pButton
+                              icon="icons8 icons8-menu-vertical"
+                              class="ui-icon-button"
+                            ></button>
+                          </span>
+                        </p-header>
+                        <div class="p-grid vertical-container" *ngIf="error">
+                          <div class="p-col p-col-align-center text-center">
+                            <p-message
+                              severity="error"
+                              text="Error while loading data."
+                            ></p-message>
+                          </div>
+                        </div>
+                        <div class="empty-container" *ngIf="empty">
+                          No data.
+                        </div>
+                        <div
+                          class="p-grid loader-container vertical-container"
+                          *ngIf="loading"
+                        >
+                          <div class="p-col p-col-align-center text-center">
+                            <div>
+                              <i class="pi pi-spin pi-spinner"></i>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="img-svg">
+                          <img src="assets/icons/wip.svg" />
+                        </div>
+                        <div></div>
+                      </p-card>
+                    </div>
+                  </p-card>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

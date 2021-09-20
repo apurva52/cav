@@ -1,0 +1,57 @@
+<div class="h-100-vh page-container edit-search-page">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/my-library/search">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                EDIT SEARCH
+            </div>
+            <div>
+                <a pButton type="button" routerLink="/my-library/search" class="ui-button ui-button-rounded" label="SAVE">
+                </a>
+            </div>
+        </div>
+
+    </p-toolbar>
+    <div class="content-body mh-10">
+        <div class="p-grid">
+            <div class="p-col-3">
+                <p-card>
+                    <p-header>
+                        <span class="selected-label"> Parameters </span>
+                    </p-header>
+                    <div class="main-content">
+                        <div class="p-col-12 no-padding">
+                            <p-orderList [value]="data.storeTier" header="">
+                                <ng-template pTemplate="item" let-rowData>
+                                    <div class="ui-helper-clearfix">
+                                        <div class="list">
+                                            <span class="store-label">{{rowData.label}}</span>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </p-orderList>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+            <div class="p-col-9">
+                <p-card class="pattern">
+                    <p-header>
+                        <span class="selected-label"> Data </span>
+                    </p-header>
+                    <div class="main-content">
+                        <div class="p-col-12">
+                            <ace-editor [(text)]="jsonView" [mode]="'object'" [readOnly]="true"
+                            style="min-height: 450px; width: 100%; overflow: auto"></ace-editor>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+    </div>
+</div>
+</div>

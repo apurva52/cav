@@ -1,0 +1,6 @@
+import { Store } from 'src/app/core/store/store';
+import { ParametersData } from './filter-by-favorite.model';
+
+export class HierarchialDataLoadingState extends Store.AbstractLoadingState<ParametersData> { }
+export class HierarchialDataLoadingErrorState extends Store.AbstractErrorState<ParametersData> { }
+export class HierarchialDataLoadedState extends Store.AbstractIdealState<ParametersData> { }

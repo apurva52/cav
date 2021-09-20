@@ -1,0 +1,179 @@
+<div class="domain-activity-container">
+    <div class="p-grid p-col-12 p-align-center p-justify-end" *ngIf="!tabular">
+        <button pButton type="button" class="ui-button-rounded ui-button-secondary" label="TABULAR"
+            pTooltip="Tabular View" (click)="tabular = true"></button>
+    </div>
+    <!-- Chart -->
+    <div class="p-grid p-align-stretch p-justify-center chart-container" *ngIf="!tabular">
+        <div class="p-col-12">
+            <app-chart [data]="chart"></app-chart>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="p-grid p-col-12" *ngIf="tabular">
+        <div class="p-grid p-col-12 p-justify-between p-nogutter p-col-nogutter">
+            <!-- Global FIlter -->
+            <div class="p-col-3">
+                <i class="pi pi-search" style="margin:4px 4px 0 0"></i>
+                <input #searchInput type="text" pInputText placeholder="Global Filter"
+                    (input)="dt.filterGlobal($event.target.value, 'contains' )" style="width:90%">
+            </div>
+            <!-- Export Buttons -->
+            <div class="p-col-2">
+                <!-- export button -->
+                <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                    pTooltip="Export Table" (click)="menu.toggle($event)"></button>
+                <!-- view timeline mode button -->
+                <button pButton type="button" class="ui-button-rounded ui-button-secondary" label="GRAPHICAL"
+                    pTooltip="Grahical View" (click)="tabular = false"></button>
+
+            </div>
+        </div>
+        <p-table #dt [columns]="columns" [value]="tableData" [scrollable]="true" scrollHeight="350px"
+            [resizableColumns]="true" class="all-tables">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns">
+                </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th pResizableColumn></th>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+                        <!--{{col.header}}-->
+                        <span title="{{col.header}}">{{col.header}}</span>
+                        <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                            ariaLabelDesc="Activate to sort in descending order"
+                            ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr>
+                    <td class="ui-resizable-column ">
+                        <button pButton
+                            class="ui-button-success icon-button theme ui-button-rounded header-icon-width icons8 icons8-combo-chart"
+                            pTooltip="Domain Trend"
+                            (click)="getResourceTrendData(false,rowData['domainName'])"></button>
+                    </td>
+                    <td class="ui-resizable-column text-right" [pTooltip]="rowData['domainName']">
+                        {{rowData['domainName']}}
+                    </td>
+                    <td class="ui-resizable-column text-right" [pTooltip]="rowData['resourcesLength']">
+                        {{rowData['totalRequest']}}
+                    </td>
+                    <td class="ui-resizable-column text-right"
+                        [pTooltip]="rowData['avgDuration'] !== '-' ? (rowData['avgDuration'] + '('+ rowData['durationCount'] + ')'):rowData['avgDuration']">
+                        {{rowData['avgDuration']}}
+                    </td>
+                    <td class="ui-resizable-column text-right"
+                        [pTooltip]="rowData['avgDownload'] !== '-' ? (rowData['avgDownload'] + '(' + rowData['downloadCount'] + ')') : rowData['avgDownload']">
+                        {{rowData['avgDownload']}}
+                    </td>
+                    <td class="ui-resizable-column text-right"
+                        [pTooltip]="rowData['avgWait'] !== '-' ? (rowData['avgWait'] + '(' + rowData['waitCount'] + ')') : rowData['avgWait']">
+                        {{rowData['avgWait']}}
+                    </td>
+                    <td class="ui-resizable-column text-right"
+                        [pTooltip]="rowData['avgRedirect'] !== '-' ? (rowData['avgRedirect'] + '(' + rowData['redirectionCount'] + ')') : rowData['avgRedirect']">
+                        {{rowData['avgRedirect']}}
+                    </td>
+                    <td class="ui-resizable-column text-right"
+                        [pTooltip]="rowData['avgDNS'] !== '-' ? (rowData['avgDNS'] + '(' + rowData['dnsCount'] + ')'):rowData['avgDNS']">
+                        {{rowData['avgDNS']}}
+                    </td>
+                    <td class="ui-resizable-column text-right"
+                        [pTooltip]="rowData['avgTCP'] !== '-' ? (rowData['avgTCP'] + '(' + rowData['tcpCount'] + ')') : rowData['avgTCP']">
+                        {{rowData['avgTCP']}}
+                    </td>
+                    <td class="ui-resizable-column text-right"
+                        [pTooltip]="rowData['avgAppCache'] !== '-' ? (rowData['avgAppCache'] + '(' + rowData['appCacheCount'] + ')'):rowData['avgAppCache']">
+                        {{rowData['avgAppCache']}}
+                    </td>
+                    <td class="ui-resizable-column text-right"
+                        [pTooltip]="rowData['transferSize'] !== '-' ? (rowData['transferSize'] + '(' + rowData['transferSizeCount'] + ')') : rowData['transferSize'] ">
+                        {{rowData['transferSize']}}
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.colspan]="columns.length" style="text-align: center;">
+                        <ng-container *ngIf="loading"> <i class="pi pi-spin pi-spinner"></i>Loading...</ng-container>
+                        <ng-container *ngIf="error">Failed to get the data.</ng-container>
+                        <span *ngIf="!loading && !error && searchInput.value.length;else filterMessage">
+                            Nothing found matching "{{searchInput.value}}"
+                        </span>
+                        <ng-template #filterMessage>
+                            <span *ngIf="!loading && !error">No Records Found</span>
+                        </ng-template>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+
+    <p-dialog [header]="'Duration: ' + (filter?.timeFilter?.startTime | date:'medium') + ' - ' + (filter?.timeFilter?.endTime
+                        | date:'medium')" [(visible)]="visible" class="secondary-dialog"
+        (onHide)="resetCustomTime($event)">
+
+        <div class="p-grid">
+            <div class="p-col">
+                <div class="p-input-icon-left search-div-css">
+                    <i class="icons8 icons8-calendar"></i>
+                    <input pInputText class="customInput" readonly id="start-date-time"
+                        [owlDateTime]="customStartDateTime" [owlDateTimeTrigger]="customStartDateTime"
+                        placeholder="04:30 PM 23/04/2020" [selectMode]="'rangeFrom'" [max]="maxDate"
+                        [(ngModel)]="customTime" (dateTimeChange)="validateTime()">
+                    <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                </div>
+            </div>
+            <div class="p-col">
+                <div class="p-input-icon-left search-div-css">
+                    <i class="icons8 icons8-calendar"></i>
+                    <input pInputText class="customInput" readonly id="end-date-time" [owlDateTime]="customEndDateTime"
+                        [owlDateTimeTrigger]="customEndDateTime" placeholder="04:30 PM 23/04/2020"
+                        [selectMode]="'rangeTo'" [max]="maxDate" [(ngModel)]="customTime"
+                        (dateTimeChange)="validateTime()">
+                    <owl-date-time #customEndDateTime tooltipZIndex=" 100001005"></owl-date-time>
+                </div>
+            </div>
+
+            <div class="p-col">
+                <button pButton label="Go" (click)="getResourceTrendData(true)"></button>
+            </div>
+
+            <div class="p-col-12" *ngIf="customTimeError !== ''" style="color: red;">
+                {{customTimeError}}
+            </div>
+        </div>
+
+        <!--no data/ loader/ error message -->
+        <div class="p-grid">
+            <div class="p-col-12" style="text-align: center;"
+                *ngIf="!loading && trendData && !trendData.length && !error">
+                <i class="icons8 icons8-error" style="font-size: 40px;color: orange;"></i>
+                <h5 style="margin: 0;font-size: 13.28px;">No Data Found</h5>
+            </div>
+            <div class="p-col-12" style="text-align: center;" *ngIf="loading">
+                <h5 style="font-size: 13.28px;"><i class="pi pi-spin pi-spinner"></i>Loading</h5>
+            </div>
+            <div class="p-col-12" style="text-align: center;" *ngIf="error">
+                <i class="icons8 icons8-error" style="font-size: 40px;color: red;"></i>
+                <h5 style="margin: 0;font-size: 13.28px;">Failed to get data</h5>
+            </div>
+        </div>
+
+        <div class="p-grid" *ngIf="!loading && trendData && trendData.length">
+            <div class="p-col">
+                <app-chart [data]="trendChartData"></app-chart>
+            </div>
+        </div>
+    </p-dialog>
+
+    <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
+
+
+</div>

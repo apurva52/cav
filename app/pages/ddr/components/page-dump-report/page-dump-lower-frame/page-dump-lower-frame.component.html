@@ -1,0 +1,16 @@
+<div class="ddr-iframe" *ngIf="(snapshot && !checkFlag)">
+    <iframe width="100%" height="290px" frameborder="0" scrolling="yes" [attr.src]="snapshot" sandbox></iframe>
+    <div [hidden]="showIframeHider === false" class="iframe-hider"></div>
+</div>
+<div class="ddr-iframe" *ngIf="(recFrame && checkFlag)">
+    <split direction="horizontal" class="ddr-split" (dragStart)="showIframeHider1 = true" (dragEnd)="showIframeHider1 = false">
+        <split-area size="50">
+            <iframe frameborder="0" width="100%" height="290px" scrolling="yes" [attr.src]="recFrame" sandbox></iframe>
+        </split-area>
+        <split-area size="50">
+            <iframe frameborder="0" width="100%" height="290px" scrolling="yes" [attr.src]="snapshot" sandbox></iframe>
+        </split-area>
+        <div [hidden]="showIframeHider1 === false" class="iframe-hider"></div>
+    </split>
+     <div [hidden]="showIframeHider === false" class="iframe-hider"></div>
+</div>

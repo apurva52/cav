@@ -1,0 +1,203 @@
+<p-dialog [(visible)]="visible" [resizable]="true" [modal]="true" class="secondary-dialog compare-data"
+      [draggable]="false" [closable]="false" [style]="{ width: '50vw', height:'80vh' }"
+      closeIcon="icons8 icons8-delete">
+      <p-header>
+            <div class="create-task-header">
+                  <div>Create Task</div>
+                  <div class="action-buttons">
+                        <i class="icons8 icons8-delete" (click)="hide()"></i>
+                  </div>
+            </div>
+      </p-header>
+      <div class="p-grid p-col-12 schedule-container">
+            <div class="schedule-container-body">
+                  <div class="p-grid p-col-12">
+                        <div class="w-100-p">
+                              <label for="tile" class="pb-5">Task Name</label>
+                        </div>
+                        <div class="w-100-p">
+                              <input type="text" pInputText placeholder="42.1" class="directory-path w-50-p" />
+                        </div>
+                  </div>
+                  <div class="p-grid p-col-12">
+                        <div class="w-100-p">
+                              <label for="tile" class="pb-5">Task Description</label>
+                        </div>
+                        <div class="w-100-p">
+                              <input type="text" pInputText placeholder="NCDM" class="directory-path w-75-p" />
+                        </div>
+                  </div>
+                  <p-card class="ui-card-schedule">
+                        <p-header>
+                              <span class="selected-label"> SCHEDULE </span>
+                        </p-header>
+                        <p-tabView orientation="left">
+                              <p-tabPanel header="Minutes">
+                                    <div class="p-grid">
+
+                                    </div>
+
+                              </p-tabPanel>
+                              <p-tabPanel header="Hourly">
+                                    <div class="p-grid">
+                                          <div class="p-col-3">
+                                                <p-radioButton class="report-type" name="groupname" value="val1"
+                                                      label="Every">
+                                                </p-radioButton>
+                                          </div>
+                                          <div class="p-col-6">
+                                                <p-radioButton class="report-type" name="groupname" value="val1"
+                                                      label="Daily">
+                                                </p-radioButton>
+                                          </div>
+                                    </div>
+                                    <div class="p-grid">
+                                          <div class="p-col-4">
+                                                <p-dropdown [options]="data.viewBy" placeholder="10"
+                                                      optionLabel="label">
+                                                </p-dropdown>
+                                          </div>
+
+                                          <div class="p-col-6">
+                                                <span class="line-height">Hours</span>
+                                          </div>
+                                    </div>
+
+                                    <div class="p-grid">
+                                          <div class="p-col-4">
+                                                <span class="line-height">With starting offset of</span>
+                                          </div>
+                                          <div class="p-col-4">
+                                                <!-- <p-dropdown [options]="data.metricsValues" placeholder="20 Minutes" optionLabel="label">
+                                      </p-dropdown> -->
+                                          </div>
+                                    </div>
+                                    <div class="p-grid">
+                                          <div class="p-col-4">
+                                                <span class="line-height">Expires on</span>
+                                          </div>
+                                          <div class="p-col-4">
+                                                <div class="p-input-icon-left search-div-css">
+                                                      <i class="icons8 icons8-calendar"></i>
+                                                      <input pInputText class="customInput" readonly
+                                                            id="start-date-time" [owlDateTime]="expiresOn"
+                                                            placeholder="04:30 PM 23/04/2020"
+                                                            [owlDateTimeTrigger]="expiresOn" [selectMode]="'rangeFrom'"
+                                                            [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame">
+                                                      <owl-date-time #expiresOn tooltipZIndex="100001005">
+                                                      </owl-date-time>
+                                                      <p-message *ngIf="invalidDate" severity="error"
+                                                            text="Start date and End date should not be the same.">
+                                                      </p-message>
+                                                </div>
+                                          </div>
+                                    </div>
+
+                              </p-tabPanel>
+                              <p-tabPanel header="Weekly">
+                                    <div class="monthly-container">
+                                          <div class="p-grid monthly-css">
+                                                <div class="p-col-12">
+                                                      <button pButton type="button"
+                                                            class="ui-outline-button ui-button-secondary"
+                                                            label="Sunday"></button>
+                                                      <button pButton type="button"
+                                                            class="ui-outline-button ui-button-secondary"
+                                                            label="Monday"></button>
+                                                      <button pButton type="button"
+                                                            class="ui-outline-button ui-button-secondary"
+                                                            label="Tuesday"></button>
+                                                      <button pButton type="button"
+                                                            class="ui-outline-button ui-button-secondary"
+                                                            label="Wednesday"></button>
+                                                      <button pButton type="button"
+                                                            class="ui-outline-button ui-button-secondary"
+                                                            label="Thursday"></button>
+                                                      <button pButton type="button"
+                                                            class="ui-outline-button ui-button-secondary"
+                                                            label="Friday"></button>
+                                                      <button pButton type="button"
+                                                            class="ui-outline-button ui-button-secondary"
+                                                            label="Saturday"></button>
+                                                </div>
+                                          </div>
+                                          <div class="p-grid">
+                                                <div class="p-col-2">
+                                                      <span class="line-height">Expires on</span>
+                                                </div>
+                                                <div class="p-col-4">
+                                                      <div class="p-input-icon-left search-div-css">
+                                                            <i class="icons8 icons8-calendar"></i>
+                                                            <input pInputText class="customInput" readonly
+                                                                  id="start-date-time" [owlDateTime]="expiresOnWeekly"
+                                                                  placeholder="04:30 PM 23/04/2020"
+                                                                  [owlDateTimeTrigger]="expiresOnWeekly"
+                                                                  [selectMode]="'rangeFrom'" [max]="customTimeFrameMax"
+                                                                  [(ngModel)]="customTimeFrame">
+                                                            <owl-date-time #expiresOnWeekly tooltipZIndex="100001005">
+                                                            </owl-date-time>
+                                                            <p-message *ngIf="invalidDate" severity="error"
+                                                                  text="Start date and End date should not be the same.">
+                                                            </p-message>
+                                                      </div>
+                                                </div>
+                                          </div>
+                                    </div>
+
+                              </p-tabPanel>
+                              <p-tabPanel header="Monthly">
+                                    <div class="p-grid weekly-div-container">
+                                          <div class="p-col-2">
+                                                <span class="line-height">Day :</span>
+                                          </div>
+                                          <div class="p-col-6">
+                                                <input type="text" pInputText placeholder=""
+                                                      class="input-field-search w-100-p" />
+                                          </div>
+                                    </div>
+
+                                    <div class="p-grid weekly-div-container">
+                                          <div class="p-col-2">
+                                                <span class="line-height">Every :</span>
+                                          </div>
+                                          <div class="p-col-6">
+                                                <div class="p-input-icon-left search-div-css">
+                                                      <input type="text" pInputText placeholder=""
+                                                            class="input-field-search" />
+                                                      <span>Month(s)</span>
+                                                </div>
+                                          </div>
+                                    </div>
+                                    <div class="p-grid">
+                                          <div class="p-col-2">
+                                                <span class="line-height">Expires on</span>
+                                          </div>
+                                          <div class="p-col-4">
+                                                <div class="p-input-icon-left search-div-css">
+                                                      <i class="icons8 icons8-calendar"></i>
+                                                      <input pInputText class="customInput" readonly
+                                                            id="start-date-time" [owlDateTime]="expiresOnMonthly"
+                                                            placeholder="04:30 PM 23/04/2020"
+                                                            [owlDateTimeTrigger]="expiresOnMonthly"
+                                                            [selectMode]="'rangeFrom'" [max]="customTimeFrameMax"
+                                                            [(ngModel)]="customTimeFrame">
+                                                      <owl-date-time #expiresOnMonthly tooltipZIndex="100001005">
+                                                      </owl-date-time>
+                                                      <p-message *ngIf="invalidDate" severity="error"
+                                                            text="Start date and End date should not be the same.">
+                                                      </p-message>
+                                                </div>
+                                          </div>
+                                    </div>
+                              </p-tabPanel>
+                        </p-tabView>
+                  </p-card>
+            </div>
+      </div>
+      <p-footer>
+            <div class="p-col-12 form-buttons">
+                  <button pButton label="Save" class="ui-outline-button ui-button-secondary"
+                        (click)="saveChanges()"></button>
+            </div>
+      </p-footer>
+</p-dialog>

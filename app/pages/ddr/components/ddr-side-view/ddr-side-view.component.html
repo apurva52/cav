@@ -1,0 +1,175 @@
+<aside id="left-panel" (mouseenter)="changeStyle($event)" (mouseleave)="changeStyle($event)" [class.hidden-menu]="hide == true"
+  [class.show-menu]="hide == false">
+  <nav>
+    <div class="scrollSideView">
+
+      <div class="ddr-side-view-div" *ngFor="let val of flowpathData; let i = index" (click)="rowClick(val)" [class.ddr-active-flowpath]="selectedData.flowpathInstance == flowpathData[i].flowpathInstance">
+
+<div class="sideLine"  pTooltip="BT Type: {{val.btCatagory}}" [style.background-color]="val.btCatagory == 'Very Slow' ? '#f8c136' : val.btCatagory == 'Slow' ? '#f0f514' : val.btCatagory == 'Normal' ? '#35ff05' : '#ff0000'">
+
+</div>  
+
+
+<div class="column">
+<div class="childflex">
+    <label pTooltip="BT Name: {{val.urlName}}" class="w-40-p elipseText pr-10">
+      {{formatter(val.urlName)}}
+    </label>
+
+      <!-- <i class="icons8 icons8-filled-circle" title="BT Type: {{val.btCatagory}}" 
+        aria-hidden="true"></i> -->
+      <!-- <label>
+        {{val.btCatagory}}
+      </label> -->
+      <label class="w-40-p elipseText pr-10" pTooltip="Start Time: {{val.startTime}}">
+        {{val.startTime}}
+      </label>
+
+      <label class="w-20-p elipseText pr-10" pTooltip="Response Time: {{val.fpDuration}}ms.&#10;CPU Time: {{val.btCpuTime}}ms.&#10;Wait Time: {{val.waitTime}}ms.&#10;Sync Time: {{val.syncTime}}ms.&#10;IO Time: {{val.iotime}}ms.&#10;Suspension Time: {{val.suspensiontime}}ms.">
+        {{val.fpDuration}}
+      </label>
+
+      <!-- <label [style.color]="val.statusCode >= 200 && val.statusCode < 300 ? '#3c9227' : val.statusCode >= 300 && val.statusCode < 400 ? '#f8c136' : val.statusCode >= 400  ? '#ff0505' : 'black'"
+        style="margin-left: 8px;float:right;">
+        {{val.statusCode}}
+      </label> -->
+    
+</div>
+
+
+<div class="childflex">
+  <label class="w-40-p elipseText pr-10" pTooltip="Tier: {{val.tierName}}">
+    {{formatterTSA(val.tierName)}}
+  </label>
+  <label class="w-40-p elipseText pr-10" pTooltip="Server: {{val.serverName}}">
+    {{formatterTSA(val.serverName)}}
+  </label>
+  <label class="w-20-p elipseText pr-10" pTooltip="Instance: {{val.appName}}">
+    {{formatterTSA(val.appName)}}
+  </label>
+</div>
+
+<div class="childflex">
+  <ng-container *ngIf="val.methodsCount != 0">
+     
+    <div class="w-40-p elipseText pr-10">
+      <i class="icons8 icons8-globe btn-icon mr-3" pTooltip="Method Count(s): {{val.methodsCount}}"></i>
+    <span>
+      {{val.methodsCount}}
+    </span>
+  </div>
+    <!-- <img src='./assets/images/method.png' style="height:16px" title="Method Count(s): {{val.methodsCount}}" />   -->
+    
+  </ng-container>
+
+    <ng-container *ngIf="val.callOutCount != 0">
+      <div class="w-40-p elipseText pr-10">
+        <i class="icons8 icons8-incoming-call btn-icon mr-3" pTooltip="CallOut(s): {{val.callOutCount}}"></i>
+      <!-- <img src='./assets/images/callout.png' style="height:16px" title="CallOut(s): {{val.callOutCount}}" /> -->
+      <span>
+        {{val.callOutCount}}
+      </span>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="val.coherenceCallOut != 0">
+      <div class="w-20-p elipseText pr-10">
+      <i class="icons8 icons8-copyright btn-icon mr-3" pTooltip="Coherence CallOut(s): {{val.coherenceCallOut}}"></i>
+      <!-- <img src='./assets/images/clazz.png' style="height:16px" title="Coherence CallOut(s): {{val.coherenceCallOut}}" /> -->
+      <span>
+        {{val.coherenceCallOut}}
+      </span>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="val.jmsCallOut != 0">
+      <div class="w-20-p elipseText pr-10">
+      <img src='./assets/images/jmsImg.png' style="height:16px" pTooltip="JMS CallOut(s): {{val.jmsCallOut}}" />
+      <span>
+        {{val.jmsCallOut}}
+      </span>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="val.dbCallCounts != 0">
+      <div class="w-20-p elipseText pr-10">
+      <i class="icons8 icons8-database btn-icon mr-3" pTooltip="Total Queries: {{val.dbCallCounts}}"></i>
+      <!-- <img src='./assets/images/db.png' style="height:16px" title="Total Queries: {{val.dbCallCounts}}" /> -->
+      <span>
+        {{val.dbCallCounts}}
+      </span>
+      </div>
+    </ng-container>
+    
+
+    <ng-container *ngIf="val.totalError != 0">
+      <div class="w-20-p elipseText pr-10">
+      <i class="icons8 icons8-error btn-icon mr-3" *ngIf="val.totalError != 0" pTooltip="Exception(s): {{val.totalError}}"></i>
+      <!-- <img *ngIf="val.totalError != 0" src='./assets/images/ErrorCallOut.png' style="height:16px" title="Exception(s): {{val.totalError}}"
+      /> -->
+      <span>
+        {{val.totalError}}
+      </span>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="val.flowpathtype >=32">
+      <div class="w-20-p elipseText pr-10">
+        <i class="las-font-awesome-flag btn-icon mr-3" pTooltip="Flagged Flowpath"></i>
+      <!-- <img src='./assets/images/Flagged_flowpath.png' style="height:16px" title="Flagged Flowpath" /> -->
+      <span></span>
+      </div>
+    </ng-container>
+ 
+    
+
+  <ng-container>
+    <div class="w-60-p elipseText pr-10 p-grid p-align-center" pTooltip="Flowpath Instance: {{val.flowpathInstance}}">
+      <i class="icons8 icons8-shuffle btn-icon mr-3"></i>
+    <!-- <img src='./assets/images/finstance.png' style="height:16px" title="Flowpath Instance: {{val.flowpathInstance}}" /> -->
+    <span>
+      {{val.flowpathInstance}}
+    </span>
+    </div>
+  </ng-container>
+
+</div>
+
+
+</div>
+
+
+
+<div class="label">
+
+  <label pTooltip="Status Code: {{val.statusCode}}" [style.color]="val.statusCode >= 200 && val.statusCode < 300 ? '#3c9227' : val.statusCode >= 300 && val.statusCode < 400 ? '#f8c136' : val.statusCode >= 400  ? '#ff0505' : 'black'">
+    {{val.statusCode}}
+  </label>
+
+
+
+  <div>
+    <ng-container *ngIf="val.dynamicLoggingFlag ==1">
+      <i class="las-laptop-code-solid btn-icon ml-3 font-20" pTooltip="Dynamic Logging"></i>
+      <!-- <img src="./assets/images/dl.png" title='Dynamic Logging' style="display: inline-block; margin-left: 10px;width:16px;height:16px;cursor:pointer;"/> -->
+          </ng-container>
+          <!-- <ng-container *ngIf="val.traceRequest ==1">  
+      <i class = 'icon-http-data' title="Trace Request" style="display: inline-block; margin-left: 10px; font-size:16px;"></i>
+          </ng-container> -->
+  </div>
+</div>
+
+
+
+
+
+        
+
+
+
+        
+
+
+
+      </div>
+    </div>
+  </nav>
+</aside>

@@ -1,0 +1,43 @@
+<button pButton class="icon-button ui-button-rounded header-icon-width" icon="icons8 icons8-notification" pTooltip="Events" (click)="menu.toggle($event)">
+    <div class="badge alert-badge" *ngIf="data && data.count">{{data.count}}</div>
+</button>
+<p-overlayPanel #menu [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'">
+    <div class="overlay-menu events">
+        <div class="overlay-menu-header">
+            <span>EVENTS</span>
+        </div>
+        <div class="legend-group" style="display: inline-flex;" *ngFor="let legend of severities">
+
+            <div *ngIf="legend.showInLegend" class="paginator-legend"
+              [ngStyle]="{'backgroundColor': legend.color}">
+            </div>
+            <span *ngIf="legend.showInLegend" pTooltip={{legend.name}} tooltipPosition="top">
+              {{legend.name}}
+            </span>
+
+        </div>
+        <div class="overlay-menu-body" [ngStyle]="empty? {'overflow': 'hidden'}:{'overflow': 'auto'}">
+            <div class="loader-container spinner small" *ngIf="loading">
+                <i class="pi pi-spin pi-spinner"></i>
+            </div>
+            <div class="empty-container" *ngIf="empty">
+                No data.
+            </div>
+            <div class="events" *ngIf="data">
+                <div *ngFor="let eventGroup of data.items;" class="event-group">
+                    <div class="event-group-title">
+                        <span class="date">{{eventGroup.date | formatDateTime: 'default'}}</span>
+                    </div>
+                    <ul>
+                        <li *ngFor="let event of eventGroup.events; let index = index" [attr.severity]="event.severity">
+                            {{event.msg}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="overlay-menu-footer">
+            <a pButton class="ui-outline-button ui-button-secondary" style="cursor: pointer;" label="View All" (click)= "goToViewAllAlerts()"></a>
+        </div>
+    </div>
+</p-overlayPanel>

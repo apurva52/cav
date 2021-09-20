@@ -1,0 +1,101 @@
+<p-dialog header="Download/Upload File" [(visible)]="showDownloadModel" class="secondary-dialog" [style]="{width: '50vw'}"
+    [modal]="true" [baseZIndex]="10000100011" [draggable]="false" [resizable]="false" closeIcon="icons8-delete">
+            <div class="p-grid p-col-12">
+             <div class="p-col-3">
+              <p-radioButton name="filemanager" value="downloadfile" (onClick)="onChangeRadioButton()" [(ngModel)]="isDownloadFile" label="Download File" title="Download File">
+              </p-radioButton>
+            </div>
+            <div class="p-col-3">
+              <p-radioButton  name="filemanager" value="uploadfile" (onClick)="onChangeRadioButton()" [(ngModel)]="isDownloadFile" label="Upload File" title="Upload File">
+              </p-radioButton>
+            </div>
+            </div>
+        <div class="p-grid p-col-12 p-align-center">
+
+            <div class="p-col-2">
+                {{pathTitle}}
+            </div>
+            <div class="p-col-8 ui-inputgroup">
+                <!-- <span class="ui-inputgroup-addon"> -->
+                    <!-- <i class="icons8 icons8-search"></i> -->
+                <!-- </span> -->
+               
+                <input id="fileAndFolderPath" type="text" [disabled]="true" title="{{fileAndFolderPath}}" [(ngModel)]="fileAndFolderPath" #searchInput pInputText placeholder="{{path}}" class="p-col-12"/>
+            </div>
+            <div class="p-col-2">
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-right p-col-12" title="Browse" label="Browse"
+              (click)="fileManager.open(true, isUpload)">
+            </button> 
+           </div>
+
+        </div>
+
+        <div>
+            <p-dialog class="file-upload-dialog" header="Upload Files" [baseZIndex]="10000" [(visible)]="toUploadFiles">
+                <div class="mw400">
+                <p-fileUpload id="inputText" name="myfile[]" [url]="uploadUrl" multiple="multiple" #fileUpload (onSelect)="onSelect($event,fileUpload)" (onUpload)="onUploadFile($event)" 
+                styleClass="mw100" (onClear)="onClear(fileUpload)" invalidFileTypeMessageDetail="" invalidFileTypeMessageSummary="" accept=".pem,.cer,.crt, .p7b,.p7r,.p12,.pfx"></p-fileUpload>
+            </div>
+            </p-dialog>
+        </div>
+        <!-- <div class="p-col-12 form-buttons">
+            <span>Note: File will be downloaded on your system.</span>
+             <button pButton type="button" class="ui-button ui-button-rounded ui-button-right" label="Browser"
+            (click)="fileManager.open(true)">
+            </button> 
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary" title="Download" label="Download"
+                (click)="downloadFile()">
+            </button>
+        </div> -->
+        <div class="p-grid p-justify-between p-align-center">
+                <span class="ml-12">{{fileNote}}</span>
+
+                <div class="p-col-4 p-grid p-justify-between p-align-center">
+                 <div class="p-col-6" *ngIf= "isDownloadFile == 'downloadfile'">
+                    <button 
+                    pButton
+                    type="button"
+                    class="ui-button ui-button-rounded ui-button-secondary p-col-12"
+                    label="Download"
+                    title = "Download"
+                    (click)="downloadFile()"
+                  ></button>
+                 </div>   
+                 <div class="p-col-6" *ngIf= "isDownloadFile == 'uploadfile'">
+                    <button
+                    pButton
+                    type="button"
+                    class="ui-button ui-button-rounded ui-button-secondary p-col-12"
+                    label="Upload"
+                    title="Upload"
+                    (click)="openUploadDialog()"
+                  ></button>
+                 </div>   
+                 <div class="p-col-6">                     
+                <button
+                pButton
+                type="button"
+                class="ui-button ui-button-rounded ui-button-right p-col-12"
+                label="Close"
+                title="Close"
+                (click)="close()"
+              ></button>
+                 </div>   
+               
+          
+              </div>
+              </div>
+    <!-- </div> -->
+    <div id="centerpoint">
+        <p-confirmDialog styleClass="centerpointAd" key="downloadfile" header="Error" acceptLabel="Ok" rejectLabel="Cancel"  [(visible)]="dialogVisible"></p-confirmDialog>
+    </div>
+</p-dialog>
+
+<app-file-manager #fileManager (eventBind)="eventBind($event)"></app-file-manager>
+<!-- <p-toast position="top-right" [style]="{width: 'initial',position: 'absolute'}" [baseZIndex]="10000100011"></p-toast> -->
+<app-informative-dialog #informativeDialog [data]="content"></app-informative-dialog>
+
+<style>
+    :host>>>.mw100 .ui-button-text{min-width: 100px;}
+    :host>>>.ui-dialog{box-shadow:none;}
+</style>

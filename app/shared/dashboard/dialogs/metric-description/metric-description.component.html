@@ -1,0 +1,91 @@
+<p-dialog #dialog [(visible)]="isVisible" styleClass="metric-dialog" class="custom-dialog success-dialog"
+    [resizable]="false" [draggable]="false" [modal]="true" [closable]="false" [baseZIndex]="999">
+   
+    <div class="loader-container spinner" *ngIf="loading && !data">
+        <!-- loader to be change -->
+        <i class="pi pi-spin pi-spinner" style="font-size: 3em"></i>
+    </div>
+<div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+        <p-message severity="error" text="{{error.msg}}"></p-message>
+    </div>
+</div>
+<div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+        <p-message severity="normal" text="No Data"></p-message>
+    </div>
+</div>
+
+    <p-header>
+        <div class="dialog-title p-grid p-justify-between p-align-center">
+            <div>
+                Metrics Description
+            </div>
+            <div class="action-buttons">
+                <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button"
+                    (click)="downloadmenu.toggle($event);" pTooltip="Download"></button>
+                <p-menu appendTo="ui-icon-button" #downloadmenu [popup]="true" styleClass="widget-menu"
+                    [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"
+                    [style]="{minWidth:'2em'}"></p-menu>
+
+                <i class="icons8 icons8-help"></i>
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+
+
+    <div class="p-grid p-justify-between" *ngIf="data">
+        <div class="p-col-6">
+            <div class="helper-text">
+                <div><span>Metric Group Name : </span> {{groupName}}</div> <br>
+                <div><span>Metric Group Description : </span> {{groupDesc}}</div>
+            </div>
+        </div>
+        <div class="p-col-4 p-justify-end">
+            <input type="text" style="width: 245px;" pInputText placeholder="Search Metric Name/Description"
+                (input)="metricsDescription.filterGlobal($event.target.value, 'contains')" class="search">
+        </div>
+    </div>
+    
+    <div #widgetHeight>
+        <p-card>
+            <p-table #metricsDescription class="all-tables" [value]="data" [columns]="cols"
+                scrollHeight="calc({{widgetHeight.offsetHeight}}px - 100px)" [globalFilterFields]="globalFilterFields">
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                      <col style="width:5%"> 
+                      <col style="width:30%"> 
+                      <col style="width:65%">
+                    </colgroup>
+                  </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th class="text-left index-column">#</th>
+                        <th *ngFor="let col of columns;let i = index" [pSortableColumn]="col.valueField">
+                            <div class="text-left">
+                                {{ col.label }}
+                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="float-right"
+                                    ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                    ariaLabelAsc="Activate to sort in ascending order">
+                                </p-sortIcon>
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                    <tr [pSelectableRow]="row">
+                        <td class="index-column">{{rowIndex+1}}</td>
+                        <td *ngFor="let col of columns" class="{{ col.classes }}">
+                            <span class="elipseText" pTooltip="{{row[col.valueField] }}" tooltipStyleClass="width-400 word-break" tooltipZIndex="99999" tooltipPosition="bottom">{{row[col.valueField] }}</span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+    </div>
+    <p-footer>
+        <!--<button type="button" pButton (click)="isVisible=false" label="CANCEL"
+            class="ui-button-secondary ui-button-rounded"></button> -->
+    </p-footer>
+</p-dialog>

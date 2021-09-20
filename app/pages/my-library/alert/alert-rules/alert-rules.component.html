@@ -1,0 +1,280 @@
+<!-- <p-confirmDialog global="true" showEffect="fade" hideEffect="fade" [style]="{width: '30vw'}"></p-confirmDialog>
+ -->
+<p-dialog [(visible)]="alertRulesService.displayDialog" modal="modal"
+  width="400" responsive="true" draggable="false" resizable="false" height="auto" [showHeader]="false">
+  <p>{{alertRulesService.dialogMessage}}</p>
+  <p-progressBar [value]="alertRulesService.progressValue"></p-progressBar>
+</p-dialog>
+<div *ngIf="confirmMessage">
+  <p-dialog [contentStyle]="{'overflow':'auto','max-height':'80vh','max-width':'45vw','font': '11px arial, sans-serif','text-align': 'justify','word-break': 'break-word'}" header="{{confirmMessage.header}}" [(visible)]="confirmMessage.display" modal="modal" [responsive]="true" [resizable]="false" [closable]="false">
+    <p style="font-weight: 500;display: inline-flex;text-align: start;"><i class="confirmMessage.icon" style="font-size: 1.6em;"></i>
+      <span [innerHTML]="confirmMessage.body" style="padding: 0.35em 0.4em 0em 0.5em"></span>
+      <span *ngIf="isShowInputText"><input type="text" size="40" pInputText title="{{editRuleName}}" [(ngModel)]="editRuleName"></span>
+    </p>
+    <p-footer>
+      <button type="button" pButton icon="pi pi-check" (click)="saveCopyRule()" label="Yes"></button>
+      <button type="button" pButton icon="pi pi-times" (click)="closeCopyRule()" label="No"></button>
+    </p-footer>
+  </p-dialog>
+</div>
+<div class="h-100-vh alert-rules-container">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <div class="p-grid p-align-center">
+        <!-- <a routerLink="/my-library/alert">
+          <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a> -->
+        <div class="p-col ui-toolbar-text">ALERT RULES</div>
+      </div>
+    </div>
+  </p-toolbar>
+  <div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (inItemClick)="breadcrumb.handleBreadcrumbClick($event)" ></p-breadcrumb>
+  </div>
+  <div
+    class="p-grid loader-container vertical-container h-100-vh"
+    *ngIf="loading && !alertRulesService.data">
+    <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+    </div>
+  </div>
+  <!-- <div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="error" text="{{ error.message }}"></p-message>
+      <div [innerHTML]="error.error"></div>
+    </div>
+  </div> -->
+  <div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="normal" text="No Data"></p-message>
+    </div>
+  </div>
+
+  <div *ngIf="alertRulesService.data" class="action-container" >
+        <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+            <div class="global-search-block">
+                <div class="p-input-icon-left search-div-css">
+                    <i class="icons8 icons8-search"></i>
+                    <input pInputText type="text" [(ngModel)]="globalFilterVal" #searchInput class="input-field-search" (input)="events.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                </div>
+            </div>
+            <div class="icons-container p-justify-between p-align-center">
+                <button pButton class="icons8 icons8-add-new" class="ui-button ui-button-rounded ml-10" label="Add Rule" (click)="openAlertConfig()"></button>                
+                <button pButton icon="icons8 icons8-settings" class="icon-button no-shadow"
+                     pTooltip="Settings" (click)="settings.toggle($event)"></button>
+                     <p-menu
+                     #settings
+                     [popup]="true"
+                     styleClass="widget-menu"
+                     [model]="alertSetting"
+                     [showTransitionOptions]="'0ms'"
+                     [hideTransitionOptions]="'0ms'"
+                   ></p-menu>
+                <p-multiSelect class="icon-button no-shadow"  [options]="cols" (onChange)="onChangeToggleColumn($event)" [(ngModel)]="selectedColumns"
+                    optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                    pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+                </p-multiSelect>
+                <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow"
+                    (click)="toggleFilters()" pTooltip="Column filter"></button>
+                <button pButton icon="icons8 icons8-export" class="icon-button no-shadow"
+                    pTooltip="Export" (click)="importExportRules(1)"></button>  
+                <button pButton icon="icons8 icons8-import" class="icon-button no-shadow"
+                    pTooltip="Import" [disabled]="isOnlyReadable" (click)="importExportRules(0)"></button>
+                <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                    (click)="menu.toggle($event);" pTooltip="Download" ></button>
+                <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                    [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" appendTo="body"></p-menu>
+                <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow" pTooltip="Delete" [disabled]="isOnlyReadable" (click)="deleteRules()"></button>
+                <!-- <button pButton icon="icons8 icons8-circled-play" class="icon-button no-shadow" pTooltip="Enable" (click)="enableDisableRule(undefined, true)"></button>
+                <button pButton icon="icons8 icons8-pause" class="icon-button no-shadow" pTooltip="Disable" (click)="enableDisableRule(undefined, false)"></button> -->
+                <p-inputSwitch (onChange)="enableDisableRule(undefined, false)" [disabled]="isOnlyReadable" pTooltip="Disable Alert Rules" [style]="{'margin-top': '3px'}" [(ngModel)]="isDisableRule"></p-inputSwitch>
+                <p-inputSwitch (onChange)="enableDisableRule(undefined, true)" [disabled]="isOnlyReadable" class="mr-5" pTooltip="Enable Alert Rules" [style]="{'margin-top': '3px'}" [(ngModel)]="isEnableRule"></p-inputSwitch>
+                <button pButton icon="icons8 icons8-copy" class="icon-button no-shadow" [disabled]="isOnlyReadable" pTooltip="Copy" (click)="copyRule()"></button>
+                <button pButton icon="icons8-synchronize" class="icon-button no-shadow" pTooltip="Refresh Alert Rules"
+                  (click)=refreshAlertRule(false)></button>
+                
+            </div>
+
+    <ng-container>
+        <div #widgetHeight [ngStyle]="{
+        height: isEnabledColumnFilter
+          ? 'calc(100vh - 215px)'
+          : 'calc(100vh - 172px)'
+      }">
+
+      <!-- <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+        Select column to show
+      </div> -->
+            <p-card class="content-body">
+                <p-table #events [value]="alertRulesService.data.data" [columns]="selectedColumns" [showCurrentPageReport]="true"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true"
+                    [totalRecords]="totalRecords" [rowsPerPageOptions]="alertRulesService.data.paginator.rowsPerPageOptions"
+                    [rows]="alertRulesService.data.paginator.rows" [scrollable]="true"
+                    scrollHeight="calc({{widgetHeight.offsetHeight}}px - 80px)"
+                    [globalFilterFields]="globalFilterFields" [responsive]="true" selectionMode="single" editMode="row"
+                    [resizableColumns]="true" [(selection)]="selectedRulesData" class="all-tables">
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                            <col *ngFor="let col of columns" [style.width]="col.width">
+                        </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                          <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField" [style.width]="col.width" tooltipPosition="bottom" pTooltip="{{col.label}}">
+                            <div *ngIf="col.valueField == 'selected'">
+                              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </div>
+                            <div class="text-left" *ngIf="col.valueField != 'selected' && col.valueField != 'enableDisable'">
+                                  {{ col.label }}
+                                  <p-sortIcon *ngIf="col.sort"
+                                    [field]="col.valueField"
+                                    class="right"
+                                    ariaLabel="Activate to sort"
+                                    ariaLabelDesc="Activate to sort in descending order"
+                                    ariaLabelAsc="Activate to sort in ascending order">
+                                  </p-sortIcon>
+                              </div>
+                          </th>
+                        </tr>
+                        <tr *ngFor="let headerRow of alertRulesService.data.headers">
+                            <ng-container *ngIf="isEnabledColumnFilter">
+                                <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                    <div *ngIf="col.filters.filter === true && col.filters.type === 'custom'">
+                                        <input pTooltip="Enter number to search" *ngSwitchCase="col.label" pInputText type="text" class="w-100-p" (input)="events.filter($event.target.value,col.valueField,'custom')" />
+                                    </div>
+                                    <div *ngIf="col.filters.filter === true && col.filters.type === 'contains'">
+                                        <input pTooltip="Enter text to search" *ngSwitchCase="col.label" pInputText type="text" class="w-100-p" (input)="events.filter($event.target.value,col.valueField,'contains')" />
+                                    </div>
+                                </th>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-row let-columns="columns">
+                        <tr>
+                            <td *ngFor="let col of columns" class="{{ col.classes }}" [style.width]="col.width">
+                                <div *ngIf="col.valueField == 'selected'">
+                                  <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                                </div>
+                                <div *ngIf="col.valueField == 'enableDisable'">
+                                  <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="row['enable']" (onChange)="enableDisableRule(row, row['enable'])"></p-inputSwitch>
+                                </div>
+                                <div *ngIf="col.valueField == 'ruleName' || col.valueField == 'alertMessage'" tooltipPosition="bottom"
+                                  pTooltip="{{row[col.valueField]}}">
+                                  {{ row[col.valueField] }}
+                                </div>
+                                <div class="condiExp" *ngIf="col.valueField === 'condiExp'" tooltipPosition="bottom"
+                                  (click)="showConditionInfoList($event,row, coditionInfoOverlay)" pTooltip="{{row[col.valueField]}}">
+                                  {{ row[col.valueField] }}
+                                </div>
+                                <div *ngIf="col.valueField === 'alertAction'">
+                                  <span *ngFor="let action of row[col.valueField]" tooltipPosition="bottom" pTooltip="{{action['type'] | actionType: action['name']}}">
+                                    <i class="icons8 {{action['type'] | actionStyle: action['name']}}"></i>
+                                  </span>
+                                </div>
+                                <div class="p-grid p-justify-center" *ngIf="col.valueField === 'edit'">
+                                  <i class="icons8 icons8-edit-2 edit-icon" pTooltip="Edit" (click)="editAlertConfig(row)"></i>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <!-----------Empty table error handling--------------------->
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td [attr.colspan]="columns.length + 1" class="text-center">
+                                <span *ngIf="error">Error while loading data</span>
+                                <span *ngIf="emptyTable">No records found</span>
+                                <span *ngIf="loading">Loading</span>
+                                <!-- <span *ngIf="!empty && !loading && !error && searchInput.value.length">Nothing found
+                                    matching
+                                    "{{searchInput.value}}"</span> -->
+                                <span *ngIf="!emptyTable && !loading && !error">No records found</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+
+            </p-card>
+        </div>
+    </ng-container>
+    </div>
+</div>
+<p-overlayPanel #coditionInfoOverlay [showCloseIcon]="true" [dismissable]="true" [style]="{ 'width' : '75%' }">
+  <ng-template pTemplate>
+    <div class="p-grid p-col-12" *ngIf="condiInfoList">
+      <div class="p-col-12 derived-graph-bucket" *ngFor="let condiInfo of condiInfoList">
+        <!-- <span class="token" title="{{ condiInfo.condiExp }}" [ngStyle]="{'border-color': condiInfo.color}" >{{condiInfo.condiExp}}</span> -->
+        <p-fieldset legend="{{condiInfo.condiExp}}">
+          <div class="graph-details" *ngFor="let graph of condiInfo.condInfoList;">
+            <div class="graph-section-1">
+              <div class="token-index" [ngStyle]="{ backgroundColor: graph.colorForGraph }" title="{{ graph.expression }}">
+                {{ graph.index }}
+              </div>
+              <div class="varible-text w-100-p">
+                <span *ngIf="graph.condition.value == 0">Trigger when <strong> {{graph.dataType.label}} </strong> value of the metric
+                  <strong> {{graph.metric}} </strong> during <strong> last {{graph.timeWindow}} {{graph.twUnit.label}} </strong> is
+                  <strong>{{graph.operator.label}}</strong> the threshold <strong> {{graph.fThreshold}} </strong> <span
+                    *ngIf="graph.dataType.value == 5">Evaluate value of metric {{graph.metric}} during last {{graph.timeWindow}}
+                    {{graph.twUnit.label}} using <span *ngIf="graph.pctType.value == 0"><strong>last</strong></span><span
+                      *ngIf="graph.pctType.value == 1"><strong>any</strong></span> {{graph.pct}}% Samples </span>check condition every
+                  <span *ngIf="graph.windowType.value == 0">one minute <strong>over rolling</strong></span><span
+                    *ngIf="graph.windowType.value == 1">{{graph.timeWindow}} {{graph.twUnit.label}} <strong>over fixed</strong></span>
+                  {{graph.timeWindow}} {{graph.twUnit.label}} interval<span *ngIf="graph.frThreshold == -1?false:true"> with recovery
+                    threshold as <strong> {{graph.frThreshold}} </strong></span></span>
+                <span *ngIf="graph.condition.value == 1">Trigger when <strong> {{graph.change.label}}</strong> in <strong>
+                    {{graph.dataType.label}} </strong> value of the metric <strong> {{graph.metric}} </strong> during <strong> last
+                    {{graph.timeWindow}} {{graph.twUnit.label}} </strong> is <strong>{{graph.operator.label}}</strong> the threshold
+                  <strong> {{graph.fThreshold}} </strong> compared to average of all samples during same time interval <strong>
+                    {{graph.pastWindow}} </strong> <strong> {{graph.pwUnit.label}} </strong> before <span
+                    *ngIf="graph.dataType.value == 5">Evaluate value of metric {{graph.metric}} during last {{graph.timeWindow}}
+                    {{graph.twUnit.label}} using <span *ngIf="graph.pctType.value == 0"><strong>last</strong></span><span
+                      *ngIf="graph.pctType.value == 1"><strong>any</strong></span> {{graph.pct}}% Samples </span>check condition every
+                  <span *ngIf="graph.windowType.value == 0">one minute <strong>over rolling</strong></span><span
+                    *ngIf="graph.windowType.value == 1">{{graph.timeWindow}} {{graph.twUnit.label}} <strong>over fixed</strong></span>
+                  {{graph.timeWindow}} {{graph.twUnit.label}} interval<span *ngIf="graph.frThreshold == -1?false:true"> with recovery
+                    threshold as <strong> {{graph.frThreshold}} </strong></span></span>                
+                <span *ngIf="graph.condition.value == 2">Trigger when <strong> {{graph.dataType.label}} </strong> value of the metric
+                  <strong> {{graph.metric}} </strong> during <strong> last {{graph.timeWindow}} {{graph.twUnit.label}} </strong> is
+                  <strong>{{graph.operator.label}}</strong> the bounds <span *ngIf="graph.dataType.value == 5">Evaluate value of metric
+                    {{graph.metric}} during last {{graph.timeWindow}}
+                    {{graph.twUnit.label}} using <span *ngIf="graph.pctType.value == 0"><strong>last</strong></span><span
+                      *ngIf="graph.pctType.value == 1"><strong>any</strong></span> {{graph.pct}}% Samples </span>check condition every
+                  <span *ngIf="graph.windowType.value == 0">one minute <strong>over rolling</strong></span><span
+                    *ngIf="graph.windowType.value == 1">{{graph.timeWindow}} {{graph.twUnit.label}} <strong>over fixed</strong></span>
+                  {{graph.timeWindow}} {{graph.twUnit.label}} interval Use <strong>{{graph.algoType.label}}</strong> algorithm to detect
+                  anomalies <strong>{{graph.deviation}}</strong> deviations from the predicted data.</span>                
+                <span *ngIf="graph.condition.value == 3">Trigger when <strong> {{graph.dataType.label}} </strong> value of the metric
+                  <strong> {{graph.metric}} </strong> for a subject is outlier during last <strong> {{graph.timeWindow}}
+                    {{graph.twUnit.label}} </strong>out of subjects at the same hierarchy <span
+                    *ngIf="graph.dataType.value == 5">Evaluate value of metric {{graph.metric}} during last {{graph.timeWindow}}
+                    {{graph.twUnit.label}} using <span *ngIf="graph.pctType.value == 0"><strong>last</strong></span><span
+                      *ngIf="graph.pctType.value == 1"><strong>any</strong></span> {{graph.pct}}% Samples </span>check condition every
+                  {{graph.timeWindow}} {{graph.twUnit.label}} <strong>over fixed</strong>
+                  {{graph.timeWindow}} {{graph.twUnit.label}} interval Use <strong>{{graph.algoType.label}}</strong> algorithm with
+                  tolerance <strong>{{graph.tolerance}}</strong></span>
+                <span *ngIf="graph.condition.value == 4">Trigger when <strong> {{graph.dataType.label}} </strong> forecasted value of
+                  the metric <strong> {{graph.metric}} </strong> is <strong>{{graph.operator.label}}</strong> the threshold <strong> {{graph.fThreshold}} </strong> in next
+                  <strong> last {{graph.timeWindow}} {{graph.twUnit.label}}</strong> Evaluate average forecasted value of the metric
+                  {{graph.metric}} based on <strong> {{graph.trendWindow}} {{graph.trendWindowUnit.label}} </strong> trend <span
+                    *ngIf="graph.dataType.value == 5"> using <span *ngIf="graph.pctType.value == 0"><strong>last</strong></span><span
+                      *ngIf="graph.pctType.value == 1"><strong>any</strong></span> {{graph.pct}}% Samples </span> check condition every
+                  <span *ngIf="graph.windowType.value == 0">one minute <strong>over rolling</strong></span><span
+                    *ngIf="graph.windowType.value == 1">{{graph.timeWindow}} {{graph.twUnit.label}} <strong>over fixed</strong></span>
+                  {{graph.timeWindow}} {{graph.twUnit.label}} interval Apply <strong>{{graph.forecastModel.label}}</strong> model to
+                  make a <strong>{{graph.forecastType.label}}</strong> forecast <span *ngIf="graph.frThreshold == -1?false:true"> with recovery
+                    threshold as <strong> {{graph.frThreshold}} </strong></span></span>
+              </div>
+            </div>
+          </div>
+        </p-fieldset>
+      </div>
+    </div>
+  </ng-template>
+</p-overlayPanel>
+</div>
+
+<app-confirmation-dialog #appConfirmationDialog (command)="executeCommand($event)" ></app-confirmation-dialog>
+<app-generic-import-export #impExpComponent (importedData)="addImportedData($event)"></app-generic-import-export>
+

@@ -1,0 +1,44 @@
+<p-header class="p-grid p-justify-between p-align-center">
+    <span class="configui-float-css mx-6">
+        <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="isProfilePerm" [disabled]="isProfilePerm"></p-checkbox>
+        <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="!isProfilePerm" [disabled]="saveDisable"></p-checkbox>
+        Enable Asynchronous Transaction Rules
+    </span>
+    <span class="configui-float">
+        <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+        <button type="submit" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  label="Save"></button>
+        <button type="submit" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveAsynchronousRuleToFile()" label="Save"></button>
+    </span>
+</p-header>
+<p-table class="nde-ui config-ui all-tables" [style]="{'margin-top':'10px'}" [value]="asynchronousRuleData" [rows]="12" [paginator]="asynchronousRuleData?.length > 12" [pageLinks]="3">
+    <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+           
+            <col style="width:15%">
+            <col style="width:10%">
+            <col style="width:50%">
+            
+        </colgroup>
+    </ng-template>
+   
+   
+    <ng-template class="tableCss config-ui" pTemplate="header">
+        <tr>
+            
+            <th>Container Name</th>
+            <th>Enable/Disable</th>
+            <th>Description</th>
+        </tr>
+    </ng-template>
+    <ng-template class="tableCss config-ui" pTemplate="body" let-asyData>
+        <tr>
+            
+            <td class="tableCss" title="{{asyData.containerType}}">{{asyData.containerType}}</td>
+            <td class="tableCss" title="{{asyData.enabled}}">
+                <p-inputSwitch *ngIf="isProfilePerm" [disabled]="isProfilePerm" [(ngModel)]="asyData.enabled"></p-inputSwitch>
+                <p-inputSwitch *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="enableToggle(asyData)" [(ngModel)]="asyData.enabled"></p-inputSwitch>
+            </td>
+            <td class="tableCss" title="{{asyData.description}}">{{asyData.description}}</td>
+        </tr>
+    </ng-template>
+</p-table>

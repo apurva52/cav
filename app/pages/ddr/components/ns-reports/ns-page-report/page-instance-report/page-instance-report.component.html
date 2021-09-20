@@ -1,0 +1,105 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+
+<div class="ddr-box">
+  <div class="ddr-toolbar">
+    <p-toolbar>
+        <div class="group-left">
+      <label class="headerInfo" >{{filterCriteria}}</label>
+      <label class="headerInfo" title="{{toolTipStatus}}">{{filterStatus}}</label>
+      <label class="headerInfo" title="{{toolTipUrl}}">{{filterUrl}}</label>
+      </div>
+      <div class="group-right">
+        <span *ngIf="showDownloadOption" title="Download Word Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("word")' src='./images/iconWord.gif'></span>
+        <span *ngIf="showDownloadOption" title="Download Excel Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("excel")' src='./images/iconExcel.gif'></span>
+        <span *ngIf="showDownloadOption" title="Download PDF Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("pdf")' src='./images/iconPDF.gif'></span>     
+      </div>
+    </p-toolbar>
+  </div>
+
+  <div class="ddruiscroll"  style="overflow:auto; height:85vh;}">
+    <div class="ui-g-12">
+      <p-accordion class="ddr-accordion">
+        <p-accordionTab header="Page Instance Report" [selected]="true">
+          <p-toolbar>
+            <div class="ui-toolbar-group-right" style="text-align: right">
+              <p-multiSelect class="dashboard-lowerPanel-multiSelect ddr-multiselect-down" title="Show/Hide Columns" [options]="columnOptions" [(ngModel)]="visibleCols" (onChange)="showHideColumn($event)"></p-multiSelect>
+              <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o fa"></button>
+              <i class="fa fa-search" style="margin:0 0 0 0;"></i>
+              <input #gb type="text" pInputText size="50" style="width:30% !important;" placeholder="Search" icon="fa-search">
+            </div>
+          </p-toolbar>
+
+          <div>
+            <p-dataTable  class="scen-table  scrollable-div" [value]="pageInstanceData" selectionMode="single" resizableColumns="true" [globalFilter]="gb" [style]="{'max-height':'65vh'}">
+              <div *ngFor="let col of cols">
+                <p-column *ngIf = "col.action" [field]="col.field" [header]="col.header" (sortFunction)="customSortOnColumns($event, pageInstanceData)" [sortable]="col.sortable" [style]="{'text-align':col.align,'width':dynamicWidthColumn +'px'}">
+                  <ng-template let-col let-node="rowData" pTemplate="body" *ngIf="col.field == 'startTime'">
+                    <span pTooltip={{msToTimeFormat(node[col.field])}}(HH.MM.SS.ms) tooltipPosition="top">{{msToTimeFormat(node[col.field])}}</span>
+                  </ng-template>
+                  <ng-template let-col let-node="rowData" pTemplate="body" *ngIf="col.field == 'userId'">
+                    <span style="color:blue;cursor:pointer;" title="View User Session Report" (click)="openUserSessionReport(node)">{{node[col.field]}}</span>
+                  </ng-template>
+                  <ng-template let-col let-node="rowData" pTemplate="body" *ngIf="col.field == 'respTime'">
+                    <span style="color:blue;cursor:pointer;" title="View Session Time Detail" (click)="openSessionTimeDetail(node)">{{msToTimeFormat(node[col.field])}}</span>
+                  </ng-template>
+                  <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'scriptName')">
+                    <span style="color:blue;cursor:pointer;" title="Download Script" (click)="openSessionName(node[col.field])">{{node[col.field]}}</span>
+                  </ng-template>
+                  <ng-template *ngIf="(col.field == 'pageName')" let-col let-node="rowData" pTemplate type="body">
+                    <div pTooltip={{(node[col.field])}} tooltipPosition="top">
+                        {{node[col.field]}} </div>
+                  </ng-template>
+                  //For Heading selfexplanatory
+                  <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'pageName'">
+                      <span pTooltip="Page Name"  tooltipPosition="top" tooltipEvent="hover">Page Name</span>
+                  </ng-template>
+                  <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'scriptName'">
+                      <span pTooltip="Script Name"  tooltipPosition="top" tooltipEvent="hover">Script Name</span>
+                  </ng-template>
+                  <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'userId'">
+                      <span pTooltip="User Id"  tooltipPosition="top" tooltipEvent="hover">User Id</span>
+                  </ng-template> 
+                  <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'sessionId'">
+                      <span pTooltip="Session Id"  tooltipPosition="top" tooltipEvent="hover">Session Id</span>
+                  </ng-template> 
+                  <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'startTime'">
+                      <span pTooltip="This is the start time of particular Page loaded after mentioned time when the Test Run starts"  tooltipPosition="top" tooltipEvent="hover">Start Time</span>
+                  </ng-template> 
+                  <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'respTime'">
+                      <span pTooltip="Response Time"  tooltipPosition="top" tooltipEvent="hover">Response Time</span>
+                  </ng-template> 
+                  <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'status'">
+                      <span pTooltip="Status"  tooltipPosition="top" tooltipEvent="hover">Status</span>
+                  </ng-template>             
+                </p-column> 
+              </div>
+            </p-dataTable>
+          </div>
+
+        
+          <div> {{offset+1}} - {{offset+limit}} of {{totalCount}} </div>
+          <p-paginator rows="50" [totalRecords]="totalCount" pageLinkSize="3" [rowsPerPageOptions]="[50,100,200,400]" (onPageChange)="paginate($event)"></p-paginator>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+  </div>
+
+</div>
+
+<p-dialog class="ddr-dialog"   appendTo="body" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true" [height]="120" [width]="600" > 
+  <p-header>
+      <i class="fa fa-info-circle" style="color:red"></i>
+      <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+  </p-header>  
+  <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+  <p-footer>
+  <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait" style="height: 25px;"></button>
+  <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" label="Cancel" style="height: 25px;"></button>
+  </p-footer>
+</p-dialog>
+<p-dialog class="ddr-dialog" [(visible)]="loader" appendTo="body" [width]="500" [height]="75" [closable]="false" [resizable]="false" modal="modal" [responsive]="true">
+  <div *ngIf="loader">
+    <p-progressBar [value]="value"></p-progressBar>
+  </div>
+</p-dialog>

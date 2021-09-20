@@ -1,0 +1,1058 @@
+<p-blockUI [blocked]="blockedDocument">
+  <!-- <div class="loader-container spinner" *ngIf="timebarService.loading1">
+    <i class="pi pi-spin pi-spinner"></i>
+  </div> -->
+  <div class="dialogStyling">
+    <p-dialog [(visible)]="display" modal="modal"  responsive="true" draggable="false" resizable="true"  [showHeader]="false" closeOnEscape="false">
+      <i class="pi pi-times iconClass" (click)="onClose()"></i>
+      <div class="p-col-10">
+          <span [style]="{'color':'black'}">Please wait ... </span>
+      </div>
+      <div class="p-col-12">
+        <span>Report Generation in Process ... </span>
+      </div>
+      <p-progressBar [value]="progressValue"></p-progressBar>
+    </p-dialog>
+</div>
+</p-blockUI>
+<p-confirmDialog class="confirmdialog" key="addReportDialogue" header="Info" acceptLabel="Ok"
+      rejectLabel="Cancel" [(visible)]="dialogVisible"></p-confirmDialog>
+<p-confirmDialog class="confirmdialog" key="addReportSuccessDialogue" header="Info" acceptLabel="Ok"
+      rejectLabel="Cancel" [(visible)]="dialogVisibleSuccess"></p-confirmDialog>
+<div class="add-reports-container">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <div class="p-col-10">
+        <div class="p-grid p-align-center">
+          <a routerLink="/reports">
+            <i class="icons8 icons8-left toolbar-icon-color"></i>
+          </a>
+          <div class="p-col ui-toolbar-text">ADD REPORT</div>
+        </div>
+      </div>
+      <div class="p-col-2 text-right">
+        <button pButton type="button" class="ui-button ui-button-rounded" label="GENERATE"
+          (click)="generateReport()"></button>
+      </div>
+    </div>
+  </p-toolbar>
+  <div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+  </div>
+  <div class="vertical-container-main">
+    <div class="p-grid panel-card">
+      <div class="selected-label">DETAILS</div>
+
+      <div class="p-grid w-100-p height-55 mb-10">
+
+        <div class="w-20-p p-grid p-dir-col pr-5">
+          <label class="my-3">Report Name</label>
+          <input type="text" [(ngModel)]="reportName" pInputText placeholder="Enter Report Name" class="w-100-p" />
+        </div> 
+      
+       
+       <div class="w-15-p p-grid p-dir-col px-5">
+        <label class="my-3">Report Type</label>
+          <p-dropdown [options]="reportOptions" [(ngModel)]="reportType" optionLabel="label" 
+            (onChange)="changeReportType($event)" [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow" (onChange)="selectFormat()"></p-dropdown>
+        </div>
+      
+
+      <ng-container *ngIf="reportType.value === 'Summary'">
+        <div class="w-10-p p-grid p-dir-col px-5">
+        <label class="my-3">Percentile</label>
+          <p-multiSelect styleClass="searhHide" [options]="summeryPercentileOption" [(ngModel)]="selectedSummaryPerModel" [selectedItemsLabel]="selectedItemsLabel"
+            [style]="{'min-width':'100%'}" tooltip="{{tooltipPercentile}}" tooltipPosition="top" (onChange)="selectedTooltipPer($event)"></p-multiSelect>
+        </div>
+
+        <div class="w-15-p p-grid p-dir-col px-5">
+        <label class="my-3">Transactions Column</label>
+          <!-- <p-dropdown [options]="data.value" placeholder="" optionLabel="label"></p-dropdown> -->
+          <p-multiSelect placeholder="chosw" [options]="transactionColOption" [(ngModel)]="selectedTransactionCol" [selectedItemsLabel]="selectedItemsLabel"
+            [style]="{'min-width':'100%'}" tooltip="{{tooltipTransection}}" tooltipPosition="top" (onChange)="selectedTooltipTransection($event)"></p-multiSelect>
+        </div>
+
+        <div class="p-grid p-align-center mt-6 px-15">
+          <p-checkbox class="" name="groupUnUsed" binary="true" label="Show Unused Transactions"
+            [(ngModel)]="showUnusedTransactions"></p-checkbox>
+        </div>
+
+      </ng-container>
+   
+
+
+ 
+
+      <ng-container *ngIf="reportType.value === 'Stats' || reportType.value === 'Compare'">
+      
+        <div class="p-grid p-align-center">
+          <label class="ml-13 mr-5">Visualization</label>
+       
+       
+          <div class="icon-block report-setting-icon" [ngClass]="(reportVisualizeType == 'TABULAR')?'classHighlighted':''"
+            (click)="changeVisualizationType('TABULAR')">
+              <i class="icons8 icons8-table"></i>
+              <label class="font-weight-500">TABULAR</label>
+              <!-- <button pButton type="button" label="Secondary" class="ui-button-secondary"></button> -->
+           
+          </div>
+          <div class="icon-block report-setting-icon" [ngClass]="(reportVisualizeType == 'WORD')?'classHighlighted':''"
+            (click)="changeVisualizationType('WORD')">
+              <i class="icons8 icons8-word"></i>
+              <label class="font-weight-500">WORD</label>
+            
+          </div>
+          <div class="icon-block report-setting-icon" [ngClass]="(reportVisualizeType == 'HTML')?'classHighlighted':''"
+            (click)="changeVisualizationType('HTML')">
+              <i class="icons8 icons8-html-5"></i>
+              <label class="font-weight-500">HTML</label>
+          </div>
+          <div class="icon-block report-setting-icon" [ngClass]="(reportVisualizeType == 'PDF')?'classHighlighted':''"
+            (click)="changeVisualizationType('PDF')" *ngIf="reportType.value === 'Stats' && selectedMetricOption == 4">
+            <!-- <div class="icon-block" *ngIf="reportType.value === 'Stats'"> -->
+              <i class="icons8 icons8-pdf"></i>
+              <label class="font-weight-500">PDF</label>
+          </div>
+          <div *ngIf="reportType.value === 'Stats' && reportVisualizeType === 'HTML'">
+            <button type="button" class="btn-icon" (click)="reportSetting()">
+              <i class="icons8 icons8-sync-settings"> </i>
+              <span class="mx-3">Report Settings</span>
+            </button>
+           
+                     
+            </div>   
+           
+       
+
+
+        <!-- <div class="p-col-4 mb-20" *ngIf="reportType.value === 'Stats'  && reportVisualizeType === 'TABULAR' && selectedMetricOption != 4"> -->
+         
+            <div class="mr-10" *ngIf="reportType.value === 'Stats'  && reportVisualizeType === 'TABULAR'">
+            
+          <p-checkbox class="" name="groupShowAll" label="Show All Data Samples" [(ngModel)]="checkShowAllSample"
+            binary="true"></p-checkbox>
+        </div>
+        
+        <!-- <div class="p-col-3 mb-20" *ngIf="reportType.value === 'Stats' && reportVisualizeType === 'HTML'">
+          <i class="icons8 icons8-sync-settings report-setting-icon" (click)="reportSetting()">
+            <span class="font-report-settings pl-3">Report Settings</span>
+          </i>
+
+        </div>
+        <div class="p-col-4 mb-20" *ngIf="reportType.value === 'Compare' && reportVisualizeType === 'TABULAR'"> -->
+          <div class="mr-10" *ngIf="reportType.value === 'Compare' && reportVisualizeType === 'TABULAR'">
+          <p-checkbox class="" name="groupTrend" (onChange)="checkTrendCompareValue($event)" binary="true" label="Trend Compare" [(ngModel)]="checkTrendCompare" (click)="getTrendCompareList()">
+          </p-checkbox>
+        </div>
+        <!-- <div class="p-col-4 mb-20" *ngIf="reportType.value === 'Compare'"> -->
+          <div class="mr-10" *ngIf="reportType.value === 'Compare' && reportVisualizeType === 'TABULAR' && selectedMetricOption != 4">
+          <p-checkbox class="" name="groupTrend" binary="true" label="Skip Vector Mapping" [(ngModel)]="skipVectorMapping">
+          </p-checkbox>
+        </div>
+      </div>
+
+        <div class="w-10-p p-grid p-dir-col px-5" *ngIf="reportType.value === 'Compare' && checkTrendCompare && reportVisualizeType ===
+        'TABULAR'">
+        <label class="my-3">Data Value</label>
+        <p-dropdown [options]="cmpDataValue" [(ngModel)]="selectedCmpDataValue" optionLabel="label" [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+     
+     </div>
+
+     
+    </ng-container>
+  </div>
+        <!-- <div class="p-col-4 mb-20" *ngIf="reportType.value === 'Compare' && checkTrendCompare && reportVisualizeType === 'TABULAR'">
+          <div class="p-col-12 p-grid p-align-center">
+            Data Value
+          </div>
+          <div class="p-col-12"> -->
+            <!-- <div class="p-col-5 p-grid p-align-center mb-20" *ngIf="reportType.value === 'Compare' && checkTrendCompare && reportVisualizeType ===
+            'TABULAR'">
+          <label class="mr-5">Data Value</label>
+          <div>
+
+            <p-dropdown [options]="cmpDataValue" [(ngModel)]="selectedCmpDataValue" optionLabel="label"></p-dropdown>
+          </div>
+        </div> -->
+
+        <p-dialog header="Report Settings" [(visible)]="displayReportSetting" [modal]="true" [responsive]="true"
+          [style]="styleForDialog('ReportSetting')" [minY]="70">
+
+          <div class="outer-border">
+            <div class="changeStyleReportSetting">
+              <p-checkbox binary="true" [(ngModel)]="checkAnalysisSummary" label="Analysis Summary"></p-checkbox>
+            </div>
+            <div class="changeStyleReportSetting">
+              <p-checkbox binary="true" [(ngModel)]="checkPerformanceSummary" (onChange)="updateReportSetting()"
+                label="Performance Summary"></p-checkbox>
+            </div>
+            <div class="changeStyleReportSetting">
+              <div class="changeStyleReportSetting">
+                <p-checkbox binary="true" (onChange)="updateSubReportSetting()" label="Overview"
+                  [(ngModel)]="checkOverview"></p-checkbox>
+              </div>
+              <div class="changeStyleReportSetting">
+                <p-checkbox binary="true" (onChange)="updateSubReportSetting()" label="Sessions"
+                  [(ngModel)]="checkSessions"></p-checkbox>
+              </div>
+              <div class="changeStyleReportSetting">
+                <p-checkbox binary="true" (onChange)="updateSubReportSetting()" label="Transactions"
+                  [(ngModel)]="checkTransactions"></p-checkbox>
+              </div>
+              <div class="changeStyleReportSetting">
+                <p-checkbox binary="true" (onChange)="updateSubReportSetting()" label="Pages" [(ngModel)]="checkPages">
+                </p-checkbox>
+              </div>
+              <div class="changeStyleReportSetting">
+                <p-checkbox binary="true" (onChange)="updateSubReportSetting()" label="Network"
+                  [(ngModel)]="checkNetwork"></p-checkbox>
+              </div>
+              <div class="changeStyleReportSetting">
+                <p-checkbox binary="true" (onChange)="updateSubReportSetting()" label="Errors"
+                  [(ngModel)]="checkErrors"></p-checkbox>
+              </div>
+            </div>
+            <div class="changeStyleReportSetting">
+              <p-checkbox binary="true" label="Metrics Summary" [(ngModel)]="checkMetricsSummary"></p-checkbox>
+            </div>
+            <div class="changeStyleReportSetting">
+              <p-checkbox binary="true" label="Metrics Charts" [(ngModel)]="checkMetricsCharts"></p-checkbox>
+            </div>
+          </div>
+          <p-footer>
+            <div class="p-grid p-justify-center">
+              <button type="button" pButton (click)="applyReportSetting()" label="Apply"></button>
+              <button type="button" pButton (click)="cancelReportSetting()" label="Cancel"
+                class="ui-button-secondary"></button>
+            </div>
+          </p-footer>
+        </p-dialog>
+     
+
+      <p-accordion class="w-100-p" [multiple]="true">
+        <p-accordionTab header="Preset Option" [selected]="true" *ngIf="reportType.value !== 'Compare'">
+          <!-- <div class="p-grid p-col-12">
+            <div class="p-col-12 p-grid p-align-center pl-12"> -->
+              <div class="p-grid p-align-center mln-10 my-10">
+                  <div class="mr-20">
+                <p-checkbox name="preset" label="Preset" (onChange)="onTimeFilterTypeChange()" pTooltip="Preset Option" tooltipPosition="top"
+                  binary="true" [(ngModel)]="preset">
+                </p-checkbox>
+              </div>
+
+            <!-- <div class="mr-10">
+
+              <button pButton class="px-0 width-150" icon="icons8 icons8-expand-arrow" iconPos="right"  [disabled]="!preset"(click)="timePeriodMenu.toggle($event);"
+              label="{{(tmpValue.timePeriod.selected && tmpValue.timePeriod.selected.label) || 'Select time period'}}">
+             </button>
+
+
+                <button pButton [disabled]="!preset" class="ui-dropdown ui-widget ui-state-default ui-corner-all inputDropdown"
+                  (click)="timePeriodMenu.toggle($event);">
+                  <span class="text-left p-col-10 left">
+                    {{(tmpValue.timePeriod.selected && tmpValue.timePeriod.selected.label) || 'Select time period'}}
+                  </span>
+                  <i class="p-col-2 p-3 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+                </button> -->
+
+                  <!-- <p-slideMenu [menuWidth]="150" [style]="{'min-width':'150px'}" #timePeriodMenu appendTo="body" [model]="tmpValue.timePeriod.options" id="time-period"
+                    [popup]="true">
+                  </p-slideMenu>
+            </div> -->
+            <div class="mr-10">
+              <button pButton [disabled]="!preset" class="px-0 width-150"
+                (click)="timePeriodCompareMenu.toggle($event);">
+                <span class="text-left p-col-10 left">
+                  {{(tmpValue.timePeriod.selected && tmpValue.timePeriod.selected.label) || 'Select time period'}}
+                </span>
+                <i class="p-col-2 p-3 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+              </button>
+              <!-- <span class="changeSliderStyle"> -->
+                <p-slideMenu appendTo="body" [menuWidth]="150" [style]="{'min-width':'150px'}" #timePeriodCompareMenu [model]="tmpValue.timePeriod.options"
+                  id="time-period" [popup]="true" [viewportHeight]="145">
+                </p-slideMenu>
+              <!-- </span> -->
+            </div>
+
+            <div class="mr-15" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB0'">
+              <input class="inputDropdown" pInputText min="1" max="23" type="number" [(ngModel)]="timeBack"
+                (mouseup)="timeBackCall()" (keyup)="timeBackCall()">
+            </div>
+
+            <div class="mr-15" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB1'">
+              <input class="inputDropdown" pInputText min="1" max="31" type="number" [(ngModel)]="timeBack"
+                (mouseup)="timeBackCall()" (keyup)="timeBackCall()">
+            </div>
+            <div class="mr-15" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB2'">
+              <input class="inputDropdown" pInputText min="1" max="48" type="number" [(ngModel)]="timeBack"
+                (mouseup)="timeBackCall()" (keyup)="timeBackCall()">
+            </div>
+            <div class="mr-15" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB3'">
+              <input class="inputDropdown" pInputText min="1" max="48" type="number" [(ngModel)]="timeBack"
+                (mouseup)="timeBackCall()" (keyup)="timeBackCall()">
+            </div>
+            <!-- <div class="p-grid p-col-2 p-align-center">
+              <p-checkbox class="" name="groupname" value="val" label="Show Discontinued Metrics"></p-checkbox>
+            </div> -->
+            <div class="p-grid mr-100 p-dir-col relative" *ngIf="reportType.value === 'Excel' && selectedAggregateOverEntireReport ">
+              <p-checkbox class="" name="groupOverPreset" binary="true" label="Override Preset from Templates"
+                [(ngModel)]="checkExcelOverridePreset">
+              </p-checkbox>
+
+              <div class="font-11 noteText" *ngIf="reportType.value === 'Excel' && checkExcelOverridePreset">
+                <strong>Note:</strong> Be sure all formula sheets have time period.
+              </div>
+
+            </div>
+
+
+           
+
+            <div class="p-grid mr-15 p-align-center" *ngIf="reportType.value === 'Summary'">
+              <p-checkbox class="" name="groupTrans" binary="true" label="Transaction Error"
+                [(ngModel)]="showTransactionError"></p-checkbox>
+            </div>
+            <div *ngIf="reportType.value === 'Summary' && showTransactionError" class="p-grid p-align-center mr-20">
+              <p-multiSelect [style]="{'width':'135px'}" [options]="transactionErrorCodeOptions" [selectedItemsLabel]="selectedItemsLabel"
+                [(ngModel)]="selectedTransactionErrorCode" tooltip="{{tooltipTranError}}" tooltipPosition="top" (onChange)="tooltipTranErr($event)">
+              </p-multiSelect>
+            </div>
+            <div *ngIf="reportType.value === 'Summary' && showTransactionError" class="p-grid p-align-center mr-20">
+              <p-checkbox binary="true" name="groupTransactionError" [(ngModel)]="showTransactionErrorPerChange"
+                label="Transaction Error (%)"></p-checkbox>
+            </div>
+
+
+
+            <label class="ml-10 mr-5">Start and End Date Time</label>
+            <div class="mr-10 search-div-css">
+              <input pInputText class="customInput" [owlDateTime]="customStartDateTime" placeholder="MM/dd/yyyy HH:mm:ss"
+                [selectMode]="'range'" [max]="dateTimeFrameMax" [(ngModel)]="dateTimeFrame" [disabled]="preset" />
+              <span [owlDateTimeTrigger]="customStartDateTime"><i class="report-setting-icon" title="Click to open Calender."
+                  class="icon-right icons8 icons8-calendar"></i></span>
+              <owl-date-time [showSecondsTimer]=true #customStartDateTime></owl-date-time>
+            </div>
+
+            <!-- <div class="p-col-12">
+              <div class="type-search">
+          <input pInputText class="pl-5" [owlDateTime]="customStartDateTime" [selectMode]="'range'"
+           placeholder="MM/dd/yyyy HH:mm:ss" #dateTime="ngModel"
+          [(ngModel)]="dateTimeFrame" [disabled]="preset" (ngModelChange)="onTimeFilterCustomTimeChange()"
+          [max]="dateTimeFrameMax">
+
+          <span [owlDateTimeTrigger]="customStartDateTime"><i style="cursor: pointer;margin-top: 2px;
+            margin-right: 2px;" title="Click to open Calender." class="right-icon icons8 icons8-calendar"></i></span>
+          <owl-date-time [showSecondsTimer]=true #customStartDateTime></owl-date-time>
+          </div>
+      </div> -->
+
+            <!-- <label class="ml-10 mr-5">To</label>
+            <div class="search-div-css">
+              <i class="icons8 icons8-calendar"></i>
+              <input pInputText class="customInput" readonly id="end-date-time" [owlDateTime]="customEndDateTime"
+                placeholder="MM/dd/yyyy HH:mm:ss" [owlDateTimeTrigger]="customEndDateTime"
+                (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeTo'" [max]="dateTimeFrameMax"
+                [(ngModel)]="dateTimeFrame" [disabled]="preset" />
+              <owl-date-time [showSecondsTimer]=true #customEndDateTime></owl-date-time> -->
+              <!-- <p-message *ngIf="invalidDate" severity="error" text="End date and Start date should not be the same.">
+              </p-message> -->
+            <!-- </div> -->
+
+            <ng-container  *ngIf="reportType.value === 'Stats'">
+              <label class="ml-10 mr-5">View By</label>
+              
+              <div class="mr-15">
+
+                <!-- <button type="button"  pButton class="px-0 width-100" icon="icons8 icons8-expand-arrow" iconPos="right" (click)="viewByMenu.toggle($event)"
+                 label=" {{(tmpValue.viewBy.selected && tmpValue.viewBy.selected.label) || 'Select view by'}}">
+                </button> -->
+
+              <!-- <button pButton (click)="viewByMenu.toggle($event)">
+                    <span>
+                      {{(tmpValue.viewBy.selected && tmpValue.viewBy.selected.label) || 'Select view by'}}
+                    </span>
+                    <i class="icons8 icons8-expand-arrow"></i>
+                  </button> -->
+                                <!-- <p-slideMenu [menuWidth]="100" [style]="{'min-width':'100px'}" #viewByMenu appendTo="body" [model]="tmpValue.viewBy.options" id="view-by" [popup]="true">
+                                </p-slideMenu> -->
+                                <button pButton class="px-0 width-100"
+                                (click)="viewByMenu.toggle($event)">
+                                <span class="text-left p-col-10 left">
+                                  {{(tmpValue.viewBy.selected && tmpValue.viewBy.selected.label) || 'Select view by'}}
+                                </span>
+                                <i class="p-col-2 p-1 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+                              </button>
+                              <!-- <span class="changeSliderViewByStyle"> -->
+                              <p-slideMenu appendTo="body" [menuWidth]="100" [style]="{'min-width':'100px'}" #viewByMenu [model]="tmpValue.viewBy.options" id="view-by" [popup]="true">
+                              </p-slideMenu>
+                              <!-- </span> -->
+                              </div>
+              
+           </ng-container>
+
+
+          </div>
+
+          <!-- <div class="p-grid p-col-12">
+            <div class="p-grid p-col-3">
+              <div class="p-col-12 p-grid p-align-center">
+                <label class="">From</label>
+              </div>
+              <div class="p-col-12 search-div-css"> -->
+                <div class="p-grid p-align-center">
+               
+                  
+                 
+            <!-- </div>
+            <div class="p-grid p-col-3">
+              <div class="p-col-12 p-grid p-align-center">
+                <label class="">To</label>
+              </div>
+              <div class="p-col-12 search-div-css"> -->
+               
+            <!-- </div>
+            <div class="p-grid p-col-2" *ngIf="reportType.value === 'Stats'">
+              <div class="p-col-12 p-grid p-align-center">
+                <span class="">View By</span>
+              </div>
+              <div class="p-col-12">
+                <button pButton class="ui-dropdown ui-widget ui-state-default ui-corner-all"
+                  (click)="viewByMenu.toggle($event)">
+                  <span class="text-left p-col-10 left">
+                    {{(tmpValue.viewBy.selected && tmpValue.viewBy.selected.label) || 'Select view by'}}
+                  </span>
+                  <i class="p-col-2 p-3 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+                </button>
+                <p-slideMenu #viewByMenu appendTo="body" [model]="tmpValue.viewBy.options" id="view-by" [popup]="true">
+                </p-slideMenu> -->
+               
+            <!-- </div> -->
+          </div>
+        </p-accordionTab>
+        <p-accordionTab header="Meta Data" [selected]="true" *ngIf="reportType.value === 'Hierarchical'">
+          <div class="p-grid p-col-12">
+
+            <div *ngFor="let hierarchichy of selectedHierarchichyNgModel; let i = index" class="p-col-2">
+              <div *ngIf="i == 0">
+                <div>
+                  <p-dropdown [disabled]="false" [options]="hirerchichyDropdownOptionArr[i]"
+                    (onChange)="selectedHierarchichyOption(i)" [(ngModel)]="selectedHierarchichyNgModel[i]"
+                    [disabled]="isDropdownDisabledArr[i]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+              </div>
+              <div *ngIf="i > 0">
+                <div>
+                  <p-dropdown [disabled]="false" [options]="hirerchichyDropdownOptionArr[i]"
+                    (onChange)="selectedHierarchichyOption(i)" [(ngModel)]="selectedHierarchichyNgModel[i]"
+                    [disabled]="isDropdownDisabledArr[i]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+              </div>
+            </div>
+            <!-- <div class="p-col-2">
+              <p-dropdown [options]="data.value" placeholder="Select" optionLabel="label"></p-dropdown>
+            </div>
+            <div class="p-col-2">
+              <p-dropdown [options]="data.value" placeholder="Select" optionLabel="label"></p-dropdown>
+            </div>
+            <div class="p-col-2">
+              <p-dropdown [options]="data.value" placeholder="Select" optionLabel="label"></p-dropdown>
+            </div>
+            <div class="p-col-2">
+              <p-dropdown [options]="data.value" placeholder="Select" optionLabel="label"></p-dropdown>
+            </div>
+            <div class="p-col-2">
+              <p-dropdown [options]="data.value" placeholder="Select" optionLabel="label"></p-dropdown>
+            </div> -->
+          </div>
+        </p-accordionTab>
+        <p-accordionTab [selected]="true" header="Metric Options" *ngIf="reportType.value !== 'Summary' && checkMetricsSummary">
+          <div class="p-grid p-align-center mln-15 my-10"
+            *ngIf="reportType.value === 'Stats' || reportType.value === 'Compare' || reportType.value === 'Hierarchical'">
+            <div class="p-grid p-col-4">
+              <div *ngFor="let item of data.matrics;let i = index">
+                <p-radioButton class="report-type" name="groupMetricsOption" value="{{item.value}}"
+                  label="{{item.label}}" (click)="changeMetricOption()" [(ngModel)]="selectedMetricOption">
+                </p-radioButton>
+              </div>
+            </div>
+            <!-- <div class="p-grid p-col-2"> -->
+              <div class="p-col-3">
+              <p-dropdown #tempFavDropdownReference [disabled]="checkDisableDropDown"
+               placeholder="" optionLabel="label" [(ngModel)]="selectedTempFav" [options]="reportTempFavOptions" 
+              (onChange)="changeTempFavType($event)" filter="true" [style]="{'min-width':'290px'}" dropdownIcon="icons8 icons8-expand-arrow">
+                <ng-template let-item pTemplate="item">
+                    <div>
+                        <span [pTooltip]="item.label" tooltipPosition="top">{{item.label}}</span>
+                    </div>
+                </ng-template>
+                <ng-template let-item pTemplate="selectedItem">
+                    <div>
+                        <span [pTooltip]="item.label" tooltipPosition="top">{{item.label}}</span>
+                    </div>
+                </ng-template>
+            </p-dropdown>
+            </div>
+          </div>
+
+          <div class="p-grid p-align-center my-10 mln-15"
+            *ngIf="reportType.value === 'Stats' || reportType.value === 'Compare' || reportType.value === 'Hierarchical'">
+            <!-- <div class="p-grid p-col-12">
+              <div class="p-grid p-col-3" *ngIf="!checkShowAllSample && selectedMetricOption != 4 && !checkTrendCompare"> -->
+                <div class="p-grid p-col-2" *ngIf="!checkShowAllSample && !checkTrendCompare && !(selectedMetricOption == 4 && reportVisualizeType === 'PDF') && checkMetricsCharts">
+                <p-checkbox class="mr-20" name="groupInclude" (onChange)="checkIncludeChartValue($event)" label="Include Metric Charts" binary="true" [disabled]="reportType.value === 'Stats' && reportVisualizeType ==='HTML'"
+                  [(ngModel)]="checkIncludeChart"></p-checkbox>
+              </div>
+              <div class="p-grid p-col-2" *ngIf="!checkShowAllSample && checkIncludeChart && !(selectedMetricOption == 4 && reportVisualizeType === 'PDF') && selectedMetricOption != 1 && checkMetricsCharts">
+                <p-checkbox *ngIf="reportType.value === 'Stats' || reportType.value === 'Compare'" name="groupOverride"
+                  label="Override Metric Charts" binary="true" [(ngModel)]="checkOverrideChart"></p-checkbox>
+              </div>
+              <div class="p-grid p-col-2"
+                *ngIf="checkOverrideChart && (reportType.value === 'Stats' || reportType.value === 'Compare') && checkIncludeChart && selectedMetricOption != 1 && reportVisualizeType !== 'PDF' && !checkShowAllSample && checkMetricsCharts">
+                <p-dropdown [options]="overrideChartOption" [(ngModel)]="selectedOverrideChartType" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+              </div>
+            <!-- </div> -->
+          </div>
+          <!-- <div class="p-grid p-col-12" *ngIf="reportType.value === 'Excel'">
+            <div class="p-col-12 p-grid p-align-center">
+              <span class="pl-10">Template</span>
+            </div>
+            <div class="p-grid p-col-2">
+              <div class="p-col-12">
+                <p-dropdown [options]="reportExcelTempOptions" placeholder="" optionLabel="label"
+                  [(ngModel)]="selectedExcelTemp"></p-dropdown>
+              </div> -->
+              <div class="p-grid p-align-center my-10" *ngIf="reportType.value === 'Excel'">
+                <label class="mr-5">Template</label>
+                <div class="p-col-3">
+                <p-dropdown panelStyleClass="panelWidthAddReport" filter="true" [virtualScroll]="true" [options]="reportExcelTempOptions" placeholder="" optionLabel="label" 
+                [(ngModel)]="selectedExcelTemp" [style]="{'min-width': '290px'}" dropdownIcon="icons8 icons8-expand-arrow">
+                  <ng-template let-item pTemplate="item">
+                      <div>
+                          <span [pTooltip]="item.label" tooltipPosition="top">{{item.label}}</span>
+                      </div>
+                  </ng-template>
+                  <ng-template let-item pTemplate="selectedItem">
+                      <div>
+                          <span [pTooltip]="item.label" tooltipPosition="top">{{item.label}}</span>
+                      </div>
+                  </ng-template>
+              </p-dropdown>
+            </div>
+            <!-- <div class="p-grid p-col-6 p-align-center upload-btn">
+              <div class="p-grid p-col-1 font-16 p-justify-center">
+                <button  pButton icon="icons8 icons8-installing-updates" class="ui-button-secondary ui-button-rounded" label="DOWNLOAD"
+                  (click)="downloadViewFile('Excel')"></button> -->
+                  <!-- <i class="icons8 icons8-installing-updates" (click)="downloadViewFile('Excel')"></i>
+                </div> -->
+              <!-- <button type="button" pButton class="ui-button-secondary ui-button-rounded" label="UPLOAD"></button> -->
+              <!-- <div class="p-grid p-col-2 upload-btn-upload">
+                <p-fileUpload #fileUploadExcel mode="basic" name="uploadedFiles[]" pTooltip="Upload File"
+                  chooseLabel="Upload" [url]="fileURL" (onUpload)="afterTemplateUpload($event,'Excel')"
+                  (onSelect)="onSelectTemplateToUpload($event,'Excel')">
+                </p-fileUpload>
+              </div> -->
+              <label class="mx-10"><i class="icons8 icons8-installing-updates" (click)="downloadViewFile('Excel')"></i></label>
+              <div class="p-grid p-col-2 upload-btn-upload">
+              <p-fileUpload #fileUploadExcel mode="basic" name="uploadedFiles[]" pTooltip="{{ toolTip }}" tooltipPosition="top"
+              chooseLabel="Upload" [url]="fileURL" (onUpload)="afterTemplateUpload($event,'Excel')"
+              (onSelect)="onSelectTemplateToUpload($event,'Excel')">
+          </p-fileUpload>   
+            </div>
+            <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow" pTooltip="Delete" tooltipPosition="top"
+            (click)="deleteExcelTemplate()"></button>
+          </div>
+          <!-- <div class="p-grid p-col-12" *ngIf="reportType.value === 'Excel'"> -->
+            <div class="p-grid p-align-center my-10" *ngIf="reportType.value === 'Excel'">
+            <p-checkbox class="" name="groupAgg" binary="true" [(ngModel)]="selectedAggregateOverEntireReport"
+              label="Aggregate Over the Entire Report" (click)="ChangeOverridePreset()"></p-checkbox>
+          <!-- </div>
+          <div class="p-grid p-col-12" *ngIf="reportType.value === 'Excel'">
+            <div class="p-col-12 p-grid p-align-center">
+              <span class="pl-10">Aggregate by</span>
+            </div>
+            <div class="p-grid p-col-2">
+              <div class="p-col-12"> -->
+                <label class="ml-40 mr-10">Aggregate by</label>
+              <div class="p-col-1">
+
+                <p-dropdown [options]="aggregateTimeOption" placeholder="" [(ngModel)]="selectedAggregateTime"
+                  optionLabel="label" [disabled]="selectedAggregateOverEntireReport"
+                  (onChange)="fillAggregateByDropdown()" [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+              </div>
+            <!-- </div>
+            <div class="p-grid p-col-2">
+              <div class="p-col-12"> -->
+                <div class="p-col-1">
+                <p-dropdown [options]="aggregatebyDropdownOption" placeholder="" optionLabel="label"
+                  [(ngModel)]="selectedAggregateBy" [disabled]="selectedAggregateOverEntireReport" dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width':'100%'}"></p-dropdown>
+              </div>
+            <!-- </div>
+            <div class="p-grid p-col-3" *ngIf="selectedAggregateTime.value === 'Week'">
+              <div class="p-col-12"> -->
+                <div  *ngIf="selectedAggregateTime.value === 'Week'">
+                <p-checkbox class="" name="groupAggLastWeek" binary="true" [(ngModel)]="checklastWeek" [disabled]="selectedAggregateOverEntireReport"
+                  label="Show last week's data day-wise"></p-checkbox>
+              </div>
+            <!-- </div>
+          </div>
+          <div class="p-grid p-col-12" *ngIf="reportType.value === 'Excel'">
+            <div class="p-col-12 p-grid p-align-center">
+              <span class="pl-10">Show Reports In</span>
+            </div>
+            <div class="p-grid p-col-2">
+              <div class="p-col-12">
+                <p-dropdown [options]="showReportOptions" placeholder="" optionLabel="label"
+                  [(ngModel)]="selectedShowReportOptions" [disabled]="selectedAggregateOverEntireReport"></p-dropdown> -->
+                  <div class="p-grid p-align-center" *ngIf="reportType.value === 'Excel'">
+                    <label class="ml-40 mr-10">Show Reports In</label>
+                                      <div class="width-120">
+                                        <p-dropdown [options]="showReportOptions" placeholder="" optionLabel="label" dropdownIcon="icons8 icons8-expand-arrow"
+                                          [(ngModel)]="selectedShowReportOptions" [disabled]="selectedAggregateOverEntireReport" [style]="{'min-width':'100%'}"></p-dropdown>
+                                      </div>
+              </div>
+            <!-- </div> -->
+          </div>
+        </p-accordionTab>
+        <p-accordionTab [selected]="true" header="Metric Selection" *ngIf="selectedMetricOption == 1 && 
+        (reportType.value === 'Stats' || reportType.value === 'Compare' || reportType.value === 'Hierarchical')">
+          <app-add-report-settings></app-add-report-settings>
+        </p-accordionTab>
+        <div class="p-2 pt-4 pb-30" *ngIf="selectedMetricOption == 1">
+          <div class="report-float-right">
+            <button pButton type="button" label="Save as Template" iconPos="left"
+              (click)="saveTemplateForReport(true)"></button>
+          </div>
+        </div>
+        <p-accordionTab header="Threshold Configuration Option"
+          *ngIf="reportType.value === 'Stats' && reportVisualizeType === 'HTML'">
+          <div class="p-grid p-col-12">
+            <div class="p-col-12 p-grid p-align-center">
+              <span class="pl-10">Threshold Configuration</span>
+            </div>
+            <div class="p-grid p-col-3">
+              <div class="p-col-12">
+                <p-dropdown  panelStyleClass="panelWidthAddReport" filter="true" [virtualScroll]="true" [options]="reportThresholdOptions" placeholder="" optionLabel="label"
+                 [(ngModel)]="selectThresholdTemp" [style]="{'min-width': '290px'}" dropdownIcon="icons8 icons8-expand-arrow" (onChange)="selectThreshold()">
+                  <ng-template let-item pTemplate="item"> 
+                      <div>
+                          <span [pTooltip]="item.label" tooltipPosition="top">{{item.label}}</span>
+                      </div>
+                  </ng-template>
+                  <ng-template let-item pTemplate="selectedItem">
+                      <div>
+                          <span [pTooltip]="item.label" tooltipPosition="top">{{item.label}}</span>
+                      </div>
+                  </ng-template>
+              </p-dropdown>
+              </div>
+            </div>
+            <div class="p-grid p-col-6 p-align-center upload-btn">
+              <div class="p-grid p-col-1 size-class">
+                <!-- <button pButton icon="icons8 icons8-installing-updates" class="ui-button-secondary ui-button-rounded" label="DOWNLOAD"
+                  (click)="downloadViewFile('Threshold')"></button> -->
+                  <i class="icons8 icons8-installing-updates" [style]="{'margin-bottom':'2px'}" (click)="downloadViewFile('Threshold')"></i>
+              </div>
+              <!-- <button type="button" pButton class="ui-button-secondary ui-button-rounded" label="UPLOAD"></button> -->
+              <div class="p-grid p-col-8 upload-btn-upload">
+                <p-fileUpload #fileUploadThreshold mode="basic" name="uploadedFiles[]" pTooltip="{{ toolTip }}" tooltipPosition="top"
+                  chooseLabel="Upload" [url]="fileURL" (onUpload)="afterTemplateUpload($event,'Threshold')"
+                  (onSelect)="onSelectTemplateToUpload($event,'Threshold')" class="uploadStyle">
+                </p-fileUpload>
+              </div>
+              <span pTooltip="{{ toolTipTest }}" tooltipPosition="top">
+              <button pButton icon="icons8 icons8-delete-trash" [style]="{'margin-bottom':'15px'}" class="icon-button no-shadow"
+              (click)="deleteThresholdTemplate()" [disabled]="selectThresholdTemp.label === 'PerformanceDefaultThresholds'"></button>
+              </span>
+            </div>
+          </div>
+        </p-accordionTab>
+
+        <p-accordionTab header="Filter By Value Option" *ngIf="reportType.value === 'Stats' && checkMetricsSummary">
+            
+          <div class="my-10 mln-10">
+              <div class="p-grid p-align-center height-32">
+                  <div class="mr-25">
+                      <p-checkbox name="enablefilter" binary="true" value="val" label="Enable Filter"
+                          [(ngModel)]="isEnableFilter" (onChange)="onChangeFilterOption()"></p-checkbox>
+                  </div>
+      
+                  <div *ngIf="isEnableFilter" class="p-grid p-align-center mr-25">
+                      <div  *ngFor="let item of data.filter" class="p-grid p-align-center">
+                          <p-radioButton name="category" [value]="item.value" [(ngModel)]="selectedCategory">
+                          </p-radioButton>
+                          <label [for]="item.label" class="ml-3 mr-15">{{item.label}}</label>
+                      </div>
+                  </div>
+    
+                  <div class="p-grid p-align-center" *ngIf="selectedCategory == 'Advance' && isEnableFilter">
+      
+                      <label class="mh-5">Value</label>
+                      <p-dropdown [options]="data.value" placeholder="" optionLabel="label"
+                          class="mh-5" [(ngModel)]="selectedOperator" pTooltip="{{selectedOperator.label}}"
+                          [style]="{'min-width' : '100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>  
+      
+                      <input type="text" pInputText class=" width-100 mh-5" [(ngModel)]="filterFirstValue" />
+      
+                      <div *ngIf="(selectedOperator.value == 7)" class="p-grid p-align-center">
+                          <label class="mh-5">And</label>
+                          <input type="text" class="mh-5 width-100" pInputText [(ngModel)]="filterSecondValue" />
+                      </div>
+      
+                      <label class="mh-5">By :</label>
+      
+                      <p-dropdown [options]="data.dropDownFilterValue" dropdownIcon="icons8 icons8-expand-arrow"
+                          [(ngModel)]="selectedfilterValue" [style]="{'min-width' : '100px'}" class="mh-5"></p-dropdown>
+      
+                      <div *ngIf="!(selectedOperator.value == 5 || selectedOperator.value == 6)" class="p-grid p-align-center">
+                          <p-dropdown [options]="data.dropDownInclude" [(ngModel)]="selectedfilterInclude"
+                           [style]="{'min-width' : '100px'}" class="mh-5" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                      </div>
+                      <!-- <div class="p-col-1">
+                                  <p-dropdown [options]="data.value" placeholder="" optionLabel="label"></p-dropdown>
+                              </div> -->
+                  </div>
+      
+              </div>
+          </div>
+      </p-accordionTab>
+        <!-- <p-accordionTab header="Filter By Value Option" *ngIf="reportType.value === 'Stats'">
+          <div class="p-grid p-col-12">
+            <p-checkbox name="enablefilter" binary="true" label="Enable Filter" [(ngModel)]="isEnableFilter">
+            </p-checkbox>
+          </div>
+          <div *ngIf="isEnableFilter == true">
+            <div class="p-grid p-col-12">
+              <div *ngFor="let item of data.filter">
+                <p-radioButton class="report-type mb-20 mr-20" name="groupFilterOption" value="{{ item.value }}"
+                  label="{{ item.label }}" [(ngModel)]="selectedCategory">
+                </p-radioButton>
+              </div>
+            </div>
+          </div>
+          <span *ngIf="selectedCategory == 'Advance' && isEnableFilter">
+            <div class="p-grid p-col-12">
+              <div class="p-col-12 p-grid p-align-center">
+                <span class="">Value</span>
+              </div>
+              <div class="p-col-1">
+                <p-dropdown [options]="data.value" placeholder="" optionLabel="label" [(ngModel)]="selectedOperator">
+                </p-dropdown>
+              </div>
+              <div class="p-col-2">
+                <input type="number" pInputText [(ngModel)]="filterFirstValue" />
+              </div>
+              <div class="p-col-2" *ngIf="(selectedOperator.value == 7)">
+                <span>
+                  <label> And </label>
+                </span>
+                <span>
+                  <input type="number" pInputText [(ngModel)]="filterSecondValue" />
+                </span>
+              </div>
+              <div class="p-col-1">
+                <label>By : </label>
+              </div>
+              <div class="p-col-1">
+                <p-dropdown [options]="data.dropDownFilterValue" [(ngModel)]="selectedfilterValue"></p-dropdown>&nbsp;
+              </div>
+              <div class="p-col-1">
+                <span *ngIf="!(selectedOperator.value == 5 || selectedOperator.value == 6)">
+                  <p-dropdown [options]="data.dropDownInclude" [(ngModel)]="selectedfilterInclude"></p-dropdown>
+                </span>
+              </div>
+            </div>
+          </span>
+        </p-accordionTab> -->
+        <p-accordionTab header="Summary" *ngIf="reportType.value === 'Stats' && reportVisualizeType === 'HTML'">
+          <div class="p-grid p-col-12">
+            <div class="p-col-12 p-grid p-align-center">
+              <span class="p-col-6 pl-10">Executive Summary</span>
+              <span class="p-col-6 pl-10">Conclusion</span>
+            </div>
+            <div class="p-grid p-col-6">
+              <textarea class="boxStyle" (keyup)="executiveSummaryEvent()" [rows]="10" [cols]="95" pInputTextarea
+                [(ngModel)]="executiveSummary"></textarea>
+            </div>
+          
+          <!-- <div class="p-grid p-col-6"> -->
+            <!-- <div class="p-col-12 p-grid p-align-center">
+              <span class="pl-10">Conclusion</span>
+            </div> -->
+            <div class="p-grid p-col-6">
+              <textarea class="boxStyle" (keyup)="conclusionSummaryEvent()" [rows]="10" [cols]="95" pInputTextarea
+                [(ngModel)]="conclusionSummary"></textarea>
+            </div>
+          <!-- </div> -->
+        </div>
+        </p-accordionTab>
+        <p-accordionTab header="Measurement" [selected]="true" *ngIf="reportType.value === 'Compare'">
+          <div class="p-grid mb-20 mln-20">
+            <div class="p-grid p-col-2">
+              <div class="p-col-12 p-grid p-align-center">
+                <span class="">Measurement Name:</span>
+              </div>
+              <div class="p-col-12">
+                <input type="text" [(ngModel)]="msrName" pInputText class="w-100-p" maxlength="64"/>
+              </div>
+            </div>
+            <div class="p-grid p-col-2">
+              <div class="p-col-12 p-grid p-align-center">
+                <p-checkbox name="preset" label="Preset" (onChange)="onTimeFilterTypeChange()" pTooltip="Preset Option" tooltipPosition="top"
+                  binary="true" [(ngModel)]="preset">
+                </p-checkbox>
+              </div>
+              <div class="p-col-12">
+                <button pButton [disabled]="!preset" class="px-0 width-150"
+                  (click)="timePeriodCompareMenu.toggle($event);">
+                  <span class="text-left p-col-10 left">
+                    {{(tmpValue.timePeriod.selected && tmpValue.timePeriod.selected.label) || 'Select time period'}}
+                  </span>
+                  <i class="p-col-2 p-3 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+                </button>
+                <span class="changeComparePresetStyle">
+                  <p-slideMenu appendTo="body" [menuWidth]="150" [style]="{'min-width':'150px'}" #timePeriodCompareMenu [model]="tmpValue.timePeriod.options"
+                    id="time-period" [popup]="true" [viewportHeight]="145">
+                  </p-slideMenu>
+                </span>
+              </div>
+            </div>
+            <div class="p-grid p-col-1 pt-40" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB0'
+             || tmpValue.timePeriod.selected.id=== 'TB1'
+             || tmpValue.timePeriod.selected.id=== 'TB2'
+             || tmpValue.timePeriod.selected.id=== 'TB3'">
+
+              <div class="p-col-12" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB0'">
+                <input class="inputDropdown" pInputText min="1" max="23" type="number" [(ngModel)]="timeBack"
+                  (mouseup)="timeBackCall()" (keyup)="timeBackCall()">
+              </div>
+              <div class="p-col-12" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB1'">
+                <input class="inputDropdown" pInputText min="1" max="31" type="number" [(ngModel)]="timeBack"
+                  (mouseup)="timeBackCall()" (keyup)="timeBackCall()">
+              </div>
+              <div class="p-col-12" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB2'">
+                <input class="inputDropdown" pInputText min="1" max="48" type="number" [(ngModel)]="timeBack"
+                  (mouseup)="timeBackCall()" (keyup)="timeBackCall()">
+              </div>
+              <div class="p-col-12" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB3'">
+                <input class="inputDropdown" pInputText min="1" max="48" type="number" [(ngModel)]="timeBack"
+                  (mouseup)="timeBackCall()" (keyup)="timeBackCall()">
+              </div>
+            </div>
+
+            <div class="p-grid p-col-3">
+              <div class="p-col-12 p-grid p-align-center">
+                <label class="">Start and End Date Time</label>
+              </div>
+              <!-- <div class="search-div-css">
+                <i class="icons8 icons8-calendar"></i>
+                <input pInputText class="customInput" readonly id="start-date-time"
+                  [owlDateTime]="customCompareStartDateTime" placeholder="MM/DD/YYYY HH:mm:ss"
+                  [owlDateTimeTrigger]="customCompareStartDateTime" (ngModelChange)="onTimeFilterCustomTimeChange()"
+                  [selectMode]="'range'" [max]="dateTimeFrameMax" [(ngModel)]="dateTimeFrame" [disabled]="preset" />
+                <owl-date-time [showSecondsTimer]=true #customCompareStartDateTime appendTo="body"></owl-date-time>
+              </div> -->
+              <div class="mr-10 search-div-css">
+                <input pInputText class="customInput" [owlDateTime]="customCompareStartDateTime" placeholder="MM/dd/yyyy HH:mm:ss"
+                  [selectMode]="'range'" [max]="dateTimeFrameMax" [(ngModel)]="dateTimeFrame" [disabled]="preset" />
+                <span [owlDateTimeTrigger]="customCompareStartDateTime"><i class="report-setting-icon" title="Click to open Calender."
+                    class="icon-right icons8 icons8-calendar"></i></span>
+                <owl-date-time [showSecondsTimer]=true #customCompareStartDateTime appendTo="body"></owl-date-time>
+              </div> 
+            </div>
+            <!-- <div class="p-grid p-col-2">
+              <div class="p-col-12 p-grid p-align-center">
+                <label class="">To</label>
+              </div>
+              <div class="search-div-css">
+                <i class="icons8 icons8-calendar"></i>
+                <input pInputText class="customInput" readonly id="end-date-time"
+                  [owlDateTime]="customCompareEndDateTime" placeholder="MM/DD/YYYY HH:mm:ss"
+                  [owlDateTimeTrigger]="customCompareEndDateTime" (ngModelChange)="onTimeFilterCustomTimeChange()"
+                  [selectMode]="'rangeTo'" [max]="dateTimeFrameMax" [(ngModel)]="dateTimeFrame" [disabled]="preset" />
+                <owl-date-time [showSecondsTimer]=true #customCompareEndDateTime></owl-date-time> -->
+                <!-- <p-message *ngIf="invalidDate" severity="error" text="End date and Start date should not be the same.">
+                </p-message> -->
+              <!-- </div>
+            </div> -->
+            <div class="p-grid p-col-2" *ngIf="!checkTrendCompare">
+              <div class="p-col-12 p-grid p-align-center">
+                <span class="">View By</span>
+              </div>
+              <div class="p-col-12">
+                <button pButton class="px-0 width-100"
+                  (click)="viewByMenu.toggle($event)">
+                  <span class="text-left p-col-10 left">
+                    {{(tmpValue.viewBy.selected && tmpValue.viewBy.selected.label) || 'Select view by'}}
+                  </span>
+                  <i class="p-col-2 p-1 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+                </button>
+                <span class="changeCompareViewByStyle">
+                <p-slideMenu appendTo="body" [menuWidth]="100" [style]="{'min-width':'100px'}" #viewByMenu [model]="tmpValue.viewBy.options" id="view-by" [popup]="true">
+                </p-slideMenu>
+                </span>
+              </div>
+            </div>
+            <div class="p-col-2 btn-group">
+              <button type="button" pButton class="ui-button-secondary ui-button-rounded" label="UPDATE"
+                (click)="updateCompareMeasurement()"></button>
+              <button type="button" pButton class="ui-button ui-button-rounded" label="ADD"
+                (click)="addCompareMeasurement()"></button>
+            </div>
+            <div class="p-grid p-col-12 p-justify-end p-align-center">
+              <div class="p-grid p-align-center">
+                <!-- <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                  (click)="downloadMenu.toggle($event)" pTooltip="Download"></button> -->
+                <!-- <p-menu #downloadMenu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                  [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu> -->
+                <p-multiSelect class="icon-button" styleClass="dropdown-panel-left" [options]="cols" [(ngModel)]="selectedColumns"
+                  optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                  pTooltip="Toggle Columns" tooltipPosition="top" [panelStyle]="{ minWidth: '150px' }">
+                </p-multiSelect>
+
+                <button *ngIf="data.tableFilter" class="btn-icon mx-6" pTooltip="Toggle Filter" tooltipPosition="top"
+                  (click)="isShowColumnFilter = !isShowColumnFilter">
+                <i class="icons8 icons8-search-property"></i>
+                </button>
+
+                <button  class="btn-icon" pTooltip="Delete" tooltipPosition="top"
+                  (click)="deleteCompareMeasurement()">
+                <i class="icons8 icons8-delete-trash"></i>
+                </button>
+              </div>
+
+              <ng-container>
+                <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+                  <div class="p-col p-col-align-center text-center">
+                    <div>
+                      <i class="pi pi-spin pi-spinner"></i>
+                      <span>Loading</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="p-grid vertical-container" *ngIf="error">
+                  <div class="p-col p-col-align-center text-center">
+                    <p-message severity="error" text="{{ error.msg }}"></p-message>
+                  </div>
+                </div>
+                <div class="p-grid vertical-container" *ngIf="empty">
+                  <div class="p-col p-col-align-center text-center">
+                    <p-message severity="normal" text="No Data"></p-message>
+                  </div>
+                </div>
+                <div #widgetHeight *ngIf="data">
+                  <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                    Select column to show
+                  </div>
+                  <div class="advanced-session-table">
+                      <p-table class="all-tables" #measurementTable [columns]="selectedColumns" [value]="data.data" [paginator]="true"
+                        [rows]="data.paginator.rows" [totalRecords]="data.data.length" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                        [resizableColumns]="true" [showCurrentPageReport]="true" (onRowSelect)="onRowSelect($event)" (onRowUnselect)="onRowUnselect($event)"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                        [responsive]="true" [scrollable]="true" scrollHeight="300px" selectionMode="multiple"
+                        [(selection)]='selectedRow'>
+                        <ng-template pTemplate="colgroup" let-columns>
+                          <colgroup>
+                            <col *ngFor="let col of columns" [style.width]="col.width" />
+                          </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                          <tr>
+                            <!-- <th class="columnwidth" pResizableColumn></th> -->
+                            <th class="columnwidth" pResizableColumn>
+                              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+                            <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+                              pResizableColumn [pSortableColumn]="col.valueField" class="text-left">
+                              <div class="left">
+                                {{ col.label }}
+                              </div>
+                              <div *ngIf="col.isSort" class="float-right">
+                                <p-sortIcon *ngIf="col.isSort" field="col.isSort" class="text-right"
+                                  ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                  ariaLabelAsc="Activate to sort in ascending order">
+                                </p-sortIcon>
+                              </div>
+                            </th>
+                          </tr>
+                          <tr *ngFor="let headerRow of data.headers">
+                            <ng-container *ngIf="isShowColumnFilter">
+                              <th class="columnwidth"></th>
+                              <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                <div *ngIf="
+                                      col.filter.isFilter === true &&
+                                      col.filter.type === 'custom'
+                                    ">
+                                  <input class="w-100-p"
+                                    pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                    tooltipPosition="top"
+                                    *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                        measurementTable.filter(
+                                          $event.target.value,
+                                          col.value,
+                                          'custom'
+                                        )
+                                      " />
+                                </div>
+                                <div *ngIf="
+                                      col.filter.isFilter === true &&
+                                      col.filter.type === 'contains'
+                                    ">
+                                  <input class="w-100-p" pTooltip="Will filter metric names which contains given text." tooltipPosition="top"
+                                    *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                        measurementTable.filter(
+                                          $event.target.value,
+                                          col.valueField,
+                                          'contains'
+                                        )
+                                      " />
+                                </div>
+                              </th>
+                            </ng-container>
+                          </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                          <tr [ngStyle]="{ backgroundColor: row.rowBgColor }">
+                            <td class="columnwidth">
+                              <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                            </td>
+                            <td *ngFor="let col of columns" class="{{ col.classes }}"
+                              pTooltip="{{ row[col.valueField] }}" tooltipPosition="top">
+                              <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon" class="column-icon"></i>
+                              {{ row[col.valueField] }}
+                            </td>
+                          </tr>
+                        </ng-template>
+
+                        <!-----------Empty table error handling--------------------->
+                        <!-- <ng-template pTemplate="emptymessage" let-columns>
+                          <tr>
+                            <td [attr.colspan]="columns.length + 1" class="text-center">
+                              <span *ngIf="error">Error while loading data</span>
+                              <span *ngIf="emptyTable">Empty Table</span>
+                              <span *ngIf="loading">Loading</span>
+                            </td>
+                          </tr>
+                        </ng-template> -->
+                        <ng-template pTemplate="emptymessage">
+                          <tr>
+                              <td class="text-center" colspan="8">No Records found.</td>
+                          </tr>
+                      </ng-template>
+                      </p-table>
+                      <div class="p-col-10">Note: Measurement which is selected will include in Report</div>
+                    </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </p-accordionTab>
+      </p-accordion>
+      <!-- <div *ngIf="selectedMetricOption == 1" class="dashboard-report-save-template-button-div">
+        <button pButton type="button" label="Save as Template" iconPos="left" (click)="saveTemplateForReport(true)"></button>
+      </div> -->
+    </div>
+  </div>
+</div>

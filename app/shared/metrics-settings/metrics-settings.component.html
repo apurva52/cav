@@ -1,0 +1,189 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="999" [resizable]="true" [modal]="true"
+    class="secondary-dialog" [draggable]="false" [style]="{width: '1240px'}">
+    <p-header>
+        <div class="compare-data-title">
+            <div>
+                Advance Open/Merge
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-help"></i>
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+    <div class="vertical_container">
+
+        <div class="breadcrumbs">
+            <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+        </div>
+
+        <div class="p-grid p-nogutter mt-6">
+            <div class="p-col-5 p-grid p-align-center pl-5">
+                <label class="width-130">Operations Type</label>
+                <div class="ml-5">
+                    <p-dropdown [(ngModel)]="metricType" [options]="metricTypes" [style]="{'min-width':'270px'}"
+                        (click)="openOperations(metricType)" dropdownIcon="icons8-expand-arrow" [baseZIndex]="9991" appendTo="body">
+                    </p-dropdown>
+                </div>
+
+            </div>
+            <div class="p-col-7 p-grid p-align-center">
+                <h4 class="font-weight-600 my-0 ml-3">Visualized as grouped by Tier</h4>
+            </div>
+        </div>
+        <div class="p-grid accord-overflow mb-10">
+            <div class="p-col-5">
+                <p-panel styleClass="border0">
+                    <p-header>
+                        <div class="opration-panel">
+                            <div>Operations</div>
+                            <div>
+                                <button pButton type="reset" label="Reset"
+                                    class="ui-button-rounded ui-button-secondary mx-6" (click)="reset()"></button>
+                                <button pButton type="button" label="Preview" (click)="clickPreview()"
+                                    class="ui-button-rounded ui-button-secondary"></button>
+                            </div>
+                        </div>
+                    </p-header>
+
+                    <div *ngFor="let data of MetaDataInfo; let i = index;">
+                        <div class="p-grid p-align-center">
+                            <div class="width-130">{{data.metaData}}</div>
+                            <div class="m-4 width-110">
+                                <p-dropdown [options]="data.vector" [(ngModel)]="treeVectorSelectArr[i]" 
+                                    (onChange)="basicInfoForSelectVector($event,i)" dropdownIcon="icons8-expand-arrow"
+                                    [style]="{'min-width':'100%'}" [baseZIndex]="9992" appendTo="body">
+                                </p-dropdown>
+                            </div>
+
+                            <div class="m-4 width-110"
+                                *ngIf="(treeVectorSelectArr[i] != 'All' && treeVectorSelectArr[i] == 'Same')">
+                                <input type="text" title={{treeSameVectComponent[i]}}
+                                    [(ngModel)]="treeSameVectComponent[i]" pInputText class="w-100-p" readonly />
+                            </div>
+                            <div class="width-110 m-4"
+                                *ngIf="(treeVectorSelectArr[i] != 'All' && treeVectorSelectArr[i] == 'Pattern')">
+                                <input type="text" title={{treeSameVectComponent[i]}}
+                                    [(ngModel)]="treeSameVectComponent[i]" pInputText class="w-100-p" required />
+                            </div>
+
+                            <div class="ml-4" [hidden]="treeVectorSelectArr[i] == 'Same'">
+                                <p-checkbox class="checkLabel font-11" name="groupname" value="val1"
+                                    [(ngModel)]="showTogetherSwitch[i]" [binary]="true" inputId="binary"
+                                    (click)="enableDisableNewLayout()" label="{{data.check}}">
+                                </p-checkbox>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-align-center"
+                        *ngIf="enableGraphLevel && metricType != 'compare'">
+                        <div class="width-130">Graph</div>
+                        <div class="m-4">
+                            <p-checkbox class="line36" name="groupname" value="val2" [(ngModel)]="showGraphTogether"
+                                [binary]="true" inputId="binary" (click)="enableDisableNewLayoutSwitch()"
+                                label="Show Together">
+                            </p-checkbox>
+                        </div>
+                    </div>
+                </p-panel>
+            </div>
+
+            <div class="p-col-7 p-grid">
+                <div class="chartsDisplay">
+                    <ng-container *ngIf="chartFlag">
+
+                        <div class="previewChart" *ngIf="chartData">
+                            <div class="p-grid">
+                                <div class="col-grid4" *ngFor="let data of chartData;let i = index">
+                                    <app-chart [data]="data" class="w-100-p chart-title"></app-chart>
+                                </div>
+                            </div>
+                            <div class="loader-container spinner" *ngIf="loading">
+                                <p-progressSpinner [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+                            </div>
+                            <div class="" *ngIf="empty">
+                                No data avaliable
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+                <!--  
+        <div class="chartsBlank" *ngIf="noData">
+            <div class="chartPreviewBlank"> <img src="assets/images/no-preview.jpg" style="max-width:100%"></div>
+        
+        </div> -->
+
+            </div>
+        </div>
+    </div>
+
+    <div class="">
+        <p-accordion styleClass="advance-accordian">
+            <p-accordionTab header="Advanced Settings">
+                <div class="p-grid p-align-center mb-10">
+                    <div class="mr-5">Show</div>
+                    <p-dropdown class="mx-5" [options]="filterby" [(ngModel)]="By" appendTo="body" [baseZIndex]="1000"
+                        dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'80px'}"></p-dropdown>
+
+                    <div class="mx-5"> metric data with</div>
+                    <p-dropdown class="mx-5" [options]="advancevalue" [(ngModel)]="advanceSelect" appendTo="body"
+                        [baseZIndex]="1000" dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'130px'}">
+                    </p-dropdown>
+
+                    <div class="p-grid p-align-center" *ngIf="advanceSelect === 'advanced_Op'">
+                        <p-dropdown class="mx-5" [options]="criteria" [(ngModel)]="selectedcriteria" appendTo="body"
+                            [baseZIndex]="1000" dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'100px'}">
+                        </p-dropdown>
+                        <p-dropdown class="mx-5" [options]="values" [(ngModel)]="valueType" appendTo="body"
+                            [baseZIndex]="1000" dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'100px'}">
+                        </p-dropdown>
+                        <div class="mx-5">value</div>
+
+                        <p-dropdown class="mx-5" dropdownIcon="icons8-expand-arrow" [options]="operaters"
+                            appendTo="body" [baseZIndex]="1000" [(ngModel)]="Value" [virtualScroll]="true"
+                            [itemSize]="31" [filter]="false" [style]="{'min-width':'110px'}"></p-dropdown>
+
+                        <input pInputText class="mx-5" [(ngModel)]="Value1" appOnlyNumber="true" type="text"
+                            class="width-60" />
+                        <div class="p-grid p-align-center" *ngIf="Value==='In-Between'">
+                            <span class="mx-5">And</span>
+                            <input pInputText appOnlyNumber="true" [(ngModel)]="Value2" type="text" class="mx-5"
+                                class="width-60">
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="p-grid my-grid p-align-center">
+                    <div class="mr-5">
+                        <p-checkbox name="groupname" [binary]="true" [(ngModel)]="openWithNewLayout"
+                            label="Open with New Layout(s)" [disabled]=disableopenWithNewLayout inputId="binary">
+                        </p-checkbox>
+                    </div>
+                    <div class="mx-5">
+                        <p-dropdown [(ngModel)]="layoutType" [options]="openWith" appendTo="body" [baseZIndex]="1000"
+                            dropdownIcon="icons8-expand-arrow" [virtualScroll]="true" [filter]="false"
+                            [style]="{'min-width':'100px'}">
+                        </p-dropdown>
+                    </div>
+                </div>
+            </p-accordionTab>
+        </p-accordion>
+    </div>
+
+    <p-footer>
+        <div class="p-col-12 p-grid p-align-center p-justify-end">
+            <span>
+                <button pButton type="button" label="Close" class="ui-outline-button ui-button-secondary"
+                    (click)="closeDialog()"></button>
+                <button pButton type="submit" label="Apply" class="ui-button-rounded" (click)="apply()"></button>
+            </span>
+
+        </div>
+
+    </p-footer>
+</p-dialog>
+
+<!-- <app-helprelatedmetrics #helpMetrics></app-helprelatedmetrics> -->

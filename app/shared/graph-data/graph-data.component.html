@@ -1,0 +1,165 @@
+<p-dialog #dialog header="Metric Data" [(visible)]="isVisible" class="secondary-dialog"
+    [resizable]="false" [draggable]="false" closeIcon="icons8-delete" [modal]="true" [closable]="true"
+    [baseZIndex]="10000" [style]="{width: '90%'}">
+
+    <div class="p-grid loader-container vertical-container" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div>
+                <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+            </div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{error.msg}}"></p-message>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+
+    <div #widgetHeight *ngIf="data && !loading" style="height: calc(65vh);">
+        <!-- <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+            Select column to show
+        </div> -->
+        <div class="p-grid">
+            <div class="details-table ui-corner-all my-10 pb-15">
+                <div class="p-col-12 no-padding">
+                    <div class="captions-label p-grid p-align-center p-justify-between py-5 px-10">
+                        <h4 class="my-1" *ngIf = "!isCompare">Time Period : {{timePeriod}} (From - {{startTime}} To- {{endTime}})</h4>
+                        <h4 class="my-1" *ngIf = "isCompare">GraphName : {{compareGraphName}}</h4>
+
+                        <div class="my-1">
+                            <span class="mr-5" *ngIf="inertval" >Session Number - {{testRun}} | Sample Interval - {{viewBy}} (secs) | Average Count - {{avgCount}}</span>
+
+                            <button pButton icon="icons8 icons8-time-machine" class="icon-button no-shadow m-1"
+                            pTooltip="Sample Interval Time" [tooltipZIndex]="100000" (click)="clickInterval()"></button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="px-10">
+                        <div class="p-grid table-icons p-align-center p-nogutter mb-3">
+                            <!-- <div class="p-col-3">
+                                <div class="ui-inputgroup w-100-p">
+                                    <span class="ui-inputgroup-addon">
+                                        <i class="icons8 icons8-search"></i>
+                                    </span>
+                                    <input
+                                    pInputText #searchInput
+                                    type="text"
+                                    class="input-field-search"
+                                    (input)="graphdata.filterGlobal($event.target.value, 'contains')"
+                                    placeholder="Search"
+                                    />
+                                </div>
+                            </div> -->
+                            <div class="p-col-3 relative">
+                                <div class="icons-group">
+                                    <p-multiSelect class="mtn-5"  styleClass="left-200" [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label"
+                                        [displaySelectedLabel]="false" dropdownIcon='icons8 icons8-columns' [tooltipZIndex]="100000"
+                                        pTooltip="Toggle Columns">
+                                    </p-multiSelect>
+
+                                    <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow mr-12" pTooltip="Filter"
+                                        [tooltipZIndex]="100000" (click)="data.tableFilter = !data.tableFilter"></button>
+                                    <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow" (click)="menu.toggle($event);" pTooltip="Download" [tooltipZIndex]="100000"></button>
+
+                                    <p-menu #menu [popup]="true"  [model]="items" styleClass="menuPosition"></p-menu>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+    <p-table #graphdata [columns]="selectedColumns" [value]="data.data" [rowHover]="true" [paginator]="true" paginatorPosition="top"
+     [rows]="data.paginator.rows" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [(first)]="data.paginator.first"
+      [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [responsive]="true" [scrollable]="true" selectionMode="single" [(selection)]="selectedRow"
+        scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 180px)" [style]="{width:'87vw'}"
+        [globalFilterFields]="globalFilterFields" class="all-tables">
+
+        <ng-template pTemplate="colgroup" let-columns>
+         <colgroup>
+           <col *ngFor="let col of columns" [style.width]="col.width">
+         </colgroup>
+        </ng-template>
+
+        <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" style="overflow-x : hidden; text-overflow: 'ellipsis'" [attr.coldiv]="col.coldiv"  [tooltipZIndex]="tooltipzindex" pTooltip="{{col.label}}"
+            [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.isSort && col.valueField" [style]="{'white-space': 'nowrap','overflow': 'hidden','text-overflow': 'ellipsis'}">
+
+         <span>{{ col.label }}</span>
+
+
+             <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" ariaLabel="Activate to sort"
+             ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+            </p-sortIcon>
+
+
+         </th>
+        </tr>
+<tr *ngFor="let headerRow of data.headers">
+
+    <ng-container *ngIf="data.tableFilter">
+
+     <th *ngFor="let col of columns" [ngSwitch]="col.label">
+
+      <div *ngIf = "col.filter.isFilter === true && col.filter.type === 'custom'">
+
+       <input class="w-100-p" [tooltipZIndex]="tooltipzindex" tooltipPosition="top" pTooltip="Use operators(>,<,>=,<=,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+        *ngSwitchCase="col.label" pInputText type="text" (input)="graphdata.filter($event.target.value,col.valueField,'custom')" />
+
+      </div>
+
+    <div *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+
+     <input class="w-100-p"[tooltipZIndex]="tooltipzindex" tooltipPosition="top"  pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label"
+      pInputText type="text" (input)="graphdata.filter($event.target.value,col.valueField,'contains')"/>
+
+    </div>
+
+    </th>
+
+    </ng-container>
+
+    </tr>
+  </ng-template>
+
+    <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+
+      <tr [ngStyle]="{'backgroundColor': row.rowBgColor}" [pSelectableRow]="row">
+        <td *ngFor="let col of columns" class="{{ col.classes }}"> {{ row[col.valueField] }} </td>
+     </tr>
+    </ng-template>
+
+      <!-----------Empty table error handling--------------------->
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+            <td [attr.colspan]="columns.length + 1" class="text-center">
+                <span class="noRecords text-center">No data found.</span>
+                <span *ngIf="error">Error while loading data</span>
+                <span *ngIf="emptyTable">Empty Table</span>
+                <span *ngIf="loading">Loading</span>
+            </td>
+        </tr>
+    </ng-template>
+
+    </p-table>
+    </div>
+
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <p-footer>
+  <button type="button" pButton icon="icons8 icons8-delete" (click)="isVisible=false" label="Close"
+    class="ui-outline-button ui-button-secondary"></button>
+</p-footer>
+
+</p-dialog>

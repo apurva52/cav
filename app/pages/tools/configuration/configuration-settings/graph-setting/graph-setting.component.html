@@ -1,0 +1,145 @@
+<div class="graph-setting-container">
+    <div class="p-grid p-col-12">
+        <p-card>
+            <p-fieldset legend="Gradient Color Settings">
+                <div class="p-grid p-col-12 p-align-center">
+                    <div class="p-col-3">
+                        <p-checkbox name="groupname" label="Area Chart" [(ngModel)]="selectedValues">
+                        </p-checkbox>
+                    </div>
+                    <div class="p-col-3">
+                        <p-checkbox name="groupname" value="saveConfigFile" label="Pie Chart"
+                            [(ngModel)]="selectedValues"></p-checkbox>
+                    </div>
+                    <div class="p-col-3">
+                        <p-checkbox name="groupname" value="saveConfigFile" label="Donut Chart"
+                            [(ngModel)]="selectedValues"></p-checkbox>
+                    </div>
+                    <div class="p-col-3">
+                        <p-checkbox name="groupname" label="Bar Chart" [(ngModel)]="selectedValues">
+                        </p-checkbox>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12 p-align-center">
+                    <div class="p-col-3">
+                        <p-checkbox name="groupname" value="saveConfigFile" label="Stacked Area Chart"
+                            [(ngModel)]="selectedValues"></p-checkbox>
+                    </div>
+                    <div class="p-col-3">
+                        <p-checkbox name="groupname" label="Stacked Bar Chart" [(ngModel)]="selectedValues">
+                        </p-checkbox>
+                    </div>
+                </div>
+            </p-fieldset>
+            <p-fieldset legend="Y-Axis Settings">
+                <div class="p-grid p-col-12 p-align-center">
+                    <div class="p-col-4">
+                        Show Decimal Digits <input type="text" class="customInput" value="3" pInputText />
+                    </div>
+                    <div class="p-col-4">
+                        <p-checkbox name="groupname" value="saveConfigFile" class="mh-6" label="Show Crosshair"
+                            [(ngModel)]="selectedValues"></p-checkbox>
+                    </div>
+                    <div class="p-col-4">
+                        <p-checkbox name="groupname" label="Enable GridLine" class="mh-6" [(ngModel)]="selectedValues">
+                        </p-checkbox>
+                    </div>
+                </div>
+            </p-fieldset>
+            <p-fieldset legend="Advanced Settings">
+                <div class="p-grid p-col-12 p-0 p-align-center">
+                    <div class="p-col-4 p-0">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-6">Shared Tooltip Threshold</div>
+                            <div class="p-col-6"><input type="text" class="customInput" value="10" pInputText /></div>
+                        </div>
+                    </div>
+                    <div class="p-col-4 p-0">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-6">Series Boost Threshold</div>
+                            <div class="p-col-6"><input type="text" class="customInput" value="200" pInputText /></div>
+                        </div>
+                    </div>
+                    <div class="p-col-4 p-0">
+                        <div class="p-grid p-align-center">
+                            <div class="p-col-12 p-md-3">Graph Scaling</div>
+                            <div class="p-col-12 p-md-3">
+                                <p-dropdown [options]="options" class="customDropdown" [(ngModel)]="selectedOptions"
+                                    dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12 p-0 p-align-center">
+                    <div class="p-col-4">
+                        <p-checkbox name="groupname" value="saveConfigFile" class="mh-6" label="Lower Panel Pagination"
+                            [(ngModel)]="selectedValues"></p-checkbox>
+                    </div>
+                    <div class="p-col-4 p-0">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-6">Lower Panel Pagination Threshold</div>
+                            <div class="p-col-6"><input type="text" class="customInput" value="25" pInputText /></div>
+                        </div>
+                    </div>
+                    <div class="p-col-4 p-0">
+                        <div class="p-grid p-align-center">
+                            <div class="p-col-12 p-md-3">Scaling Threshold</div>
+                            <div class="p-col-12 p-md-3">
+                                <p-slider [(ngModel)]="val" class="slider"></p-slider>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12 p-0 p-align-center">
+                    <div class="p-col-4 p-0">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-6">Inter-widget Update Delay Time (ms)</div>
+                            <div class="p-col-6"><input type="text" class="customInput" value="100" pInputText /></div>
+                        </div>
+                    </div>
+                    <div class="p-col-4 p-0">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-6">Maximum limit for time delay</div>
+                            <div class="p-col-6"><input type="text" class="customInput" value="1440" pInputText /></div>
+                        </div>
+                    </div>
+                    <div class="p-col-4">
+                        <p-checkbox name="groupname" label="Enable Monochromatic Color" [(ngModel)]="selectedValues">
+                        </p-checkbox>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12 p-0 p-align-center">
+                    <div class="p-col-4 p-0">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-6">Maximum limit for Multiple Dials/Meter</div>
+                            <div class="p-col-6"><input type="text" class="customInput" value="10" pInputText /></div>
+                        </div>
+                    </div>
+                    <div class="p-col-4 p-0">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-6">Area-Range Graph Threshold</div>
+                            <div class="p-col-6"><input type="text" class="customInput" value="-1" pInputText /></div>
+                        </div>
+                    </div>
+                    <div class="p-col-4">
+                        <p-checkbox name="groupname" label="Enable Global Background Color"
+                            [(ngModel)]="selectedValues"></p-checkbox>
+                    </div>
+                </div>
+            </p-fieldset>
+            <p-footer>
+                <div class="p-grid p-align-center p-justify-end pv-30">
+                    <div class="">
+                        <p-checkbox name="groupname" class="mh-10" label="Save In Config file"
+                            [(ngModel)]="selectedValues"></p-checkbox>
+                    </div>
+                    <div class="">
+                        <button pButton type="button" class="ui-button-secondary ui-button-rounded mh-10"
+                            label="Cancel"></button>
+                        <button pButton type="button" class="ui-button ui-button-rounded mh-10" label="Apply"></button>
+                    </div>
+                </div>
+            </p-footer>
+        </p-card>
+    </div>
+</div>

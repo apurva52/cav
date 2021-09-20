@@ -1,0 +1,157 @@
+<form *ngIf="debug" (ngSubmit)="saveKeywordData()" #form="ngForm" ngNativeValidate>
+  <div class="tabsincontent">
+    <div class="header p-grid p-justify-between p-align-center">Settings
+      <div class="pull-right my-6">
+<i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+  <button type="button" pButton class="ui-button-sucess mr-6" icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="saveDisable" label="Reset to Default"></button>
+  <button type="button" pButton class="ui-button-sucess mr-6" icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordsDataToDefault()" label="Reset to Default"></button>
+  <button type="button" pButton class="ui-button-sucess mr-6" icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordData()" label="Undo All"></button>
+	<button type="button" pButton class="ui-button-sucess mr-6" icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="resetKeywordData()" label="Undo All"></button>
+	<button type="submit" pButton class="ui-button-sucess mr-6" icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+	<button type="submit" pButton class="ui-button-sucess mr-6" icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" label="Save"></button>
+      </div>
+    </div>
+    <p-panel class="hideheader">
+
+      <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader" *ngIf="agentType == 'Java' || agentType == '-'">
+
+        <div class="ui-g">
+
+          <div class="ui-g-12">
+            <!-- <div class="ui-g-1"></div> -->
+            <div class="ui-g-2">
+              <label>Debug Log Level </label>
+            </div>
+
+            <div class="ui-g-3">
+              <input type="number" size='20' [style]="{'width':'20%'}" name="enableBciDebug" [(ngModel)]="debug['enableBciDebug'].value" min="{{debug['enableBciDebug'].min}}"
+                max="{{debug['enableBciDebug'].max}}" class="configui-debug-css-2" required ngModel>
+            </div>
+          </div>
+
+          <div class="ui-g-12">
+            <!-- <div class="ui-g-1"></div> -->
+            <div class="ui-g-2">
+              <label>Error Log Level</label>
+            </div>
+            <div class="ui-g-3">
+              <input type="number" [style]="{'width':'20%'}" name="enableBciError" [(ngModel)]="debug['enableBciError'].value" min="{{debug['enableBciError'].min}}" max="{{debug['enableBciError'].max}}"
+                class="configui-debug-css-2" required ngModel>
+              
+            </div>
+          </div>
+          <div class="ui-g-12">
+            <!-- <div class="ui-g-1"></div> -->
+
+            <div class="ui-g-2">
+              <label>Instrumentation Log level</label>
+            </div>
+
+            <div class="ui-g-3">
+              <input type="number" [style]="{'width':'20%'}" name="InstrTraceLevel" [(ngModel)]="debug['InstrTraceLevel'].value" min="{{debug['InstrTraceLevel'].min}}" max="{{debug['InstrTraceLevel'].max}}"
+                class="configui-debug-css-2" required ngModel>
+            </div>
+          </div>
+          
+          <div class="ui-g-12">
+            <!-- <div class="ui-g-1"></div> -->
+            <div class="ui-g-2">
+              <label>Method Monitor Log Level</label>
+            </div>
+            <div class="ui-g-3">
+              <input type="number" [style]="{'width':'20%'}" name="ndMethodMonTraceLevel" [(ngModel)]="debug['ndMethodMonTraceLevel'].value" min="{{debug['ndMethodMonTraceLevel'].min}}"
+                max="{{debug['ndMethodMonTraceLevel'].max}}" class="configui-debug-css-2 w-10-p" required ngModel>
+            </div>
+          </div>
+          <div class="ui-g-12">
+              <!-- <div class="ui-g-1"></div> -->
+              <div class="ui-g-2">
+                <label>Java GC Trace Level</label>
+              </div>
+              <div class="ui-g-3">
+                <input type="number" [style]="{'width':'20%'}" name="ndMBeanMonTraceLevel" [(ngModel)]="debug['ndMBeanMonTraceLevel'].value" min="{{debug['ndMBeanMonTraceLevel'].min}}"
+                  max="{{debug['ndMBeanMonTraceLevel'].max}}" class="configui-debug-css-2" required ngModel>
+              </div>
+            </div>
+        </div>
+
+        <div class="ui-g-12">
+          <!-- <div class="ui-g-1"></div> -->
+          <div class="ui-g-2">
+            <label class="configui-debug-css-2">Capture Error Logs</label>
+          </div>
+          <div class="ui-g-1">
+            <p-radioButton name="captureErrorlogs" value="0" label="Disable" [(ngModel)]="debug['captureErrorLogs'].value"></p-radioButton>
+          </div>
+          <div class="ui-g-2" style="padding-left:18px">
+            <p-radioButton name="captureErrorlogs" value="1" label="From Throwable object" [(ngModel)]="debug['captureErrorLogs'].value"></p-radioButton>
+          </div>
+          <!-- <div class="ui-g-2">
+            <label>From Throwable object</label>
+          </div> -->
+
+          <div class="ui-g-3">
+            <p-radioButton name="captureErrorlogs" value="2" label="From Throwable Object and Error Logs" [(ngModel)]="debug['captureErrorLogs'].value"></p-radioButton>
+          </div>
+          <!-- <div class="ui-g-2">
+            <label>From Throwable Object and Error Logs</label>
+          </div> -->
+        </div>
+
+      </div>
+      <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader" *ngIf="agentType == 'NodeJS'">
+
+        <div class="ui-g">
+
+          <div class="ui-g-12">
+            <!-- <div class="ui-g-1"></div> -->
+            <div class="ui-g-2">
+              <label>Debug Log Level</label>
+            </div>
+
+            <div class="ui-g-3">
+              <input type="number" size='20' name="enableBciDebug" [(ngModel)]="debug['enableBciDebug'].value" min="{{debug['enableBciDebug'].value}}"
+                max="{{debug['enableBciDebug'].max}}" class="configui-debug-css-2" required ngModel>
+            </div>
+          </div>
+          <div class="ui-g-12">
+            <!-- <div class="ui-g-1"></div> -->
+            <div class="ui-g-2">
+              <label>Method Monitor Log Level</label>
+            </div>
+            <div class="ui-g-3">
+              <input type="number" name="ndMethodMonTraceLevel" [(ngModel)]="debug['ndMethodMonTraceLevel'].value" min="{{debug['ndMethodMonTraceLevel'].min}}"
+                max="{{debug['ndMethodMonTraceLevel'].max}}" class="configui-debug-css-2" required ngModel>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader" *ngIf="agentType == 'Dot Net'">
+                <div class="ui-g">
+                  <div class="ui-g-12">
+                    <!-- <div class="ui-g-1"></div> -->
+        
+                    <div class="ui-g-2">
+                      <label>Instrumentation Log level</label>
+                    </div>
+                    <div class="ui-g-3">
+                      <input type="number" name="InstrTraceLevel" [(ngModel)]="debug['InstrTraceLevel'].value" min="{{debug['InstrTraceLevel'].min}}" max="{{debug['InstrTraceLevel'].max}}"
+                        class="configui-debug-css-2" required ngModel>
+                    </div>
+                  </div>
+                  <div class="ui-g-12">
+                    <!-- <div class="ui-g-1"></div> -->
+                    <div class="ui-g-2">
+                      <label>Method Monitor Log Level</label>
+                    </div>
+                    <div class="ui-g-3">
+                      <input type="number" name="ndMethodMonTraceLevel" [(ngModel)]="debug['ndMethodMonTraceLevel'].value" min="{{debug['ndMethodMonTraceLevel'].min}}"
+                        max="{{debug['ndMethodMonTraceLevel'].max}}" class="configui-debug-css-2" required ngModel>
+                    </div>
+                  </div>
+                </div>
+              </div>
+    </p-panel>
+  </div>
+</form>

@@ -1,0 +1,130 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+
+<div class="ddr-box">
+    <!-- COMMON TOOLBAR -->
+    <div class="ddr-toolbar">
+        <p-toolbar>
+            <!--<div class="reportInfo">
+                <label class="headerInfo"><b>{{reportHeader}}</b></label>
+            </div>-->
+
+            <div class="group-left">
+                <!--<label class="headerInfo"><b>Filter criteria : </b></label>-->
+                <span title="{{completeTier}}">{{filterTierName}}</span>
+                <span title="{{completeServer}}">{{filterServerName}}</span>
+                <span title="{{completeInstance}}">{{filterInstanceName}}</span>
+                <span title="{{CompleteURL}}">{{URLstr}}</span>
+                <span title="{{completeGroupBy}}">{{filterGroupByStr}}</span>
+                <span title="{{completeOrderBy}}">{{filterOrderByStr}}</span> 
+                <label class="headerInfo">{{headerInfo}}</label>
+
+            </div>
+
+            <div class="group-right">
+            <span *ngIf="showDownLoadReportIcon" title="Download PDF Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")' src='./images/iconPDF.gif'></span>
+            <span *ngIf="showDownLoadReportIcon" title="Download Word Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")' src='./images/iconWord.gif'></span>
+            <span *ngIf="showDownLoadReportIcon" title="Download Excel Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")' src='./images/iconExcel.gif'></span>
+            </div>
+
+        </p-toolbar>
+    </div>
+    <!-- COMMON BOX SCROLLLBAR -->
+    <div class="ddruiscroll" [ngStyle]="{'height': screenHeight+'px'}" style="overflow:auto;">
+            <p-accordion class="ddr-accordion">
+	    <!-- <p-growl life=5000 [(value)]="msgs"></p-growl> -->
+        <p-toast></p-toast>
+                    <p-accordionTab [selected]='false' header="Flowpath Stats"> 
+                        <div class = 'ui-g' style="overflow:auto">
+                                <div *ngIf="showBarChart == true" class="ddr-graphpanel" >
+                                    <!-- <chart [options]="chartOptions" (click)= "clickHandler($event)"></chart> -->
+                                    <highcharts-chart [Highcharts] = "highcharts" (click)= "clickHandler($event)" [options]="chartOptions"></highcharts-chart>
+                                </div>
+                            <div *ngIf="showBarChart == false" style="text-align:center;">No Bar Chart found based on current Filter Settings.</div>       
+                        </div>
+                    </p-accordionTab>
+                </p-accordion>
+        <p-dialog class="ddr-dialog" [(visible)]="loader" width="500" height="75" [closable]="false" [resizable]="false" modal="modal" [responsive]="true">
+            <div *ngIf="loader">
+                <p-progressBar [value]="value"></p-progressBar>
+            </div>
+        </p-dialog>
+
+            <p-accordion class="ddr-accordion dynamic-column-width-acc">
+                    <p-accordionTab [selected]= 'true' header="Flowpath Summary">
+            <p-toolbar>
+                <div class="ui-toolbar-group-right" style="text-align: right">
+                        <button pButton type="button" title={{toggleFilterTitle}} icon="fa fa-bars" (click)="toggleColumnFilter()"></button> 
+                    <p-multiSelect title="Show/Hide columns" [options]="columnOptions" class="dashboard-lowerPanel-multiSelect ddr-multiselect-down" (onChange)="showHideColumn($event)"
+                        [(ngModel)]="visibleCols"></p-multiSelect>
+                    <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o fa"></button>
+                    <img src="./images/showall.png" *ngIf="showAllOption" height="21px" width="21px" title="Show all data" style="float:right;cursor:pointer;"
+                        (click)="showAllData()">
+                        <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+                        <input #gbFlowpath type="text" pInputText size="15" placeholder="Search">               
+                </div>
+
+            </p-toolbar>                
+            <div style="overflow:unset">
+
+                <p-table class="scen-table"  [value]="flowpathData" scrollHeight="340px" [style]="{'height':'auto','font-size':'12px'}" resizableColumns="true" reorderableColumns="true">
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th *ngFor="let col of cols">
+                                <span *ngIf = "col.action">{{col.header}}</span>
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-node let-columns="columns">
+                        <tr>
+                            <td *ngFor="let col of cols">
+                                <span class = 'ddr-table-right' title="View Flowpath Report" (click)="openFlowPathCount(node)">
+                                    {{formatter(node[col.field])}} </span>
+                                <span *ngIf="node[col.field] == 'fpCount'">
+                                    <span pTooltip="Flowpath Count"  tooltipPosition="bottom" tooltipEvent="hover">Flowpath Count</span>
+                                </span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+
+                <!-- <p-dataTable class="scen-table"  [value]="flowpathData" [globalFilter]="gbFlowpath" scrollHeight="340px" [style]="{'height':'auto','font-size':'12px'}" resizableColumns="true" reorderableColumns="true">
+                  <div *ngFor="let col of cols" >
+                        <p-column *ngIf = "col.action" [filter] = "col.filter" [field]="col.field" [header]="col.header"  [style]="{'width': dynamicWidthColumn +'px' ,'text-align': col.align}" (sortFunction)= "sortColumnsOnCustom($event, flowpathData)"  [sortable]="col.sortable">
+                    <ng-template let-col let-node="rowData"  *ngIf="col.field == 'fpCount'" pTemplate type="body"> 
+                        <span class = 'ddr-table-right' title="View Flowpath Report" (click)="openFlowPathCount(node)">
+                            {{formatter(node[col.field])}} </span>  </ng-template>
+                            <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'fpCount'">
+                                <span pTooltip="Flowpath Count"  tooltipPosition="bottom" tooltipEvent="hover">Flowpath Count</span>
+                             </ng-template>
+                           
+                        </p-column>
+                    </div>
+                </p-dataTable> -->
+                <div *ngIf="!showAllOption"> {{fpOffset+1}} - {{fpOffset+fpLimit}} of {{fpTotalCount}} </div>
+                <div *ngIf="showAllOption"> 1 - 1 of 1</div>
+		<div *ngIf="showPagination">            
+                <p-paginator rows="50" [totalRecords]="fpTotalCount" [rowsPerPageOptions]="[50,100,200,400]" pageLinkSize="3" (onPageChange)="paginate($event)"></p-paginator>
+		</div>
+            </div>
+        </p-accordionTab>
+    </p-accordion>
+    </div>
+    <!-- <div class="section" *ngIf="showDownLoadReportIcon">
+        <label style="font-size: 12px;padding-left: 6px;">Download Reports as: </label>
+        <span title="PDF Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")' src='./images/iconPDF.gif'></span>
+        <span title="Word Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")' src='./images/iconWord.gif'></span>
+        <span title="Excel Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")' src='./images/iconExcel.gif'></span>
+    </div> -->
+</div>
+  <p-dialog class="ddr-dialog"   appendTo="body" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true" height="120" width="600" > 
+  <p-header>
+      <i class="fa fa-info-circle" style="color:red"></i>
+      <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+  </p-header>  
+  <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+  <p-footer>
+  <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait" style="height: 25px;"></button>
+  <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" label="Cancel" style="height: 25px;"></button>
+  </p-footer>
+</p-dialog>

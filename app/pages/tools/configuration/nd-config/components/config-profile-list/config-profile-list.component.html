@@ -1,0 +1,192 @@
+<div class="ndegui-mainbox">
+    <div class="configUI">
+        <div class="p-grid p-align-center p-justify-between mb-3">
+            <span class="p-grid p-align-center font-14">
+            <i aria-hidden="true"></i> Profile List
+            </span>
+
+      <span class="p-grid p-align-center">
+        <button pButton icon="icons8 icons8-filter" title="{{isProfFilters ? 'Show Filters' : 'Hide Filters'}}" (click)="showHideColumnFilter()" class="ui-button-secondary mr-5"></button>
+      <button pButton type="button" class="ui-button-secondary mr-5" title="Export" [disabled]="isProfilePerm" (click)="exportProfile()" icon="icons8 icons8-upload" label="Export"></button>
+      <button pButton type="button" class="ui-button-secondary mr-5" title="Import" [disabled]="isProfilePerm" (click)="openFileManager()" icon="icons8 icons8-download" label="Import"></button>
+      <button pButton type="button" class="ui-button-secondary mr-5" title="Add Profile" [disabled]="isProfilePerm" (click)="openProfileDialog()" icon="icons8 icons8-plus-math"></button>
+      <button pButton type="button" class="ui-button-sucess" title="Delete Profile" [disabled]="isProfilePerm" (click)="deleteProfile()" icon="icons8 icons8-trash"></button>
+    </span>
+        </div>
+        <div class="config-ui-table-margin">
+            <p-table #tt [columns]="cols" [value]="profileData" [rows]="15" [(selection)]="selectedProfileData" [paginator]="profileData?.length > 15" [pageLinks]="3"
+                [scrollable]="true" scrollHeight="350px" class="all-tables">
+                <ng-template pTemplate="caption">
+                    <div style="text-align: right">        
+                        <i class="pi pi-search" style="margin:4px 4px 0 0"></i>
+                        <input type="text" pInputText size="50" placeholder="Search" (input)="tt.filterGlobal($event.target.value, 'contains')" style="width:auto">
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col style="width:5%">
+                    </colgroup>
+                </ng-template>
+                <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                            <span class="width-50" *ngIf="col.field =='checkbox'"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></span>
+                            <span *ngIf="col.field !='checkbox'">
+                                {{col.header}}
+                                <p-sortIcon [field]="col.field"></p-sortIcon>
+                            </span>
+                        </th>
+                    </tr>
+                    <tr *ngIf="isEnableColumnFilter">
+                        <th *ngFor="let col of columns">
+                            <span *ngIf="col.field !='checkbox'"><input pInputText type="text" (input)="tt.filter($event.target.value, col.field, 'contains')"></span>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template class="tableCss config-ui" pTemplate="body" let-profile>
+                    <tr>
+                        <td class="text-center width-50">
+                            <p-tableCheckbox [value]="profile"></p-tableCheckbox>
+                        </td>
+                        <td class="tableCss">
+                            <span title="Click to open '{{profile.profileName}}' profile configuration"><a class="hyperlink" (click)="routeToConfiguration(profile['profileId'], profile['profileName'], profile, profile['agent'])" >{{profile.profileName}}</a></span>
+			    <i class="icons8 icons8-filled-circle px-4" style="color: mediumseagreen;" (click)="showTooltipForProfileTopoDetails(profile['profileId'])" title="Active profile (Used in running Application)" *ngIf="appliedProfileList.includes(profile['profileName'])"></i>
+                            <span><img border='0' width='15' height='15' style='margin-bottom: -3px; margin-left: 4px; margin-right: 4px; cursor:pointer' title="Dynamic logging applied" src='./assets/images/dl.png' *ngIf="dlAppliedProfileList.includes(profile['profileName'])"></span>
+			</td>
+                        <td class="tableCss">
+                            <span title="{{profile.agent}}" *ngIf="profile.agent == 'Dot Net'"><i class="cav microsoft-dot-net" style="color: #007ad9;" ></i><label style="margin-left:5px;">{{profile.agent}}</label></span>
+                            <span title="{{profile.agent}}" *ngIf="profile.agent == 'NodeJS'"><i class="icons8 icons8-node-js" style="color: mediumseagreen;" ></i><label style="margin-left:5px;">{{profile.agent}}</label></span>
+                            <span title="{{profile.agent}}" *ngIf="profile.agent == 'Java'"><i class="icons8 icons8-java" style="color: #e91224;" ></i><label style="margin-left:5px;">{{profile.agent}}</label></span>
+                            <span title="{{profile.agent}}" *ngIf="profile.agent == 'Php'"><i class="icons8 icons8-php-logo" style="color: #000;" ></i><label style="margin-left:5px;">{{profile.agent}}</label></span>
+                            <span title="{{profile.agent}}" *ngIf="profile.agent == 'Python'"><i class="icons8 icons8-python" style="color: #116fbf;" ></i><label style="margin-left:5px;">{{profile.agent}}</label></span>
+                            <span title="{{profile.agent}}" *ngIf="profile.agent == '-'">{{profile.agent}}</span>
+                        </td>
+                        <td class="tableCss right-texts" title="{{profile.timeStamp}}">{{profile.timeStamp}}</td>
+                        <td class="tableCss" title="{{profile.profileDesc}}">{{profile.profileDesc}}</td>
+                    </tr>
+                </ng-template>
+
+            </p-table>
+
+            <!-- <div class="p-grid p-align-center">
+                <label class="mr-5">Download Reports as: </label>
+                <button pButton class="icon-button no-shadow" pTooltip="Download Word file" tooltipPosition="top" icon="icons8 icons8-doc" (click)='downloadReports("WordFile")'></button>
+                <button pButton class="icon-button no-shadow" pTooltip="Download Excel file" tooltipPosition="top" icon="icons8 icons8-spreadsheet-file"  (click)='downloadReports("ExcelFile")'></button>
+                <button pButton class="icon-button no-shadow" pTooltip="Download PDF file" tooltipPosition="top" icon="icons8 icons8-pdf-2" (click)='downloadReports("PDFFile")'></button>
+             </div> -->
+
+        </div>
+    </div>
+</div>
+<!--Dialog for Adding New Profile -->
+
+<p-dialog [resizable]="false" header="Add Profile" *ngIf="displayNewProfile" 
+[(visible)]="displayNewProfile" modal="modal" class="secondary-dialog" [style]="{width: '450px'}">
+    <form (ngSubmit)="saveNewProfile()" #groupForm="ngForm" ngNativeValidate>
+
+         <div class="p-grid p-align-center my-15">
+            <div class="p-col-4">Name</div>
+            <div class="p-col-8">
+                <input name="profileName" type="text"  class="w-100-p" pInputText [(ngModel)]="profileDetail.profileName" title="Please enter valid profile name. &#013;Profile name is of maximum 50 characters.  &#013;First character must be Alpha.  &#013;Other characters are Alpha, Numeric, Dash or Underscore"
+                    autofocus required pattern="^[a-zA-Z][a-zA-Z0-9_-]{0,49}$" ngModel />
+            </div>
+     
+            <div class="p-col-4">Agent</div>
+            <div class="p-col-8">
+                <input name="dropdown" type="text" size="25" class='hidden-validator w-100-p' pInputText [(ngModel)]="profileDetail.agent" required ngModel/>
+                <p-dropdown [options]="agentList" name="dropdown" class="w-100-p" [(ngModel)]="profileDetail.agent" (ngModelChange)="getAgentSpecificProfiles($event)" placeholder="Select an agent" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+      
+            <div class="p-col-4">Copy profile</div>
+            <div class="p-col-8">
+                <input name="dropdown1" type="text" size="25" class='hidden-validator w-100-p' pInputText [(ngModel)]="profileDetail.parentProfileId" required ngModel/>
+                <p-dropdown [options]="profileListItem" name="dropdown1"  class="w-100-p" required [(ngModel)]="profileDetail.parentProfileId" placeholder="Select a Profile to be copied" appendTo="body" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+
+            <div class="p-col-4">Description</div>
+            <div class="p-col-8">
+                <textarea name="profileDesc" rows="2"  class="w-100-p" pInputTextarea [(ngModel)]="profileDetail.profileDesc" ngModel></textarea>
+            </div>
+        </div>
+    
+    <p-footer>
+            <div class="p-grid p-align-center py-5 p-justify-end">
+		<button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="displayNewProfile=false" label="Cancel"></button>
+		<button type="submit" pButton class="ui-button-rounded  px-10" label="Save"></button>
+            </div>
+      </p-footer>
+    </form>
+</p-dialog>
+
+<p-dialog header="Applied profile information" [resizable]="false" *ngIf="showMsg" [(visible)]="showMsg" modal="modal"
+class="secondary-dialog" [style]="{width: '450px'}">
+    Profile cannot be deleted as it is applied at following level(s) : <br>
+    <ul>
+        <li *ngFor="let msg of displayErrMsg">
+            <span>{{msg}}</span>
+        </li>
+    </ul>
+    <p-footer>
+        <div class="ui-dialog-buttonpane ui-wnameget-content ui-helper-clearfix">
+            <button type="button" pButton (click)="showMsg=false" icon="fa fa-check" label="Ok"></button>
+        </div>
+ </p-footer>
+</p-dialog>
+
+<!--Dialog to open import file explorer dialog -->
+<!-- <p-dialog class="profile-dialog browseTopCss headerCss" header="File Manager" *ngIf="openFileExplorerDialog" [(visible)]="openFileExplorerDialog" modal="modal"
+class="secondary-dialog" [style]="{width: '650px'}"> -->
+    <!-- This will look for this component in the ProductUI at this path -
+  ..\ProductUI\gui\src\app\modules\file-explorer\components\config-nd-file-explorer\-->
+
+     <!-- <app-config-nd-file-explorer></app-config-nd-file-explorer>  -->
+<!-- </p-dialog> -->
+
+
+<!--Dialog to open import profile edit profile dialog -->
+<p-dialog  header="Edit Import Profile Name" *ngIf="editImportProfileDialog" [(visible)]="editImportProfileDialog" modal="modal"
+class="secondary-dialog" [style]="{width: '450px'}">
+    <form (ngSubmit)="saveEditProfile()" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g">
+            <div class="ui-g-3">
+                <label>Profile Name</label>
+            </div>
+            <div class="ui-g-9">
+                <input name="editProfile" type="text" style="width:100%" class="configui-hotspot-css" title="Please enter a valid profile name" pInputText [(ngModel)]="editProfile" required pattern="^[a-zA-Z][a-zA-Z0-9_-]{0,29}$" ngModel />
+            </div>
+        </div>
+        <div class="ui-g">
+
+        </div>
+   
+        <p-footer>
+            <div class="p-grid p-align-center py-5 p-justify-end">
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-delete" (click)="editImportProfileDialog=false" label="Cancel"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" label="Save"></button>
+            </div>
+        </p-footer>
+    </form>
+</p-dialog>
+
+<!-- Dialog to see Topo Profile Info -->
+<p-dialog class="secondary-dialog" *ngIf="showTopoProfileInfo" [(visible)]="showTopoProfileInfo" header="{{ dialogHeader }}" modal="modal"
+class="secondary-dialog" [style]="{width: '500px'}">
+    <div style="font-size: 13px;color: #111113; margin-top: 10px;">
+        This profile is applied at following levels:
+        <br><br>
+        <b>
+            <ul>
+                <li *ngFor="let i of topoInfo">
+                    <span>{{i}}</span>
+                </li>
+            </ul>
+        </b>
+    </div>
+    <footer>
+        <div class="p-grid p-align-center py-5 p-justify-end">
+            <button pButton type="button" label="OK" (click)="showTopoProfileInfo=false" class="ui-button-rounded ui-button-secondary"></button>
+
+        </div>
+    </footer>
+</p-dialog>
+<app-file-manager #fileManager (eventBind)="getPath($event)"></app-file-manager>

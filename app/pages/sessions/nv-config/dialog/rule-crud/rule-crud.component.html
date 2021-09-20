@@ -1,0 +1,93 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true"
+    class="secondary-dialog" [draggable]="false" [style]="{width: '35vw'}">
+    <p-header>
+
+        <div class="compare-data-title">
+            <div *ngIf="addflag == false">
+                Edit Rule 
+            </div>
+            <div *ngIf="addflag == true">
+                Add Rule 
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+    
+
+    <div class="dialog-content" style="height: 330px;">
+        <div class="p-grid" >
+            <div class="p-col-4 mt-15">
+                <span class="line-height">Page</span>
+            </div>
+            <div class="p-col-8 mt-15">
+                <p-multiSelect [style]="{'width':'100%'} "defaultLabel='Select Page' [options]="npage" [(ngModel)]="rulepageidlist"  dropdownIcon="icons8-expand-arrow"></p-multiSelect>
+            </div>
+        </div>
+        <div class="p-grid" >
+            <div class="p-col-4 mt-15">
+                <span class="line-height">Type</span>
+            </div>
+            <div class="p-col-8 mt-15">
+                <p-dropdown  defaultLabel='Select Type' [options]="type" dropdownIcon="icons8-expand-arrow" [(ngModel)]="ruleType"></p-dropdown>
+            </div>
+        </div>
+        
+    <div  class="p-grid" *ngIf='ruleType =="1"'>
+           <div class="p-col-4 mt-15">
+                <span class="line-height">Url Pattern
+                </span>
+            </div>
+            <div class="p-col-8 mt-15">
+                <input  type="text" placeholder="Enter  URL" pInputText [(ngModel)]="ruleurl" />
+            </div>
+            <div class="p-col-4 mt-15">
+                <span class="line-height">Test URL
+                </span>
+            </div>
+            <div class="p-col-8 mt-15">
+               <input  type="text" placeholder="Enter Test Url" pInputText [(ngModel)]="value3" />&nbsp;
+               <button pButton type="button" id="toggler" label="Test" (click)="TestupdateUrl()"></button>&nbsp;
+               <i *ngIf='updateright == true' style="color:green;font-weight: bold;">MATCHED</i>
+          <i *ngIf='updatewrong == true'  style="color:red;font-weight: bold;">NOT MATCHED</i>
+            </div>
+    </div>
+
+        <div class="p-grid" *ngIf='ruleType == "0"'>
+            <div class="p-col-4 mt-15">
+                <span class="line-height">Name</span>
+            </div>
+            <div class="p-col-8 mt-15">
+                <input class="fullwidth" type="text" [(ngModel)]="rulecookiename" placeholder="Enter Cookie Name" pInputText />
+            </div>
+        </div>
+
+
+        <div class="p-grid" *ngIf='ruleType == "0"'>
+            <div class="p-col-4 mt-15">
+                <span class="line-height">Value</span>
+            </div>
+            <div class="p-col-8 mt-15">
+                <input type="text" class="fullwidth" [(ngModel)]="rulecookievalue" placeholder="Enter Cookie value" pInputText />
+            </div>
+        </div>
+        
+        <div class="p-grid" *ngIf='ruleType == "2" || ruleType == "3"'>
+            <div class="p-col-4 mt-15">
+                <span class="line-height">Selector</span>
+            </div>
+            <div class="p-col-8 mt-15">
+               <input  type="text" placeholder="Enter Selector" pInputText [(ngModel)]="ruleselector" />
+            </div>
+        </div>
+    </div>
+
+    <p-footer>
+        <div class="p-col-12 form-buttons right">
+            <button pButton type="submit" label="Cancel" class="ui-button-rounded ui-button-secondary" (click)="closeDialog()"></button>
+            <button *ngIf="addflag == false"pButton type="submit" label="Edit Rule" class="ui-button-rounded" (click)="editDialog()"></button>
+            <button *ngIf="addflag == true" pButton type="submit" label="Add Rule" class="ui-button-rounded" (click)="addDialog()"></button>
+        </div>
+    </p-footer>
+</p-dialog>

@@ -1,0 +1,131 @@
+<p-dialog
+  [(visible)]="visible"
+  [resizable]="true"
+  [modal]="true"
+  class="secondary-dialog"
+  [draggable]="false"
+  [closable]="false"
+  [style]="{ width: '35vw' }"
+>
+  <p-header>
+    <div class="compare-data-title" *ngIf="!showFields">
+      <div>Add Channel Name</div>
+      <div class="action-buttons">
+        <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+      </div>
+    </div>
+    <div class="compare-data-title" *ngIf="showFields">
+      <div>Edit Channel Name</div>
+      <div class="action-buttons">
+        <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+      </div>
+    </div>
+  </p-header>
+
+  <div class="dialog-content">
+    <div class="p-grid p-align-center p-justify-between ">
+      <div class="p-col-1"></div>
+      <div class="p-col-3">
+        <span class="line-height">Name</span>
+      </div>
+      <div class="p-col-7">
+        <input
+          [(ngModel)]="channelName"
+          type="text"
+          placeholder="Enter Name"
+          pInputText
+        />
+      </div>
+      <div class="p-col-1"></div>
+    </div>
+
+    <div class="p-grid p-align-center p-justify-between ">
+      <div class="p-col-1"></div>
+      <div class="p-col-3">
+        <span class="line-height">Type</span>
+      </div>
+      <div class="p-col-7">
+        <p-dropdown
+          class="ui-dropdown-label"
+          [(ngModel)]="channelType"
+          [options]="items"
+          dropdownIcon="icons8-expand-arrow"
+        >
+        </p-dropdown>
+        <!-- <p-dropdown  [options]="items" [(ngModel)]="channelType"></p-dropdown> -->
+      </div>
+      <div class="p-col-1"></div>
+    </div>
+    <div class="p-grid p-align-center p-justify-between ">
+      <div class="p-col-1"></div>
+      <div class="p-col-3">
+        <span class="line-height">Section Rule</span>
+      </div>
+      <div class="p-col-7">
+        <p-dropdown
+          class="ui-dropdown-label"
+          [(ngModel)]="sectionRule"
+          [options]="sectionItems"
+          dropdownIcon="icons8-expand-arrow"
+        >
+        </p-dropdown>
+        <!-- <p-dropdown  [options]="sectionItems" [(ngModel)]="sectionRule"></p-dropdown> -->
+      </div>
+      <div class="p-col-1"></div>
+    </div>
+    <div class="p-grid p-align-center p-justify-between" *ngIf="!showFields">
+      <div class="p-col-1"></div>
+      <div class="p-col-3">
+        <span class="line-height">URL</span>
+      </div>
+      <div class="p-col-7">
+        <input
+          [(ngModel)]="url"
+          type="text"
+          placeholder="Enter URL"
+          pInputText
+        />
+      </div>
+      <div class="p-col-1"></div>
+    </div>
+
+    <div class="p-grid p-align-center p-justify-between" *ngIf="showFields">
+      <div class="p-col-1"></div>
+      <div class="p-col-3">
+        <span class="line-height">Cookie Name</span>
+      </div>
+      <div class="p-col-7">
+        <input [(ngModel)]="cookieName" type="text" pInputText />
+      </div>
+      <div class="p-col-1"></div>
+    </div>
+    <div class="p-grid p-align-center p-justify-between" *ngIf="showFields">
+      <div class="p-col-1"></div>
+      <div class="p-col-3">
+        <span class="line-height">Cookie Value</span>
+      </div>
+      <div class="p-col-7">
+        <input [(ngModel)]="cookieValue" type="text" pInputText />
+      </div>
+      <div class="p-col-1"></div>
+    </div>
+  </div>
+  <p-footer>
+    <div class="p-col-12 form-buttons">
+      <button
+        pButton
+        type="submit"
+        label="Add"
+        class="ui-button-rounded ui-button-right"
+        (click)="closeDialog()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        class="ui-outline-button ui-button-secondary mh-10"
+        (click)="closeDialog()"
+      ></button>
+    </div>
+  </p-footer>
+</p-dialog>

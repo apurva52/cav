@@ -1,0 +1,57 @@
+<!-- <p-blockUI [blocked]="loading"></p-blockUI> -->
+<!-- <img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" /> -->
+
+<div class="ddr-box">
+  <!-- <p-header>
+  <b></b>
+</p-header> -->
+
+  <!-- COMMON BOX SCROLLLBAR -->
+  <div class="ddruiscroll" [ngStyle]="{'height': screenHeight+'px'}" style="overflow-y:auto; overflow-x:hidden">
+    <p-accordion class="ddr-accordion" [multiple]="true">
+      <p-accordionTab header="Available Drill Down Queries" [selected]="true">
+        <p-dataTable class="scen-table" [value]="sysDefQueryData">
+          <div *ngFor="let col of cols">
+            <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable"
+              [filter]="col.filter" [style]="{'width': col.width+'px','text-align': col.align}">
+
+              <ng-template let-col let-node="rowData" *ngIf="col.field == 'label' " pTemplate type="body">
+                <span class="ddr-table-left" (click)="openReports(node)" title="{{node[col.field]}}" >
+                  {{node[col.field]}}
+                </span>
+              </ng-template>
+
+            </p-column>
+          </div>
+        </p-dataTable>
+      </p-accordionTab>
+    </p-accordion>
+    <p-accordion>
+      <p-accordionTab header ="User Defined Query">
+          <div style="overflow-y: auto;max-height: 230px;">
+        <p-dataTable class ="ddr-table" [value]="savedQueriesData"  selectionMode="multiple" [(selection)]="selectedRowInfo" (onRowSelect)="onRowSelectData($event.data,$event)" (onRowUnselectSelect)="($event.data)">
+            <p-column [style]="{'width':'26px'}" selectionMode="multiple"></p-column> 
+            <!-- <p-column field="selectedQueries" header="Selected Queries" [style]="{'width':'4em'}">
+                <ng-template let-row="queryNameList" let-index="rowIndex" let-col pTemplate="body">
+                  <input type="checkbox" [(ngModel)]="selectedQueries"/>
+                </ng-template>
+              </p-column> -->
+          <div *ngFor="let col of userCols">
+            <p-column *ngIf="col.action" [field] ="col.field" [header]="col.header" [sortable]="col.sortable"
+           [style]="{'width': col.width+'px','text-align': col.align}" (sortFunction)="sortColumnsOnCustom($event,savedQueriesData)">
+           
+           </p-column>
+         </div>
+        </p-dataTable>
+      </div>
+      <div style="margin-top: 10px;">
+      <button pButton type="button" title="Edit Query" label="Edit Query" (click)="runSavedQuery(true)" [style]="{'width':'20px'}"></button>&nbsp;
+      <button pButton type="button" title="Run Query" label="Run Query" (click)="runSavedQuery()" [style]="{'width':'20px'}"></button>&nbsp;
+      <button pButton type="button" title="Delete Query" label="Delete Query" (click)="deleteSavedQuery()" [style]="{'width':'20px'}"></button>
+      </div>  
+    </p-accordionTab>
+    </p-accordion>
+    <p-growl life=5000 [value]="message"></p-growl>
+    <p-confirmDialog header="Confirmation" icon="fa fa-question-circle" width="300" appendTo ="body"></p-confirmDialog>
+  </div>
+</div>

@@ -1,0 +1,97 @@
+<form [formGroup]="form" *ngIf="form != undefined">
+    <p-tabView [orientation]="panelPosition" *ngIf="panelPosition !== 'none'; else onlyPanel">
+        <p-tabPanel *ngFor="let item of formSchema; let i = index" [selected]="i == 0">
+
+            <ng-template pTemplate="header">{{item.formName}}
+                <div class="ui-button"
+                    style="background: unset;border: unset;font-size: unset;font-weight: unset;justify-content: unset;align-items: unset;display: unset;line-height: unset;height: unset;">
+
+                    <div class="badge" *ngIf="form.status === 'INVALID' && item.error?.count > 0"
+                        (mouseenter)="show(op,$event,item.error )" (mouseout)="op.hide()">
+                        {{item.error?.count}}
+                    </div>
+
+                </div>
+            </ng-template>
+
+            <!-- Lazy loading each tab -->
+            <ng-template pTemplate="content">
+                <div class="p-grid ui-fluid p-nogutter">
+                    <div class="p-col-12">
+                        <app-panel [fields]="item" [form]="form"></app-panel>
+                    </div>
+                </div>
+            </ng-template>
+
+        </p-tabPanel>
+    </p-tabView>
+
+    <ng-template #onlyPanel>
+        <div class="p-grid ui-fluid p-nogutter">
+            <div class="p-col-12">
+                <app-panel [fields]="formSchema[0]" [form]="form"></app-panel>
+            </div>
+        </div>
+    </ng-template>
+
+    <button pButton icon="" label="Save" [ngStyle]="btnStyle" [disabled]="readOnly" [ngClass]="btnClass"
+        (click)="onSubmit(form)" pTooltip="save the changes"></button>&nbsp;
+
+    <p-overlayPanel #op [dismissable]="true" appendTo="body">
+        <h5 style="color: red;"><i class="pi pi-exclamation-triangle" style="vertical-align: middle;"></i> There are
+            items that require
+            your attention.</h5>
+        <hr style="margin-top: 5px;margin-bottom: 5px;">
+        <ul>
+            <li *ngFor="let i of formError?.field">
+                <b> {{i.label}}</b>
+                <ul *ngIf="i.field.length;else else1">
+                    <li *ngFor="let j of i.field">
+
+                        <b>{{j.label}}</b>
+
+                        <ul *ngIf="j.field.length;else else2">
+                            <li *ngFor="let k of j.field">
+                                <b> {{k.label}}</b>
+
+                                <ul *ngIf="k.field.length;else else3">
+                                    <li *ngFor="let l of k.field">
+                                        <b> {{l.label}}</b>
+
+                                        <ul *ngIf="l.field.length;else else4">
+
+                                        </ul>
+                                        <ng-template #else4>
+                                            {{' - ' + l.message}}
+
+                                        </ng-template>
+                                    </li>
+                                </ul>
+                                <ng-template #else3>
+                                    {{' - ' + k.message}}
+                                    <br>
+
+                                </ng-template>
+                            </li>
+                        </ul>
+                        <ng-template #else2>
+                            {{' - ' + j.message}}
+                            <br>
+
+                        </ng-template>
+                    </li>
+                </ul>
+
+                <ng-template #else1>
+                    {{' - ' + i.message}}
+                    <br>
+                </ng-template>
+            </li>
+        </ul>
+
+
+    </p-overlayPanel>
+
+</form>
+
+<p-toast></p-toast>

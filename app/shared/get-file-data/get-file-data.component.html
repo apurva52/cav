@@ -1,0 +1,56 @@
+<p-dialog header="Download/Upload File" [(visible)]="visible" class="secondary-dialog"
+      [style]="{width: '44vw', height:'44vh'}" [modal]="true" [baseZIndex]="10000100011" [draggable]="false"
+      [resizable]="false" closeIcon="icons8-delete">
+      <div class="p-grid p-col-12 p-align-center">
+
+            <div class="p-col-2">
+                {{pathTitle}}
+            </div>
+            <div class="p-col-8 ui-inputgroup">
+                <!-- <span class="ui-inputgroup-addon"> -->
+                    <!-- <i class="icons8 icons8-search"></i> -->
+                <!-- </span> -->
+               
+                <input id="fileAndFolderPath" type="text" [disabled]="true" title="{{fileAndFolderPath}}" [(ngModel)]="fileAndFolderPath" #searchInput pInputText placeholder="{{path}}" class="p-col-12"/>
+            </div>
+            <div class="p-col-2">
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-right p-col-12" title="Browse" label="Browse"
+              (click)="fileManager.open(true, true)">
+            </button> 
+           </div>
+
+        </div>
+
+      <div>
+            <p-dialog class="file-upload-dialog" header="Upload Files" [baseZIndex]="10000" [(visible)]="toUploadFiles">
+                  <div class="mw400">
+                        <p-fileUpload name="myfile[]" [url]="uploadUrl" multiple="multiple" #fileUpload
+                              accept=".xlsx, .csv, .txt" (onSelect)="onSelect($event,fileUpload)"
+                              (onUpload)="onUploadFile($event)" styleClass="mw100"></p-fileUpload>
+                  </div>
+            </p-dialog>
+      </div>
+      <div class="p-grid p-justify-between p-align-center">
+
+            <div class="p-col-9 p-grid">
+                  <p-dropdown [options]="delimiterList" [(ngModel)]="selectedDelimiter" optionLabel="label"
+                        dropdownIcon="icons8 icons8-expand-arrow">
+                  </p-dropdown>
+            </div>
+            <div class="p-col-3">
+                  <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary p-col-12"
+                        label="Upload" title="Upload" (click)="openUploadDialog()"></button>
+            </div>
+      </div>
+      <div class="p-grid p-justify-end p-align-end h-60-p">
+            <div class="p-col-3">
+                  <button pButton type="button" class="ui-button ui-button-rounded ui-button-right p-col-12" label="Get Data"
+                  title="Get Data" (click)="getData()"></button>
+            </div>
+      </div>
+      <div id="centerpoint">
+            <p-confirmDialog styleClass="centerpointAd" key="uploadfile" header="Error" acceptLabel="Ok" rejectLabel="Cancel"  [(visible)]="dialogVisible"></p-confirmDialog>
+        </div>
+</p-dialog>
+
+<app-file-manager #fileManager (eventBind)="eventBind($event)"></app-file-manager>

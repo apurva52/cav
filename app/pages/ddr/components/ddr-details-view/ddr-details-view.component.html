@@ -1,0 +1,66 @@
+<div id='sessionContent' [class.single-session]='flowpathData.length == 1' [class.multiple-session]='flowpathData.length > 1'>
+    <div class="jarviswidget jarviswidget-color-grey jarviswidget-sortable" role="widget">
+        <div role="content" style='background: rgba(255, 255, 255, 0.8) !important;margin: 2px 0px 0px;'>
+            <div class="p-grid p-justify-end p-align-center">
+
+                <div style='float: right;margin-right: 5px;margin-top: 5px;'>
+
+                    <button pButton icon="cav log-monitoring" class="btn-icon mx-3" tooltipPosition="left" placeholder="Left"   (click)="openNetForest()" ></button>
+                           <button pButton icon="cav fusion-monitor" class="btn-icon mx-3" tooltipPosition="left" placeholder="Left"    (click)="openNVFromND()" ></button>
+                           <button pButton icon="cav application" class="btn-icon mx-3" tooltipPosition="left" placeholder="Left"   (click)="openED()"
+                           pTooltip="Open ED"></button>
+                
+ 			<img *ngIf="flowpathData.flowpathtype >= 32" src="./assets/images/Flagged_flowpath.png" style="height:15px; width:16px;cursor:pointer;vertical-align: bottom;margin-right: 5px;" title="Flagged Flowpath Messages" (click)="openErrorMsg()">
+                       
+             <button pButton icon="icons8 icons8-delete" tooltipPosition="left" placeholder="Left"  aria-hidden='true' (click)='closeSession()' class="btn-icon mx-3"
+             pTooltip="Close Session"></button>
+                    
+                </div>
+            </div>
+                <div>
+                    <p-tabView class="ddr-tabs" (onChange)="changeTab($event)">
+                        <p-tabPanel header="Method Call Details" [selected]="index == 0">
+                            <methodcallingtree *ngIf="index == 0" [columnData]="flowpathData"></methodcallingtree>
+                        </p-tabPanel>
+                        <p-tabPanel header="HotSpot" [selected]="index == 1">
+                            <app-hotspot *ngIf="index == 1" [columnData]="flowpathData"></app-hotspot>
+                        </p-tabPanel>
+                        <p-tabPanel header="DB Queries" [selected]="index == 2">
+                            <!-- <app-queries *ngIf="index == 2" [columnData]="flowpathData"></app-queries> -->
+                            <app-fp-to-db-component *ngIf="index == 2" [columnData]="flowpathData"></app-fp-to-db-component>
+                        </p-tabPanel>
+                        <p-tabPanel header="HTTP Report" [selected]="index == 3">
+                            <http-req-resp *ngIf="index == 3" [columnData]="flowpathData"></http-req-resp>
+                        </p-tabPanel>
+                        <p-tabPanel header="Exception" [selected]="index == 4">
+                            <exception-report *ngIf="index == 4" [columnData]="flowpathData" [showLink]="showLink"></exception-report>
+                        </p-tabPanel>
+                        <p-tabPanel header="Method Timing" [selected]="index == 5">
+                            <methodtiming *ngIf="index == 5" [columnData]="flowpathData"></methodtiming>
+                        </p-tabPanel>
+                        <p-tabPanel header="IP Summary" [selected]="index == 6">
+                            <app-ip-summary *ngIf="index == 6" [columnData]="flowpathData"></app-ip-summary>
+                        </p-tabPanel>
+                        <p-tabPanel header="Transaction Flowmap" [selected]="index == 7">
+                            <app-ddr-transaction-flowmap *ngIf="commonService.showTransactionFlowmap" [columnData]="commonService.jsonData"></app-ddr-transaction-flowmap>
+                        </p-tabPanel>
+                        <p-tabPanel header="Sequence Diagram" [selected]="index == 8">
+                             <sequence-diagram *ngIf="index == 8" [columnData]="flowpathData"></sequence-diagram>
+                         </p-tabPanel>
+
+                    </p-tabView>
+                </div>
+            
+        </div>
+    </div>
+</div>
+<p-dialog class="scenmodal" header="FP Type Details" width='410' [modal]="true" appendTo="body" [(visible)]="fptypeFlag" [resizable]="false">
+    <div class="modalPopUp">
+   <table cellspacing="3" cellpadding="0" border="2" style="margin:0px 0px 0px 0px;width:365px;" >
+     <tr style="width:100px;height:30px" valign="center" align="center">
+       <th>Message Code</th><th>Message</th></tr>
+       <tr *ngFor="let errorbit of errormsgObj " style="width:100px;height:30px" valign="center" align="center">
+        <td>{{errorbit.errorbit}}</td><td>{{errorbit.errmsg}}</td></tr> 
+      </table>
+  </div>
+  </p-dialog>

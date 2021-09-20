@@ -1,0 +1,172 @@
+<div class="h-100-vh wrapper">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <div class="p-grid p-align-center">
+        <a routerLink="{{endToEndURL}}">
+          <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">MANAGE FLOWMAPS</div>
+      </div>
+      <div class="p-grid p-align-center">
+        <div>
+          <button pButton type="button" class="ui-button ui-button-rounded m-r-15" (click)="saveChanges()"
+            label="SAVE"></button>
+        </div>
+      </div>
+    </div>
+  </p-toolbar>
+  <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+    <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+    </div>
+  </div>
+
+  <div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="error" text="{{ error.msg }}"></p-message>
+    </div>
+  </div>
+
+  <div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="normal" text="No Data"></p-message>
+    </div>
+  </div>
+  <div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+  </div>
+  <div #widgetHeight *ngIf="data" class="" [ngStyle]="{
+      height: isEnabledColumnFilter
+        ? 'calc(100vh - 217px)'
+        : 'calc(100vh - 174px)'
+    }">
+    <div class="action-container">
+      <div class="action-dropdowns">
+        <div class="p-grid p-align-center">
+          <span class="labels pr-5">User Default Flowmap</span>
+          <p-dropdown [options]="data.flowmapOptions" [(ngModel)]="selected_user_flowmap" placeholder="Select a Flowmap"
+            dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+        </div>
+        <div class="p-grid p-align-center" *ngIf="isAdmin">
+          <span class="labels pr-5">System Default Flowmap</span>
+          <p-dropdown [options]="data.flowmapOptions" [(ngModel)]="selected_sys_flowmap" placeholder="Select a Flowmap"
+            dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+        </div>
+      </div>
+      <div class="action-buttons">
+        <button pButton icon="icons8 icons8-installing-updates" (click)="downloadMenu.toggle($event);"
+          class="ui-icon-button icon-button no-shadow" pTooltip="Download"></button>
+        <p-menu #downloadMenu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+          [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+        <i *ngIf="data.flowmapData.tableFilter" pButton icon="icons8 icons8-search-property"
+          class="icon-button no-shadow" pTooltip="Column Filter" [tooltipZIndex]="100000"
+          (click)="isEnabledColumnFilter = !isEnabledColumnFilter"></i>
+        <p-multiSelect class="icon-button no-shadow" [(ngModel)]="selectedColumns" [options]="cols" optionLabel="label"
+          [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns"
+          [panelStyle]="{ minWidth: '200px' }">
+        </p-multiSelect>
+        <button pButton type="button" class="ui-button-secondary ui-button-rounded" (click)="deleteFlowmap()"
+          label="DELETE"></button>
+      </div>
+    </div>
+
+    <p-card>
+      <p-table #flowMapsData [columns]="selectedColumns" [value]="data.flowmapData.data" [rowHover]="true"
+        [paginator]="true" [rows]="data.flowmapData.paginator.rows" [showCurrentPageReport]="true"
+        [(selection)]="selectedFlowMaps" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="data.flowmapData.paginator.rowsPerPageOptions"
+        [(first)]="data.flowmapData.paginator.first" [responsive]="true" [scrollable]="true"
+        scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 103px)" selectionMode="single"
+        (onRowSelect)="onRowSelect($event)" (onRowUnselect)="onRowUnselect($event)">
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th class="columnwidth" *ngIf="selectedColumns.length > 0"></th>
+            <th *ngFor="let col of columns; let i = index" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+              class="text-left" pSortableColumn="col.valueField">
+              <div class="p-grid p-align-center p-justify-between">
+                <div class="text-left">
+                  {{ col.label }}
+                </div>
+
+                <div *ngIf="col.isSort" class="right">
+                  <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort"
+                    ariaLabelDesc="Activate to sort in descending order"
+                    ariaLabelAsc="Activate to sort in ascending order">
+                  </p-sortIcon>
+                </div>
+              </div>
+            </th>
+          </tr>
+          <tr *ngFor="let headerRow of data.flowmapData.headers">
+            <ng-container *ngIf="isEnabledColumnFilter">
+              <th class="columnwidth"></th>
+              <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                <div *ngIf="
+                    col.filter.isFilter === true &&
+                    col.filter.type === 'custom' &&
+                    col.label != 'Shared'
+                  ">
+                  <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                    pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                    *ngSwitchCase="col.label" pInputText type="text" (input)="
+                      flowMapsData.filter(
+                        $event.target.value,
+                        col.valueField,
+                        'custom'
+                      )
+                    " />
+                </div>
+                <div *ngIf="
+                    col.filter.isFilter === true &&
+                    col.filter.type === 'contains' &&
+                    col.label != 'Shared'
+                  ">
+                  <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                    pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText
+                    type="text" (input)="
+                      flowMapsData.filter(
+                        $event.target.value,
+                        col.valueField,
+                        'contains'
+                      )
+                    " />
+                </div>
+              </th>
+            </ng-container>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+          <tr>
+            <td class="columnwidth" *ngIf="selectedColumns.length > 0">
+              <p-tableCheckbox [value]="row['name']" [disabled]="!row['owner']"></p-tableCheckbox>
+            </td>
+            <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}">
+              <span *ngIf="col.label === 'Name'">
+                {{ row[col.valueField] }}
+              </span>
+              <p-checkbox *ngIf="col.label === 'Shared'" binary="true" (onChange)="onChangeSharedFlowmap($event, row)"
+                [(ngModel)]="row[col.valueField]" [disabled]="(!row['owner'] || row['name']==selected_sys_flowmap)"></p-checkbox>
+	      <span *ngIf="col.label === 'Owner'">
+                <i [ngClass]="row['owner'] ? 'pi pi-check' : 'pi pi-times'"> </i>
+              </span>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.coldiv]="columns.length + 1" class="text-center">
+              <span *ngIf="error">Error while loading data</span>
+              <span *ngIf="empty">Empty Table</span>
+              <span *ngIf="loading">Loading</span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </div>
+</div>

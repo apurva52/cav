@@ -1,0 +1,30 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false" [style]="{width: '30vw'}">
+    <p-header>
+        <div class="compare-data-title">
+           {{data.title}}
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+
+    <div class="dialog-content">
+        <div class="p-col-12">
+            <div>
+                <span>{{data.information}}</span>
+
+                <span *ngIf = "data.extraInfo"> <br><br> {{data.extraInfo}}</span>
+
+                <span *ngIf = "data.extraInfo1"> <br><br> {{data.extraInfo1}}</span>
+            </div>
+        </div>
+    </div>
+    <p-footer>
+        <div class="p-col-12 form-buttons">
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-right" label= {{data.button}} (click)="closeDialog()">
+            </button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+

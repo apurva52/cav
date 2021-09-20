@@ -1,0 +1,59 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+    blockScroll="true">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <div>
+                <i class="icons8 icons8-star-filled font-14"></i>
+                <span>Dashboard Favorites</span>
+            </div>
+            <div class="action-icons">
+                <i class="icons8-reboot font-14" (click)="refreshDasboardList()"></i>
+                <i class="icons8-delete font-14" (click)="closeClick()"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-content ui-fluid" *ngIf="!loading">
+        <div class="text-right ph-5">
+            <button pButton type="button" class="ui-icon-button ui-button-rounded clear-button" pTooltip="Clear filter"
+                tooltipZIndex="1000010056" icon="icons8 icons8-delete" (click)="clearFilters()"></button>
+            <!-- <button pButton icon="icons8 icons8-menu-vertical" class="ui-icon-button options-button"
+            (click)="menu.toggle($event)"></button>
+            <p-slideMenu #menu [popup]="true" styleClass="widget-menu" [model]="favMenuOptions" [viewportHeight]="'auto'" appendTo="body" baseZIndex="10001">
+            </p-slideMenu>  -->
+        </div>
+        <p-tree #treeNode [value]="data" (onNodeSelect)="treeNodeSelected($event)" selectionMode="single" filter="true"
+            filterPlaceholder="Search Dashboards" (onFilter)="onTreeFilter($event)">
+            <ng-template let-node pTemplate="default" >
+                <div #tree class="tree-node" (onNodeSelect)="treeNodeSelected($event)" >
+                    <div pTooltip="{{node.label}}" tooltipZIndex="1000010056" tooltipPosition="top">
+                        {{node.label}}
+                    </div>
+                    <i class="icons8 icons8-edit-2 editIcon" *ngIf="node.icon !== 'icons8 icons8-folder' && dashboard?.layout?.mode == 'VIEW'" (click)="openEditCanvas()"></i>
+                </div>
+            </ng-template>
+        </p-tree>
+        <div class="empty-container" *ngIf="noFilteredData">No data found.</div>
+    </div>
+    <div class="p-grid p-justify-center sidebar-foter" *ngIf="!loading">
+        <button pButton type="button" class="ui-button ui-button-secondary ui-button-rounded mx-3" label="Add"
+        (click)="dashboard.openAddDashboardDialog()" [disabled]="disableOptions"></button>
+
+        <button pButton type="button" class="ui-button ui-button-primary ui-button-rounded  mx-3" label="Manage Dashboard"
+            (click)="redirect()"></button>
+       
+    </div>
+
+    <div class="loader-container spinner" *ngIf="loading">
+        <!-- loader to be change -->
+        <i class="pi pi-spin pi-spinner" style="font-size: 3em"></i>
+    </div>
+    <div class="empty-container" *ngIf="empty">
+        No data.
+    </div>
+    <p-contextMenu #menu1 [model]="items" appendTo="body" baseZIndex="10000" [style]="{width: '13vw'}"></p-contextMenu>
+</p-sidebar>
+
+
+<app-copy-favorite-link-box #copyFavoriteLinkBox></app-copy-favorite-link-box>
+<app-filter-parameter-box #filterParameterBox></app-filter-parameter-box>

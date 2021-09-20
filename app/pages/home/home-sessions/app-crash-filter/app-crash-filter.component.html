@@ -1,0 +1,110 @@
+<div class="h-100-vh app-crash-filter-container" #widget>
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/home-sessions">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">UNIQUE CRASH</div>
+            <div class="p-col text-right elipseText" *ngIf="filterLabel != ''">
+                <i class="icons8 icons8-filter ph-5" style="cursor: pointer;" title="View Applied Filters"
+                    (click)="appcrashFilterSidebar.open()" dig></i>
+                <span [attr.title]="filterLabel">{{filterLabel}}</span>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="p-col-12 p-col-nogutter">
+        <div class="breadcrumbs">
+            <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async"
+                (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+        </div>
+    </div>
+
+    <div *ngIf="data">
+        <div class="action-container">
+            <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                <div class="global-search-block">
+                    <div>
+                        <i class="icons8 icons8-filter left filter-icon" pTooltip="Crash Filters"
+                            (click)="appcrashFilterSidebar.open()"></i>
+                    </div>
+
+                    <div class="p-input-icon-left search-div-css">
+                        <i class="icons8 icons8-search"></i>
+                        <input #searchInputTemplate pInputText type="text" class="input-field-search"
+                            (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                    </div>
+
+                </div>
+            </div>
+
+
+            <ng-container>
+                <div #widgetHeight [ngStyle]="{
+                    height: isEnabledColumnFilter
+                      ? 'calc(100vh - 215px)'
+                      : 'calc(100vh - 172px)'
+                  }" class="ph-10">
+                    <p-table #dt [value]="data.data"
+                        [globalFilterFields]="['functionname','exception_message','exception_name','filename']"
+                        [columns]="selectedColumns" [showCurrentPageReport]="!countLoading && totalRecords && !loading"
+                        [rowHover]="true" [(selection)]="selectedRow" selectionMode="single" [loading]="loading"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                        [responsive]="true" [paginator]="true" [totalRecords]="totalRecords"
+                        [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [rows]="data.paginator.rows"
+                        [scrollable]="true" [globalFilterFields]="globalFilterFields"
+                        scrollHeight="calc({{widgetHeight.offsetHeight}}px - 91px)" [resizableColumns]="true"
+                        class="all-tables">
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                                    <div class="text-left">
+                                        {{ col.label }}
+                                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                            ariaLabel="Activate to sort"
+                                            ariaLabelDesc="Activate to sort in descending order"
+                                            ariaLabelAsc="Activate to sort in ascending order">
+                                        </p-sortIcon>
+                                    </div>
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns">
+                            <tr [pSelectableRow]="row">
+                                <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                    <span *ngIf="col.valueField !='count'" title="{{ (row[col.valueField] == '' || row[col.valueField] == null ||
+                                            row[col.valueField] == 'null' ) ? '-' :(row[col.valueField]) }}">
+                                        {{ (row[col.valueField] == '' || row[col.valueField] == null ||
+                                        row[col.valueField] == "null" ) ? '-' :(row[col.valueField]) }}
+                                    </span>
+                                    <span *ngIf="col.valueField =='count'" pTooltip="Click Here To Open All Crash"
+                                        (click)="navigate_to_allcrash(row)" style="cursor: pointer;">
+                                        <u>{{row.count}}</u>
+                                    </span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage" let-columns>
+                            <tr>
+                                <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                    <span *ngIf="error">{{error.msg}}</span>
+                                    <span *ngIf="empty">No records found</span>
+                                    <span *ngIf="loading">Loading...</span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="paginatorright" let-state>
+                            <p-progressSpinner *ngIf="loading || countLoading"
+                                [style]="{width: '20px', height: '20px', paddingLeft: '50px'}">
+                            </p-progressSpinner>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
+
+<app-crash-sidebar-filter #appcrashFilterSidebar (filterChange)="applyFilter($event)"></app-crash-sidebar-filter>

@@ -1,0 +1,43 @@
+<p-dialog
+  header="Filter By Favorite Parameters"
+  [(visible)]="visible"
+  class="secondary-dialog"
+  [style]="{ width: '40vw', height: '30vh' }"
+  [modal]="true"
+  [baseZIndex]="10000011111"
+  [draggable]="false"
+  [resizable]="false"
+  closeIcon="icons8-delete"
+>
+  <div class="content-body">
+    <div class="p-grid">
+      <div class="p-col-12">
+        <label class="filter-box">Hierarchy Levels:</label>
+        <p-multiSelect [options]="allFilterParameter" ></p-multiSelect>
+        <!-- <p-dropdown
+          class="mt-10"
+          [options]="allFilterParameter"
+          dropdownIcon="icons8 icons8-expand-arrow"
+        ></p-dropdown> -->
+      </div>
+    </div>
+  </div>
+  <p-footer>
+    <div class="p-col-12 footer-buttons">
+      <button
+        pButton
+        type="button"
+        class="ui-button ui-button-rounded ui-button-secondary"
+        label="APPLY"
+        (click)="close()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        class="ui-button ui-button-rounded ui-button-right"
+        label="Cancel"
+        (click)="close()"
+      ></button>
+    </div>
+  </p-footer>
+</p-dialog>

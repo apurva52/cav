@@ -1,0 +1,94 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+
+<div class= "main-box">
+<p-toolbar>
+  <div style='text-align:center'>
+     <label style="font-size: 15px;font-family:'Roboto','Trebuchet MS',Arial, Helvetica, sans-serif;"><b>{{reportHeader}}</b></label>
+  </div>
+</p-toolbar>
+<p-toolbar>
+      <div class='ui-toolbar-group-left'>
+       <label style="font-size: 14px;margin-left: 3px;font-family:'Roboto','Trebuchet MS',Arial, Helvetica, sans-serif;"><b>Filter Criteria : </b></label><label style="font-size: 14px;font-family:'Roboto','Trebuchet MS',Arial, Helvetica, sans-serif;">{{filterCriteria}}</label>
+      </div>
+    </p-toolbar>
+
+<div>
+  <p-accordion class="ddr-accordion">
+     <p-accordionTab header="Weblogic Thread Pool Stats" [selected]="true">
+     <div>
+      <div class="ui-g-6" >
+        <div *ngIf="showPieChart == true"><highcharts-chart [Highcharts] = "highcharts" [options]="options" (click)="changeTableData($event)"></highcharts-chart></div>
+        <div *ngIf="showPieChart == false" style="text-align:left;">No Pie Chart found based on current Filter Settings.</div>
+      </div>
+     
+     <div class="ui-g-6">  
+         <div style="overflow:auto"> 
+          <p-toolbar>
+            <div class='ui-toolbar-group-left'>
+               <label>{{selectedThreadState}}</label>
+             </div>
+             <div class='ui-toolbar-group-right'>
+                <button pTooltip="Reset" pButton type="button" icon="fa-refresh"  (click)="resetTableData()"></button>
+             </div>
+            </p-toolbar>
+
+
+            <p-table class="scen-table" [value]="weblogicDataInfo" scrollHeight="402px" [style]="{'height':'402px','font-size':'12px'}" resizableColumns="true" reorderableColumns="true"  [rows]="15" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[15,30,45,60]" columnResizeMode="expand">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Thread Name</th>
+                  <th>Work Manager</th>
+                  <th>Current Request</th>
+                  <th>Total Request</th>
+                  <th>Thread State</th>
+              </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-node>
+                <tr>
+                    <td><a pTooltip="{{node.threadName}}" tooltipPosition="top" tooltipEvent="hover">{{node.threadName}}</a></td>
+                    <td><a pTooltip="{{node.workManager}}" tooltipPosition="top" tooltipEvent="hover">{{node.workManager}}</a></td>
+                    <td><a pTooltip="{{node.currReq}}" tooltipPosition="top" tooltipEvent="hover">{{node.currReq}}</a></td>
+                    <td><a pTooltip="{{node.totalReq}}" tooltipPosition="top" tooltipEvent="hover">{{node.totalReq}}</a></td>
+                    <td><a pTooltip="{{node.threadState}}" tooltipPosition="top" tooltipEvent="hover">{{node.threadState}}</a></td>
+                </tr>
+            </ng-template>
+            </p-table>
+
+       <!-- <p-dataTable class="scen-table" [value]="weblogicDataInfo" scrollHeight="402px" [style]="{'height':'402px','font-size':'12px'}" resizableColumns="true" reorderableColumns="true"  [rows]="15" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[15,30,45,60]" columnResizeMode="expand">
+           <p-column field="threadName" header="Thread Name" [sortable]="true" [style]="{'width':'110px','text-align':'left'}">
+             <ng-template let-col let-node="rowData" pTemplate type="body">
+			    <a pTooltip="{{node[col.field]}}" tooltipPosition="top" tooltipEvent="hover">{{node[col.field]}}</a>
+		     </ng-template>
+           </p-column>
+           <p-column field="workManager" header="Work Manager" [sortable]="true" [style]="{'width':'70px','text-align':'left'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+			    <a pTooltip="{{node[col.field]}}" tooltipPosition="top" tooltipEvent="hover">{{node[col.field]}}</a>
+		     </ng-template>
+           </p-column>
+           <p-column field="currReq" header="Current Request" [sortable]="true" [style]="{'width':'70px','text-align':'left'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+			    <a pTooltip="{{node[col.field]}}" tooltipPosition="top" tooltipEvent="hover">{{node[col.field]}}</a>
+		     </ng-template>
+           </p-column>
+            <p-column field="totalReq" header="Total Request" [sortable]="true" [style]="{'width':'70px','text-align':'right'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+			    <a pTooltip="{{node[col.field]}}" tooltipPosition="top" tooltipEvent="hover">{{node[col.field]}}</a>
+		     </ng-template>
+           </p-column>
+           <p-column field="threadState" header="Thread State" [sortable]="true" [style]="{'width':'55px','text-align':'left'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+			    <a pTooltip="{{node[col.field]}}" tooltipPosition="top" tooltipEvent="hover">{{node[col.field]}}</a>
+		     </ng-template>
+           </p-column>
+       </p-dataTable> -->
+         </div>
+</div>
+
+<div class="section" *ngIf ="showDownLoadReportIcon">
+<label style="font-size: 12px;padding-left: 6px;" >Download Reports as: </label>
+    <span title="Word Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("word")' src='./images/iconWord.gif'></span>
+     <span title="Excel Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("excel")' src='./images/iconExcel.gif'></span>
+      <span title="PDF Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("pdf")' src='./images/iconPDF.gif'></span>
+</div>
+</div>

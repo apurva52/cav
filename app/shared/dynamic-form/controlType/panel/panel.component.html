@@ -1,0 +1,33 @@
+<p-panel [header]="fieldData.formName " [toggleable]="true" class="prime-dialog">
+    <!-- <form [formGroup]="form"> -->
+
+    <!-- <p-message severity="info" [text]="fieldData.description" *ngIf="fieldData?.description"></p-message> -->
+
+    <p-message severity="success" [text]="fieldData.notifications" *ngIf="fieldData?.notifications"></p-message>
+    <p-toolbar *ngIf="fieldData.description" class="toolbarTabPanel">
+        <i class="pi pi-info-circle" style="font-size: large;
+         vertical-align: middle;" title="{{fieldData.description}}"></i> {{fieldData.description}}
+       </p-toolbar> 
+   
+
+
+    <div class="p-grid ui-fluid" style="align-items: center;">
+        <ng-container *ngFor="let i of fieldData.fields">
+
+            <div class="p-col-12" *ngIf="i.formName !== undefined">
+                <app-panel [fields]="i" [form]="form.controls[fieldData.key]">
+                </app-panel>
+            </div>
+
+            <div class="p-col-12" *ngIf="i.subFormName !== undefined">
+                <app-fieldset [fields]="i" [form]="form.controls[fieldData.key]">
+                </app-fieldset>
+            </div>
+
+
+            <div [class]="i.classes">
+                <app-dynamic-form-right [fields]="i" [form]="form.controls[fieldData.key]"></app-dynamic-form-right>
+            </div>
+        </ng-container>
+    </div>
+</p-panel>

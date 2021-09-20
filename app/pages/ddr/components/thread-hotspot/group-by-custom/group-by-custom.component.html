@@ -1,0 +1,193 @@
+<!-- Commenting due to migration -->
+<!-- <p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+<p-growl life=50000 [value]="errMsg" [sticky]="true"></p-growl> -->
+<p-toolbar>
+  <div class="ui-toolbar-group-left">
+    Showing Hotspots
+    <label *ngIf="hideTimeFilters">From={{startTimeInDate}} To={{endTimeInDate}}</label>
+    <p-dropdown *ngIf="hideTimeRange" [options]="timeRange" [(ngModel)]="selectedTimeRange" placeholder="Select Time"
+      [style]="{'width': '93px'}"></p-dropdown>
+    &nbsp;&nbsp;Stacktrace Contains &nbsp;<input id="input" type="text" size="20" pInputText [(ngModel)]="stackTrace">
+  </div>
+  <div class="ui-toolbar-group-right">
+    <button pTooltip="Apply" pButton type="button" icon="icons8 icons8-checkmark" class="btn-icon"
+      (click)="clickApply(stackTrace,selectedTimeRange)"></button>
+    <button pTooltip="Reset" pButton icon="icons8 icons8-synchronize" class="btn-icon" (click)="clickReset(stackTrace)"></button>
+    <!-- <label>DownLoad Reports as: </label> -->
+    <button pButton icon="icons8 icons8-doc" *ngIf="showDownLoadReportIcon" tooltipPosition="left" placeholder="Left"
+      class="btn-icon mx-3" (click)='downloadReport("word")' pTooltip="Download as Word Report"></button>
+    <button pButton icon="icons8 icons8-spreadsheet-file" *ngIf="showDownLoadReportIcon" tooltipPosition="left"
+      placeholder="Left" class="btn-icon mx-3" (click)='downloadReport("excel")'
+      pTooltip="Download as Excel Report"></button>
+    <button pButton icon="icons8 icons8-pdf-2" *ngIf="showDownLoadReportIcon" tooltipPosition="left" placeholder="Left"
+      class="btn-icon mx-3" (click)='downloadReport("pdf")' pTooltip="Download as PDF Report"></button>
+  </div>
+</p-toolbar>
+
+<div class="ddr-acc-threadHotspot">
+  <p-accordion [multiple]="true" class="ddr-accordion">
+    <p-accordionTab [selected]="false" header="Thread Signature {{hotspotFilter}}">
+      <div style="overflow:auto">
+        <p-toolbar>
+          <div class="ui-toolbar-group-right" style="text-align: right">
+            <button pButton icon="icons8 icons8-menu" tooltipPosition="left" placeholder="Left" class="btn-icon"
+              (click)="toggleColumnFilterForSignature()" pTooltip="Column Filter"></button>
+            <p-multiSelect pTooltip="Show/Hide columns" [options]="columnOptionsForSignature" class="icon-button no-shadow"
+              (onChange)="showHideColumnForSignature($event)" [(ngModel)]="visibleColsForSignature"
+              dropdownIcon="icons8 icons8-columns">
+            </p-multiSelect>
+            <input pInputText type="text" placeholder="Search "
+              (input)="gbSign.filterGlobal($event.target.value, 'contains')" />
+          </div>
+        </p-toolbar>
+        <p-table #gbSign class="all-tables" [value]="hotSpotInfo" selectionMode="single" (onRowSelect)="getSelected($event)"
+          scrollHeight="180px" [style]="{'height':'180px','font-size':'12px'}" resizableColumns="true"
+          reorderableColumns="true" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,20,30,40,50]"
+          [pageLinks]="3" [globalFilterFields]="visibleColsForSignature">
+          <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+              <ng-container *ngFor="let col of colsForSignature">
+                <col *ngIf="col.action" [style]="{'width': col.width+'px'}">
+              </ng-container>
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header">
+            <tr>
+              <ng-container *ngFor="let col of colsForSignature">
+                <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action" [pSortableColumn]="col.field"
+                  pResizableColumn pReorderableColumn>
+                  {{col.header}}
+                  <p-sortIcon [field]="col.field"></p-sortIcon>
+                </th>
+              </ng-container>
+            </tr>
+            <tr *ngIf="isEnabledColumnFilterForSignature">
+              <ng-container *ngFor="let col of colsForSignature">
+                  <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action">
+                      <input class="w-100-p" pInputText type="text" (input)="gbSign.filter($event.target.value, col.field, 'contains')">
+                  </th>
+              </ng-container>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-node>
+            <tr>
+              <ng-container *ngFor="let col of colsForSignature">
+                <td *ngIf="col.action">
+                  <span *ngIf="col.field == 'DisplayName'">
+                    <a class="activeLink" (click)="passDataForStackTrace(node)" pTooltip={{node[col.field]}} tooltipPosition="bottom">
+                      {{node[col.field]}}</a>
+                  </span>
+                  <span *ngIf="col.field == 'TopMethods'" pTooltip="{{node[col.field]}}" tooltipPosition="bottom">
+                    {{node[col.field]}}
+                  </span>
+                  <span *ngIf="col.field == 'Count'" class="right">
+                    <a class="activeLink"
+                      (click)="clickOnThreadCount(node.DisplayName,node.STSignature,node.CompareDepth)"
+                      pTooltip={{node[col.field]}} tooltipPosition="bottom">
+                      {{node[col.field]}}</a>
+                  </span>
+                  <span *ngIf="!(col.field == 'DisplayName' || col.field == 'TopMethods' || col.field == 'Count')" class="right" pTooltip="{{node[col.field]}}" tooltipPosition="bottom">
+                    {{node[col.field]}}
+                  </span>
+                </td>
+              </ng-container>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td [attr.colspan]="colsForSignature.length + 1" class="text-center">
+                <span>No Records Found</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        <!-- <p-dataTable class="scen-table" [value]="hotSpotInfo" [globalFilter]="gbSign" selectionMode="single" (onRowSelect)="getSelected($event)"  scrollHeight="180px" [style]="{'height':'180px','font-size':'12px'}" resizableColumns="true" reorderableColumns="true"
+ [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,20,30,40,50]" [pageLinks]="3">
+  <div *ngFor="let col of colsForSignature">
+    <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [filter]="col.filter" [sortable]="col.sortable" (sortFunction)= "threadHotspotSort($event, hotSpotInfo)" [style]="{'width': col.width+'px','text-align': col.align,'color': col.color}">
+      <ng-template let-col let-node="rowData" *ngIf="col.field == 'DisplayName'" pTemplate type="header">
+        <a pTooltip="Display name for every stackTrace signature" tooltipPosition="bottom" tooltipEvent="hover">StackTrace Signature</a>
+      </ng-template>
+      <ng-template let-col let-node="rowData" *ngIf="col.field == 'DisplayName'" pTemplate type="body">
+        <span class ="ddr-table-left" (click)="passDataForStackTrace(node)">
+        <span pTooltip={{node[col.field]}} tooltipPosition="bottom" tooltipEvent="hover">
+          {{node[col.field]}}</span>
+        </span>
+      </ng-template>
+      <ng-template let-col let-node="rowData" *ngIf="col.field == 'TopMethods'" pTemplate type="body">
+        <span class="ForToolTip" pTooltip={{node[col.field]}} tooltipPosition="bottom" tooltipEvent="hover">
+          {{node[col.field]}}
+        </span>
+      </ng-template>
+      <ng-template let-col let-node="rowData" *ngIf="col.field == 'Count'" pTemplate type="body">
+        <span class ="ddr-table-right" (click)="clickOnThreadCount(node.DisplayName,node.STSignature,node.CompareDepth)"> 
+        <span pTooltip={{node.Count}} tooltipPosition="bottom" tooltipEvent="hover">
+          {{node[col.field]}}</span>
+        </span>
+      </ng-template>
+    </p-column>
+  </div>
+ </p-dataTable> -->
+        <!-- <div *ngIf="hsTotalCount <= 10 || ((hsOffset+hsLimit) > hsTotalCount)"> {{hsOffset+1}} - {{hsTotalCount}} of {{hsTotalCount}} </div>
+ <div *ngIf="hsTotalCount > 10"> {{hsOffset+1}} - {{hsOffset+fpLimit}} of {{hsTotalCount}} </div>
+ <p-paginator [rows]="10" [totalRecords]="hsTotalCount" [rowsPerPageOptions]="[10,20,30,40,50]" [pageLinkSize]="3" (onPageChange)="paginate($event)" ></p-paginator> -->
+      </div>
+    </p-accordionTab>
+  </p-accordion>
+
+  <p-accordion [multiple]="true" class="ddr-accordion">
+    <p-accordionTab [selected]="true" header="Thread StackTrace {{stackTraceFilter}}">
+      <div style="overflow:auto;">
+        <!-- <p-toolbar>
+            <div  class="ui-toolbar-group-right" style="text-align: right">
+                <button pButton type="button" title={{toggleFilterTitleForStack}} icon="fa fa-bars" (click)="toggleColumnFilterForStack()"></button>
+                <p-multiSelect title="Show/Hide columns" [options]="columnOptionsForStackTrace" class="dashboard-lowerPanel-multiSelect" (onChange)="showHideColumnForStackTrace($event)"
+                [(ngModel)]="visibleColsForStackTrace"></p-multiSelect>
+                <button pButton type="button" title="Show/Hide columns" icon="fa fa-check-square-o"></button>
+                <i class="fa fa-search" style="margin:0 0 0 0;"></i>
+                <input #gbStack type="text" pInputText size="30" placeholder="Search">
+            </div>
+        </p-toolbar>
+      <p-dataTable class="scen-table" [value]="hotSpotSecInfo" [globalFilter]="gbStack" scrollHeight="180px" [style]="{'font-size':'12px'}" resizableColumns="true" reorderableColumns="true">
+          <div *ngFor="let col of colsForStackTrace">
+            <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [filter] = "col.filter"  [sortable]="col.sortable" (sortFunction)="stackTraceSort($event, hotSpotSecInfo)"
+              [style]="{'width': col.width+'px','text-align': col.align}">
+            </p-column>
+          </div>
+      </p-dataTable> -->
+        <p-treeTable class="all-tables" [value]="hotSpotSecInfo" [columns]="colsForStackTrace" [resizableColumns]="true"
+          columnResizeMode="expand" [scrollable]="true">
+          <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+              <ng-container *ngFor="let col of columns">
+                <col *ngIf="col.action" [style.width]="col.width">
+              </ng-container>
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header" let-rowNode let-columns>
+            <tr [ttRow]="rowNode">
+              <th *ngFor="let col of columns" ttResizableColumn>
+                {{col.header}}
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+            <tr>
+              <td *ngFor="let col of columns; let i = index">
+                <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+                <span tooltipPosition="bottom" tooltipEvent="hover" pTooltip={{rowData[col.field]}}>
+                  {{rowData[col.field]}} </span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td [attr.colspan]="colsForStackTrace.length" class="text-center">No Records Found</td>
+            </tr>
+          </ng-template>
+        </p-treeTable>
+      </div>
+    </p-accordionTab>
+  </p-accordion>
+</div>

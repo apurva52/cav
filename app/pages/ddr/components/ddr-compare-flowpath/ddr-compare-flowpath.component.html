@@ -1,0 +1,171 @@
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+  <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+  </div>
+</div>
+<div class="h-100-vh page-container compare-flowpath-page">
+  <!-- <div class="header">
+    <app-header></app-header>
+  </div> -->
+  <!-- <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <a routerLink="/drilldown/flow-path">
+        <i class="icons8 icons8-left toolbar-icon-color" (click)="back()" ></i>
+      </a>
+      <div class="p-col ui-toolbar-text">COMPARE FLOWPATHS</div>
+    </div>
+  </p-toolbar> -->
+  <!-- <div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+  </div>
+  <div class="p-grid p-col-12 filter-group">
+    <div>{{ selectedFilter }}</div>
+  </div> -->
+<p-accordion>
+  <p-accordionTab [selected]=true header="Compared Flowpath">
+
+    <p-table class="ddr-table all-tables" [value]="compareFPInfo"  resizableColumns="true" reorderableColumns="true">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <ng-container *ngFor="let col of cols">
+            <col *ngIf="col.action" [style]="{'width': col.width+'px'}">
+          </ng-container>
+        </colgroup>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+          <tr>
+              <ng-container *ngFor="let col of cols">
+                <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action">
+                  <span> {{ col.header }} </span>
+                </th>
+              </ng-container>
+          </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-node>
+          <tr>
+              <ng-container  *ngFor="let col of cols">
+                <td *ngIf="col.action">
+                  <span *ngIf="(col.field == 'urlName' || col.field == 'urlQueryParamStr')" pTooltip={{(node[col.field])}} tooltipPosition="bottom">
+                    <span>{{(node[col.field])}}</span>
+                  </span>
+                  <span *ngIf="(col.field == 'btCatagory')" >
+                    <span>{{(node[col.field])}}</span>
+                  </span>
+                  <span class="right" *ngIf="!(col.field == 'urlName' || col.field == 'urlQueryParamStr' || col.field == 'btCatagory')">
+                    <span>{{(node[col.field])}}</span>
+                  </span>
+                </td>
+              </ng-container>
+          </tr>
+      </ng-template>
+  </p-table>
+      <!-- <p-dataTable class="ddr-table" [value]="compareFPInfo"  resizableColumns="true" reorderableColumns="true">
+    <div *ngFor="let col of cols">
+    <p-column *ngIf = "col.action" [field]="col.field" [header]="col.header"  [filter]="col.filter" [filterMatchMode]='contains' [style]="{'width': col.width + 'px'}">
+      <ng-template let-col let-node="rowData" pTemplate type="body">
+       <div style ="text-align: left;"  *ngIf="(col.field == 'urlName')" >
+        {{node[col.field]}} </div> 
+       <div style ="text-align: left;"  *ngIf="(col.field == 'urlQueryParamStr')" >
+        {{node[col.field]}} </div>
+        <div style="text-align: right;" *ngIf="(col.field == 'dbCallCounts')">
+          {{node[col.field]}} </div>       
+        <div style ="text-align: right;"  *ngIf="(col.field == 'fpDuration')" >
+          {{node[col.field]}} </div>
+        <div style ="text-align: left;"  *ngIf="(col.field == 'btCatagory')" >
+            {{node[col.field]}} </div>
+        <div style ="text-align: right;"  *ngIf="(col.field == 'callOutCount')" >
+          {{node[col.field]}}</div>
+        <div style="text-align: right;" *ngIf="(col.field == 'totalError' )">
+            {{node[col.field]}} </div>
+        <div style="text-align: left ;" *ngIf="(col.field == 'tierName')">{{node[col.field]}}</div>
+       <div style="text-align: right ;" *ngIf="(col.field == 'startTime')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'flowpathInstance')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'statusCode')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'methodsCount')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'btCpuTime')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'waitTime')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'syncTime')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'iotime')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'suspensiontime')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'storeId')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'terminalId')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'nvSessionId')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'jmsCallOut')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'coherenceCallOut')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'nvPageId')">{{node[col.field]}}</div>
+        <div style="text-align: right ;" *ngIf="(col.field == 'ndSessionId')">{{node[col.field]}}</div>
+        <div *ngIf="!(col.field == 'dbCallCounts') && !(col.field == 'tierName') && !(col.field == 'urlQueryParamStr') && !(col.field == 'urlName') 
+        && !(col.field == 'flowpathInstance') && !(col.field == 'statusCode') && !(col.field == 'fpDuration') && !(col.field == 'callOutCount') && !(col.field == 'totalError')
+      && !(col.field == 'methodsCount') && !(col.field == 'ndSessionId') && !(col.field == 'nvPageId') && !(col.field == 'coherenceCallOut')&& !(col.field == 'jmsCallOut') 
+      && !(col.field == 'nvSessionId') && !(col.field == 'terminalId') && !(col.field == 'storeId') && !(col.field == 'suspensiontime') && !(col.field == 'startTime') 
+      && !(col.field == 'iotime') && !(col.field == 'syncTime') && !(col.field == 'waitTime') && !(col.field == 'btCpuTime') && !(col.field == 'btCatagory')">{{node[col.field]}} </div>
+      </ng-template>
+    </p-column>
+  </div>
+  </p-dataTable> -->
+ </p-accordionTab>
+ </p-accordion>
+    <p-tabView class="ddr-tabs scrollDiv" (onChange)="handleChange($event)">
+  <!--p-tabPanel header="Transaction Flow">
+    <div  style="width:1200px;float:left;" >
+<div style="overflow:scroll;position:relative;width:600px;float:left;clear:both">
+<app-ddr-transaction-flowmap *ngIf="showTF1" [value]="txndataToDraw[0]" [queryParams]="queryParams[0]"></app-ddr-transaction-flowmap>
+</div>
+<div style="overflow:scroll;position:relative;width:600px;float:left;">
+<app-ddr-transaction-flowmap *ngIf="showTF2" [value]="txndataToDraw[1]" [queryParams]="queryParams[1]"></app-ddr-transaction-flowmap>
+</div>
+</div>
+  </p-tabPanel-->
+  <p-tabPanel header="Method Timing">
+     <div *ngIf="showMT" class="ui-g" >
+      <div class="ui-g-12" >
+        <app-ddr-compare-methodtiming [compareFPInfo]="compareFPInfo"></app-ddr-compare-methodtiming>
+      </div>
+     </div>
+  </p-tabPanel>
+  <p-tabPanel header="DB Request">
+   <div *ngIf="showDB" class="ui-g" >
+<div class="ui-g-12" >
+<app-ddr-compare-queries [value]="compareFPInfo"></app-ddr-compare-queries>
+</div>
+
+</div>
+  </p-tabPanel>
+  <!--p-tabPanel header="Sequence Diagram">
+                <iframe width="450" height="400">
+</iframe>
+<iframe width="450" height="400">
+</iframe>
+      </p-tabPanel-->
+  <p-tabPanel header="Method Calling Tree">
+    <div *ngIf="showMCT" class="ui-g" >
+<div class="ui-g-6">
+<methodcallingtree [value]="compareFPInfo[0]"></methodcallingtree>
+</div>
+<div class="ui-g-6">
+<methodcallingtree [value]="compareFPInfo[1]"></methodcallingtree>
+</div>
+</div>
+</p-tabPanel>
+<p-tabPanel header="Hotspot">
+  <div *ngIf="showHotspot" class="ui-g" >
+<div class="ui-g-6">
+<app-hotspot [value]="compareFPInfo[0]"></app-hotspot>
+</div>
+<div class="ui-g-6">
+<app-hotspot [value]="compareFPInfo[1]"></app-hotspot>
+</div>
+</div>
+</p-tabPanel>
+<p-tabPanel header="Exception">
+   <div *ngIf="showExceptions"  class="ui-g" >
+<div class="ui-g-6">
+<exception-report [value]="compareFPInfo[0]"></exception-report>
+</div>
+<div class="ui-g-6">
+<exception-report [value]="compareFPInfo[1]"></exception-report>
+</div>
+</div>
+</p-tabPanel>
+</p-tabView>

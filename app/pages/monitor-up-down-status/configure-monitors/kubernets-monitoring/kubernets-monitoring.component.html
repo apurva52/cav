@@ -1,0 +1,99 @@
+<div class="h-100-vh kubernet-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-col p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-col-6 p-grid p-justify-start p-align-center">
+                <a routerLink="/configure-monitors">
+                    <span class="icons8 icons8-back toolbar-icon-color"></span>
+                </a>
+                <div class="ui-toolbar-text">KUBERNETES</div>
+            </div>
+
+            <div class="p-grid p-justify-start p-align-center">
+                <div class="account-count">Total Configured Accounts: 5</div>
+                <a pButton class="ui-button ui-button-rounded ui-button-right" label="ADD NEW" routerLink="/add-monitors"></a>
+            </div>
+
+        </div>
+    </p-toolbar>
+
+    <div class="content-body">
+        <div class="total-config-panel">
+            <p-panel>
+                <p-header>
+                    <div class="ui-helper-clearfix p-grid p-justify-between p-align-center">
+                        <div class="ui-panel-title p-col">TOTAL CONFIGURED</div>
+                        <p-dropdown class="" [options]="accountsItem" placeholder="All Accounts" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+
+                    </div>
+                </p-header>
+                <div class="panel-content p-grid">
+                    <div class="p-grid p-col-12">
+                        <div class="p-col-3">
+                            <div class="p-grid panel-item p-col-12 p-justify-between p-align-center">
+                                <div class="title">CLUSTER</div>
+                                <div class="p-grid content-1 p-col-3 p-justify-center p-align-center">
+
+                                    <div class="count">3</div>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-col-3">
+                            <div class="p-grid panel-item p-col-12 p-justify-between p-align-center">
+                                <div class="title">NODE</div>
+                                <div class="p-grid content-1 p-col-3 p-justify-center p-align-center">
+
+                                    <div class="count">15<i class="icons8-down"></i></div>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-col-3">
+                            <div class="p-grid panel-item p-col-12 p-justify-between p-align-center">
+                                <div class="title">NAMESPACE</div>
+                                <div class="p-grid content-1 p-col-3 p-justify-center p-align-center">
+
+                                    <div class="count">10<i class="icons8-up"></i></div>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-col-3">
+                            <div class="p-grid panel-item p-col-12 p-justify-between p-align-center">
+                                <div class="title">SERVICES/APPLICATIONS</div>
+                                <div class="p-grid content-1 p-col-3 p-justify-center p-align-center">
+
+                                    <div class="count">30</div>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-grid p-col-12">
+                        <div class="p-col-4" *ngFor="let chart of kubernetMonitoringData.charts">
+                            <app-chart [data]="chart"></app-chart>
+                        </div>
+                    </div>
+
+                </div>
+
+            </p-panel>
+        </div>
+
+
+    </div>
+</div>

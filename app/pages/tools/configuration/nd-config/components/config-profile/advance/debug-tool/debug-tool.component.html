@@ -1,0 +1,46 @@
+<form (ngSubmit)="saveKeywordData()" #form="ngForm" ngNativeValidate>
+  <div class="tabsincontent">
+    <div class="header p-grid p-justify-between p-align-center">Settings
+      <div class="pull-right my-6">
+        <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i> 
+        <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="saveDisable" label="Reset to Default"></button>
+        <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordsDataToDefault()" label="Reset to Default"></button>
+        <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordData()" label="Undo All"></button>
+	    <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="resetKeywordData()" label="Undo All"></button>
+	    <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+	    <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" label="Save"></button>
+      </div>
+    </div>
+    <p-panel class="hideheader">
+        <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader">
+            <div class="ui-g">
+                <div class="ui-g-12">
+     <!--               <div class="ui-g-2" style="width:18%">
+                        <label>Capture calls for outside transaction(s) </label>
+                    </div>
+                    <div class="ui-g-1">
+                        <input type="number" size='20' name="enableCaptureDataOutsideTxn" [(ngModel)]="enableCaptureDataOutsideTxn" min=0 max=1 class="configui-debug-css-2" required ngModel>
+                    </div>  -->
+			<div class="ui-g-3">
+                        	<p-checkbox name="enableCaptureDataOutsideTxn" [(ngModel)]="enableCaptureDataOutsideTxn" binary="true" ngModel label="Capture calls for outside transaction(s)"></p-checkbox>
+                    	</div>
+                </div>
+
+                <div class="ui-g-12" *ngIf = "agentType == 'Java'">
+                    <div class="ui-g-3">
+                        <p-checkbox name="isEnableCaptureSocketStackTrace" [(ngModel)]="isEnableCaptureSocketStackTrace" binary="true" ngModel label="Enable capture socket trace"></p-checkbox>
+                    </div>
+                </div>
+                <div class="ui-g-12" *ngIf = "agentType == 'Java'">
+                    <div class="ui-g-3">
+                        <label style="margin-left: 15px">No. of stack traces to be dumped</label>
+                    </div>
+                    <div class="ui-g-1">
+                        <input type="number" size='20' name="enableCaptureSocketStackTrace" [disabled]="!isEnableCaptureSocketStackTrace" [(ngModel)]="enableCaptureSocketStackTrace" min=0 max=512 class="configui-debug-css-2" required ngModel>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </p-panel>
+  </div>
+</form>

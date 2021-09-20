@@ -1,0 +1,54 @@
+<div [ngStyle]="{ backgroundColor: widget?.settings?.types?.systemHealth?.bgColor  }">
+  <div class="widget-header">
+    <ul class="widget-options" (click)="select()">
+      <li *ngIf="!loading">
+         <i
+          *ngIf="!ishealthRule"
+          class="widget-icon icons8"
+          [ngClass]="systemHealthOptions.dataImgName"
+          style="color: black;"
+        ></i>
+      </li>
+
+      <!-- Widget wise time applied -->
+      <li  *ngIf="widget.widgetWiseInfo && widget.widgetWiseInfo.widgetWise"
+      style="display: inline-block;color: red;" [pTooltip]= 'widgetWiseTimeToolTip'><i class="icons8 icons8-clock app-graph "></i></li>
+
+      <li *ngIf="loading"><i class="pi pi-spin pi-spinner"></i></li>
+      <li *ngIf="dashboard.mode =='EDIT'" (click)='dashboard.copyWidget(widget);'>
+        <i style="display: inline-block;" pTooltip= 'Clone Widget' class="icons8 icons8-copy clickable"></i>
+    </li>
+      <li *ngIf="errorMessage">
+        <i style="display: inline-block;color: red;" [pTooltip]= 'errorMessage' class="icons8 icons8-error"></i>
+    </li>
+      <li [ngStyle]="{ display: !loading ? 'inline-block' : 'none' }">
+        <app-widget-menu *ngIf="visiblityMenu == undefined && !visiblityMenu" [widget]="this"></app-widget-menu>
+      </li>
+    </ul>
+    <div class="widget-title" (click)="select()" (dblclick)="toggleFocus()"  [style.fontWeight]= "widget?.settings?.types?.systemHealth?.bold  ?'700' : 'normal'" [style.fontFamily]= "widget?.settings?.types?.systemHealth?.displayWidgetFontFamily == 'Select Font Family' ? 'Poppins,sans-serif' : widget?.settings?.types?.systemHealth?.displayWidgetFontFamily" [style.fontStyle]="widget?.settings?.types?.systemHealth?.italic ?'italic' : 'normal'"  [style.color]="widget.settings.types.systemHealth.isGraphNameOnTop ? bgColor : '#333333'">
+    <i *ngIf="bottomText =='Normal'" [ngStyle]="{color: bgColor }" [pTooltip]= 'bottomText'  style="margin-right: 5px;font-weight:30px ;" class="icons8 icons8-error"></i>
+    <i *ngIf="bottomText =='Critical' || bottomText =='Major'" [ngStyle]="{color: bgColor }" [pTooltip]= 'bottomText'  style="margin-right: 5px;font-weight:30px ;" class="icons8 icons8-error"></i>
+      <span *ngIf="widget.settings.types.systemHealth.showTitleBar" [style.fontStyle]="widget?.settings?.types?.systemHealth?.italicCaption ?'italic' : 'normal'" [style.fontWeight]= "widget?.settings?.types?.systemHealth?.boldCaption  ?'700' : 'normal'" [style.textDecoration]="widget?.settings?.types?.systemHealth?.underlineCaption ? 'Underline' : 'none'" [pTooltip]="titleText" [tooltipPosition]="'top'">{{
+        titleText
+      }}</span>
+    </div>
+  </div>
+  <div class="empty-container" *ngIf="empty">Data Not Available</div>
+  <div class="widget-body" (dblclick)="toggleFocus()">
+    <div class="widget-body" *ngIf="systemHealthOptions && !empty">
+      <div class="data-attr-name">
+        <svg viewBox="0 0 120 20" class="data-text">
+          <text x="15%" y="63%" [attr.fill]="widget?.settings?.types?.systemHealth?.fontColor" class="pre-suff" text-anchor="middle">
+          {{ systemHealthOptions.prefix }} </text> 
+          <text x="50%" y="70%" [style.fontStyle]="widget?.settings?.types?.systemHealth?.italic ?'italic' : 'normal'" [style.textDecoration]="widget?.settings?.types?.systemHealth?.underline ? 'Underline' : 'none'" [style.fontWeight]= "widget?.settings?.types?.systemHealth?.bold  ?'700' : 'normal'" [attr.fill]="widget.settings.types.systemHealth.fontColor" text-anchor="middle"  [ngStyle]="{fontSize: widget.settings.types.systemHealth.fontSize }">
+          {{ displayCountOfGraph }} </text>
+            <text x="85%" y="63%" [attr.fill]="widget?.settings?.types?.systemHealth?.fontColor" class="pre-suff" text-anchor="middle">
+          {{ systemHealthOptions.suffix }} </text>
+        </svg>
+        <div class="severity">
+          <span [style.color]= "widget.settings.types.systemHealth.isGraphNameOnTop ?  '#333333': bgColor">{{ bottomText }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

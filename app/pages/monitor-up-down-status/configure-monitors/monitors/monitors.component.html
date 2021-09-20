@@ -1,0 +1,534 @@
+<div class="h-100-vh monitors-container">
+
+    <div *ngIf="navFlag" class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar *ngIf="navFlag" class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/configure-monitors">
+                <span class="icons8 icons8-left toolbar-icon-color"> </span>
+            </a>
+            <div class="p-col ui-toolbar-text">{{techName|uppercase}} MONITORS</div>
+
+            <!-- <div>
+                <a pButton class="ui-button ui-button-rounded ui-button-right" label="NEW MONITOR" routerLink="/add-monitors"></a>
+            </div> -->
+
+        </div>
+    </p-toolbar>
+    <div *ngIf="navFlag" class="p-grid p-align-center p-justify-start">
+        <div class="w-100-p">
+            <p-breadcrumb [model]="breadcrumb" class="ui-menuitem-text" (onItemClick)="navigateToRoute(breadcrumb)">
+            </p-breadcrumb>
+        </div>
+    </div>
+    <div class="content-body">
+        <!-- <div class="path">
+            <p-breadcrumb [model]="breadcrumb" class = "ui-menuitem-text" (onItemClick)="navigateToRoute(breadcrumb)"></p-breadcrumb>
+        </div> -->
+
+        <div class="p-grid status-cards">
+            <div class="p-col-3">
+                <div class="all-container border-3 panel-container clickable p-grid w-100-p p-align-center" id="all"
+                    (click)="navigateToMonitors('All', 'all')">
+                    <div class="p-grid p-col-7 p-justify-start p-align-center">
+                        <i class="icons8 icons8-clock"></i>
+                        <div>
+                            <div class="status">All Monitors</div>
+                            <div class="server-count">{{totalMonitor}} Monitors</div>
+                        </div>
+
+                    </div>
+
+                    <div class="p-grid p-col-5 ">
+
+                        <div class="p-grid w-100-p my-5 p-justify-between p-align-center">
+                            <div class="p-justify-between p-grid p-align-center ">
+
+                                <span class="title ">Tier</span>
+                            </div>
+                            <div class="count ">{{tierCount}}</div>
+                        </div>
+                        <div class="p-grid w-100-p my-5 p-justify-between p-align-center">
+                            <div class="p-justify-between p-grid p-align-center ">
+                                <!-- <i class="icons8 icons8-error"></i> -->
+                                <span class="title ">Server</span>
+                            </div>
+                            <div class="count ">{{serverCount}}</div>
+                        </div>
+                        <div class="p-grid w-100-p my-5 p-justify-between p-align-center monitor-disabled ">
+                            <div class="p-justify-between p-grid p-align-center ">
+                                <!-- <i class="icons8 icons8-unavailable"></i> -->
+                                <span class="title ">Instance</span>
+                            </div>
+                            <div class="count ">{{instCount}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <ng-container *ngFor="let data of statusData">
+
+                <!-- <ng-container *ngIf="data.status == 'Running'"> -->
+                <div *ngIf="data.status == 'Running'" id="running" class="p-col-3">
+                    <div class="running-container panel-container clickable p-grid w-100-p  p-align-center"
+                        (click)="navigateToMonitors(data.status, 'running')">
+                        <div class="p-grid p-col-7 p-justify-start p-align-center">
+                            <i class="icons8 icons8-clock"></i>
+                            <div>
+                                <div class="status">Running</div>
+                                <div class="server-count">{{data.mc}} of {{data.total}} Monitors</div>
+                            </div>
+
+                        </div>
+
+                        <div class="p-grid p-col-5 ">
+
+                            <div class="p-grid w-100-p my-5 p-justify-between p-align-center">
+                                <div class="p-justify-between p-grid p-align-center ">
+
+                                    <span class="title ">Tier</span>
+                                </div>
+                                <div class="count ">{{data.tc}}</div>
+                            </div>
+                            <div class="p-grid w-100-p my-5 p-justify-between p-align-center">
+                                <div class="p-justify-between p-grid p-align-center ">
+                                    <!-- <i class="icons8 icons8-error"></i> -->
+                                    <span class="title ">Server</span>
+                                </div>
+                                <div class="count ">{{data.sc}}</div>
+                            </div>
+                            <div class="p-grid w-100-p my-5 p-justify-between p-align-center monitor-disabled ">
+                                <div class="p-justify-between p-grid p-align-center ">
+                                    <!-- <i class="icons8 icons8-unavailable"></i> -->
+                                    <span class="title ">Instance</span>
+                                </div>
+                                <div class="count ">{{data.ic}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- </ng-container> -->
+
+                <!-- <ng-container *ngIf="data.status == 'Failed'"> -->
+                <div *ngIf="data.status == 'Failed'" id="failed" class="p-col-3">
+                    <div class="failed-container panel-container clickable p-grid w-100-p  p-align-center"
+                        (click)="navigateToMonitors(data.status, 'failed')">
+                        <div class="p-grid p-col-7 p-justify-start p-align-center ">
+                            <i class="icons8 icons8-error"></i>
+                            <div>
+                                <div class="status">Failed</div>
+                                <div class="server-count">{{data.mc}} of {{data.total}} Monitors</div>
+                            </div>
+
+                        </div>
+
+                        <div class="p-grid p-col-5 ">
+
+                            <div class="p-grid w-100-p my-5 p-justify-between p-align-center">
+                                <div class="p-justify-between p-grid p-align-center ">
+
+                                    <span class="title ">Tier</span>
+                                </div>
+                                <div class="count ">{{data.tc}}</div>
+                            </div>
+                            <div class="p-grid w-100-p my-5 p-justify-between p-align-center">
+                                <div class="p-justify-between p-grid p-align-center ">
+
+                                    <span class="title ">Server</span>
+                                </div>
+                                <div class="count ">{{data.sc}}</div>
+                            </div>
+                            <div class="p-grid w-100-p my-5 p-justify-between p-align-center monitor-disabled ">
+                                <div class="p-justify-between p-grid p-align-center ">
+                                    <!-- <i class="icons8 icons8-unavailable"></i> -->
+                                    <span class="title ">Instance</span>
+                                </div>
+                                <div class="count ">{{data.ic}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- </ng-container> -->
+
+                <!-- <ng-container *ngIf="data.status == 'Disabled'"> -->
+                <div *ngIf="data.status == 'Disabled'" id="disabled" class="p-col-3">
+                    <div class=" disabled-container panel-container clickable p-grid w-100-p  p-align-center"
+                        (click)="navigateToMonitors(data.status, 'disabled')">
+                        <div class="p-grid p-col-7 p-justify-start p-align-center ">
+                            <i class="icons8 icons8-unavailable"></i>
+                            <div>
+                                <div class="status">Disabled</div>
+                                <div class="server-count">{{data.mc}} of {{data.total}} Monitors</div>
+                            </div>
+
+                        </div>
+
+                        <div class="p-grid p-col-5 ">
+
+                            <div class="p-grid w-100-p my-5 p-justify-between p-align-center">
+                                <div class="p-justify-between p-grid p-align-center ">
+
+                                    <span class="title ">Tier</span>
+                                </div>
+                                <div class="count ">{{data.tc}}</div>
+                            </div>
+                            <div class="p-grid w-100-p my-5 p-justify-between p-align-center">
+                                <div class="p-justify-between p-grid p-align-center ">
+
+                                    <span class="title ">Server</span>
+                                </div>
+                                <div class="count ">{{data.sc}}</div>
+                            </div>
+                            <div class="p-grid w-100-p my-5 p-justify-between p-align-center monitor-disabled ">
+                                <div class="p-justify-between p-grid p-align-center ">
+                                    <!--  -->
+                                    <span class="title ">Instance</span>
+                                </div>
+                                <div class="count ">{{data.ic}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- </ng-container> -->
+
+
+
+
+            </ng-container>
+        </div>
+
+        <div class="monitors-block">
+            <ng-container>
+                <div>
+                    <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                        Select column to show
+                    </div>
+                    <div class="audit-logs-table">
+
+                        <p-table *ngIf = "resetTable" #monitors [columns]="selectedColumns" [value]="data.data" [rowHover]="true"
+                            [paginator]="true" [rows]="data.paginator.rows" [totalRecords]="rowGroupMetadata.length"
+                            [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [(selection)]="selectedRow"
+                            class="all-tables" [resizableColumns]="true" [showCurrentPageReport]="true"
+                            currentPageReportTemplate="{{data.data.length != 0 ? 'Showing {first} to {last} of {totalRecords} entries' : ''}}"
+                            [responsive]="true" [scrollable]="true" scrollHeight="calc(100vh - 340px)"
+                            [globalFilterFields]="globalFilterFields" selectionMode="single" rowExpandMode="single"
+                            sortField="groupData.name" sortMode="single" dataKey="groupData.name" (onSort)="onSort()">
+                            <ng-template pTemplate="caption">
+                                <div class="p-d-flex text-left p-jc-between"
+                                    *ngIf="(apiData.tier != null && apiData.tier != '') && (apiData.server === null || apiData.server === '' || apiData.server === undefined)">
+                                    {{apiData.monStatus === 7 ? 'All' : apiData.monStatus === 1 ? 'Running' :
+                                    apiData.monStatus === 2 ? 'Failed' : 'Disabled'}} monitor(s) of Tier :
+                                    {{apiData.tier}}
+                                </div>
+
+                                <div class="p-d-flex text-left p-jc-between"
+                                    *ngIf="apiData.server != null && apiData.server != ''">
+                                    {{apiData.monStatus === 7 ? 'All' : apiData.monStatus === 1 ? 'Running' :
+                                    apiData.monStatus === 2 ? 'Failed' : 'Disabled'}} monitor(s) of Tier :
+                                    {{apiData.tier}}, Server : {{apiData.server}}
+                                </div>
+
+                                <div class="p-d-flex text-left p-jc-between"
+                                    *ngIf="apiData.tier === null || apiData.tier === ''">
+                                    {{apiData.monStatus === 7 ? 'All' : apiData.monStatus === 1 ? 'Running' :
+                                    apiData.monStatus === 2 ? 'Failed' : 'Disabled'}} monitor(s) of {{tierName}}
+                                </div>
+                            </ng-template>
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                    <col style="width: 3em;">
+                                    <col *ngFor="let col of columns" [style.width]="col.width" />
+                                </colgroup>
+                            </ng-template>
+                            <ng-template pTemplate="header" let-columns>
+                                <tr>
+                                    <th rowspan="2"></th>
+                                    <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv"
+                                        [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.valueField" pResizableColumn>
+
+                                        {{ col.label }}
+
+                                        <!-- <div *ngIf="col.isSort" class="right"> -->
+                                        <p-sortIcon *ngIf="col.isSort" field="col.isSort" class="text-right"
+                                            ariaLabel="Activate to sort"
+                                            ariaLabelDesc="Activate to sort in descending order"
+                                            ariaLabelAsc="Activate to sort in ascending order">
+                                        </p-sortIcon>
+                                        <!-- </div> -->
+                                        <div *ngIf="col.actionIcon" class="right">
+                                            <i class="icons8-search" (click)="toggleFilters()"></i>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr *ngFor="let headerRow of data.headers">
+                                    <ng-container *ngIf="isEnabledColumnFilter">
+
+                                        <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                            <div *ngIf="
+                                  col.filter.isFilter === true &&
+                                  col.filter.type === 'custom'
+                                ">
+                                                <input class="w-100-p" pTooltip="Enter number to search"
+                                                    *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                    monitors.filter(
+                                      $event.target.value,
+                                      col.valueField,
+                                      'custom'
+                                    )
+                                  " />
+                                            </div>
+                                            <div *ngIf="
+                                  col.filter.isFilter === true &&
+                                  col.filter.type === 'contains'
+                                ">
+                                                <input class="w-100-p" *ngSwitchCase="col.label" pInputText type="text"
+                                                    (input)="
+                                    monitors.filter(
+                                      $event.target.value,
+                                      col.valueField,
+                                      'contains'
+                                    )
+                                  " />
+                                            </div>
+                                        </th>
+                                    </ng-container>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex"
+                                let-expanded="expanded">
+                                <tr [ngStyle]="expanded ? {} : {'border-left' : '3px solid #c3d7ea'}"
+                                    [pSelectableRowDisabled]="isCheckbox" [pSelectableRow]="row" [pRowToggler]="row"
+                                    (click)="selectRow(row,expanded)">
+                                    <td style="width: 3em">
+                                        <i [ngClass]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i>
+                                    </td>
+                                    <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}"
+                                        [title]="col.valueField != 'status' ? row[col.valueField] : row.sTip "
+                                        [ngClass]="row[col.valueField] === 'Failed' ? 'error' : (row[col.valueField] === 'Running' ? 'running' : '')">
+
+                                        <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon"
+                                            class="column-icon"></i> {{ row[col.valueField] }}
+                                        <!-- <span class="action-icon" *ngIf="col.actionIcon && expanded">
+                                                <i class="icons8-sync-settings"></i>
+                                                <i class="icons8-cursor"></i>
+                                                <i class="icons8-unavailable"></i>
+                              
+                                            </span> -->
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="rowexpansion" let-row let-columns="columns">
+                                <tr class="bg-color">
+                                    <td colspan="4">
+                                        <ng-container>
+                                            <div class="clean-up">
+                                                <ng-container>
+                                                    <div>
+                                                        <div class="empty-table-message"
+                                                            *ngIf="selectedColumnsGroup.length === 0">
+                                                            Select column to show
+                                                        </div>
+                                                        <div class="clean-up-table">
+
+                                                            <p-table #groupData [columns]="selectedColumnsGroup"
+                                                                [value]="dataGroup.data" [rowHover]="true"
+                                                                [paginator]="true" [rows]="dataGroup.paginator.rows"
+                                                                [totalRecords]="dataGroup.data.length"
+                                                                [rowsPerPageOptions]="dataGroup.paginator.rowsPerPageOptions"
+                                                                class="all-tables" [showCurrentPageReport]="true"
+                                                                currentPageReportTemplate="{{dataGroup.data.length != 0 ? 'Showing {first} to {last} of {totalRecords} entries' : ''}}"
+                                                                [responsive]="true" [scrollable]="true"
+                                                                scrollHeight="130px" paginatorDropdownAppendTo="body"
+                                                                selectionMode="single"
+                                                                [globalFilterFields]="globalFilterFields">
+                                                                <ng-template pTemplate="colgroup" let-columns>
+                                                                    <colgroup>
+                                                                        <!-- <col *ngFor="let col of columns" [style.width]="col.width" /> -->
+                                                                        <col class="w-15-p" />
+                                                                        <col class="w-10-p" />
+                                                                        <col class="w-15-p" />
+                                                                        <col class="w-20-p" />
+                                                                        <col class="w-10-p" />
+                                                                        <col class="w-10-p" />
+                                                                        <col class="w-10-p" />
+                                                                    </colgroup>
+                                                                </ng-template>
+                                                                <ng-template pTemplate="header" let-columns>
+                                <tr>
+                                    <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv"
+                                        [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.valueField">
+                                        {{ col.label }}
+                                        <p-sortIcon *ngIf="col.isSort" field="col.isSort" class="text-right"
+                                            ariaLabel="Activate to sort"
+                                            ariaLabelDesc="Activate to sort in descending order"
+                                            ariaLabelAsc="Activate to sort in ascending order">
+                                        </p-sortIcon>
+
+                                    </th>
+
+                                    <th>
+
+                                        Actions
+
+                                    </th>
+
+                                </tr>
+                                <tr *ngFor="let headerRow of dataGroup.headers">
+                                    <ng-container *ngIf="isEnabledColumnFilter">
+
+                                        <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                            <div *ngIf="
+                                                                    col.filter.isFilter === true &&
+                                                                    col.filter.type === 'custom'
+                                                                  ">
+                                                <input class="w-100-p" pTooltip="Enter number to search"
+                                                    *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                                      groupData.filter(
+                                                                        $event.target.value,
+                                                                        col.valueField,
+                                                                        'custom'
+                                                                      )
+                                                                    " />
+                                            </div>
+                                            <div *ngIf="
+                                                                    col.filter.isFilter === true &&
+                                                                    col.filter.type === 'contains'
+                                                                  ">
+                                                <input class="w-100-p" *ngSwitchCase="col.label" pInputText type="text"
+                                                    (input)="
+                                                                      groupData.filter(
+                                                                        $event.target.value,
+                                                                        col.valueField,
+                                                                        'contains'
+                                                                      )
+                                                                    " />
+                                            </div>
+                                        </th>
+
+                                        <th>
+                                            <input class="w-100-p" pInputText type="text" (input)="
+                                                                                        groupData.filter(
+                                                                                        $event.target.value,
+                                                                                        'action',
+                                                                                        'contains'
+                                                                                        )
+                                                                                        " />
+                                        </th>
+
+                                    </ng-container>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                                <tr>
+
+
+
+                                    <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}"
+                                        [title]="row[col.valueField]" (click)="openSideMenu(row)"
+                                        [ngClass]="row[col.valueField] === 'Failed' ? 'error' : (row[col.valueField] === 'Running' ? 'running' : '')">
+
+                                        <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon" class=""></i> {{
+                                        row[col.valueField] }}
+                                        <span class="action-icon">
+
+                                            <i *ngIf="col.actionIcon" class="icons8 icons8-edit-2"></i>
+                                            <i *ngIf="col.actionIcon" class="icons8 icons8-trash delete-icon"></i>
+                                        </span>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <button type="button" pButton icon="icons8 icons8-sync-settings"
+                                            class="btn-icon" title="Reconfigure Monitor" (click)="openConfUI(row)">
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+                            </ng-template>
+
+                            <!-----------Empty table error handling--------------------->
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td [attr.colspan]="columns.length + 1" class="text-center">
+                                        <span *ngIf="error">Error while loading data</span>
+                                        <span *ngIf="emptyTable">Empty Table</span>
+                                        <span *ngIf="loading">Loading</span>
+                                        <!-- <span *ngIf="!empty && !loading && !error && searchInput.value.length">Nothing found
+                                                                matching
+                                                                "{{searchInput.value}}"</span> -->
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+        </ng-container>
+        </td>
+        </tr>
+        </ng-template>
+
+        <!-----------Empty table error handling--------------------->
+        <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="columns.length + 1" class="text-center">
+                    <span *ngIf="error">Error while loading data</span>
+                    <span *ngIf="emptyTable">Empty Table</span>
+                    <span *ngIf="loading">Loading</span>
+
+                </td>
+            </tr>
+        </ng-template>
+        </p-table>
+
+    </div>
+</div>
+</ng-container>
+</div>
+
+<div class="loading-indicator" *ngIf="loading">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+    </p-progressSpinner>
+</div>
+</div>
+
+<p-sidebar [(visible)]="visibleSidebar1" position="right" [modal]="true" [showCloseIcon]="false" [baseZIndex]="10000">
+    <div class="p-grid p-justify-between p-align-center sidebar-header">
+        <div class="title">Reason</div>
+
+        <div><span class="icons8 icons8-delete" (click)="visibleSidebar1 = false"></span></div>
+    </div>
+    <div class="panel-container">
+
+        <div class="detail-section">
+            <div class="p-grid p-col" *ngFor="let data of reasonData.reasonDetails">
+                <div class="title">{{data.title}}:</div>
+                <div class="description">
+                    <i class="icons8-error error" *ngIf="data.title === 'Status' && data.description === 'Failed'"></i>
+                    <i class="icons8-clock running"
+                        *ngIf="data.title === 'Status' && data.description === 'Running'"></i>
+                    <span
+                        [ngClass]="data.title === 'Status' && data.description === 'Failed' ? 'error' : (data.title === 'Status' && data.description === 'Running' ? 'running' : '')">{{data.description}}</span>
+
+                </div>
+            </div>
+
+        </div>
+        <div>
+            <div class="error-title p-col">
+                Fix Error
+            </div>
+            <ul>
+                <li *ngFor="let data of reasonData.errorSteps;let i = index">
+                    <div class="p-grid p-col"><b>Step {{i+1}}</b></div>
+                    <div class="p-grid p-col">{{data.step}}</div>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</p-sidebar>
+</div>

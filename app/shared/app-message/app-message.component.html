@@ -1,0 +1,33 @@
+<div [ngClass]="!toast ? 'app-message-content' : ''" *ngIf="!toast">
+  <!-- message -->
+  <div class="w-100-p {{classes}}" [ngClass]="getTypeClass(toast, type)">
+    <!-- loader -->
+    <div *ngIf="loader" class="loader-container {{sizeClass}}">
+      <i class="pi pi-spin pi-spinner"></i> <span *ngIf="showLoaderText">{{ loaderText }}</span>
+    </div>
+    <!-- loader -->
+    <div *ngIf="!loader">
+      <i class="pi {{iconClass}}"></i>
+      <div *ngIf="label"> {{label}} </div>
+    </div>
+  </div>
+  <!-- message -->
+</div>
+<!-- toast -->
+<div *ngIf="toast && !loader" class="{{classes}} toast">
+  <div class="w-100-p mv-5" [ngClass]="getTypeClass(toast, msg.type)" [@messageState]="{value: 'visible', params: {showTransformParams: showTransformOptions,
+     hideTransformParams: hideTransformOptions, showTransitionParams: showTransitionOptions,
+      hideTransitionParams: hideTransitionOptions}}" *ngFor="let msg of messages;let i=index">
+    <div class="p-grid p-justify-between">
+      <div class="toast-message p-col-10 text-left">
+        <div *ngIf="msg.type === 'error'">
+          {{msg.label.msg && msg.label.msg !== ''? msg.label.msg : msg.label.code && msg.label.code !== ''? msg.label.code : 'Something went wrong.'}}
+        </div>
+        <div *ngIf="msg.type !== 'error'">{{msg.label}}</div>
+      </div>
+      <div class="app-message-close-icon icons8 icons8-delete p-col-2 p-justify-end" tabindex="0"
+        (click)="clearToast(msg)"></div>
+    </div>
+  </div>
+</div>
+<!-- toast -->

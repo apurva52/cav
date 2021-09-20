@@ -1,0 +1,48 @@
+<p-dialog
+  header="Save as Custom Layout"
+  [(visible)]="visible"
+  class="secondary-dialog"
+  [style]="{ width: '40vw' }"
+  [modal]="true"
+  [baseZIndex]="10000011111"
+  [draggable]="false"
+  [resizable]="false"
+  closeIcon="icons8-delete"
+>
+  <div class="content-body">
+    <div class="p-grid">
+      <div class="p-col-12">
+        <div class="ui-fluid">
+          <div class="p-field p-grid">
+            <label for="firstname" class="p-col-12 p-md-4">Layout Name</label>
+            <div class="p-col-12 p-md-8">
+              <input type="text" pInputText class="w-100-p" [(ngModel)]="templateName" maxLength = 32/>
+              <!-- <input type="text" id="data-name" pInputText [(ngModel)]="newLayoutForm.model.name" /> -->
+            </div>
+          </div>
+          <p-message
+          *ngIf="nameError"
+          severity="error" text="Layout Name is required." style="text-align: center;"></p-message>
+        </div>
+      </div>
+      <div class="p-col-12 footer-buttons">
+        <button
+          pButton
+          type="button"
+          class="ui-button ui-button-rounded ui-button-secondary"
+          label="Cancel"
+          (click)="close()"
+        ></button>
+        <button
+          pButton
+          type="button"
+          class="ui-button ui-button-rounded ui-button-right"
+          label="Save"
+          (click)="saveChanges()"
+        ></button>
+      </div>
+    </div>
+  </div>
+  
+</p-dialog>
+

@@ -1,0 +1,248 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+
+
+  
+  
+<div class="ddr-box">
+
+  <!-- COMMON TOOLBAR -->
+<div class="ddr-toolbar">
+<p-toolbar>
+    <!--<div class='reportInfo'>
+       <label class='headerInfo'><b>{{reportHeader}}</b></label>
+    </div>-->
+    
+    <div class='group-left'>
+      <!--<label class='headerInfo'><b>Filter Criteria : </b></label>-->
+      <span title="{{completeTier}}">{{tierName}}</span>
+      <span title="{{completeServer}}">{{serverName}}</span>
+      <span title="{{completeInstance}}">{{instanceName}}</span>
+      <span>{{filterInfo}}</span>
+      <span title="{{CompleteURL}}">{{URLstr}}</span>
+    </div>
+    <div class='group-right'>
+      <!--  <label (click)="showDialog()" title="Time Filter" class="fa fa-cog" *ngIf="fpTodbFilter == false"></label>  -->
+      <span *ngIf="showDCMenu">
+        <label>Data Center : </label>
+        <p-dropdown [options]="dcList" (onChange)="getSelectedDC($event)" [(ngModel)]="selectedDC" [style]="{'width':'75px'}"></p-dropdown>
+      </span>
+      <span *ngIf="showDownloadOption" title="Download Word Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("word")' src='./images/iconWord.gif'></span>
+      <span *ngIf="showDownloadOption" title="Download Excel Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("excel")' src='./images/iconExcel.gif'></span>
+      <span *ngIf="showDownloadOption" title="Download PDF Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("pdf")' src='./images/iconPDF.gif'></span>
+    </div>
+  </p-toolbar>
+</div>
+<!-- COMMON BOX SCROLLLBAR -->
+<div class="ddruiscroll" [ngStyle]="{'height': screenHeight+'px'}" style="overflow:auto;">
+
+  <p-dialog class="ddr-dialog" appendTo="body" [(visible)]="loader" [width]="500" [height]="75" [closable]="false" [resizable]="false" modal="modal" [responsive]="true">
+   <div *ngIf="loader">
+    <p-progressBar [value]="value"></p-progressBar>
+   </div>
+  </p-dialog>
+
+  <p-dialog class="ddr-dialog" appendTo="body" header="Time Filter" [(visible)]="display" [closable]="false" [width]="500" [height]="200" [resizable]="false" modal="modal"
+  [responsive]="true">
+  <div *ngIf="display">
+    <div class="ui-g-12">
+      <div class="ui-g-4">
+        <p-radioButton name="group2" value="custom" (click)="standFunction()" label="Custom Time" [(ngModel)]="custom"></p-radioButton>
+      </div>
+    </div>
+    <div *ngIf="custselect">
+      <div class="ui-g-12">
+        <div class="ui-g-6">
+          From :
+          <p-calendar [showIcon]="true" readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" (onSelect)="onStrDate($event)"
+            [monthNavigator]="true" [yearNavigator]="true" yearRange="1970:2030" [showTime]="true" [(ngModel)]="strDate"></p-calendar>
+        </div>
+        <div class="ui-g-6">
+          To :
+          <p-calendar [showIcon]="true" readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" (onSelect)="onEndDate($event)"
+            [monthNavigator]="true" [yearNavigator]="true" yearRange="1970:2030" [showTime]="true" [(ngModel)]="endDate"></p-calendar>
+        </div>
+      </div>
+    </div>
+
+    <div class="ui-g-12">
+      <div class="ui-g-4">
+        <p-radioButton name="group2" (click)="custFunction()" value="standard" label="Standard Time" [(ngModel)]="standard"></p-radioButton>
+      </div>
+      <div class="ui-g-6" *ngIf="standselect">
+        <p-dropdown [options]="standardTime" scrollHeight="100px" [(ngModel)]="selectedTime" [style]="{'width':'150px', 'position':'fixed'}"
+          placeholder="Select Time"></p-dropdown>
+      </div>
+    </div>
+  </div>
+  <p-footer>
+    <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+      <p style="color : red;text-align:left">{{msg}}</p>
+      <button type="button" pButton icon="fa-check" (click)="applyFilter()" label="Apply"></button>
+      <button type="button" pButton icon="fa-close" (click)="close()" label="Cancel"></button>
+    </div>
+  </p-footer>
+  </p-dialog>
+
+
+
+  <div class="ui-g-12">
+  <p-accordion class="ddr-accordion">
+    <p-accordionTab header="{{totalQueryCount}}" [selected]="false">
+      <div class="ui-g">
+        <div class="ui-g-6">
+          <div class="ddr-graphpanel" *ngIf="showChart == true"><chart [options]="options" (click)="clickHandler($event)"></chart></div>
+          <div *ngIf="showChart == false" style="text-align:center;">No Pie Chart found based on current Filter Settings.</div>
+        </div>
+        <div class="ui-g-6">
+           <div class="ddr-graphpanel" *ngIf="showChartForRespTime == true"><chart [options]="respTimeOptions" (click)="clickHandler($event)"></chart></div>
+          <div *ngIf="showChartForRespTime == false" style="text-align:center;">No Response Time Pie Chart found based on current Filter Settings.</div>
+        </div> 
+      </div>
+    </p-accordionTab>
+  </p-accordion>
+  </div>
+
+  <div class="ui-g-12">
+   <p-accordion class="ddr-accordion" [multiple]="true">
+      <p-accordionTab header="{{tableHeader}}" [selected]="true"> 
+        <p-toolbar>
+          <div  class="ui-toolbar-group-right" style="text-align: right">
+              <p-multiSelect title="Show/Hide columns" [options]="columnOptions" class="dashboard-lowerPanel-multiSelect ddr-multiselect-down" (onChange)="showHideColumn($event)"
+              [(ngModel)]="visibleCols"></p-multiSelect>
+             <button pButton type="button" *ngIf="!isDBCallByBT" title="Show/Hide columns" icon="fa-check-square-o fa"></button>
+
+             <img src="./images/showall.png"  *ngIf="showAllOption" height="21px" width="21px" title="Show all data" style="float:right;cursor:pointer;" (click)="showAllData();">
+             <i class="fa fa-search" style="margin:0 0 0 0"></i>
+             <input #gb type="text" pInputText size="50" style="width: 30% !important;" placeholder="Search">
+          </div>
+        </p-toolbar>
+       
+        <div *ngIf="isDBCallByBT == true" style="overflow:auto">
+          <p-dataTable class="scen-table" [value]="queryInfo" selectionMode="single" resizableColumns="true" [globalFilter]="gb" [style]="{'height':'auto'}">
+            <p-column field="urlName" header="Business Transaction" [sortable]="true" [style]="{'text-align':'left'}">
+              <ng-template pTemplate="header">
+                <a pTooltip="Business Transaction" tooltipPosition="bottom" tooltipEvent="hover">Business Transaction</a>
+              </ng-template>
+	          </p-column>
+            <p-column field="tierName" header="Tier" *ngIf = "queryInfo.length > 0 && queryInfo[0].tierName !== '-'" [sortable]="true" [style]="{'text-align':'left'}">
+              <ng-template pTemplate="header">
+                 <a pTooltip="Tier" tooltipPosition="bottom" tooltipEvent="hover">Tier</a>
+               </ng-template>
+	          </p-column>
+            <p-column field="serverName" header="Server" *ngIf = "queryInfo.length > 0 && queryInfo[0].serverName !== '-'" [sortable]="true" [style]="{'text-align':'left'}">
+              <ng-template pTemplate="header">
+                 <a pTooltip="Server" tooltipPosition="bottom" tooltipEvent="hover">Server</a>
+               </ng-template>
+	          </p-column>
+            <p-column field="appName" header="Instance" *ngIf = "queryInfo.length > 0 && queryInfo[0].appName !== '-'" [sortable]="true" [style]="{'text-align':'left'}">
+              <ng-template pTemplate="header">
+                 <a pTooltip="Instance" tooltipPosition="bottom" tooltipEvent="hover">Instance</a>
+               </ng-template>
+	          </p-column>
+            <p-column field="count" header="Query Count" [sortable]="true" [style]="{'text-align':'right'}">
+               <ng-template let-col let-node="rowData" pTemplate="body">
+                <a *ngIf="node[col.field] != 0" class ="ddr-table-right" (click)="openQueryCount(node)"><span>{{node[col.field]}}</span></a>
+                <a *ngIf="node[col.field] == 0"><span>{{node[col.field]}}</span></a>
+              </ng-template>
+              <ng-template pTemplate="header">
+                <a pTooltip="Query Count" tooltipPosition="bottom" tooltipEvent="hover">Query Count</a>
+              </ng-template>
+            </p-column>
+          </p-dataTable>
+        </div>
+        <div *ngIf="isDBCallByBT == false && fromFP == false" style="overflow:auto">
+          <p-dataTable class="scen-table" [value]="queryInfo" selectionMode="single" resizableColumns="true" [globalFilter]="gb" [style]="{'height':'auto'}">
+              <div *ngFor = "let col of cols">
+                  <p-column *ngIf = "col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable" (sortFunction)= "sortColumnsOnCustom($event, queryInfo)" [filterMatchMode]='contains' [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'sqlQuery'" pTemplate="body">
+                      <div class ="ddr-table-left" (click)="showRowInfo(node)">
+                        {{node[col.field]}}
+                      </div>
+                    </ng-template> 
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'count'" pTemplate="body">
+                      <span style="cursor: pointer" *ngIf="node[col.field] != 0" class ="ddr-table-right"  title= 'View Flowpath Report' (click)="getDbFlowpathData(node)"> {{node[col.field]}} </span>
+					  <span *ngIf="node[col.field] == 0"><span>{{node[col.field]}}</span></span>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'failedcount'" pTemplate="body">
+                      <div class="ddr-table-right" *ngIf="node[col.field] != 0" (click)="openErrorCount(node)">
+                        {{node[col.field]}}
+                      </div>
+                      <div *ngIf="node[col.field] == 0">
+                        {{node[col.field]}}
+                      </div>
+                    </ng-template>
+                  </p-column>
+                </div>
+          </p-dataTable>
+        </div>
+        <div *ngIf="FPToDB == true" style="overflow:auto">
+            <p-dataTable class="scen-table" [value]="queryInfo" selectionMode="single" resizableColumns="true" [globalFilter]="gb" [style]="{'height':'auto'}">
+                <div *ngFor = "let col of cols">
+                    <p-column *ngIf = "col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable" [filterMatchMode]='contains' [style]="{'width': col.width +'px','text-align':col.align}" [filter]="col.filter">
+                      <ng-template let-col let-node="rowData" *ngIf="col.field == 'sqlquery'" pTemplate="body">
+                        <div class ="ddr-table-left" (click)="showRowInfo(node)">
+                          {{node[col.field]}}
+                        </div>
+                      </ng-template> 
+                      <ng-template let-col let-node="rowData" *ngIf="col.field == 'failedcount'" pTemplate="body">
+                        <div class="ddr-table-right" *ngIf="node[col.field] != 0" (click)="openErrorCount(node)">
+                          {{node[col.field]}}
+                        </div>
+                        <div *ngIf="node[col.field] == 0">
+                          {{node[col.field]}}
+                        </div>
+                      </ng-template>
+                    </p-column>
+                  </div>
+            </p-dataTable>
+        </div>
+
+        <!-- <div *ngIf="totalCount <= 50 || ((offset+limit) > totalCount)"> {{offset+1}} - {{totalCount}} of {{totalCount}} </div>
+        <div *ngIf="totalCount > 50"> {{offset+1}} - {{offset+limit}} of {{totalCount}} </div> -->
+        <div> {{offset+1}} - {{offset+limit}} of {{totalCount}} </div>
+        <p-paginator rows="50" [totalRecords]="totalCount"  [rowsPerPageOptions]="[50,100,200,400]" pageLinkSize="3" (onPageChange)="paginate($event)"></p-paginator>
+      </p-accordionTab>
+
+      <p-accordionTab header="Query" [selected]="true" *ngIf="isDBCallByBT == false">
+        <div>
+          <textarea pInputTextarea rows="5" style="width:100%;resize:none;" readonly>{{fullQueryName}}</textarea>
+        </div>
+      </p-accordionTab>
+   </p-accordion>
+   
+   <!-- <p-dialog class="ddr-dialog" appendTo="body" header="Query Details" *ngIf="displayPopUp" [(visible)]="displayPopUp" modal="true" responsive="true" width ="500">
+    <div class="modalPopUp">
+     <table border="0" cellspacing="5">
+        <tbody *ngFor="let data of rowData">
+           <tr><td><b>Query Count</b></td><td>{{data.count}}</td></tr>
+           <tr><td><b>Min Count</b></td><td>{{data.min}}</td></tr>
+           <tr><td><b>Max Count</b></td><td>{{data.max}}</td></tr>
+           <tr><td><b>Min(ms)</b></td><td>{{data.mincumsqlexectime}}</td></tr>
+           <tr><td><b>Max(ms)</b></td><td>{{data.maxcumsqlexectime}}</td></tr>
+           <tr><td><b>Avg(ms)</b></td><td>{{data.avg}}</td></tr>
+           <tr><td><b>Error Count</b></td><td>{{data.failedcount}}</td></tr>
+          <tr *ngIf="id.tierName != undefined && id.tierName != 'NA'"><td ><b>Tier</b></td><td>{{id.tierName}}</td></tr>     
+           <tr *ngIf="id.serverName != undefined && id.serverName != 'NA'"><td><b>Server</b></td><td>{{id.serverName}}</td></tr>
+           <tr *ngIf="id.appName != undefined && id.appName != 'NA'"><td><b>Instance</b></td><td>{{id.appName}}</td></tr>
+           <tr *ngIf="data.sqlbegintimestamp != undefined"><td><b>FirstQueryTime</b></td><td>{{data.sqlbegintimestamp}}</td></tr>
+           <tr *ngIf="data.sqlendtimestamp != undefined"><td><b>LastQueryTime</b></td><td>{{data.sqlendtimestamp}}</td></tr>
+           <tr *ngIf="fpInstance != undefined"><td><b>Flowpath Instance</b></td><td>{{fpInstance}}</td></tr>
+           <tr *ngIf="buisnessTransaction != undefined"><td><b>Business Transaction</b></td><td>{{buisnessTransaction}}</td></tr>
+           <tr *ngIf="substringUrl != undefined"><td><b>URL</b></td><td title = "{{compurl}}">{{substringUrl}}</td></tr>
+           <tr><td><b>Query</b></td><td><textarea pInputTextarea rows="5" cols="30">{{data.sqlQuery}}</textarea></td></tr>
+        </tbody>
+     </table>
+    </div>
+  </p-dialog> -->
+
+  <!-- <div *ngIf="showDownloadOption">
+    <label style="font-size: 12px;padding-left: 6px;" >Download Reports as: </label>
+      <span title="Word Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("word")' src='./images/iconWord.gif'></span>
+      <span title="Excel Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("excel")' src='./images/iconExcel.gif'></span>
+      <span title="PDF Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("pdf")' src='./images/iconPDF.gif'></span>
+  </div> -->
+  </div>
+  <p-growl life=50000 [value]="msgs" [sticky]="true"></p-growl>
+</div>
+</div>

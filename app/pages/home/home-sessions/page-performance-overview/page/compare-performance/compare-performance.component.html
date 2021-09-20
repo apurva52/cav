@@ -1,0 +1,117 @@
+<div class="p-grid loader-container vertical-container" *ngIf="loading && isShowAll">
+            <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+            </div>
+</div>
+<div class="compare-performance-container" *ngIf="isShowAll">
+    <div #widgetHeight [ngStyle]="{
+      height: isEnabledColumnFilter
+        ? 'calc(100vh - 270px)'
+        : 'calc(100vh - 230px)'
+    }">
+        <div class="action-container" *ngIf="data">
+            
+            <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                <div class="global-search-block">
+                  <div>
+                   <i class="icons8 icons8-filter left filter-icon clickable"  (click)="pagePerformanceSidebar.open()"></i>
+                  </div>
+                  <div class="p-input-icon-left search-div-css">
+                   <input pInputText type="text" #searchInput class="input-field-search"
+                   (input)="rumanalytics.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                 </div>
+
+                </div>
+                <div class="icons-container p-justify-between p-align-center">
+                     <button pButton icon="icons8 icons8-installing-updates" class="btn-icon mx-3"
+                                    (click)="rumanalytics.exportCSV()" pTooltip="Export table as CSV"></button>
+           <button pButton icon="icons8 icons8-export" class="icon-button no-shadow" (click)="exportRumpageOverview()" pTooltip="Export as XLS"></button>
+                    <button pButton label="Exit Compare Mode" (click)="showOverview()"
+                        class="ui-button-secondary ui-button-rounded results"></button>
+                        
+                </div>
+            </div>
+            <ng-container>
+                <p-card class="content">  
+                        <p-table #rumanalytics [resizableColumns]="true"
+                        [columns]="data.headers[0].cols" [value]="data.data" [paginator]="true" [globalFilterFields]="globalFilterFields"
+                        [rowHover]="true" [responsive]="true" scrollable="true" scrollHeight="200px"
+            [rows]="data.paginator.rows" [totalRecords]="data.data.length" selectionMode="single" exportFilename="RUMAnalyticsOverview"
+            [(selection)]="selectedRow" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                     >
+                        
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th [ngStyle]="{ 'width': '250px'}">{{cnamee}}</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >Page Count</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >onLoad(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >TTDI(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >TTDL(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >Server respnse Time(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >PRT(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >DNS(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >SSL(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >Cache Lookup Time(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >Network(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >TCP(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >FCP(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >FP(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}" >TTI(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}">FID(sec)</th>
+                                <th colspan="2" [ngStyle]="{ 'width': '136px'}">Exit PCT</th>
+                            </tr>
+                            <tr>
+                               <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.field">
+                  <div class="text-left">
+                    {{ col.label }}
+                    <p-sortIcon *ngIf="col.isSort" [field]="col.field" class="right" ariaLabel="Activate to sort"
+                      ariaLabelDesc="Activate to sort in descending order"
+                      ariaLabelAsc="Activate to sort in ascending order">
+                    </p-sortIcon>
+                  </div>
+                            </th>                             
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+
+                            <tr [pSelectableRow]="row" >
+                                <td [ngStyle]="{ 'width': '250px'}">
+                                    {{ row[hnamee] }}
+                                </td>
+                                <td [ngStyle]="{ 'width': '68px'}" *ngFor="let col of colunheader">
+                                    <span *ngIf="col.field == 'pagecount' || col.field == 'pagecount1'" pTooltip={{row[col.field]}}>
+                  {{ row[col.field]}}
+                  </span>
+                  <span *ngIf="col.field != 'pagecount' && col.field != 'pagecount1'" style="color:blue;cursor:pointer" pTooltip={{row[col.field]}} (click)="showResponse(2,row)">
+                  {{ row[col.field]}}
+                  </span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                         
+                        <ng-template pTemplate="emptymessage" let-columns>
+                            <tr>
+                                <td [attr.colspan]="columns.length + 1" class="text-center">
+                                    <span *ngIf="error">Error while loading data</span>
+                                    <span *ngIf="emptyTable">Empty Table</span>
+                                    <span *ngIf="loading">Loading</span>
+                                </td>
+                            </tr>
+                         </ng-template>
+                       </p-table>
+                    </p-card>
+            </ng-container>
+            <br>
+             <div *ngIf="enableChart">   
+           <div class="p-col-12 no-padding" *ngFor="let chart of data.charts">
+             <app-chart [data]="chart"></app-chart>
+           </div>
+     </div>
+        </div>
+    </div>
+</div>
+<app-page-performance-filter #pagePerformanceSidebar (newFilterEvent)="pageperformancefilter($event)"></app-page-performance-filter>
+<div *ngIf="isShowPerformance">
+  <app-performance-details  [hname] = 'hnamee' [metadata]='metadata' [pagedetailinfo] ='pagedetailinfo' [parsepagefilter]='filterforcompare'></app-performance-details>
+</div>

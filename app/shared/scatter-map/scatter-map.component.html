@@ -1,0 +1,27 @@
+<div class="p-grid  scatter-map-container w-100-p" *ngIf="isOpen">
+      <p-header class="p-grid p-justify-between p-align-center w-100-p header">
+            <div class="widget-title">
+                  {{title}}
+            </div>
+            <div class="action-section p-grid p-justify-end p-align-center">
+                  <div class="ph-5 max-onload">
+                        <label for="max">Max Onload(sec)</label>
+                        <input type="text" pInputText placeholder="120" />
+                  </div>
+                  <div class="p-grid p-justify-between p-align-center ph-5 dropdowns">
+                        <p-dropdown [options]="data.dropdownOptions.loadOptions" [(ngModel)]="selectedLoadTime" optionLabel="label"
+                              dropdownIcon="icons8 icons8-expand-arrow" class="mr-5">
+                        </p-dropdown>
+                        <p-dropdown [options]="data.dropdownOptions.loadTime" [(ngModel)]="loadTime" optionLabel="label"
+                              dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                  </div>
+                  <div class="close-click ph-5">
+                        <i class="icons8 icons8-delete" (click)="closeClick()"></i>
+                  </div>
+            </div>
+      </p-header>
+      <div class="map-content w-100-p">
+            <app-chart [data]="data.chartMap"></app-chart>
+      </div>
+</div>

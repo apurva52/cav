@@ -1,0 +1,65 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+<div class="ui-g-12">
+    <p-toolbar>
+        <div class='ui-toolbar-group-left'>
+            <label class='headerInfo'>
+                <b>Filter Criteria : </b>
+            </label>
+            <label class='headerInfo'>{{filter}}</label>
+        </div>
+        <div class="ui-toolbar-group-right">
+            <span title="Download PDF Report">
+                <img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")'
+                    src='./images/iconPDF.gif'>
+            </span>
+            <span title="Download Word Report">
+                <img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")'
+                    src='./images/iconWord.gif'>
+            </span>
+            <span title="Download Excel Report">
+                <img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")'
+                    src='./images/iconExcel.gif'>
+            </span>
+        </div>
+    </p-toolbar>
+<div class="ddruiscroll" [ngStyle]="{'height': screenHeight+'px'}" style="overflow:auto;">
+  <p-accordion class="ddr-accordion">
+      <p-accordionTab header="URL Component Stats" [selected]="true">
+      <div class="ui-g">
+        <div class="ui-g-6">
+          <div class="ddr-graphpanel" *ngIf="showChart == true"><chart [options]="options"></chart></div>
+          <div *ngIf="showChart == false" style="text-align:center;">No Pie Chart found based on current Filter Settings.</div>
+        </div>
+        <div class="ui-g-6">
+          <div class="ddr-graphpanel"><chart [options]="options1"></chart></div>
+          <div *ngIf="showChartForRespTime == false" style="text-align:center;">No Response Time Pie Chart found based on current Filter Settings.</div>
+        </div> 
+      </div>
+      </p-accordionTab>
+  </p-accordion>
+  <p-accordion class="ddr-accordion dynamic-column-width-acc">
+      <p-accordionTab header="URL Component Details" [selected]="true">
+  <p-dataTable class="scen-table" [value]="columnData"  selectionMode="single"  scrollHeight="180px"
+  [style]="{'height':'280px','font-size':'12px'}" resizableColumns="true" reorderableColumns="true">
+  <div *ngFor = "let col of cols">
+    <p-column *ngIf = "col.action" [field] = "col.field" [header] = "col.header" [sortable] = "col.sortable" (sortFunction)="sortColumnsOnCustom($event, columnData)"
+       [style]="{'width': col.width+'px','text-align': col.align,'color': col.color}">
+    </p-column>
+  </div>
+</p-dataTable>
+      </p-accordionTab>
+  </p-accordion>
+</div>
+</div>
+<p-dialog class="ddr-dialog"   appendTo="body" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true" [height]="120" [width]="600" > 
+  <p-header>
+      <i class="fa fa-info-circle" style="color:red"></i>
+      <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+  </p-header>  
+  <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+  <p-footer>
+  <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait" style="height: 25px;"></button>
+  <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" label="Cancel" style="height: 25px;"></button>
+  </p-footer>
+</p-dialog>

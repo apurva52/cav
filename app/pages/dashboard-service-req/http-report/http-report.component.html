@@ -1,0 +1,136 @@
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+    <div class="p-col p-col-align-center text-center">
+        <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+    </div>
+</div>
+
+<div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+        <p-message severity="error" text="{{ error.msg }}"></p-message>
+    </div>
+</div>
+
+<div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+        <p-message severity="normal" text="No Data"></p-message>
+    </div>
+</div>
+<!-- <div class="p-grid p-justify-end p-align-center menu-button">
+    <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+    <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+</div> -->
+<div *ngIf="data" class="h-100-vh vertical-container">
+    <div class="p-grid p-justify-start p-align-center">
+        <div *ngFor="let panel of data.panels; let i = index" class="w-100-p">
+            <div>
+                <div id="panel-{{i+1}}" class="http-reports-panel">
+                    <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="panel.collapsed" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                        <p-header class="cav-panel-header pt-5">
+                            <div class="cav-panel-content p-grid p-align-center">
+                                <div class="panel-title" (click)="pnl.toggle($event)">
+                                    <a tabindex="{{i}}">
+                                        <span [class]="pnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                        </span>
+                                    </a>
+                                    {{panel.label}}
+                                </div>
+                                <div class="p-grid p-justify-end p-align-center">
+                                  <div *ngIf="panel.label == 'HTTP Information'">
+                                    <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                    <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                  </div>
+                                  <div *ngIf="panel.label == 'Request Headers'">
+                                    <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionReqHeader" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                    <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                  </div>
+                                  <div *ngIf="panel.label == 'Response Headers'">
+                                    <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionRespHeader" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                    <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                  </div>
+                                  <div *ngIf="panel.label == 'Custom data'">
+                                    <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionCustomData" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                    <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                  </div>
+                                  <div *ngIf="panel.label == 'Session data'">
+                                    <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionSessionData" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                    <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                  </div>
+                                  <div *ngIf="panel.label == 'Condition data'">
+                                    <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionConditionData" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                    <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                  </div>
+                                    <!-- <button pButton icon="icons8 icons8-search-property" class="ui-icon-button" pTooltip="Toggle Filter" [tooltipZIndex]="100000" (click)="panel.tableFilter = !panel.tableFilter">
+                                    </button> -->
+
+                                </div>
+                            </div>
+                        </p-header>
+                        <p-table #http class="all-tables" [columns]="panel.headers" [rowsPerPageOptions]="panel.paginator.rowsPerPageOptions" [value]="httpReportData[i]" [paginator]="false" [lazy]="true" (onLazyLoad)="loadPagination($event,i)" [totalRecords]="panel.data.length"
+                            [rows]="panel.paginator.rows" [showCurrentPageReport]="false" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [scrollable]="true">
+                            <ng-template pTemplate="header" let-columns>
+                                <tr *ngFor="let headerRow of panel.headers">
+                                    <th *ngFor="let col of headerRow.cols" [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan" [pSortableColumn]="col.valueField">
+                                        <div class="elipseText"> {{ col.label }} </div>
+                                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                            </p-sortIcon>
+                                    </th>
+                                </tr>
+                                <tr *ngFor="let headerRow of panel.headers">
+                                    <ng-container *ngIf="panel.tableFilter">
+                                        <th *ngIf="isCheckbox" class="columnwidth"></th>
+                                        <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                            <div *ngIf="
+                                            col.filter.isFilter === true &&
+                                            col.filter.type === 'custom'
+                                          ">
+                                                <input class="w-100-p" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                    http.filter(
+                                                $event.target.value,
+                                                col.value,
+                                                'custom'
+                                              )
+                                            " />
+                                            </div>
+                                            <div *ngIf="
+                                            col.filter.isFilter === true &&
+                                            col.filter.type === 'contain'
+                                          ">
+                                                <input class="w-100-p" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                    http.filter(
+                                                $event.target.value,
+                                                col.valueField,
+                                                'contain'
+                                              )
+                                            " />
+                                            </div>
+                                        </th>
+                                    </ng-container>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-row let-columns="columns">
+                                <tr *ngFor="let headerRow of panel.headers">
+                                    <td *ngFor="let col of headerRow.cols; let i = index" class="{{ col.dataClasses }}" style="white-space: break-spaces;">
+                                        {{ row[col.valueField] | f_ddr: col.format }}
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <!-----------Empty table error handling--------------------->
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                        <span *ngIf="error">Error while loading data</span>
+                                        <span *ngIf="panel.data.length == 0">No config found</span>
+                                        <span *ngIf="loading">Loading</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                        <div *ngIf="panel.label == 'HTTP Information'" class="http-reports-panel" style="min-height:25px; padding:4px; margin-left:3px; margin-bottom:2px; margin-top:3px; word-break:break-all; font-family:Product Sans, sans-serif; color: #333333">
+                          <div style="font-size:12px;max-width:100%"> {{httpUrl}} </div>
+                        </div>
+                    </p-panel>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,298 @@
+<div class="bottleneck-container">
+    <div class="p-grid p-col-12">
+        <div class="p-col-6">
+            <p-panel #pnl1>
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title">
+                            Slowest Load (msec)
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content-body">
+                    <p-table [value]="bloaddata" [resizableColumns]="true" [columns]="columns" [scrollable]="true" class="all-tables"
+                        scrollHeight="200px" [paginator]="true" [rows]="rows" [rowsPerPageOptions]="rowsPerPageOptions">
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                                <col style="width:20%">
+                                <col *ngFor="let col of columns" [style.width]="col.width">
+                            </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th pResizableColumn></th>
+                                <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+                                    <!--{{col.header}}-->
+                                    <span title="{{col.header}}">{{col.header}}</span>
+                                    <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                                        ariaLabelDesc="Activate to sort in descending order"
+                                        ariaLabelAsc="Activate to sort in ascending order">
+                                    </p-sortIcon>
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns">
+                            <tr>
+                                <td>
+                                    <!-- Section for resource trend and domain trend -->
+                                    <i class="mx-3 icons8 icons8-combo-chart text-info" title="Resource Trend"
+                                        (click)="getTrendData(row, 'resource')"></i>
+                                    <i class="mx-3 icons8 icons8-combo-chart text-success" title="Domain Trend"
+                                        (click)="getTrendData(row, 'domain')"></i>
+                                </td>
+                                 <td  [title]="row['url']" [cdkCopyToClipboard]= "row.url">
+                                    {{row['name']}}
+                                </td>  
+                                <!-- <td>
+                                    <span   *ngIf = "row['name'] != null" [title]="row['url']"> {{row['name']}}</span>  
+                                    <span  *ngIf = "row['name'] = null " [title]="row['url']">/</span>
+                                     </td> -->
+                                <td> 
+                                    <div class="p-grid p-align-stretch p-justify-center chart-container">
+                                        <div class="p-col-12">
+                                            <button pButton class="ui-button-raised ui-button-info"
+                                                [label]="row['time']"
+                                                [ngStyle]="{'font-size':'11px', height:'15px', width:row['width']+'px'}"
+                                                [title]="row['time']+' ms'"></button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </p-panel>
+        </div>
+        <div class="p-col-6">
+            <p-panel #pnl1>
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title">
+                            Slowest Response (msec)
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content-body">
+                    <p-table [value]="bresponsedata" class="all-tables" [resizableColumns]="true" [columns]="columns" [scrollable]="true"
+                        scrollHeight="200px" [paginator]="true" [rows]="rows" [rowsPerPageOptions]="rowsPerPageOptions">
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                                <col style="width:20%">
+                                <col *ngFor="let col of columns" [style.width]="col.width">
+                            </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th pResizableColumn></th>
+                                <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+                                    <!--{{col.header}}-->
+                                    <span title="{{col.header}}">{{col.header}}</span>
+                                    <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                                        ariaLabelDesc="Activate to sort in descending order"
+                                        ariaLabelAsc="Activate to sort in ascending order">
+                                    </p-sortIcon>
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns">
+                            <tr>
+                                <td>
+                                    <!-- Section for resource trend and domain trend -->
+                                    <i class="mx-3 icons8 icons8-combo-chart text-info" title="Resource Trend"
+                                        (click)="getTrendData(row, 'resource')"></i>
+                                    <i class="mx-3 icons8 icons8-combo-chart text-success" title="Domain Trend"
+                                        (click)="getTrendData(row, 'domain')"></i>
+                                </td>
+                                <td [title]="row['url']"  [cdkCopyToClipboard]= "row.url">
+                                    {{row['name']}}
+                                </td>
+                                <td>
+                                    <div class="p-grid p-align-stretch p-justify-center chart-container">
+                                        <div class="p-col-12">
+                                            <button pButton class="ui-button-raised ui-button-info"
+                                                [label]="row['time']"
+                                                [ngStyle]="{'font-size':'11px', height:'15px', width:row['width']+'px'}"
+                                                [title]="row['time']+' ms'"></button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </p-panel>
+        </div>
+        <div class="p-col-6">
+            <p-panel #pnl1>
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title">
+                            Slowest Connection (msec)
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content-body">
+                    <p-table [value]="bconnectdata" [resizableColumns]="true" [columns]="columns" [scrollable]="true"
+                        scrollHeight="200px" [paginator]="true" [rows]="rows"  class="all-tables" [rowsPerPageOptions]="rowsPerPageOptions">
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                                <col style="width:20%">
+                                <col *ngFor="let col of columns" [style.width]="col.width">
+                            </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th pResizableColumn></th>
+                                <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+                                    <!--{{col.header}}-->
+                                    <span title="{{col.header}}">{{col.header}}</span>
+                                    <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                                        ariaLabelDesc="Activate to sort in descending order"
+                                        ariaLabelAsc="Activate to sort in ascending order">
+                                    </p-sortIcon>
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns">
+                            <tr>
+                                <td>
+                                    <!-- Section for resource trend and domain trend -->
+                                    <i class="mx-3 icons8 icons8-combo-chart text-info" title="Resource Trend"
+                                        (click)="getTrendData(row, 'resource')"></i>
+                                    <i class="mx-3 icons8 icons8-combo-chart text-success" title="Domain Trend"
+                                        (click)="getTrendData(row, 'domain')"></i>
+                                </td>
+                                <td [title]="row['url']"  [cdkCopyToClipboard]= "row.url">
+                                    {{row['name']}}
+                                </td>
+                                <td>
+                                    <div class="p-grid p-align-stretch p-justify-center chart-container">
+                                        <div class="p-col-12">
+                                            <button pButton class="ui-button-raised ui-button-info"
+                                                [label]="row['time']"
+                                                [ngStyle]="{'font-size':'11px', height:'15px', width:row['width']+'px'}"
+                                                [title]="row['time']+' ms'"></button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </p-panel>
+        </div>
+        <div class="p-col-6">
+            <p-panel #pnl1>
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title">
+                            Slowest DNS (msec)
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content-body">
+                    <p-table  class="all-tables" [value]="bdnsdata" [resizableColumns]="true" [columns]="columns" [scrollable]="true"
+                        scrollHeight="200px" [paginator]="true" [rows]="rows" [rowsPerPageOptions]="rowsPerPageOptions">
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                                <col style="width:20%">
+                                <col *ngFor="let col of columns" [style.width]="col.width">
+                            </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th pResizableColumn></th>
+                                <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+                                    <!--{{col.header}}-->
+                                    <span title="{{col.header}}">{{col.header}}</span>
+                                    <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                                        ariaLabelDesc="Activate to sort in descending order"
+                                        ariaLabelAsc="Activate to sort in ascending order">
+                                    </p-sortIcon>
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns">
+                            <tr>
+                                <td>
+                                    <!-- Section for resource trend and domain trend -->
+                                    <i class="mx-3 icons8 icons8-combo-chart text-info" title="Resource Trend"
+                                        (click)="getTrendData(row, 'resource')"></i>
+                                    <i class="mx-3 icons8 icons8-combo-chart text-success" title="Domain Trend"
+                                        (click)="getTrendData(row, 'domain')"></i>
+                                </td>
+                                <td [title]="row['url']"  [cdkCopyToClipboard]= "row.url">
+                                    {{row['name']}}
+                                </td>
+                                <td>
+                                    <div class="p-grid p-align-stretch p-justify-center chart-container">
+                                        <div class="p-col-12">
+                                            <button pButton class="ui-button-raised ui-button-info"
+                                                [label]="row['time']"
+                                                [ngStyle]="{'font-size':'11px', height:'15px', width:row['width']+'px'}"
+                                                [title]="row['time']+' ms'"></button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </p-panel>
+        </div>
+    </div>
+</div>
+<p-dialog [modal]="true"
+    [header]="'Duration: ' + (filter?.timeFilter?.startTime | date:'medium') + ' - ' + (filter?.timeFilter?.endTime | date:'medium')"
+    [(visible)]="visible" class="secondary-dialog foterDialog" (onHide)="resetCustomTime($event)">
+
+    <div class="p-grid p-align-center">
+        <div class="p-col-5">
+            <div class="type-search"> 
+                <i class="icons8 icons8-calendar left-icon"></i>
+                <input pInputText class="w-100-p pl-20" readonly id="start-date-time" [owlDateTime]="customStartDateTime"
+                    [owlDateTimeTrigger]="customStartDateTime" placeholder="04:30 PM 23/04/2020"
+                    [selectMode]="'rangeFrom'" [max]="maxDate" [(ngModel)]="customTime">
+                <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+            </div>
+        </div>
+        <div class="p-col-5">
+            <div class="type-search"> 
+                <i class="icons8 icons8-calendar left-icon"></i>
+                <input pInputText class="w-100-p" readonly id="end-date-time" [owlDateTime]="customEndDateTime"
+                    [owlDateTimeTrigger]="customEndDateTime" placeholder="04:30 PM 23/04/2020" [selectMode]="'rangeTo'"
+                    [max]="maxDate" [(ngModel)]="customTime">
+                <owl-date-time #customEndDateTime tooltipZIndex=" 100001005"></owl-date-time>
+            </div>
+        </div>
+
+        <div class="p-col-2">
+            <button pButton label="Go" (click)="submit()"></button>
+        </div>
+
+        <div class="p-col-12 text-danger" *ngIf="customTimeError !== ''">
+            {{customTimeError}}
+        </div>
+    </div>
+
+    <!--no data/ loader/ error message -->
+    <div class="p-grid">
+        <div class="p-col-12 text-center" *ngIf="!loading && trendData && !trendData.length && !error">
+            <i class="icons8 icons8-error text-warning font-40"></i>
+            <h5 class="font-13 my-5">No Data Found</h5>
+        </div>
+        <div class="p-col-12 text-center"  *ngIf="loading">
+            <h5><i class="pi pi-spin pi-spinner font-14"></i>Loading</h5>
+        </div>
+        <div class="p-col-12 text-center" *ngIf="error">
+            <i class="icons8 icons8-error text-danger font-40"></i>
+            <h5 class="font-13 my-5" >Failed to get data</h5>
+        </div>
+    </div>
+
+    <div class="p-grid" *ngIf="!loading && trendData.length">
+        <div class="p-col">
+            <app-chart [data]="trendChartData"></app-chart>
+        </div>
+    </div>
+</p-dialog>

@@ -1,0 +1,40 @@
+<div class="overview">
+    <div class="p-grid p-col-12">
+        <div class="p-grid loader-container vertical-container" *ngIf="datacommon.reportformdata == null">
+           <div class="p-col p-col-align-center text-center">
+           <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+           </div>
+         </div>
+        <div class="p-col-12 no-padding" *ngIf = 'datacommon.reportformdata != null && datacommon.timereportdata.length == 0'>
+            <p-card>
+                <p-header>
+                    <span class="selected-label line-height">
+                     Form was never submitted.
+                    </span>
+                 </p-header>
+              </p-card>
+        </div>
+
+        <div class="p-col-12 no-padding" *ngIf = 'datacommon.reportformdata != null && datacommon.timereportdata.length > 0'>
+            <p-card>
+                <p-header>
+                    <span class="selected-label line-height" *ngIf='datacommon.totalUniqueFormSubmitt === 0.00'> Form was never submitted.</span>
+                    <span class="selected-label line-height" *ngIf='datacommon.totalUniqueFormSubmitt !== 0.00'><b>{{datacommon.reportformdata.avgFillDuration.toFixed(2) }} sec</b> is the average time it took a visitor to complete this form.</span>
+                    <span class="selected-label line-height"> User spent  {{ (datacommon.timereportdata[0].avgFillDuration).toFixed(2)}} sec in filling the field '{{(datacommon.timereportdata[0].fname)}}' which is highest among other fields. A long interacting time may mean that the request at this field is too complex.</span>
+                </p-header>
+                <div class="p-grid p-align-stretch p-justify-center ">
+                     <div class="p-grid p-col-12 time-details" >
+                        <label class="p-col-2 text-right" title="{{breakWord(datacommon.setformName)}}">{{datacommon.setformName}}</label>
+                        <label class="p-col-9" title='{{(datacommon.reportformdata.avgFillDuration).toFixed(2)}} sec'>{{datacommon.reportformdata.avgFillDuration.toFixed(2)}} sec</label>
+                    </div>
+                    <div class="p-grid p-col-12 time-details" *ngFor="let progressDetail of datacommon.timereportdata">
+                        <label class="p-col-2 text-right" title="{{breakWord(progressDetail.fname)}}">{{progressDetail.fname}}</label>
+                        <div class="p-col-9">
+                            <p-progressBar title="{{progressDetail.avgFillDuration.toFixed(2)}} sec"  [value]="progressDetail.avgFillDuration.toFixed(2)" unit="sec"></p-progressBar>
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+    </div>
+</div>

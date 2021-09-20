@@ -1,0 +1,1085 @@
+<div class="h-100-vh alert-config-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-col-9">
+                <div class="p-grid p-align-center">
+                    <!-- <a routerLink="/my-library/alert">
+                        <i class="icons8 icons8-left toolbar-icon-color"></i>
+                    </a> -->
+                    <div class="p-col ui-toolbar-text">Alert Configurations</div>
+                </div>
+            </div>
+
+           <!-- update and reset  -->
+           <div class="icons-container p-justify-between p-align-center p-col-3">
+            <button
+            pButton
+            icon="icons8 icons8-settings"
+            class="ui-button ui-button-rounded ui-button-secondary"
+            pTooltip="Settings" (click)="settings.toggle($event)"
+          ></button>
+          <p-menu
+            #settings
+            [popup]="true"
+            styleClass="widget-menu"
+            [model]="alertSetting"
+            [showTransitionOptions]="'0ms'"
+            [hideTransitionOptions]="'0ms'"
+          ></p-menu>
+            <button pButton type="button" [disabled]="isOnlyReadable" class="ui-button ui-button-rounded ui-button-secondary" label="Import" (click)="importExportConfigure(0)" pTooltip="Import"></button>
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary" label="Export" (click)="importExportConfigure(1)" pTooltip="Export"></button>  
+            <button pButton type="reset" class="ui-button ui-button-rounded ui-button-secondary" pTooltip = "reset" label="Reset" (click)="configLoad()"></button>
+            <button pButton type="button" [disabled]="isOnlyReadable" class="ui-button ui-button-rounded" label="Update" (click)="configUpdate()" pTooltip="update"></button>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (inItemClick)="breadcrumb.handleBreadcrumbClick($event)" ></p-breadcrumb>
+    </div>
+    <div class="vertical-container overflow">
+        <div class="p-col-12 panel-card">
+            <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title" (click)="pnl1.toggle($event)">
+                            <a>
+                                <span [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                        </span>
+                            </a>
+                           Global Basic Configurations
+                        </div>
+                        <div class="p-grid p-justify-center p-align-center">
+                          <span pTooltip="Help" class="icons8 icons8-help">
+                          </span>
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content allalerts">
+                    <div class="content p-grid p-col-12 allalerts">
+
+                        <div class="p-grid p-col-12 alertdisplay">
+                            <div class="p-grid p-col-4">
+                                <div class="p-col-1 p-grid p-align-center">
+                                    <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.enable"></p-inputSwitch>
+                                </div>
+                                <div class="p-col-11 mt-3">
+                                    <span class="label"> <span *ngIf="!config.enable">Enable </span><span *ngIf="config.enable">Disable</span> all events</span>
+                                </div>
+                            </div>
+                     
+                            <div class="p-grid p-col-4" *ngIf="!config.enable">
+                                <div class="p-col-1 p-grid p-align-center">
+                                    <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.clearEvent"></p-inputSwitch>
+                                </div>
+                                <div class="p-col-11 mt-3">
+                                    <span class="label">Clear events</span>
+                                </div>
+                            </div>
+                        </div>
+                            <div class="p-grid p-col-12 alertdisplay">
+                                <div class="p-grid p-col-4">
+                                    <div class="p-col-1 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.historyLog"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-11 mt-3">
+                                        <span class="label"> <span *ngIf="!config.historyLog">Enable</span><span *ngIf="config.historyLog">Disable</span> event history logging</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-12 alertdisplay">
+                                <div class="p-grid p-col-4">
+                                   <div class="p-col-1 p-grid p-align-center">
+                                       <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.maintenance"></p-inputSwitch>
+                                   </div>
+                                   <div class="p-col-11 mt-3">
+                                       <span class="label"> <span *ngIf="!config.maintenance">Enable</span><span *ngIf="config.maintenance">Disable</span> maintenance window</span>
+                                
+                                   </div>
+                                </div>
+                               </div>
+                            <!-- <div class="p-grid p-col-12 alertdisplay">
+                                <div class="p-grid p-col-4">
+                                    <div class="p-col-1 p-grid p-align-center">
+                                        <p-inputSwitch [(ngModel)]="config.minBaselineValue"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-11">
+                                        <span class="label"> Generate increment baseline data</span>
+                                    </div>
+                                </div>
+                            </div> -->
+                       
+                      
+                        <div class="p-grid p-col-12 alertdisplay">
+                            <div class="p-grid p-col-4">
+                               <div class="p-col-1 p-grid p-align-center">
+                                    <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="toggleSeverityLevel" ></p-inputSwitch>
+                                </div>  
+                                <div class="p-col-3 mt-3">
+                                    <span class="label">Severity level</span>
+                                </div>
+                                <p-dropdown [options]="ruleSeverityLevel" dropdownIcon="icons8 icons8-expand-arrow" *ngIf="toggleSeverityLevel"  [(ngModel)]="severity"></p-dropdown>  <!--[optionLabel]='Minor'--> <!--  [placeholder]="ruleSeverityLevel[config.rSeverityLevel-1].label"-->
+
+                            </div> 
+                            
+                        </div>
+                            <div class="p-grid p-col-12 alertdisplay">
+                                <div class="p-grid p-col-6">
+                                    <div class="p-col-1 p-grid p-align-center mt-6">
+                                    <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="sessionStart"></p-inputSwitch>
+                                </div>
+                                    <div class="p-col-11">
+                                        <span class="label1">Skip samples for
+                                            <input [disabled]="!sessionStart" [(ngModel)]="config.numSkipSampleOnSR" type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                        maxlength = "5" size="1" onkeypress="return event.charCode >= 48" min="0" class="inputspace" placeholder="0" pInputText />
+                                        seconds on session restart
+                                        </span> 
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-12 alertdisplay">
+                                <div class="p-grid p-col-6">
+                                    <div class="p-col-1 p-grid p-align-center mt-6">
+                                     <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="graph" ></p-inputSwitch>
+                                     </div>
+                                     <div class="p-col-11">
+                                    <span class="label1">Open graphs in every  (±)  <input  [disabled]="!graph || isOnlyReadable" [(ngModel)]="config.graphTime" type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                        maxlength = "4" size="1" onkeypress="return event.charCode >= 48" min="0" class="inputspace" placeholder="30" pInputText /> minute(s) from event time</span>
+                               </div>
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-12 alertdisplay">
+                                <div class="p-grid p-col-6 ml-18">
+                                    <span class="label1">Rolling window must have at least  <input [disabled]="isOnlyReadable" [(ngModel)]="config.validSamplePct" type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "5" onkeypress="return (event.charCode >= 46 && event.charCode <= 57) && event.charCode <= 57" min="1" step=".01" class="inputspace" placeholder="50" pInputText />%  valid samples to check the condition</span>
+                                </div>
+                            </div>
+                            <!-- <div class="p-grid p-col-12 alertdisplay">
+                                <div class="p-grid p-col-6">
+                                    <div class="p-col-1 p-grid p-align-center">
+                                    <p-inputSwitch [(ngModel)]="scaledMatric"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-11">
+                                    <span class="label1">Skip first <input [disabled]="!scaledMatric" [(ngModel)]="config.autoScaleSkipDuration" type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                     maxlength = "4" size="1" onkeypress="return event.charCode >= 48" min="0" class="inputspace" placeholder="30" pInputText /> minute(s) data for auto scaled metric</span>
+                                </div>
+                                </div>
+                            </div> -->
+                    </div>
+                </div>
+            </p-panel>
+            
+                    <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                        <p-header class="cav-panel-header pt-5">
+                            <div class="cav-panel-content p-grid p-align-center">
+                                <div class="panel-title" (click)="pnl2.toggle($event)">
+                                    <a>
+                                        <span [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                </span>
+                                    </a>
+                                    POLICY
+                                </div>
+                                <div class="p-grid p-justify-center p-align-center">
+                                    <span pTooltip="Help" class="icons8 icons8-help">
+                                    </span>
+                                  </div>
+                            </div>
+                        </p-header>
+                        <div class="content allalerts">
+                        <div class="content p-grid p-col-12 allalerts">
+                     <div class="content p-grid p-col-12 allnotification">
+                        <span class="label text-bold">Notifications</span>
+                        
+                        <div class="p-grid p-col-12">
+                            <div class="p-grid p-col-2">
+                                <p-inputSwitch [disabled]="isOnlyReadable"  [(ngModel)]="config.policy.mail" ></p-inputSwitch>
+                                <span class="label mt-3">E-mail</span>
+                             </div>
+                            <div class="p-grid p-col-2">
+                                <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.policy.sms"></p-inputSwitch>
+                                <span class="label mt-3">SMS</span>   
+                            </div>
+                            <div class="p-grid p-col-2">
+                                <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.policy.snmp"></p-inputSwitch>
+                                <span class="label mt-3">SNMP Traps</span>
+                            </div>
+                            <div class="p-grid p-col-2">
+
+                                <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.policy.extension"></p-inputSwitch>
+                                <span class="label mt-3">Extension</span>
+                                
+    
+                            </div>
+                        </div>
+                        <!-- <div class="p-grid p-col-6" *ngIf="config.policy.mail">
+                          
+                            <div class="p-grid p-col-12">
+        
+                                    <p-inputSwitch value="1"></p-inputSwitch>
+                                    <label class="label">Generate Mail using template</label>
+              
+                            </div>
+                            <div class="p-grid p-col-12" >
+                                    <div class="p-col-2">
+                                        <div class="move"> 
+                                        <span class="line-height">Email Receiver</span>
+                                    </div>
+                                    </div>
+                                    <div class="p-col-8 p-justify-between p-align-center icons-block">
+                                        <input type="text" placeholder="" class="w-100-p"  pInputText />
+                                    </div>
+                                    
+                                        <button
+                                        pButton
+                                        icon="icons8 icons8-settings"
+                                        class="icon-button no-shadow"
+                                        (click)="addConfigure.open()"
+                                        pTooltip=""
+                                      ></button> -->
+                                     
+                                      <!-- <p-dialog header="Advanced E-Mail settings" [(visible)]="displaySetings" [modal]="true">
+                                        <div class="modal-header">
+                                        <p-fieldset legend="Chart configuration" class="ph-20">
+                                             <div class="p-grid p-col-12">
+                                                      <p-inputSwitch [(ngModel)]="showCharts"></p-inputSwitch> 
+                                                      <span class="label">Show charts in E-mail</span> 
+                                             </div>
+                                               <span *ngIf="showCharts">
+                                                <div class="p-grid p-col-12">
+                                                    <div class="move">                       
+                                                        Include maximum
+                                                    </div>
+                                                         <input  type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                                          size="1" class="input" placeholder="duration" pInputText />
+                                                         
+                                                         <select name="cars" id="cars">
+                                                         <option value="Second(s)">Line</option>
+                                                         <option value="saab">Bar</option>
+                                                         <option value="mercedes">Area</option>
+                                                         </select>
+                                                         <div class="move"> 
+                                                         &nbsp; &nbsp;charts for last &nbsp; &nbsp;
+                                                             </div>
+                                                         <input     type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                                           size="1" class="input" placeholder="Expected Size" pInputText />
+                                                           <div class="move"> 
+                                                          minutes
+                                                          </div>
+                                               
+                                            </div>
+                                                <div class="p-grid p-col-12">
+                                                    Criteria to select chart metrics
+                                                </div>
+                                                <div class="p-grid p-col-12"> 
+                                                    <div class="p-grid p-col-1"></div>                                    
+                                                        <p-inputSwitch [(ngModel)]="useMetrics"  (click)="
+                                                        this.similarPattern= false;">  
+                                                       </p-inputSwitch> 
+                                                       <span class="label"> use metrics on which alerts are generated</span> 
+                                               </div>
+                                               <div class="p-grid p-col-12"> 
+                                                <div class="p-grid p-col-1"></div>                               
+                                                <p-inputSwitch [(ngModel)]="similarPattern" (click)="
+                                                this.useMetrics= false;">  >   
+                                               </p-inputSwitch> 
+                                               <span class="label"> Identify and show more relevant metrices where similar pattern is matched</span> 
+                                       </div>
+                                       <span *ngIf="similarPattern">
+                                        <div class="p-grid p-col-12">
+                                            <div class="p-grid p-col-1"></div> 
+                                            <div class="move">                       
+                                                out of metrics collection &nbsp;
+                                            </div>
+                                                                                     
+                                                 <select name="cars" id="cars">
+                                                 <option value="Second(s)">catalogue</option>
+                                                 </select>
+                                                 <div class="move"> 
+                                                 &nbsp; &nbsp;having pattern match threshold as &nbsp; &nbsp;
+                                                     </div>
+                                                 <input     type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                                   size="1" class="input" placeholder="Expected Size" pInputText />
+                                                   <select name="cars" id="cars">
+                                                    <option value="Second(s)">with</option>
+                                                    <option value="Second(s)">without</option>
+                                                    </select>  
+                                    </div>
+                                    <div class="p-grid p-col-12">
+                                         <div class="p-grid p-col-1"></div> 
+                                    <div class="move"> 
+                                        inverse match.
+                                      </div>
+                                      </div>
+                                    <div class="p-grid p-col-12">
+                                         <div class="p-grid p-col-1"></div> 
+                                        <div class="move">                       
+                                            where baseline alert metric is picked based on 
+                                            maximum    &nbsp; &nbsp;
+                                        </div>
+                                        <select name="cars" id="cars">
+                                            <option value="Second(s)">maximum</option>
+                                            <option value="Second(s)">minimum</option>
+                                            </select>
+                                            <div class="move">                       
+                                                &nbsp; &nbsp;    alert condition value    &nbsp; &nbsp;
+                                            </div>
+                                    </div>
+                                 </span>
+                                 <div class="p-grid p-col-12">
+                                    <p-inputSwitch [(ngModel)]="PlaceMetrices">  
+                                   </p-inputSwitch> 
+                                   <span class="label"> Place all the metrices in separate charts</span> 
+                                </div>    
+                                              </span>
+                    
+                                        </p-fieldset>
+                                    </div> 
+                                        <p-fieldset legend="Stats report configuration" class="ph-20">
+                                            <div class="p-grid p-col-12">
+                                                      <p-inputSwitch [(ngModel)]="generateReport"></p-inputSwitch>
+                                                      <span class="label">Generate report and send link in mail</span>
+                                             </div>
+         
+                                             <span *ngIf="generateReport">
+                                                  <div class="p-grid p-col-12">
+                                                    <div class="move">                       
+                                                        Include &nbsp;
+                                                    </div>
+                                                         
+                                                         
+                                                         <select name="cars" id="cars">
+                                                         <option value="Second(s)">Tabular</option>
+                                                         <option value="saab">Word</option>
+                                                         <option value="mercedes">HTML</option>
+                                                         </select>
+                                                         <div class="move"> 
+                                                         &nbsp; &nbsp;report for last  &nbsp; 
+                                                             </div>
+                                                         <input     type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                                           size="1" class="input"  pInputText />
+                                                           <div class="move"> 
+                                                          minutes &nbsp;
+                                                          </div>
+                                                          <select name="cars" id="cars">
+                                                            <option value="Second(s)">without</option>
+                                                            <option value="saab">with</option>
+                                                            </select>
+                                                            <div class="move"> 
+                                                                &nbsp; charts
+                                                                </div>
+                                               
+                                            </div>
+                                            <div class="p-grid p-col-12">
+                                                <div class="move"> 
+                                                    Criteria to select metrics for report
+                                                    </div>
+                                            </div>
+                                            <div class="p-grid p-col-12">
+                                                <div class="p-grid p-col-1"></div>                                   
+                                                <p-inputSwitch [(ngModel)]="useMetrics1"  (click)="
+                                                this.similarPattern1= false;">  
+                                               </p-inputSwitch> 
+                                               <span class="label"> use metrics on which alerts are generated </span> 
+                                            </div>
+                                            <div class="p-grid p-col-12">
+                                                <div class="p-grid p-col-1"></div>                                   
+                                                <p-inputSwitch [(ngModel)]="similarPattern1"  (click)="
+                                                this.useMetrics1= false;">  
+                                               </p-inputSwitch> 
+                                               <span class="label"> use metrics from the &nbsp;</span> 
+                                             
+                                               <select name="cars" id="cars">
+                                                <option value="Second(s)"  [disabled]="!similarPattern1" placeholder="Critical">Favorite</option>
+                                               
+                                                </select>
+                                            </div>
+
+                                             </span>
+                                             </p-fieldset>
+                                             <p-footer>
+                                                <div class="p-col-12 form-buttons right">
+                                                    <button pButton type="submit" label="Save"  class="ui-button-rounded"></button>
+
+                                                    <button pButton type="button" label="Close" class="ui-button-rounded ui-button-secondary"></button>
+                                                    
+                                                </div>
+                                            </p-footer>
+                                     </p-dialog> -->
+                                     
+                                   
+                            <!-- </div>
+                            <div class="p-grid p-col-12">
+                                    <div class="p-col-2">
+                                        <div class="move"> 
+                                        <span class="line-height">Subject Mail</span>
+                                    </div>
+                                    </div>
+                                    <div class="p-col-8 p-justify-between p-align-center icons-block">
+                                        <input type="text" placeholder="" class="w-100-p"  pInputText />
+                                    </div>
+                                    <button
+                                    pButton
+                                    icon="icons8 icons8-add-new"
+                                    class="icon-button no-shadow"
+                                    pTooltip=""
+                                  ></button>
+                            </div>
+                            <div class="p-grid p-col-12">
+                                    <div class="p-col-2">
+
+                                    </div>
+                                       
+                                    
+
+                                    <div class="p-col-3 p-justify-between p-align-center icons-block">
+                                        <span class="line-height">Pre Text</span>
+                                        <input type="text" placeholder="" class="w-100-p"  pInputText />
+                                    </div>
+                                    <button
+                                    pButton
+                                    icon="icons8 icons8-add-new"
+                                    class="icon-button no-shadow"
+                                    pTooltip=""
+                                  ></button>
+
+                                   
+                                    <div class="p-col-3 p-justify-between p-align-center icons-block">
+                                        <span class="line-height">Post Text</span>
+                                        <input type="text" placeholder="" class="w-100-p"  pInputText />
+                                    </div>
+                                    <button
+                                    pButton
+                                    icon="icons8 icons8-add-new"
+                                    class="icon-button no-shadow"
+                                    pTooltip=""
+                                  ></button>
+                            </div>
+                              </div>
+                        <div class="p-grid p-col-6" *ngIf="config.policy.sms">
+
+                            <div class="p-grid p-col-12" >
+                                <div class="p-col-2">
+                                    <div class="move"> 
+                                    <span class="line-height">SMS Receiver</span>
+                                </div>
+                                </div>
+                                <div class="p-col-8 p-justify-between p-align-center icons-block">
+                                    <input type="text" placeholder="" class="w-100-p"  pInputText />
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="p-grid p-col-6" *ngIf="config.policy.snmp">
+                                    <div class="p-grid p-col-12">
+                                    <div class="p-col-3">
+                                        <div class="move1"> 
+                                        <span class="line-height"><i class="icons8">&#xf1bb; SNMP Server </i></span>
+                                    </div>
+                                    </div>
+                                    <div class="p-col-3 p-justify-between p-align-center icons-block">
+                                        <input type="text" placeholder="" class="w-100-p"  pInputText />
+                                    </div>
+                              
+                             
+                                    <div class="p-col-3">
+                                        <div class="move1"> 
+                                        <span class="line-height"><i class="icons8">&#xf166; SNMP Port</i></span>
+                                    </div>
+                                    </div>
+                                    <div class="p-col-3 p-justify-between p-align-center icons-block">
+                                        <input     type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                              maxlength = "4" size="1" class="w-100-p" placeholder="" pInputText />
+                                       <input type="text" placeholder="" class="w-100-p"  pInputText /> 
+                                    </div>
+                               </div>
+                               <div class="p-grid p-col-12">
+                                <div class="p-col-2">
+                                    <span class="line-height">SNMP Version</span>
+                                </div>
+                                    <div class="p-grid p-col-12">
+                                        &nbsp;&nbsp;&nbsp;
+                                        <div class="p-col-2">
+                                        
+                                            
+                                            <input type="radio" name = "group1" value="0" [(ngModel)]="selectedSNMP"checked >V1
+                                        </div>
+                                        <div class="p-col-2">
+                                        
+                                            <input type="radio" name = "group1" value="1" [(ngModel)]="selectedSNMP"> V2C
+                                        </div>
+                                        <div class="p-col-2">
+                                        
+                                            <input type="radio" name = "group1" value="2" [(ngModel)]="selectedSNMP"> V3 
+                                        </div>
+                                 </div>
+                               </div>
+              
+                            <div class="p-grid p-col-12" *ngIf="selectedSNMP==='0'|| selectedSNMP==='1'">
+                                <div class="p-col-1"></div>
+                                <div class="p-col-2">
+                                    <div class="move"> 
+                                    <span class="line-height">Community</span>
+                                </div>
+                                </div>
+                                <div class="p-col-4 p-justify-between p-align-center icons-block">
+                                    <input type="text" placeholder="" class="w-100-p"  pInputText />
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-12" *ngIf="selectedSNMP==='2'">
+                                <div class="p-col-1"></div>
+                                <div class="p-col-10">
+                                    <span class="line-height">SNMP v3 Security Level</span>
+                                </div>
+                                <div class="p-col-2"></div>
+                                <div class="p-col-10">
+                                      
+                                            
+                                    <input type="radio" name = "group2" value="4" [(ngModel)]="selectedV3" checked>NO_AUTH_NO_PRIV &nbsp;&nbsp;
+                            
+                                    <input type="radio" name = "group2" value="5" [(ngModel)]="selectedV3"> AUTH_NO_PRIV &nbsp;&nbsp;
+                            
+                                    <input type="radio" name = "group2" value="6" [(ngModel)]="selectedV3"> AUTH_PRIV &nbsp;&nbsp;
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-12" *ngIf="selectedV3==='4'&& selectedSNMP==='2'">
+                                <div class="p-col-2"></div>
+                                
+                                <div class="p-col-3">
+                                    <div class="move1"> 
+                                    <span> &nbsp;&nbsp; <i class="icons8">&#xf10e; Username</i></span>
+                                    </div>
+                                </div>   
+                                 <div class="p-col-6">   
+                                    
+                                        <input type="text" placeholder="" class="w-100-p"  pInputText />     
+                                </div>
+                            </div>
+                            
+                            <div class="p-grid p-col-12" *ngIf="selectedV3==='5' && selectedSNMP==='2'">
+                                <div class="p-col-2"></div>
+                                
+                                <div class="p-col-4">
+                                    <div class="move1"> 
+                                    <span> &nbsp;&nbsp; <i class="icons8">&#xf10e; Username</i></span>
+                                </div> 
+                                </div>  
+                                 <div class="p-col-6">   
+                                    
+                                        <input type="text" placeholder="" class="w-100-p"  pInputText />   
+                                </div>
+
+                                <div class="p-col-2"></div>
+                                <div class="p-col-4">
+                                    <span> &nbsp;&nbsp; <i class="icons8">&#xf1bb; Authentication Protocol</i></span>
+                                </div>
+                                <div class="p-col-6">
+                                    <input type="radio" name = "group3" value="7" [(ngModel)]="selectedMD5" checked> MD5
+                                    &nbsp;&nbsp;
+                               
+                                
+                                    <input type="radio" name = "group3" value="8"  [(ngModel)]="selectedMD5"> SHA
+                                    &nbsp;&nbsp;
+                                    </div>
+                                <div class="p-col-2"></div>
+                                <div class="p-col-4">
+                                    <div class="move1"> 
+                                    <span>  &nbsp;&nbsp;  <i class="icons8">&#xf104; Authentication Password</i></span>
+                                </div> 
+                                </div>  
+                                 <div class="p-col-6">   
+                                    
+                                        <input type="text" placeholder="" class="w-100-p"  pInputText />   
+                                </div>
+
+                            </div>
+                            <div class="p-grid p-col-12" *ngIf="selectedV3==='6' && selectedSNMP==='2'">
+                                <div class="p-col-2"></div>
+                                
+                                <div class="p-col-4">
+                                    <div class="move1"> 
+                                    <span cl> &nbsp;&nbsp; <i class="icons8">&#xf10e; Username</i></span>
+                                </div>  
+                                </div> 
+                                 <div class="p-col-6">   
+                                    
+                                        <input type="text" placeholder="" class="w-100-p"  pInputText />   
+                                </div>
+
+                                <div class="p-col-2"></div>
+                                <div class="p-col-4">
+                                    <span> &nbsp;&nbsp; <i class="icons8">&#xf1bb; Authentication Protocol</i></span>
+                                </div>
+                                <div class="p-col-6">
+                                    <input type="radio" name = "group3" value="7" [(ngModel)]="selectedMD5"  checked> MD5
+                                    &nbsp;&nbsp;
+                               
+                                
+                                    <input type="radio" name = "group3" value="8" [(ngModel)]="selectedMD5" > SHA
+                                    &nbsp;&nbsp;
+                                    </div>
+                                <div class="p-col-2"></div>
+                                <div class="p-col-4">
+                                    <div class="move1"> 
+                                    <span>  &nbsp;&nbsp;  <i class="icons8">&#xf104; Authentication Password</i></span>
+                                </div> 
+                                </div>  
+                                 <div class="p-col-6">   
+                                    
+                                        <input type="text" placeholder="" class="w-100-p"  pInputText />   
+                                </div>
+                                <div class="p-col-2"></div>
+                                <div class="p-col-4">
+                                    <span> &nbsp;&nbsp; <i class="icons8">&#xf1bb; Privacy Protocol</i></span>
+                                    
+                                </div>
+                                <div class="p-col-6">
+                                    <input type="radio" name = "group4" value="9"  [(ngModel)]="selectedDES"> DES
+                                    &nbsp;&nbsp;
+                               
+                                
+                                    <input type="radio" name = "group4" value="10"  [(ngModel)]="selectedDES"> AES128
+                                    &nbsp;&nbsp;
+                                    </div>
+                                <div class="p-col-2"></div>
+                                <div class="p-col-4">
+                                    <div class="move1"> 
+                                    <span>  &nbsp;&nbsp;  <i class="icons8">&#xf104; Privacy Password</i></span>
+                                </div>   
+                                </div>
+                                 <div class="p-col-6">   
+                                    
+                                        <input type="text" placeholder="" class="w-100-p"  pInputText />   
+                                </div>
+
+                            </div>
+                            
+                        </div> -->
+
+
+                        
+                     </div> 
+                     <div class="content p-grid p-col-12 allnotification">
+                        <span class="label text-bold">Diagnostics</span>
+                        <div class="p-grid p-col-12">
+                            <div class="p-grid p-col-2">
+
+                                <div>
+                                    <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.policy.threadDump"  ></p-inputSwitch>
+                                    </div>
+                                <span class="label mt-3">Thread dump</span>
+                               
+                            </div>
+                            <div class="p-grid p-col-2">
+
+                                <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.policy.heapDump" ></p-inputSwitch>
+                                <span class="label mt-3">Heap dump</span>
+                                
+
+                            </div>
+                            <div class="p-grid p-col-2">
+
+                                <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.policy.tcpDump"></p-inputSwitch>
+                                <span class="label mt-3">TCP dump</span>
+                            </div>
+                            <div class="p-grid p-col-2">
+
+                                <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.policy.cpuProfile" ></p-inputSwitch>
+                                <span class="label mt-3">CPU profiling</span>
+                               
+    
+                            </div>
+                            <div class="p-grid p-col-2">
+    
+                                <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.policy.jfr" ></p-inputSwitch>
+                                <span class="label mt-3">Java Flight Recorder</span>
+                                
+                            </div>
+                           
+
+                        </div>
+                </div>
+                <div class="content p-grid p-col-12 allnotification">
+                    <span class="label text-bold">Remediation</span>
+                    <div class="p-grid p-col-12">
+                        <div class="p-grid p-col-2">
+
+
+                            <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.policy.runScript" ></p-inputSwitch>
+
+                           
+                            <span class="label mt-3">Run script</span>
+                             </div>
+                            </div>
+                        <!-- <div class="p-grid p-col-2">
+                            <p-inputSwitch [(ngModel)]="config.policy.snapshot"></p-inputSwitch>
+                            <span class="label">Snapshot</span>
+                            
+
+                        </div> -->
+                    
+
+                        <!-- <div class="p-grid p-col-12" *ngIf="config.policy.jfr">
+                                
+                            <span class="p-grid p-col-12">
+                          
+                                   <div class="move">                       
+                                        JFR would be initiated for 
+                                   </div>
+                                        <input  type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                        maxlength = "4" size="1" class="input" placeholder="duration" pInputText />
+                                        
+                                        <select name="cars" id="cars">
+                                        <option value="Second(s)">Second(s)</option>
+                                        <option value="saab">Minute(s)</option>
+                                        <option value="mercedes">Hour(s)</option>
+                                        </select>
+                                        <div class="move"> 
+                                        &nbsp; &nbsp;and saved at &nbsp; &nbsp;
+                                            </div>
+                                     
+                                    <input     type = "text"  size="5"  placeholder="Path Name" pInputText />
+                                        <div class="move"> 
+                                        &nbsp; &nbsp;with maximum expected file size of &nbsp;
+                                        </div> 
+                                        <input     type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                         maxlength = "4" size="1" class="input" placeholder="Expected Size" pInputText />
+                               
+                                         <select name="cars" id="cars">
+                                            <option value="Second(s)">KB</option>
+                                            <option value="saab">MB</option>
+                                            <option value="mercedes">GB</option>
+                                            </select>
+                               </span>
+                               <div class="move"> 
+                                        &nbsp; &nbsp;and waiting time
+                                        </div>
+                                        <input     type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                        maxlength = "4" size="1" class="input" placeholder="duration" pInputText />
+
+                                        <select name="cars" id="cars">
+                                            <option value="Second(s)">Second(s)</option>
+                                            <option value="saab">Minute(s)</option>
+                                            <option value="mercedes">Hour(s)</option>
+                                            </select>
+                                            
+                                          
+                                            <div class="icons">
+                                            &nbsp;&nbsp; <i class="icons8" (click)="showBasicDialog()">&#xf10e;</i>
+                                            </div> 
+
+                                        <p-dialog header="JAVA FLIGHT RECORDER COMMAND" [(visible)]="displayBasic" [modal]="true">
+                                            <div class="modal-header">
+                                        <p>Command : ndi_communicate_with_ndc 127.0.0.1 7892 "run_async_command_req:Command=nsi_flight_recorder_int;AgentType=Java;Arguments= -d 10s -S 10M -O 1 -o start -p 27951 -l /tmp/Default_ubuntu_Instance1_13_Jun_2019_19_42_08.jfr -w 20000;Tier=Default;Server=ubuntu;Instance=Instance1;TestRun=2451;TimeOut=20000;
+                                            Path=/tmp/Default_ubuntu_Instance1_13_Jun_2019_19_42_08.jfr;" </p>   </div>                                  
+                                        </p-dialog> 
+                                       
+                                        &nbsp;&nbsp;&nbsp;
+
+                                            <div class="icons">
+                                            &nbsp;<i class="icons8" (click)="showBasicDialog1()">&#xf177;</i>
+                                            </div>
+                                        <p-dialog header="ABOUT JAVA FLIGHT RECORDER(JFR)" [(visible)]="displayBasic1" [modal]="true">
+                                            <div class="modal-header">
+                                            <p>Java Flight Recorder (JFR) is a tool for collecting diagnostic and profiling data about a running Java application. It is integrated into the Java Virtual Machine (JVM) and causes almost no performance overhead, so it can be used even in heavily loaded production environments.
+                                            Enabling Java Flight Recorder
+                                            By default, JFR is disabled in the JVM. To enable JFR, you must launch your Java application with the -XX:+FlightRecorder option. Because JFR is a commercial feature, available only in the commercial packages based on Java Platform, Standard Edition (Oracle Java SE Advanced and Oracle Java SE Suite), you also have to enable commercial features using the -XX:+UnlockCommercialFeatures options. 
+                                            For example, to enable JFR when launching a Java application named MyApp, use the following command:
+                                            java -XX:+UnlockCommercialFeatures -XX:+FlightRecorder MyApp </p>        
+                                                </div>
+                                        </p-dialog>
+                         </div>
+                         <div class="p-grid p-col-12" *ngIf="config.policy.runScript">
+                           <div class="p-grid p-col-6">
+                            <div class="move"> 
+                            &nbsp; &nbsp;Script Name &nbsp; &nbsp;
+                                </div>
+                            <input type = "text"  size="5"  placeholder="Path Name" pInputText />
+                          
+                            <div class="move">
+                            &nbsp; &nbsp;&nbsp; &nbsp;
+                            <p-inputSwitch [(ngModel)]="config.policy.runOnServer"></p-inputSwitch>
+                            </div>
+                         <div class="move2">
+                            &nbsp; &nbsp;Run on server
+                                </div>
+                         </div>  
+                          
+                            
+                         
+
+                           </div>-->
+
+                     </div> 
+                     </div>
+                     </div>
+                     </p-panel>
+            
+                     
+                        <p-panel #pnl3 expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                            <p-header class="cav-panel-header pt-5">
+                                <div class="cav-panel-content p-grid p-align-center">
+                                    <div class="panel-title" (click)="pnl3.toggle($event)">
+                                        <a>
+                                            <span [class]="pnl3.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                    </span>
+                                        </a>
+                                       ACTION EVENTS
+                                    </div>
+                                    <div class="p-grid p-justify-center p-align-center">
+                                        <span pTooltip="Help" class="icons8 icons8-help">
+                                        </span>
+                                      </div>
+                                </div>
+                            </p-header>
+                            <div class="content allalerts">
+                                <div class="content p-grid p-col-12 allalerts">
+                     
+                            <div class="p-grid p-col-12 alertdisplay">
+                                <span class="label text-bold">Action will be taken when selected criteria is satisfied</span>   
+                            </div>
+                           <div class="p-grid p-col-12 alertdisplay">
+                            <div class="p-grid p-col-4">
+                                <div class="p-col-1 p-grid p-align-center">
+                                    <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.enable" (click)="onTrue()"></p-inputSwitch>
+                                </div>
+                                <div class="p-col-7 mt-3">
+                                    <span class="label"> <span *ngIf="!config.actionsEvents.enable">Enable</span><span *ngIf="config.actionsEvents.enable">Disable </span> all criteria</span>
+                                </div>
+                            </div>
+                           </div>
+                        
+
+                            <div class="p-grid p-col-12 alertdisplay">
+                                <div class="p-grid p-col-4">
+                                    <div class="p-col-1 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.minorToMajor" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col11 mt-8 ml-5">
+                                        <span class="label">Events upgraded from minor to major</span>
+                                    </div>
+                                </div>
+                                <div class="p-grid p-col-4">
+                                    <div class="p-col-1 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.minorToCritical" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-11 mt-3">
+                                        <span class="label"> Events upgraded from minor to critical</span>
+                                    </div>
+
+                                </div>
+                                <div class="p-grid p-col-4">
+                                    <div class="p-col-1 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.majorToCritical" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-11 mt-3">
+                                        <span class="label"> Events upgraded from major to critical</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-12 alertdisplay">
+                                
+                                <div class="p-grid p-col-4">
+                                    <div class="p-col-1 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.majorToMinor" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-11 mt-3">
+                                        <span class="label"> Events downgraded from major to minor</span>
+                                    </div>
+
+                                </div>
+                                <div class="p-grid p-col-4">
+                                    <div class="p-col-1 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.criticalToMajor" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-11 mt-3">
+                                        <span class="label"> Events downgraded from critical to major</span>
+                                    </div>
+                                </div>
+                                <div class="p-grid p-col-4">
+                                    <div class="p-col-1 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.criticalToMinor" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-11 mt-3">
+                                        <span class="label">Events downgraded from critical to minor</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-12 alertdisplay">
+                                <div class="p-grid p-col-4">
+                                    <div class="p-col-1 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.forceClear" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-5 mt-3">
+                                        <span class="label"> Force Clear</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-12 alertdisplay">
+                                <div class="p-grid p-col-4">
+                                    <div class="p-col-1 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.continuousEvent" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-5 mt-3">
+                                        <span class="label">Continuous</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-grid p-col-12 alertdisplay">
+                                <span class="mt-14 ml-10">Events Ended with Severity</span>
+                                <div class="p-grid p-col-2">
+                                    <div class="p-col-2 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.endedCritical"class="label" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-10 mt-3">
+                                        <span class="label ml-15">Critical</span>
+                                    </div>
+
+                                </div>
+                                <div class="p-grid p-col-2">
+                                    <div class="p-col-2 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.endedMajor" class="label" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-10 mt-3">
+                                        <span class="label ml-15">Major</span>
+                                    </div>
+
+                                </div>
+                                <div class="p-grid p-col-2">
+                                    <div class="p-col-2 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.endedMinor" class="label" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-10 mt-3">
+                                        <span class="label ml-15">Minor</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-12 alertdisplay">
+                                <span class="mt-14 ml-10">Events Started with Severity</span>
+                                <div class="p-grid p-col-2">
+                                    <div class="p-col-2 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.startedCritical" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-10 mt-3">
+                                        <span class="label ml-10">Critical</span>
+                                    </div>
+
+                                </div>
+                                <div class="p-grid p-col-2">
+                                    <div class="p-col-2 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.startedMajor" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-10 mt-3">
+                                        <span class="label ml-10">Major</span>
+                                    </div>
+
+                                </div>
+                                <div class="p-grid p-col-2">
+                                    <div class="p-col-2 p-grid p-align-center">
+                                        <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.actionsEvents.startedMinor" (click)="onActionEvent()"></p-inputSwitch>
+                                    </div>
+                                    <div class="p-col-10 mt-3">
+                                        <span class="label ml-10">Minor</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </p-panel>
+                 
+               
+            <p-panel #pnl4 expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title" (click)="pnl4.toggle($event)">
+                            <a>
+                                <span [class]="pnl4.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                        </span>
+                            </a>
+                            REST API triggered Event Configurations
+                        </div>
+                        <div class="p-grid p-justify-center p-align-center">
+                            <span pTooltip="Help" class="icons8 icons8-help">
+                            </span>
+                          </div>
+                    </div>
+                </p-header>
+                   <div class="content allalerts">
+                   <div class="content p-grid p-col-12 allalerts">
+                        <div class="p-grid p-col-12">
+                            <div class="p-grid p-col-5">
+                                <div class="p-col-1 p-grid p-align-center">
+                                    <p-inputSwitch [disabled]="isOnlyReadable"  [(ngModel)]="config.restEvent"></p-inputSwitch>
+                                </div>
+                                <div class="p-col-11 mt-4">
+                                    <span class="label"> <span *ngIf="!config.restEvent">Enable</span><span *ngIf="config.restEvent">Disable</span> REST API triggered events</span>
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-5" *ngIf="!config.restEvent">
+                                <div class="p-col-1 p-grid p-align-center">
+                                    <p-inputSwitch [disabled]="isOnlyReadable" [(ngModel)]="config.clearRestEvent"></p-inputSwitch>
+                                </div>
+                                <div class="p-col-11 mt-4">
+                                    <span class="label">Remove all active REST API triggered events</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-grid p-col-12">
+                            <div class="p-grid p-col-6 autoclear">
+				                <div class="p-col-1 p-grid p-align-cente">
+                                    <p-inputSwitch class="mt-8" [(ngModel)]="config.clearRestEventOnInterval"  [disabled]="!config.restEvent || isOnlyReadable" ></p-inputSwitch>
+                                </div>
+                                <div class="p-col-11 mt-2">
+                                    <span class="label1">Auto clear all triggered events in every<input  [(ngModel)]="config.clearRestEventInterval"  [disabled]="!config.restEvent || !config.clearRestEventOnInterval || isOnlyReadable" type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                     maxlength = "4" size="1"  onkeypress="return event.charCode >= 48" min="0" class="inputspace" placeholder="30" pInputText /> minute(s) from event time</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </p-panel>
+            <!-- <p-panel #pnl3 expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title" (click)="pnl3.toggle($event)">
+                            <a>
+                                <span [class]="pnl3.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                 </span>
+                            </a>
+                            Debug Configuration
+                        </div>
+
+                    </div>
+                </p-header>
+                <div class="content allalerts">
+                    <div class="p-grid p-col-12">
+                        <div class="p-grid p-col-2">
+                            <span class="label">Module Name</span>
+                        </div>
+                        <div class="p-field p-col-2">
+                            <p-dropdown [options]="options" [(ngModel)]="moduleName" placeholder="Select Alert" optionLabel="label" placeholder="Alerts"  [showClear]="true" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                        </div>
+                        <div class="p-field p-col-2">
+                            <p-dropdown [options]="options" [(ngModel)]="moduleLevel" placeholder="Select Trace" optionLabel="label" placeholder="Trace" [showClear]="true" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12">
+                        <div class="p-grid p-col-2">
+                            <span class="label">Baseline View Format</span>
+                        </div>
+                        <div class="p-field p-col-2">
+                            <p-dropdown [options]="options" placeholder="" optionLabel="label" placeholder="Basic" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                        </div>
+                    </div> 
+                </div>
+            </p-panel> -->
+
+        </div>
+    </div>
+</div>
+
+<p-toast position="top-left" key="tl"></p-toast>
+<!-- <app-add-configure #addConfigure></app-add-configure> -->
+<app-generic-import-export #impExpComponent (importedData)="updateImportedData($event)"></app-generic-import-export>

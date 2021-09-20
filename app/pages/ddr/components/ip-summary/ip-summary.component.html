@@ -1,0 +1,310 @@
+<!-- <p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" /> -->
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+  <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+  </div>
+</div>
+<div class="ddr-toolbar">
+  <div class="p-grid p-align-center p-justify-between py-3 ui-table-header">
+    <div>
+      <span title="{{completeTier}}">{{filterTierName}}</span>
+      <span title="{{completeServer}}">{{filterServerName}}</span>
+      <span title="{{completeInstance}}">{{filterInstanceName}}</span>
+      <span>{{filterCriteria}}</span>
+      <span title="{{completeIpName}}">{{filterIpName}}</span>
+    </div>
+    <div>
+      <span *ngIf="showDCMenu">
+        <label>Data Center : </label>
+        <p-dropdown [options]="dcList" (onChange)="getSelectedDC($event)" [(ngModel)]="selectedDC"
+          [style]="{'width':'75px'}"></p-dropdown>
+      </span>
+
+
+      <button pButton icon="icons8 icons8-doc" class="btn-icon"  (click)='downloadReportForAgg("word")'
+  pTooltip="Download Word Report"></button>
+  <button pButton icon="icons8 icons8-spreadsheet-file" class="btn-icon"  (click)='downloadReportForAgg("excel")'
+  pTooltip="Download Excel Report"></button>
+  <button pButton icon="icons8 icons8-pdf-2" class="btn-icon"  (click)='downloadReportForAgg("pdf")'
+  pTooltip="Download PDF Report"></button>
+
+  <button pButton icon="icons8 icons8-settings" class="btn-icon"  (click)="showflowpathConfDialogue()"
+  pTooltip="Filters"></button>
+
+  <button pButton  icon="icons8 icons8-zoom-in" *ngIf="displayAutoInst" class="btn-icon"  (click)="openAutoInstDialog()"
+  pTooltip="Click to Start Auto Instrumentation"></button>
+
+      <!-- <span title="Download as Word Report">
+        <i class='icons8 icons8-doc mx-3' style=' cursor:pointer' (click)='downloadReportForAgg("word")'></i>
+      </span>
+      <span title="Download as Excel Report">
+        <i class='icons8 icons8-spreadsheet-file mx-3' style=' cursor:pointer'
+          (click)='downloadReportForAgg("excel")'></i>
+      </span>
+      <span title="Download as PDF Report">
+        <i class='icons8 icons8-pdf-2 mx-3' style=' cursor:pointer' (click)='downloadReportForAgg("pdf")'></i>
+      </span> -->
+     
+      <!-- <span *ngIf="displayAutoInst">
+        <i class="icons8 icons8-zoom-in mx-3" (click)="openAutoInstDialog()"
+          title="Click to Start Auto Instrumentation"></i>
+      </span> -->
+    </div>
+    </div>
+    </div>
+<!--p-toolbar>
+  <div class="group-left">
+  <span title="{{filterCriteria}}"></span>
+  </div>
+</p-toolbar-->
+<!-- COMMON BOX SCROLLLBAR -->
+<div class="ddruiscroll" [ngStyle]="{'height': 'calc(73vh - 15px)'}" style="overflow:auto;">
+  <p-accordion class="accordHeader" [multiple]="true">
+    <p-accordionTab header="BT Callout Summary" [selected]="true">
+     
+          
+      <p-table class="all-tables" [value]="btCallOutInfoAgg"
+        sortField="maxCalloutCount" [sortOrder]="-1" [scrollable]="true" scrollHeight="300px"
+        [style]="{'max-height':'70vh','height':'auto','font-size':'12px'}" resizableColumns="true"
+        reorderableColumns="true" selectionMode="single" [(selection)]="selectedRowInfo">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <ng-container *ngFor="let col of btCallOutAggColumn">
+              <col  *ngIf = "col.action" [style]="{'width': col.width+'px'}" >
+            </ng-container>
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <ng-container *ngFor="let col of btCallOutAggColumn">
+              <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action" pResizableColumn [pSortableColumn]="col.field">
+                <span>{{col.header}}</span>
+                <p-sortIcon *ngIf="col.action" [field]="col.field" class="text-right" ariaLabel="Activate to sort"
+                  ariaLabelDesc="Activate to sort in descending order"
+                  ariaLabelAsc="Activate to sort in ascending order">
+                </p-sortIcon>
+              </th>
+            </ng-container>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-node>
+          <tr>
+            <ng-container *ngFor="let col of btCallOutAggColumn">
+              <td *ngIf="col.action">
+                <div style=" text-align: left;" *ngIf="(col.field == 'url') && (btCallOutInfoAgg.length==1)" title="{{node[col.field]}}">
+                  {{node[col.field]}}</div>
+                <div style="color:blue; text-align: left;cursor: pointer ;"
+                  *ngIf="(col.field == 'url') && !(btCallOutInfoAgg.length==1)" (click)="openIndIP(node)"
+                  title="View CallOut Details">{{node[col.field]}}</div>
+                <div style="text-align: right;"
+                  *ngIf="(col.field == 'minCalloutCount') || (col.field == 'maxCalloutCount')|| (col.field == 'minHttpCalloutCount')||(col.field == 'maxHttpCalloutCount')||(col.field == 'totalHttpCalloutCount') || (col.field == 'minDBCalloutCount') || (col.field == 'maxDBCalloutCount')||(col.field == 'totalDBCalloutCount')||(col.field=='fpCount')">
+                  {{formatter(node[col.field])}}</div>
+              </td>
+            </ng-container>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+              <td [attr.colspan]="btCallOutAggColumn.length + 1" class="text-center">
+                  <span *ngIf="emptyBtCallOutAgg">No Records Found</span>
+              </td>
+          </tr>
+      </ng-template>
+      </p-table>
+      <!-- <p-dataTable class="scen-table scrollable-div2 auto-table-layout" [value]="btCallOutInfoAgg"
+        sortField="maxCalloutCount" [sortOrder]="-1" scrollHeight="340px"
+        [style]="{'max-height':'70vh','height':'auto','font-size':'12px'}" resizableColumns="true"
+        reorderableColumns="true" selectionMode="single" [(selection)]="selectedRowInfo">
+        <div *ngFor="let col of btCallOutAggColumn">
+          <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable"
+            [sortable]="true" [filter]="col.filter" [filterMatchMode]='contains'
+            (sortFunction)="sortColumnsOnCustomForAgg($event,btCallOutInfoAgg)" [style]="{'width': col.width + 'px'}">
+            <ng-template pTemplate type="header">
+              <div title="Thread dump is taken successfully."></div>
+            </ng-template>
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <div style=" text-align: left;" *ngIf="(col.field == 'url') && (btCallOutInfoAgg.length==1)">
+                {{node[col.field]}}</div>
+              <div style="color:blue; text-align: left;cursor: pointer ;"
+                *ngIf="(col.field == 'url') && !(btCallOutInfoAgg.length==1)" (click)="openIndIP(node)"
+                title="View CallOut Details">{{node[col.field]}}</div>
+              <div style="text-align: right;"
+                *ngIf="(col.field == 'minCalloutCount') || (col.field == 'maxCalloutCount')|| (col.field == 'minHttpCalloutCount')||(col.field == 'maxHttpCalloutCount')||(col.field == 'totalHttpCalloutCount') || (col.field == 'minDBCalloutCount') || (col.field == 'maxDBCalloutCount')||(col.field == 'totalDBCalloutCount')||(col.field=='fpCount')">
+                {{formatter(node[col.field])}}</div>
+            </ng-template>
+          </p-column>
+        </div>
+      </p-dataTable> -->
+    </p-accordionTab>
+    <p-accordionTab header="BT Callout Details {{selectedBT}}{{TotalCalloutcount}}" [selected]="true">
+      <div *ngIf="!aggCase; else aggTable">
+        
+<div class="p-grid p-align-center p-justify-end py-5">
+          <div class="ui-toolbar-group-left" style="text-align: left">
+            <div *ngIf="showWarning">
+              <button pButton type="button" icon="fa fa-exclamation-triangle"></button>
+              <label>
+                <b>Showing for top {{this.formatter(max_flow_path)}} Slowest Flowpath(s).To see more or less apply
+                  filter Settings.</b>
+              </label>
+            </div>
+          </div>
+          <div class="p-grid p-align-center" style="text-align: right">
+            <!-- <p-multiSelect title="Show/Hide columns" [options]="columnOptions"
+              class="dashboard-lowerPanel-multiSelect ddr-multiselect-down" (onChange)="showHideColumn($event)"
+              [(ngModel)]="visibleCols"></p-multiSelect>
+            <button pButton type="button" title="Show/Hide columns" icon="fa fa-check-square-o fa"></button> -->
+            
+            <button type="button" *ngIf="showDownLoadReportIcon" class="btn-icon mx-3" (click)='downloadReportForInd("word")' title="Download as Word Report"><i class ="icons8 icons8-doc"></i></button>
+            <button type="button" *ngIf="showDownLoadReportIcon" class="btn-icon mx-3" (click)='downloadReportForInd("excel")' title="Download Excel file"><i class ="icons8 icons8-spreadsheet-file"></i></button>
+            <button type="button" *ngIf="showDownLoadReportIcon" class="btn-icon mx-3" (click)='downloadReportForInd("pdf")' title="Download PDF file"><i class ="icons8 icons8-pdf-2" ></i></button>
+
+            <p-multiSelect title="Show/Hide columns" [options]="columnOptions" class="icon-button no-shadow" appendTo="body"
+            (onChange)="showHideColumn($event)" [(ngModel)]="visibleCols" dropdownIcon="icons8 icons8-columns"></p-multiSelect>
+          </div>
+           </div>
+      
+
+          
+          <p-table class="all-tables" [value]="btCalloutInfoInd" sortField="totalCount" [sortOrder]="-1"
+            scrollable="true" scrollHeight="300px" [style]="{'max-height':'65vh','height':'auto','font-size':'12px'}" [scrollable]="true" scrollHeight="300px" scrollwidth="650px"
+            resizableColumns="true" reorderableColumns="true">
+
+            <ng-template pTemplate="colgroup" let-columns>
+              <colgroup>
+                <ng-container *ngFor="let col of btCallOutIndColumn">
+                  <col  *ngIf = "col.action" [style]="{'width': col.width+'px'}" >
+                </ng-container>
+              </colgroup>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+              <tr>
+                <ng-container *ngFor="let col of btCallOutIndColumn">
+                  <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action" [pSortableColumn]="col.field" pResizableColumn pReorderableColumn>
+                    <span>{{col.header}}</span>
+                    <p-sortIcon *ngIf="col.action" [field]="col.field" class="text-right" ariaLabel="Activate to sort"
+                      ariaLabelDesc="Activate to sort in descending order"
+                      ariaLabelAsc="Activate to sort in ascending order">
+                    </p-sortIcon>
+                  </th>
+                </ng-container>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-node>
+              <tr>
+                <ng-container *ngFor="let col of btCallOutIndColumn">
+                  <td *ngIf="col.action">
+                    <div style="text-align:right;"
+                      *ngIf="(col.field == 'minCount') || (col.field == 'maxCount') || (col.field == 'minRespTime')||(col.field == 'maxRespTime')||(col.field == 'avgResponseTime')||(col.field == 'totalRespTime')||(col.field == 'totalCount')||(col.field == 'minNetworkDelay')||(col.field == 'maxNetworkDelay')||(col.field == 'AverageNetworkDelay')||(col.field == 'totalNetworkDelay')">
+                      {{formatter(node[col.field])}}</div>
+                    <div style=" text-align: left;" *ngIf="(col.field == 'backendName')" (click)="openIPHealth(node)">
+                      {{node[col.field]}}</div>
+                    <span *ngIf="col.field == 'action'" [style]="{'margin-right':'5px'}">
+                      <img src='./assets/images/callout.png' style="height:16px" title='View Flowpath Report By Backend Name'
+                        (click)="openFPByIntegrationReport(node, 'FPByID')" />
+                    </span>
+                    <span *ngIf="col.field == 'action'" [style]="{'margin-right':'5px'}">
+                      <img src='./assets/images/callout.png' style="height:16px"
+                        title='View Flowpath Report By Backend Res. Time'
+                        (click)="openFPByIntegrationReport(node, 'FPByResTime')" />
+                    </span>
+                  </td>
+                </ng-container>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+              <tr>
+                  <td [attr.colspan]="btCallOutIndColumn.length + 1" class="text-center">
+                      <span *ngIf="emptyBtCallOutInd">No Records Found</span>
+                  </td>
+              </tr>
+          </ng-template>
+          </p-table>
+          <!-- <p-dataTable class="scen-table myscroll" [value]="btCalloutInfoInd" sortField="totalCount" [sortOrder]="-1"
+            scrollable="true" scrollHeight="340px" [style]="{'max-height':'65vh','height':'auto','font-size':'12px'}"
+            resizableColumns="true" reorderableColumns="true">
+            <div *ngFor="let col of btCallOutIndColumn">
+              <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable"
+                [filter]="col.filter" [filterMatchMode]='contains'
+                (sortFunction)="sortColumnsOnCustomForInd($event,btCalloutInfoInd)"
+                [style]="{'width': col.width + 'px'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                  <div style="text-align:right;"
+                    *ngIf="(col.field == 'minCount') || (col.field == 'maxCount') || (col.field == 'minRespTime')||(col.field == 'maxRespTime')||(col.field == 'avgResponseTime')||(col.field == 'totalRespTime')||(col.field == 'totalCount')||(col.field == 'minNetworkDelay')||(col.field == 'maxNetworkDelay')||(col.field == 'AverageNetworkDelay')||(col.field == 'totalNetworkDelay')">
+                    {{formatter(node[col.field])}}</div>
+                  <div style=" text-align: left;" *ngIf="(col.field == 'backendName')" (click)="openIPHealth(node)">
+                    {{node[col.field]}}</div>
+                </ng-template>
+                <ng-template *ngIf="col.field == 'action'" let-col let-node="rowData" pTemplate="body">
+                  <span [style]="{'margin-right':'5px'}">
+                    <img src='./images/callout.png' style="height:16px" title='View Flowpath Report By Backend Name'
+                      (click)="openFPByIntegrationReport(node, 'FPByID')" />
+                  </span>
+                  <span [style]="{'margin-right':'5px'}">
+                    <img src='./images/callout.png' style="height:16px"
+                      title='View Flowpath Report By Backend Res. Time'
+                      (click)="openFPByIntegrationReport(node, 'FPByResTime')" />
+                  </span>
+                </ng-template>
+              </p-column>
+            </div>
+          </p-dataTable> -->
+       
+      </div>
+      <ng-template #aggTable>
+        <app-agg-ip-info [aggIpInfo]="aggIpInfo" [renamebackendNameMap]="renamebackendNameMap"
+          [actualBackendNameMap]="actualBackendNameMap" [backendSubTypeNameMap]="backendSubTypeNameMap"
+          [showWarning]="showWarning" [maxFlowPath]="max_flow_path" (calloutCount)="assignCallOutCount($event)"
+          [filterCriteriaagg]="filterCriteriaagg" [urlNameIP]="urlNameIP" [urlIndexIP]="urlIndexIP"></app-agg-ip-info>
+      </ng-template>
+    </p-accordionTab>
+  </p-accordion>
+</div>
+
+<!-- <p-growl life=50000 [value]="msgs" [sticky]="true"></p-growl> -->
+<!-- <p-growl life=5000 [(value)]="msgs"></p-growl> -->
+<p-toast></p-toast>
+<p-dialog class="secondary-dialog" [(visible)]="showFPConfDia" width="300" height="150" [closable]="false"
+  [resizable]="false" modal="modal" [responsive]="true">
+  <p-header>
+    <span>Filters</span>
+    <span style="float:right;cursor: pointer;" id="myBtn" (click)="closeDialog()">X</span>
+  </p-header>
+  <div style="margin-top:10px;">
+    <label><b><span title="Number of Maximum Flowpath(s) of current BT to be targeted for callout details.">Max
+          Flowpath(s) </span></b> </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text"
+      (keypress)="valEnteredKeyN($event)" pInputText [(ngModel)]="max_flow_path" /><br /><br />
+  </div>
+  <p-footer>
+    <button pButton type="button" (click)="applyFlowpathConfiguration()" label="Apply"></button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog class="secondary-dialog foterDialog" header="Dynamic Diagnostics Configuration" [resizable]="false"
+  *ngIf="showAutoInstrPopUp" [(visible)]="showAutoInstrPopUp" modal="modal" [style]="{width: '60vw'}"
+  [contentStyle]="{'max-height':'500px'}" responsive="true">
+  <app-dynamic-diagnostics (resultAfterStart)="startInstrumentation($event)" (closeAIDDGui)="closeAIDDDialog($event)"
+    [passAIDDSettings]="argsForAIDDSetting"></app-dynamic-diagnostics>
+</p-dialog>
+
+<p-dialog class="secondary-dialog foterDialog" [(visible)]="showMessage" width="290" height="100" [closable]="false"
+  [resizable]="false" modal="modal" [responsive]="true">
+  <p-header>
+    <span>Message</span>
+    <span style="float:right;cursor: pointer;" id="myBtn" (click)="closeMessageDialog()">X</span>
+  </p-header>
+  <span style="font-size:14px">Please Wait. This operation might take a few minutes.</span>
+  <p-dialog class="secondary-dialog" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'
+    [responsive]="true" height="120" width="600">
+    <p-header>
+      <i class="icons8 icons8-info" style="color:red"></i>
+      <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+    </p-header>
+    <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+    <p-footer>
+   <button pButton type="button" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" label="Cancel" class="ui-button-rounded ui-button-secondary"></button>
+   <button pButton type="button" (click)="waitQuery();" label="Wait" class="ui-button-rounded"></button>
+  </p-footer>
+  </p-dialog>

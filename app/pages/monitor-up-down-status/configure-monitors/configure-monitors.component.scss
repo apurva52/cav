@@ -1,0 +1,262 @@
+app-configure-monitors {
+    .config-container {
+        background-color: #fff;
+        .content-body {
+            height: calc(100vh - 90px);
+            overflow: scroll;
+
+            .ui-dropdown {
+                .ui-dropdown-label,
+                .ui-dropdown-trigger {
+                    color: #000;
+                }
+            }
+            .customPanel{
+                .ui-panel {
+                    .ui-panel-titlebar {
+                        padding: 5px 10px;
+                    }
+            }
+        }
+            p-panel {
+                width: 100%;
+                .ui-panel {
+                    .ui-panel-titlebar {
+                        p-header { 
+                            padding-left: 10px;
+                        }
+                        .ui-panel-titlebar-toggler {
+                            float: left;
+                            margin-top: -23px;
+                            margin-left: -8px;
+                            font-size: 17px;
+                        }
+                    }
+                }
+                .delete-icon {
+                    margin: 0px;
+                }
+                .p-0 {
+                    padding: 0px;
+                }
+                
+            }
+        }
+    }
+
+    .monitor-panel-container {
+        .card-container {
+          border-radius: 6px;
+          position: relative;
+          border: solid 2px var(--background_color_7);
+          width: 100%;
+          transition: all 300ms ease-in;
+          .tech-title {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            justify-content: space-between;
+            padding: 3px 5px;
+            border-bottom: solid 1px var(--background_color_7);
+            .tech-name {
+              font-weight: 600;
+              display: inline-block;
+              flex: 1 1 100%;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              height: 15px;
+            }
+          }
+          .instance-circle {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: var(--color_5);
+            font-size: 85%;
+          }
+          .monitor-add {
+            background-color: var(--primary-button-color);
+            color: var(--color_5);
+            width: 21px;
+            height: 20px;
+            display: inline-flex;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            transition: all 300ms ease-in;
+            opacity: 0;
+            cursor: pointer;
+          }
+          &:hover {
+            border: solid 2px var(--primary-button-color);
+            .monitor-add {
+              opacity: 1;
+            }
+          }
+        }
+        .count {
+          font-size: 12px;
+          font-weight: 700;
+        }
+        .bdr-btm {
+          border-bottom: solid 1px var(--background_color_7);
+        }
+        .my-col {
+          flex-grow: 1;
+          flex-basis: 0;
+          padding: 0.25em;
+          border-right: solid 1px var(--background_color_9);
+          .title {
+            margin: 0px 3px;
+          }
+          &:last-child {
+            border-right: none;
+          }
+        }
+        .monitor-header {
+          font-weight: 600;
+          margin: 0px 3px;
+        }
+        .bottom-monitors {
+          background-color: #eee;
+          border-bottom-left-radius: 6px;
+          border-bottom-right-radius: 6px;
+          cursor: pointer;
+          padding: 5px;
+          border-top: solid 1px var(--background_color_7);
+        }
+        .monitor-disabled {
+          opacity: 0.8;
+          .count {
+            color: rgb(156, 4, 4);
+          }
+          i {
+            color: rgb(156, 4, 4);
+          }
+        }
+        .monitor-active {
+          cursor: pointer;
+          .count {
+            color: rgb(4, 156, 4);
+          }
+          i {
+            color: rgb(4, 156, 4);
+          }
+        }
+        .monitor-failed {
+          .count {
+            color: rgb(156, 4, 4);
+          }
+          i {
+            color: rgb(156, 4, 4);
+          }
+        }
+      
+        .available-tech-container {
+          max-height: 204px;
+          overflow: auto;
+          .monitor-add {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            width: 20px;
+          }
+        }
+        .configure-monitors {
+          max-height: 330px;
+          overflow: auto;
+        }
+      }
+      
+      .top-selected-technology {
+        display: flex;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        height: 26px;
+        padding: 5px 20px;
+        font-weight: 500;
+      
+        .technology,
+        .monitor,
+        .failed,
+        .disabled {
+          border-right: solid 1px #ddd;
+          padding: 6px 3px;
+          display: inline-flex;
+          align-items: center;
+          margin-right: 5px;
+          .count {
+            margin-left: 10px;
+            margin-right: 4px;
+            font-weight: 700;
+          }
+        }
+        .monitor {
+          .count {
+            color: var(--primary-button-border-color);
+          }
+        }
+        .failed {
+          .count {
+            color: rgb(156, 4, 4);
+          }
+        }
+        .disabled {
+          opacity: 0.5;
+          border-right: none;
+        }
+      }
+      
+      .kuber-container {
+        border: 1px solid #e6e6e6;
+        border-radius: 3px;
+        padding: 14px;
+        background-color: #f7f7ff;
+        .tech-title {
+          font-weight: 600;
+          color: #6299ca;
+        }
+      }
+      
+      .tierLine {
+        margin-right: 5px;
+        margin-left: 15px;
+        position: relative;
+        &::after {
+          position: absolute;
+          content: "";
+          width: 1px;
+          background-color: #ccc;
+          top: -7px;
+          bottom: -7px;
+          left: -10px;
+        }
+      }
+
+
+.icon-img{max-width: 80px;height: 60px;}}
+
+.loading-indicator {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+    
+
+
+    

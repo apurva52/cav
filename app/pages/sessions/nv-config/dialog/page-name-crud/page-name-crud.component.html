@@ -1,0 +1,196 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="999" [resizable]="true" [modal]="true"
+    class="secondary-dialog" [draggable]="false" [style]="{width: '35vw'}">
+    <p-header>
+        <div class="compare-data-title" *ngIf="!showFields">
+            <div>
+                Add Page
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+        <div class="compare-data-title" *ngIf="showFields">
+            <div>
+                Edit Page
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+
+    <div class="dialog-content">
+        <div class="p-grid p-align-center">
+        
+            <div class="p-col-4">
+                <span>Page Name</span>
+            </div>
+            <div class="p-col-8" *ngIf="showFields">
+                <input type="text" disabled placeholder="Enter Name" [(ngModel)]="updatepagename" class="w-100-p"
+                    pInputText />
+            </div>
+            <div class="p-col-8" *ngIf="!showFields">
+                <input type="text" placeholder="Enter Name" [(ngModel)]="pagename" class="w-100-p" pInputText />
+            </div>
+        </div>
+        <div class="p-grid p-align-center">
+        
+            <div class="p-col-4">
+                <!-- <span>{{item.label}}</span> -->
+                <span>Definition Method</span>
+            </div>
+            <div class="p-col-8" *ngIf="showFields">
+                <p-dropdown (click)="Option()" [options]="definitiontype" [(ngModel)]="updatepagenamemethod"
+                    dropdownIcon="icons8-expand-arrow" [baseZIndex]="10001" appendTo="body">
+                </p-dropdown>
+            </div>
+            <div class="p-col-8" *ngIf="!showFields">
+                <p-dropdown [options]="definitiontype" [(ngModel)]="pagenamemethod" (click)="Option()"
+                    dropdownIcon="icons8-expand-arrow" [baseZIndex]="10001" appendTo="body">
+                </p-dropdown>
+            </div>
+        </div>
+        <div *ngIf='showFields && updatepagenamemethod =="1"'>
+            <div class="p-grid p-align-center">
+            
+                <div class="p-col-4">
+                    <span>Complete Url</span>
+                </div>
+                <div class="p-col-8" *ngIf='showFields'>
+                    <p-dropdown [options]="completeurl" [(ngModel)]="updatecompleteurlflag" (click)="updateClearUrl()"
+                        dropdownIcon="icons8-expand-arrow" [baseZIndex]="10001" appendTo="body">
+                    </p-dropdown>
+                </div>
+            </div>
+            <div class="p-grid p-align-center">
+            
+                <div class="p-col-4">
+                    <span>Url Pattern</span>
+                </div>
+                <div class="p-col-8">
+                    <input type="text" placeholder="Enter Url" [(ngModel)]="urlPattern" class="w-100-p" pInputText />
+                </div>
+            </div>
+            <div class="p-grid ui-fluid">
+            
+                <div class="p-col-4">
+                    <span>Test Url</span>
+                </div>
+                <div class="p-col-8">
+                    <div class="ui-inputgroup">
+                        <input type="text" pInputText placeholder="Enter Test Url" [(ngModel)]="testUrl">
+                        <button type="button" pButton class="test-button" label="Test" id="toggler"
+                            (click)="updateTestUrl()"></button> &nbsp;
+                        <i *ngIf='updateright == true' class="fa fa-check"
+                            style="color:green;font-weight: bold;">MATCHED</i>
+                        <i *ngIf='updatewrong == true' class="fa fa-close" style="color:red;font-weight: bold;">NOT
+                            MATCHED</i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div *ngIf='!showFields && pagenamemethod =="1"'>
+            <div class="p-grid p-align-center">
+            
+                <div class="p-col-4">
+                    <span>Complete Url</span>
+                </div>
+
+                <div class="p-col-8" *ngIf='!showFields'>
+                    <p-dropdown [options]="completeurl" [(ngModel)]="completeurlflag" (click)="clearUrl()"
+                        dropdownIcon="icons8-expand-arrow" [baseZIndex]="10001" appendTo="body">
+                    </p-dropdown>
+                </div>
+            </div>
+            <div class="p-grid p-align-center">
+            
+                <div class="p-col-4">
+                    <span>Url Pattern</span>
+                </div>
+                <div class="p-col-8">
+                    <input type="text" placeholder="Enter Url" [(ngModel)]="url" class="w-100-p" pInputText />
+                </div>
+            </div>
+            <div class="p-grid ui-fluid">
+            
+                <div class="p-col-4">
+                    <span>Test Url</span>
+                </div>
+                <div class="p-col-8">
+                    <div class="ui-inputgroup">
+                        <input type="text" pInputText placeholder="Enter Test Url" [(ngModel)]="value2">
+                        <button type="button" pButton class="test-button" label="Test" id="toggler"
+                            (click)="testAddUrl()"></button>
+                        <i *ngIf='right == true' class="fa fa-check" style="color:green;font-weight: bold;">MATCHED</i>
+                        <i *ngIf='wrong == true' class="fa fa-close" style="color:red;font-weight: bold;">NOT
+                            MATCHED</i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf='! showFields && pagenamemethod == "2"'>
+            <div class="p-grid p-align-center">
+            
+                <div class="p-col-4">
+                    <!-- <span>{{item.label}}</span> -->
+                    <span>Variable Name</span>
+                </div>
+                <div class="p-col-8">
+                    <input type="text" placeholder="Enter Variable Name" [(ngModel)]="variablename" class="w-100-p"
+                        pInputText />
+
+                </div>
+
+            </div>
+            <div class="p-grid p-align-center">
+            
+                <div class="p-col-4">
+                    <!-- <span>{{item.label}}</span> -->
+                    <span>Variable value</span>
+                </div>
+
+                <div class="p-col-8">
+                    <input type="text" placeholder="Enter Variable Value" [(ngModel)]="variablevalue" class="w-100-p"
+                        pInputText />
+                </div>
+            </div>
+        </div>
+        <div *ngIf=' showFields && updatepagenamemethod == "2"'>
+            <div class="p-grid p-align-center">
+            
+                <div class="p-col-4">
+                    <span>Variable Name</span>
+                </div>
+                <div class="p-col-8">
+                    <input type="text" placeholder="Enter Variable Name" [(ngModel)]="updatevariablename"
+                        class="w-100-p" pInputText />
+                </div>
+            </div>
+            <div class="p-grid p-align-center">
+            
+                <div class="p-col-4">
+                    <span>Variable value</span>
+                </div>
+                <div class="p-col-8">
+                    <input type="text" placeholder="Enter Variable Value" [(ngModel)]="updatevariablevalue"
+                        class="w-100-p" pInputText />
+                </div>
+            </div>
+        </div>
+    </div>
+    <p-footer>
+        <div class="p-col-12" *ngIf="!showFields">
+            <button pButton type="submit" label="Cancel" class="ui-button-rounded ui-button-secondary"
+                (click)="closeDialog()"></button>
+            <button pButton type="submit" label="Add" class="ui-button-rounded" (click)="addPageobj()"></button>
+        </div>
+        <div class="p-col-12" *ngIf="showFields">
+            <button pButton type="submit" label="Cancel" class="ui-button-rounded ui-button-secondary"
+                (click)="closeDialog()"></button>
+            <button pButton type="submit" label="Update" class="ui-button-rounded" (click)="editPageobj()"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+<p-toast></p-toast>

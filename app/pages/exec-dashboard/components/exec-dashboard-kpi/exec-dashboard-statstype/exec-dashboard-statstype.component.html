@@ -1,0 +1,20 @@
+<p-dataTable class="kpigrid_stat" columnResizeMode="expand" [value]="_commonKpiDataService.$kpiDataObj['grid_' + statsTypeView.header]">
+    <p-header>
+        <span style="float:left;cursor:pointer" (click)="toggleTable()">
+            <i class="fa fa-minus" pTooltip="Expand" tooltipPosition="right" aria-hidden="true" *ngIf="expandTable"></i>
+            <i class="fa fa-plus" pTooltip="Collapse" tooltipPosition="right" aria-hidden="true" *ngIf="!expandTable"></i>
+            {{statsTypeView.header}}
+        </span>
+    </p-header>
+
+    <span *ngIf="expandTable" >
+        <p-column *ngFor="let col of statsViewHeader;let  i = index" [styleClass]="col.bodyStyles" [field]="col.field" [header]="col.header">
+            <ng-template *ngIf="expandTable" let-col let-car="rowData" pTemplate="body">
+                <span *ngIf = "i == 0" [pTooltip] = "car[col.field.hName] ||'-'" tooltipPosition="left" style="float:left;cursor:pointer">{{car[col.field.hName]}}</span>
+                <span *ngIf = "i != 0" [pTooltip] = "_commonKpiDataService.seperateByComma( car[col.field.hName], car.tName )||'-'" tooltipPosition="left" style="float:right;cursor:pointer">{{ _commonKpiDataService.getColData( car[col.field.hName], col.field  )  }}</span>
+            </ng-template>
+        </p-column>
+    </span>
+
+
+</p-dataTable>

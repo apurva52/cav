@@ -1,0 +1,13 @@
+<div class='accordian-css tabs-all' >
+    <p-tabView (onChange)="handleChange($event)" styleClass="widthauto">
+        <div class="helpico">
+            <i class="icons8 icons8-help mx-6 my-6" title="Help" (click)="sendHelpNotification()"></i>
+        </div>
+      <p-tabPanel header="Auto Instrument" [selected]="index == 0">
+        <app-config-auto-instrumentation *ngIf="index == 0"></app-config-auto-instrumentation>
+      </p-tabPanel>
+      <p-tabPanel header="Auto Discover" [selected]="index == 1">
+        <app-config-auto-discover-main *ngIf="index == 1"  ></app-config-auto-discover-main>
+      </p-tabPanel>
+    </p-tabView>
+  </div>

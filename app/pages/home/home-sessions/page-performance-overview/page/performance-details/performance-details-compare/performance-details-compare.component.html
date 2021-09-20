@@ -1,0 +1,694 @@
+<div class="performance-container">
+    <div>
+        <div class="action-container" *ngIf="data">
+            <ng-container>
+                <p-card class="content">
+                    <div class="p-grid p-justify-center" *ngIf='data.dataLoaded != null && data.dataLoaded.length > 0'>
+                        <div class="loaded-data mh-10 mv-10">
+                            <div class="heading">
+                                <span>AVG OnLoad <i (click)='getInformation("onload")'
+                                        class="icons8 icons8-info"></i></span>
+                            </div>
+                            <div class="description">
+                                <div> {{ (data.dataLoaded[0].onload_avg < 0 ) ? "-" : (data.dataLoaded[0].onload_avg
+                                        + " sec" ) }} - {{ (data.dataLoaded[0].onload_avg1 < 0 ) ? "-" :
+                                        (data.dataLoaded[0].onload_avg1 + " sec" ) }}</div>
+                                        <div class="mt-10">{{ (data.dataLoaded[0].onload_avg2 == 0.00 ) ? "-" :
+                                            (data.dataLoaded[0].onload_avg2 < 0 ) ? (-data.dataLoaded[0].onload_avg2)
+                                                + " %" : (data.dataLoaded[0].onload_avg2) + " %" }}</div>
+                                        </div>
+                                </div>
+                                <div class="loaded-data mh-10 mv-10">
+                                    <div class="heading">
+                                        <span>Avg DOM Time <i (click)='getInformation("dom")'
+                                                class="icons8 icons8-info"></i></span>
+                                    </div>
+                                    <div class="description">
+                                        <div> {{ (data.dataLoaded[0].dom_avg < 0 ) ? "-" : (data.dataLoaded[0].dom_avg
+                                                + " sec" ) }} - {{ (data.dataLoaded[0].dom_avg1 < 0 ) ? "-" :
+                                                (data.dataLoaded[0].dom_avg1 + " sec" ) }}</div>
+                                                <div class="mt-10">{{ (data.dataLoaded[0].dom_avg2 == 0.00 ) ? "-" :
+                                                    (data.dataLoaded[0].dom_avg2 < 0 ) ? (-data.dataLoaded[0].dom_avg2)
+                                                        + " %" : (data.dataLoaded[0].dom_avg2) + " %" }}</div>
+                                                </div>
+                                        </div>
+                                        <div class="loaded-data mh-10 mv-10">
+                                            <div class="heading">
+                                                <span>Avg TTDI<i (click)='getInformation("ttdi")'
+                                                        class="icons8 icons8-info"></i></span>
+                                            </div>
+                                            <div class="description">
+                                                <div> {{ (data.dataLoaded[0].ttdi_avg < 0 ) ? "-" :
+                                                        (data.dataLoaded[0].ttdi_avg + " sec" ) }} - {{
+                                                        (data.dataLoaded[0].ttdi_avg1 < 0 ) ? "-" :
+                                                        (data.dataLoaded[0].ttdi_avg1 + " sec" ) }}</div>
+                                                        <div class="mt-10">{{ (data.dataLoaded[0].ttdi_avg2 == 0.00 ) ?
+                                                            "-" : (data.dataLoaded[0].ttdi_avg2 < 0 ) ?
+                                                                (-data.dataLoaded[0].ttdi_avg2) + " %" :
+                                                                (data.dataLoaded[0].ttdi_avg2) + " %" }}</div>
+                                                        </div>
+                                                </div>
+                                                <div class="loaded-data mh-10 mv-10">
+                                                    <div class="heading">
+                                                        <span>Avg PRT<i (click)='getInformation("prt")'
+                                                                class="icons8 icons8-info"></i></span>
+                                                    </div>
+                                                    <div class="description">
+                                                        <div> {{ (data.dataLoaded[0].prt_avg < 0 ) ? "-" :
+                                                                (data.dataLoaded[0].prt_avg + " sec" ) }} - {{
+                                                                (data.dataLoaded[0].prt_avg1 < 0 ) ? "-" :
+                                                                (data.dataLoaded[0].prt_avg1 + " sec" ) }}</div>
+                                                                <div class="mt-10">{{ (data.dataLoaded[0].prt_avg2 ==
+                                                                    0.00 ) ? "-" : (data.dataLoaded[0].prt_avg2 < 0 ) ?
+                                                                        (-data.dataLoaded[0].prt_avg2) + " %" :
+                                                                        (data.dataLoaded[0].prt_avg2) + " %" }}</div>
+                                                                </div>
+                                                        </div>
+                                                        <div class="loaded-data mh-10 mv-10">
+                                                            <div class="heading">
+                                                                <span>Avg TTDL<i (click)='getInformation("ttdl")'
+                                                                        class="icons8 icons8-info"></i></span>
+                                                            </div>
+                                                            <div class="description">
+                                                                <div> {{ (data.dataLoaded[0].ttdl_avg < 0 ) ? "-" :
+                                                                        (data.dataLoaded[0].ttdl_avg + " sec" ) }} - {{
+                                                                        (data.dataLoaded[0].ttdl_avg1 < 0 ) ? "-" :
+                                                                        (data.dataLoaded[0].ttdl_avg1 + " sec" )
+                                                                        }}</div>
+                                                                        <div class="mt-10">{{
+                                                                            (data.dataLoaded[0].ttdl_avg2 == 0.00 ) ?
+                                                                            "-" : (data.dataLoaded[0].ttdl_avg2 < 0 ) ?
+                                                                                (-data.dataLoaded[0].ttdl_avg2) + " %" :
+                                                                                (data.dataLoaded[0].ttdl_avg2) + " %"
+                                                                                }}</div>
+                                                                        </div>
+                                                                </div>
+                                                                <div class="loaded-data mh-10 mv-10">
+                                                                    <div class="heading">
+                                                                        <span>Avg First Byte<i
+                                                                                (click)='getInformation("firstbyte")'
+                                                                                class="icons8 icons8-info"></i></span>
+                                                                    </div>
+                                                                    <div class="description">
+                                                                        <div> {{ (data.dataLoaded[0].wait_avg < 0 )
+                                                                                ? "-" : (data.dataLoaded[0].wait_avg
+                                                                                + " sec" ) }} - {{
+                                                                                (data.dataLoaded[0].wait_avg1 < 0 )
+                                                                                ? "-" : (data.dataLoaded[0].wait_avg1
+                                                                                + " sec" ) }}</div>
+                                                                                <div class="mt-10">{{
+                                                                                    (data.dataLoaded[0].wait_avg2 ==
+                                                                                    0.00 ) ? "-" :
+                                                                                    (data.dataLoaded[0].wait_avg2 < 0 )
+                                                                                        ?
+                                                                                        (-data.dataLoaded[0].wait_avg2)
+                                                                                        + " %" :
+                                                                                        (data.dataLoaded[0].wait_avg2)
+                                                                                        + " %" }}</div>
+                                                                                </div>
+                                                                        </div>
+                                                                        <div class="loaded-data mh-10 mv-10">
+                                                                            <div class="heading">
+                                                                                <span>Avg TTI<i
+                                                                                        (click)='getInformation("tti")'
+                                                                                        class="icons8 icons8-info"></i></span>
+                                                                            </div>
+                                                                            <div class="description">
+                                                                                <div> {{ (data.dataLoaded[0].tti_avg < 0
+                                                                                        ) ? "-" :
+                                                                                        (data.dataLoaded[0].tti_avg
+                                                                                        + " sec" ) }} - {{
+                                                                                        (data.dataLoaded[0].tti_avg1 < 0
+                                                                                        ) ? "-" :
+                                                                                        (data.dataLoaded[0].tti_avg1
+                                                                                        + " sec" ) }}</div>
+                                                                                        <div class="mt-10">{{
+                                                                                            (data.dataLoaded[0].tti_avg2
+                                                                                            == 0.00 ) ? "-" :
+                                                                                            (data.dataLoaded[0].tti_avg2
+                                                                                            < 0 ) ?
+                                                                                                (-data.dataLoaded[0].tti_avg2)
+                                                                                                + " %" :
+                                                                                                (data.dataLoaded[0].tti_avg2)
+                                                                                                + " %" }}</div>
+                                                                                        </div>
+                                                                                </div>
+                                                                                <div class="loaded-data mh-10 mv-10">
+                                                                                    <div class="heading">
+                                                                                        <span>Avg FID<i
+                                                                                                (click)='getInformation("fid")'
+                                                                                                class="icons8 icons8-info"></i></span>
+                                                                                    </div>
+                                                                                    <div class="description">
+                                                                                        <div> {{
+                                                                                            (data.dataLoaded[0].fid_avg
+                                                                                            < 0 ) ? "-" :
+                                                                                                (data.dataLoaded[0].fid_avg
+                                                                                                + " sec" ) }} - {{
+                                                                                                (data.dataLoaded[0].fid_avg1
+                                                                                                < 0 ) ? "-" :
+                                                                                                (data.dataLoaded[0].fid_avg1
+                                                                                                + " sec" ) }}</div>
+                                                                                                <div class="mt-10">{{
+                                                                                                    (data.dataLoaded[0].fid_avg2
+                                                                                                    == 0.00 ) ? "-" :
+                                                                                                    (data.dataLoaded[0].fid_avg2
+                                                                                                    < 0 ) ?
+                                                                                                        (-data.dataLoaded[0].fid_avg2)
+                                                                                                        + " %" :
+                                                                                                        (data.dataLoaded[0].fid_avg2)
+                                                                                                        + " %" }}</div>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                        <div
+                                                                                            class="loaded-data mh-10 mv-10">
+                                                                                            <div class="heading">
+                                                                                                <span>Avg Unload <i
+                                                                                                        (click)='getInformation("unload")'
+                                                                                                        class="icons8 icons8-info"></i></span>
+                                                                                            </div>
+                                                                                            <div class="description">
+                                                                                                <div> {{
+                                                                                                    (data.dataLoaded[0].unload_avg
+                                                                                                    < 0 ) ? "-" :
+                                                                                                        (data.dataLoaded[0].unload_avg
+                                                                                                        + " sec" ) }} -
+                                                                                                        {{
+                                                                                                        (data.dataLoaded[0].unload_avg1
+                                                                                                        < 0 ) ? "-" :
+                                                                                                        (data.dataLoaded[0].unload_avg1
+                                                                                                        + " sec" )
+                                                                                                        }}</div>
+                                                                                                        <div
+                                                                                                            class="mt-10">
+                                                                                                            {{
+                                                                                                            (data.dataLoaded[0].unload_avg2
+                                                                                                            == 0.00 ) ?
+                                                                                                            "-" :
+                                                                                                            (data.dataLoaded[0].unload_avg2
+                                                                                                            < 0 ) ?
+                                                                                                                (-data.dataLoaded[0].unload_avg2)
+                                                                                                                + " %" :
+                                                                                                                (data.dataLoaded[0].unload_avg2)
+                                                                                                                + " %"
+                                                                                                                }}</div>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                                <div
+                                                                                                    class="loaded-data mh-10 mv-10">
+                                                                                                    <div
+                                                                                                        class="heading">
+                                                                                                        <span>Avg
+                                                                                                            Redirect <i
+                                                                                                                (click)='getInformation("redirect")'
+                                                                                                                class="icons8 icons8-info"></i></span>
+                                                                                                    </div>
+                                                                                                    <div
+                                                                                                        class="description">
+                                                                                                        <div> {{
+                                                                                                            (data.dataLoaded[0].redirect_avg
+                                                                                                            < 0 ) ? "-"
+                                                                                                                :
+                                                                                                                (data.dataLoaded[0].redirect_avg
+                                                                                                                + " sec"
+                                                                                                                ) }} -
+                                                                                                                {{
+                                                                                                                (data.dataLoaded[0].redirect_avg1
+                                                                                                                < 0 )
+                                                                                                                ? "-" :
+                                                                                                                (data.dataLoaded[0].redirect_avg1
+                                                                                                                + " sec"
+                                                                                                                )
+                                                                                                                }}</div>
+                                                                                                                <div
+                                                                                                                    class="mt-10">
+                                                                                                                    {{
+                                                                                                                    (data.dataLoaded[0].redirect_avg2
+                                                                                                                    ==
+                                                                                                                    0.00
+                                                                                                                    ) ?
+                                                                                                                    "-"
+                                                                                                                    :
+                                                                                                                    (data.dataLoaded[0].redirect_avg2
+                                                                                                                    < 0 )
+                                                                                                                        ?
+                                                                                                                        (-data.dataLoaded[0].redirect_avg2)
+                                                                                                                        + " %"
+                                                                                                                        :
+                                                                                                                        (data.dataLoaded[0].redirect_avg2)
+                                                                                                                        + " %"
+                                                                                                                        }}</div>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                                        <div
+                                                                                                            class="loaded-data mh-10 mv-10">
+                                                                                                            <div
+                                                                                                                class="heading">
+                                                                                                                <span>Avg
+                                                                                                                    CacheLookUp
+                                                                                                                    <i (click)='getInformation("cache")'
+                                                                                                                        class="icons8 icons8-info"></i></span>
+                                                                                                            </div>
+                                                                                                            <div
+                                                                                                                class="description">
+                                                                                                                <div> {{
+                                                                                                                    (data.dataLoaded[0].cache_avg
+                                                                                                                    < 0 )
+                                                                                                                        ? "-"
+                                                                                                                        :
+                                                                                                                        (data.dataLoaded[0].cache_avg
+                                                                                                                        + " sec"
+                                                                                                                        )
+                                                                                                                        }}
+                                                                                                                        -
+                                                                                                                        {{
+                                                                                                                        (data.dataLoaded[0].cache_avg1
+                                                                                                                        <
+                                                                                                                        0
+                                                                                                                        )
+                                                                                                                        ? "-"
+                                                                                                                        :
+                                                                                                                        (data.dataLoaded[0].cache_avg1
+                                                                                                                        + " sec"
+                                                                                                                        )
+                                                                                                                        }}</div>
+                                                                                                                        <div
+                                                                                                                            class="mt-10">
+                                                                                                                            {{
+                                                                                                                            (data.dataLoaded[0].cache_avg2
+                                                                                                                            ==
+                                                                                                                            0.00
+                                                                                                                            )
+                                                                                                                            ?
+                                                                                                                            "-"
+                                                                                                                            :
+                                                                                                                            (data.dataLoaded[0].cache_avg2
+                                                                                                                            < 0 )
+                                                                                                                                ?
+                                                                                                                                (-data.dataLoaded[0].cache_avg2)
+                                                                                                                                + " %"
+                                                                                                                                :
+                                                                                                                                (data.dataLoaded[0].cache_avg2)
+                                                                                                                                + " %"
+                                                                                                                                }}</div>
+                                                                                                                        </div>
+                                                                                                                </div>
+                                                                                                                <div
+                                                                                                                    class="loaded-data mh-10 mv-10">
+                                                                                                                    <div
+                                                                                                                        class="heading">
+                                                                                                                        <span>Avg
+                                                                                                                            DNS
+                                                                                                                            <i (click)='getInformation("dns")'
+                                                                                                                                class="icons8 icons8-info"></i></span>
+                                                                                                                    </div>
+                                                                                                                    <div
+                                                                                                                        class="description">
+                                                                                                                        <div>
+                                                                                                                            {{
+                                                                                                                            (data.dataLoaded[0].dns_avg
+                                                                                                                            < 0 )
+                                                                                                                                ? "-"
+                                                                                                                                :
+                                                                                                                                (data.dataLoaded[0].dns_avg
+                                                                                                                                + " sec"
+                                                                                                                                )
+                                                                                                                                }}
+                                                                                                                                -
+                                                                                                                                {{
+                                                                                                                                (data.dataLoaded[0].dns_avg1
+                                                                                                                                <
+                                                                                                                                0
+                                                                                                                                )
+                                                                                                                                ? "-"
+                                                                                                                                :
+                                                                                                                                (data.dataLoaded[0].dns_avg1
+                                                                                                                                + " sec"
+                                                                                                                                )
+                                                                                                                                }}</div>
+                                                                                                                                <div
+                                                                                                                                    class="mt-10">
+                                                                                                                                    {{
+                                                                                                                                    (data.dataLoaded[0].dns_avg2
+                                                                                                                                    ==
+                                                                                                                                    0.00
+                                                                                                                                    )
+                                                                                                                                    ?
+                                                                                                                                    "-"
+                                                                                                                                    :
+                                                                                                                                    (data.dataLoaded[0].dns_avg2
+                                                                                                                                    < 0 )
+                                                                                                                                        ?
+                                                                                                                                        (-data.dataLoaded[0].dns_avg2)
+                                                                                                                                        + " %"
+                                                                                                                                        :
+                                                                                                                                        (data.dataLoaded[0].dns_avg2)
+                                                                                                                                        + " %"
+                                                                                                                                        }}</div>
+                                                                                                                                </div>
+                                                                                                                        </div>
+                                                                                                                        <div
+                                                                                                                            class="loaded-data mh-10 mv-10">
+                                                                                                                            <div
+                                                                                                                                class="heading">
+                                                                                                                                <span>Avg
+                                                                                                                                    TCP
+                                                                                                                                    <i (click)='getInformation("tcp")'
+                                                                                                                                        class="icons8 icons8-info"></i></span>
+                                                                                                                            </div>
+                                                                                                                            <div
+                                                                                                                                class="description">
+                                                                                                                                <div>
+                                                                                                                                    {{
+                                                                                                                                    (data.dataLoaded[0].tcp_avg
+                                                                                                                                    < 0 )
+                                                                                                                                        ? "-"
+                                                                                                                                        :
+                                                                                                                                        (data.dataLoaded[0].tcp_avg
+                                                                                                                                        + " sec"
+                                                                                                                                        )
+                                                                                                                                        }}
+                                                                                                                                        -
+                                                                                                                                        {{
+                                                                                                                                        (data.dataLoaded[0].tcp_avg1
+                                                                                                                                        <
+                                                                                                                                        0
+                                                                                                                                        )
+                                                                                                                                        ? "-"
+                                                                                                                                        :
+                                                                                                                                        (data.dataLoaded[0].tcp_avg1
+                                                                                                                                        + " sec"
+                                                                                                                                        )
+                                                                                                                                        }}</div>
+                                                                                                                                        <div
+                                                                                                                                            class="mt-10">
+                                                                                                                                            {{
+                                                                                                                                            (data.dataLoaded[0].tcp_avg2
+                                                                                                                                            ==
+                                                                                                                                            0.00
+                                                                                                                                            )
+                                                                                                                                            ?
+                                                                                                                                            "-"
+                                                                                                                                            :
+                                                                                                                                            (data.dataLoaded[0].tcp_avg2
+                                                                                                                                            < 0 )
+                                                                                                                                                ?
+                                                                                                                                                (-data.dataLoaded[0].tcp_avg2)
+                                                                                                                                                + " %"
+                                                                                                                                                :
+                                                                                                                                                (data.dataLoaded[0].tcp_avg2)
+                                                                                                                                                + " %"
+                                                                                                                                                }}</div>
+                                                                                                                                        </div>
+                                                                                                                                </div>
+                                                                                                                                <div
+                                                                                                                                    class="loaded-data mh-10 mv-10">
+                                                                                                                                    <div
+                                                                                                                                        class="heading">
+                                                                                                                                        <span>Avg
+                                                                                                                                            SSL
+                                                                                                                                            <i (click)='getInformation("ssl")'
+                                                                                                                                                class="icons8 icons8-info"></i></span>
+                                                                                                                                    </div>
+                                                                                                                                    <div
+                                                                                                                                        class="description">
+                                                                                                                                        <div>
+                                                                                                                                            {{
+                                                                                                                                            (data.dataLoaded[0].ssl_avg
+                                                                                                                                            < 0 )
+                                                                                                                                                ? "-"
+                                                                                                                                                :
+                                                                                                                                                (data.dataLoaded[0].ssl_avg
+                                                                                                                                                + " sec"
+                                                                                                                                                )
+                                                                                                                                                }}
+                                                                                                                                                -
+                                                                                                                                                {{
+                                                                                                                                                (data.dataLoaded[0].ssl_avg1
+                                                                                                                                                <
+                                                                                                                                                0
+                                                                                                                                                )
+                                                                                                                                                ? "-"
+                                                                                                                                                :
+                                                                                                                                                (data.dataLoaded[0].ssl_avg1
+                                                                                                                                                + " sec"
+                                                                                                                                                )
+                                                                                                                                                }}</div>
+                                                                                                                                                <div
+                                                                                                                                                    class="mt-10">
+                                                                                                                                                    {{
+                                                                                                                                                    (data.dataLoaded[0].ssl_avg2
+                                                                                                                                                    ==
+                                                                                                                                                    0.00
+                                                                                                                                                    )
+                                                                                                                                                    ?
+                                                                                                                                                    "-"
+                                                                                                                                                    :
+                                                                                                                                                    (data.dataLoaded[0].ssl_avg2
+                                                                                                                                                    < 0 )
+                                                                                                                                                        ?
+                                                                                                                                                        (-data.dataLoaded[0].ssl_avg2)
+                                                                                                                                                        + " %"
+                                                                                                                                                        :
+                                                                                                                                                        (data.dataLoaded[0].ssl_avg2)
+                                                                                                                                                        + " %"
+                                                                                                                                                        }}</div>
+                                                                                                                                                </div>
+                                                                                                                                        </div>
+                                                                                                                                        <div
+                                                                                                                                            class="loaded-data mh-10 mv-10">
+                                                                                                                                            <div
+                                                                                                                                                class="heading">
+                                                                                                                                                <span>Avg
+                                                                                                                                                    Wait
+                                                                                                                                                    Time
+                                                                                                                                                    <i (click)='getInformation("wait")'
+                                                                                                                                                        class="icons8 icons8-info"></i></span>
+                                                                                                                                            </div>
+                                                                                                                                            <div
+                                                                                                                                                class="description">
+                                                                                                                                                <div>
+                                                                                                                                                    {{
+                                                                                                                                                    (data.dataLoaded[0].server_avg
+                                                                                                                                                    < 0 )
+                                                                                                                                                        ? "-"
+                                                                                                                                                        :
+                                                                                                                                                        (data.dataLoaded[0].server_avg
+                                                                                                                                                        + " sec"
+                                                                                                                                                        )
+                                                                                                                                                        }}
+                                                                                                                                                        -
+                                                                                                                                                        {{
+                                                                                                                                                        (data.dataLoaded[0].server_avg1
+                                                                                                                                                        <
+                                                                                                                                                        0
+                                                                                                                                                        )
+                                                                                                                                                        ? "-"
+                                                                                                                                                        :
+                                                                                                                                                        (data.dataLoaded[0].server_avg1
+                                                                                                                                                        + " sec"
+                                                                                                                                                        )
+                                                                                                                                                        }}</div>
+                                                                                                                                                        <div
+                                                                                                                                                            class="mt-10">
+                                                                                                                                                            {{
+                                                                                                                                                            (data.dataLoaded[0].server_avg2
+                                                                                                                                                            ==
+                                                                                                                                                            0.00
+                                                                                                                                                            )
+                                                                                                                                                            ?
+                                                                                                                                                            "-"
+                                                                                                                                                            :
+                                                                                                                                                            (data.dataLoaded[0].server_avg2
+                                                                                                                                                            < 0 )
+                                                                                                                                                                ?
+                                                                                                                                                                (-data.dataLoaded[0].server_avg2)
+                                                                                                                                                                + " %"
+                                                                                                                                                                :
+                                                                                                                                                                (data.dataLoaded[0].server_avg2)
+                                                                                                                                                                + " %"
+                                                                                                                                                                }}</div>
+                                                                                                                                                        </div>
+                                                                                                                                                </div>
+                                                                                                                                                <div
+                                                                                                                                                    class="loaded-data mh-10 mv-10">
+                                                                                                                                                    <div
+                                                                                                                                                        class="heading">
+                                                                                                                                                        <span>Avg
+                                                                                                                                                            Download
+                                                                                                                                                            Time
+                                                                                                                                                            <i (click)='getInformation("download")'
+                                                                                                                                                                class="icons8 icons8-info"></i></span>
+                                                                                                                                                    </div>
+                                                                                                                                                    <div
+                                                                                                                                                        class="description">
+                                                                                                                                                        <div>
+                                                                                                                                                            {{
+                                                                                                                                                            (data.dataLoaded[0].response_avg
+                                                                                                                                                            < 0 )
+                                                                                                                                                                ? "-"
+                                                                                                                                                                :
+                                                                                                                                                                (data.dataLoaded[0].response_avg
+                                                                                                                                                                + " sec"
+                                                                                                                                                                )
+                                                                                                                                                                }}
+                                                                                                                                                                -
+                                                                                                                                                                {{
+                                                                                                                                                                (data.dataLoaded[0].response_avg1
+                                                                                                                                                                <
+                                                                                                                                                                0
+                                                                                                                                                                )
+                                                                                                                                                                ? "-"
+                                                                                                                                                                :
+                                                                                                                                                                (data.dataLoaded[0].response_avg1
+                                                                                                                                                                + " sec"
+                                                                                                                                                                )
+                                                                                                                                                                }}</div>
+                                                                                                                                                                <div
+                                                                                                                                                                    class="mt-10">
+                                                                                                                                                                    {{
+                                                                                                                                                                    (data.dataLoaded[0].response_avg2
+                                                                                                                                                                    ==
+                                                                                                                                                                    0.00
+                                                                                                                                                                    )
+                                                                                                                                                                    ?
+                                                                                                                                                                    "-"
+                                                                                                                                                                    :
+                                                                                                                                                                    (data.dataLoaded[0].response_avg2
+                                                                                                                                                                    < 0 )
+                                                                                                                                                                        ?
+                                                                                                                                                                        (-data.dataLoaded[0].response_avg2)
+                                                                                                                                                                        + " %"
+                                                                                                                                                                        :
+                                                                                                                                                                        (data.dataLoaded[0].response_avg2)
+                                                                                                                                                                        + " %"
+                                                                                                                                                                        }}
+                                                                                                                                                                        </div>
+                                                                                                                                                                </div>
+                                                                                                                                                        </div>
+                                                                                                                                                        <div
+                                                                                                                                                            class="loaded-data mh-10 mv-10">
+                                                                                                                                                            <div
+                                                                                                                                                                class="heading">
+                                                                                                                                                                <span>Avg
+                                                                                                                                                                    FP<i (click)='getInformation("fp")'
+                                                                                                                                                                        class="icons8 icons8-info"></i></span>
+                                                                                                                                                            </div>
+                                                                                                                                                            <div
+                                                                                                                                                                class="description">
+                                                                                                                                                                <div>
+                                                                                                                                                                    {{
+                                                                                                                                                                    (data.dataLoaded[0].fp_avg
+                                                                                                                                                                    < 0 )
+                                                                                                                                                                        ? "-"
+                                                                                                                                                                        :
+                                                                                                                                                                        (data.dataLoaded[0].fp_avg
+                                                                                                                                                                        + " sec"
+                                                                                                                                                                        )
+                                                                                                                                                                        }}
+                                                                                                                                                                        -
+                                                                                                                                                                        {{
+                                                                                                                                                                        (data.dataLoaded[0].fp_avg1
+                                                                                                                                                                        <
+                                                                                                                                                                        0
+                                                                                                                                                                        )
+                                                                                                                                                                        ? "-"
+                                                                                                                                                                        :
+                                                                                                                                                                        (data.dataLoaded[0].fp_avg1
+                                                                                                                                                                        + " sec"
+                                                                                                                                                                        )
+                                                                                                                                                                        }}</div>
+                                                                                                                                                                        <div
+                                                                                                                                                                            class="mt-10">
+                                                                                                                                                                            {{
+                                                                                                                                                                            (data.dataLoaded[0].fp_avg2
+                                                                                                                                                                            ==
+                                                                                                                                                                            0.00
+                                                                                                                                                                            )
+                                                                                                                                                                            ?
+                                                                                                                                                                            "-"
+                                                                                                                                                                            :
+                                                                                                                                                                            (data.dataLoaded[0].fp_avg2
+                                                                                                                                                                            < 0 )
+                                                                                                                                                                                ?
+                                                                                                                                                                                (-data.dataLoaded[0].fp_avg2)
+                                                                                                                                                                                + " %"
+                                                                                                                                                                                :
+                                                                                                                                                                                (data.dataLoaded[0].fp_avg2)
+                                                                                                                                                                                + " %"
+                                                                                                                                                                                }}</div>
+                                                                                                                                                                        </div>
+                                                                                                                                                                </div>
+                                                                                                                                                                <div
+                                                                                                                                                                    class="loaded-data mh-10 mv-10">
+                                                                                                                                                                    <div
+                                                                                                                                                                        class="heading">
+                                                                                                                                                                        <span>Avg
+                                                                                                                                                                            FCP<i
+                                                                                                                                                                                (click)='getInformation("fcp")'
+                                                                                                                                                                                class="icons8 icons8-info"></i></span>
+                                                                                                                                                                    </div>
+                                                                                                                                                                    <div
+                                                                                                                                                                        class="description">
+                                                                                                                                                                        <div>
+                                                                                                                                                                            {{
+                                                                                                                                                                            (data.dataLoaded[0].fcp_avg
+                                                                                                                                                                            < 0 )
+                                                                                                                                                                                ? "-"
+                                                                                                                                                                                :
+                                                                                                                                                                                (data.dataLoaded[0].fcp_avg
+                                                                                                                                                                                + " sec"
+                                                                                                                                                                                )
+                                                                                                                                                                                }}
+                                                                                                                                                                                -
+                                                                                                                                                                                {{
+                                                                                                                                                                                (data.dataLoaded[0].fcp_avg1
+                                                                                                                                                                                <
+                                                                                                                                                                                0
+                                                                                                                                                                                )
+                                                                                                                                                                                ? "-"
+                                                                                                                                                                                :
+                                                                                                                                                                                (data.dataLoaded[0].fcp_avg1
+                                                                                                                                                                                + " sec"
+                                                                                                                                                                                )
+                                                                                                                                                                                }}</div>
+                                                                                                                                                                                <div
+                                                                                                                                                                                    class="mt-10">
+                                                                                                                                                                                    {{
+                                                                                                                                                                                    (data.dataLoaded[0].fcp_avg2
+                                                                                                                                                                                    ==
+                                                                                                                                                                                    0.00
+                                                                                                                                                                                    )
+                                                                                                                                                                                    ?
+                                                                                                                                                                                    "-"
+                                                                                                                                                                                    :
+                                                                                                                                                                                    (data.dataLoaded[0].fcp_avg2
+                                                                                                                                                                                    < 0 )
+                                                                                                                                                                                        ?
+                                                                                                                                                                                        (-data.dataLoaded[0].fcp_avg2)
+                                                                                                                                                                                        + " %"
+                                                                                                                                                                                        :
+                                                                                                                                                                                        (data.dataLoaded[0].fcp_avg2)
+                                                                                                                                                                                        + " %"
+                                                                                                                                                                                        }}</div>
+                                                                                                                                                                                </div>
+                                                                                                                                                                        </div>
+                                                                                                                                                                    </div>
+                </p-card>
+            </ng-container>
+            <div class="p-grid">
+                <div class="p-col-6" *ngFor="let chart of data.charts">
+                    <app-chart [data]="chart" [setChart]="chart"></app-chart>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<p-dialog [(visible)]="display" [style]="{'background':'skyblue !important','width': '400px'}" [responsive]="true">
+    <p-header [style]="{'background':'skyblue !important'}">
+        {{header}}
+    </p-header>
+    <p>{{content}}</p>
+</p-dialog>

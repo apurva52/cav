@@ -1,0 +1,110 @@
+<div class="node-info-wrapper h-100-vh">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <a routerLink="/cluster-monitor">
+        <i class="icons8 icons8-left toolbar-icon-color"></i>
+      </a>
+      <div class="p-col ui-toolbar-text">Node Information</div>
+    </div>
+  </p-toolbar>
+  <div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+  </div>
+  <div class="content-body">
+    <div class="p-grid">
+      <div class="p-col-12">
+        <div class="p-grid">
+          <div class="p-col-5">
+            <div class="search-section">
+              <div class="ui-inputgroup w-60-p">
+                <span class="ui-inputgroup-addon">
+                  <i class="icons8 icons8-search"></i>
+                </span>
+                <input
+                  type="text"
+                  #searchInput
+                  pInputText
+                  placeholder="Search"
+                  class="w-80-p"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="p-col-7">
+            <div class="action-buttons">
+              <div class="routing-buttons">
+                <div>
+                  <p-dropdown
+                    [options]="nodeInfo"
+                    placeholder="Node Information"
+                    dropdownIcon="icons8-expand-arrow"
+                  ></p-dropdown>
+                </div>
+                <div>
+                  <button
+                    pButton
+                    label="Node Diagnostics"
+                    class="ui-outline-button ui-button-secondary"
+                    [routerLink]="['/node-diagnostics']"
+                  ></button>
+                </div>
+              </div>
+              <div class="action-icons">
+                <button
+                  pButton
+                  icon="icons8 icons8-information"
+                  class="ui-icon-button icon-button no-shadow"
+                  pTooltip="Node Info"
+                  (click)="nodeSettingInfo.show()"
+                ></button>
+                <button
+                  pButton
+                  icon="icons8 icons8-synchronize"
+                  class="ui-icon-button icon-button no-shadow"
+                  pTooltip="Reload"
+                ></button>
+                <button
+                  pButton
+                  icon="icons8 icons8-installing-updates"
+                  class="ui-icon-button icon-button no-shadow"
+                  pTooltip="Download"
+                  (click)="viewInfo()"
+                ></button>
+                <button
+                  pButton
+                  icon="icons8 icons8-columns"
+                  class="ui-icon-button icon-button no-shadow"
+                  pTooltip="Toggle Column"
+                ></button>
+                <button
+                  pButton
+                  icon="icons8 icons8-flow-chart"
+                  class="ui-icon-button icon-button no-shadow"
+                  pTooltip="Cluster Diagram"
+                ></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-col-12">
+        <p-tabMenu [model]="tabs" class="ui-tabmenu-big">
+          <ng-template pTemplate="item" let-item let-i="index">
+            <div class="ui-menuitem-text">
+              {{ item.label }}
+            </div>
+          </ng-template>
+        </p-tabMenu>
+        <div class="tab-content-body">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Open Node Information Dialog -->
+<app-node-setting-information #nodeSettingInfo [node]="this"></app-node-setting-information>

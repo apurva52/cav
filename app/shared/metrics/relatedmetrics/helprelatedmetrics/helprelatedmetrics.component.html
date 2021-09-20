@@ -1,0 +1,46 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false" [style]="{width: '80vw'}">
+    <p-header>
+        <div class="compare-data-title">
+            <div>
+                Help
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+    <div class="content-body">
+        <p-table #helpRelatedMetrics [resizableColumns]="true" [columns]="data.headers" [value]="data.data" [paginator]="false" [scrollable]="true">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup *ngFor="let headerRow of columns">
+                    <col *ngFor="let col of headerRow.cols" [style.width]="col.width">
+                </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr *ngFor="let headerRow of columns">
+                    <th pResizableColumn *ngFor="let col of headerRow.cols" [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan" [pSortableColumn]="col.valueField">
+                        <div class="float-left">
+                            {{ col.label }}
+                        </div>
+
+                        <div *ngIf="col.isSort" class="right">
+                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                            </p-sortIcon>
+                        </div>
+
+                    </th>
+                </tr>
+
+            </ng-template>
+            <ng-template pTemplate="body" let-row let-columns="columns">
+                <tr *ngFor="let headerRow of columns" class="pointer">
+                    <td *ngFor="let col of headerRow.cols; let i = index">
+                        <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon"></i>
+                        <span *ngIf="!col.iconField">{{ row[col.valueField] }}</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+    </div>
+</p-dialog>

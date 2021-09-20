@@ -1,0 +1,95 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+<div>
+	<div class= "ddr-box">
+<!-- COMMON TOOLBAR -->
+<div class="ddr-toolbar">
+  <p-toolbar>
+    <div class="ui-toolbar-group-left">
+          <span class="headerInfo">{{filterCriteria}}</span>
+    </div>      
+    <div class="ui-toolbar-group-right">
+       <span  title="Download PDF Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")' src='./images/iconPDF.gif'></span>
+       <span  title="Download Word Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")' src='./images/iconWord.gif'></span>
+       <span  title="Download Excel Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")' src='./images/iconExcel.gif'></span>
+    </div>
+  </p-toolbar>
+</div>
+<!-- COMMON BOX SCROLLLBAR -->
+<div class="ddruiscroll" [ngStyle]="{'height': screenHeight+'px'}" style="overflow:auto;">
+  
+<p-dialog class="ddr-dialog" [(visible)]="loader" appendTo="body" [width]="500" [height]="75" [closable]="false" [resizable]="false" modal="modal" [responsive]="true">
+    <div *ngIf="loader">
+        <p-progressBar [value]="value"></p-progressBar>
+    </div>
+    </p-dialog>
+    <p-dataTable class="scen-table" [value]="thinkData"  resizableColumns="true" [style]="{'height':'auto','max-height':'65vh','font-size':'12px','width':'1268px'}">
+        <div *ngFor = "let col of cols">
+        <p-column *ngIf = "col.action" [field] = "col.field" [header] = "col.header" [style]="{'width':'422.9px'}"  >
+        <ng-template let-col let-node="rowData" *ngIf = "col.field != 'avgHeader'" pTemplate="body" >
+        <div style="text-align:right">{{node[col.field]}}</div>
+        </ng-template>
+        </p-column>
+        </div>
+    </p-dataTable>
+	
+
+<!-- Charts for Transaction Details Report -->
+
+<p-accordion class="ddr-accordion">
+     <div class="ui-g-12">
+    <div class="ui-g-6" >
+<div class="ddr-graphpanel" *ngIf="showChart; else pieChart"><chart [options]="options" ></chart></div>
+<ng-template #pieChart>No PieChart found based on current Filter Settings.</ng-template>
+</div>
+<div class="ui-g-6">
+<div class="ddr-graphpanel" *ngIf="showChart; else StackChart"><chart [options]="StackBarChartOptions"></chart></div>
+<ng-template #StackChart>No split time chart found based on current Filter Settings.</ng-template>
+</div>
+</div>
+</p-accordion>
+<p-accordion class="ddr-accordion" >
+        <p-toolbar>
+            <div class="ui-toolbar-group-right" style="text-align: right">
+                <i class="fa fa-search" style="margin:0 0 0 0;"></i>
+                <input #gb type="text" pInputText size="50" style="width: 30% !important;" placeholder="Search">
+            </div>
+        </p-toolbar>
+        <p-dataTable class="scen-table" [value]="TransactionDetailsData" [rows]="10" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+            <p-column field="pagename" header="Page Name" [sortable] = "true" (sortFunction)="CustomsortOnColumns($event,TransactionDetailsData)" >
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                        <div style="text-align: left !important;">{{node[col.field]}}</div>
+                    </ng-template>
+            </p-column>
+            <p-column field="avgPageresponseTime" header="Avg Page Response Time" [sortable] = "true" (sortFunction)="CustomsortOnColumns($event,TransactionDetailsData)">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                    <div *ngIf="node[col.field] != 0" class="ddr-table-right" (click)="openPageReport(node)">{{msToTimeFormate(node[col.field])}}</div>
+                    <div style="text-align: right !important;" *ngIf="node[col.field] == 0">{{node[col.field]}}</div>
+                </ng-template>
+            </p-column>
+            <p-column field="avgPageresponseTime" header="Page Weighted Time" [sortable] = "true" (sortFunction)="CustomsortOnColumns($event,TransactionDetailsData)">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                        <div style="text-align: right !important;">{{msToTimeFormate(node[col.field])}}</div>
+                </ng-template>
+            </p-column>
+            <p-column field="avgPageRespPercent" header="Page Weighted Time Percentage" [sortable] = "true" (sortFunction)="CustomsortOnColumns($event,TransactionDetailsData)">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                        <div style="text-align: right !important;">{{node[col.field]}}%</div>
+                </ng-template>
+            </p-column>
+        </p-dataTable>   
+</p-accordion>
+</div>
+</div>
+</div>
+<p-dialog class="ddr-dialog"   appendTo="body" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true" [height]="120" [width]="600" > 
+    <p-header>
+        <i class="fa fa-info-circle" style="color:red"></i>
+        <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+    </p-header>  
+    <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+    <p-footer>
+    <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait" style="height: 25px;"></button>
+    <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" label="Cancel" style="height: 25px;"></button>
+    </p-footer>
+  </p-dialog>

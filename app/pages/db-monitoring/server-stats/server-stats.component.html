@@ -1,0 +1,17 @@
+<div class="server-stats-container side-bar-wrapper my-5">
+    <div class="sidebar-nav" [ngClass]="toggleClass ? 'active' : ''">
+        <button class="sidebar-toggler" type="button" (click)="toggleClass=!toggleClass">
+            <i [ngClass]="toggleClass ? 'icons8 icons8-forward' : 'icons8 icons8-back'" ></i>
+        </button>   
+            <div class="vertical-tabs-menu">
+                <p-tabMenu #tab [model]="items" [activeItem]='activeItem' (click)= "clickOnSubMenu(tab['activeItem'])"></p-tabMenu>
+            </div>
+        </div>
+
+        <div class="side-bar-content">
+             <router-outlet></router-outlet>
+        </div>
+</div>
+
+
+

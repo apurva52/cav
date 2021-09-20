@@ -1,0 +1,77 @@
+<p-sidebar #sidebar [(visible)]="isVisible" baseZIndex="10000" blockScroll="true" appendTo="body"
+    styleClass="time-filter" [showCloseIcon]="false" (onHide)="onTimeFilterClose()" [baseZIndex]="100">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <i class="icons8 icons8-filter pr-5 pt-3"></i>
+            <span>KPI Time Filter</span>
+            <i class="icons8-delete" (click)="closeClick()"></i>
+        </div>
+    </div>
+
+    <div class="sidebar-content ui-fluid">
+
+        <p-tabView class="mini-tab" (onChange)="tabChange($event)">
+            <p-tabPanel header="Preset">
+                <div class="ui-fluid p-formgrid p-grid ph-10 pv-15" *ngIf="data">
+
+
+                    <div class="p-field p-col-12 p-md-12">
+                        <label for="time-period">Time Period</label>
+                        <button pButton class="ui-button-secondary" (click)="timePeriodMenu.toggle($event)">
+                            <span class="text-left ui-text">
+                                {{(timePeriod.selected && timePeriod.selected.label) || 'Select time period'}} </span>
+                            <i class="icons8 icons8-expand-arrow ph-5"></i>
+                        </button>
+                        <p-slideMenu #timePeriodMenu [model]="timePeriod.options" id="time-period" [popup]="true">
+                        </p-slideMenu>
+                    </div>
+
+                    <div class="loader-container spinner" *ngIf="timeLoading">
+                        <i class="pi pi-spin pi-spinner" style="font-size: 3em"></i>
+                    </div>
+
+                    <div class="pt-10" *ngIf="!timeLoading && temporaryTimeFrame && temporaryTimeFrame.length === 3">
+                        <div class="p-field p-col-12 p-md-12">
+                            <label for="view-by">Start Date Time</label>
+                            <div class="filter-value">{{temporaryTimeFrame[1] | formatDateTime: 'default' }}</div>
+                        </div>
+                        <div class="p-field p-col-12 p-md-12">
+                            <label for="view-by">End Date Time</label>
+                            <div class="filter-value">{{temporaryTimeFrame[2] | formatDateTime: 'default' }}</div>
+                        </div>
+                    </div>
+                    <div class="p-field p-col-12" *ngIf="timePeriod.selected">
+                        <p-checkbox label="Include Discontinuous Graph" (onChange)="onIncludeDiscontinuousGraph()"
+                            binary="true"></p-checkbox>
+                    </div>
+                </div>
+            </p-tabPanel>
+            <p-tabPanel header="Custom">
+                <div class="ui-fluid p-formgrid p-grid ph-10 pv-15">
+                    <div class="p-field p-col-12 p-md-12">
+                        <label for="start-date-time">Start Date Time</label>
+                        <input pInputText id="start-date-time" [owlDateTime]="customStartDateTime"
+                            [owlDateTimeTrigger]="customStartDateTime" placeholder="Start Date Time"
+                            (ngModelChange)="onCustomTimeChange()" [selectMode]="'rangeFrom'" [(ngModel)]="customTimeFrame" [max]="customTimeFrameMax">
+                        <owl-date-time #customStartDateTime></owl-date-time>
+                    </div>
+
+                    <div class=" p-field p-col-12 p-md-12">
+                        <label for="end-date-time">End Date Time</label>
+                        <input pInputText id="end-date-time" [owlDateTime]="customEndDateTime"
+                            [owlDateTimeTrigger]="customEndDateTime" placeholder="End Date Time"
+                            (ngModelChange)="onCustomTimeChange()" [selectMode]="'rangeTo'" [(ngModel)]="customTimeFrame" [min]="customTimeFrame[0]" [max]="customTimeFrameMax">
+                        <owl-date-time #customEndDateTime></owl-date-time>
+                    </div>
+                </div>
+            </p-tabPanel>
+        </p-tabView>
+
+    </div>
+
+    <div class="sidebar-footer">
+        <button pButton type="submit" (click)="applyTimeFilter()" [disabled]="!enableApply" label="APPLY"
+            class="w-100-p ui-button-rounded"></button>
+    </div>
+
+</p-sidebar>

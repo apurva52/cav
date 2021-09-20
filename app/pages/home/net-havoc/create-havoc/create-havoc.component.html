@@ -1,0 +1,49 @@
+<div class="h-100-vh page-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <div>
+        <p-toolbar class="ui-secondary-toolbar">
+            <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+                <a routerLink="/home/net-havoc">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">
+                    CREATE
+                </div>
+            </div>
+        </p-toolbar>
+    </div>
+
+
+    <div class="create-content">
+        <p-accordion>
+            <p-accordionTab [selected]="true">
+                <p-header>
+                    <span class="title">Inject Hovac</span>
+
+                    <span class="p-grid p-justify-between p-align-center p-col-3" style="float: right;padding: 0px;">
+                      <p-dropdown class="hovac-dropdown" [options]="dropDownItems" placeholder="Select" dropdownIcon="icons8 icons8-expand-arrow">
+                      </p-dropdown>
+                      <button pButton type="button" label="Click" class="ui-button-rounded ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"></button>
+                      </span>
+                </p-header>
+                <p-tabMenu [model]="tabs" class="ui-tabmenu-big">
+                    <ng-template pTemplate="item" let-item let-i="index">
+                        <div class="ui-menuitem-text">
+                            {{item.label}}
+                        </div>
+                    </ng-template>
+                </p-tabMenu>
+                <div class="content-body">
+                    <router-outlet></router-outlet>
+                </div>
+            </p-accordionTab>
+        </p-accordion>
+
+    </div>
+
+
+
+
+</div>

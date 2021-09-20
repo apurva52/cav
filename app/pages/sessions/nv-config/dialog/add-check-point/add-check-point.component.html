@@ -1,0 +1,2781 @@
+<p-dialog appendTo="body" header="Add Check Point" [(visible)]="displayCheckpoint"
+    [style]="{width:'807px','left':'77px'}" [contentStyle]="{overflow:'auto'}" (onHide)="Cancel()">
+
+    <div class="ui-g ui-fluid">
+
+        <div class="ui-g-12">
+            <div class="ui-g-3"><label>Enable</label></div>
+            <div class="ui-g-4">
+                <p-inputSwitch [(ngModel)]="enabletoggle"></p-inputSwitch>
+            </div>
+        </div>
+
+        <p-fieldset legend="Define Checkpoint" class="ui-g-12 netvision-fieldset">
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Check Point Name </label></div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Check Point Name" [(ngModel)]="cpname" />
+                </div>
+            </div>
+
+
+            <div class="ui-g-12">
+
+                <div class="ui-g-3"><label>Scope</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [options]="Scopeop" [style]="{'width':'227px'}" (onChange)="scopevaluechange()"
+                        dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="scope"></p-dropdown>
+                </div>
+            </div>
+
+
+            <div *ngIf="scope == 2 || scope == 3 || scope == 4" class="ui-g-12">
+                <div class="ui-g-3">
+                    <label>Url Pattern</label>
+                </div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Url" [(ngModel)]="httpurl" />
+                </div>
+            </div>
+
+
+            <div *ngIf="scope == 99 || scope == 1" class="ui-g-12">
+                <div class="ui-g-3">
+                    <label>Dom Selector</label>
+                </div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Dom Selector" [(ngModel)]="domselector" />
+                </div>
+            </div>
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Pages</label></div>
+                <div class="ui-g-4">
+                    <p-multiSelect defaultLabel='Select Page' [options]="npage" [(ngModel)]="pages"></p-multiSelect>
+                </div>
+            </div>
+
+        </p-fieldset>
+
+
+        <p-fieldset legend="Rules" class="ui-g-12 netvision-fieldset">
+            <div class="ui-g-12">
+                <div class="ui-inputgroup">
+                    <input type="text" pInputText placeholder="Please Fill L.H.S value" [(ngModel)]="rulesvalue"
+                        disabled>
+                    <span class="ui-inputgroup-addon">
+                        <i pTooltip="click here to open Define Selctor" class="pi pi-pencil"
+                            (click)=openselectordialog()></i>
+                    </span>
+                </div>
+            </div>
+
+
+            <div class="ui-g-4" *ngIf="specificfail_flag == true">
+                <p-dropdown [options]="speceficfail" [(ngModel)]="fail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="ui-g-4" *ngIf="lb_rb_fail_flag == true">
+                <p-dropdown [options]="lbrbfail" [(ngModel)]="fail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="ui-g-4" *ngIf="jsonfail_flag == true">
+                <p-dropdown [options]="jsonfail" (onChange)="jsonfailvaluechanged($event)" [(ngModel)]="fail"
+                    dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+
+
+            <div class="ui-g-4" *ngIf="matchingenable == true">
+                <input pInputText type="text" placeholder="Please Enter R.H.S value" style="width: 237px;"
+                    [(ngModel)]="matchingtext" />
+            </div>
+
+            <div class="ui-g-12" style="text-align: center;">
+                <button type="button" pButton icon="pi pi-plus" (click)="ConfirmRule()"
+                    [label]="updateVar ? 'Update':'Add'" style="width: 77px;"></button>&nbsp;&nbsp;
+                <button type="button" pTooltip="Click Here To Reset Your Changes" pButton (click)="ResetRule()"
+                    label='Reset' style="width: 77px;"></button>
+
+            </div>
+
+            <div class="ui-g-12">
+
+                <p-table [reorderableColumns]="true" [value]="ruleresponse" sortMode="single" class="scen-table"
+                    [resizableColumns]="true">
+                    <ng-template pTemplate="header">
+
+                        <tr>
+                            <th [ngStyle]="{'width.px':'336'}" pResizableColumn>LHS</th>
+                            <th [ngStyle]="{'width.px':'137'}" pResizableColumn>Operator</th>
+                            <th pResizableColumn>RHS</th>
+                            <th [ngStyle]="{'width.px':'72'}" pResizableColumn>Action</th>
+
+
+                        </tr>
+                    </ng-template>
+
+
+
+                    <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+                        <tr>
+
+                            <td *ngIf="data.mode == 1">
+                                <label>Text :-</label>{{data.arg1.text}}
+
+
+                                <!-- Dimensions -->
+
+
+                                <div class="ui-g" style="margin-bottom: 5px;display: inline-block;">
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+                            </td>
+                            <td *ngIf="data.mode == 2">
+
+                                <label>LB :-</label>{{data.arg1.text}}
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+                                <br>
+                                <label>RB :-</label>{{data.arg2.text}}
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg2.regex && data.arg2.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg2.ic && data.arg2.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg2.regex && data.arg2.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+
+                            </td>
+                            <td *ngIf="data.mode == 3">
+                                <label>Path :-</label>{{data.arg1.path}}
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg1.ic" class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                </div>
+                            </td>
+
+                            <td title="{{data.fail_label}}">{{data.fail_label}}</td>
+                            <td title="{{data.value}}">{{data.value}}</td>
+
+                            <td>
+                                <i class="pi pi-pencil" style="font-weight: 700;padding: 5px;" title="edit rule"
+                                    (click)="editRule(data,rowIndex)"></i>
+                                <i class="pi pi-trash" style="font-weight: 700;padding: 5px;" title="delete rule"
+                                    (click)="deleteRule(rowIndex)"></i>
+                            </td>
+                        </tr>
+                    </ng-template>
+
+                </p-table>
+
+            </div>
+
+
+
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Matching Criteria</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [options]="matchingop" [(ngModel)]="matching" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                </div>
+            </div>
+
+        </p-fieldset>
+
+
+
+
+
+        <p-fieldset legend="Action" class="ui-g-12 netvision-fieldset">
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Trigger Event</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown placeholder="Select Event" [options]="nevent" [filter]="true"
+                        filterBy="label,value.name" [(ngModel)]="eventname" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                </div>
+            </div>
+        </p-fieldset>
+    </div>
+
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" id="savecpid" pButton icon="fa fa-check" (click)="SaveCheckPoint()"
+                label="Save"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+
+
+
+<p-dialog appendTo="body" header="Define Selector" [(visible)]="selectordialogue" [style]="{width: '43vw'}"
+    [contentStyle]="{overflow:'auto'}" [resizable]="false" (onHide)="CancelSelector()">
+    <div class="ui-grid ui-grid-responsive ui-fluid" style="height: 369px;">
+
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label>Selector Type</label></div>
+            <div class="ui-grid-col-5">
+                <p-dropdown [options]="selectoroptions" (onChange)="resetseletordialog()" [(ngModel)]="Radioval"
+                    dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+
+        </div>
+        <br>
+        <div *ngIf="Radioval == 1">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Text Pattern</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 231px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="textpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=checkvalue($event) value="true" binary="true" [(ngModel)]="regexspecific">
+                    </p-checkbox>
+                </div>
+                <div *ngIf="regex == true" class="ui-grid-col-6">
+                    <input pInputText style="width: 237px;" type="text" placeholder="Enter Test String"
+                        [(ngModel)]="regextextstring" />
+
+                </div>
+
+
+                <div class="ui-grid-col-2">
+                    <button *ngIf="regex == true" type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(textpattern,regextextstring)" label="Test"></button>
+
+                </div>
+
+
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=ignorecheckvalue($event) binary="true" [(ngModel)]="textignorecase">
+                    </p-checkbox>
+                </div>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+        </div>
+
+        <div *ngIf="Radioval == 3">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Json Path</label></div>
+                <div class="ui-grid-col-6">
+                    <div class="ui-inputgroup">
+                        <input (keyup)="TestJsonPath(lefttextarea,jsonpath,'add')" pInputText style="width: 227px;"
+                            type="text" placeholder="Enter Json Path" [(ngModel)]="jsonpath" />&nbsp;&nbsp;
+                        <span class="ui-inputgroup-addon">
+                            <i class="pi pi-question-circle" pTooltip="click here to open Json Path Tutorial"
+                                aria-hidden="true" (click)="jsonurl()"></i>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=ignorecheckvalue($event) binary="true" [(ngModel)]="ignorecasejsonpath">
+                    </p-checkbox>
+                </div>
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-5" style="margin-left: 92px;font-size: 12px;"><label>Inputs</label></div>
+                <div class="ui-grid-col-0">
+                    <label style="font-size: 12px;">Evaluation Results</label>
+
+                </div>
+            </div>
+            <div class="ui-grid-row">
+
+                <div class="ui-g-12">
+                    <div class="ui-g-6"><textarea [rows]="13" [cols]="5"
+                            style="background-color: #002B36;color:#d8c39d;width:100%;font-size: 13px;box-shadow: rgb(51, 51, 51) 0px 4px 17px;height: 200px;border-radius: 13px;overflow: hidden;"
+                            pInputTextarea id="textareaid"
+                            (keyup)="onKeydown(lefttextarea,'textareaid','jsonmatchbutton',jsonpath)"
+                            [(ngModel)]="lefttextarea" autoResize="autoResize"></textarea></div>
+                    <div class="ui-g-6">
+                        <textarea [rows]="13"
+                            style="background-color: #002B36;color:#d8c39d;font-size: 13px;width:100%;box-shadow: rgb(51, 51, 51) 0px 4px 17px;height: 200px;border-radius: 13px;overflow: hidden;"
+                            [cols]="20" disabled [(ngModel)]="righttextarea" autoResize="autoResize"
+                            pInputTextarea></textarea>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div *ngIf="Radioval == 2">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Left Bound String</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="leftboundtextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=checkvalueleft($event) binary="true" [(ngModel)]="leftregexspecific">
+                    </p-checkbox>
+                </div>
+                <div *ngIf="leftregex == true" class="ui-grid-col-4">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Test String"
+                        [(ngModel)]="leftregextextstring" />
+
+                </div>
+
+
+                <div *ngIf="leftregex == true" class="ui-grid-col-2">
+                    <button type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(leftboundtextpattern,leftregextextstring)" label="Test"></button>
+
+                </div>
+
+            </div>
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=leftignorecheckvaluefunction($event) binary="true" [(ngModel)]="leftignore">
+                    </p-checkbox>
+                </div>
+            </div>
+
+
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Right Bound String</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="rightboundtextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=checkvalueright($event) binary="true" [(ngModel)]="rightregexspecific">
+                    </p-checkbox>
+                </div>
+                <div class="ui-grid-col-4">
+                    <input *ngIf="rightregex  == true" pInputText style="width: 174px;" type="text"
+                        placeholder="Enter Test String" [(ngModel)]="rightregextextstring" />
+
+                </div>
+
+
+
+                <div *ngIf="rightregex  == true" class="ui-grid-col-2">
+                    <button type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(rightboundtextpattern,rightregextextstring)" label="Test"></button>
+
+                </div>
+
+            </div>
+
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <!-- <p-checkbox (onChange)=rightgnorecheckvalue($event) [(ngModel)]="rightignorecase"></p-checkbox> -->
+                    <p-checkbox (onChange)=rightgnorecheckvalue($event) binary="true"
+                        [(ngModel)]="rightignorecheckvalue">
+                    </p-checkbox>
+                </div>
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" pButton icon="fa fa-check" (click)="saveTextSelector()" label="Save"></button>
+        </div>
+    </p-footer>
+
+</p-dialog>
+
+
+
+<p-dialog appendTo="body" header="Update Check Point" [(visible)]="updatedisplayCheckpoint" [style]="{width:'807px'}"
+    [contentStyle]="{overflow:'auto'}" (onHide)="updatedCancel()">
+
+    <div class="ui-g ui-fluid">
+
+        <div class="ui-g-12">
+            <div class="ui-g-3"><label>Enable</label></div>
+            <div class="ui-g-4">
+                <p-inputSwitch [(ngModel)]="updateenabletoggle"></p-inputSwitch>
+            </div>
+        </div>
+
+        <p-fieldset legend="Define Checkpoint" class="ui-g-12 netvision-fieldset">
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Check Point Name </label></div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Check Point Name" [(ngModel)]="updatecpname" />
+                </div>
+            </div>
+
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Scope</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [options]="Scopeop" [style]="{'width':'227px'}" (onChange)="updatescopevaluechange()"
+                        [(ngModel)]="updatescope" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+
+
+            <div *ngIf="updatescope == 2 || updatescope == 3 || updatescope == 4" class="ui-g-12">
+                <div class="ui-g-3">
+                    <label>Url Pattern</label>
+                </div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Url" [(ngModel)]="updatehttpurl" />
+                </div>
+            </div>
+
+
+            <div *ngIf="updatescope == 99 || updatescope == 1" class="ui-g-12">
+                <div class="ui-g-3">
+                    <label>Dom Selector</label>
+                </div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Dom Selector" [(ngModel)]="updatedomselector" />
+                </div>
+            </div>
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Pages</label></div>
+                <div class="ui-g-4">
+                    <p-multiSelect defaultLabel='Select Page' [options]="npage" [(ngModel)]="updatepages">
+                    </p-multiSelect>
+
+                </div>
+            </div>
+
+        </p-fieldset>
+
+
+        <p-fieldset legend="Rules" class="ui-g-12 netvision-fieldset">
+            <div class="ui-g-12">
+                <div class="ui-inputgroup">
+                    <input type="text" placeholder="Please Fill L.H.S value" pInputText [(ngModel)]="updaterulesvalue"
+                        disabled>
+                    <span class="ui-inputgroup-addon">
+                        <i pTooltip="click here to open Define Selctor" class="pi pi-pencil"
+                            (click)=openupdateselectordialog()></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="ui-g-4" *ngIf="updatespecificfail_flag == true">
+                <p-dropdown [options]="speceficfail" [(ngModel)]="updatefail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="ui-g-4" *ngIf="updatelb_rb_fail_flag == true">
+                <p-dropdown [options]="lbrbfail" [(ngModel)]="updatefail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="ui-g-4" *ngIf="updatejsonfail_flag == true">
+                <p-dropdown (onChange)="updatejsonfailvaluechanged($event)" [options]="jsonfail"
+                    [(ngModel)]="updatefail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+
+            <div class="ui-g-4" *ngIf="updatematchingenable == true">
+                <input pInputText type="value" placeholder="Please Enter R.H.S value" style="width: 237px;"
+                    [(ngModel)]="updatematchingtext" />
+            </div>
+
+            <div class="ui-g-12" style="text-align: center;">
+                <button type="button" pButton icon="pi pi-plus" (click)="updateConfirmRule()"
+                    [label]="UupdateVar ? 'Update':'Add'" style="width: 77px;"></button>&nbsp;&nbsp;
+                <button type="button" pTooltip="Click Here To Reset Your Changes" pButton (click)="updateResetRule()"
+                    label='Reset' style="width: 77px;"></button>
+
+            </div>
+
+
+
+
+
+
+
+
+            <div class="ui-g-12">
+
+                <p-table [reorderableColumns]="true" [value]="updateruleresponse" sortMode="single" class="scen-table"
+                    [resizableColumns]="true">
+                    <ng-template pTemplate="header">
+
+
+                        <tr>
+                            <th [ngStyle]="{'width.px':'336'}" pResizableColumn>LHS</th>
+                            <th [ngStyle]="{'width.px':'137'}" pResizableColumn>Operator</th>
+                            <th pResizableColumn>RHS</th>
+                            <th [ngStyle]="{'width.px':'72'}" pResizableColumn>Action</th>
+                        </tr>
+                    </ng-template>
+
+
+                    <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+                        <tr>
+
+                            <td *ngIf="data.mode == 1">
+                                <label>Text :-</label>{{data.arg1.text}}
+
+
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="margin-bottom: 5px;display: inline-block;">
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+
+                            </td>
+                            <td *ngIf="data.mode == 2">
+
+                                <label>LB :-</label>{{data.arg1.text}}
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+                                <br>
+                                <label>RB :-</label>{{data.arg2.text}}
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg2.regex && data.arg2.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg2.ic && data.arg2.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg2.regex && data.arg2.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+
+                            </td>
+                            <td *ngIf="data.mode == 3">
+                                <label>Path :-</label>{{data.arg1.path}}
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg1.ic" class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                </div>
+                            </td>
+
+                            <td title="{{data.fail_label}}">{{data.fail_label}}</td>
+                            <td title="{{data.value}}">{{data.value}}</td>
+
+                            <td>
+                                <i class="pi pi-pencil" style="font-weight: 700;padding: 5px;" title="edit rule"
+                                    (click)="updateeditRule(data,rowIndex)"></i>
+                                <i class="pi pi-trash" style="font-weight: 700;padding: 5px;" title="delete rule"
+                                    (click)="updatedeleteRule(rowIndex)"></i>
+                            </td>
+                        </tr>
+                    </ng-template>
+
+                </p-table>
+
+            </div>
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Matching Criteria</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [options]="matchingop" [(ngModel)]="updatematching"
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+        </p-fieldset>
+
+
+
+
+
+
+
+        <p-fieldset legend="Action" class="ui-g-12 netvision-fieldset">
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Trigger Event</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown placeholder="Select Event" [options]="nevent" [filter]="true"
+                        filterBy="label,value.name" [(ngModel)]="updateeventname"
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+        </p-fieldset>
+    </div>
+
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" id="updatesavecpid" pButton icon="fa fa-check" (click)="updateSaveCheckPoint()"
+                label="Update"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+
+
+
+<p-dialog appendTo="body" header="Define Selector" [(visible)]="updateselectordialogue" [style]="{width: '43vw'}"
+    [contentStyle]="{overflow:'auto'}" [resizable]="false" (onHide)="UpdateCancelSelector()">
+    <div class="ui-grid ui-grid-responsive ui-fluid" style="height: 369px;">
+
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label>Selector Type</label></div>
+            <div class="ui-grid-col-5">
+                <p-dropdown [options]="selectoroptions" (onChange)="updateresetseletordialog()"
+                    [(ngModel)]="updateRadioval" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+
+        </div>
+        <br>
+
+
+
+
+        <div *ngIf="updateRadioval == 1">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Text Pattern</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 231px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="updatetextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=updateregexcheckvalue($event) binary="true"
+                        [(ngModel)]="updateregexspecific">
+                    </p-checkbox>
+                </div>
+                <div class="ui-grid-col-6">
+                    <input *ngIf="updateregexspecific == true" pInputText style="width: 237px;" type="text"
+                        placeholder="Enter Test String" [(ngModel)]="updateregextextstring" />
+
+                </div>
+
+
+                <div class="ui-grid-col-2">
+                    <button *ngIf="updateregexspecific == true" type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(updatetextpattern,updateregextextstring)" label="Test"></button>
+
+                </div>
+
+
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=ignorecheckvalue($event) binary="true" [(ngModel)]="updatetextignorecase">
+                    </p-checkbox>
+                </div>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+        </div>
+
+        <div *ngIf="updateRadioval == 3">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Json Path</label></div>
+                <div class="ui-grid-col-6">
+                    <div class="ui-inputgroup">
+                        <input (keyup)="TestJsonPath(updatelefttextarea,updatejsonpath,'update')" pInputText
+                            style="width: 227px;" type="text" placeholder="Enter Json Path"
+                            [(ngModel)]="updatejsonpath" />&nbsp;&nbsp;
+                        <span class="ui-inputgroup-addon">
+                            <i class="pi pi-question-circle" pTooltip="click here to open Json Path Tutorial"
+                                aria-hidden="true" (click)="jsonurl()"></i>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=ignorecheckvalue($event) binary="true"
+                        [(ngModel)]="updateignorecasejsonpath">
+                    </p-checkbox>
+                </div>
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-5" style="margin-left: 92px;font-size: 12px;"><label>Inputs</label></div>
+                <div class="ui-grid-col-0">
+                    <label style="font-size: 12px;">Evaluation Results</label>
+
+                </div>
+            </div>
+            <div class="ui-grid-row">
+
+                <div class="ui-g-12">
+                    <div class="ui-g-6"><textarea [rows]="13" id="updatetextareaid" [cols]="5"
+                            (keyup)="onKeydown(updatelefttextarea,'updatetextareaid','updatejsonmatchbutton',updatejsonpath)"
+                            [(ngModel)]="updatelefttextarea"
+                            style="background-color:#002B36;color:#d8c39d;font-size: 13px;width:100%;box-shadow: rgb(51, 51, 51) 0px 4px 17px;height: 200px;border-radius: 13px;overflow: hidden;"
+                            pInputTextarea autoResize="autoResize"></textarea></div>
+                    <div class="ui-g-6">
+                        <textarea [rows]="13" [(ngModel)]="updaterighttextarea"
+                            style="background-color: #002B36;color:#d8c39d;font-size: 13px;width:100%;box-shadow: rgb(51, 51, 51) 0px 4px 17px;height: 200px;border-radius: 13px;overflow: hidden;"
+                            [cols]="20" pInputTextarea disabled autoResize="autoResize"></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div *ngIf="updateRadioval == 2">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Left Bound String</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="updateleftboundtextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=updateleftregexvalue($event) binary="true" [(ngModel)]="updateleftregex">
+                    </p-checkbox>
+                </div>
+                <div class="ui-grid-col-4">
+                    <input *ngIf="updateleftregex == true" pInputText style="width: 174px;" type="text"
+                        placeholder="Enter Test String" [(ngModel)]="updateleftregextextstring" />
+
+                </div>
+
+
+                <div class="ui-grid-col-2">
+                    <button *ngIf="updateleftregex == true" type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(updateleftboundtextpattern,updateleftregextextstring)" label="Test"></button>
+
+                </div>
+
+            </div>
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=updateleftignorecheckvalue($event) binary="true"
+                        [(ngModel)]="updateleftignore">
+                    </p-checkbox>
+                </div>
+            </div>
+
+
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Right Bound String</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="updaterightboundtextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=updaterightregexvalue($event) binary="true" [(ngModel)]="updaterightregex">
+                    </p-checkbox>
+                </div>
+                <div class="ui-grid-col-4">
+                    <input *ngIf="updaterightregex == true" pInputText style="width: 174px;" type="text"
+                        placeholder="Enter Test String" [(ngModel)]="updaterightregextextstring" />
+
+                </div>
+
+
+
+                <div class="ui-grid-col-2">
+                    <button *ngIf="updaterightregex == true" type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(updaterightboundtextpattern,updaterightregextextstring)"
+                        label="Test"></button>
+
+                </div>
+
+            </div>
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <!-- <p-checkbox (onChange)=rightgnorecheckvalue($event) [(ngModel)]="rightignorecase"></p-checkbox> -->
+                    <p-checkbox (onChange)=updaterightignorecheckvalue($event) binary="true"
+                        [(ngModel)]="updaterightignore">
+                    </p-checkbox>
+                </div>
+            </div>
+
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" pButton icon="fa fa-check" (click)="updatesaveTextSelector()" label="Save"></button>
+        </div>
+    </p-footer>
+
+</p-dialog>
+<p-toast key="add-checkpoint"></p-toast>
+
+<p-dialog appendTo="body" header="Add Check Point" [(visible)]="displayCheckpoint"
+    [style]="{width:'807px','left':'77px'}" [contentStyle]="{overflow:'auto'}" (onHide)="Cancel()">
+
+    <div class="ui-g ui-fluid">
+
+        <div class="ui-g-12">
+            <div class="ui-g-3"><label>Enable</label></div>
+            <div class="ui-g-4">
+                <p-inputSwitch [(ngModel)]="enabletoggle"></p-inputSwitch>
+            </div>
+        </div>
+
+        <p-fieldset legend="Define Checkpoint" class="ui-g-12 netvision-fieldset">
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Check Point Name </label></div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Check Point Name" [(ngModel)]="cpname" />
+                </div>
+            </div>
+
+
+            <div class="ui-g-12">
+
+                <div class="ui-g-3"><label>Scope</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [options]="Scopeop" [style]="{'width':'227px'}" (onChange)="scopevaluechange()"
+                        [(ngModel)]="scope" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+
+
+            <div *ngIf="scope == 2 || scope == 3 || scope == 4" class="ui-g-12">
+                <div class="ui-g-3">
+                    <label>Url Pattern</label>
+                </div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Url" [(ngModel)]="httpurl" />
+                </div>
+            </div>
+
+
+            <div *ngIf="scope == 99 || scope == 1" class="ui-g-12">
+                <div class="ui-g-3">
+                    <label>Dom Selector</label>
+                </div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Dom Selector" [(ngModel)]="domselector" />
+                </div>
+            </div>
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Pages</label></div>
+                <div class="ui-g-4">
+                    <p-multiSelect defaultLabel='Select Page' [options]="npage" [(ngModel)]="pages"></p-multiSelect>
+                </div>
+            </div>
+
+        </p-fieldset>
+
+
+        <p-fieldset legend="Rules" class="ui-g-12 netvision-fieldset">
+            <div class="ui-g-12">
+                <div class="ui-inputgroup">
+                    <input type="text" pInputText placeholder="Please Fill L.H.S value" [(ngModel)]="rulesvalue"
+                        disabled>
+                    <span class="ui-inputgroup-addon">
+                        <i pTooltip="click here to open Define Selctor" class="pi pi-pencil"
+                            (click)=openselectordialog()></i>
+                    </span>
+                </div>
+            </div>
+
+
+            <div class="ui-g-4" *ngIf="specificfail_flag == true">
+                <p-dropdown [options]="speceficfail" [(ngModel)]="fail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="ui-g-4" *ngIf="lb_rb_fail_flag == true">
+                <p-dropdown [options]="lbrbfail" [(ngModel)]="fail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="ui-g-4" *ngIf="jsonfail_flag == true">
+                <p-dropdown [options]="jsonfail" (onChange)="jsonfailvaluechanged($event)" [(ngModel)]="fail"
+                    dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+
+
+            <div class="ui-g-4" *ngIf="matchingenable == true">
+                <input pInputText type="text" placeholder="Please Enter R.H.S value" style="width: 237px;"
+                    [(ngModel)]="matchingtext" />
+            </div>
+
+            <div class="ui-g-12" style="text-align: center;">
+                <button type="button" pButton icon="pi pi-plus" (click)="ConfirmRule()"
+                    [label]="updateVar ? 'Update':'Add'" style="width: 77px;"></button>&nbsp;&nbsp;
+                <button type="button" pTooltip="Click Here To Reset Your Changes" pButton (click)="ResetRule()"
+                    label='Reset' style="width: 77px;"></button>
+
+            </div>
+
+            <div class="ui-g-12">
+
+                <p-table [reorderableColumns]="true" [value]="ruleresponse" sortMode="single" class="scen-table"
+                    [resizableColumns]="true">
+                    <ng-template pTemplate="header">
+
+                        <tr>
+                            <th [ngStyle]="{'width.px':'336'}" pResizableColumn>LHS</th>
+                            <th [ngStyle]="{'width.px':'137'}" pResizableColumn>Operator</th>
+                            <th pResizableColumn>RHS</th>
+                            <th [ngStyle]="{'width.px':'72'}" pResizableColumn>Action</th>
+
+
+                        </tr>
+                    </ng-template>
+
+
+
+                    <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+                        <tr>
+
+                            <td *ngIf="data.mode == 1">
+                                <label>Text :-</label>{{data.arg1.text}}
+
+
+                                <!-- Dimensions -->
+
+
+                                <div class="ui-g" style="margin-bottom: 5px;display: inline-block;">
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+                            </td>
+                            <td *ngIf="data.mode == 2">
+
+                                <label>LB :-</label>{{data.arg1.text}}
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+                                <br>
+                                <label>RB :-</label>{{data.arg2.text}}
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg2.regex && data.arg2.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg2.ic && data.arg2.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg2.regex && data.arg2.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+
+                            </td>
+                            <td *ngIf="data.mode == 3">
+                                <label>Path :-</label>{{data.arg1.path}}
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg1.ic" class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                </div>
+                            </td>
+
+                            <td title="{{data.fail_label}}">{{data.fail_label}}</td>
+                            <td title="{{data.value}}">{{data.value}}</td>
+
+                            <td>
+                                <i class="pi pi-pencil" style="font-weight: 700;padding: 5px;" title="edit rule"
+                                    (click)="editRule(data,rowIndex)"></i>
+                                <i class="pi pi-trash" style="font-weight: 700;padding: 5px;" title="delete rule"
+                                    (click)="deleteRule(rowIndex)"></i>
+                            </td>
+                        </tr>
+                    </ng-template>
+
+                </p-table>
+
+            </div>
+
+
+
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Matching Criteria</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [options]="matchingop" [(ngModel)]="matching" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                </div>
+            </div>
+
+        </p-fieldset>
+
+
+
+
+
+        <p-fieldset legend="Action" class="ui-g-12 netvision-fieldset">
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Trigger Event</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown placeholder="Select Event" [options]="nevent" [filter]="true"
+                        filterBy="label,value.name" [(ngModel)]="eventname" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                </div>
+            </div>
+        </p-fieldset>
+    </div>
+
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" id="savecpid" pButton icon="fa fa-check" (click)="SaveCheckPoint()"
+                label="Save"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+
+
+
+<p-dialog appendTo="body" header="Define Selector" [(visible)]="selectordialogue" [style]="{width: '43vw'}"
+    [contentStyle]="{overflow:'auto'}" [resizable]="false" (onHide)="CancelSelector()">
+    <div class="ui-grid ui-grid-responsive ui-fluid" style="height: 369px;">
+
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label>Selector Type</label></div>
+            <div class="ui-grid-col-5">
+                <p-dropdown [options]="selectoroptions" (onChange)="resetseletordialog()" [(ngModel)]="Radioval"
+                    dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+
+        </div>
+        <br>
+        <div *ngIf="Radioval == 1">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Text Pattern</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 231px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="textpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=checkvalue($event) value="true" binary="true" [(ngModel)]="regexspecific">
+                    </p-checkbox>
+                </div>
+                <div *ngIf="regex == true" class="ui-grid-col-6">
+                    <input pInputText style="width: 237px;" type="text" placeholder="Enter Test String"
+                        [(ngModel)]="regextextstring" />
+
+                </div>
+
+
+                <div class="ui-grid-col-2">
+                    <button *ngIf="regex == true" type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(textpattern,regextextstring)" label="Test"></button>
+
+                </div>
+
+
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=ignorecheckvalue($event) binary="true" [(ngModel)]="textignorecase">
+                    </p-checkbox>
+                </div>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+        </div>
+
+        <div *ngIf="Radioval == 3">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Json Path</label></div>
+                <div class="ui-grid-col-6">
+                    <div class="ui-inputgroup">
+                        <input (keyup)="TestJsonPath(lefttextarea,jsonpath,'add')" pInputText style="width: 227px;"
+                            type="text" placeholder="Enter Json Path" [(ngModel)]="jsonpath" />&nbsp;&nbsp;
+                        <span class="ui-inputgroup-addon">
+                            <i class="pi pi-question-circle" pTooltip="click here to open Json Path Tutorial"
+                                aria-hidden="true" (click)="jsonurl()"></i>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=ignorecheckvalue($event) binary="true" [(ngModel)]="ignorecasejsonpath">
+                    </p-checkbox>
+                </div>
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-5" style="margin-left: 92px;font-size: 12px;"><label>Inputs</label></div>
+                <div class="ui-grid-col-0">
+                    <label style="font-size: 12px;">Evaluation Results</label>
+
+                </div>
+            </div>
+            <div class="ui-grid-row">
+
+                <div class="ui-g-12">
+                    <div class="ui-g-6"><textarea [rows]="13" [cols]="5"
+                            style="background-color: #002B36;color:#d8c39d;width:100%;font-size: 13px;box-shadow: rgb(51, 51, 51) 0px 4px 17px;height: 200px;border-radius: 13px;overflow: hidden;"
+                            pInputTextarea id="textareaid"
+                            (keyup)="onKeydown(lefttextarea,'textareaid','jsonmatchbutton',jsonpath)"
+                            [(ngModel)]="lefttextarea" autoResize="autoResize"></textarea></div>
+                    <div class="ui-g-6">
+                        <textarea [rows]="13"
+                            style="background-color: #002B36;color:#d8c39d;font-size: 13px;width:100%;box-shadow: rgb(51, 51, 51) 0px 4px 17px;height: 200px;border-radius: 13px;overflow: hidden;"
+                            [cols]="20" disabled [(ngModel)]="righttextarea" autoResize="autoResize"
+                            pInputTextarea></textarea>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div *ngIf="Radioval == 2">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Left Bound String</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="leftboundtextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=checkvalueleft($event) binary="true" [(ngModel)]="leftregexspecific">
+                    </p-checkbox>
+                </div>
+                <div *ngIf="leftregex == true" class="ui-grid-col-4">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Test String"
+                        [(ngModel)]="leftregextextstring" />
+
+                </div>
+
+
+                <div *ngIf="leftregex == true" class="ui-grid-col-2">
+                    <button type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(leftboundtextpattern,leftregextextstring)" label="Test"></button>
+
+                </div>
+
+            </div>
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=leftignorecheckvaluefunction($event) binary="true" [(ngModel)]="leftignore">
+                    </p-checkbox>
+                </div>
+            </div>
+
+
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Right Bound String</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="rightboundtextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=checkvalueright($event) binary="true" [(ngModel)]="rightregexspecific">
+                    </p-checkbox>
+                </div>
+                <div class="ui-grid-col-4">
+                    <input *ngIf="rightregex  == true" pInputText style="width: 174px;" type="text"
+                        placeholder="Enter Test String" [(ngModel)]="rightregextextstring" />
+
+                </div>
+
+
+
+                <div *ngIf="rightregex  == true" class="ui-grid-col-2">
+                    <button type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(rightboundtextpattern,rightregextextstring)" label="Test"></button>
+
+                </div>
+
+            </div>
+
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <!-- <p-checkbox (onChange)=rightgnorecheckvalue($event) [(ngModel)]="rightignorecase"></p-checkbox> -->
+                    <p-checkbox (onChange)=rightgnorecheckvalue($event) binary="true"
+                        [(ngModel)]="rightignorecheckvalue">
+                    </p-checkbox>
+                </div>
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" pButton icon="fa fa-check" (click)="saveTextSelector()" label="Save"></button>
+        </div>
+    </p-footer>
+
+</p-dialog>
+
+
+
+<p-dialog appendTo="body" header="Update Check Point" [(visible)]="updatedisplayCheckpoint" [style]="{width:'807px'}"
+    [contentStyle]="{overflow:'auto'}" (onHide)="updatedCancel()">
+
+    <div class="ui-g ui-fluid">
+
+        <div class="ui-g-12">
+            <div class="ui-g-3"><label>Enable</label></div>
+            <div class="ui-g-4">
+                <p-inputSwitch [(ngModel)]="updateenabletoggle"></p-inputSwitch>
+            </div>
+        </div>
+
+        <p-fieldset legend="Define Checkpoint" class="ui-g-12 netvision-fieldset">
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Check Point Name </label></div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Check Point Name" [(ngModel)]="updatecpname" />
+                </div>
+            </div>
+
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Scope</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [options]="Scopeop" [style]="{'width':'227px'}" (onChange)="updatescopevaluechange()"
+                        [(ngModel)]="updatescope" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+
+
+            <div *ngIf="updatescope == 2 || updatescope == 3 || updatescope == 4" class="ui-g-12">
+                <div class="ui-g-3">
+                    <label>Url Pattern</label>
+                </div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Url" [(ngModel)]="updatehttpurl" />
+                </div>
+            </div>
+
+
+            <div *ngIf="updatescope == 99 || updatescope == 1" class="ui-g-12">
+                <div class="ui-g-3">
+                    <label>Dom Selector</label>
+                </div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Dom Selector" [(ngModel)]="updatedomselector" />
+                </div>
+            </div>
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Pages</label></div>
+                <div class="ui-g-4">
+                    <p-multiSelect defaultLabel='Select Page' [options]="npage" [(ngModel)]="updatepages">
+                    </p-multiSelect>
+
+                </div>
+            </div>
+
+        </p-fieldset>
+
+
+        <p-fieldset legend="Rules" class="ui-g-12 netvision-fieldset">
+            <div class="ui-g-12">
+                <div class="ui-inputgroup">
+                    <input type="text" placeholder="Please Fill L.H.S value" pInputText [(ngModel)]="updaterulesvalue"
+                        disabled>
+                    <span class="ui-inputgroup-addon">
+                        <i pTooltip="click here to open Define Selctor" class="pi pi-pencil"
+                            (click)=openupdateselectordialog()></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="ui-g-4" *ngIf="updatespecificfail_flag == true">
+                <p-dropdown [options]="speceficfail" [(ngModel)]="updatefail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="ui-g-4" *ngIf="updatelb_rb_fail_flag == true">
+                <p-dropdown [options]="lbrbfail" [(ngModel)]="updatefail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="ui-g-4" *ngIf="updatejsonfail_flag == true">
+                <p-dropdown (onChange)="updatejsonfailvaluechanged($event)" [options]="jsonfail"
+                    dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="updatefail">
+                </p-dropdown>
+            </div>
+
+            <div class="ui-g-4" *ngIf="updatematchingenable == true">
+                <input pInputText type="value" placeholder="Please Enter R.H.S value" style="width: 237px;"
+                    [(ngModel)]="updatematchingtext" />
+            </div>
+
+            <div class="ui-g-12" style="text-align: center;">
+                <button type="button" pButton icon="pi pi-plus" (click)="updateConfirmRule()"
+                    [label]="UupdateVar ? 'Update':'Add'" style="width: 77px;"></button>&nbsp;&nbsp;
+                <button type="button" pTooltip="Click Here To Reset Your Changes" pButton (click)="updateResetRule()"
+                    label='Reset' style="width: 77px;"></button>
+
+            </div>
+
+
+
+
+
+
+
+
+            <div class="ui-g-12">
+
+                <p-table [reorderableColumns]="true" [value]="updateruleresponse" sortMode="single" class="scen-table"
+                    [resizableColumns]="true">
+                    <ng-template pTemplate="header">
+
+
+                        <tr>
+                            <th [ngStyle]="{'width.px':'336'}" pResizableColumn>LHS</th>
+                            <th [ngStyle]="{'width.px':'137'}" pResizableColumn>Operator</th>
+                            <th pResizableColumn>RHS</th>
+                            <th [ngStyle]="{'width.px':'72'}" pResizableColumn>Action</th>
+                        </tr>
+                    </ng-template>
+
+
+                    <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+                        <tr>
+
+                            <td *ngIf="data.mode == 1">
+                                <label>Text :-</label>{{data.arg1.text}}
+
+
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="margin-bottom: 5px;display: inline-block;">
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+
+                            </td>
+                            <td *ngIf="data.mode == 2">
+
+                                <label>LB :-</label>{{data.arg1.text}}
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+                                <br>
+                                <label>RB :-</label>{{data.arg2.text}}
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg2.regex && data.arg2.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg2.ic && data.arg2.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg2.regex && data.arg2.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+
+                            </td>
+                            <td *ngIf="data.mode == 3">
+                                <label>Path :-</label>{{data.arg1.path}}
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg1.ic" class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                </div>
+                            </td>
+
+                            <td title="{{data.fail_label}}">{{data.fail_label}}</td>
+                            <td title="{{data.value}}">{{data.value}}</td>
+
+                            <td>
+                                <i class="pi pi-pencil" style="font-weight: 700;padding: 5px;" title="edit rule"
+                                    (click)="updateeditRule(data,rowIndex)"></i>
+                                <i class="pi pi-trash" style="font-weight: 700;padding: 5px;" title="delete rule"
+                                    (click)="updatedeleteRule(rowIndex)"></i>
+                            </td>
+                        </tr>
+                    </ng-template>
+
+                </p-table>
+
+            </div>
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Matching Criteria</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [options]="matchingop" [(ngModel)]="updatematching"
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+        </p-fieldset>
+
+
+
+
+
+
+
+        <p-fieldset legend="Action" class="ui-g-12 netvision-fieldset">
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Trigger Event</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown placeholder="Select Event" [options]="nevent" [filter]="true"
+                        filterBy="label,value.name" [(ngModel)]="updateeventname"
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+        </p-fieldset>
+    </div>
+
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" id="updatesavecpid" pButton icon="fa fa-check" (click)="updateSaveCheckPoint()"
+                label="Update"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+
+
+
+<p-dialog appendTo="body" header="Define Selector" [(visible)]="updateselectordialogue" [style]="{width: '43vw'}"
+    [contentStyle]="{overflow:'auto'}" [resizable]="false" (onHide)="UpdateCancelSelector()">
+    <div class="ui-grid ui-grid-responsive ui-fluid" style="height: 369px;">
+
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label>Selector Type</label></div>
+            <div class="ui-grid-col-5">
+                <p-dropdown [options]="selectoroptions" (onChange)="updateresetseletordialog()"
+                    [(ngModel)]="updateRadioval" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+
+        </div>
+        <br>
+
+
+
+
+        <div *ngIf="updateRadioval == 1">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Text Pattern</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 231px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="updatetextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=updateregexcheckvalue($event) binary="true"
+                        [(ngModel)]="updateregexspecific">
+                    </p-checkbox>
+                </div>
+                <div class="ui-grid-col-6">
+                    <input *ngIf="updateregexspecific == true" pInputText style="width: 237px;" type="text"
+                        placeholder="Enter Test String" [(ngModel)]="updateregextextstring" />
+
+                </div>
+
+
+                <div class="ui-grid-col-2">
+                    <button *ngIf="updateregexspecific == true" type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(updatetextpattern,updateregextextstring)" label="Test"></button>
+
+                </div>
+
+
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=ignorecheckvalue($event) binary="true" [(ngModel)]="updatetextignorecase">
+                    </p-checkbox>
+                </div>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+        </div>
+
+        <div *ngIf="updateRadioval == 3">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Json Path</label></div>
+                <div class="ui-grid-col-6">
+                    <div class="ui-inputgroup">
+                        <input (keyup)="TestJsonPath(updatelefttextarea,updatejsonpath,'update')" pInputText
+                            style="width: 227px;" type="text" placeholder="Enter Json Path"
+                            [(ngModel)]="updatejsonpath" />&nbsp;&nbsp;
+                        <span class="ui-inputgroup-addon">
+                            <i class="pi pi-question-circle" pTooltip="click here to open Json Path Tutorial"
+                                aria-hidden="true" (click)="jsonurl()"></i>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=ignorecheckvalue($event) binary="true"
+                        [(ngModel)]="updateignorecasejsonpath">
+                    </p-checkbox>
+                </div>
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-5" style="margin-left: 92px;font-size: 12px;"><label>Inputs</label></div>
+                <div class="ui-grid-col-0">
+                    <label style="font-size: 12px;">Evaluation Results</label>
+
+                </div>
+            </div>
+            <div class="ui-grid-row">
+
+                <div class="ui-g-12">
+                    <div class="ui-g-6"><textarea [rows]="13" id="updatetextareaid" [cols]="5"
+                            (keyup)="onKeydown(updatelefttextarea,'updatetextareaid','updatejsonmatchbutton',updatejsonpath)"
+                            [(ngModel)]="updatelefttextarea"
+                            style="background-color:#002B36;color:#d8c39d;font-size: 13px;width:100%;box-shadow: rgb(51, 51, 51) 0px 4px 17px;height: 200px;border-radius: 13px;overflow: hidden;"
+                            pInputTextarea autoResize="autoResize"></textarea></div>
+                    <div class="ui-g-6">
+                        <textarea [rows]="13" [(ngModel)]="updaterighttextarea"
+                            style="background-color: #002B36;color:#d8c39d;font-size: 13px;width:100%;box-shadow: rgb(51, 51, 51) 0px 4px 17px;height: 200px;border-radius: 13px;overflow: hidden;"
+                            [cols]="20" pInputTextarea disabled autoResize="autoResize"></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div *ngIf="updateRadioval == 2">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Left Bound String</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="updateleftboundtextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=updateleftregexvalue($event) binary="true" [(ngModel)]="updateleftregex">
+                    </p-checkbox>
+                </div>
+                <div class="ui-grid-col-4">
+                    <input *ngIf="updateleftregex == true" pInputText style="width: 174px;" type="text"
+                        placeholder="Enter Test String" [(ngModel)]="updateleftregextextstring" />
+
+                </div>
+
+
+                <div class="ui-grid-col-2">
+                    <button *ngIf="updateleftregex == true" type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(updateleftboundtextpattern,updateleftregextextstring)" label="Test"></button>
+
+                </div>
+
+            </div>
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=updateleftignorecheckvalue($event) binary="true"
+                        [(ngModel)]="updateleftignore">
+                    </p-checkbox>
+                </div>
+            </div>
+
+
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Right Bound String</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="updaterightboundtextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=updaterightregexvalue($event) binary="true" [(ngModel)]="updaterightregex">
+                    </p-checkbox>
+                </div>
+                <div class="ui-grid-col-4">
+                    <input *ngIf="updaterightregex == true" pInputText style="width: 174px;" type="text"
+                        placeholder="Enter Test String" [(ngModel)]="updaterightregextextstring" />
+
+                </div>
+
+
+
+                <div class="ui-grid-col-2">
+                    <button *ngIf="updaterightregex == true" type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(updaterightboundtextpattern,updaterightregextextstring)"
+                        label="Test"></button>
+
+                </div>
+
+            </div>
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <!-- <p-checkbox (onChange)=rightgnorecheckvalue($event) [(ngModel)]="rightignorecase"></p-checkbox> -->
+                    <p-checkbox (onChange)=updaterightignorecheckvalue($event) binary="true"
+                        [(ngModel)]="updaterightignore">
+                    </p-checkbox>
+                </div>
+            </div>
+
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" pButton icon="fa fa-check" (click)="updatesaveTextSelector()" label="Save"></button>
+        </div>
+    </p-footer>
+
+</p-dialog>
+
+<p-dialog appendTo="body" header="Add Check Point" [(visible)]="displayCheckpoint"
+    [style]="{width:'807px','left':'77px'}" [contentStyle]="{overflow:'auto'}" (onHide)="Cancel()">
+
+    <div class="ui-g ui-fluid">
+
+        <div class="ui-g-12">
+            <div class="ui-g-3"><label>Enable</label></div>
+            <div class="ui-g-4">
+                <p-inputSwitch [(ngModel)]="enabletoggle"></p-inputSwitch>
+            </div>
+        </div>
+
+        <p-fieldset legend="Define Checkpoint" class="ui-g-12 netvision-fieldset">
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Check Point Name </label></div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Check Point Name" [(ngModel)]="cpname" />
+                </div>
+            </div>
+
+
+            <div class="ui-g-12">
+
+                <div class="ui-g-3"><label>Scope</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [options]="Scopeop" [style]="{'width':'227px'}" (onChange)="scopevaluechange()"
+                        [(ngModel)]="scope" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+
+
+            <div *ngIf="scope == 2 || scope == 3 || scope == 4" class="ui-g-12">
+                <div class="ui-g-3">
+                    <label>Url Pattern</label>
+                </div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Url" [(ngModel)]="httpurl" />
+                </div>
+            </div>
+
+
+            <div *ngIf="scope == 99 || scope == 1" class="ui-g-12">
+                <div class="ui-g-3">
+                    <label>Dom Selector</label>
+                </div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Dom Selector" [(ngModel)]="domselector" />
+                </div>
+            </div>
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Pages</label></div>
+                <div class="ui-g-4">
+                    <p-multiSelect defaultLabel='Select Page' [options]="npage" [(ngModel)]="pages"></p-multiSelect>
+                </div>
+            </div>
+
+        </p-fieldset>
+
+
+        <p-fieldset legend="Rules" class="ui-g-12 netvision-fieldset">
+            <div class="ui-g-12">
+                <div class="ui-inputgroup">
+                    <input type="text" pInputText placeholder="Please Fill L.H.S value" [(ngModel)]="rulesvalue"
+                        disabled>
+                    <span class="ui-inputgroup-addon">
+                        <i pTooltip="click here to open Define Selctor" class="pi pi-pencil"
+                            (click)=openselectordialog()></i>
+                    </span>
+                </div>
+            </div>
+
+
+            <div class="ui-g-4" *ngIf="specificfail_flag == true">
+                <p-dropdown [options]="speceficfail" [(ngModel)]="fail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="ui-g-4" *ngIf="lb_rb_fail_flag == true">
+                <p-dropdown [options]="lbrbfail" [(ngModel)]="fail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="ui-g-4" *ngIf="jsonfail_flag == true">
+                <p-dropdown [options]="jsonfail" (onChange)="jsonfailvaluechanged($event)" [(ngModel)]="fail"
+                    dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+
+
+            <div class="ui-g-4" *ngIf="matchingenable == true">
+                <input pInputText type="text" placeholder="Please Enter R.H.S value" style="width: 237px;"
+                    [(ngModel)]="matchingtext" />
+            </div>
+
+            <div class="ui-g-12" style="text-align: center;">
+                <button type="button" pButton icon="pi pi-plus" (click)="ConfirmRule()"
+                    [label]="updateVar ? 'Update':'Add'" style="width: 77px;"></button>&nbsp;&nbsp;
+                <button type="button" pTooltip="Click Here To Reset Your Changes" pButton (click)="ResetRule()"
+                    label='Reset' style="width: 77px;"></button>
+
+            </div>
+
+            <div class="ui-g-12">
+
+                <p-table [reorderableColumns]="true" [value]="ruleresponse" sortMode="single" class="scen-table"
+                    [resizableColumns]="true">
+                    <ng-template pTemplate="header">
+
+                        <tr>
+                            <th [ngStyle]="{'width.px':'336'}" pResizableColumn>LHS</th>
+                            <th [ngStyle]="{'width.px':'137'}" pResizableColumn>Operator</th>
+                            <th pResizableColumn>RHS</th>
+                            <th [ngStyle]="{'width.px':'72'}" pResizableColumn>Action</th>
+
+
+                        </tr>
+                    </ng-template>
+
+
+
+                    <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+                        <tr>
+
+                            <td *ngIf="data.mode == 1">
+                                <label>Text :-</label>{{data.arg1.text}}
+
+
+                                <!-- Dimensions -->
+
+
+                                <div class="ui-g" style="margin-bottom: 5px;display: inline-block;">
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+                            </td>
+                            <td *ngIf="data.mode == 2">
+
+                                <label>LB :-</label>{{data.arg1.text}}
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+                                <br>
+                                <label>RB :-</label>{{data.arg2.text}}
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg2.regex && data.arg2.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg2.ic && data.arg2.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg2.regex && data.arg2.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+
+                            </td>
+                            <td *ngIf="data.mode == 3">
+                                <label>Path :-</label>{{data.arg1.path}}
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg1.ic" class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                </div>
+                            </td>
+
+                            <td title="{{data.fail_label}}">{{data.fail_label}}</td>
+                            <td title="{{data.value}}">{{data.value}}</td>
+
+                            <td>
+                                <i class="pi pi-pencil" style="font-weight: 700;padding: 5px;" title="edit rule"
+                                    (click)="editRule(data,rowIndex)"></i>
+                                <i class="pi pi-trash" style="font-weight: 700;padding: 5px;" title="delete rule"
+                                    (click)="deleteRule(rowIndex)"></i>
+                            </td>
+                        </tr>
+                    </ng-template>
+
+                </p-table>
+
+            </div>
+
+
+
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Matching Criteria</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [options]="matchingop" [(ngModel)]="matching" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                </div>
+            </div>
+
+        </p-fieldset>
+
+
+
+
+
+        <p-fieldset legend="Action" class="ui-g-12 netvision-fieldset">
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Trigger Event</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown placeholder="Select Event" [options]="nevent" [filter]="true"
+                        filterBy="label,value.name" [(ngModel)]="eventname" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                </div>
+            </div>
+        </p-fieldset>
+    </div>
+
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" id="savecpid" pButton icon="fa fa-check" (click)="SaveCheckPoint()"
+                label="Save"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+
+
+
+<p-dialog appendTo="body" header="Define Selector" [(visible)]="selectordialogue" [style]="{width: '43vw'}"
+    [contentStyle]="{overflow:'auto'}" [resizable]="false" (onHide)="CancelSelector()">
+    <div class="ui-grid ui-grid-responsive ui-fluid" style="height: 369px;">
+
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label>Selector Type</label></div>
+            <div class="ui-grid-col-5">
+                <p-dropdown [options]="selectoroptions" (onChange)="resetseletordialog()" [(ngModel)]="Radioval"
+                    dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+
+        </div>
+        <br>
+        <div *ngIf="Radioval == 1">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Text Pattern</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 231px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="textpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=checkvalue($event) value="true" binary="true" [(ngModel)]="regexspecific">
+                    </p-checkbox>
+                </div>
+                <div *ngIf="regex == true" class="ui-grid-col-6">
+                    <input pInputText style="width: 237px;" type="text" placeholder="Enter Test String"
+                        [(ngModel)]="regextextstring" />
+
+                </div>
+
+
+                <div class="ui-grid-col-2">
+                    <button *ngIf="regex == true" type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(textpattern,regextextstring)" label="Test"></button>
+
+                </div>
+
+
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=ignorecheckvalue($event) binary="true" [(ngModel)]="textignorecase">
+                    </p-checkbox>
+                </div>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+        </div>
+
+        <div *ngIf="Radioval == 3">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Json Path</label></div>
+                <div class="ui-grid-col-6">
+                    <div class="ui-inputgroup">
+                        <input (keyup)="TestJsonPath(lefttextarea,jsonpath,'add')" pInputText style="width: 227px;"
+                            type="text" placeholder="Enter Json Path" [(ngModel)]="jsonpath" />&nbsp;&nbsp;
+                        <span class="ui-inputgroup-addon">
+                            <i class="pi pi-question-circle" pTooltip="click here to open Json Path Tutorial"
+                                aria-hidden="true" (click)="jsonurl()"></i>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=ignorecheckvalue($event) binary="true" [(ngModel)]="ignorecasejsonpath">
+                    </p-checkbox>
+                </div>
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-5" style="margin-left: 92px;font-size: 12px;"><label>Inputs</label></div>
+                <div class="ui-grid-col-0">
+                    <label style="font-size: 12px;">Evaluation Results</label>
+
+                </div>
+            </div>
+            <div class="ui-grid-row">
+
+                <div class="ui-g-12">
+                    <div class="ui-g-6"><textarea [rows]="13" [cols]="5"
+                            style="background-color: #002B36;color:#d8c39d;width:100%;font-size: 13px;box-shadow: rgb(51, 51, 51) 0px 4px 17px;height: 200px;border-radius: 13px;overflow: hidden;"
+                            pInputTextarea id="textareaid"
+                            (keyup)="onKeydown(lefttextarea,'textareaid','jsonmatchbutton',jsonpath)"
+                            [(ngModel)]="lefttextarea" autoResize="autoResize"></textarea></div>
+                    <div class="ui-g-6">
+                        <textarea [rows]="13"
+                            style="background-color: #002B36;color:#d8c39d;font-size: 13px;width:100%;box-shadow: rgb(51, 51, 51) 0px 4px 17px;height: 200px;border-radius: 13px;overflow: hidden;"
+                            [cols]="20" disabled [(ngModel)]="righttextarea" autoResize="autoResize"
+                            pInputTextarea></textarea>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div *ngIf="Radioval == 2">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Left Bound String</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="leftboundtextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=checkvalueleft($event) binary="true" [(ngModel)]="leftregexspecific">
+                    </p-checkbox>
+                </div>
+                <div *ngIf="leftregex == true" class="ui-grid-col-4">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Test String"
+                        [(ngModel)]="leftregextextstring" />
+
+                </div>
+
+
+                <div *ngIf="leftregex == true" class="ui-grid-col-2">
+                    <button type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(leftboundtextpattern,leftregextextstring)" label="Test"></button>
+
+                </div>
+
+            </div>
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=leftignorecheckvaluefunction($event) binary="true" [(ngModel)]="leftignore">
+                    </p-checkbox>
+                </div>
+            </div>
+
+
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Right Bound String</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="rightboundtextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=checkvalueright($event) binary="true" [(ngModel)]="rightregexspecific">
+                    </p-checkbox>
+                </div>
+                <div class="ui-grid-col-4">
+                    <input *ngIf="rightregex  == true" pInputText style="width: 174px;" type="text"
+                        placeholder="Enter Test String" [(ngModel)]="rightregextextstring" />
+
+                </div>
+
+
+
+                <div *ngIf="rightregex  == true" class="ui-grid-col-2">
+                    <button type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(rightboundtextpattern,rightregextextstring)" label="Test"></button>
+
+                </div>
+
+            </div>
+
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <!-- <p-checkbox (onChange)=rightgnorecheckvalue($event) [(ngModel)]="rightignorecase"></p-checkbox> -->
+                    <p-checkbox (onChange)=rightgnorecheckvalue($event) binary="true"
+                        [(ngModel)]="rightignorecheckvalue">
+                    </p-checkbox>
+                </div>
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" pButton icon="fa fa-check" (click)="saveTextSelector()" label="Save"></button>
+        </div>
+    </p-footer>
+
+</p-dialog>
+
+
+
+<p-dialog appendTo="body" header="Update Check Point" [(visible)]="updatedisplayCheckpoint" [style]="{width:'807px'}"
+    [contentStyle]="{overflow:'auto'}" (onHide)="updatedCancel()">
+
+    <div class="ui-g ui-fluid">
+
+        <div class="ui-g-12">
+            <div class="ui-g-3"><label>Enable</label></div>
+            <div class="ui-g-4">
+                <p-inputSwitch [(ngModel)]="updateenabletoggle"></p-inputSwitch>
+            </div>
+        </div>
+
+        <p-fieldset legend="Define Checkpoint" class="ui-g-12 netvision-fieldset">
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Check Point Name </label></div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Check Point Name" [(ngModel)]="updatecpname" />
+                </div>
+            </div>
+
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Scope</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [options]="Scopeop" [style]="{'width':'227px'}" (onChange)="updatescopevaluechange()"
+                        dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="updatescope"></p-dropdown>
+                </div>
+            </div>
+
+
+            <div *ngIf="updatescope == 2 || updatescope == 3 || updatescope == 4" class="ui-g-12">
+                <div class="ui-g-3">
+                    <label>Url Pattern</label>
+                </div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Url" [(ngModel)]="updatehttpurl" />
+                </div>
+            </div>
+
+
+            <div *ngIf="updatescope == 99 || updatescope == 1" class="ui-g-12">
+                <div class="ui-g-3">
+                    <label>Dom Selector</label>
+                </div>
+                <div class="ui-g-4">
+                    <input pInputText type="text" placeholder="Enter Dom Selector" [(ngModel)]="updatedomselector" />
+                </div>
+            </div>
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Pages</label></div>
+                <div class="ui-g-4">
+                    <p-multiSelect defaultLabel='Select Page' [options]="npage" [(ngModel)]="updatepages">
+                    </p-multiSelect>
+
+                </div>
+            </div>
+
+        </p-fieldset>
+
+
+        <p-fieldset legend="Rules" class="ui-g-12 netvision-fieldset">
+            <div class="ui-g-12">
+                <div class="ui-inputgroup">
+                    <input type="text" placeholder="Please Fill L.H.S value" pInputText [(ngModel)]="updaterulesvalue"
+                        disabled>
+                    <span class="ui-inputgroup-addon">
+                        <i pTooltip="click here to open Define Selctor" class="pi pi-pencil"
+                            (click)=openupdateselectordialog()></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="ui-g-4" *ngIf="updatespecificfail_flag == true">
+                <p-dropdown [options]="speceficfail" [(ngModel)]="updatefail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="ui-g-4" *ngIf="updatelb_rb_fail_flag == true">
+                <p-dropdown [options]="lbrbfail" [(ngModel)]="updatefail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="ui-g-4" *ngIf="updatejsonfail_flag == true">
+                <p-dropdown (onChange)="updatejsonfailvaluechanged($event)" [options]="jsonfail"
+                    [(ngModel)]="updatefail" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+
+            <div class="ui-g-4" *ngIf="updatematchingenable == true">
+                <input pInputText type="value" placeholder="Please Enter R.H.S value" style="width: 237px;"
+                    [(ngModel)]="updatematchingtext" />
+            </div>
+
+            <div class="ui-g-12" style="text-align: center;">
+                <button type="button" pButton icon="pi pi-plus" (click)="updateConfirmRule()"
+                    [label]="UupdateVar ? 'Update':'Add'" style="width: 77px;"></button>&nbsp;&nbsp;
+                <button type="button" pTooltip="Click Here To Reset Your Changes" pButton (click)="updateResetRule()"
+                    label='Reset' style="width: 77px;"></button>
+
+            </div>
+
+
+
+
+
+
+
+
+            <div class="ui-g-12">
+
+                <p-table [reorderableColumns]="true" [value]="updateruleresponse" sortMode="single" class="scen-table"
+                    [resizableColumns]="true">
+                    <ng-template pTemplate="header">
+
+
+                        <tr>
+                            <th [ngStyle]="{'width.px':'336'}" pResizableColumn>LHS</th>
+                            <th [ngStyle]="{'width.px':'137'}" pResizableColumn>Operator</th>
+                            <th pResizableColumn>RHS</th>
+                            <th [ngStyle]="{'width.px':'72'}" pResizableColumn>Action</th>
+                        </tr>
+                    </ng-template>
+
+
+                    <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+                        <tr>
+
+                            <td *ngIf="data.mode == 1">
+                                <label>Text :-</label>{{data.arg1.text}}
+
+
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="margin-bottom: 5px;display: inline-block;">
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+
+                            </td>
+                            <td *ngIf="data.mode == 2">
+
+                                <label>LB :-</label>{{data.arg1.text}}
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg1.regex && data.arg1.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+                                <br>
+                                <label>RB :-</label>{{data.arg2.text}}
+                                <!-- Dimensions -->
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg2.regex && data.arg2.ic"
+                                        class="chipsCSS netvision-bg"><span>RE</span>
+                                        <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                                    </span>
+                                    <span *ngIf="data.arg2.ic && data.arg2.regex == false"
+                                        class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                    <span *ngIf="data.arg2.regex && data.arg2.ic == false"
+                                        class="chipsCSS netvision-bg">RE</span>
+                                </div>
+
+                            </td>
+                            <td *ngIf="data.mode == 3">
+                                <label>Path :-</label>{{data.arg1.path}}
+                                <div class="ui-g" style="display: inline-block;">
+                                    <span *ngIf="data.arg1.ic" class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                                </div>
+                            </td>
+
+                            <td title="{{data.fail_label}}">{{data.fail_label}}</td>
+                            <td title="{{data.value}}">{{data.value}}</td>
+
+                            <td>
+                                <i class="pi pi-pencil" style="font-weight: 700;padding: 5px;" title="edit rule"
+                                    (click)="updateeditRule(data,rowIndex)"></i>
+                                <i class="pi pi-trash" style="font-weight: 700;padding: 5px;" title="delete rule"
+                                    (click)="updatedeleteRule(rowIndex)"></i>
+                            </td>
+                        </tr>
+                    </ng-template>
+
+                </p-table>
+
+            </div>
+
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Matching Criteria</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown [options]="matchingop" [(ngModel)]="updatematching"
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+        </p-fieldset>
+
+
+
+
+
+
+
+        <p-fieldset legend="Action" class="ui-g-12 netvision-fieldset">
+            <div class="ui-g-12">
+                <div class="ui-g-3"><label>Trigger Event</label></div>
+                <div class="ui-g-4">
+                    <p-dropdown placeholder="Select Event" [options]="nevent" [filter]="true"
+                        filterBy="label,value.name" [(ngModel)]="updateeventname"
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+        </p-fieldset>
+    </div>
+
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" id="updatesavecpid" pButton icon="fa fa-check" (click)="updateSaveCheckPoint()"
+                label="Update"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+
+
+
+<p-dialog appendTo="body" header="Define Selector" [(visible)]="updateselectordialogue" [style]="{width: '43vw'}"
+    [contentStyle]="{overflow:'auto'}" [resizable]="false" (onHide)="UpdateCancelSelector()">
+    <div class="ui-grid ui-grid-responsive ui-fluid" style="height: 369px;">
+
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label>Selector Type</label></div>
+            <div class="ui-grid-col-5">
+                <p-dropdown [options]="selectoroptions" (onChange)="updateresetseletordialog()"
+                    [(ngModel)]="updateRadioval" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+
+        </div>
+        <br>
+
+
+
+
+        <div *ngIf="updateRadioval == 1">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Text Pattern</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 231px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="updatetextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=updateregexcheckvalue($event) binary="true"
+                        [(ngModel)]="updateregexspecific">
+                    </p-checkbox>
+                </div>
+                <div class="ui-grid-col-6">
+                    <input *ngIf="updateregexspecific == true" pInputText style="width: 237px;" type="text"
+                        placeholder="Enter Test String" [(ngModel)]="updateregextextstring" />
+
+                </div>
+
+
+                <div class="ui-grid-col-2">
+                    <button *ngIf="updateregexspecific == true" type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(updatetextpattern,updateregextextstring)" label="Test"></button>
+
+                </div>
+
+
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=ignorecheckvalue($event) binary="true" [(ngModel)]="updatetextignorecase">
+                    </p-checkbox>
+                </div>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+        </div>
+
+        <div *ngIf="updateRadioval == 3">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Json Path</label></div>
+                <div class="ui-grid-col-6">
+                    <div class="ui-inputgroup">
+                        <input (keyup)="TestJsonPath(updatelefttextarea,updatejsonpath,'update')" pInputText
+                            style="width: 227px;" type="text" placeholder="Enter Json Path"
+                            [(ngModel)]="updatejsonpath" />&nbsp;&nbsp;
+                        <span class="ui-inputgroup-addon">
+                            <i class="pi pi-question-circle" pTooltip="click here to open Json Path Tutorial"
+                                aria-hidden="true" (click)="jsonurl()"></i>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=ignorecheckvalue($event) binary="true"
+                        [(ngModel)]="updateignorecasejsonpath">
+                    </p-checkbox>
+                </div>
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-5" style="margin-left: 92px;font-size: 12px;"><label>Inputs</label></div>
+                <div class="ui-grid-col-0">
+                    <label style="font-size: 12px;">Evaluation Results</label>
+
+                </div>
+            </div>
+            <div class="ui-grid-row">
+
+                <div class="ui-g-12">
+                    <div class="ui-g-6"><textarea [rows]="13" id="updatetextareaid" [cols]="5"
+                            (keyup)="onKeydown(updatelefttextarea,'updatetextareaid','updatejsonmatchbutton',updatejsonpath)"
+                            [(ngModel)]="updatelefttextarea"
+                            style="background-color:#002B36;color:#d8c39d;font-size: 13px;width:100%;box-shadow: rgb(51, 51, 51) 0px 4px 17px;height: 200px;border-radius: 13px;overflow: hidden;"
+                            pInputTextarea autoResize="autoResize"></textarea></div>
+                    <div class="ui-g-6">
+                        <textarea [rows]="13" [(ngModel)]="updaterighttextarea"
+                            style="background-color: #002B36;color:#d8c39d;font-size: 13px;width:100%;box-shadow: rgb(51, 51, 51) 0px 4px 17px;height: 200px;border-radius: 13px;overflow: hidden;"
+                            [cols]="20" pInputTextarea disabled autoResize="autoResize"></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div *ngIf="updateRadioval == 2">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Left Bound String</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="updateleftboundtextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=updateleftregexvalue($event) binary="true" [(ngModel)]="updateleftregex">
+                    </p-checkbox>
+                </div>
+                <div class="ui-grid-col-4">
+                    <input *ngIf="updateleftregex == true" pInputText style="width: 174px;" type="text"
+                        placeholder="Enter Test String" [(ngModel)]="updateleftregextextstring" />
+
+                </div>
+
+
+                <div class="ui-grid-col-2">
+                    <button *ngIf="updateleftregex == true" type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(updateleftboundtextpattern,updateleftregextextstring)" label="Test"></button>
+
+                </div>
+
+            </div>
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <p-checkbox (onChange)=updateleftignorecheckvalue($event) binary="true"
+                        [(ngModel)]="updateleftignore">
+                    </p-checkbox>
+                </div>
+            </div>
+
+
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Right Bound String</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText style="width: 174px;" type="text" placeholder="Enter Text Pattern"
+                        [(ngModel)]="updaterightboundtextpattern" />
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Regex</label></div>
+                <div class="ui-grid-col-1">
+                    <p-checkbox (onChange)=updaterightregexvalue($event) binary="true" [(ngModel)]="updaterightregex">
+                    </p-checkbox>
+                </div>
+                <div class="ui-grid-col-4">
+                    <input *ngIf="updaterightregex == true" pInputText style="width: 174px;" type="text"
+                        placeholder="Enter Test String" [(ngModel)]="updaterightregextextstring" />
+
+                </div>
+
+
+
+                <div class="ui-grid-col-2">
+                    <button *ngIf="updaterightregex == true" type="button" pButton style="height: 20px;width: 63px;"
+                        (click)="RegexTest(updaterightboundtextpattern,updaterightregextextstring)"
+                        label="Test"></button>
+
+                </div>
+
+            </div>
+
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-3"><label>Ignore Case</label></div>
+                <div class="ui-grid-col-0">
+                    <!-- <p-checkbox (onChange)=rightgnorecheckvalue($event) [(ngModel)]="rightignorecase"></p-checkbox> -->
+                    <p-checkbox (onChange)=updaterightignorecheckvalue($event) binary="true"
+                        [(ngModel)]="updaterightignore">
+                    </p-checkbox>
+                </div>
+            </div>
+
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" pButton icon="fa fa-check" (click)="updatesaveTextSelector()" label="Save"></button>
+        </div>
+    </p-footer>
+
+</p-dialog>

@@ -1,0 +1,56 @@
+<div class="ux-container p-grid">
+  <div class="p-col-3">
+    <p-card [style]="{ height: 'calc(100vh - 150px)' }">
+      <div class="p-col-12">
+        <span>Ux Reports</span>
+      </div>
+      <p-tabMenu [model]="uxItems" [activeItem]="activeTab"> </p-tabMenu>
+
+      <div class="tab-content">
+        <div *ngIf="selectedTab == 'general'" class="general-tab p-col-12">
+          <div class="general-tree-structure">
+            <p-tree [value]="generalReports" [filter]="true" selectionMode="single" [loading]="loading"
+              [loadingIcon]="'pi pi-spin pi-spinner'" filterPlaceholder="Search Report"
+              [(selection)]="selectedGeneralReport" (onNodeSelect)="onNodeSelect($event.node, 'general')">
+              <ng-template let-node pTemplate="default">
+                <span [attr.title]="node.label">{{node.label}}</span>
+              </ng-template>
+            </p-tree>
+          </div>
+        </div>
+        <div *ngIf="selectedTab == 'special'" class="special-tab">
+          <app-special-reports-filter (submit)="onSubmit($event)"></app-special-reports-filter>
+        </div>
+        <div *ngIf="selectedTab == 'custom'" class="custom-tab p-col-12">
+          <div class="general-tree-structure">
+            <p-tree [value]="customReports" [filter]="true" selectionMode="single" [loading]="loading"
+              [loadingIcon]="'pi pi-spin pi-spinner'" filterPlaceholder="Search Report"
+              [(selection)]="selectedCustomReport" (onNodeSelect)="onNodeSelect($event.node, 'custom')"
+              [contextMenu]="cm"></p-tree>
+
+            <p-contextMenu #cm [model]="contextItems" appendTo="body"></p-contextMenu>
+
+          </div>
+          <!-- <div class="text-center footer w-100-p">
+            <button pButton type="submit" label="ADD" class="ui-button ui-button-rounded w-100-p"></button>
+          </div> -->
+        </div>
+      </div>
+    </p-card>
+  </div>
+  <div *ngIf="selectedTab == 'custom'" class="p-col-9 page-report-container">
+    <app-general-reports [CRQ]="customCRQ" name="CUSTOM REPORT"></app-general-reports>
+  </div>
+
+  <div *ngIf="selectedTab == 'general'" class="p-col-9 page-report-container">
+    <app-general-reports [CRQ]="generalCRQ" name="GENERAL REPORT"></app-general-reports>
+
+  </div>
+
+  <div *ngIf="selectedTab == 'special'" class="p-col-9 page-report-container">
+    <app-special-reports [filters]="specialFilters"></app-special-reports>
+  </div>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle" key="deleteReport"></p-confirmDialog>

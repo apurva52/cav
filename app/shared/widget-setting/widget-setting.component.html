@@ -1,0 +1,563 @@
+<p-dialog #dialog header="Widget Setting" [(visible)]="isVisible" class="secondary-dialog" [resizable]="false" [draggable]="false" closeIcon="icons8-delete" [modal]="true"
+    [closable]="true" [baseZIndex]="10000" [style]="{width: '100vw'}">
+    <div class="p-grid">
+        <div class="p-col-5 pl-0">
+            <div class="scrollable">
+                <!-- <form [formGroup]="widgetSettings" (ngSubmit)="saveData()"> -->
+                <p-accordion class="accoridion" [multiple]="true" expandIcon="icons8-forward" collapseIcon="icons8-expand-arrow">
+                    <p-accordionTab header="Settings" [selected]="true" >
+                        <p-fieldset legend="Settings">
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label class="field-label" for="datasource-type">Data Source</label>
+                                    <p-dropdown [options]="dataSourceOption" [(ngModel)]="dataSourceType"></p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label class="field-label" for="widget-type">Widget Type</label>
+                                    <p-dropdown inputId="widget-type" [options]="widgetTypeData"
+                                        [(ngModel)]="widgetType">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'graph')">
+                                    <label class="field-label" for="graph-type">Graph Type</label>
+                                    <p-dropdown [options]="graphTypeData" [(ngModel)]="graphType" inputId="graph-type">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'graph')">
+                                    <label class="field-label" for="chart-type">Chart Type</label>
+                                    <p-dropdown inputId="chart-type" [options]="chartTypeData" [(ngModel)]="chartType">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'data')">
+                                    <label class="field-label" for="data-field-type">Data Field Name</label>
+                                    <p-dropdown inputId="data-field-type" [options]="dataFieldType"
+                                        [(ngModel)]="dataFieldOptions">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'data')">
+                                    <label class="field-label" for="data-name">Display Name</label>
+                                    <input type="text" id="data-name" pInputText [(ngModel)]="displayNameInput" />
+                                </div>
+                                <div class="p-field p-col-12 p-md-6"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'tabular')">
+                                    <label class="field-label" for="table-type">Table Type</label>
+                                    <p-dropdown inputId="table-type" [options]="tableTypeData"
+                                        [(ngModel)]="tableTypeOptions">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'tabular')">
+                                    <label class="field-label" for="data-field-type">Data Field Name</label>
+                                    <p-dropdown inputId="data-field-type" [options]="tabulardataFieldType"
+                                        [(ngModel)]="tabulardataFielOptions">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'graph')">
+                                    <label class="field-label" for="formula-type">Formula Type</label>
+                                    <p-multiSelect inputId="formula-type" [options]="formulaTypeData"
+                                        [(ngModel)]="formulaType" [filter]="false" styleClass="form-multi-select"
+                                        dropdownIcon="icons8-expand-arrow">
+                                    </p-multiSelect>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'system_health')">
+                                    <label class="field-label" for="select-field">Select Field</label>
+                                    <p-multiSelect inputId="select-field" [options]="selectFieldData"
+                                        [(ngModel)]="selectField" [filter]="false" styleClass="form-multi-select"
+                                        dropdownIcon="icons8-expand-arrow">
+                                    </p-multiSelect>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'system_health')">
+                                    <p-checkbox name="groupname" value="show_metric" label="Show Metric Name on top">
+                                    </p-checkbox>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'label')">
+                                    <label class="field-label" for="edit-text">Edit text</label>
+                                    <input id="edit-text" type="text" pInputText>
+                                </div>
+                                <div class="ui-fluid p-formgrid p-grid"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'label')">
+                                    <div class="p-field p-col-12 p-md-10">
+                                        <p-checkbox name="groupname" value="background_color" id="bg-color"
+                                            label="Background Color">
+                                        </p-checkbox>
+                                    </div>
+                                    <div class="p-field p-col-12 p-md-2">
+                                        <p-colorPicker [(ngModel)]="bgColor"></p-colorPicker>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-6"
+                                    *ngIf="(dataSourceType != 'All' && dataSourceType == 'log')">
+                                    <label class="field-label" for="evironment-type">Environment</label>
+                                    <p-dropdown inputId="evironment-type" [options]="evironmentTypeOption"
+                                        [(ngModel)]="evironmentType">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6"
+                                    *ngIf="(dataSourceType != 'All' && dataSourceType == 'log')">
+                                    <label class="field-label" for="indexpattern-type">Index Pattern</label>
+                                    <p-dropdown inputId="indexpattern-type" [options]="indexPatternData"
+                                        [(ngModel)]="indexPatternType">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-12"
+                                    *ngIf="(dataSourceType != 'All' && dataSourceType == 'log')">
+                                    <label class="field-label" for="query-type">Query Type</label>
+                                    <p-dropdown inputId="query-type" [options]="queryTypeOption" [(ngModel)]="queryType">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid"
+                                *ngIf="(dataSourceType != 'All' && dataSourceType == 'log')">
+                                <div class="p-field p-col-12 p-md-12">
+                                    <label class="field-label" for="query">Query</label>
+                                    <textarea [rows]="1" [cols]="30" id="query" pInputTextarea autoResize="autoResize"
+                                        placeholder="Write your query here"></textarea>
+                                </div>
+                            </div>
+                        </p-fieldset>
+
+                        <p-fieldset legend="Legend Position" *ngIf="(widgetType != 'All' && widgetType == 'graph')">
+                            <div class="ui-fluid p-formgrid p-grid critical-pct">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p-checkbox name="groupname" value="show_legend" id="show-legend"
+                                        label="Show Legend" (click)="changeLegendPosition()">
+                                    </p-checkbox>
+                                </div>
+                                <div class="p-field p-col-12 p-md-8" *ngIf="showHideLegend">
+                                    <label class="field-label" for="legend-position">Show Legend Position</label>
+                                    <p-dropdown inputId="legend-position" [options]="legendPositionOptions"
+                                        [(ngModel)]="legendOptions">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                        </p-fieldset>
+
+
+                        <p-fieldset legend="Severity Definitions"
+                            *ngIf="(widgetType != 'All' && widgetType == 'system_health')">
+                            <div class="ui-fluid p-formgrid p-grid critical-pct">
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label class="field-label" for="critical-value">Critical Value</label>
+                                    <p-dropdown inputId="critical-value" [options]="criticalSeverityOperator"
+                                        [(ngModel)]="criticalSeverityCondiations" placeholder="Select Operator"
+                                        (onChange)="enableCriticalThreshold()">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label for="critical-thre">Threshold</label>
+                                    <input id="critical-thre" type="text" pInputText
+                                        [disabled]=enableCriticalThresholdInput>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid critical-pct">
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label class="field-label" for="major-value">Major Value</label>
+                                    <p-dropdown idInput="major-value" [options]="majorSeverityOperator"
+                                        [(ngModel)]="majorSeverityCondiations" placeholder="Select Operator"
+                                        (onChange)="enableMajorThreshold()">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label class="field-label" for="major-thre">Threshold</label>
+                                    <input id="major-thre" type="text" pInputText [disabled]="disabled"
+                                        [disabled]=enableMajorThresholdInput>
+                                </div>
+                            </div>
+                        </p-fieldset>
+
+                        <p-fieldset legend="Health Rules"
+                            *ngIf="(widgetType != 'All' && widgetType == 'system_health')">
+                            <div class="ui-fluid p-formgrid p-grid critical-pct">
+                                <div class="p-field p-col-12">
+                                    <label>Critical</label>
+                                    <hr>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid critical-pct">
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label class="field-label" for="critical-pct">CriticalPct</label>
+                                    <input id="critical-pct" type="text" pInputText (blur)="enableCritSeverity()">
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label class="field-label" for="select-severity">Select Severity </label>
+                                    <p-dropdown inputId="select-severity" [options]="criticalhealthSeverityOptions"
+                                        [(ngModel)]="criticalSeverityOption" [disabled]=criticalSeverityOptions>
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label" for="select-operator">Select Operator </label>
+                                    <p-dropdown [options]="criticalhealthSeverityOperators"
+                                        [(ngModel)]="criticalSeverityOperators" placeholder="Select Operator"
+                                        [disabled]="criticalSeverityOptions">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label" for="critical-pct">CriticalPct</label>
+                                    <input id="critical-pct" type="text" pInputText
+                                        [disabled]="(criticalSeverityOption != 'All' && criticalSeverityOption == 'select_operator')">
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label" for="cri-severity">Severity</label>
+                                    <input id="cri-severity" type="text" size="30" pInputText
+                                        [disabled]="(criticalSeverityOption != 'All' && criticalSeverityOption == 'select_operator')">
+                                </div>
+                            </div>
+
+                            <div class="ui-fluid p-formgrid p-grid critical-pct">
+                                <div class="p-field p-col-12">
+                                    <label>Major</label>
+                                    <hr>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid major-pct">
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label class="field-label" for="major-pct">MajorPct</label>
+                                    <input id="major-pct" type="text" pInputText (blur)="enableMjrSeverity()">
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label class="field-label" for="select-saverity">Select Severity </label>
+                                    <p-dropdown inputId="select-saverity" [options]="majorhealthSeverityOptions"
+                                        [(ngModel)]="majorSeverityOption" [disabled]=majorSeverityOptions>
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label" for="select-operator">Select Operator </label>
+                                    <p-dropdown [options]="majorhealthSeverityOperators"
+                                        [(ngModel)]="majorSeverityOperators" placeholder="Select Operator"
+                                        [disabled]=majorSeverityOptions>
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label" for="major-pct">MajorPct</label>
+                                    <input id="major-pct" type="text" pInputText
+                                        [disabled]="(majorSeverityOption != 'All' && majorSeverityOption == 'select_operator')">
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label" for="mjr-severity">Severity</label>
+                                    <input id="mjr-severity" type="text" size="30" pInputText
+                                        [disabled]="(majorSeverityOption != 'All' && majorSeverityOption == 'select_operator')">
+                                </div>
+                            </div>
+                        </p-fieldset>
+                    </p-accordionTab>
+
+                    <p-accordionTab header="Advance Settings" *ngIf="(widgetType != 'All' && widgetType !== 'label')">
+                        <p-fieldset legend="Advance Settings">
+                            <div class="ui-fluid p-formgrid p-grid"
+                                *ngIf="(widgetType != 'All' && widgetType == 'data')">
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label class="field-label" for="prefix">Prefix</label>
+                                    <input id="prefix" type="text" size="30" pInputText>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label class="field-label" for="sufix">Sufix</label>
+                                    <input id="sufix" type="text" size="30" pInputText>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4 top-padding">
+                                    <p-checkbox name="groupname" value="val1" label="Edit Caption"
+                                        (click)="enableCaptionField()"></p-checkbox>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <label class="field-label" for="caption">Caption</label>
+                                    <input id="caption" type="text" pInputText [disabled]="enableCaption"
+                                        value="Requests/Min - Overall">
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-5 top-padding">
+                                    <p-checkbox name="groupname" value="val1" label="Monochromatic Color"
+                                        (click)="showMonochromColorPicker()">
+                                    </p-checkbox>
+                                </div>
+                                <div class="p-field p-col-12 p-md-2" *ngIf="showHideMonochromColor">
+                                    <p-colorPicker [(ngModel)]="MonochromColor"></p-colorPicker>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-5 top-padding">
+                                    <p-checkbox name="groupname" value="val1" label="Widget Drill Down"
+                                        (click)="enableDrillDownOption()"></p-checkbox>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label" for="test">Select Option</label>
+                                    <p-dropdown inputId="test" [options]="widgetDrillData"
+                                        [(ngModel)]="widgetDrillOptions" [disabled]=enableDrillDown>
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <label class="field-label" for="level">Level</label>
+                                    <input id="level" type="text" pInputText [disabled]=enableDrillDown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6 top-padding">
+                                    <p-checkbox name="groupname" value="val1" label="Disable Parameterization">
+                                    </p-checkbox>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4 top-padding">
+                                    <p-checkbox name="groupname" value="val1" label="Compare with"
+                                        (click)="enableTrendOptions()"></p-checkbox>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label for="trend">Select Trend</label>
+                                    <p-dropdown inputId="trend" [options]="compareTrendOptions"
+                                        [(ngModel)]="trendsOption" [disabled]=enableTrends>
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    Baseline
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label" for="float-input">Shift back data by</label>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <input id="float-input" type="text" placeholder="0" pInputText
+                                        [disabled]="(widgetType != 'All' && widgetType !== 'graph')"
+                                        [(ngModel)]="selectedPanelTimeDelay" type="number" min = 0 max = 1440
+                                         title="Time Delay(in min) "> mins
+                                </div>
+                            </div>
+                        </p-fieldset>
+
+                        <p-fieldset legend="Display Settings">
+                            <div class="ui-fluid p-formgrid p-grid"
+                                *ngIf="(widgetType != 'All' && widgetType == 'data')">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p-checkbox name="groupname" value="val1" label="Show Title bar"></p-checkbox>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <p-checkbox name="groupname" value="val1" label="Show Icon"></p-checkbox>
+                                </div>
+                                <div class="p-field p-col-12 p-md-5">
+                                    <label class="field-label" for="decimal"> Decimal places upto</label>
+                                    <input id="decimal" type="text" pInputText placeholder="3">
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p-checkbox name="groupname" value="val1" label="Bold"></p-checkbox>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <p-checkbox name="groupname" value="val1" label="Italic"></p-checkbox>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <p-checkbox name="groupname" value="val1" label="Underline"></p-checkbox>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid"
+                                *ngIf="(widgetType != 'All' && widgetType == 'system_health')">
+                                <div class="p-field p-col-12 p-md-2">
+                                    <label>Status</label>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label">Font-size</label>
+                                    <p-dropdown [options]="statusFontSize" [(ngModel)]="statusFontSizeOptions">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label">Font-Family</label>
+                                    <p-dropdown [options]="statusFontFamily" [(ngModel)]="statusFontOptions">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid"
+                                *ngIf="(widgetType != 'All' && widgetType == 'data')">
+                                <div class="p-field p-col-12 p-md-2">
+                                    <label>Value</label>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label">Font-size</label>
+                                    <p-dropdown [options]="valueFontSize" [(ngModel)]="valueFontSizeOptions">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label">Font-Family</label>
+                                    <p-dropdown [options]="valueFontFamily" [(ngModel)]="valueFontOptions">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid"
+                                *ngIf="(widgetType != 'All' && widgetType == 'system_health')">
+                                <div class="p-field p-col-12 p-md-2">
+                                    <label>Title</label>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label">Font-size</label>
+                                    <p-dropdown [options]="titleFontSize" [(ngModel)]="titleFontSizeOptions">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label">Font-Family</label>
+                                    <p-dropdown [options]="titleFontFamily" [(ngModel)]="titleFontOptions">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid"
+                                *ngIf="(widgetType != 'All' && widgetType == 'data')">
+                                <div class="p-field p-col-12 p-md-2">
+                                    <label class="field-label">Display</label>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label">Font-size</label>
+                                    <p-dropdown [options]="displayFontSize" [(ngModel)]="displayFontSizeOptions">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label">Font-Family</label>
+                                    <p-dropdown [options]="displayFontFamily" [(ngModel)]="dispalyFontOptions">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4 top-padding">
+                                    <p-checkbox name="groupname" value="val1" label="Hide X-Axis"></p-checkbox>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label" for="grid-line">Grid-line Width</label>
+                                    <p-dropdown inputId="grid-line" [options]="gridLineWidthData"
+                                        [(ngModel)]="gridLineWidthOptions">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                            <div class="p-grid">
+                                <div class="p-col-4" *ngIf="(widgetType != 'All' && widgetType == 'tabular')">
+                                    <p-checkbox name="groupname" value="val1" label="Icon Color"></p-checkbox>
+                                    <p-colorPicker [(ngModel)]="iconColor"></p-colorPicker>
+                                </div>
+                                <div class="p-col-4" *ngIf="(widgetType != 'All' && widgetType == 'data')">
+                                    <p-checkbox name="groupname" value="val1" label="Label Color"></p-checkbox>
+                                    <p-colorPicker [(ngModel)]="labelColor"></p-colorPicker>
+                                </div>
+                                <div class="p-col-4" *ngIf="(widgetType != 'All' && widgetType == 'data')">
+                                    <p-checkbox name="groupname" value="val1" label="Value Color"></p-checkbox>
+                                    <p-colorPicker [(ngModel)]="valueColor"></p-colorPicker>
+                                </div>
+                                <div class="p-col-5" *ngIf="(widgetType != 'All' && widgetType == 'data')">
+                                    <p-checkbox name="groupname" value="val1" label="Background Color"></p-checkbox>
+                                    <p-colorPicker [(ngModel)]="bgColor"></p-colorPicker>
+                                </div>
+                            </div>
+                        </p-fieldset>
+                    </p-accordionTab>
+
+                    <p-accordionTab header="Advance Filters"
+                        *ngIf="(widgetType != 'All' && widgetType !== 'label' && widgetType !== 'system_health')">
+                        <p-fieldset legend="Advance Filters">
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-6">
+                                    <p-checkbox name="groupname" label="Enable Panel Graph Filter"
+                                        (click)="enablePanelFilterOptions()">
+                                    </p-checkbox>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-3">
+                                    Show Values :
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="p-field-checkbox">
+                                        <p-radioButton name="group1" value="All non Zero" label="All non Zero"
+                                            [(ngModel)]="showValuesFilter" [disabled]=enableGraphFilter inputId="opt1">
+                                        </p-radioButton>
+                                    </div>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="p-field-checkbox">
+                                        <p-radioButton name="group1" value="All Zero" label="All Zero"
+                                            [(ngModel)]="showValuesFilter" [disabled]=enableGraphFilter inputId="opt2">
+                                        </p-radioButton>
+                                    </div>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="p-field-checkbox">
+                                        <p-radioButton name="group1" value="Advance" label="Advance"
+                                            [(ngModel)]="showValuesFilter" [disabled]=enableGraphFilter inputId="opt3">
+                                        </p-radioButton>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid"
+                                *ngIf="(showValuesFilter != 'All' && showValuesFilter == 'Advance')">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label" for="selected-val">Selected Value</label>
+                                    <p-dropdown inputId="selected-val" [options]="epSelectedValueData"
+                                        [(ngModel)]="epSelectedValueOptions">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'tabular')">
+                                    <label class="field-label" for="enter-value">Enter Value</label>
+                                    <input id="enter-value" pInputText placeholder="3">
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label" for="based-on">Based on</label>
+                                    <p-dropdown inputId="based-on" [options]="epSelectedBasedOnData"
+                                        [(ngModel)]="epSelectedBasedOnOptions">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid"
+                                *ngIf="(widgetType != 'All' && widgetType == 'data')">
+                                <div class="p-field p-col-12 p-md-6">
+                                    <p-checkbox name="groupname" value="val1" label=" Enable Graph Sample Filter"
+                                        (click)="enableGraphFilterOptions()">
+                                    </p-checkbox>
+                                </div>
+                            </div>
+                            <div class="ui-fluid p-formgrid p-grid" *ngIf="showGraphSampleFilter">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label">Select Graphs</label>
+                                    <p-dropdown [options]="egSelectedValueData" [(ngModel)]="egSelectedValueOptions">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <label class="field-label">Selected Values</label>
+                                    <p-dropdown [options]="egSlectedGraphData" [(ngModel)]="egSlectedGraphOptions">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4"
+                                    *ngIf="(widgetType != 'All' && widgetType == 'tabular')">
+                                    <label class="field-label" for="enter-value">Enter Value</label>
+                                    <input id="enter-value" pInputText placeholder="3">
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <button pButton type="button" label="Add"></button>
+                                </div>
+                            </div>
+                        </p-fieldset>
+                    </p-accordionTab>
+                    <!-- </form> -->
+                </p-accordion>
+            </div>
+        </div>
+        <!-- <div class="p-col-7 pr-0">
+            <div class="" style="background-color: #dadada; height: 400px;">
+                Graph
+            </div>
+        </div> -->
+        <div class="p-col-7" *ngFor = "let chart of data.charts">
+            <app-chart [data]="chart"></app-chart>
+        </div>
+
+    </div>
+    <p-footer>
+        <button type="button" pButton icon="icons8 icons8-checkmark" class="ui-button ui-button-rounded" (click)="saveWidgetSettings()" label="Apply"></button>
+        <button type="button" pButton icon="icons8 icons8-trash" class="ui-button ui-button-rounded" (click)="displayBasic2=false" label="Delete"></button>
+        <button type="button" pButton icon="icons8 icons8-delete" class="ui-outline-button ui-button-secondary" (click)="displayBasic2=false" label="Cancel"
+        ></button>
+    </p-footer>
+</p-dialog>

@@ -1,0 +1,58 @@
+<div class="header">
+    <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a routerLink="/home">
+            <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">
+            Access Control 
+        </div>
+    </div>
+</p-toolbar>
+<div class="p-grid">
+    <div class="w-100-p">
+        <div class="breadcrumbs">
+            <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+        </div>
+    </div>
+</div>
+ 
+<div class="ui-toolbar ui-widget ui-widget">
+    <div class="p-grid p-align-center p-justify-between p-8">
+        <div class="font-14"> {{accessControlManagement.title}}</div>
+
+        <div class="p-grid p-align-center">
+            <span title="Refresh cache" (click)=refreshDataBase()>
+                <i class="icons8 icons8-synchronize clickable mx-5"></i></span>
+
+            <span *ngIf="(accessControlManagement?.title === 'Group Management')">
+                <i class="icons8 icons8-import clickable" title="Import  LDAP Groups"
+                    (click)="importLdapGroups()"></i></span>
+        </div>
+    </div>
+</div>
+
+<div class="pageLoading font-16" *ngIf="blocked">
+    <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+</div>
+
+<div class="m-5">
+    <p-button type="button" icon="{{routeLink.icon}}" label="{{routeLink.title}}" class="mr-3" [ngClass]="tabIndex === i ? 'is-active' : ''"
+        *ngFor="let routeLink of accessControlTabs; let i = index" active="tabIndex === i"
+        (click)="setToolBarHeader(i)"></p-button>
+</div>
+
+<div class="secondary-dialog confirmdialog" *ngIf="isTabClicked">
+    <p-confirmDialog #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+        <p-footer>
+            <button type="button" class="ui-button-rounded ui-button-secondary px-15 mx-6" pButton 
+                    label="Cancel" (click)="cd.reject()" *ngIf="rejectVisible" ></button>
+                <button type="button" class="ui-button-rounded px-15" pButton 
+                    label= {{acceptLable}} (click)="cd.accept()" ></button>
+        </p-footer>
+    </p-confirmDialog>
+</div>
+
+<router-outlet></router-outlet>

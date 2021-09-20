@@ -1,0 +1,147 @@
+<div class="h-100-vh template-container">
+  <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+      <div class="p-col p-col-align-center text-center">
+          <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+      </div>
+  </div>
+  <div class="p-grid vertical-container" *ngIf="error">
+      <div class="p-col p-col-align-center text-center">
+          <p-message severity="error" text="{{ error.msg }}"></p-message>
+      </div>
+  </div>
+  <div class="p-grid vertical-container" *ngIf="empty">
+      <div class="p-col p-col-align-center text-center">
+          <p-message severity="normal" text="No Data"></p-message>
+      </div>
+  </div>
+  <div *ngIf="!empty" #widgetHeight class="mh-10" [ngStyle]="{
+      height: isEnabledColumnFilter
+        ? 'calc(100vh - 165px)'
+        : 'calc(100vh - 120px)'
+    }">
+      <div class="action-container" *ngIf="data">
+          <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+              <div class="global-search-block">
+                  <div class="p-input-icon-left search-div-css">
+                      <i class="icons8 icons8-search"></i>
+                      <input #searchInputTemplate pInputText type="text" class="input-field-search"
+                          (input)="template.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                  </div>
+              </div>
+          </div>
+
+          <ng-container>
+              <p-card>
+                  <p-table #template [resizableColumns]="true" [columns]="selectedColumns" [value]="data.data"
+                      [rowHover]="true" [paginator]="true" [rows]="data.paginator.rows"
+                      [totalRecords]="data.data.length" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                      [showCurrentPageReport]="true"
+                      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                      [responsive]="true" [scrollable]="true"
+                      scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 211px)"
+                       [globalFilterFields]="['startTime','prevTime','duration','server','network','typeInfo','action']">
+                      <ng-template pTemplate="colgroup" let-columns>
+                          <colgroup>
+                              <col *ngFor="let col of columns" [style.width]="col.width" />
+                          </colgroup>
+                      </ng-template>
+
+                      <ng-template pTemplate="header" let-columns>
+                          <tr>
+                              <th *ngFor="let col of columns" pResizableColumn [attr.coldiv]="col.coldiv"
+                                  [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.valueField" class="text-left">
+                                  <div class="left">
+                                      <!--{{ col.label }}-->
+                                      <span title="{{ col.label }}">{{ col.label }}</span>
+                                  </div>
+                                  <div *ngIf="col.isSort" class="right">
+                                      <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right"
+                                          ariaLabel="Activate to sort"
+                                          ariaLabelDesc="Activate to sort in descending order"
+                                          ariaLabelAsc="Activate to sort in ascending order">
+                                      </p-sortIcon>
+                                  </div>
+                              </th>
+
+                          </tr>
+                          <tr *ngFor="let headerRow of data.headers">
+                              <ng-container *ngIf="isEnabledColumnFilter">
+                                  <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                      <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'custom'
+                      ">
+                                          <input class="w-100-p" pTooltip="Enter number to search"
+                                              *ngSwitchCase="col.label" pInputText type="text" (input)="
+                          template.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'custom'
+                          )
+                        " />
+                                      </div>
+                                      <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'contains'
+                      ">
+                                          <input class="w-100-p"
+                                              pTooltip="Will filter metric names which contains given text."
+                                              *ngSwitchCase="col.label" pInputText type="text" (input)="
+                          template.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'contains'
+                          )
+                        " />
+                                      </div>
+                                  </th>
+                              </ng-container>
+                          </tr>
+                      </ng-template>
+                      <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                          <tr [ngStyle]="{ backgroundColor: row.rowBgColor }" [pSelectableRow]="row"
+                              [pSelectableRowDisabled]="isCheckbox">
+                              <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                <ng-template [ngIf]="col.valueField != 'action'" [ngIfElse]="actionBlock">
+                                    <span title="{{row[col.valueField]}}"> {{((row[col.valueField]) !=
+                                            null ? row[col.valueField] : '-')}}</span>
+                                </ng-template>
+                                <ng-template #actionBlock>
+                                    <span title="{{row[col.valueField]}}" [innerHtml]="row[col.valueField] != null ? row[col.valueField] : '-'"></span>
+				       <i *ngIf='row.url != undefined && row.url != null && row.url != ""'
+                                            class="pi pi-copy" pTooltip="Click Here to Copy The Url"
+                                            [cdkCopyToClipboard]="row.url"></i>
+                                        <i *ngIf='row.id != undefined' class="pi pi-copy"
+                                            pTooltip="Click Here to Copy The Url"
+                                            [cdkCopyToClipboard]="row[col.valueField]"></i>
+                                </ng-template>
+                              </td>
+
+
+                          </tr>
+                      </ng-template>
+
+                      <ng-template pTemplate="emptymessage" let-columns>
+                          <tr>
+                              <td [attr.colspan]="columns.length + 1" class="text-center">
+                                  <span *ngIf="error">Error while loading data</span>
+                                  <span *ngIf="empty">NO data available</span>
+                                  <span *ngIf="loading">Loading</span>
+                                  <span *ngIf="
+                      !empty &&
+                      !loading &&
+                      !error &&
+                      searchInputTemplate.value.length
+                    ">Nothing found matching "{{
+                                      searchInputTemplate.value
+                                      }}"</span>
+                              </td>
+                          </tr>
+                      </ng-template>
+                  </p-table>
+              </p-card>
+          </ng-container>
+      </div>
+  </div>
+</div>
+

@@ -1,0 +1,229 @@
+<div class="template-container">
+
+  <div *ngIf="notFromCallbackDesigner">
+    <div class="action-container">
+
+      <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+        <div class="global-search-block">
+          <div>
+
+          </div>
+          <div class="p-input-icon-left search-div-css">
+            <i class="icons8 icons8-search"></i>
+            <input pInputText type="text" #searchInput class="input-field-search"
+              (input)="template.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+          </div>
+        </div>
+
+        <div class="icons-container p-justify-between p-align-center">
+
+          <button pButton *ngIf="buttonflag" label="ADD NEW" (click)="openChekpointDialog()"
+            class="ui-button ui-button-rounded ui-button-secondary add-checkpoint"></button>
+        </div>
+      </div>
+    </div>
+
+    <div #widgetHeight class="mh-10" [ngStyle]="{
+        height: !isEnabledColumnFilter
+        ? 'calc(100vh - 35px)'
+        : 'calc(100vh - 80px)'
+    }">
+      <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+        Select column to show
+      </div>
+      <p-table #template [resizableColumns]="true" [columns]="selectedColumns" [value]="checkpointvalue"
+        [rowHover]="true" [loading]="busy" [paginator]="true" [rows]="data.paginator.rows"
+        [totalRecords]="data.data.length" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+        [showCurrentPageReport]="true" [globalFilterFields]="globalFilterFields"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+        [scrollable]="true" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 280px)"
+        [globalFilterFields]="globalFilterFields" class="all-tables">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col *ngFor="let col of columns" [style.width]="col.width" />
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th rowspan="3" pResizableColumn>Status</th>
+            <th pSortableColumn="cpName" pResizableColumn>Check Point Name
+              <p-sortIcon field="cpName"></p-sortIcon>
+            </th>
+            <th pSortableColumn="page" pResizableColumn>Pages
+              <p-sortIcon field="page"></p-sortIcon>
+            </th>
+            <th pSortableColumn="scopeName" pResizableColumn> Scope
+              <p-sortIcon field="scopeName"></p-sortIcon>
+            </th>
+            <th pSortableColumn="selector" pResizableColumn>Selector/Url
+              <p-sortIcon field="selector"></p-sortIcon>
+            </th>
+            <th pSortableColumn="rulelength" pResizableColumn>Rules
+              <p-sortIcon field="rulelength"></p-sortIcon>
+            </th>
+            <th pSortableColumn="match"> Matching Criteria
+              <p-sortIcon field="match"></p-sortIcon>
+            </th>
+            <th pSortableColumn="eventName">Event Name
+              <p-sortIcon field="eventName"></p-sortIcon>
+            </th>
+            <th *ngIf="buttonflag">Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-data>
+          <tr>
+            <td>
+              <i *ngIf="data.active == 1 " style="color: green;" class="pi pi-check" title="Active"></i>
+              <i *ngIf="data.active == 0" style="color :red;" class="pi pi-times" title="InActive"></i>
+            </td>
+            <td title="{{data.cpName}}">{{data.cpName}}</td>
+            <td title="{{data.page}}">{{data.page}}</td>
+            <td title="{{data.scopeName}}">{{data.scopeName}}
+            </td>
+            <td>
+              <span
+                title="{{(data.selector != '' && data.selector != null && data.selector != 'null' && data.selector != 'undefined') ? data.selector   : '-' }} ">
+                {{(data.selector != "" && data.selector != null && data.selector != "null" && data.selector !=
+                "undefined" ) ? data.selector : "-" }}
+              </span>
+            </td>
+            <td style="text-align:right">
+              <span class="numberalign" title="Click Here to View Rules" style="color:blue;cursor:pointer"
+                (click)="showRule(data.rules)">{{data.rulelength}}</span>
+            </td>
+            <td title="{{data.match}}">{{data.match}}</td>
+            <td>
+              <span
+                title="{{(data.eventName != '' && data.eventName != null && data.eventName != 'null' && data.eventName != 'undefined') ? data.eventName   : '-' }}">
+                {{(data.eventName != "" && data.eventName != null && data.eventName != "null" ) ? data.eventName : "-"
+                }}</span>
+            </td>
+            <td *ngIf="buttonflag">
+
+              <button _ngcontent-c38="" class="header2" style="border: none;padding: 2px;border-radius: 3px;">
+                <i class="pi pi-pencil" title="Click Here to Edit" (click)="showDialogToEditGroup(data)"
+                  style="font-size: 15px;"></i></button>
+              &nbsp;
+              <button _ngcontent-c38="" class="header2" style="border: none;padding: 2px;border-radius: 3px;">
+                <i class="pi pi-trash" (click)="DeleteCheckPoint(data)" title="Click Here to Delete"
+                  style="font-size: 15px;"></i></button>
+            </td>
+          </tr>
+
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="columns.length + 1" class="text-center">
+              <span *ngIf="error">Error while loading data</span>
+              <span *ngIf="emptyTable">Empty Table</span>
+              <span *ngIf="loading">Loading</span>
+              <span *ngIf="!empty && !loading && !error && searchInput.value.length;else noRecords">Nothing found
+                matching
+                "{{searchInput.value}}"</span>
+              <ng-template #noRecords>
+                <span *ngIf="!loading && !error">No Records Found</span>
+              </ng-template>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <br />
+      <p-card *ngIf='displayruledata == true'>
+        <p-table [reorderableColumns]="true" *ngIf='ruledatatable != null' [paginator]="true" [rows]="5"
+          [value]="ruledatatable" class="all-tables" [resizableColumns]="true">
+          <ng-template pTemplate="caption">
+            <div class="p-d-flex p-ai-center p-jc-between" style="text-align: left;">
+              Rules
+            </div>
+          </ng-template>
+          <ng-template pTemplate="header">
+
+            <tr>
+              <th [ngStyle]="{'width.px':'413'}" pResizableColumn>LHS</th>
+              <th pResizableColumn>Operator</th>
+              <th pResizableColumn>RHS</th>
+
+
+            </tr>
+          </ng-template>
+
+
+
+          <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+            <tr>
+
+              <td *ngIf="data.mode == '1'">
+                <label>Text :-</label>{{data.arg1.text}}
+                <!-- Dimensions -->
+                <div class="ui-g" style="margin-bottom: 5px;display: inline-block;">
+                  <span *ngIf="data.arg1.regex && data.arg1.ic" class="chipsCSS netvision-bg"><span>RE</span>
+                    <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                  </span>
+                  <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                    class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                  <span *ngIf="data.arg1.regex && data.arg1.ic == false" class="chipsCSS netvision-bg">RE</span>
+                </div>
+              </td>
+              <td *ngIf="data.mode == '2'">
+
+                <label>LB :-</label>{{data.arg1.text}}
+                <!-- Dimensions -->
+                <div class="ui-g" style="display: inline-block;">
+                  <span *ngIf="data.arg1.regex && data.arg1.ic" class="chipsCSS netvision-bg"><span>RE</span>
+                    <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                  </span>
+                  <span *ngIf="data.arg1.ic && data.arg1.regex == false"
+                    class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                  <span *ngIf="data.arg1.regex && data.arg1.ic == false" class="chipsCSS netvision-bg">RE</span>
+                </div>
+                <br>
+                <label>RB :-</label>{{data.arg2.text}}
+                <!-- Dimensions -->
+                <div class="ui-g" style="display: inline-block;">
+                  <span *ngIf="data.arg2.regex && data.arg2.ic" class="chipsCSS netvision-bg"><span>RE</span>
+                    <span class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+                  </span>
+                  <span *ngIf="data.arg2.ic && data.arg2.regex == false"
+                    class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                  <span *ngIf="data.arg2.regex && data.arg2.ic == false" class="chipsCSS netvision-bg">RE</span>
+                </div>
+              </td>
+              <td *ngIf="data.mode == '3'">
+                <label>Path :-</label>{{data.arg1.path}}
+                <div class="ui-g" style="display: inline-block;">
+                  <span *ngIf="data.arg1.ic" class="chipsCSS ui-state-default innerChipsCSS">IC</span>
+
+                </div>
+              </td>
+
+              <td title="{{data.fail_label}}">{{data.fail_label}}</td>
+              <td title="{{data.value}}">{{data.value}}</td>
+
+            </tr>
+          </ng-template>
+
+        </p-table>
+
+
+      </p-card>
+    </div>
+  </div>
+
+  <app-add-check-point *ngIf='!notFromCallbackDesigner || addcheckpoint || updatecheckpoint'
+    (close)='closeCheckPointPopup($event)' (updatedclose)='updatedCloseCheckPointPopup($event)'
+    [displayCheckpoint]='addcheckpoint' [updatedisplayCheckpoint]='updatecheckpoint' [rowdatachild]='rowdata'
+    (data)='saveCheckPoint($event)'></app-add-check-point>
+
+  <ng-container *ngIf="notFromCallbackDesigner">
+    <app-edit-check-point #editCheckPoint></app-edit-check-point>
+    <app-delete-entry #deleteEntry></app-delete-entry>
+    <p-confirmDialog appendTo="body" header="Confirmation" icon="fa fa-question-circle" width="425"
+    maskStyleClass="ui-dialog-mask ui-widget-overlay ui-dialog-visible ui-dialog-mask-scrollblocker"></p-confirmDialog>
+
+    <p-toast key="nv-config-checkpoint"></p-toast>
+  </ng-container>

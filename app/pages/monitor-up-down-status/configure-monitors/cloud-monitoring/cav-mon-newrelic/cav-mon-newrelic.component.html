@@ -1,0 +1,200 @@
+<div class="header">
+   <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+   <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <a class = "clickable" (click) = "navToPreviousPage()">
+         <span class="icons8 icons8-left toolbar-icon-color"></span>
+      </a>
+      <div class="p-col ui-toolbar-text">Configure New Relic Monitors</div>
+   </div>
+</p-toolbar>
+<div class="viewportHeight">
+   <p-tabView styleClass="mb-10" class="tabWauto">
+      <p-tabPanel header="Configuration">
+         <div class="hlthChkSettingsTab">
+            <form (ngSubmit)="addData()" #form="ngForm" ngNativeValidate>
+               <div class="p-grid p-align-center">
+                  <div class="ui-g-2 labelCss required-mark">Account Name</div>
+                  <div class="ui-g-4">
+                     <input name="aName" type="text" pInputText [(ngModel)]="formData.aNKey" class="w-100-p" required
+                        placeholder="Account Name" ngModel />
+                  </div>
+                  <div class="ui-g-2 pl-40 required-mark">API Key</div>
+                  <div class="ui-g-4">
+                     <input name="apiKey" type="password" pInputText [(ngModel)]="formData.apiKey" class="w-100-p"
+                        placeholder="API Key" ngModel required />
+                  </div>
+                  <div class="ui-g-2 labelCss">Query API Key </div>
+                  <div class="ui-g-4">
+                     <input name="qApi" type="password" pInputText [(ngModel)]="formData.queryApi" class="w-100-p"
+                        placeholder="Query API Key" ngModel [required]="formData.accId == '' ? false : true" />
+                  </div>
+                  <div class="ui-g-2 pl-40">Account ID</div>
+                  <div class="ui-g-4">
+                     <input name="accId" type="text" pInputText [(ngModel)]="formData.accId" class="w-100-p" ngModel
+                        placeholder="Account ID" [required]="formData.queryApi == '' ? false : true" />
+                  </div>
+                  <div class="ui-g-12">
+                     <p><strong>Note:</strong></p>
+                     <p><strong>API Key</strong> will be used to fetch application and application host stats. Create API
+                        Key using <a
+                           href="https://docs.newrelic.com/docs/apis/get-started/intro-apis/types-new-relic-api-keys"
+                           target="_blank" class="btn-icon"><u>New Relic's keys documentation.</u></a></p>
+                     <p><strong>Query API Key</strong> will be used to collect the infra metrics using NRQL queries. Create
+                        Query API Key using <a
+                           href="https://docs.newrelic.com/docs/apis/get-started/intro-apis/types-new-relic-api-keys"
+                           target="_blank" class="btn-icon"><u>New Relic's keys documentation.</u></a></p>
+                     <p><strong>Account ID </strong> will be used to collect the infra metrics using NRQL queries. See <a
+                           href="https://docs.newrelic.com/docs/accounts/accounts-billing/account-setup/account-id"
+                           target="_blank" class="btn-icon"><u> New Relic's documentation</u></a> for more information.</p>
+                  </div>
+               </div>
+               <div class="buttonCont mb-10">
+                  <button type="submit" pButton class="ui-button ui-button-rounded ui-button-right" *ngIf="!isFromEdit"
+                     label="Add"></button>
+                  <button type="submit" pButton class="ui-button ui-button-rounded ui-button-right" *ngIf="isFromEdit"
+                     label="Update"></button>
+                  <button type="button" pButton class="ui-button ui-button-rounded ui-button-right" (click)="closeConfiguration()"
+                     *ngIf="isFromEdit" label="Cancel"></button>
+               </div>
+               <p-table [columns]="cols" [value]="newRelicConfigDTO" class="all-tables" [rows]="10"
+                  [paginator]="newRelicConfigDTO?.length >10" [pageLinks]="3">
+                  <ng-template pTemplate="colgroup" let-columns>
+                     <colgroup>
+                        <col style="width:30px">
+                        <col style="width:45%">
+                        <col style="width:45%">
+                        <col style="width:10%">
+                     </colgroup>
+                  </ng-template>
+                  <ng-template pTemplate="caption">
+                  </ng-template>
+                  <ng-template pTemplate="header" let-columns>
+                     <tr>
+                        <th>
+                           #
+                        </th>
+                        <th *ngFor="let col of columns">
+                           {{col.header}}
+                        </th>
+                        <th>Actions</th>
+                     </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+                     <tr>
+                        <td class="text-center columnwidth">
+                           <span style="float:right">{{rowIndex+1}}
+                           </span>
+                        </td>
+                        <td *ngFor="let col of columns">
+                           {{rowData[col.field]}}
+                        </td>
+                        <!-- <td>{{product.met}}</td>
+                  <td>{{product.cKey}}</td> -->
+                        <td class="text-center">
+                           <button type="button" class="btn-icon m-2" title="Delete Configured Profile"
+                              (click)="deleteSpecificConfig(rowData)">
+                              <i class="icons8 icons8-trash red-fg disabled"></i>
+                           </button>
+                           <button type="button" class="btn-icon m-2" (click)="editData(rowData)">
+                              <i class="icons8 icons8-edit"></i>
+                           </button>
+                        </td>
+                        <!-- 
+                  <td>
+                     <i class="fa fa-trash-o disabled" (click)="deleteSpecificConfig(data,rowIndex)"
+                  style="color: #662af1;cursor:pointer; margin-left: 30px" title="Delete Configured Profile"></i>
+                  <i class="fa icons8-edit" (click)="editData(data,rowIndex)"
+                  style="color: #2572b5;cursor:pointer; margin-left: 10px"></i>
+                  </td> -->
+                     </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage" let-columns>
+                     <tr>
+                        <td [attr.colspan]="columns.length + 2" class="noRecords" style="text-align: center">No records
+                           found.</td>
+                     </tr>
+                  </ng-template>
+               </p-table>
+            </form>
+         </div>
+      </p-tabPanel>
+      <p-tabPanel header="Monitor(s)">
+         <div class="hlthChkSettingsTab">
+            <div class="buttonCont my-10">
+               <button pButton class="toolbarIcon" *ngIf="!isShowFilter" type="button" icon="icons8 icons8-search"
+                  (click)="showFilter()" title="Show Filter"></button>
+               <button pButton class="toolbarIcon" *ngIf="isShowFilter" type="button" icon="icons8 icons8-search"
+                  (click)="showFilter()" title="Hide Filter"></button>
+            </div>
+            <div class="ui-g mt-20">
+               <p-table #searchable [value]="cloudMonitorData" class="all-tables"
+                  [paginator]="cloudMonitorData?.length > 20" [rows]="20" [pageLinks]="3">
+                  <ng-template pTemplate="colgroup" let-columns>
+                     <col style="width: 40px;">
+                     <col style="width: auto;">
+                  </ng-template>
+                  <ng-template pTemplate="header">
+                     <tr class="scen-ptable-thead">
+                        <th rowspan="2"></th>
+                        <th>
+                           Monitor Name
+                        </th>
+                     </tr>
+                     <tr *ngIf="isShowFilter">
+                        <th [ngSwitch]="'monName'">
+                           <input class="w-100-p" pInputText type="text"
+                              (input)="searchable.filter($event.target.value, 'monName', 'contains')">
+                        </th>
+                     </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
+                     <tr class="scen-ptable-tbody">
+                        <td>
+                           <span>
+                              <p-checkbox name="chk" binary=true (click)="onCheckBoxChange(rowData)"
+                                 [(ngModel)]="rowData.enabled">
+                              </p-checkbox>
+                           </span>
+                        </td>
+                        <td>
+                           <span title="Click to view Metric Information"> <a class="clickable"
+                                 (click)="advanceSettings(rowData)">{{rowData.monName}}</a></span>
+                        </td>
+                     </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage" let-columns>
+                     <tr>
+                        <td [attr.colspan]="2" class="noRecords" style="text-align: center">No records found.</td>
+                     </tr>
+                  </ng-template>
+               </p-table>
+            </div>
+         </div>
+         <div class="buttonCont mt-10">
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-right" *ngIf="runTimeMode != 3"
+               [disabled]="modeStatus || newRelicConfigDTO.length == 0 || userRole == 'guest'" (click)="saveData()"
+               label="Save"></button>
+            <button pButton type="button" *ngIf="runTimeMode == 3" class="ui-button ui-button-rounded ui-button-right" (click)="saveData()"
+               [disabled]="modeStatus || newRelicConfigDTO.length == 0 || userRole == 'guest'"
+               title="Saves the Configuration(s) at runtime" label="Save & Apply"></button>
+         </div>
+      </p-tabPanel>
+      <p-confirmDialog class="confirmdialog" #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+         <p-footer>
+            <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton icon="pi pi-check"
+               label={{acceptLable}} (click)="cd.accept()"></button>
+            <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton icon="pi pi-times"
+               label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+         </p-footer>
+      </p-confirmDialog>
+      <div class="loading-indicator" *ngIf="loading">
+         <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+         </p-progressSpinner>
+      </div>
+   </p-tabView>
+</div>
+<div *ngIf = "display">
+   <app-mon-stats [display] = "display" [item]="gdfDetail" (displayChange)="onDialogClose($event)"></app-mon-stats>
+ </div>

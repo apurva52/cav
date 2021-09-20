@@ -1,0 +1,711 @@
+<div class="add-action-dialog">
+  <div class="dialog-content">
+    <div class="p-grid innerbg">
+      <div class="p-grid p-align-center p-col-12">
+        <div class="width-145 px-15">Name
+        </div>
+        <div class="p-col-8">
+          <input type="text" [disabled]="isOnlyReadable" placeholder="" class="w-100-p" [(ngModel)]="action.name" pInputText />
+        </div>
+      </div>
+      <div class="green-fieldset">
+
+        <div class="normal-inner">
+          <!-- <p-fieldset legend="Notification"> -->
+
+          <div class="normal-fieldset">
+            <label class="aco-label" (click)="toggleShowNotification()">
+              <i class="icons8" [ngClass]="notification ? 'icons8-expand-arrow' : 'icons8-forward'"></i>
+              Notification
+            </label>
+            <div class="normal-inner" *ngIf="notification">
+              <div class="p-grid p-align-center">
+                <div class="p-col-2 switch-btn">
+                  <p-inputSwitch [(ngModel)]="sendAnEmail" (onChange)="switchNotification('sendAnEmail')">
+                  </p-inputSwitch>
+                  <label>Send an Email</label>
+                </div>
+                <!-- <div class="p-col-6 switch-btn" *ngIf="sendAnEmail">
+                  <p-inputSwitch></p-inputSwitch>
+                  <label>Generate Mail using template</label>
+                </div> -->
+              </div>
+              <div class="p-grid p-align-center" *ngIf="sendAnEmail">
+                <div class="p-col-2">Email Receiver</div>
+                <div class="p-col-10 p-justify-between p-align-center icons-block">
+                  <input type="text" [disabled]="isOnlyReadable" placeholder="" class="w-100-p" [(ngModel)]="action.actions[0].email.receiver"
+                    pInputText />
+                  <button pButton icon="icons8 icons8-settings" class="icon-button no-shadow"
+                    pTooltip="Advance mail settings" (click)="showModalDialog()"></button>
+                </div>
+              </div>
+
+              <div class="p-grid p-align-center" *ngIf="sendAnEmail">
+                <div class="p-col-2">Subject Mail</div>
+                <div class="p-col-10 p-justify-between p-align-center icons-block">
+                  <input #mailInp type="text" [disabled]="isOnlyReadable"
+                    value="$SEVERITY : Alert for one of the severely affected subject '$SUBJECT'"
+                    class="w-100-p" [(ngModel)]="action.actions[0].email.subject" pInputText
+                    (click)="resetTextPosition('startingPositionOfMailText')" />
+                  <div class="mail-custom-fields-subject-mail">
+                    <p-menu #op1 [popup]="true" [model]="mailCustomFields"></p-menu>
+                  </div>
+                  <button pButton icon="icons8 icons8-add-new" [disabled]="isOnlyReadable" class="icon-button no-shadow"
+                    pTooltip="Add some predefined texts to Subject of Mail"
+                    (click)="op1.toggle($event);textno = 1"></button>
+                </div>
+              </div>
+
+              <div class="p-grid p-align-center" *ngIf="sendAnEmail">
+                <div class="p-col-2">Pre Text</div>
+                <div class="p-col-4 p-justify-between p-align-center icons-block">
+                  <input #preInp type="text" [disabled]="isOnlyReadable" placeholder="" class="w-100-p"
+                    [(ngModel)]="action.actions[0].email.preText" pInputText
+                    (click)="resetTextPosition('startingPositionOfMailText')" />
+                  <div class="mail-custom-fields-pre-post">
+                    <p-menu #op2 [popup]="true" [model]="mailCustomFields"></p-menu>
+                  </div>
+                  <button pButton icon="icons8 icons8-add-new" class="icon-button no-shadow"
+                    pTooltip="Add some predefined texts to Subject of Mail" [disabled]="isOnlyReadable"
+                    (click)="op2.toggle($event);textno = 2;"></button>
+                </div>
+                <div class="p-col-1 text-right">Post Text</div>
+                <div class="p-col-4 p-justify-between p-align-center icons-block">
+                  <input #postInp type="text" [disabled]="isOnlyReadable" placeholder="" class="w-100-p"
+                    [(ngModel)]="action.actions[0].email.postText" pInputText
+                    (click)="resetTextPosition('startingPositionOfMailText')" />
+                  <div class="mail-custom-fields-pre-post">
+                    <p-menu #op3 [popup]="true" [model]="mailCustomFields"></p-menu>
+                  </div>
+                  <button pButton icon="icons8 icons8-add-new" class="icon-button no-shadow"
+                    pTooltip="Add some predefined texts to Subject of Mail" [disabled]="isOnlyReadable"
+                    (click)="op3.toggle($event);textno = 3"></button>
+                  </div>
+              </div>
+
+              <div class="p-grid p-align-center">
+                <div class="p-col-12 switch-btn">
+                  <p-inputSwitch [(ngModel)]="sendAnSms" (onChange)="switchNotification('sendAnSms')">
+                  </p-inputSwitch>
+                  <label for="">Send an SMS Message</label>
+                </div>
+                <div class="p-grid p-align-center w-100-p" *ngIf="sendAnSms">
+                  <div class="p-col-2">SMS Receiver</div>
+                  <div class="p-col-4 p-justify-between p-align-center icons-block">
+                    <input type="text" placeholder="" [disabled]="isOnlyReadable" class="w-100-p" [(ngModel)]="action.actions[0].sms.receiver"
+                      pInputText />
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-grid p-align-center">
+                <div class="p-col-2 switch-btn">
+                  <p-inputSwitch [(ngModel)]="sendSnmpTraps" (onChange)="switchNotification('sendSnmpTraps')">
+                  </p-inputSwitch>
+                  <label for="">Send SNMP Traps</label>
+                </div>
+                <div class="p-col-6 switch-btn" *ngIf="sendSnmpTraps">
+                  <p-inputSwitch></p-inputSwitch>
+                  <label for="">Consolidated notification for a rule</label>
+                </div>
+              </div>
+
+              <div class="p-grid p-align-center" *ngIf="sendSnmpTraps">
+                <div class="p-col-2"><i class="icons8 icons8-server mr-3"></i>SNMP Server</div>
+                <div class="p-col-4 p-justify-between p-align-center icons-block">
+                  <input type="text" [disabled]="isOnlyReadable" placeholder="" [(ngModel)]="action.actions[0].snmp.server" class="w-100-p"
+                    pInputText />
+                </div>
+                <div class="p-col-2 text-right">
+                  <i class="icons8 icons8-electrical mr-3"></i>SNMP Port
+                </div>
+                <div class="p-col-4 p-justify-between p-align-center icons-block">
+                  <input type="text" placeholder="" [disabled]="isOnlyReadable" class="w-100-p" [(ngModel)]="action.actions[0].snmp.port"
+                    pInputText />
+                </div>
+              </div>
+
+              <div class="p-grid p-align-center" *ngIf="sendSnmpTraps">
+                <div class="p-col-12">SNMP Version</div>
+
+                <div class="p-col-2 icons-block">
+                  <p-radioButton name="version" value=0 [(ngModel)]="action.actions[0].snmp.version" label="v1">
+                  </p-radioButton>
+                </div>
+
+                <div class="p-col-2 icons-block">
+                  <p-radioButton name="version" value=1 [(ngModel)]="action.actions[0].snmp.version" label="v2c">
+                  </p-radioButton>
+                </div>
+
+                <div class="p-col-2 icons-block">
+                  <p-radioButton name="version" value=2 [(ngModel)]="action.actions[0].snmp.version" label="v3">
+                  </p-radioButton>
+                </div>
+
+                <div class="p-grid p-align-center w-100-p" *ngIf="action.actions[0].snmp.version == 0">
+                  <div class="p-col-2">Community</div>
+                  <div class="p-col-4">
+                    <input type="text" placeholder="" [disabled]="isOnlyReadable" class="w-100-p" [(ngModel)]="action.actions[0].snmp.community"
+                      pInputText />
+                  </div>
+                </div>
+                <div class="p-grid p-align-center w-100-p" *ngIf="action.actions[0].snmp.version == 1">
+                  <div class="p-col-2">Community</div>
+                  <div class="p-col-4">
+                    <input type="text" placeholder="" [disabled]="isOnlyReadable" class="w-100-p" [(ngModel)]="action.actions[0].snmp.community"
+                      pInputText />
+                  </div>
+                </div>
+
+                <div class="p-grid p-align-center w-100-p" *ngIf="action.actions[0].snmp.version == 2">
+                  <div class="p-col-12">SNMP v3 Security Level</div>
+                  <div class="p-grid p-align-center w-100-p">
+                    <div class="p-col-2">
+                      <p-radioButton name="securityLevel" value=0 [(ngModel)]="action.actions[0].snmp.level"
+                        label="NO_AUTH_NO_PRIV">
+                      </p-radioButton>
+                    </div>
+                    <div class="p-col-2">
+                      <p-radioButton name="securityLevel" value=1 [(ngModel)]="action.actions[0].snmp.level"
+                        label="AUTH_NO_PRIV">
+                      </p-radioButton>
+                    </div>
+                    <div class="p-col-2">
+                      <p-radioButton name="securityLevel" value=2 [(ngModel)]="action.actions[0].snmp.level"
+                        label="AUTH_PRIV">
+                      </p-radioButton>
+                    </div>
+                  </div>
+
+                  <div class="p-grid p-align-center w-100-p" *ngIf="action.actions[0].snmp.level == 0">
+                    <div class="p-col-2"><i class="icons8-user"></i>Username</div>
+                    <div class="p-col-4">
+                      <input type="text" placeholder="" [disabled]="isOnlyReadable" class="w-100-p" pInputText />
+                    </div>
+                  </div>
+
+                  <div class="w-100-p" *ngIf="action.actions[0].snmp.level == 1">
+                    <div class="p-grid p-align-center w-100-p">
+                      <div class="p-col-2">
+                        <i class="icons8-user mr-3"></i> Username
+                      </div>
+                      <div class="p-col-4 p-justify-between p-align-center icons-block">
+                        <input type="text" value="vivek.yadav" [disabled]="isOnlyReadable" placeholder="" class="w-100-p"
+                          [(ngModel)]="action.actions[0].snmp.user" pInputText />
+                      </div>
+                    </div>
+                    <div class="p-grid p-align-center w-100-p">
+                      <div class="p-col-2">
+                        <i class="icons8-resume-website mr-3"></i>
+                        <span class="line-height">Authentication Protocol</span>
+                      </div>
+                      <div class="p-col-4 p-justify-between p-align-center icons-block">
+                        <p-radioButton name="authProtocol" value=0 [(ngModel)]="action.actions[0].snmp.authProtocol"
+                          label="MD5">
+                        </p-radioButton>
+                        <p-radioButton name="authProtocol" value=1 [(ngModel)]="action.actions[0].snmp.authProtocol"
+                          label="SHA">
+                        </p-radioButton>
+                      </div>
+                    </div>
+
+                    <div class="p-grid p-align-center w-100-p">
+                      <div class="p-col-2">
+                        <i class="icons8-electrical mr-3"></i>
+                        <span class="line-height">Authentication Password</span>
+                      </div>
+                      <div class="p-col-4">
+                        <input class="w-100-p" type="password" [disabled]="isOnlyReadable" [(ngModel)]="action.actions[0].snmp.authPass"
+                          pPassword />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="p-grid" *ngIf="action.actions[0].snmp.level == 2">
+                    <div class="p-grid p-align-center w-100-p">
+                      <div class="p-col-2">
+                        <i class="icons8-user"></i>Username
+                      </div>
+                      <div class="p-col-4 p-justify-between p-align-center icons-block">
+                        <input type="text" value="aksharika.raja" [disabled]="isOnlyReadable" placeholder="" class="w-100-p"
+                          [(ngModel)]="action.actions[0].snmp.user" pInputText />
+                      </div>
+                    </div>
+                    <div class="p-grid  p-align-center w-100-p">
+                      <div class="p-col-2">
+                        <i class="icons8-resume-website mr-3"></i>
+                        Authentication Protocol
+                      </div>
+                      <div class="p-col-6 p-justify-between p-align-center icons-block">
+                        <p-radioButton name="authProtocol" value=0 [(ngModel)]="action.actions[0].snmp.authProtocol"
+                          label="MD5">
+                        </p-radioButton>
+                        <p-radioButton name="authProtocol" value=1 [(ngModel)]="action.actions[0].snmp.authProtocol"
+                          label="SHA">
+                        </p-radioButton>
+                      </div>
+                    </div>
+                    <div class="p-grid p-align-center w-100-p">
+                      <div class="p-col-2">
+                        <i class="icons8-electrical mr-3"></i>
+                        Authentication Password
+                      </div>
+                      <div class="p-col-4 p-justify-between p-align-center icons-block">
+                        <input type="password" class="w-100-p" [disabled]="isOnlyReadable" [(ngModel)]="action.actions[0].snmp.authPass"
+                          pPassword />
+                      </div>
+                    </div>
+                    <div class="p-grid p-align-center w-100-p">
+                      <div class="p-col-2">
+                        <i class="icons8-resume-website mr-3"></i>
+                        Privacy Protocol
+                      </div>
+                      <div class="p-col-6">
+                        <p-radioButton name="privacyProtocol" value=0 [(ngModel)]="action.actions[0].snmp.privProtocol"
+                          label="DES">
+                        </p-radioButton>
+                        <p-radioButton name="privacyProtocol" value=1 [(ngModel)]="action.actions[0].snmp.privProtocol"
+                          label="AES128">
+                        </p-radioButton>
+                      </div>
+                    </div>
+
+                    <div class="p-grid  p-align-center w-100-p">
+                      <div class="p-col-2">
+                        <i class="icons8-electrical mr-3"></i>
+                        Privacy Password
+                      </div>
+                      <div class="p-col-4 p-justify-between p-align-center icons-block">
+                        <input class="w-100-p" [disabled]="isOnlyReadable" type="password" [(ngModel)]="action.actions[0].snmp.privPass"
+                          pPassword />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="p-grid p-align-center w-100-p">
+                <div class="p-col-2 switch-btn">
+                  <p-inputSwitch [(ngModel)]="forwardAlertsTo" (onChange)="switchNotification('forwardAlertsTo')">
+                  </p-inputSwitch>
+                  <label for="">Forward Alerts to</label>
+                </div>
+                <div class="p-col-4" *ngIf="forwardAlertsTo">
+                  <p-dropdown [options]="alertRuleService.extensionsList" [disabled]="isOnlyReadable" [(ngModel)]="action.actions[0].extensionName" placeholder="Select Extension" [style]="{'width':'15em'}">
+                    <ng-template let-item pTemplate="selectedItem">
+                      <span style="padding: 0em 1em 0em 0em"><img class="table-header-icon"
+                          style="width: 18px; height: 18px; margin: 0px -8px -8px 0px;" border='0' title="{{item.label}}" alt="hello"
+                          src='{{imagePath}}{{item.icon}}.png'></span>
+                      <span style="vertical-align:sub">{{item.label}}</span>
+                    </ng-template>
+                    <ng-template let-extension pTemplate="item">
+                      <span style="padding: 0em 1em 0em 0em;float: left;"><img
+                          style="width: 18px; height: 18px;margin: -7px -8px -8px 0px;" border='0' title="{{extension.label}}"
+                          src='{{imagePath}}{{extension.icon}}.png'></span>
+                      <div style="padding-top: 3px;" title="{{extension.label}}">{{extension.label}}</div>
+                    </ng-template>
+                  </p-dropdown>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="normal-fieldset">
+            <label class="aco-label" (click)="toggleShowDiagnostics()">
+              <i class="icons8" [ngClass]="diagnostics ? 'icons8-expand-arrow' : 'icons8-forward'"></i>
+              Diagnostics
+            </label>
+            <div class="normal-inner" *ngIf="diagnostics">
+
+              <div class="p-grid">
+                <div class="p-col-12 switch-btn">
+                  <p-inputSwitch [(ngModel)]="threadDump" (onChange)="switchDiagnostics('threadDump')">
+                  </p-inputSwitch>
+                  <label for="">Take a Thread dump</label>
+                </div>
+                <div class="p-grid p-align-center w-100-p" *ngIf="threadDump">
+                  <div class="p-col-2">Number of Thread dumps </div>
+                  <input type="number" [disabled]="isOnlyReadable" value=2 [(ngModel)]="action.actions[0].threadDump.execute" class="width-70"
+                    pInputText />
+                  <div class="ml-3 mr-20">Every</div>
+
+                  <input type="number" [disabled]="isOnlyReadable" value=10 [(ngModel)]="action.actions[0].threadDump.interval" class="width-70"
+                    pInputText />
+                  <div class="ml-3 mr-20">Second(s)</div>
+                  <div class="ml-20 mr-5">Max time for taking Thread dumps</div>
+                  <input type="number" [disabled]="isOnlyReadable" value=5 [(ngModel)]="action.actions[0].threadDump.timeout" class="width-70"
+                    pInputText />
+                  <span class="mx-2"> in Minute(s)</span>
+
+                  <!-- <span class="line-height">Max time for taking Thread dumps </span> -->
+                </div>
+
+                <div class="p-col-12 switch-btn">
+                  <p-inputSwitch [(ngModel)]="heapDump" (onChange)="switchDiagnostics('heapDump')">
+                  </p-inputSwitch>
+                  <label for="">Take a Heap dump</label>
+                </div>
+
+                <div class="p-grid p-align-center w-100-p" *ngIf="heapDump">
+                  <div class="p-col-2">Number of Heap dumps</div>
+
+                  <input type="text" [disabled]="isOnlyReadable" value=2 placeholder="" [(ngModel)]="action.actions[0].heapDump.execute"
+                    class="width-70" pInputText />
+                  <div class="ml-3 mr-20">Every</div>
+
+                  <input type="text" [disabled]="isOnlyReadable" value=10 placeholder="" [(ngModel)]="action.actions[0].heapDump.interval"
+                    class="width-70" pInputText />
+                  <div class="ml-3 mr-20">Second(s)</div>
+
+                  <div class="ml-20 mr-5">Max time for taking Heap dumps</div>
+                  <input type="text" [disabled]="isOnlyReadable" value=5 placeholder="" [(ngModel)]="action.actions[0].heapDump.timeout"
+                    class="width-70" pInputText />
+                  <span class="mx-3"> in Minute(s)</span>
+                </div>
+
+
+
+                <div class="p-col-12 switch-btn">
+                  <p-inputSwitch [(ngModel)]="cpuProfiling" (onChange)="switchDiagnostics('cpuProfiling')">
+                  </p-inputSwitch>
+                  <label for="">CPU Profiling</label>
+                </div>
+                <div class="p-grid p-align-center w-100-p" *ngIf="cpuProfiling">
+                  <div class="p-col-2">Duration</div>
+                  <input type="text" [disabled]="isOnlyReadable" value=10 placeholder="" [(ngModel)]="action.actions[0].heapDump.interval"
+                    class="width-70" pInputText />
+                  <div class="mx-3">sec(s)</div>
+                </div>
+                <!-- </div>
+
+
+                        <div class="p-grid"> -->
+                <div class="p-col-12 switch-btn">
+                  <p-inputSwitch [(ngModel)]="tcpDump" (onChange)="switchDiagnostics('tcpDump')">
+                  </p-inputSwitch>
+                  <label for="">Take a TCP dump</label>
+                </div>
+                <div class="p-grid p-align-center w-100-p" *ngIf="tcpDump">
+
+                  <div class="p-col-2">Interface</div>
+                  <div class="p-col-2">
+                    <input type="text" [disabled]="isOnlyReadable" value="eth0" [(ngModel)]="action.actions[0].tcpDump.interfaceName" placeholder=""
+                      class="w-100-p" pInputText />
+                  </div>
+
+                  <div class="p-col-2  p-offset-1">Max Duration</div>
+                  <div class="p-col-2">
+                    <input type="text" [disabled]="isOnlyReadable" value=120 [(ngModel)]="action.actions[0].tcpDump.duration" placeholder=""
+                      class="w-100-p" pInputText />
+                  </div>
+                  <div class="p-col-3">sec(s)</div>
+
+
+
+                  <!-- </div>
+                            <div class="p-grid" *ngIf="tcpDump"> -->
+
+                  <div class="p-col-2">Size</div>
+                  <div class="p-col-2">
+                    <input type="text" [disabled]="isOnlyReadable" value=10 [(ngModel)]="action.actions[0].tcpDump.fileSize" placeholder=""
+                      class="w-100-p" pInputText />
+                  </div>
+                  <div class="p-col-1">MB</div>
+
+                  <div class="p-col-2">Number of Packets</div>
+                  <div class="p-col-2">
+                    <input type="text" [disabled]="isOnlyReadable" value=6400 [(ngModel)]="action.actions[0].tcpDump.packetNum" placeholder=""
+                      class="w-100-p" pInputText />
+                  </div>
+                  <div class="p-col-3"></div>
+
+                  <div class="p-col-2">Port</div>
+                  <div class="p-col-2">
+                    <input type="text" [disabled]="isOnlyReadable" value=80 [(ngModel)]="action.actions[0].tcpDump.port" placeholder=""
+                      class="w-100-p" pInputText />
+                  </div>
+                  <div class="p-col-2 p-offset-1">
+                    <span class="line-height">Additional Attributes</span>
+                  </div>
+                  <div class="p-col-2">
+                    <input type="text" [disabled]="isOnlyReadable" [(ngModel)]="action.actions[0].tcpDump.command" placeholder="" class="w-100-p"
+                      pInputText />
+                  </div>
+                  <div class="p-col-3">
+                    <i class="icons8-user-shield"></i>
+                    <i class="icons8-help"></i>
+                  </div>
+                </div>
+
+                <div class="p-col-12 switch-btn">
+                  <p-inputSwitch [(ngModel)]="javaFlightRecorder" (onChange)="switchDiagnostics('javaFlightRecorder')">
+                  </p-inputSwitch>
+                  <label for="">Java Flight Recorder</label>
+                </div>
+                <!-- </div> -->
+                <div class="p-grid p-align-center w-100-p" *ngIf="javaFlightRecorder">
+
+                  <div class="p-col-2">JFR would be initiated for </div>
+
+                  <input type="text" [disabled]="isOnlyReadable" value="10" placeholder="" [(ngModel)]="action.actions[0].jfr.sTime"
+                    class="width-70" pInputText />
+
+                  <p-dropdown class="mx-3" [disabled]="isOnlyReadable" [options]="jfrTimeDuration" [(ngModel)]="action.actions[0].jfr.sTimePrefix"
+                    [style]="{'min-width':'120px'}" dropdownIcon="icons8 icons8-expand-arrow">
+                  </p-dropdown>
+                  <div class="mx-3">and saved at </div>
+                  <input type="text" [disabled]="isOnlyReadable" value="/tmp/" placeholder="" [(ngModel)]="action.actions[0].jfr.path"
+                    class="width-120 mx-3" pInputText />
+
+                  <div class="mx-3"> with maximum expected file size of </div>
+
+
+                  <input type="text" [disabled]="isOnlyReadable" value="10" placeholder="" [(ngModel)]="action.actions[0].jfr.fileSize"
+                    class="width-70 mx-3" pInputText />
+                  <p-dropdown class="mx-3" [disabled]="isOnlyReadable" [options]="jfrFileSize" [(ngModel)]="action.actions[0].jfr.fileSizePrefix"
+                    [style]="{'min-width':'70px'}" dropdownIcon="icons8 icons8-expand-arrow">
+                  </p-dropdown>
+
+                  <div class="mx-3"> and waiting time </div>
+                  <input type="text" value="20" [disabled]="isOnlyReadable" placeholder="" [(ngModel)]="action.actions[0].jfr.timeout"
+                    class="width-70 mx-3 mt-6" pInputText />
+
+                  <p-dropdown [disabled]="isOnlyReadable" [options]="jfrTimeDuration" class="mt-6" [(ngModel)]="action.actions[0].jfr.timeOutPrefix"
+                    [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow">
+                  </p-dropdown>
+                </div>
+
+              </div>
+
+
+            </div>
+          </div>
+
+
+
+          <div class="normal-fieldset">
+            <label class="aco-label" (click)="toggleShowRemediation1()">
+              <i class="icons8" [ngClass]="remediation1 ? 'icons8-expand-arrow' : 'icons8-forward'"></i>
+              Remediation
+            </label>
+            <div class="normal-inner" *ngIf="remediation1">
+
+              <div class="p-grid">
+                <div class="p-col-12 switch-btn">
+                  <p-inputSwitch [(ngModel)]="remediation" (onChange)="switchRemediation('remediation')">
+                  </p-inputSwitch>
+                  <label for="">Run a script executable on problematic Nodes</label>
+                </div>
+              </div>
+              <div class="p-grid p-align-center w-100-p" *ngIf="remediation">
+                <div class="p-col-2">Script Name</div>
+                <div class="p-col-4">
+                  <input type="text" [disabled]="isOnlyReadable" placeholder="" class="w-100-p" [(ngModel)]="action.actions[0].command.name"
+                    pInputText />
+                </div>
+                <div class="p-col-4 switch-btn">
+                  <p-inputSwitch [(ngModel)]="action.actions[0].command.runOnServer"></p-inputSwitch>
+                  <label for="">Run on Server</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+
+          <div class="normal-fieldset">
+            <label class="aco-label" (click)="toggleShowAdvanceConfig()">
+              <i class="icons8" [ngClass]="advanceConfig ? 'icons8-expand-arrow' : 'icons8-forward'"></i>
+              Advanced Configuration
+            </label>
+            <div class="normal-inner" *ngIf="advanceConfig">
+
+              <div class="p-grid p-align-center w-100-p">
+                <div class="p-col-3">
+                  Pattern to fetch Indices Identifier($SUBJECT_ID) :
+                </div>
+                <div class="p-col-4">
+                  <input type="text" [disabled]="isOnlyReadable" placeholder="" class="w-100-p" [(ngModel)]="action.actions[0].indicesPattern"
+                    pInputText />
+                </div>
+                <div class="p-col-2">
+                  <i class="icons8-help"></i>
+                </div>
+              </div>
+
+              <div class="p-grid p-align-center w-100-p">
+                <div class="p-col-3">
+                  Test above indices identifier pattern on :
+                </div>
+                <div class="p-col-4">
+                  <textarea pInputTextarea [disabled]="isOnlyReadable" class="w-100-p sizeHeight" [(ngModel)]="patternString"></textarea>
+                </div>
+                <div class="p-col-2">
+                  <button type="submit" [disabled]="isOnlyReadable" pButton class="test-button" label="Test" (click)="testPattern()"></button>
+                </div>
+              </div>
+
+              <div class="p-grid">
+                <div class="p-col-12 switch-btn">
+                  <p-inputSwitch [(ngModel)]="advancedConfig"></p-inputSwitch>
+                  <label for="">Provide favorite link in place of $DASHBOARD_LINK</label>
+                </div>
+                <div class="p-grid p-align-center w-100-p ml-8" *ngIf="advancedConfig">
+                  <span class="line-height">Open favorite metrics with graph time including (±) </span> &nbsp; &nbsp;
+                  <p-inputNumber [size]="5" [disabled]="isOnlyReadable" [(ngModel)]="advancedConfigVal"></p-inputNumber> &nbsp; &nbsp;
+                  <span class="line-height"> minute(s) and time window given in rule</span>
+                </div>
+                <div class="p-grid" *ngIf="advancedConfig">
+                  <div class="p-col-12 switch-btn">
+                    <p-inputSwitch></p-inputSwitch>
+                    <label for="">Place all the metrics in separate widget</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-grid p-align-center p-justify-end p-col-12" *ngIf="fromRule">
+        <button pButton type="button" label="Cancel" class="ui-button-rounded ui-button-secondary mx-3"
+          (click)="closeDialog()"></button>
+        <button pButton type="submit" label="Save" *ngIf="!isEdit && !isOnlyReadable" class="ui-button-rounded mx-3"
+          (click)="actionApply()"></button>
+        <button pButton type="update" label="Update" *ngIf="isEdit && !isOnlyReadable" class="ui-button-rounded ml-3"
+          (click)="actionUpdated()"></button>
+      </div>
+
+      <!-- </p-dialog> -->
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ==============advance email dialog=================== -->
+<div class="add-action-dialog">
+  <p-dialog [(visible)]="AdvaceEmail" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true"
+    class="secondary-dialog" [draggable]="false" [style]="{width: '950px'}">
+    <p-header>
+      <div class="compare-data-title">
+        <div>Advance Email Settings</div>
+        <div class="action-buttons">
+          <i class="icons8 icons8-delete" (click)="AdvaceEmail=false"></i>
+        </div>
+      </div>
+    </p-header>
+
+    <div class="dialog-content">
+      <p-fieldset legend="Chart Configuration">
+        <div class="p-grid p-align-center">
+          <p-inputSwitch [(ngModel)]="action.actions[0].chart.enable"></p-inputSwitch>
+          <label>Show charts in E-mail</label>
+        </div>
+
+        <div *ngIf="action.actions[0].chart.enable" class="ml-37 my-10">
+          <div class="p-grid p-align-center">
+            <label>Include maximum</label>
+            <input id="input" [disabled]="isOnlyReadable" type="number" class="width-60 mx-3" [(ngModel)]="action.actions[0].chart.maxNumOfChart"
+              pInputText>
+            <p-dropdown [options]="chartTypeOption" [disabled]="isOnlyReadable" placeholder="line" optionLabel="label" class="mx-3"
+              [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"
+              [(ngModel)]="action.actions[0].chart.type"></p-dropdown>
+            <label class="mx-3">charts for last</label>
+            <input id="input" [disabled]="isOnlyReadable" type="number" class="width-60 mx-3" [(ngModel)]="action.actions[0].chart.duration"
+              pInputText>
+            <label class="mx-3">minutes</label>
+          </div>
+          <div class="p-grid p-align-center my-10">Criteria to select chart metrics</div>
+          <div class="ml-37">
+            <div class="p-grid p-align-center my-10">
+              <p-inputSwitch [(ngModel)]="action.actions[0].chart.allGraphs"></p-inputSwitch>
+              <label>Use metrics on which alerts are generated</label>
+            </div>
+            <div class="p-grid p-align-center my-10">
+              <p-inputSwitch [(ngModel)]="action.actions[0].chart.pattern"></p-inputSwitch>
+              <label>Identify and show more relevant metrics where similar pattern is matched </label>
+            </div>
+            <div *ngIf="action.actions[0].chart.pattern" class="p-grid p-align-center my-10">
+              <label>out of metrics collection</label>
+              <p-dropdown [disabled]="isOnlyReadable" [options]="cities" placeholder="select catalogue" optionLabel="label" class="mx-3"
+                [style]="{'min-width':'160px'}" dropdownIcon="icons8 icons8-expand-arrow"
+                [(ngModel)]="action.actions[0].chart.catalogueName"></p-dropdown>
+<!--               <i class="icons8 icons8-info mx-3" (click)="op3.toggle($event)"></i>
+ -->              <label class="mx-3">having pattern match threshold as</label>
+              <input id="input" [disabled]="isOnlyReadable" type="number" class="width-60 mx-3" [(ngModel)]="action.actions[0].chart.threshold"
+                pInputText>
+              <p-dropdown [options]="withOrWithout" [disabled]="isOnlyReadable" placeholder="with" optionLabel="label" class="mx-3"
+                [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"
+                [(ngModel)]="action.actions[0].chart.inversePattern"></p-dropdown>
+              <label class="mx-3">inverse match</label>
+              <div class="p-grid p-align-center my-10">
+                <label>where baseline alert metric is picked based on</label>
+                <p-dropdown [options]="max_min_option" [disabled]="isOnlyReadable" placeholder="maximum" optionLabel="label" class="mx-3"
+                  [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"
+                  [(ngModel)]="action.actions[0].chart.maxBaseline"></p-dropdown>
+                <label class="mx-3">alert condition value</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-grid p-align-center">
+            <p-inputSwitch [(ngModel)]="action.actions[0].chart.singleGraph"></p-inputSwitch>
+            <label>Place all the metrics in separate charts </label>
+          </div>
+        </div>
+      </p-fieldset>
+
+      <p-fieldset legend="Stats Report configuration">
+        <div class="p-grid p-align-center">
+          <p-inputSwitch [(ngModel)]="action.actions[0].report.enable"></p-inputSwitch>
+          <label>Generate report and send link with mail </label>
+        </div>
+
+        <div *ngIf="action.actions[0].report.enable" class="ml-37 my-10">
+          <div class="p-grid p-align-center">
+            <label>Include</label>
+            <p-dropdown [options]="reportTypeOption" [disabled]="isOnlyReadable" placeholder="Tabular" optionLabel="label" class="mx-3"
+              [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"
+              [(ngModel)]="action.actions[0].report.type"></p-dropdown>
+            <label class="mx-3">report for last</label>
+            <input id="input" type="number" class="width-60 mx-3" [disabled]="isOnlyReadable" [(ngModel)]="action.actions[0].report.duration"
+              pInputText>
+            <label class="mx-3">minutes</label>
+            <p-dropdown [options]="withOrWithout" [disabled]="isOnlyReadable" placeholder="without" optionLabel="label" class="mx-3"
+              [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"
+              [(ngModel)]="action.actions[0].report.chartInclude"></p-dropdown>
+            <label class="mx-3">charts</label>
+          </div>
+          <div class="p-grid p-align-center my-10">
+            Criteria to select metrics for report
+          </div>
+
+          <div class="p-grid p-align-center ml-37 my-10">
+            <p-inputSwitch [(ngModel)]="action.actions[0].report.allGraph"></p-inputSwitch>
+            <label>Use metrics on which alerts are generated </label>
+          </div>
+
+          <div class="p-grid p-align-center ml-37 my-10">
+            <p-inputSwitch [(ngModel)]="action.actions[0].report.fromUserGraph"></p-inputSwitch>
+            <label>Use metrics from the</label>
+            <p-dropdown [options]="metricsOption" [disabled]="!action.actions[0].report.fromUserGraph || isOnlyReadable" placeholder="select" optionLabel="label" class="mx-3"
+              [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"
+              [(ngModel)]="action.actions[0].report.favOrTempType"></p-dropdown>
+            <p-dropdown *ngIf="action.actions[0].report.favOrTempType && action.actions[0].report.fromUserGraph" [disabled]="isOnlyReadable" [options]="templateOption" placeholder="select favorite" optionLabel="name" class="mx-3"
+              [style]="{'min-width':'160px'}" dropdownIcon="icons8 icons8-expand-arrow"
+              [(ngModel)]="action.actions[0].report.favOrTempName"></p-dropdown>
+          </div>
+        </div>
+      </p-fieldset>
+    </div>
+    <p-footer>
+      <div class="p-grid p-justify-end my-10  form-buttons right">
+        <button pButton type="button" label="Cancel" class="ui-button-rounded ui-button-secondary"
+          (click)="AdvaceEmail=false"></button>
+        <button *ngIf='!isOnlyReadable' pButton type="submit" label="Save" class="ui-button-rounded"></button>
+      </div>
+    </p-footer>
+  </p-dialog>
+
+</div>

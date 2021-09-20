@@ -1,0 +1,98 @@
+<div class="h-100-vh auto-monitor-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/configure-monitors">
+                <span class="icons8 icons8-left toolbar-icon-color"></span>
+            </a>
+            <div class="p-col ui-toolbar-text">Auto Monitors</div>
+            <div>
+                <button type="submit" pButton class="ui-button ui-button-rounded ui-button-right" form="ngForm"
+                    label="Save"></button>
+            </div>
+        </div>
+    </p-toolbar>
+
+    <div class="content-body p-grid">
+        <form (ngSubmit)="saveAutoMon()" id="ngForm" ngNativeValidate>
+            <div class="p-grid p-col-12 p-justify-start p-align-start server-list-container">
+                <p-accordion *ngFor="let data of monitorData;let i = index">
+                    <p-accordionTab header="{{data.name}}">
+                        <div class="p-col-12">
+                            <div class="buttonCont my-5">
+                                <button pButton class="toolbarIcon" *ngIf="!isShowFilter" type="button"
+                                    icon="icons8 icons8-search" (click)="showFilter()" title="Show Filter"></button>
+                                <button pButton class="toolbarIcon" *ngIf="isShowFilter" type="button"
+                                    icon="icons8 icons8-search" (click)="showFilter()" title="Hide Filter"></button>
+                            </div>
+                            <p-table class="all-tables" #searchable [columns]="cols" [value]="data.monitor"
+                                [scrollable]="true" scrollHeight="350px" selectionMode="multiple"
+                                [(selection)]="selectedProduct1">
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                        <ng-container>
+                                            <th class="columnwidth" rowspan="2">
+                                                <p-checkbox name="groupname_{{i}}" [binary]="true"
+                                                    [(ngModel)]=" autoMonitorData[i]['isMasterCheckbox']"
+                                                    (onChange)="onCheckBoxChange(data.monitor, $event)"></p-checkbox>
+                                            </th>
+                                        </ng-container>
+
+                                        <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                                            {{col.header}}
+                                            <p-sortIcon [field]="col.field">
+                                            </p-sortIcon>
+                                        </th>
+                                    </tr>
+                                    <tr *ngIf="isShowFilter">
+                                        <th [ngSwitch]="'dn'">
+                                            <input class="w-100-p" pInputText type="text"
+                                                (input)="searchable.filter($event.target.value, 'dn', 'contains')">
+                                        </th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                                    <tr>
+                                        <ng-container *ngFor="let col of columns">
+                                            <td class="columnwidth">
+                                                <p-checkbox name="{{rowData.n_gMonId}}" [binary]="true"
+                                                    [(ngModel)]="rowData.enabled"
+                                                    (onChange)="autoMonitorData[i]['isMasterCheckbox'] = false">
+                                                </p-checkbox>
+                                            </td>
+                                        </ng-container>
+                                        <td *ngFor="let col of columns">
+                                            <span title="{{rowData[col.field]}}">{{rowData[col.field]}}<i
+                                                    class="pi pi-info-circle" title="Click to open Monitor Information"
+                                                    (click)="autoMonDesc(rowData)"></i></span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.colspan]="2" class="noRecords" style="text-align: center">No records
+                                            found.</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </p-accordionTab>
+                </p-accordion>
+            </div>
+            <div class="loading-indicator" *ngIf="loading">
+                <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+                </p-progressSpinner>
+            </div>
+        </form>
+    </div>
+</div>
+
+<p-toast position="top-right" [style]="{width: '20vw'}" [showTransitionOptions]="'0ms'" [baseZIndex]="10000100011">
+</p-toast>
+
+<div *ngIf="display">
+    <app-mon-stats [display]="display" [item]="gdfDetail" (displayChange)="onDialogClose($event)"></app-mon-stats>
+</div>

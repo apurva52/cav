@@ -1,0 +1,238 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+	<div class="ddr-box" style="overflow: auto; height: calc(50vh - 40px)">
+        <div>
+         <p-accordion class="ddr-accordion">
+            <p-accordionTab  header="Compared Method Stat - FQM : {{fqmstr}}" title="FQM : {{Completefqm}}" [selected]="true">
+                  <div class="ui-g">
+            <p-card class="ui-g-3">
+                   <!-- <chart [options]="options"></chart> -->
+                   <highcharts-chart [options]="options" [Highcharts] = "highcharts" style="width: 100%; display: block; overflow: hidden;">
+                        </highcharts-chart>
+                 <!--div  class="ddr-graphpanel">
+                    
+                 </div-->
+            </p-card>
+                  <p-card class="ui-g-3">
+                     
+                        <!-- <chart [options]="options1"></chart> -->
+                        <highcharts-chart [options]="options1"
+                            [Highcharts] = "highcharts" style="width: 100%; display: block; overflow: hidden;">
+                        </highcharts-chart>
+                    
+                  </p-card>
+                  <p-card class="ui-g-3">
+                      <div  class="ddr-graphpanel">
+                        <!-- <chart [options]="options2"></chart> -->
+                        <highcharts-chart [options]="options2"
+                            [Highcharts] = "highcharts" style="width: 100%; display: block; overflow: hidden;">
+                        </highcharts-chart>
+                      </div>
+                  </p-card>
+                  <p-card class="ui-g-3">
+                      <div  class="ddr-graphpanel">
+                        <!-- <chart [options]="options3"></chart> -->
+                        <highcharts-chart [options]="options3"
+                            [Highcharts] = "highcharts" style="width: 100%; display: block; overflow: hidden;">
+                        </highcharts-chart>
+                      </div>
+                  </p-card>
+            
+                  </div>
+             </p-accordionTab>
+         </p-accordion>
+        <p-accordion class="ddr-accordion">
+    <p-accordionTab  header="Tabular View" [selected]="true"> 
+        
+            <div class="p-grid p-justify-end p-align-center">
+                <button type="button" class="btn-icon mx-3" (click)='downloadReports("word")' title="Download as Word Report"><i class ="icons8 icons8-doc"></i></button>
+                <button type="button" class="btn-icon mx-3" (click)='downloadReports("excel")' title="Download Excel file"><i class ="icons8 icons8-spreadsheet-file"></i></button>
+                <button type="button" class="btn-icon mx-3" (click)='downloadReports("pdf")' title="Download PDF file"><i class ="icons8 icons8-pdf-2" ></i></button>
+            </div>
+            
+        
+            <p-table class="ddr-table all-tables" [value]="MTObjArr" resizableColumns="true">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th rowspan="5">Method</th>
+                        <th colspan="3">AvgSelftime(ms)</th>
+                        <th colspan="3">AvgCpuSelfTime(ms)</th>
+                        <th colspan="3">Count</th>
+			<th colspan="3">CumCpuSelfTime(sec)</th>
+                    </tr>
+                    <tr>
+                        <th>FP1</th>
+                        <th>FP2</th>
+                        <th>Changes(%)</th>
+                        <th>FP1</th>
+                        <th>FP2</th>
+                        <th>Changes(%)</th>
+                        <th>FP1</th>
+                        <th>FP2</th>
+                        <th>Changes(%)</th>
+			<th>FP1</th>
+                        <th>FP2</th>
+                        <th>Changes(%)</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-node>
+                    <tr>
+                        <td>
+                           
+                            <div style="text-align: left"   pTooltip={{(node.mN)}} tooltipPosition="bottom"> 
+                                <span>
+                                    <a [ngClass]="'activeLink'" (click)="showMTrelatedData(node)">
+                                        {{node.mN}}
+                                    </a>
+                                </span>
+                                
+                             </div>
+                        </td>
+                        <td>
+                            <div style="text-align: right ;">{{node.avgselftime_FP1}} </div>
+                        </td>
+                        <td>
+                            <div style="text-align: right ;">{{node.avgselftime_FP2}} </div>
+                        </td>
+                        <td>
+                            <div style="text-align: right ;">{{node.avgselftime_Changes}} </div>
+                        </td>
+                        <td>
+                            <div style="text-align: right ;">{{node.avg_cpu_self_time_in_ms_FP1}} </div>
+                        </td>
+                        <td>
+                            <div style="text-align: right ;">{{node.avg_cpu_self_time_in_ms_FP2}} </div>
+                        </td>
+                        <td>
+                            <div style="text-align: right ;">{{node.avg_cpu_self_time_in_ms_Changes}} </div>
+                        </td>
+                        <td>
+                            <div style="text-align: right ;">{{node.executionCount_FP1}} </div>
+                        </td>
+			<td>
+                            <div style="text-align: right ;">{{node.executionCount_FP2}} </div>
+                        </td>
+                        <td>
+                            <div style="text-align: right ;">{{node.executionCount_Changes}} </div>
+                        </td>
+                        <td>
+                            <div style="text-align: right ;">{{node.total_cpu_self_time_in_ns_FP1}} </div>
+                        </td>
+                        <td>
+                            <div style="text-align: right ;">{{node.total_cpu_self_time_in_ns_FP2}} </div>
+                        </td>
+                        <td>
+                            <div style="text-align: right ;">{{node.total_cpu_self_time_in_ns_Changes}} </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+    <!-- <p-dataTable class="ddr-table" [value]="MTObjArr" resizableColumns="true">
+    <p-headerColumnGroup>
+        <p-row>
+            <p-column header="Method" rowspan="2" [style]="{'width':'300px'}"> </p-column>
+            <p-column header="AvgSelftime(ms)" colspan="3" [style]="{'width': '300px'}"></p-column>
+             <p-column header="AvgCpuSelfTime(ms)" colspan="3" [style]="{'width': '300px'}"></p-column>
+              <p-column header="Count" colspan="3" [style]="{'width': '300px'}"></p-column>
+              <p-column header="CumCpuSelfTime(sec)" colspan="3" [style]="{'width': '300px'}"></p-column>
+        </p-row>
+        <p-row>
+            <p-column header="FP1" ></p-column>
+            <p-column header="FP2"></p-column>
+             <p-column header="Changes(%)" ></p-column>
+            <p-column header="FP1"></p-column>
+             <p-column header="FP2" ></p-column>
+            <p-column header="Changes(%)"></p-column>
+             <p-column header="FP1" ></p-column>
+            <p-column header="FP2"></p-column>
+             <p-column header="Changes(%)" ></p-column>
+            <p-column header="FP1"></p-column>
+             <p-column header="FP2" ></p-column>
+            <p-column header="Changes(%)"></p-column>
+        </p-row>
+    </p-headerColumnGroup>
+    
+    <p-column field="mN">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div class ="ddr-table-left"  (click)="showMTrelatedData(node)" pTooltip={{(node[col.field])}} tooltipPosition="bottom">
+                    {{node[col.field]}} </div>
+                 </ng-template>
+    </p-column>
+    <p-column field="avgselftime_FP1">
+       <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: right ;">
+                    {{node[col.field]}} </div>
+                 </ng-template>
+    </p-column>
+    <p-column field="avgselftime_FP2">
+       <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: right ;">
+                    {{node[col.field]}} </div>
+                 </ng-template>
+    </p-column>
+    <p-column field="avgselftime_Changes">
+        <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: right ;">
+                    {{node[col.field]}} </div>
+                 </ng-template>
+    </p-column>
+    <p-column field="avg_cpu_self_time_in_ms_FP1">
+        <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: right ;">
+                    {{node[col.field]}} </div>
+                 </ng-template>
+    </p-column>
+    <p-column field="avg_cpu_self_time_in_ms_FP2">
+        <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: right ;">
+                    {{node[col.field]}} </div>
+                 </ng-template>
+    </p-column>
+    <p-column field="avg_cpu_self_time_in_ms_Changes">
+        <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: right ;">
+                    {{node[col.field]}} </div>
+                 </ng-template>
+    </p-column>
+     <p-column field="executionCount_FP1">
+         <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: right ;">
+                    {{node[col.field]}} </div>
+                 </ng-template>
+     </p-column>
+    <p-column field="executionCount_FP2">
+        <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: right ;" >
+                    {{node[col.field]}} </div>
+                 </ng-template>
+    </p-column>
+    <p-column field="executionCount_Changes">
+        <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: right ;">
+                    {{node[col.field]}} </div>
+                 </ng-template>
+    </p-column>
+    <p-column field="total_cpu_self_time_in_ns_FP1">
+        <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: right ;" >
+                    {{node[col.field]}} </div>
+                 </ng-template>
+    </p-column>
+    <p-column field="total_cpu_self_time_in_ns_FP2">
+        <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: right ;">
+                    {{node[col.field]}} </div>
+                 </ng-template>
+    </p-column>
+    <p-column field="total_cpu_self_time_in_ns_Changes">
+        <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: right ;">
+                    {{node[col.field]}} </div>
+                 </ng-template>
+    </p-column>
+</p-dataTable> -->
+
+</p-accordionTab>
+</p-accordion>
+</div>
+	</div>

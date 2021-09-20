@@ -1,0 +1,194 @@
+<div class="header">
+<app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/home-sessions">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                Custom Metrics Reports
+            </div>
+        </div>
+</p-toolbar>
+ <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+ </div>
+
+<div class="p-grid" style="height: calc(100vh - 130px);overflow-y: scroll;overflow-x: hidden;">
+<div class="p-col-12 ">
+<div class="action-container">
+            <div class="p-grid p-justify-between p-align-center action-grid w-100-p">
+                <div class="global-search-block">
+                    <div>
+                        <i class="icons8 icons8-filter left filter-icon" (click)="filteropen()"></i>
+                    </div>
+                </div>
+            </div>
+</div>
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+  blockScroll="true" appendTo="body" styleClass="time-filter" [baseZIndex]="100">
+  <div class="sidebar-header">
+    <div class="sidebar-title p-grid p-justify-between">
+      <div>
+        <i class="icons8 icons8-clock"></i>
+        <span>Custom Metrics Analytics Filter</span>
+      </div>
+      <i class="icons8-delete icons8 clickable" (click)="closeClick()"></i>
+    </div>
+  </div>
+
+  <div class="sidebar-content">
+    <form [formGroup]="pageForm">
+                <div class="p-grid p-align-center">
+                        <div class="p-col-4">
+                           <p-radioButton name="timefilter" formControlName="_timefilter"label="Last" value="last" (click)="triggerfilter()"></p-radioButton>
+                        </div>
+                        <div class="p-col-8">
+                            <p-dropdown [options]="lasttimeoption" dropdownIcon="icons8 icons8-expand-arrow"  formControlName="lastval"></p-dropdown>
+                        </div>
+                    
+                        <div class="p-col-12" >
+                          <p-radioButton name="timefilter" formControlName="_timefilter" label="custom" (click)="triggerfilter()" value="Custom"></p-radioButton>
+                        </div>  
+                </div> 
+                     <div class="p-grid p-align-center">
+                     <label class="p-col-4" >Starts At</label>
+                        <div class="p-col-8">
+                        <div class="p-input-icon-left search-div-css">
+                            <i class="icons8 icons8-calendar"></i>
+                            <input pInputText class="customInput" readonly id="start-date-time"
+                                [owlDateTime]="customStartDateTime" 
+                                [owlDateTimeTrigger]="customStartDateTime"
+                                (dateTimeChange)="onTimeFilterCustomTimeChange('start')" [selectMode]="'rangeFrom'"
+                                [max]="customTimeFrameMax" [formControl]="pageForm.controls['customTime']">
+                            <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                            <p-message *ngIf="invalidDate" severity="error"
+                                text="Start date and End date should not be the same.">
+                            </p-message>
+                        </div>
+                        </div>
+                         </div>
+                         <div class="p-grid p-align-center">
+                        <label class="p-col-4" >Ends At</label>
+                        <div class="p-col-8">
+                        <div class="p-input-icon-left search-div-css">
+                            <i class="icons8 icons8-calendar"></i>
+                            <input pInputText  class="customInput" readonly id="start-date-time"
+                                [owlDateTime]="customEndDateTime" 
+                                [owlDateTimeTrigger]="customEndDateTime"
+                                (dateTimeChange)="onTimeFilterCustomTimeChange('end')" [selectMode]="'rangeTo'"
+                                [max]="customTimeFrameMax" [formControl]="pageForm.controls['customTime']">
+                            <owl-date-time #customEndDateTime tooltipZIndex="100001005"></owl-date-time>
+                            <p-message *ngIf="invalidDate" severity="error"
+                                text="Start date and End date should not be the same.">
+                            </p-message>
+                        </div>
+                        </div>
+                        </div>
+                    <div class="p-col-12 p-justify-between p-align-center" >
+                             <label>Channel</label>  
+                            <p-dropdown [options]="channelopn" [style]="{'width':'250px','margin-left':'43px'}" class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" placeholder='Select Channel' formControlName="channelform"  ></p-dropdown>
+                    </div>
+                    <div class="p-col-12 p-justify-between p-align-center" >
+                             <label>Custom Metrics</label>  
+                            <p-dropdown [options]="custommerticsopn" [style]="{'width':'250px','margin-left':'3px'}" class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" placeholder='Select Custom Metrics' formControlName="customform"></p-dropdown>
+                    </div>
+                    <div class="p-col-12 p-justify-between p-align-center" >
+                         <label>BucketSize</label>  
+                         <p-dropdown [options]="bucketopn" pTooltip="Select Bucket Size" [style]="{'width':'250px','margin-left':'30px'}" class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" placeholder='Select BucketSize' formControlName="bucket"  ></p-dropdown>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button pButton  label="RESET"
+                            class="ui-outline-button ui-button-secondary" (click)='setForm()' ></button>
+                        <button pButton type="submit" label="APPLY" class="ui-button-rounded ui-button-right" (click)='submitRecord()'></button>
+                    </div>        
+    </form>
+  </div>
+
+</p-sidebar>
+
+
+
+
+
+<p-accordion *ngIf="enableChart">
+   <p-accordionTab [selected]="true">
+       <p-header>
+            <span><i class="fa fa-filter px-2" aria-hidden="true"></i>Top n  KeyWords</span>
+             <span style="    float: right;margin-right: -100px;" > Top
+              <input id="selecttophost" style="width: 12%;height: 21px;" type="text" value="10" class="ng-untouched ng-pristine ng-valid" [(ngModel)]= "limitInput" (blur)="onBlurMethod()">
+            </span>
+        </p-header>
+
+        <div class="p-grid">
+            <div class="p-col-6 " *ngIf="enableChart" >
+                <app-chart [data]="data.chartspie[0]"></app-chart>
+            </div>
+            <div class="p-col-6 ">
+                <ng-container>
+                <p-card class="content">  
+                        <p-table #cavissonServices [resizableColumns]="true"
+                        [columns]="data.headers[0].cols" [value]="data.data" [paginator]="true"
+                        [rows]="data.paginator.rows"
+                        [rowHover]="true" [responsive]="true" [scrollable]="true" scrollHeight="400px" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions">
+                        
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                               <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                  <div class="text-left">
+                    {{ col.label }}
+                    <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right" ariaLabel="Activate to sort"
+                      ariaLabelDesc="Activate to sort in descending order"
+                      ariaLabelAsc="Activate to sort in ascending order">
+                    </p-sortIcon>
+                  </div>
+                            </th>                             
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                            <tr>
+                                <td *ngFor="let col of columns">
+                                    {{ row[col.valueField] }}
+                                </td>
+                            </tr>
+                        </ng-template>
+                         
+                        
+                       </p-table>
+                    </p-card>
+            </ng-container>
+            </div>
+            </div>
+   </p-accordionTab>
+</p-accordion>
+
+<p-accordion *ngIf="enableChart">
+   <p-accordionTab [selected]="true">
+       <p-header>
+            <span><i class="fa fa-filter px-2" aria-hidden="true"></i>Trend for n  KeyWords</span>
+        </p-header>
+        <div class="p-grid">
+            <div class="p-col-12" *ngIf="enableChart" >
+                <app-chart [data]="data.chartstrend[0]"></app-chart>
+            </div>
+         </div>
+   </p-accordionTab>
+</p-accordion>
+
+<p-accordion *ngIf="enableChart">
+   <p-accordionTab [selected]="true">
+       <p-header>
+            <span><i class="fa fa-filter px-2" aria-hidden="true"></i>Correlation for n  Keywords</span>
+        </p-header>
+        <div class="p-grid">
+            <div class="p-col-12" *ngIf="enableChart" >
+                <app-chart [data]="data.chartscorelation[0]"></app-chart>
+            </div>
+         </div>
+   </p-accordionTab>
+</p-accordion>
+
+</div>
+</div>

@@ -1,0 +1,366 @@
+<div class="h-100-vh variation-container" #widget>
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/dashboard">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">VARIATION</div>
+        </div>
+    </p-toolbar>
+
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+
+    <div class="p-col-12 panel-card">
+        <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true"
+            [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl1.toggle($event)">
+                        <a>
+                            <span
+                                [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                            </span>
+                        </a>
+                        NV Variations
+                    </div>
+                </div>
+            </p-header>
+            <div *ngIf="data">
+                <div class="vertical-container">
+                    <div class="action-container">
+                        <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                            <div class="global-search-block">
+
+                                <p-dropdown (onChange)="chagedata()" [options]="Abtesting"
+                                    dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="abtesting">
+                                </p-dropdown>
+
+
+                                <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-search"></i>
+                                    <input #searchInput pInputText type="text" class="input-field-search"
+                                        (input)="variation.filterGlobal($event.target.value, 'contains')"
+                                        placeholder="Search" />
+                                </div>
+                            </div>
+                            <div class="icons-container p-justify-between p-align-center">
+                                <button pButton type="button" class="ui-button ui-button-secondary ui-button-rounded"
+                                    label="ADD NEW" (click)="newForm()"></button>
+                                <button pButton type="button" class="ui-button ui-button-secondary ui-button-rounded"
+                                    label="Refresh" (click)="reload()"></button>
+                            </div>
+                        </div>
+                        <ng-container>
+                            <div #widgetHeight [ngStyle]="{
+                    height: isEnabledColumnFilter
+                      ? 'calc(100vh - 215px)'
+                      : 'calc(100vh - 172px)'
+                  }">
+
+                                <p-card class="content-body">
+                                    <p-table #variation [value]="nvvariations" [showCurrentPageReport]="true"
+                                        [rowHover]="true" [(selection)]="selectedRow" selectionMode="single"
+                                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                                        [responsive]="true" [paginator]="true" [totalRecords]="totalRecords"
+                                        [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                                        [rows]="data.paginator.rows" [scrollable]="true"
+                                        [globalFilterFields]="['name','description','channel','created','lastedit','traffic','url_or_pagelist']"
+                                        scrollHeight="calc({{widgetHeight.offsetHeight}}px - 120px)">
+                                        <ng-template pTemplate="header" let-columns>
+                                            <tr>
+                                                <th style="width: 233px;" pResizableColumn>Action</th>
+                                                <th>Status</th>
+                                                <th>Variation Name</th>
+                                                <th>Description</th>
+                                                <th>Channel</th>
+                                                <th>Created At</th>
+                                                <th>Edited At</th>
+                                                <th>Traffic Allocation</th>
+                                                <th>Page/URL</th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-data let-columns="columns">
+                                            <tr>
+
+                                                <td style="width: 233px;">
+                                                    <button pButton icon="icons8 icons8-edit"
+                                                        class="icon-button no-shadow" pTooltip="Edit"
+                                                        (click)="edit(data)"></button>
+                                                    <button pButton icon="icons8 icons8-view"
+                                                        class="icon-button no-shadow" title="Goals"
+                                                        (click)="openGoals(data.id, data)" pTooltip=""></button>
+                                                    <button pButton icon="icons8 icons8-north-direction"
+                                                        class="icon-button no-shadow" pTooltip="Open Rule"
+                                                        (click)="openRule(data)"></button>
+                                                    <button pButton (click)="setData(data)" icon="icons8 icons8-add"
+                                                        class="icon-button no-shadow" pTooltip="Add Rules"></button>
+                                                    <button pButton (click)="delete(data.id)" icon="icons8 icons8-trash"
+                                                        class="icon-button no-shadow"
+                                                        pTooltip="Click Here To Delete Variation"></button>
+                                                </td>
+                                                <td style="text-align: center;">
+                                                    <p-toggleButton onLabel="Active" offLabel="Inactive"
+                                                        onIcon="pi -check" offIcon="pi pi-times"
+                                                        [(ngModel)]="data.active" (click)="activeReq(data)">
+                                                    </p-toggleButton>
+                                                </td>
+                                                <td title=" {{data.name}}">
+                                                    {{data.name}}
+                                                </td>
+                                                <td title=" {{data.description}}">
+                                                    {{data.description}}
+                                                </td>
+                                                <td title=" {{data.channel}}">
+                                                    {{data.channel}}
+                                                </td>
+                                                <td title=" {{data.created}}">
+                                                    {{data.created}}
+                                                </td>
+                                                <td title=" {{data.lastedit}}">
+                                                    {{data.lastedit}}
+                                                </td>
+                                                <td title=" {{data.traffic}}">
+                                                    {{data.traffic}}
+                                                </td>
+                                                <td
+                                                    title="{{data.url_or_pagelist ? data.url_or_pagelist : data.url_or_pagelistt}}">
+                                                    {{data.url_or_pagelist ? data.url_or_pagelist :
+                                                    data.url_or_pagelistt}}
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                        <!-----------Empty table error handling--------------------->
+
+                                    </p-table>
+                                </p-card>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+        </p-panel>
+        <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true"
+            [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'" *ngIf="showGoals == true">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl2.toggle($event)">
+                        <a>
+                            <span
+                                [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                            </span>
+                        </a>
+                        NV Goals
+                    </div>
+                </div>
+            </p-header>
+            <div>
+                <app-goalinvariation [varId]="varId" [varName]="varName"></app-goalinvariation>
+            </div>
+        </p-panel>
+    </div>
+
+    <p-dialog [(visible)]="RuleDialog" [baseZIndex]="10000100011" [resizable]="true" [modal]="true"
+        class="secondary-dialog" [draggable]="false" [style]="{width: '615px'}">
+        <p-header>
+            <div class="compare-data-title">
+                <div>
+                    Add Rule
+                </div>
+            </div>
+        </p-header>
+        <div class="dialog-content">
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12">
+                    <input type="text" pInputText value="" placeholder="Test Url" required="" name="testurl"
+                        style="width:550px;" #testurl>
+                </div>
+            </div>
+        </div>
+        <p-footer>
+            <div style="text-align: center;">
+                <button pButton type="button" label="Preview" (click)="preview(testurl.value)"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+
+
+    <p-dialog header="Add New Variation" [(visible)]="addvisible" [baseZIndex]="10000100011" [modal]="true"
+        class="secondary-dialog" [style]="{width: '45vw'}">
+
+        <form [formGroup]="formdata">
+            <div class="dialog-content">
+                <div class="ui-fluid">
+                    <div class="p-grid">
+                        <div class="p-col-12">
+                            <input id="hostport" formControlName="name" type="text" placeholder="Name" class="w-100-p"
+                                pInputText />
+                            <span *ngIf="!formdata.get('name').valid && formdata.get('name').touched"
+                                class="help-block"> Please
+                                Enter Name </span>
+                        </div>
+                    </div>
+                    <div class="p-grid">
+                        <div class="p-col-12">
+                            <input id="hostport" type="text" placeholder="Description" formControlName="comment"
+                                class="w-100-p" pInputText />
+                            <span *ngIf="!formdata.get('comment').valid && formdata.get('comment').touched"
+                                class="help-block2">
+                                Please Enter Description </span>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12 alignment">
+                        <div class="p-col-6">
+                            <div class="p-grid p-col-12 p-align-center">
+                                <div class="p-col-2">
+                                    <p-radioButton (click)="disableInputBox()" formControlName="Radioval"
+                                        name="groupname" value="Page">
+                                    </p-radioButton>
+                                </div>
+                                <div class="p-col-8">
+                                    <p-multiSelect class="ui-dropdown-label" [options]="npage"
+                                        (onChange)="onChange($event)" dropdownIcon="icons8 icons8-expand-arrow"
+                                        [disabled]="formdata.controls['Radioval'].value != 'Page'"
+                                        defaultLabel='Select Page' formControlName="pagelist"
+                                        *ngIf="npage != null && npage.length > 0">
+                                    </p-multiSelect>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-col-6">
+                            <div class="p-grid p-col-12 p-align-center">
+                                <div class="p-col-2">
+                                    <p-radioButton name="group1" value="URL" (click)="enableInputBox()"
+                                        formControlName="Radioval">
+                                    </p-radioButton>
+                                </div>
+                                <div class="p-col-8">
+                                    <input *ngIf="formdata.controls['Radioval'].value == 'URL'" style="width: 214px;"
+                                        type="text" pInputText placeholder="URL Pattern" pInputText
+                                        formControlName="url" />
+
+                                    <input *ngIf="formdata.controls['Radioval'].value == 'Page'" style="width: 214px;"
+                                        pInputText type="text" disabled placeholder="URL Pattern" pInputText
+                                        formControlName="url" />
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12 p-align-center">
+                        <label class="p-col-6">Channel</label>
+                        <label class="p-col-6">Traffic Allocation {{formdata.get('traffic').value}}(%)</label>
+                    </div>
+                    <div class="p-grid p-col-12 p-align-center">
+                        <div class="p-col-6">
+                            <p-dropdown class="ui-dropdown-label" formControlName="channel" [options]="nchannel"
+                                dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                        <div class="p-col-6">
+                            <p-slider formControlName="traffic" [min]="0" [max]="100"></p-slider>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <p-footer>
+            <div class="p-col-12 form-buttons right">
+                <button pButton type="submit" [disabled]="!formdata.valid" icon="icons8 icons8-save"
+                    (click)="save(formdata.value)" iconPos="left" label="Save" class="ui-button-rounded"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+
+    <p-dialog header="Edit Variation" [(visible)]="editvisible" [baseZIndex]="10000100011" [modal]="true"
+        class="secondary-dialog" [style]="{width: '45vw'}">
+
+        <form [formGroup]="formdata1">
+            <div class="dialog-content">
+                <div class="ui-fluid">
+                    <div class="p-grid">
+                        <div class="p-col-12">
+                            <input id="hostport" formControlName="name" type="text" placeholder="Name" class="w-100-p"
+                                pInputText />
+                            <span *ngIf="!formdata1.get('name').valid && formdata1.get('name').touched"
+                                class="help-block">
+                                Please
+                                Enter Name </span>
+                        </div>
+                    </div>
+                    <div class="p-grid">
+                        <div class="p-col-12">
+                            <input id="hostport" type="text" placeholder="Description" formControlName="comment"
+                                class="w-100-p" pInputText />
+                            <span *ngIf="!formdata1.get('comment').valid && formdata1.get('comment').touched"
+                                class="help-block2">
+                                Please Enter Description </span>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12 alignment">
+                        <div class="p-col-6">
+                            <div class="p-grid p-col-12 p-align-center">
+                                <div class="p-col-2">
+                                    <p-radioButton (click)="disableInputBox()" formControlName="Radioval"
+                                        name="groupname" value="Page">
+                                    </p-radioButton>
+                                </div>
+                                <div class="p-col-8">
+                                    <p-multiSelect class="ui-dropdown-label" [options]="npage"
+                                        dropdownIcon="icons8 icons8-expand-arrow" (onChange)="onChange($event)"
+                                        [disabled]="formdata1.controls['Radioval'].value != 'Page'"
+                                        defaultLabel='Select Page' formControlName="pagelist"
+                                        *ngIf="npage != null && npage.length > 0">
+                                    </p-multiSelect>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-col-6">
+                            <div class="p-grid p-col-12 p-align-center">
+                                <div class="p-col-2">
+                                    <p-radioButton name="group1" value="URL" (click)="enableInputBox()"
+                                        formControlName="Radioval">
+                                    </p-radioButton>
+                                </div>
+                                <div class="p-col-8">
+                                    <input *ngIf="formdata1.controls['Radioval'].value == 'URL'" style="width: 214px;"
+                                        type="text" pInputText placeholder="URL Pattern" pInputText
+                                        formControlName="url" />
+
+                                    <input *ngIf="formdata1.controls['Radioval'].value == 'Page'" style="width: 214px;"
+                                        pInputText type="text" disabled placeholder="URL Pattern" pInputText
+                                        formControlName="url" />
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12 p-align-center">
+                        <label class="p-col-6">Channel</label>
+                        <label class="p-col-6">Traffic Allocation {{formdata1.get('traffic').value}}(%)</label>
+                    </div>
+                    <div class="p-grid p-col-12 p-align-center">
+                        <div class="p-col-6">
+                            <p-dropdown class="ui-dropdown-label" formControlName="channel" [options]="nchannel"
+                                dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                        <div class="p-col-6">
+                            <p-slider formControlName="traffic" [min]="0" [max]="100"></p-slider>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <p-footer>
+            <div class="p-col-12 form-buttons right">
+                <button pButton type="submit" icon="icons8 icons8-save" [disabled]="!formdata1.valid"
+                    (click)="update(formdata1.value)" iconPos="left" label="Save" class="ui-button-rounded"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+    <p-toast></p-toast>

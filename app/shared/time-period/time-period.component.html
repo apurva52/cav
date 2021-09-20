@@ -1,0 +1,128 @@
+<p-sidebar #sidebar [(visible)]="timeFilterVisible" [showCloseIcon]="false" baseZIndex="10000" blockScroll="true" appendTo="body" styleClass="time-filter" [baseZIndex]="100">
+
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <i class="icons8 icons8-filter pr-5 pt-3"></i>
+            <span>Widget Wise Time Period</span>
+            <i class="icons8-delete clickable right" (click)="timeFilterClose()"></i>
+        </div>
+        <p class="note-line">Note: Configurations will be applied for selected widget. </p>
+    </div>
+
+
+    <div class="sidebar-content ui-fluid">
+
+        <div class="loader-container spinner" *ngIf="timeFilterLoading">
+            <i class="pi pi-spin pi-spinner" style="font-size: 3em"></i>
+        </div>
+
+        <div class="ui-fluid p-formgrid p-grid ph-10 pv-15" *ngIf="tmpValue">
+            <div class="p-field p-col-12">
+                <p-checkbox label="Preset" (onChange)="onTimeFilterTypeChange()" [(ngModel)]="preset" binary="true">
+                </p-checkbox>
+            </div>
+            <div class="p-field p-col-12" *ngIf="preset">
+                <label for="time-period">Time Period</label>
+                <button pButton class="ui-button-secondary" (click)="timePeriodMenu.toggle($event)">
+                    <span class="text-left ui-text">
+                        {{(tmpValue.timePeriod.selected && tmpValue.timePeriod.selected.label) || 'Select time period'}}
+                    </span>
+                    <i class="icons8 icons8-expand-arrow ph-5"></i>
+                </button>
+                <p-slideMenu #timePeriodMenu [model]="tmpValue.timePeriod.options" id="time-period" [popup]="true">
+                </p-slideMenu>
+            </div>
+
+            <div *ngIf="!timeFilterLoading && preset">
+                <div class="p-field p-col-12">
+                    <label for="view-by">Start Date Time</label>
+                    <div class="filter-tmpValue">{{tmpValue.time.frameStart.value | formatDateTime: 'default' }}</div>
+                </div>
+                <div class="p-field p-col-12">
+                    <label for="view-by">End Date Time</label>
+                    <div class="filter-tmpValue">{{tmpValue.time.frameEnd.value | formatDateTime: 'default' }}</div>
+                </div>
+            </div>
+
+            <div class="p-field p-col-12" *ngIf="!preset">
+                <label>Time Period</label>
+                <div class="filter-tmpValue">Custom</div>
+            </div>
+
+            <div class="p-field pr-3 w-100-p" *ngIf="!preset">
+              <label class="p-col-12 pb-0 font-weight-500">Start and End Date Time</label>
+
+              <div class="p-col-12">
+                  <div class="type-search">
+              <input pInputText class="pl-5" [owlDateTime]="customStartDateTime" [selectMode]="'range'"
+               placeholder="Date Time" #dateTime="ngModel"
+              [(ngModel)]="customTimeFrame" (ngModelChange)="onTimeFilterCustomTimeChange()"
+              [max]="customTimeFrameMax">
+
+              <span [owlDateTimeTrigger]="customStartDateTime"><i style="cursor: pointer;margin-top: 2px;
+                margin-right: 2px;" title="Click to open Calender." class="right-icon icons8 icons8-calendar"></i></span>
+              <owl-date-time #customStartDateTime></owl-date-time>
+              </div>
+          </div>
+              <div class="p-col-12">
+                  <p-message *ngIf="invalidDate" severity="error" text="End date and Start date should not be the same."></p-message>
+                  <p-message *ngIf="dateTime.invalid && dateTime.errors.owlDateTimeMax" severity="error" text="Date cannot exceed current time."></p-message>
+                </div>
+          </div>
+
+            <!-- <div class="p-field p-col-12" *ngIf="!preset">
+                <label for="start-date-time">Start Date Time</label>
+                <input pInputText readonly id="start-date-time" [owlDateTime]="customStartDateTime" [owlDateTimeTrigger]="customStartDateTime" placeholder="Start Date Time" (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'" [max]="customTimeFrameMax"
+                    [(ngModel)]="customTimeFrame">
+                <owl-date-time [showSecondsTimer]=true #customStartDateTime></owl-date-time>
+                <p-message *ngIf="invalidDate" severity="error" text="Start date and End date should not be the same."></p-message>
+            </div>
+
+            <div class="p-field p-col-12" *ngIf="!preset">
+                <label for="end-date-time">End Date Time</label>
+                <input pInputText readonly id="end-date-time" [owlDateTime]="customEndDateTime" [owlDateTimeTrigger]="customEndDateTime" placeholder="End Date Time" (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeTo'" [min]="customTimeFrame[0].clone().add(2, 'minutes')"
+                    [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame">
+                <owl-date-time [showSecondsTimer]=true #customEndDateTime></owl-date-time>
+                <p-message *ngIf="invalidDate" severity="error" text="End date and Start date should not be the same."></p-message>
+            </div> -->
+
+            <div class="p-field p-col-12" *ngIf="tmpValue && tmpValue.viewBy && tmpValue.viewBy.options && tmpValue.viewBy.options.length">
+                <label for="view-by">View By</label>
+                <button pButton class="ui-button-secondary" (click)="viewByMenu.toggle($event)">
+                    <span class="text-left ui-text">
+                        {{(tmpValue.viewBy.selected && tmpValue.viewBy.selected.label) || 'Select view by'}}
+                    </span>
+                    <i class="icons8 icons8-expand-arrow ph-5"></i>
+                </button>
+                <p-slideMenu #viewByMenu [model]="tmpValue.viewBy.options" id="view-by" [popup]="true">
+                </p-slideMenu>
+            </div>
+
+            <div *ngIf="tmpValue && tmpValue.timePeriod && tmpValue.timePeriod.selected && tmpValue.timePeriod.selected.state">
+                <div class="p-field p-col-12" *ngIf="tmpValue.timePeriod.selected.state.online">
+                    <p-checkbox label="Running" (onChange)="onTimeFilterRunningChange()" [(ngModel)]="tmpValue.running" binary="true"></p-checkbox>
+                </div>
+
+                <!-- <div class="p-field p-col-12" *ngIf="tmpValue.timePeriod.selected.state.discontinued">
+                    <p-checkbox label="Show Discontinued Metrics" (onChange)="onTimeFilterDiscontinuedChange()" [(ngModel)]="tmpValue.discontinued" binary="true"></p-checkbox>
+                </div> -->
+
+                <div class="p-field p-col-12" *ngIf="!tmpValue.running && tmpValue.timePeriod.selected.state.incCurrData">
+                    <p-checkbox label="Include Current Data" (onChange)="onTimeFilterIncludeCurrentChange()" [(ngModel)]="tmpValue.includeCurrent" binary="true"></p-checkbox>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="sidebar-footer">
+        <!-- <div class="p-field-checkbox p-col-12 p-md-12 pv-10">
+            <p-checkbox value="apply_time_period_on_all_widget" label="Apply Time Period on all Widget"
+                        [(ngModel)]="checked" binary="true">
+            </p-checkbox>
+        </div> -->
+        <button pButton type="submit" (click)="timeFilterApply()"  label="APPLY" class="w-100-p ui-button-rounded"></button>
+    </div>
+
+</p-sidebar>

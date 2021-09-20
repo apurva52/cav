@@ -1,0 +1,37 @@
+<ng-container>
+    <div class="content">
+        <div>
+            <div class="p-grid p-justify-center title">
+                BUSINESS SUMMARY VIEW
+            </div>
+        </div>
+        <div class="p-grid p-justify-center">
+            <div (click)="viewBusinessApplication()" class="loaded-data p-align-center mh-10 mv-10" *ngFor="let dataLoad of data.dataLoaded" [ngStyle]="{ 'border-color': dataLoad.borderColor }">
+                <div class="heading p-grid p-align-center p-justify-between">
+                    <span class="mainlable">{{dataLoad.header}}</span>
+                    <span [ngStyle]="{ 'color': dataLoad.textColor }"><i class="{{dataLoad.icon}}"></i></span>
+                </div>
+
+                <div class="description">
+                    <div class="label1" [ngStyle]="{ 'color': dataLoad.textColor }"> {{dataLoad.startVal}}</div>
+                    <div class="label2"> {{dataLoad.endVal}}</div>
+                    <div class=" label3 mt-10">{{dataLoad.avg}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="p-grid p-justify-center">
+            <div class="loaded-data2 p-align-center mh-10 mv-10" *ngFor="let dataLoad of data.dataLoaded2" [ngStyle]="{ 'border-color': dataLoad.borderColor }">
+                <div class="heading p-grid p-align-center p-justify-between">
+                    <span class="mainlable">{{dataLoad.header}}</span>
+                    <span [ngStyle]="{ 'color': dataLoad.textColor }"><i class="{{dataLoad.icon}}"></i></span>
+                </div>
+
+                <div class="description">
+                    <div class="label1" [ngStyle]="{ 'color': dataLoad.textColor }"> {{dataLoad.startVal}}</div>
+                    <div class="label2"> {{dataLoad.endVal}}</div>
+                    <div class=" label3 mt-10">{{dataLoad.avg}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>

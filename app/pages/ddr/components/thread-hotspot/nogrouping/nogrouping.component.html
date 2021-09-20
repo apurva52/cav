@@ -1,0 +1,350 @@
+<!-- Commenting due to migration -->
+<!-- <p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+<p-growl life=50000 [value]="errMsg" [sticky]="true"></p-growl> -->
+<p-toolbar>
+  <div class="ui-toolbar-group-left">
+    Showing Hotspots
+    <label *ngIf="hideTimeFilters">From={{startTimeInDate}} To={{endTimeInDate}}</label>
+    <p-dropdown *ngIf="hideTimeRange" [options]="timeRange" [(ngModel)]="selectedTimeRange" placeholder="Select Time"
+      [style]="{'width': '93px'}"></p-dropdown>
+    &nbsp;&nbsp;Stacktrace Contains &nbsp;<input id="input" type="text" size="7" pInputText [(ngModel)]="stackTrace">
+    Min Depth&nbsp;<input id="input" type="text" size="7" pInputText [(ngModel)]="minDepth">
+    Min Duration(in sec)&nbsp;<input id="input" type="text" size="7" pInputText [(ngModel)]="minDuration">
+    <label *ngIf="signaturePassHeader != ''">&nbsp;Signature:&nbsp;<input type="text" pInputText #stSignature
+        value="{{signaturePassHeader}}" />&nbsp;&nbsp;<button pTooltip="Update Signature" pButton class="btn-icon"
+        icon="las-save" (click)='updateSignature(stSignature.value)'></button></label>
+  </div>
+  <div class="ui-toolbar-group-right">
+    <button *ngIf="BackFlag" pTooltip="Back" pButton icon="icons8 icons8-back-arrow" class="btn-icon"
+      (click)="clickBack()"></button>
+    <button pTooltip="Apply" pButton icon="icons8 icons8-checkmark" class="btn-icon"
+      (click)="clickApply(stackTrace,minDepth,selectedTimeRange,minDuration)"></button>
+    <button pTooltip="Reset" pButton icon="icons8 icons8-synchronize" class="btn-icon" (click)="clickReset()"></button>
+    <!-- <label>DownLoad Reports as: </label> -->
+    <button pButton icon="icons8 icons8-doc" *ngIf="showDownLoadReportIcon" tooltipPosition="left" placeholder="Left"
+      class="btn-icon mx-3" (click)='downloadReport("word")' pTooltip="Download as Word Report"></button>
+    <button pButton icon="icons8 icons8-spreadsheet-file" *ngIf="showDownLoadReportIcon" tooltipPosition="left"
+      placeholder="Left" class="btn-icon mx-3" (click)='downloadReport("excel")'
+      pTooltip="Download as Excel Report"></button>
+    <button pButton icon="icons8 icons8-pdf-2" *ngIf="showDownLoadReportIcon" tooltipPosition="left" placeholder="Left"
+      class="btn-icon mx-3" (click)='downloadReport("pdf")' pTooltip="Download as PDF Report"></button>
+  </div>
+</p-toolbar>
+
+<div class="ddr-acc-threadHotspot">
+  <p-accordion [multiple]="true" class="ddr-accordion">
+    <p-accordionTab [selected]="false" header="Hotspot Summary {{hotspotFilter}}">
+      <p-toolbar>
+        <div class="ui-toolbar-group-right" style="text-align: right">
+          <button pButton icon="icons8 icons8-menu" tooltipPosition="left" placeholder="Left" class="btn-icon"
+            (click)="toggleColumnFilterForHotspot()" pTooltip="Column Filter"></button>
+          <p-multiSelect pTooltip="Show/Hide columns" [options]="columnOptionsForHotspot" class="icon-button no-shadow"
+            (onChange)="showHideColumnForHotspot($event)" [(ngModel)]="visibleColsForHotspot"
+            dropdownIcon="icons8 icons8-columns"></p-multiSelect>
+          <input pInputText type="text" placeholder="Search" (input)="gb.filterGlobal($event.target.value, 'contains')" />
+        </div>
+      </p-toolbar>
+      <p-table #gb class="all-tables" [value]="hotSpotInfo" [style]="{'max-height':'180px'}" selectionMode="single"
+        (onRowSelect)="getSelected($event)" scrollHeight="180px" [style]="{'height':'180px','font-size':'12px'}"
+        resizableColumns="true" reorderableColumns="true" [globalFilterFields]="visibleColsForHotspot">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <ng-container *ngFor="let col of colsForHotspot">
+              <col *ngIf="col.action" [style]="{'width': col.width+'px'}">
+            </ng-container>
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <ng-container *ngFor="let col of colsForHotspot">
+              <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action" [pSortableColumn]="col.field"
+                pResizableColumn pReorderableColumn>
+                {{col.header}}
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+              </th>
+            </ng-container>
+          </tr>
+          <tr *ngIf="isEnabledColumnFilterForHotspot">
+            <ng-container *ngFor="let col of colsForHotspot">
+                <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action">
+                    <input class="w-100-p" pInputText type="text" (input)="gb.filter($event.target.value, col.field, 'contains')">
+                </th>
+            </ng-container>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-node>
+          <tr>
+            <ng-container *ngFor="let col of colsForHotspot">
+              <td *ngIf="col.action">
+                <span *ngIf="col.field == 'threadid'" class="right">
+                  <a class="activeLink" (click)="passDataForStackTrace(node)" pTooltip={{node.threadid}} tooltipPosition="bottom">
+                    {{node[col.field]}}</a>
+                </span>
+                <span *ngIf="col.field == 'threadname'" pTooltip="{{node[col.field]}}" tooltipPosition="bottom">
+                  {{node[col.field]}}
+                </span>
+                <span *ngIf="col.field == 'hotspotElapsedTime' && elapsedTimeCol" pTooltip="{{node[col.field]}}"
+                  tooltipPosition="bottom">
+                  {{node[col.field]}}
+                </span>
+                <span *ngIf="col.field == 'hotspotduration'" class="right">
+                  <a class="activeLink" (click)="openFPReport(node)" pTooltip={{node[col.field]}} tooltipPosition="bottom">
+                    {{node[col.field]}}</a>
+                </span>
+                <span *ngIf="col.field == 'threadstate'" class="right" pTooltip={{node[col.field]}}
+                  tooltipPosition="bottom">
+                  {{node[col.field]}}
+                </span>
+                <span *ngIf="(col.field == 'hotspotstarttimestamp' || col.field == 'threadpriority' || col.field == 'threadstackdepth' ) " class="right" pTooltip={{node[col.field]}}
+                tooltipPosition="bottom">
+                {{node[col.field]}}
+              </span>
+
+              </td>
+            </ng-container>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="colsForHotspot.length" class="text-center">
+              <span>No Records Found</span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <!-- <p-dataTable class="scen-table scrollable-div2" [value]="hotSpotInfo"  [style]="{'max-height':'180px'}"  selectionMode="single" [globalFilter]="gb" (onRowSelect)="getSelected($event)"
+        scrollHeight="180px" [style]="{'height':'180px','font-size':'12px'}" [resizableColumns]="true" reorderableColumns="true">
+        <div *ngFor="let col of colsForHotspot">
+          <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [filter] = "col.filter" [sortable]="col.sortable" (sortFunction)="threadHotspotSort($event, hotSpotInfo)"
+            [style]="{'width': col.width+'px','text-align': col.align,'color': col.color}">
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'threadid'" pTemplate type="body">
+              <span class ="ddr-table-right" (click)="passDataForStackTrace(node)">
+                <span pTooltip="{{node.threadid}}" tooltipPosition="bottom">
+                {{node[col.field]}}</span>
+              </span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'threadname'" pTemplate type="body">
+              <span class ="ForToolTip" tooltipPosition="bottom" tooltipEvent="hover" pTooltip={{node[col.field]}}>
+                {{node[col.field]}}
+              </span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'hotspotElapsedTime' && elapsedTimeCol" pTemplate type="body">
+              {{node[col.field]}}
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'hotspotduration'" pTemplate type="body">
+              <span class ="ddr-table-right" (click)="openFPReport(node)">
+                <span pTooltip="{{node.toolTipTextForHsDur}}" tooltipPosition="bottom">
+                  {{node[col.field]}}</span>
+              </span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'threadstate'" pTemplate type="body">
+              <span class ="ForToolTip" tooltipPosition="bottom" tooltipEvent="hover" pTooltip={{node[col.field]}}>
+                {{node[col.field]}}
+              </span>
+            </ng-template>
+          </p-column>
+        </div>
+      </p-dataTable> -->
+      <div *ngIf="showPagination">
+        <div> {{hsOffset+1}} - {{hsOffset+hsLimit}} of {{hstotalCount}} </div>
+        <p-paginator rows="10" [totalRecords]="hstotalCount" [rowsPerPageOptions]="[10,20,30,40,50]" pageLinkSize="3"
+          (onPageChange)="paginate($event)"></p-paginator>
+      </div>
+    </p-accordionTab>
+  </p-accordion>
+
+  <p-accordion [multiple]="true" class="ddr-accordion">
+    <p-accordionTab [selected]="true" header="Thread StackTrace {{stackTraceFilter}}">
+      <!-- <p-toolbar>
+        <div class="ui-toolbar-group-right" style="text-align: right">
+          <button pButton type="button" title={{toggleFilterTitleForStack}} icon="fa fa-bars" (click)="toggleColumnFilterForStack()"></button>
+          <p-multiSelect title="Show/Hide columns" [options]="columnOptionsForStackTrace" class="dashboard-lowerPanel-multiSelect"
+            (onChange)="showHideColumnForStackTrace($event)" [(ngModel)]="visibleColsForStackTrace"></p-multiSelect>
+          <button pButton type="button" title="Show/Hide columns" icon="fa fa-check-square-o"></button>
+          <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+          <input #gbStack type="text" pInputText size="30" placeholder="Search">
+        </div>
+      </p-toolbar>
+      <p-dataTable class="scen-table scrollable-div2" [value]="hotSpotSecInfo"  [style]="{'height':'180px','font-size':'12px'}" [globalFilter]="gbStack" [style]="{'font-size':'12px'}" resizableColumns="true"
+        reorderableColumns="true">
+        <div *ngFor="let col of colsForStackTrace">
+          <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [filter] = "col.filter"  [sortable]="col.sortable" (sortFunction)="stackTraceSort($event, hotSpotSecInfo)"
+            [style]="{'width': col.width+'px','text-align': col.align}">
+          </p-column>
+        </div>
+      </p-dataTable> -->
+      <p-treeTable class="all-tables" [value]="hotSpotSecInfo" [columns]="colsForStackTrace" [resizableColumns]="true"
+        columnResizeMode="expand" [scrollable]="true">
+
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <ng-container *ngFor="let col of columns">
+              <col *ngIf="col.action" [style]="{'width': col.width,'text-align': col.align}">
+            </ng-container>
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-rowNode let-columns>
+          <tr [ttRow]="rowNode">
+            <th *ngFor="let col of columns" ttResizableColumn>
+              {{col.header}}
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+          <tr>
+            <td *ngFor="let col of columns; let i = index">
+              <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+              <span pTooltip="{{rowData[col.field]}}" tooltipPosition="bottom"> {{rowData[col.field]}}</span>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td [attr.colspan]="colsForStackTrace.length" class="text-center">No Records Found</td>
+          </tr>
+        </ng-template>
+      </p-treeTable>
+    </p-accordionTab>
+  </p-accordion>
+
+  <p-accordion [multiple]="true" class="ddr-accordion">
+    <p-accordionTab [selected]="false" header="Integration Point Call(s) {{stackTraceFilter}}">
+      <div *ngIf="!aggCase; else aggTable">
+        <p-toolbar>
+          <div class="ui-toolbar-group-right" style="text-align: right">
+            <button pButton icon="icons8 icons8-menu" tooltipPosition="left" placeholder="Left" class="btn-icon"
+              (click)="toggleColumnFilterForIP()" pTooltip="Column Filter"></button>
+            <p-multiSelect pTooltip="Show/Hide columns" [options]="columnOptionsForIP" class="icon-button no-shadow"
+              (onChange)="showHideColumnForIP($event)" [(ngModel)]="visibleColsForIP" dropdownIcon="icons8 icons8-columns">
+            </p-multiSelect>
+          <input pInputText type="text" placeholder="Search " (input)="gbCall.filterGlobal($event.target.value, 'contains')" />
+          </div>
+        </p-toolbar>
+        <p-table #gbCall class="all-tables" [value]="IPInfo" scrollHeight="180px"
+          [style]="{'height':'180px','font-size':'12px'}" resizableColumns="true" reorderableColumns="true"
+          [rows]="10" [paginator]="showPaginationIP" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]" [globalFilterFields]="visibleColsForIP">
+          <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+              <ng-container *ngFor="let col of colsForIP">
+                <col *ngIf="col.action" [style]="{'width': col.width+'px'}">
+              </ng-container>
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header">
+            <tr>
+              <ng-container *ngFor="let col of colsForIP">
+                <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action" [pSortableColumn]="col.field"
+                  pResizableColumn pReorderableColumn>
+                  {{col.header}}
+                  <p-sortIcon [field]="col.field"></p-sortIcon>
+                </th>
+              </ng-container>
+            </tr>
+            <tr *ngIf="isEnabledColumnFilterForIP">
+              <ng-container *ngFor="let col of colsForIP">
+                  <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action">
+                      <input class="w-100-p" pInputText type="text" (input)="gbCall.filter($event.target.value, col.field, 'contains')">
+                  </th>
+              </ng-container>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-node>
+            <tr>
+              <ng-container *ngFor="let col of colsForIP">
+                <td *ngIf="col.action">
+                  <span *ngIf="col.field == 'renamebackendIPname'">
+                    <a class="activeLink" (click)="openIPHealthScreen(node)" pTooltip={{node[col.field]}}>
+                      {{node[col.field]}}</a>
+                  </span>
+                  <span *ngIf="col.field == 'Query'">
+                    <span *ngIf="node[col.field] == '-'" pTooltip="{{node[col.field]}}" tooltipPosition="bottom">
+                      {{node[col.field]}}
+                    </span>
+                    <span *ngIf="node[col.field] != '-'">
+                      <a class="activeLink" (click)="Querypop(node)" pTooltip={{node[col.field]}}
+                        tooltipPosition="bottom">
+                        {{node[col.field]}}</a>
+                    </span>
+                  </span>
+                </td>
+              </ng-container>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td [attr.colspan]="visibleColsForIP.length" class="text-center">
+                <span>No Records Found</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        <!-- <p-dataTable class="scen-table scrollable-div2" [value]="IPInfo" scrollHeight="180px" [style]="{'height':'180px','font-size':'12px'}"
+        [resizableColumns]="true" reorderableColumns="true" [rows]="10" [paginator]="showPaginationIP" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+        <div *ngFor="let col of colsForIP">
+          <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [filter] = "col.filter" [sortable]="col.sortable" [style]="{'width': col.width+'px','text-align': col.align,'color': col.color}">
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'renamebackendIPname'" pTemplate type="body">
+              <span class ="ddr-table-left" (click)="openIPHealthScreen(node)">
+                <span pTooltip="{{node[col.field]}}" tooltipPosition="bottom"> {{node[col.field]}}</span>
+              </span>
+            </ng-template>
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'Query'" pTemplate type="body">
+              <div style="color: black" *ngIf="node[col.field] == '-'">
+                <span pTooltip="{{node[col.field]}}" tooltipPosition="bottom">{{node[col.field]}}</span>
+              </div>
+              <span *ngIf="node[col.field] != '-'" class ="ddr-table-left" (click)="Querypop(node)">
+                <span pTooltip="{{node[col.field]}}" tooltipPosition="bottom"> {{node[col.field]}}</span>
+              </span>
+
+            </ng-template>
+          </p-column>
+        </div>
+      </p-dataTable> -->
+      </div>
+      <ng-template #aggTable>
+        <app-agg-ip-info [aggIpInfo]="aggIpInfo" [renamebackendNameMap]="renamebackendNameMap"
+          [actualBackendNameMap]="actualBackendNameMap" [backendSubTypeNameMap]="backendSubTypeNameMap"
+          [filterCriteriaagg]="filterCriteriaagg" [showWarning]=false [maxFlowPath]=0></app-agg-ip-info>
+      </ng-template>
+    </p-accordionTab>
+  </p-accordion>
+
+
+</div>
+
+<p-dialog header="Query Details" [(visible)]="displayPopUp" modal="modal" appendTo="body" responsive="true">
+  <div class="modalPopUp">
+    <table width="600" border="0" cellspacing="3">
+      <tbody *ngFor="let data of rowData">
+        <tr>
+          <td><b>Integration Point</b></td>
+          <td>{{data.IPname}}</td>
+        </tr>
+        <tr>
+          <td><b>Discovered Name</b></td>
+          <td>{{data.DiscoveredIPName}}</td>
+        </tr>
+        <tr>
+          <td><b>Type</b></td>
+          <td>{{data.Type}}</td>
+        </tr>
+        <tr>
+          <td><b>Start Time</b></td>
+          <td>{{data.StartTime}}</td>
+        </tr>
+        <tr>
+          <td><b>Duration(ms)</b></td>
+          <td>{{data.Duration}}</td>
+        </tr>
+        <tr>
+          <td><b>Status</b></td>
+          <td>{{data.Status}}</td>
+        </tr>
+        <tr>
+          <td><b>Query</b></td>
+          <td><textarea pInputTextarea rows="8" cols="40">{{data.Query}}</textarea></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</p-dialog>

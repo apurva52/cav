@@ -1,0 +1,105 @@
+<div class="history-sidebar">
+    <p-sidebar [(visible)]="visible" position="right">
+        <h3>Version history</h3>
+        <div class="p-grid p-justify-between">
+            <div class="p-col">Only show named versions</div>
+            <div class="p-col-2">
+                <p-inputSwitch [(ngModel)]="namedVersion" (onChange)="showNamedVersion($event.checked)"></p-inputSwitch>
+            </div>
+        </div>
+        <p-progressSpinner *ngIf="loading"
+            [style]="{position:'absolute', top:'50%', left:'50%', height:'50px', width:'50px'}"></p-progressSpinner>
+        <p-listbox [options]="namedVersion?namedVersionList:versionList" [(ngModel)]="selectedVersion">
+            <ng-template let-version let-i="index" pTemplate="item">
+                <div class="p-grid p-align-center">
+                    <div class="p-col-10">
+                        <div class="p-col-12" style="text-overflow: ellipsis;overflow: hidden;"
+                            *ngIf="version.value.versionname !== ''">{{version.value.versionname}}
+                        </div>
+                        <div class="p-col-12">{{version.label | date:'medium'}}</div>
+                        <div class="p-col-12" *ngIf="i === 0">
+                            <i>Current Version</i>
+                        </div>
+                        <ng-container *ngIf="version.value.restoredat !=''">
+                            <div class="p-col-12">
+                                <i>restored on</i>
+                            </div>
+                            <div class="p-col-12">{{version.value.restoredat |date:'medium'}}</div>
+                        </ng-container>
+                    </div>
+                    <div class="p-col-2">
+                        <button type="button" pButton icon="icons8 icons8-menu-vertical" class="icon-button no-shadow"
+                            (click)="menu.toggle($event)"></button>
+                    </div>
+                </div>
+            </ng-template>
+        </p-listbox>
+        <div class="p-grid p-justify-center">
+            <button type="button" pButton label="Restore Version" (click)="restoreThisVersion()"></button>
+        </div>
+    </p-sidebar>
+
+    <!-- Copy Version Dialog -->
+    <p-dialog header="Copy Version" [(visible)]="copyDialog" [style]="{width:'30vw'}">
+        <form [formGroup]="form">
+            <div class="p-grid p-justify-around ui-fluid">
+                <div class="p-col-12">
+                    <label>Name</label>
+                    <input type="text" pInputText formControlName="name" />
+
+                    <p-message severity="error" text="Name is required"
+                        *ngIf="submitted && this.form.get('name').invalid"></p-message>
+                </div>
+
+                <div class="p-col-12">
+                    <p-checkbox [binary]="true" label="Copy callback to another profile" formControlName="changeProfile"
+                        (onChange)="onChange($event)"></p-checkbox>
+                </div>
+
+                <div class="p-col-12" *ngIf="form.get('channel')">
+                    <label>Channel</label>
+                    <p-dropdown placeholder="Select Channel" [options]="channels" [formControl]="form.get('channel')"
+                        (onChange)="onChannelChange($event.value)">
+                    </p-dropdown>
+
+                    <p-message severity="error" text="Channel is required"
+                        *ngIf="submitted && this.form.get('channel').invalid"></p-message>
+
+                </div>
+
+                <div class="p-col-12" *ngIf="form.get('profile')">
+                    <label>Profile</label>
+                    <p-dropdown placeholder="Select Profile" appendTo="body" [options]="profiles"
+                        [formControl]="form.get('profile')">
+                    </p-dropdown>
+
+                    <p-message severity="error" text="Profile is required"
+                        *ngIf="submitted && this.form.get('profile').invalid"></p-message>
+
+                </div>
+            </div>
+
+            <div class="p-grid p-justify-center">
+                <button type="button" pButton label="Save" class="mh-5" (click)="makeCopy()"></button>
+                <button type="button" pButton label="Cancel" class="mh-5" (click)="hideCopyDialog()"></button>
+            </div>
+        </form>
+    </p-dialog>
+
+    <!-- Rename Version Dialog -->
+    <p-dialog header="Rename Version" [(visible)]="rename" [style]="{width:'30vw'}">
+        <div class="p-grid p-justify-between ui-fluid p-align-center">
+            <div class="p-col-2">Name</div>
+            <div class="p-col">
+                <input type="text" pInputText [(ngModel)]="renameLabel" />
+            </div>
+        </div>
+        <div class="p-grid p-justify-center">
+            <button type="button" pButton label="Cancel" class="mh-5" (click)="rename = false;"></button>
+            <button type="button" pButton label="Save" class="mh-5" (click)="renameVersion()"></button>
+        </div>
+    </p-dialog>
+
+    <p-menu [model]="versionOptions" #menu [popup]="true"></p-menu>
+
+</div>

@@ -1,0 +1,22 @@
+<div *ngIf="isVisible" class="content-body">
+    <div *ngIf="!loading && dataForAclScreen" class="p-grid">
+        <div class="p-col table-section">
+            <app-user-table [userListFromContainer] ="dataForAclScreen"></app-user-table> 
+
+        </div>
+        <div class="p-col table-section">
+            <app-group-table [groupListFromContainer] ="dataForAclScreen"></app-group-table> 
+
+        </div>
+        <div class="p-col table-section">
+            <app-capability-table [capabilityListFromContainer] ="dataForAclScreen"></app-capability-table> 
+
+        </div>
+
+    </div>
+
+    <div class="loader-container spinner" *ngIf="loading">
+        <!-- loader to be change -->
+        <i class="pi pi-spin pi-spinner" style="font-size: 3em"></i>
+      </div>
+</div>

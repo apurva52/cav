@@ -1,0 +1,71 @@
+<p-toolbar class="header">
+  <div class="ui-toolbar-group-left">
+    <a routerLink="/">
+      <img class="logo" src="assets/banners/new-cavisson-logo.jpg" />
+    </a>
+
+    <div class="clock" *ngIf="sessionService.session && sessionService.session.defaults && sessionService.time">
+      <i class="icons8 icons8-clock"></i>
+      <span>{{sessionService.time | formatDateTime: 'default' }}</span>
+     ( <em>{{sessionService.session.defaults.timeInfo.zone}}</em> )
+    </div>
+  </div>
+
+  <div class="ui-toolbar-group-right"  [style.backgroundColor]="isTVMode ? 'transparent':'#ffffff'">
+    <div class="tv-mode-summary" *ngIf="timebarValue">
+      <ul>
+        <li *ngIf="timebarValue.timePeriod.selected" title="Time Period">
+          <i class="icons8 icons8-clock"></i>
+          <span>{{timebarValue.timePeriod.selected.label}}</span>
+        </li>
+        <li *ngIf="timebarValue.viewBy.selected" title="View By">
+          <i class="icons8 icons8-eye"></i>
+          <span>{{timebarValue.viewBy.selected.label}}</span>
+        </li>
+        <li *ngIf="timebarValue.timePeriod.selected" title="Current Timeframe">
+          <i class="icons8 icons8-clock"></i>
+          <span>{{timebarValue.time.frameStart.value  | formatDateTime: 'default'}}</span> to
+          <span>{{timebarValue.time.frameEnd.value  | formatDateTime: 'default'}}</span>
+        </li>
+      </ul>
+    </div>
+
+
+    <span class="toolbar-options" [ngClass]="isTVMode ? 'hidden': 'show'">
+        <i class="icons8 icons8-back toggle" *ngIf="!showMore" (click)="showMore = !showMore"></i>
+
+        <i class="icons8 icons8-forward toggle" *ngIf="showMore" (click)="showMore = !showMore"></i>
+        <ng-container *ngIf="showMore">
+    <!-- <p-button icon="pi pi-check" class="icon-button ui-button-rounded" iconPos="right"
+    label="Existing platform"  href="{{getLegacyUIURL()}}"></p-button> -->
+    <a pButton *ngIf="hasLegacyUIURL()" label="Existing platform" href="{{getLegacyUIURL()}}"
+      class="ui-button-rounded ui-button-secondary mx-4"></a>
+    <ng-container *ngIf="sessionService.preSession.multiDc">
+      <app-data-center-menu></app-data-center-menu>
+    </ng-container>
+    <ng-container *ngIf="!sessionService.preSession.multiDc">
+      <a pButton  label= "{{ sessionService.preSession.controllerName}}"
+      class="ui-button-rounded ui-button-secondary mx-4"></a>
+    </ng-container>
+    <!-- <button pButton class="icon-button tv-mode-toggle ui-button-rounded header-icon-width"
+    icon="icons8 {{ isTVMode ? 'icons8-tv-off' : 'icons8-tv' }}" pTooltip="TV Mode" tooltipPosition="left"
+    appendTo="body" (click)="toggleTVMode();">
+  </button> -->
+
+
+    <app-themes-menu class="inline-block"></app-themes-menu>
+  </ng-container>
+    <app-events-menu *ngIf="alertCapability.isHasPermission('Alert Event')"></app-events-menu>
+    <app-monitor-menu></app-monitor-menu>
+    <app-user-menu></app-user-menu>
+  </span>
+
+    <button pButton class="icon-button tv-mode-toggle ui-button-rounded header-icon-width"
+      icon="icons8 {{ isTVMode ? 'icons8-tv-off' : 'icons8-tv' }}" pTooltip="{{tvModeTitle}}" tooltipPosition="left"
+      appendTo="body" (click)="toggleTVMode();">
+    </button>
+    <p-toast key='tomcat_up_down' [style]="{background:'#7fbcec'}" position="top-right" ></p-toast>
+    <p-toast position="top-right" [style]="{width: '250px',position: 'absolute', 'white-space': 'pre-line', 'word-break':'break-word'}"></p-toast><!-- Don not remove this p-tost as it is used ti generate message ti alert ui -->
+  </div>
+</p-toolbar>
+

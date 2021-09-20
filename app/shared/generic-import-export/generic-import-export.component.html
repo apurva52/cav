@@ -1,0 +1,102 @@
+<p-dialog [(visible)]="visible" class="secondary-dialog" [style]="{width: '40vw'}"
+    [modal]="true" [baseZIndex]="10000100011" [closable]="false" [draggable]="false" [resizable]="false">
+    <p-header>
+        <div class="import-export-title">
+            <div *ngIf="isUpload">
+               Import Window
+            </div>
+            <div *ngIf="!isUpload">
+                Export Window
+             </div>
+        </div>
+    </p-header>
+    <div *ngIf="isUpload">
+        <!-- <div class="p-grid p-col-12 p-align-center">
+            <p-radioButton name="filemanager" value="importServer" (onClick)="onChangeRadioButton()" [(ngModel)]="isDownloadFile" label="From Server" title="From Server">
+            </p-radioButton>
+            <div *ngIf="type == 'importServer'" class="p-col-2">
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary p-col-12" title="Browse" label="Browse"
+              (click)="fileManager.open(true, isUpload, moduleName)">
+            </button> 
+           </div>
+
+        </div> -->
+        <div class="p-grid p-col-12 p-align-center">
+            <!-- <p-radioButton name="filemanager" value="importLocal" (onClick)="onChangeRadioButton()" [(ngModel)]="isDownloadFile" label="From Local" title="From Local">
+            </p-radioButton>
+            <p-dialog *ngIf="isDownloadFile == 'importLocal'" class="file-upload-dialog" header="Upload Files" [baseZIndex]="10000" [(visible)]="toUploadFiles">
+                <div class="mw440">
+                    <p-fileUpload id="inputText" name="myfile[]" [url]="uploadUrl" multiple="multiple" #fileUpload (onSelect)="onSelect($event,fileUpload)" (onUpload)="onUploadFile($event)" 
+                    styleClass="mw100" invalidFileTypeMessageDetail="" invalidFileTypeMessageSummary="" accept=".pem,.cer,.crt, .p7b,.p7r,.p12,.pfx,.json"></p-fileUpload>
+                </div>
+            </p-dialog> -->
+        </div>
+    </div>
+
+    <div *ngIf="!isUpload">
+        <!-- <div class="p-grid p-col-12 p-align-center">
+            <p-radioButton name="filemanager" value="exportServer" (onClick)="onChangeRadioButton()" [(ngModel)]="isDownloadFile" label="To Server" title="To Server"></p-radioButton>
+            <div *ngIf="type == 'exportServer'">
+            <div class="p-col-12"> 
+                <input id="serverIP" type="text" title="Server IP" [(ngModel)]="serverIP" pInputText placeholder="Server IP"/>
+            <span>
+                <input id="path" type="text" title="Path" [(ngModel)]="path" pInputText placeholder="Path"/>
+            </span>
+            </div>
+         </div>
+        </div> -->
+        <div class="p-grid p-col-12 p-align-center">
+            <p-radioButton name="filemanager" value="exportLocal" (onClick)="onChangeRadioButton()" [(ngModel)]="isDownloadFile" label="To Local" title="To Local">
+            </p-radioButton>
+        </div>
+    </div>
+        <!-- <div class="p-col-12 form-buttons">
+            <span>Note: File will be downloaded on your system.</span>
+             <button pButton type="button" class="ui-button ui-button-rounded ui-button-right" label="Browser"
+            (click)="fileManager.open(true)">
+            </button> 
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary" title="Download" label="Download"
+                (click)="downloadFile()">
+            </button>
+        </div> -->
+        <div class="p-grid p-justify-between p-align-center">
+            <span class="ml-12">{{fileNote}}</span>
+            <div class="p-col-5 p-grid p-justify-between p-align-center">
+                <div class="p-col-6">
+                    <button pButton type="button" icon="pi pi-check" class="ui-button ui-button-rounded" label="{{isUpload?'Import': 'Export'}}" title = "{{isUpload ? 'Import' : 'Export'}}" (click)="submit(0)"></button>
+                </div>   
+                <div class="p-col-6">
+                    <button pButton type="button" icon="pi pi-times" class="ui-button ui-button-rounded ui-button-secondary" label="Cancel" title="Cancel" id="disabled-btn" (click)="close()"></button>
+                </div>             
+            </div>
+        </div>
+    <!-- </div> -->
+    <div id="centerpoint">
+        <p-confirmDialog styleClass="centerpointAd" key="downloadfile" header="Error" acceptLabel="Ok" rejectLabel="Cancel"  [(visible)]="dialogVisible"></p-confirmDialog>
+    </div>
+</p-dialog>
+
+<p-dialog class="file-upload-dialog secondary-dialog" header="Upload Files" [modal]="true" [baseZIndex]="10000100011" [closable]="true" [draggable]="false" [resizable]="false" [(visible)]="toUploadFiles">
+    <div class="mw440">
+        <p-fileUpload id="inputText" name="myfile[]" [url]="uploadUrl" multiple="multiple" #fileUpload (onSelect)="onSelect($event,fileUpload)" (onUpload)="onUploadFile($event)" 
+        styleClass="mw100" invalidFileTypeMessageDetail="" invalidFileTypeMessageSummary="" accept=".pem,.cer,.crt, .p7b,.p7r,.p12,.pfx,.json"></p-fileUpload>
+    </div>
+</p-dialog>
+
+<p-dialog *ngIf="confirmMessage[0] != null" [contentStyle]="{'overflow':'auto','max-height':'80vh','font': '11px arial, sans-serif','text-align': 'justify','word-break': 'break-word'}" header="{{confirmMessage[0].header}}" [(visible)]="confirmMessage[0].display" modal="modal" [responsive]="true" [resizable]="false" [closable]="false">
+    <p style="font-weight: 500;display: inline-flex;text-align: start;"><i class="pi pi-question-circle" style="font-size: 1.6em;"></i><span [innerHTML]="confirmMessage[0].body" style="padding: 0em 0.4em 0em 0.5em"></span></p>
+    <p-footer>
+        <button type="button" pButton icon="pi pi-check-circle" (click)="saveImport(true)" label="Import all {{prefixOfButton}}"></button>
+        <button type="button" pButton icon="pi pi-check-square" (click)="saveImport(false)" label="Import {{prefixOfButton}} which are not available"></button>
+        <button type="button" pButton icon="pi pi-times" (click)="closeImport()" label="Do not import any {{prefixOfButton}}"></button>
+    </p-footer>
+</p-dialog>
+
+
+<app-file-manager #fileManager (eventBind)="eventBind($event)"></app-file-manager>
+<!-- <p-toast position="top-right" [style]="{width: '20vw'}" [baseZIndex]="10000100011"></p-toast> -->
+
+<style>
+    :host>>>.mw100 .ui-button-text{min-width: 100px;}
+    :host>>>.ui-dialog{box-shadow:none;}
+</style>

@@ -1,0 +1,169 @@
+<div class="app-crash-container" #widget>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+
+    <div class="p-col-12 panel-card" *ngIf="showtable">
+        <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true"
+            [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center p-justify-between">
+                    <div class="panel-title" (click)="pnl1.toggle($event)">
+                        <a>
+                            <span
+                                [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                            </span>
+                        </a>
+                        Crash Detail
+                    </div>
+		   <div>
+                        <button pButton title="Export App crash as XLS " label="Export App Crash"
+                            (click)="exportappcrash()">
+                            <span></span>
+                        </button>
+                    </div>
+                </div>
+            </p-header>
+            <p-table #crashDetail [value]="data.data" [columns]="selectedColumns" [totalRecords]="totalRecords"
+                [scrollable]="true"  [responsive]="true" selectionMode="single"
+                editMode="row" [resizableColumns]="true">
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col *ngFor="let col of columns" [style.width]="col.width">
+                    </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                            <div class="text-left">
+                                {{ col.label }}
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns">
+                    <tr>
+                        <td *ngFor="let col of columns" class="{{ col.classes }}">
+                            {{ row[col.valueField] }}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-panel>
+
+        <p-panel #pnl4 expandIcon="" collapseIcon="" [toggleable]="true"
+            [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl4.toggle($event)">
+                        <a>
+                            <span
+                                [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                            </span>
+                        </a>
+                        STACK TRACE
+                    </div>
+                </div>
+            </p-header>
+            <pre style="font-size: 15px;">
+        {{stacktrace}}
+        </pre>
+        </p-panel>
+
+        <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true"
+            [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl2.toggle($event)">
+                        <a>
+                            <span
+                                [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                            </span>
+                        </a>
+                        Request Headers
+                    </div>
+                </div>
+            </p-header>
+            <p-table #requestHeaders [value]="data2.data" [columns]="selectedColumns2" [totalRecords]="totalRecords2"
+                [scrollable]="true"  [responsive]="true" selectionMode="single"
+                editMode="row" [resizableColumns]="true">
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col *ngFor="let col of columns" [style.width]="col.width">
+                    </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                            <div class="text-left">
+                                {{ col.label }}
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns">
+                    <tr>
+                        <td *ngFor="let col of columns" class="{{ col.classes }}">
+                            {{ row[col.valueField] }}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-panel>
+        <p-panel #pnl3 expandIcon="" collapseIcon="" [toggleable]="true"
+            [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl3.toggle($event)">
+                        <a>
+                            <span
+                                [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                            </span>
+                        </a>
+                        Crash Info
+                    </div>
+                </div>
+            </p-header>
+            <p-table #crashInfo [value]="data3.data" [columns]="selectedColumns3" [scrollable]="true"
+                 [responsive]="true" selectionMode="single" editMode="row"
+                [resizableColumns]="true">
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col *ngFor="let col of columns" [style.width]="col.width">
+                    </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                            <div class="text-left">
+                                {{ col.label }}
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns">
+                    <tr>
+                        <td *ngFor="let col of columns" class="{{ col.classes }}">
+                            {{ row[col.valueField] }}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-panel>
+
+
+    </div>
+</div>

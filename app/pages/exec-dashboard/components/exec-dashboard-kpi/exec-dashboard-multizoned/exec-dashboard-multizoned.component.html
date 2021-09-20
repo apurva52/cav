@@ -1,0 +1,491 @@
+<p-dataTable class="kpigrid"  columnResizeMode="expand" [value]="_commonKpi.$kpiDataObj['grid_' + multiZoneViewObj.DCs]">
+  <p-header>
+    <span style="float:left;cursor:pointer" (click)="toggleTable()">
+      <i class="fa fa-minus" pTooltip="Expand" tooltipPosition="top aria-hidden=true" *ngIf="expandTable"></i>
+      <i class="fa fa-plus" pTooltip="Collapse" tooltipPosition="top aria-hidden=true" *ngIf="!expandTable"></i>
+      {{multiZoneViewObj.header}}
+    </span>
+    <!-- <p-dropdown [options]="zones" [(ngModel)]="selectedZone" placeholder="---Select---" optionLabel="name" [style]=" {'float': 'right'}" (onChange) = "showSelectedZone()" ></p-dropdown> -->
+    <span style="float: right" *ngIf = "isLoaded">
+      <p-checkbox name="group1"  [disabled] = "disableZone1" [value]="zoneArr[0]" (onChange)="showSelectedZone()" [label]="zoneArr[0]" [(ngModel)]="zones"></p-checkbox>
+      <p-checkbox name="group1" [disabled] = "disableZone2" [value]="zoneArr[1]" (onChange)="showSelectedZone()" [label]="zoneArr[1]" [(ngModel)]="zones"></p-checkbox>
+    </span>
+  </p-header>
+  <p-headerColumnGroup>
+    <p-row *ngIf="expandTable">
+      <p-column *ngIf="tierNameWidth!=0 && tierNameWidth!=90 " header="Tier Name" [style]=" {'width': '15vh'}"
+        [styleClass]="kpiTierName"></p-column>
+      <p-column *ngIf="tierNameWidth==90" header="Tier Name" [style]=" {'width': '15vh'}" [styleClass]="kpiTierName">
+      </p-column>
+      <p-column *ngIf="tierNameWidth==0" header="Tier Name" [style]=" {'width': '5vh'}" [styleClass]="kpiTierName">
+      </p-column>
+      <p-column *ngIf="selectedZone == 'all'" header="TPS" colspan="19" [styleClass]="kpiMultiPvs">
+        <ng-template pTemplate="header">
+          <i class="fa fa-file-text-o" aria-hidden="true"></i> TPS
+        </ng-template>
+      </p-column>
+      <p-column *ngIf="selectedZone != 'all'" header="TPS" colspan="9" [styleClass]="kpiMultiPvs">
+        <ng-template pTemplate="header">
+          <i class="fa fa-file-text-o" aria-hidden="true"></i> TPS
+        </ng-template>
+      </p-column>
+      <p-column *ngIf="selectedZone == 'all'" header="Response Time (ms)" colspan="6" [styleClass]="kpiMultiRes">
+        <ng-template pTemplate="header">
+          <i class="fa fa-clock-o" aria-hidden="true"></i> Response Time (ms)
+        </ng-template>
+      </p-column>
+      <p-column *ngIf="selectedZone != 'all'" header="Response Time (ms)" colspan="3" [styleClass]="kpiMultiRes">
+        <ng-template pTemplate="header">
+          <i class="fa fa-clock-o" aria-hidden="true"></i> Response Time (ms)
+        </ng-template>
+      </p-column>
+      <p-column *ngIf="selectedZone == 'all'" [styleClass]="kpiMultiCpu" header="CPU Utilization (%)" colspan="6" >
+        <ng-template pTemplate="header">
+          <i class="fa fa-tasks" aria-hidden="true"></i> CPU Utilization (%)
+        </ng-template>
+      </p-column>
+      <p-column *ngIf="selectedZone != 'all'" [styleClass]="kpiMultiCpu" header="CPU Utilization (%)" colspan="3">
+        <ng-template pTemplate="header">
+          <i class="fa fa-tasks" aria-hidden="true"></i> CPU Utilization (%)
+        </ng-template>
+      </p-column>
+    </p-row>
+    <p-row *ngIf="expandTable">
+      <p-column header="Updated per minute" rowspan="2" [styleClass]="kpiUpdtMins"></p-column>
+      <p-column *ngIf="selectedZone == zoneArr[0] || selectedZone == 'all'" [styleClass]="kpimultiPky"
+        header="{{zoneArr[0]}}" colspan="9"></p-column>
+      <p-column *ngIf = "selectedZone == 'all'" [styleClass]="kpiTotal" header="Total" ></p-column>
+      <p-column *ngIf="selectedZone == zoneArr[1]|| selectedZone == 'all' " [styleClass]="kpimultiScs"
+        header="{{zoneArr[1]}}" colspan="9"></p-column>
+
+      <p-column *ngIf = "selectedZone == zoneArr[0] || selectedZone == 'all'" [styleClass]="kpimultiPky" header="{{zoneArr[0]}}" colspan="3" ></p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1] || selectedZone == 'all'" [styleClass]="kpimultiScs" header="{{zoneArr[1]}}" colspan="3" ></p-column>
+
+      <p-column *ngIf = "selectedZone == zoneArr[0] || selectedZone == 'all'" [styleClass]="kpimultiPky" header="{{zoneArr[0]}}" colspan="3" ></p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1] || selectedZone == 'all'" [styleClass]="kpimultiScs" header="{{zoneArr[1]}}" colspan="3" ></p-column>
+    </p-row>
+    <p-row *ngIf="expandTable">
+      <!-- Defining Column Headers -->
+      <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData">
+        <ng-template pTemplate="header">
+          <span>Last 1 Min</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData" >
+        <ng-template pTemplate="header">
+          <span *ngIf="(_config.$actTimePeriod === 'Last_60_Minutes' || _config.$actTimePeriod === 'last_day')">Last 1 Hr</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_120_Minutes' ">Last 2 Hrs</span>
+          <span *ngIf=" _config.$actTimePeriod === 'Last_240_Minutes' ">Last 4 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_360_Minutes' ">Last 6 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_480_Minutes' ">Last 8 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_720_Minutes' ">Last 12 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_1440_Minutes' ">Last 24 Hrs</span>
+          <span
+            *ngIf="(_config.$actTimePeriod === 'Today' || _config.$actTimePeriod === 'Yesterday' || _config.$actTimePeriod === 'Event Day' || _config.$actTimePeriod === 'Last Week Same Day' || _config.$actTimePeriod === 'Custom Date')">Average</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf="selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData">
+        <ng-template pTemplate="header">
+          <span>Last 1 Min/VM</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf="selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData">
+        <ng-template pTemplate="header">
+          <span *ngIf="(_config.$actTimePeriod === 'Last_60_Minutes' || _config.$actTimePeriod === 'last_day') ">Last 1
+            Hr/VM</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_120_Minutes' ">Last 2 Hrs/VM</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_240_Minutes' ">Last 4 Hrs/VM</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_360_Minutes' ">Last 6 Hrs/VM</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_480_Minutes' ">Last 8 Hrs/VM</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_720_Minutes' ">Last 12 Hrs/VM</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_1440_Minutes' ">Last 24 Hrs/VM</span>
+          <span
+            *ngIf="(_config.$actTimePeriod === 'Today' || _config.$actTimePeriod === 'Yesterday' || _config.$actTimePeriod === 'Event Day' || _config.$actTimePeriod === 'Last Week Same Day' || _config.$actTimePeriod === 'Custom Date')">Average/VM</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf="selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData">
+        <ng-template pTemplate="header">
+          <span title="Total/per VM">Certified Capacity</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData" >
+        <ng-template pTemplate="header">
+            <span title="Supported Capacity">SC</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData" > 
+        <ng-template pTemplate="header">
+            <span title="Available Capacity">AC</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData" >
+        <ng-template pTemplate="header">
+            <span title="Available Capacity (in percentage)">AC (%)</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData" >
+        <ng-template pTemplate="header">
+          <span>Day's Max</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == 'all'" [styleClass]="kpiPvsTotal" >
+        <ng-template pTemplate="header" >
+          <span>Last 1 Min</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData" >
+        <ng-template pTemplate="header">
+          <span>Last 1 Min</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData" >
+        <ng-template pTemplate="header">
+          <span *ngIf="(_config.$actTimePeriod === 'Last_60_Minutes' || _config.$actTimePeriod === 'last_day')">Last 1 Hr</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_120_Minutes' ">Last 2 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_240_Minutes' ">Last 4 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_360_Minutes' ">Last 6 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_480_Minutes' ">Last 8 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_720_Minutes' ">Last 12 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_1440_Minutes' ">Last 24 Hrs</span>
+          <span
+            *ngIf="(_config.$actTimePeriod === 'Today' || _config.$actTimePeriod === 'Yesterday' || _config.$actTimePeriod === 'Event Day' || _config.$actTimePeriod === 'Last Week Same Day' || _config.$actTimePeriod === 'Custom Date')">Average</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf="selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData">
+        <ng-template pTemplate="header">
+          <span>Last 1 Min/VM</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf="selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData">
+        <ng-template pTemplate="header">
+          <span *ngIf="(_config.$actTimePeriod === 'Last_60_Minutes' || _config.$actTimePeriod === 'last_day') ">Last 1
+            Hr/VM</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_120_Minutes' ">Last 2 Hrs/VM</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_240_Minutes' ">Last 4 Hrs/VM</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_360_Minutes' ">Last 6 Hrs/VM</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_480_Minutes' ">Last 8 Hrs/VM</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_720_Minutes' ">Last 12 Hrs/VM</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_1440_Minutes' ">Last 24 Hrs/VM</span>
+          <span
+            *ngIf="(_config.$actTimePeriod === 'Today' || _config.$actTimePeriod === 'Yesterday' || _config.$actTimePeriod === 'Event Day' || _config.$actTimePeriod === 'Last Week Same Day' || _config.$actTimePeriod === 'Custom Date')">Average/VM</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData">
+        <ng-template pTemplate="header">
+          <span title="Total/per VM">Certified Capacity</span>
+        </ng-template>
+      </p-column>
+      <!-- ???????????????????????????????????????????? -->
+      <p-column *ngIf="selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData">
+        <ng-template pTemplate="header">
+          <span title="Supported Capacity">SC</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData">
+        <ng-template pTemplate="header">
+          <span title="Available Capacity">AC</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData" >
+        <ng-template pTemplate="header">
+          <span title="Available Capacity (in percentage)">AC (%)</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData" >
+        <ng-template pTemplate="header">
+          <span>Day's Max</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'"  [styleClass]="kpiResPkyData">
+        <ng-template pTemplate="header">
+          <span>Last 1 Min</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiResPkyData">
+        <ng-template pTemplate="header">
+          <span *ngIf="(_config.$actTimePeriod === 'Last_60_Minutes' || _config.$actTimePeriod === 'last_day')">Last 1 Hr</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_120_Minutes' ">Last 2 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_240_Minutes' ">Last 4 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_360_Minutes' ">Last 6 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_480_Minutes' ">Last 8 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_720_Minutes' ">Last 12 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_1440_Minutes' ">Last 24 Hrs</span>
+          <span *ngIf="(_config.$actTimePeriod === 'Today' || _config.$actTimePeriod === 'Yesterday' || _config.$actTimePeriod === 'Event Day' || _config.$actTimePeriod === 'Last Week Same Day' || _config.$actTimePeriod === 'Custom Date')">Average</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiResPkyData">
+        <ng-template pTemplate="header">
+          <span>Day's 95th %Tile</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiResScsData">
+        <ng-template pTemplate="header">
+          <span>Last 1 Min</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiResScsData">
+        <ng-template pTemplate="header">
+          <span *ngIf="(_config.$actTimePeriod === 'Last_60_Minutes' || _config.$actTimePeriod === 'last_day')">Last 1 Hr</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_120_Minutes' ">Last 2 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_240_Minutes' ">Last 4 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_360_Minutes' ">Last 6 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_480_Minutes' ">Last 8 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_720_Minutes' ">Last 12 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_1440_Minutes' ">Last 24 Hrs</span>
+          <span *ngIf="(_config.$actTimePeriod === 'Today' || _config.$actTimePeriod === 'Yesterday' || _config.$actTimePeriod === 'Event Day' || _config.$actTimePeriod === 'Last Week Same Day' || _config.$actTimePeriod === 'Custom Date')">Average</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiResScsData">
+        <ng-template pTemplate="header">
+          <span>Day's 95th %Tile</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiCpuPkyData">
+        <ng-template pTemplate="header">
+          <span>Last 1 Min</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiCpuPkyData">
+        <ng-template pTemplate="header">
+          <span *ngIf="(_config.$actTimePeriod === 'Last_60_Minutes' || _config.$actTimePeriod === 'last_day')">Last 1 Hr</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_120_Minutes' ">Last 2 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_240_Minutes' ">Last 4 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_360_Minutes' ">Last 6 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_480_Minutes' ">Last 8 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_720_Minutes' ">Last 12 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_1440_Minutes' ">Last 24 Hrs</span>
+          <span *ngIf="(_config.$actTimePeriod === 'Today' || _config.$actTimePeriod === 'Yesterday' || _config.$actTimePeriod === 'Event Day' || _config.$actTimePeriod === 'Last Week Same Day' || _config.$actTimePeriod === 'Custom Date')">Average</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiCpuPkyData">
+        <ng-template pTemplate="header">
+          <span>Day's Max</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiCpuScsData">
+        <ng-template pTemplate="header">
+          <span>Last 1 Min</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiCpuScsData">
+        <ng-template pTemplate="header">
+          <span *ngIf="(_config.$actTimePeriod === 'Last_60_Minutes' || _config.$actTimePeriod === 'last_day')">Last 1 Hr</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_120_Minutes' ">Last 2 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_240_Minutes' ">Last 4 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_360_Minutes' ">Last 6 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_480_Minutes' ">Last 8 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_720_Minutes' ">Last 12 Hrs</span>
+          <span *ngIf="_config.$actTimePeriod === 'Last_1440_Minutes' ">Last 24 Hrs</span>
+          <span *ngIf="(_config.$actTimePeriod === 'Today' || _config.$actTimePeriod === 'Yesterday' || _config.$actTimePeriod === 'Event Day' || _config.$actTimePeriod === 'Last Week Same Day' || _config.$actTimePeriod === 'Custom Date')">Average</span>
+        </ng-template>
+      </p-column>
+      <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiCpuScsData">
+        <ng-template pTemplate="header">
+          <span>Day's Max</span>
+        </ng-template>
+      </p-column>
+    </p-row>
+  </p-headerColumnGroup>
+
+  <!-- Defining Column Data -->
+  <span *ngIf="expandTable">
+    <p-column field="tier">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span>
+          <i class="{{car['icon']}}" aria-hidden="true" style="margin-right:5px"></i>{{car[col.field]}}</span>
+      </ng-template>
+    </p-column>
+
+    <!-- PVS ZONE 1 -->
+    <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData" field="pvsMint_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer" >{{  _commonKpi.getColDataForOthers(car[col.field], "PVS")||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData" field="pvsHr_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field], "PVS")||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData" field="pvsjpmint_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip]="car.tier + ':\n' + car['actpvsjpmint_'+zoneArr[0]]" tooltipPosition="top" style = "cursor:pointer" >{{ _commonKpi.getColDataForOthers(car[col.field], "PVS")||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData" field="pvsJphr_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip]="car.tier + ':\n' + car['actpvsjpmint_'+zoneArr[0]]" tooltipPosition="top" style = "cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field] ,"PVS" )||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData" field="pvscerCap_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span
+          [pTooltip]="_commonKpi.seperateByComma(car[col.field], car.tier)?_commonKpi.seperateByComma(car[col.field], car.tier) + '\nNo. of VM: ' + _commonKpi.seperateByComma(car['noOfVM_'+zoneArr[0]]):'-'"
+          tooltipPosition="top"
+          style="cursor:pointer">{{ _commonKpi.getColDataForOthers( car[col.field], "PVS" )||"-"}}</span>
+      </ng-template>
+    </p-column>
+
+    <!-- ???????????????????????????????????????????????????????????????????????????????????????????? -->
+    <p-column *ngIf="selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData"
+      field="pvsSuppCapa_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip]="_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top"
+          style="cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field] ,"PVS" )||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf="selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData"
+      field="pvsAvailCapa_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip]="_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top"
+          style="cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field] ,"PVS" )||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf="selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData"
+      field="pvsAvailCapaPerc_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip]="_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top"
+          style="cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field] ,"PVS" )||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <!-- ??????????????????????????????????????????????????????????????????????????????????????????????? -->
+
+    <p-column *ngIf="selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData"
+      field="pvsDmax_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field], "PVS" )||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == 'all'" [styleClass]="kpiPvsTotal" field="pvsTotal" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "car.tier + ':\n' +car[col.field] ||'-'" tooltipPosition="top" style = "cursor:pointer">{{car[col.field]||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <!-- PVS ZONE 2 -->
+    <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData" field="pvsMint_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field], "PVS" )||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData" field="pvsHr_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field], "PVS" )||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData" field="pvsjpmint_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip]="car.tier + ':\n' + car['actpvsjpmint_'+zoneArr[1]]" tooltipPosition="top" style = "cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field], "PVS" )|| "-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData" field="pvsJphr_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip]="car.tier + ':\n' + car['actpvsjpmint_'+zoneArr[1]]" tooltipPosition="top" style = "cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field], "PVS")||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData" field="pvscerCap_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span
+          [pTooltip]="_commonKpi.seperateByComma(car[col.field], car.tier)?_commonKpi.seperateByComma(car[col.field], car.tier) + '\nNo. of VM: ' + _commonKpi.seperateByComma(car['noOfVM_'+zoneArr[1]]) :'-'"
+          tooltipPosition="top"
+          style="cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field], "PVS")||"-"}}</span>
+      </ng-template>
+    </p-column>
+
+    <!-- ???????????????????????????????????????????????????????????????????????????????????????????? -->
+    <p-column *ngIf="selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData"
+      field="pvsSuppCapa_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip]="_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top"
+          style="cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field] ,"PVS" )||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf="selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData"
+      field="pvsAvailCapa_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip]="_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top"
+          style="cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field] ,"PVS" )||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf="selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsPkyData"
+      field="pvsAvailCapaPerc_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip]="_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top"
+          style="cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field] ,"PVS" )||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <!-- ??????????????????????????????????????????????????????????????????????????????????????????????? -->
+
+    <p-column *ngIf="selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiPvsScsData"
+      field="pvsDmax_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field], "PVS")||"-"}}</span>
+      </ng-template>
+    </p-column>
+
+    <!-- RES ZONE 1 -->
+    <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiResPkyData" field="resMint_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field] * 1000, car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field]*1000, "RES")||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiResPkyData" field="resHr_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma( car[col.field]*1000, car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field]*1000, "RES") ||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'" [styleClass]="kpiResPkyData" field="respctl95_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip]="car.tier + ':\n' + car['actrespctl95_'+zoneArr[0]]" tooltipPosition="top" style="cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field]*1000, "RES") || "-"}}</span>
+      </ng-template>
+    </p-column>
+    <!-- RES ZONE 2 -->
+    <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiResScsData" field="resMint_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field] * 1000, car.tier )||'-'" tooltipPosition="top" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field]*1000, "RES") ||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiResScsData" field="resHr_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma( car[col.field] *1000, car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field]*1000, "RES")||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiResScsData" field="respctl95_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip]="car.tier + ':\n' + car['actrespctl95_'+zoneArr[1]]" tooltipPosition="top" style="cursor:pointer">{{ _commonKpi.getColDataForOthers(car[col.field]*1000, "RES") || "-"}}</span>
+      </ng-template>
+    </p-column>
+
+    <!-- CPU ZONE 1 -->
+    <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'"  [styleClass]="kpiCpuPkyData" field="cpuMint_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier) ||'-'" tooltipPosition="top" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field], "CPU")||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'"  [styleClass]="kpiCpuPkyData" field="cpuHr_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field], 'CPU')||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[0]|| selectedZone == 'all'"  [styleClass]="kpiCpuPkyData" field="cpuDmax_{{zoneArr[0]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field], 'CPU')||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <!-- CPU ZONE 2 -->
+    <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiCpuScsData" field="cpuMint_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field], 'CPU')||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiCpuScsData" field="cpuHr_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body" > 
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="top" style = "cursor:pointer">{{_commonKpi.getColDataForOthers(car[col.field], 'CPU')||"-"}}</span>
+      </ng-template>
+    </p-column>
+    <p-column *ngIf = "selectedZone == zoneArr[1]|| selectedZone == 'all'" [styleClass]="kpiCpuScsData" field="cpuDmax_{{zoneArr[1]}}" [style]="{'text-align':'right'}">
+      <ng-template let-col let-car="rowData" pTemplate="body">
+        <span [pTooltip] = "_commonKpi.seperateByComma(car[col.field], car.tier)||'-'" tooltipPosition="left" style = "cursor:pointer">{{_commonKpi.getColDataForOthers( car[col.field], 'CPU')||"-"}}</span>
+      </ng-template>
+    </p-column>
+  </span>
+</p-dataTable>

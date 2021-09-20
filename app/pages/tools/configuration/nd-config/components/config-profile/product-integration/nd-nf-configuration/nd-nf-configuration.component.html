@@ -1,0 +1,86 @@
+<form (ngSubmit)="saveKeywordData()" #form="ngForm" ngNativeValidate>
+    <div class="tabsincontent">
+        <div class="header p-grid p-justify-between p-align-center">Log Monitoring Settings
+            <div class="pull-right my-6">
+                <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordsDataToDefault()" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" label="Save"></button>
+            </div>
+        </div>
+        <p-panel class="hideheader">
+            <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader">
+
+                <div class="p-grid p-align-center">
+
+                    <div class="ui-g-12 p-grid p-align-center" *ngIf="agentType == 'Java' || agentType == 'Dot Net'">
+                        <p-checkbox name="isNdNfDataTransfer" binary="true" [(ngModel)]="isNdNfDataTransfer" label="Enable ND agent to transfer captured to configured NF server"></p-checkbox>
+                </div>
+
+                    <div class="p-grid p-align-center w-100-p" *ngIf="agentType == 'Java' || agentType == 'Dot Net'">
+                            <div class="p-col-1">Host</div>
+                            <div class="p-col-2">
+                                <input name="host" pInputText [(ngModel)]="ndNfDataTransferHost" [disabled]="!isNdNfDataTransfer" class="w-100-p" type="text" required/>
+                            </div>
+
+
+                            <div class="p-col-1 text-right">Port </div>
+                            <div class="p-col-2">
+                                <input name="port" pInputText [(ngModel)]="ndNfDataTransferPort" [disabled]="!isNdNfDataTransfer" type="text" class="w-100-p" required/>
+                            </div>
+
+
+                            <div class="p-col-1 text-right">Url</div>
+                            <div class="p-col-2">
+                                <input name="url" pInputText [(ngModel)]="ndNfDataTransferUrl" [disabled]="!isNdNfDataTransfer" class="w-100-p" type="text" required/>
+                            </div>
+
+                    </div>
+
+                    <div class="ui-g-12 p-grid p-align-center" *ngIf="agentType == 'Java' || agentType == 'Dot Net'">
+                        <div class="ui-g-6 5mt-3">
+                            <label>Interval in Min to flush captured log messages to socket (NF server) </label>
+                        </div>
+                        <div class="ui-g-2">
+                            <input name="ndNfFlushInterval" pInputText [(ngModel)]="ndNfFlushIntervalVal" type="number" style="width: 50%; margin-right: 3px" required />(ms)
+                        </div>
+                    </div>
+
+                    <div class="ui-g-12 p-grid p-align-center" *ngIf="agentType == 'Java' || agentType == 'Dot Net'">
+                        <div class="ui-g-6 mt-3">
+                            <label>Setting of different buffer parameters used for storing logs before sending to NF server </label>
+                        </div>
+
+                        <div class="ui-g-1 mt-3">
+                            <label>Buffer Count</label>
+                        </div>
+                        <div class="ui-g-1">
+                            <input name="bufferCount" pInputText [(ngModel)]="bufferCount" type="number" style="width: 100%" required />
+                        </div>
+                        <div class="ui-g-1 mt-3" style="margin-right:-1%;margin-left: 2%">
+                            <label>Buffer Size</label>
+                        </div>
+                        <div class="ui-g-2">
+                            <input name="bufferSize"  pInputText [(ngModel)]="bufferSize" type="number" style="width: 50%; margin-right: 3px" required />(bytes)
+                        </div>
+                    </div>
+
+                    <div class="ui-g-12 p-grid p-align-center">
+                        <div class="ui-g-6">
+                            <p-checkbox name="isEnableUpdateLogMsgForNF" binary="true" [(ngModel)]="isEnableUpdateLogMsgForNF" label="Enable ND and NF integration by intercepting logs and injecting ND header into log messages"></p-checkbox>
+                        </div>
+                    </div>
+		    <div class="ui-g-12 p-grid p-align-center" *ngIf="agentType == 'Java'">
+                        <div class="ui-g-6">
+                            <p-checkbox name="isEnableMDCLogMsgForNF" binary="true" [(ngModel)]="isEnableMDCLogMsgForNF" label="Enable MDC log message"></p-checkbox>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </p-panel>
+    </div>
+</form>

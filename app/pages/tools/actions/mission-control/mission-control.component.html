@@ -1,0 +1,605 @@
+<div class="template-container">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <div class="p-grid p-align-center">
+        <a routerLink="/home/dashboard">
+          <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">{{ featureName }}</div>
+      </div>
+      <div class="p-col-4 text-right">
+
+        <!-- <button pButton type="button" class="ui-button ui-button-rounded" label="MEMORYLEAK ANALYZER"></button> -->
+      </div>
+    </div>
+  </p-toolbar>
+  <!-- <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div> -->
+  <!-- <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div> -->
+  <!-- <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div> -->
+  <div class="page-container">
+    <!--component html goes here -->
+    <div id="heapDumpDialog">
+      <!-- {{headerName}} -->
+      <h2 mat-dialog-title class="dashboard-titlebar" style='font-size: 16px;'>
+        <!-- <b> {{headerName}} </b> -->
+        <div style="float: right; ">
+          <!-- <mat-icon style="cursor: pointer;" fontSet='fa' fontIcon='fa-times' title="Close" (click)="close()" class='dashboard-menu-nav-header-icon'></mat-icon> -->
+        </div>
+      </h2>
+      <div>
+        <div class="p-grid p-justify-between">
+          <div class="p-col-8 p-grid p-align-center" *ngIf="showTable != 2">
+            <div class="p-grid p-col-4 p-align-center ml-5"><label class="w-20-p font-14 font-weight-500">Tier:</label>
+              <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" [options]="tiers" pTooltip="{{selectedTierVal}}"
+                tooltipPosition="bottom" appendTo='body' [(ngModel)]="selectedTierVal" [filter]='true'
+                [style]="{'width':'130px'}" (onChange)="getServerValue(selectedTierVal)"></p-dropdown>
+            </div>
+            <div class="p-grid p-col-6 p-align-center"><label class="w-20-p font-14 font-weight-500">Server:</label>
+              <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" [options]="servers" pTooltip="{{selectedServerVal}}"
+                tooltipPosition="bottom" appendTo='body' [(ngModel)]="selectedServerVal" [filter]="true"
+                [style]="{'width':'130px'}" (onChange)="resetInstanceTable()" ></p-dropdown>
+            </div>
+          </div>
+          <div class="p-grid p-align-center">
+            <button pButton type="button" *ngIf="showTable == 2" (click)="showTable = 1" icon="icons8 icons8-left"
+              title="Go Back" class="mx-15"></button>
+            <div *ngIf="showTable != 2">
+              <button pButton type="button" (click)="getJavaInstances()" label="All"
+                title="Get All Instances through Cavmonagent" class='mh-10 ui-button-rounded'></button>
+              <button pButton type="button" (click)="getNDInstances()" label="ND"
+                title="Get ND Instances through ND Collector" class='ml-5 mr-15 ui-button-rounded'></button>
+            </div>
+            <!-- <button pButton type="button" title="Reset" icon="fa fa-refresh" (click)="resetData()"></button> -->
+          </div>
+        </div>
+        <div style="margin:10px;" *ngIf="showTable == 1">
+          <p-accordion class="accordHeader">
+            <p-accordionTab header="Java Instances" [selected]="true">
+              <div style="overflow:auto;">
+                <p-table class="all-tables" [value]="instanceInfo" [(selection)]="selectedInstanceInfo"
+                  [responsive]="true" selectionMode="single" (onRowSelect)="onRowSelectData($event.data)"
+                  (onRowUnselect)="onRowUnselectData($event.data)" [rows]="10" [paginator]="true" [pageLinks]="3"
+                  scrollHeight="240px" [scrollable]="true" scrollwidth="40px" [style]="{'overflow':'unset'}"
+                  [rowsPerPageOptions]="[10,20,50,100]">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th class="w-5-p"></th>
+                      <th>Process ID</th>
+                      <th>Instance Name</th>
+                      <th *ngIf="isNDCase">Agent Type</th>
+                      <th *ngIf="!isNDCase">Process Arguments</th>
+                      <th *ngIf="isNDCase">Status</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-node>
+                    <tr>
+                      <td class="w-5-p text-center">
+                        <p-tableRadioButton [value]="node"></p-tableRadioButton>
+                      </td>
+                      <td><a class="elipseText" pTooltip="{{ node.pid }}" tooltipPosition="bottom"
+                          tooltipEvent="hover">{{ node.pid }}</a></td>
+                      <td><a class="elipseText" pTooltip="{{ node.appName }}" tooltipPosition="bottom"
+                          tooltipEvent="hover">{{ node.appName }}</a></td>
+                      <td *ngIf="isNDCase"></td>
+                      <td *ngIf="!isNDCase">
+                        <a class="elipseText" *ngIf='(node.arguments.length > 70)' title="{{node.arguments}}"
+                          tooltipPosition="bottom" tooltipEvent="hover">{{node.arguments.substring(0, 70)}}</a>
+                        <a class="elipseText" *ngIf='(node.arguments.length <= 70)' title="{{node.arguments}}"
+                          tooltipPosition="bottom" tooltipEvent="hover">{{node.arguments}}</a>
+                      </td>
+                      <td *ngIf="isNDCase"><a class="elipseText" pTooltip="{{ node.status }}" tooltipPosition="bottom"
+                          tooltipEvent="hover">{{ node.status }}</a></td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+                <!-- <p-dataTable class="ddr-table scen-table" [value]="instanceInfo"  [(selection)]="selectedInstanceInfo" [responsive]="true" [stacked]="stacked"
+                (onRowSelect)="onRowSelectData($event.data)" (onRowUnselect)="onRowUnselectData($event.data)" [rows]="10" [paginator]="true" [pageLinks]="3"scrollheight="240px"[scrollable]="true" scrollwidth="40px" [style]="{'overflow':'unset'}" [rowsPerPageOptions]="[10,20,50,100]">
+                <p-column [style]="{'width':'0.4%'}" selectionMode="single"> </p-column>
+                <p-column field="pid" header="Process ID" [sortable]="true" [style]="{'width':'20px','text-align':'right'}">
+                  <ng-template pTemplate="header">
+                    <a pTooltip="Process ID" tooltipPosition="bottom" tooltipEvent="hover">Process ID</a>
+                  </ng-template>
+                </p-column>
+                <p-column field="appName" header="Instance Name" [sortable]="true" [style]="{'width':'40px','text-align':'left'}">
+                  <ng-template pTemplate="header">
+                    <a pTooltip="Instance Name" tooltipPosition="bottom" tooltipEvent="hover">Instance Name</a>
+                  </ng-template>
+                </p-column>
+                <p-column *ngIf="isNDCase" field="agentType" header="Agent Type" [sortable]="true" [style]="{'width':'40px','text-align':'left'}">
+                    <ng-template pTemplate="header">
+                      <a pTooltip="Agent Type" tooltipPosition="bottom" tooltipEvent="hover">Agent Type</a>
+                    </ng-template>
+                  </p-column>
+                <p-column *ngIf="!isNDCase" field="arguments" header="Process Arguments" [sortable]="true" [style]="{'width':'100px','text-align':'left'}">
+                  <ng-template pTemplate="header">
+                    <a pTooltip="Process Arguments" tooltipPosition="bottom" tooltipEvent="hover">Process Arguments</a>
+                  </ng-template>
+                  <ng-template let-col let-node="rowData" pTemplate="body">
+                    <a *ngIf='(node[col.field].length > 70)' pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field].substring(0, 70)}}</a>
+                    <a *ngIf='(node[col.field].length <= 70)' pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+                  </ng-template>
+                </p-column>
+                <p-column field="status" *ngIf="isNDCase" header="Status" [sortable]="true" [style]="{'width':'30px','text-align':'left'}">
+                  <ng-template pTemplate="header">
+                    <a pTooltip="Status" tooltipPosition="bottom" tooltipEvent="hover">Status</a>
+                  </ng-template>
+                </p-column>
+              </p-dataTable> -->
+                <div *ngIf="(!isNDCase && selectedInstanceInfo)">
+                  <div class="process-arguments"
+                    style="text-align: left;word-break: break-all;margin-top:10px;border: 1px solid;overflow: auto;max-height: 110px;">
+                    <div class="process-arguments-content" style="max-width:100%;margin:5px"> <b> Process Arguments:
+                      </b>{{selectedInstanceInfo['arguments']}}</div>
+                  </div>
+                </div>
+              </div>
+            </p-accordionTab>
+
+          </p-accordion>
+        </div>
+        <div *ngIf="showTable== 2" class="mx-15">
+          <br />
+          <p-table class="all-tables" [value]="jfrList" sortField="timestamp" [sortOrder]="-1" selectionMode="single"
+            [scrollable]="true" scrollwidth="40px" scrollHeight="240px"
+            [style]="{'font-size':'12px','overflow':'unset'}" resizableColumns="true" reorderableColumns="true"
+            [rows]="10" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]"
+            columnResizeMode="expand">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Tier</th>
+                <th>Server</th>
+                <th>Instance</th>
+                <th>Time</th>
+                <th>UserName</th>
+                <th>File Path at NDE</th>
+                <th>File Path at Server</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-node>
+              <tr>
+                <td><a pTooltip="{{node.tierName}}" tooltipPosition="bottom" tooltipEvent="hover">{{node.tierName}}</a>
+                </td>
+                <td><a pTooltip="{{node.serverName}}" tooltipPosition="bottom"
+                    tooltipEvent="hover">{{node.serverName}}</a></td>
+                <td><a pTooltip="{{node.instanceName}}" tooltipPosition="bottom"
+                    tooltipEvent="hover">{{node.instanceName}}</a></td>
+                <td><a pTooltip="Time at which HeapDump is started successfully" tooltipPosition="bottom"
+                    tooltipEvent="hover">{{node.timestamp}}</a></td>
+                <td><a pTooltip="{{node.userName}}" tooltipPosition="bottom" tooltipEvent="hover">{{node.userName}}</a>
+                </td>
+                <td><a class="elipseText" pTooltip="{{node.location}}" tooltipPosition="bottom"
+                    tooltipEvent="hover">{{node.location}}</a></td>
+                <td><a class="elipseText" pTooltip="{{node.filePath}}" tooltipPosition="bottom"
+                    tooltipEvent="hover">{{node.filePath}}</a></td>
+                <td class='text-center'>
+                  <button pButton type="button" title="download at local" class="icon-width"
+                    icon="icons8 icons8-download-2" (click)="downloadFile(node)"
+                    class='mh-5 ui-button-rounded ui-button-secondary'></button>
+                  <button pButton type="button" title="Remove JFR" class="icon-width" icon="icons8 icons8-delete-trash"
+                    (click)="confirmationPopup = true;assignNodevalueToDelete(node)"
+                    class='mh-5 ui-button-rounded ui-button-secondary'></button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td style="text-align: center" [attr.colspan]="8"> No records found </td>
+              </tr>
+            </ng-template>
+          </p-table>
+          <!-- <p-dataTable class="scen-table" [value]="jfrList" sortField="timestamp" [sortOrder]="-1" selectionMode="single" [scrollable]="true" scrollwidth="40px"scrollheight="240px"[style]="{'font-size':'12px','overflow':'unset'}"
+          resizableColumns="true" reorderableColumns="true" [rows]="10" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]"
+          columnResizeMode="expand">
+          <p-column field="tierName" header="Tier" [sortable]="true" [style]="{'width':'15px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+            </ng-template>
+          </p-column>
+          <p-column field="serverName" header="Server" [sortable]="true" [style]="{'width':'15px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+            </ng-template>
+          </p-column>
+          <p-column field="instanceName" header="Instance" [sortable]="true" [style]="{'width':'20px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+            </ng-template>
+          </p-column>
+          <p-column field="timestamp" header="Time" sortable="custom" (sortFunction)="customsort($event,jfrList)" [style]="{'width':'35px','text-align':'right'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="Time at which HeapDump is started successfully" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+            </ng-template> 
+          </p-column>
+          <p-column field="userName" header="UserName" [sortable]="true" [style]="{'width':'40px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+              </ng-template>
+          </p-column>
+          <p-column field="location" header="File Path at NDE" [sortable]="true" [style]="{'width':'40px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+             </ng-template>
+          </p-column>
+          <p-column field="filePath" header="File Path at Server" [sortable]="true" [style]="{'width':'50px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">
+                {{node[col.field]}}
+              </a>
+            </ng-template>
+          </p-column> -->
+          <!-- <p-column field="fileName" header="File Name" [sortable]="true" [style]="{'width':'40px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+            </ng-template>
+          </p-column> -->
+          <!-- <p-column field="action" header="Actions" [style]="{'width':'30px','text-align':'left'}">
+            <ng-template pTemplate="header">
+              <a pTooltip="Actions" tooltipPosition="bottom" tooltipEvent="hover">Actions</a>
+            </ng-template>
+            <ng-template let-col let-node="rowData" pTemplate="body">
+              <button pButton type="button" title="download at local" class="icon-width" icon="fa fa-download" (click)="downloadFile(node)"></button>
+              <button pButton type="button" title="Remove JFR" class="icon-width" icon="fa fa-trash-o" (click)="confirmationPopup = true;assignNodevalueToDelete(node)"></button>
+            </ng-template>
+          </p-column>
+        </p-dataTable> -->
+        </div>
+        <div class="ui-dialog-content" *ngIf="showTable == 0">{{ErrorResult}}</div>
+      </div>
+      <p-footer>
+        <div class='p-grid p-justify-center p-align-center'>
+          <span *ngIf="(showThreadDumpOption == true && showTable != 2 && !showMemLeak)">
+            <button pButton type="button" (click)="openStartFlightRecorder()" label="Start Flight Recording"
+              class='mh-10 ui-button-rounded'></button>
+            <button pButton type="button" (click)="showFlightRecording()" label="Show Flight Recording"
+              class='mh-10 ui-button-rounded'></button>
+            <button pButton type="button" (click)="openAvailableRecording()" label="Dowload Available Recording"
+              class='mh-10 ui-button-rounded'></button>
+            <!-- <button pButton type="button" (click)="close()" label="Close" class='mh-10 ui-button-rounded'></button> -->
+          </span>
+          <span *ngIf="(showTable != 2 && !showMemLeak)">
+            <button pButton type="button" (click)="showAllData()" label="Show All Recordings"
+              class='mh-10 ui-button-rounded'></button>
+          </span>
+          <span class="py-5" *ngIf="(showTable == 2)">
+            <button pButton type="button" title="Refresh" label="Refresh" (click)="refreshGUI()"
+              class='mh-10 ui-button-rounded'></button>
+          </span>
+          <button *ngIf="showMemLeak" pButton type="button" (click)="startMemLeakAnalyzer()"
+            label="Start MemLeak Analyzer" class='mh-10 ui-button-rounded'></button>
+        </div>
+      </p-footer>
+    </div>
+    <p-dialog class="secondary-dialog foterDialog" [style]="{width: '60vw'}" header="Start Flight Recording" [(visible)]="startFlight" styleClass="flight-record" modal="modal" [responsive]="true">
+      <div class="ui-g-12 p-grid p-align-center">
+        <div class="p-grid p-col p-align-center">
+          <label class="p-col-5"> Recording File Name: </label>
+          <input matInput minlength="1" placeholder="File Name With Absolute Path(Required)" [(ngModel)]="fileName" style="width:206px;" pInputText/>
+        </div>
+        <div class="p-grid p-col p-align-center">
+          <p-checkbox label="Overwrite existing File (if present)" [(ngModel)]="isOverwrite" binary="true"></p-checkbox>
+        </div>
+      </div>
+      <div class="ui-g-12 p-grid p-align-center">
+        <div class="p-grid p-col p-align-center">
+          <p-checkbox class="ml-10" [disabled]=true label="Max timeout for recording request" value="checkMaxTimeOut" [(ngModel)]="selectedValues"></p-checkbox>
+          <input class="pr-10" matInput minlength="1" placeholder="" [(ngModel)]="maxTime" style="width:30px; height:26px; margin-right: 6px;" pInputText/> in minutes
+        </div>
+        <div class="p-grid p-col-6 p-align-center">
+          <label class="p-col-2">Duration: </label>
+          <input matInput minlength="1" class="mr-20" placeholder="Duration in Minutes" (keypress)="validateDuration($event)" [(ngModel)]="maxTimeOut" style="width:35px; height:26px;" pInputText/>
+          <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" [options]="selectTime" scrollHeight="100px" appendTo="body" [(ngModel)]="selectedTime" [style]="{'min-width':'115px'}"></p-dropdown>
+        </div>
+      </div>
+      
+        <div class="ui-g-12 p-grid p-align-center">
+          <div class="p-grid p-col-6 p-align-center">
+            <label class="p-col-8">Expected Size of Recording (if known):  </label>
+            <input minlength="1" placeholder="Expected Size" (keypress)="validate($event)" [(ngModel)]="fileSize" style="width:110px;height:26px;" pInputText/>
+          </div>
+          <div class="p-grid p-col-2 p-align-center">
+            <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" [options]="selectFileSize" appendTo="body" [(ngModel)]="selectedSize" [style]="{'min-width':'192%'}"></p-dropdown>
+          </div>
+        </div>
+      <div class="p-col-12 p-grid p-justify-center mt-30">
+        <button pButton type="button" (click)="closeFlightRecording()" label="Close"
+          class='mh-10 ui-button-rounded'></button>
+        <button pButton type="button" (click)="startFlightRecording()" label="Start"
+          class='mh-10 ui-button-rounded'></button>
+      </div>
+    </p-dialog>
+
+    <!-- <p-dataTable [value] = "flightData" selectionMode="single" resizableColumns="true">
+    <p-column *ngFor = "let col of colsForFlight" [field] = "col.field" [header] = "col.header" [style] = "{'width':'100px'}">
+    </p-column>
+  </p-dataTable> -->
+
+    <p-dialog class="secondary-dialog foterDialog" header="Show Flight Recording" [(visible)]="showFlight" modal="modal"
+      width="1000px" [resizable]=false autoAlign="true">
+      <div style="width:900px;height:auto;">
+        <p-table class="all-tables" [value]="flightData" sortField="fileLastModificationTime" [sortOrder]="-1"
+          selectionMode="single" [style]="{'font-size':'12px','overflow':'unset'}" resizableColumns="true"
+          reorderableColumns="true" [(selection)]="selectedRowInfo" [rows]="10" [paginator]="true" [pageLinks]="3"
+          [scrollable]="true" scrollHeight="240px" [rowsPerPageOptions]="[10,20,30,40,50]">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>File Name</th>
+              <th>Status</th>
+              <th>Duration(Sec)</th>
+              <th>Location</th>
+              <th>File Size(MB)</th>
+              <th>Last Modification Time</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-node>
+            <tr>
+              <td>
+                <p-tableRadioButton [value]="node"></p-tableRadioButton>
+              </td>
+              <td><a pTooltip="{{node.recordingName}}" tooltipPosition="bottom"
+                  tooltipEvent="hover">{{node.recordingName}}</a>
+              </td>
+              <td><a pTooltip="{{node.status}}" tooltipPosition="bottom" tooltipEvent="hover">{{node.status}}</a></td>
+              <td><a pTooltip="{{node.duration}}" tooltipPosition="bottom" tooltipEvent="hover">{{node.duration}}</a>
+              </td>
+              <td><a pTooltip="{{node.recordingFileName}}" tooltipPosition="bottom"
+                  tooltipEvent="hover">{{node.recordingFileName}}</a></td>
+              <td><a pTooltip="{{node.fileSize}}" tooltipPosition="bottom" tooltipEvent="hover">{{node.fileSize}}</a>
+              </td>
+              <td><a pTooltip="{{node.fileLastModificationTime}}" tooltipPosition="bottom"
+                  tooltipEvent="hover">{{node.fileLastModificationTime}}</a></td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td style="text-align: center" [attr.colspan]="6"> No records found </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        <!-- <p-dataTable class="scen-table" [value]="flightData" sortField="fileLastModificationTime" [sortOrder]="-1"
+        selectionMode="single" [style]="{'font-size':'12px','overflow':'unset'}" resizableColumns="true"
+        reorderableColumns="true" [(selection)]="selectedRowInfo" [rows]="10" [paginator]="true" [pageLinks]="3"
+        [scrollable]="true" scrollheight="240px" [rowsPerPageOptions]="[10,20,30,40,50]">
+  
+        <p-column [style]="{'width':'5px'}" selectionMode="single"> </p-column> -->
+        <!-- <p-column field="recordingId" header="Id" [sortable]="true" [style]="{'width':'5px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column> -->
+        <!-- <p-column field="recordingName" header="File Name" [sortable]="true" [style]="{'width':'25px','text-align':'left'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+        <p-column field="status" header="Status" [sortable]="true" [style]="{'width':'15px','text-align':'left'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+        <p-column field="duration" header="Duration(Sec)" sortable="custom" (sortFunction)="CustomSort($event,flightData)" [style]="{'width':'25px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+        <p-column field="recordingFileName" header="Location" [sortable]="true" [style]="{'width':'40px','text-align':'left'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+        <p-column field="fileSize" header="File Size(MB)" sortable="custom" (sortFunction)="CustomSort($event,flightData)" [style]="{'width':'30px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="Size of the File" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+  
+        </p-column>
+        <p-column field="fileLastModificationTime" header="Last Modification Time" sortable="custom" (sortFunction)="CustomSort($event,flightData)" [style]="{'width':'50px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">
+              {{node[col.field]}}</a>
+          </ng-template>
+        </p-column> -->
+        <!-- <p-column field="compression" header="Compression Mode" [sortable]="true" [style]="{'width':'30px','text-align':'left'}">
+          <ng-template let-col let-node="rowData" pTemplate="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column> -->
+        <!-- </p-dataTable> -->
+      </div>
+      <div class="p-grid p-justify-center p-align-center py-5">
+        <!-- <button pButton type="button" (click)="startFlightRecording()" label="Start Flight Recording"></button> -->
+        <button pButton type="button" (click)="removeFlightRecording()" label="Remove Recording File"
+          class='mh-10 ui-button-rounded'></button>
+        <button pButton type="button" (click)="stopFlightRecording()" label="Stop Recording"
+          class='mh-10 ui-button-rounded'></button>
+        <button pButton type="button" (click)="showFlightRecording()" label="Refresh"
+          class='mh-10 ui-button-rounded'></button>
+        <button pButton type="button" (click)="closeFlightRecording()" label="Close"
+          class='mh-10 ui-button-rounded'></button>
+      </div>
+    </p-dialog>
+
+    <p-dialog class="secondary-dialog foterDialog" styleClass="leak-analyzer" header="Memory Leak Analyzer"
+      [(visible)]="showMemLeakTab" width="1300"  [responsive]="true" positionTop="20"
+      (onHide)="onClose($event)">
+      <div class="p-grid loader-container vertical-container h-50-vh" *ngIf="loading">
+        <div class="p-col p-col-align-center text-center">
+          <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+        </div>
+      </div>
+      <div class="ddr-fieldset">
+        <p-fieldset class="scenario" legend="Settings">
+          <div class="p-grid p-justify-end mr-15 p-align-center">
+            <!-- <img src="./images/resetDelta.png" style="height:15px; width:15px;float:right;cursor:pointer;" title="Reset" (click)="resetDelta()"> -->
+            <!--   <div class="span-delta-img"> <label class="icon delta-img ddrui-icon-delta" title="Reset the instance count and size deltas" (click)="resetDelta()"> </label></div> -->
+            <p-button type="button" styleClass="mh-5 ui-button-rounded ui-button-secondary"
+              icon="icons8 icons8-sync-settings" title="Reset the instance count and size deltas"
+              (click)="resetDelta()"></p-button>
+            <p-button type="button" styleClass="mh-5 ui-button-rounded ui-button-secondary"
+              icon="icons8 icons8-synchronize" (click)='refresh()'
+              title='Refresh the data, without storing trends Memory Leak sample'></p-button>
+            <p-button type="button" styleClass="mh-5 ui-button-rounded ui-button-secondary" [disabled]="isPause"
+              icon="icons8 icons8-pause" (click)='pause()'
+              title='Pause updating the data, but continue analysis in the background'></p-button>
+            <p-button type="button" styleClass="mh-5 ui-button-rounded ui-button-secondary" [disabled]="isPlay"
+              icon="icons8 icons8-play" (click)='play()' title='Start trends analysis of Memory Leak'></p-button>
+            <p-button type="button" styleClass="mh-5 ui-button-rounded ui-button-secondary" [disabled]="isStop"
+              icon="icons8 icons8-rectangular" (click)='stop()' title='Stop trends analysis of Memory Leak'></p-button>
+            <!--
+        <i class='fa fa-refresh memory-style' aria-hidden='true' (click)='refresh()' title='Refresh the data, without storing trends Memory Leak sample'></i>
+        <i class='fa fa-pause-circle memory-style'[disabled]="isPause" aria-hidden='true' (click)='pause()' title='Pause updating the data, but continue analysis in the background'></i>
+        <i class='fa fa-play memory-style' aria-hidden='true' [disabled]="isPlay" (click)='play()' title='Start trends analysis of Memory Leak'></i>
+        <i class='fa fa-stop-circle-o memory-style' aria-hidden='true' (click)='stop()' title='Stop trends analysis of Memory Leak'></i>
+            <img src="./images/resetDelta.png" style="height:15px; width:15px;float:right;cursor:pointer;" title="Reset the instance count and size deltas" (click)="resetDelta()">
+            <img src="./images/stop.png" style="height:15px; width:15px;float:right;cursor:pointer;" title="Stop" (click)="stop()">&nbsp;&nbsp;
+            <img src="./images/play.png" style="height:15px; width:15px;float:right;cursor:pointer;" title="Play" (click)="play()">&nbsp;&nbsp;
+            <img src="./images/pause.png" style="height:15px; width:15px;float:right;cursor:pointer;" title="Pause" (click)="pause()">&nbsp;&nbsp; -->
+          </div>
+          <!-- Tabular View -->
+          <div class="ui-g-12 p-grid p-align-center" *ngIf="tabView">
+            <span class="ui-g-1">
+              <label>Filter Column</label>
+            </span>
+            <span class="ui-g-2">
+              <p-dropdown [options]="selectFilter" [(ngModel)]="selectedFilter" [style]="{'width':'100px'}">
+              </p-dropdown>
+            </span>
+            <span class="ui-g-1">
+              <p-dropdown [options]="selectOperation" [(ngModel)]="selectedOperation" [style]="{'min-width':'40px'}">
+              </p-dropdown>
+            </span>
+            <span class="ui-g-1">
+              <input matInput minlength="1" [(ngModel)]="filterByColumn" pInputText style="width:80px;" />
+            </span>
+            <span class="ui-g-2">
+              <label>Sample Interval in sec(s)</label>
+            </span>
+            <span class="ui-g-1">
+              <input matInput minlength="1" [(ngModel)]="interval" style="width:50px;" pInputText />
+            </span>
+            <span class="ui-g-2">
+              <button pButton type="button" (click)="apply()" label="Apply" class='ui-button-rounded'></button>
+            </span>
+          </div>
+
+          <!-- Chart View -->
+          <div class="ui-g-12 p-grid p-align-center" *ngIf="chartView">
+            <div class="p-col-2"><label>Sample Interval in sec(s)</label></div>
+            <div class="p-col-1"><input matInput minlength="1" [(ngModel)]="interval" style="width:80px;" pInputText />
+            </div>
+            <div class="p-col"><button pButton type="button" (click)="apply()" label="Apply"
+                class='ui-button-rounded'></button></div>
+          </div>
+
+          <!-- Compare -->
+          <div class="ui-g-12 p-grid p-align-center" *ngIf="compareView">
+            <div class="p-col-2"><label>Sample Count</label></div>
+            <div class="p-col-2"><input matInput minlength="1" [(ngModel)]="sampleCount" style="width:80px;"
+                pInputText /></div>
+            <div class="p-col-2">Sample Interval in sec(s)</div>
+            <div class="p-col-1"><input matInput minlength="1" [(ngModel)]="interval" style="width:80px;" pInputText />
+            </div>
+            <div class="p-col"><button pButton type="button" (click)="apply()" label="Apply"
+                class='ui-button-rounded'></button></div>
+          </div>
+
+        </p-fieldset>
+      </div>
+      <p-tabView class="scenTab" (onChange)="tabViewTab($event)">
+        <p-tabPanel header="Tabular View" [selected]="true">
+          <div>
+            <p-table class='all-tables' [value]="memLeakData" selectionMode="single" resizableColumns="true" [paginator]="true"
+              [rows]="20" [scrollable]="true" scrollwidth="40px" scrollHeight="220px" [style]="{'overflow':'unset'}"
+              [rowsPerPageOptions]="[20,50,100,200,400]">
+              <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                  <col *ngFor="let col of colsForMemLeak">
+                </colgroup>
+              </ng-template>
+              <ng-template pTemplate="header">
+                <tr>
+                  <th *ngFor="let col of colsForMemLeak" [pSortableColumn]="col.field" pResizableColumn>
+                    <span>
+                      {{col.header}}
+                      <p-sortIcon [field]="col.field" 
+                        ariaLabel="Activate to sort" 
+                        ariaLabelDesc="Activate to sort in descending order"
+                        ariaLabelAsc="Activate to sort in ascending order">
+                      </p-sortIcon>
+                    </span>
+                  </th>
+
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-node>
+                <tr>
+                  <td *ngFor="let col of colsForMemLeak">
+                    <span *ngIf="col.field == 'objectNameChanged'">
+                      {{node[col.field]}}
+                    </span>
+                    <span class="right" *ngIf="!(col.field == 'objectNameChanged')">
+                      {{node[col.field]}}
+                    </span>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+            <!-- <p-dataTable [value]="memLeakData" selectionMode="single" resizableColumns="true" [paginator]="true" [rows]="20" [scrollable]="true" scrollwidth="40px"scrollheight="240px"  [style]="{'overflow':'unset'}"[rowsPerPageOptions]="[20,50,100,200,400]">
+          <p-column *ngFor="let col of colsForMemLeak" [field]="col.field" [header]="col.header" [sortable]="col.sortable"  (sortFunction)="CustomsortOnColumnsforCustom($event,memLeakData)"  [style]="{'width':col.width+'px', 'text-align': col.align}">
+          </p-column>
+        </p-dataTable> -->
+          </div>
+        </p-tabPanel>
+        <p-tabPanel header="Chart View">
+          <div class='div-borader' style="overflow:auto">
+            <div class="ddr-graphpanel">
+              <highcharts-chart [Highcharts]="highcharts" [options]="Options"></highcharts-chart>
+            </div>
+          </div>
+        </p-tabPanel>
+        <p-tabPanel header="Compare">
+          <div class='div-borader'>
+            <div class="ddr-graphpanel" *ngIf = "samlpleArrList.length == 1">
+              <highcharts-chart  [Highcharts]="highcharts" [options]="options1"></highcharts-chart>
+            </div>
+            <div class="ddr-graphpanel" *ngIf = "samlpleArrList.length == 2">
+              <highcharts-chart [Highcharts]="highcharts" [options]="options2"></highcharts-chart>
+            </div>
+          </div>
+        </p-tabPanel>
+      </p-tabView>
+    </p-dialog>
+    <p-dialog class="secondary-dialog confirmdialog" header="Delete Confirmation" [(visible)]="confirmationPopup" width="400"
+      [responsive]="true">
+      <label>Do you want to delete current recording from NDE box?</label>
+      <p-footer>
+        <div>
+          <button pButton type="button" (click)="removeFile()" label="Yes" class='mh-10 ui-button-rounded'></button>
+          <button pButton (click)="confirmationPopup = false" type="button" label="No"
+            class='mh-10 ui-button-rounded ui-button-secondary'></button>
+        </div>
+      </p-footer>
+    </p-dialog>
+    <!-- <p-growl life="60000"  [(value)]="_message"></p-growl> -->
+    <!-- <p-toast></p-toast> -->
+
+  </div>
+</div>

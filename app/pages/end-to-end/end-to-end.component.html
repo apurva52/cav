@@ -1,0 +1,188 @@
+<div class="h-100-vh wrapper ">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-grid p-align-center">
+                <a routerLink="/home/system">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">END TO END TIER</div>
+            </div>
+            <div class="p-grid p-align-center">
+                <div class="p-col" *ngIf="EndToEndTimeFilter.timePeriod.selected">
+                    <div class="e2e-clock" (click)="EndToEndTimeFilter.openTimeFilter()">
+                        <i class="icons8 icons8-clock"></i>
+                        <span *ngIf="EndToEndTimeFilter.temporaryTimeFrame">Last Sample Time: {{EndToEndTimeFilter.temporaryTimeFrame[2] | formatDateTime: 'default'}}</span>
+                        <span>({{EndToEndTimeFilter.timePeriod.selected.label}})</span>
+                    </div>
+                </div>
+
+                <div>
+                    <button pButton type="button" class="ui-button ui-button-rounded" label="GRAPHICAL" routerLink="{{endToEndGraphicalURL}}"></button>
+                </div>
+            </div>
+        </div>
+    </p-toolbar>
+
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+
+    <div class="action-container " *ngIf="data">
+        <div class="p-10-p p-grid p-justify-between p-align-center action-grid">
+            <div class="p-grid div-css">
+                <div class="p-grid p-align-center">
+                    <span class="labels">Node</span>
+                    <p-dropdown [options]="data.endToEndMenu.multiDcNodes" [(ngModel)]="selectedNode" placeholder="Select a Node" optionLabel="label"></p-dropdown>
+                </div>
+
+                <div class="p-grid p-align-center">
+                    <span class="labels">Flowmap</span>
+                    <p-dropdown [options]="data.endToEndMenu.flowmaps" [(ngModel)]="selectedNode" placeholder="Select a Flowmap" optionLabel="label"></p-dropdown>
+                </div>
+                <!-- <button pButton type="button" class="ui-button-secondary ui-button-rounded" label="EDIT" [routerLink]="['/end-to-end/end-to-end-edit']"></button> -->
+                <button pButton type="button" class="ui-button-secondary ui-button-rounded" label="MANAGE FLOWMAPS" [routerLink]="['/flowmaps']"></button>
+
+                <div class="p-grid p-align-center node-dropdown" *ngIf="data.endToEndMenu.nodes">
+                    <p-dropdown [options]="data.endToEndMenu.nodes" [(ngModel)]="selectedNodes" placeholder="Select Node" [filter]="true" filterBy="label" [group]="true">
+                        <ng-template let-group pTemplate="group">
+                            <span style="margin-left:.25em">{{group.label}}</span>
+                        </ng-template>
+                    </p-dropdown>
+                </div>
+            </div>
+            <div class="p-grid button-row-position">
+                <button pButton type="button" (click)="showLegends = true" class="ui-button-secondary ui-button-rounded" label="LEGENDS"></button>
+                <button pButton type="button" class="ui-button-secondary ui-button-rounded" label="DOWNLOAD"></button>
+            </div>
+        </div>
+        <div *ngIf="showLegends && data.endToEndLegend" class="legends-section">
+            <div class="p-grid p-align-center p-justify-end">
+                <button pButton class="icon-button no-shadow left" icon="icons8 icons8-delete" (click)="showLegends = false"></button>
+            </div>
+            <p-carousel [value]="data.endToEndLegend" [numVisible]="17">
+                <ng-template let-legend pTemplate="item" class="template">
+                    <div class="p-grid p-dir-col p-justify-center p-align-center">
+                        <i class="icons8 {{ legend.icon }} p-col legend-icon"></i>
+                        <div class="p-col text-center">{{ legend.label }}</div>
+                    </div>
+                </ng-template>
+            </p-carousel>
+        </div>
+    </div>
+
+    <div>
+        <div #widgetHeight *ngIf="data" class="m-10" [ngStyle]="{'height': isEnabledColumnFilter ? 'calc(100vh - 70px)' : 'calc(100vh - 25px)'}">
+            <p-card class="content-body" *ngIf="data && !loading">
+                <p-treeTable #endToEndDetailsData [columns]="selectedColumns" [value]="data.endToEndTableView.data" [rowHover]="true" [paginator]="true" [rows]="data.endToEndTableView.paginator.rows" [showCurrentPageReport]="true" dataKey="Method" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    [rowsPerPageOptions]="data.endToEndTableView.paginator.rowsPerPageOptions" [(first)]="data.endToEndTableView.paginator.first" [globalFilterFields]="selectedColumns" [scrollable]="true" selectionMode="single" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 250px)">
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" [ttSortableColumn]="col.valueField" class="text-left">
+                                {{ col.label }}
+                                <p-treeTableSortIcon [field]="col.isSort" class="right"></p-treeTableSortIcon>
+                            </th>
+                        </tr>
+                        <tr *ngFor="let headerRow of data.endToEndTableView.headers">
+                            <ng-container *ngIf="isEnabledColumnFilter">
+
+                                <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                    <div *ngIf="col.filter.isFilter === true && col.filter.type === 'custom'">
+                                        <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="endToEndDetailsData.filter($event.target.value, col.valueField , 'custom')">
+                                    </div>
+                                    <div *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+                                        <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="endToEndDetailsData.filter($event.target.value, col.valueField , 'contains')">
+                                    </div>
+                                </th>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                        <tr [ngStyle]="{ backgroundColor: rowData.rowBgColor }" [ttRow]="rowData">
+                            <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}">
+                                <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+                                {{ rowData[col.valueField] }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                <span *ngIf="error">Error while loading data</span>
+                                <span *ngIf="emptyTable">Empty Table</span>
+                                <span *ngIf="loading">Loading</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-treeTable>
+
+                <!-- working on pagination -->
+                <!-- <p-treeTable #endToEndDetailsData [columns]="selectedColumns" [value]="data.tableData.data" [rowHover]="true" dataKey="Method" [globalFilterFields]="selectedColumns" [scrollable]="true" selectionMode="single" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 250px)">
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" [ttSortableColumn]="col.valueField" class="text-left">
+                                {{ col.label }}
+                                <p-treeTableSortIcon [field]="col.isSort" class="right"></p-treeTableSortIcon>
+                            </th>
+                        </tr>
+                        <tr *ngFor="let headerRow of data.tableData.headers">
+                            <ng-container *ngIf="isEnabledColumnFilter">
+
+                                <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                    <div *ngIf="col.filter.isFilter === true && col.filter.type === 'custom'">
+                                        <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="endToEndDetailsData.filter($event.target.value, col.valueField , 'custom')">
+                                    </div>
+                                    <div *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+                                        <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="endToEndDetailsData.filter($event.target.value, col.valueField , 'contains')">
+                                    </div>
+                                </th>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                        <tr [ngStyle]="{ backgroundColor: rowData.rowBgColor }" [ttRow]="rowData">
+                            <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}">
+                                <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+                                {{ rowData[col.valueField] }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                <span *ngIf="error">Error while loading data</span>
+                                <span *ngIf="emptyTable">Empty Table</span>
+                                <span *ngIf="loading">Loading</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-treeTable>
+                <p-paginator [rowsPerPageOptions]="[10,20,30]" (onPageChange)="paginate($event)" [rows]="data.tableData.paginator.rows"></p-paginator> -->
+
+            </p-card>
+        </div>
+    </div>
+</div>
+
+<!-- <app-time-bar #timeBar></app-time-bar> -->
+<app-ete-time-filter #EndToEndTimeFilter></app-ete-time-filter>

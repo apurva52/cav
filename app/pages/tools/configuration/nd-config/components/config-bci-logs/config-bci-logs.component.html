@@ -1,0 +1,219 @@
+<div class="ui-g ndegui-mainbox">
+    <div class="ui-g-12">
+
+        <!-- Left side-->
+        <div class="ui-g-4">
+            <form (ngSubmit)="showFiles()" #groupForm="ngForm" ngNativeValidate>
+
+                <!-- Tier/server/instance-->
+               
+                    <!-- Tier field-->
+                    <div class="ui-g p-align-center">
+                        <div class="ui-g-3">Tier</div>
+                        <div class="ui-g-9">
+                            <input name="tier" type="text" class='hidden-validator' pInputText [(ngModel)]="selectedTier" required ngModel />
+                            <p-dropdown [options]="tierList" name="tier" [disabled]="isProfilePerm" class="w-100-p" [(ngModel)]="selectedTier" (ngModelChange)="fetchServer(selectedTier)" filter="filter" class="instrprofmaker autosearchfield" placeholder="--Select--" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                        </div>
+                    
+
+                        <!-- Server field-->
+                        <div class="ui-g-3">Server</div>
+                        <div class="ui-g-9">
+                            <input name="server" type="text" class='hidden-validator' pInputText [(ngModel)]="selectedServer" required ngModel />
+                            <p-dropdown [options]="serverList" dropdownIcon="icons8 icons8-expand-arrow" name="server" disabled="{{selectedTier == ''}}" [(ngModel)]="selectedServer" filter="filter" class="instrprofmaker autosearchfield" (ngModelChange)="fetchInstance(selectedServer)" placeholder="--Select--" class="w-100-p"
+                                required></p-dropdown>
+                        </div>
+                    
+
+                        <!-- Instance field-->
+
+                        <div class="ui-g-3 label">Instance</div>
+                        <div class="ui-g-9">
+                            <input name="instance" type="text" class='hidden-validator' pInputText [(ngModel)]="selectedInstance" required ngModel />
+                            <p-dropdown [options]="instanceList" dropdownIcon="icons8 icons8-expand-arrow" name="instance" disabled="{{selectedServer == ''}}" [(ngModel)]="selectedInstance" filter="filter" class="instrprofmaker autosearchfield" (ngModelChange)="identifyOSType()" placeholder="--Select--" class="w-100-p"
+                                required></p-dropdown>
+                        </div>
+                 
+                        <!-- Agent Mode-->
+                
+                        <div class="ui-g-3">Agent Type</div>
+                        <div class="ui-g-9">
+                            <input name="agentMode" type="text" pInputText [(ngModel)]="viewAdvanceSetting.agentMode" disabled="true" class="w-100-p" required ngModel />
+                        </div>
+                    
+
+                        <!-- File Type-->
+                 
+                        <div class="ui-g-3">File Type</div>
+                        <div class="ui-g-9">
+                            <input name="fileType" type="text" class='hidden-validator' pInputText [(ngModel)]="selectedFileType" required ngModel />
+                            <p-dropdown [options]="fileTypeList" dropdownIcon="icons8 icons8-expand-arrow" name="fileType"[(ngModel)]="selectedFileType" [disabled]="isProfilePerm" placeholder="--Select--" class="w-100-p"></p-dropdown>
+                        </div>
+                    </div>
+
+                    <!-- Custom field(Optional)-->
+                    <div class="ui-g p-align-center" *ngIf="selectedFileType=='Custom'">
+                        <div class="ui-g-3">Source Path</div>
+                        <div class="ui-g-9">
+                            <input type="text" name="source" pInputText [(ngModel)]="viewAdvanceSetting.sourcePath" class="w-100-p" required />
+                        </div>
+                    </div>
+               
+
+                <!-- Advanced setting-->
+                <div class="ui-g-12 my-10">
+                    <p-fieldset legend="Advanced Settings" [toggleable]="true" [collapsed]="true">
+                        <!-- Timeout -->
+                        <div class="ui-g p-align-center">
+                            <div class="ui-g-5">Timeout(minutes)</div>
+                            <div class="ui-g-4">
+                                <input type="number" name="timeout" class="w-100-p" pInputText [(ngModel)]="viewAdvanceSetting.timeout" required />
+                            </div>
+                        </div>
+                        <!-- Compressed Mode -->
+                        <div class="ui-g p-align-center">
+                            <div class="ui-g-8">
+                                <p-checkbox name="compressedMode" [(ngModel)]="viewAdvanceSetting.compressedMode" binary="true" ngModel label="Compressed Mode"></p-checkbox>
+
+                            </div>
+                        </div>
+
+                        <!-- Execute forcefully -->
+                        <div class="ui-g p-align-center">
+                            <div class="ui-g-8">
+                                <p-checkbox name="executeForcefully" [(ngModel)]="viewAdvanceSetting.executeForcefully" binary="true" ngModel label="Execute Forcefully"></p-checkbox>
+                            </div>
+                        </div>
+                    </p-fieldset>
+
+                    <!-- Buttons to show files and reset data-->
+                    <div class="right my-10">
+                        <!-- To refresh the connected tier/server/instance-->
+                        <i class="icons8 icons8-help" title="Help" (click)="sendHelpNotification()"></i>
+                        <button type="button" class="mx-5" pButton icon="icons8 icons8-synchronize" (click)="loadNDAgentStatusData()" title="Reload connected Instances and reset fields to default value" label="Reset" [disabled]="isProfilePerm"></button>
+                        <button type="submit" pButton icon="icons8 icons8-document" label="Show files" [disabled]="isProfilePerm"></button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+        <!-- Left side end-->
+
+        <!-- Right side-->
+        <div class="ui-g-8 col8Scroll" style="width: 64%; margin-right: 20px;">
+            <a (click)="goBack()" *ngIf="messageFields.fileType=='Custom'" style="color: black;margin-left: 6px;cursor: pointer;" class="contents"><i class="icons8 icons8-doc" aria-hidden="true"></i></a>
+            <!-- Files list from BCI side-->
+           
+               
+                <!-- <p-card class="ndegui-card" style="padding: 0px"> -->
+                    <!-- To go back from current path-->
+                   
+                
+                 <span *ngIf="messageFields.tier != ''" style="float: left; margin-left: 10px;">
+                    ({{messageFields.tier}} > {{messageFields.server}} > {{messageFields.instance}})
+                </span>
+                <div class="ui-g-12">
+                <!-- </p-card> -->
+                <p-header>
+                        <p-table #tt [columns]="cols" class="nde-ui all-tables" [value]="fileFieldsData" [rows]="5" [paginator]="fileFieldsData?.length > 5" [pageLinks]="3" [rowsPerPageOptions]="[5,10,25,50,100,400]" scrollable="true" scrollHeight="200px">
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                                <col style="width:37%">
+                                <col style="width:15%">
+                                <col style="width:16%">
+                                <col style="width:18%">
+                            </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                                    {{col.header}}
+                                    <span *ngIf="col.field !=''">
+                                    <p-sortIcon [field]="col.field"></p-sortIcon>
+                                    </span>
+                                </th>
+                                <!-- <th>File Name</th>
+                                <th>File Size</th>
+                                <th>Modification Time</th>
+                                <th>Download and View</th> -->
+                            </tr>
+                            <tr>
+                                <th *ngFor="let col of columns">
+                                    <span *ngIf="col.field !=''">
+                                        <input style="width: 90%;" pInputText type="text" (input)="tt.filter($event.target.value, col.field, 'contains')" placeholder="Search">
+                                    </span>
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template class="tableCss config-ui" pTemplate="body" let-fileFields>
+                            <tr>
+                                <td class="tableCss" title="{{fileFields.fileName}}">{{fileFields.fileName}}</td>
+                                <td>
+                                    <span *ngIf="fileFields['isDirectory'] && messageFields.fileType=='Custom' && this.fileFieldsData.length!=0" title="{{fileFields.fileSize}}"><a (click)="doubleClick(fileFields.fileSize)" style="color: black;cursor: pointer;" class="contents"><i class="fa fa-folder-open icon_size" aria-hidden="true"></i>{{fileFields.fileSize}}</a></span>
+                                    <span *ngIf="!fileFields['isDirectory']" title="{{fileFields.fileSize}}">{{fileFields.fileSize}}</span>
+                                </td>
+                                <td class="tableCss" title="{{fileFields.fileModifiedDate}}">{{fileFields.fileModifiedDate}}</td>
+                                <td class="tableCss">
+                                    <button type="button" pButton [disabled]="messageFields.fileType=='Custom' && fileFields['isDirectory']" (click)="openDownloadFileDialog(fileFields.fileName, fileFields['fileSize'])" label="Download and View"></button>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </p-header>
+            </div>
+
+            <!-- To show the content of the file--> 
+            <div class="ui-g-12" *ngIf="showContentBox == true">
+                <p-card class="ndegui-card" style="padding: 0px">
+                    <p-header class="md-card-subtitle-css p-grid p-align-center mb-15 p-justify-between" style="margin-bottom: 2px">
+
+                        <div class="header-Name">{{fileNameHeader}} </div>
+                        <div class="header-button" style="height: 20px;">
+                            <!-- Search box-->
+                            <input pInputText [(ngModel)]="searchFileText" (keyup.enter)="searchContent(searchFileText)" class="search_css" placeholder="Search...">
+                            <button type="button" class="ui-button-sucess mx-6" pButton icon="icons8 icons8-search" (click)="searchContent(searchFileText)"></button>
+                        </div>
+                    </p-header>
+                    <p-panel class="downloadLogs">
+                        <div class="file_textarea instrprofileview" #createPanel>
+                            <pre style="margin: 0px 0px"><code class="codeClass" [innerHtml]="fileHighLightContent"></code></pre>
+                        </div>
+                    </p-panel>
+                </p-card>
+            </div>
+
+
+        </div>
+        <!-- Right side end-->
+
+    </div>
+</div>
+
+<!-- Dialog to ask user for destination path-->
+<p-dialog class="secondary-dialog" [style]="{width: '40vw'}" header={{hdrMsg}} *ngIf="downloadDialog" [(visible)]="downloadDialog" modal="modal" width="400" responsive="true" [resizable]="false">
+    <form (ngSubmit)="downloadFile()" #groupForm="ngForm" ngNativeValidate>
+        <div class="p-grid p-align-center mt-10">
+            <div class="ui-g-4">
+                <label>Destination Path</label>
+            </div>
+            <div class="ui-g-8">
+                <input name="destPath" class="w-100-p" type="text" pInputText [(ngModel)]="viewAdvanceSetting.destPath" autofocus required ngModel />
+                <!-- <button pButton type="button" title="Browse" (click)="openFileManager()" icon="fa fa-folder-open"></button> -->
+            </div>
+            <div class="ui-g-4">
+                <label>Save File As</label>
+            </div>
+            <div class="ui-g-8">
+                <input name="newFileName" class="w-100-p" type="text" pInputText [(ngModel)]="viewAdvanceSetting.newFileName" autofocus required ngModel />
+                <!-- <button pButton type="button" title="Browse" (click)="openFileManager()" icon="fa fa-folder-open"></button> -->
+            </div>
+            <h5 style="color: red" *ngIf="fileSize > 10485760">* No preview available for the file size greater than 10 MB</h5>
+        </div>
+        <footer>
+            <div class="p-grid p-align-center p-justify-end p-5 mt-15">
+            <button type="button" class="mx-6 ui-button-rounded ui-button-secondary px-15" pButton  (click)="downloadDialog=false" label="Cancel"></button>
+		    <button type="submit" class="ui-button-rounded px-15" pButton label="Download"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>

@@ -1,0 +1,64 @@
+<p-dialog #dialog [(visible)]="isVisible" styleClass="Metrices-dialog" class="custom-dialog success-dialog"
+  [resizable]="false" [draggable]="false" [modal]="true" [closable]="false" [baseZIndex]="10000"
+  >
+  <p-header>
+    <div class="dialog-title p-grid p-justify-between p-align-center">
+      <div>
+        Create Virtual Metric(s) Using Rollup
+      </div>
+      <div class="action-buttons">
+        <i class="icons8 icons8-help"></i>
+        <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+      </div>
+    </div>
+  </p-header>
+  <div class="p-grid">
+    <div class="p-col-12">
+      <div class="helper-text">
+        Rollup created new aggregated Virtual Metric(s) in the existing Metric Tree at the selected hierarchy
+        level.
+      </div>
+
+
+      <div class="dialog_body">
+
+        <div *ngFor="let graph of graphObjectArr" class="p-grid p-align-center">
+          <label for="group-name" class="p-col-4">{{graph.graphName}}</label>
+          <div class="p-col-2">
+            <p-dropdown [options]="items" [(ngModel)]="graph.value" dropdownIcon="icons8-expand-arrow" (onChange)="changedOnItem(graph)"></p-dropdown>
+          </div>
+          <div class="p-col-6">
+            <input id="group-name" class="input_box w-100-p" type="text" placeholder="description"
+              [(ngModel)]="graph.description" pInputText>
+          </div>
+        </div>
+
+        <div class="p-grid p-align-center">
+          <label for="group-name" class="p-col-4">Rollup metric(s) at hierarchy level</label>
+          <div class="p-col-8">
+            <p-multiSelect class="multiSeletcUp" [disabled]="disableOn" [options]="onList" [(ngModel)]="on"
+              defaultLabel="None" dropdownIcon="icons8-expand-arrow" [showHeader]=false (onChange)="changedOn($event)">
+            </p-multiSelect>
+          </div>
+
+
+        </div>
+
+      </div>
+
+
+      <!-- <p-dropdown class="p-col-4" [options]="tierItems" [(ngModel)]="selectedRollup"></p-dropdown> -->
+
+    </div>
+  </div>
+
+  <p-footer>
+    <button type="button" pButton (click)="closeDialog()" label="CLOSE"
+      class="ui-button-secondary ui-button-rounded"></button>
+    <button type="button" class="ui-button ui-button-rounded" pButton (click)="apply()" label="APPLY"></button>
+  </p-footer>
+  <div id="centerpoint">
+    <p-confirmDialog key="aggregateDerivedMetrics" header="Error" acceptLabel="Ok" rejectLabel="Cancel"
+      [(visible)]="dialogVisible"></p-confirmDialog>
+  </div>
+</p-dialog>

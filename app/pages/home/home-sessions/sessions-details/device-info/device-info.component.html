@@ -1,0 +1,23 @@
+<div class="session-page-details-container">
+    <div class="p-grid ">
+        <div class="p-grid vertical-container" *ngIf="empty">
+            <div class="p-col p-col-align-center text-center">
+                <p-message severity="normal" text="No Data"></p-message>
+            </div>
+        </div>
+ 	  <ng-container *ngIf="showdata">
+            <div class="p-col-6 main-block p-align-center" *ngFor="let item of key; let i = index">
+                <div class="block-img">
+                    <strong>
+                        {{key[i]}}
+                    </strong>
+                </div>
+                <div class="block-desc">
+                    <p>{{(keyvalue[i] != null && keyvalue[i] != '' && keyvalue[i] != "null") ? (keyvalue[i]) : '-'}}</p>
+
+                </div>
+            </div>
+        </ng-container>
+
+    </div>
+</div>

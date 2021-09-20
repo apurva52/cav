@@ -1,0 +1,179 @@
+app-header {
+
+  p-toolbar.header {
+    //TODO: Remove this css after demo
+    .ui-helper-clearfix {
+      display: flex;
+      justify-content: space-between;
+      content: none;
+      align-items: center;
+      &::after{
+        content: none;
+        display: flex;
+      }
+      &::before {
+        content: none;
+        display: flex;
+      }
+      .inline-block{display: inline-block;}
+    }
+  //
+
+    .ui-toolbar {
+      .logo {
+        vertical-align: middle;
+        margin: 5px 0 5px 5px;
+        max-width: 120px;
+      }
+
+      .clock {
+        display: inline-block;
+        color: #fff;
+        margin: 0 15px;
+        vertical-align: middle;
+        border-left: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 5px 0 5px 15px;
+
+        i {
+          margin-right: 5px;
+          vertical-align: middle;
+        }
+        span {
+          width: 124px;
+          display: inline-block;
+        }
+        em {
+          font-style: normal;
+        }
+
+      }
+    }
+
+    .tv-mode-summary {
+      display: none;
+    }
+
+    .existing-ui-button {
+      vertical-align: middle;
+      margin-right: 4px;
+      border-radius: 5px;
+    }
+
+    .ui-button .ui-button-text.ui-clickable {
+      padding: 0.10em 0.529em;
+    }
+    .ui-button.ui-button-rounded{border-radius: 18px;}
+
+    &.shrinked {
+      .ui-toolbar {
+        .logo {
+          margin: 7px 0 0 10px;
+        }
+
+        .tollbar-shrink-toggle {
+          .ui-button-text {
+            padding: 0;
+          }
+        }
+
+        .toolbar-options {
+          display: none;
+        }
+      }
+    }
+
+    .header-icon-width {
+      width: 27px; height: 27px;
+    }
+    .ui-toolbar-group-right {
+      // background-color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 0.1rem;
+      border-bottom-left-radius: 25px;
+      border-top-left-radius: 25px;
+      .toolbar-options {
+          // display: flex;
+          // justify-content: center;
+          // align-items: center;
+      }
+      .ui-button-rounded {
+          border: 1px solid #0e2d4d;
+      }
+      .toggle {
+          color: #0e2d4d;
+          cursor: pointer;
+          padding-left: 0.3rem;
+      }
+      .hidden {
+          display: none;
+      }
+      .show {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+      }
+  }
+  }
+}
+
+body[tv-mode] {
+  app-header {
+    .toolbar-options {
+      display: none;
+    }
+
+    .ui-toolbar {
+      .logo {
+        vertical-align: middle;
+        margin: 3px;
+        height: 10px;
+      }
+
+      .tv-mode-summary {
+        display: inline-block;
+        color: #fff;
+        vertical-align: middle;
+        margin-right: 20px;
+
+        ul,
+        li {
+          margin: 0;
+          padding: 0;
+          list-style: none;
+          display: inline-block;
+        }
+        li {
+          margin: 0 5px;
+        }
+        i,
+        span {
+          vertical-align: middle;
+        }
+        i {
+          margin-right: 3px;
+        }
+      }
+
+      .tv-mode-toggle.icon-button.ui-button.ui-button-icon-only {
+        font-size: 13px;
+        margin: 0;
+        background: transparent;
+        color: #fff;
+        padding: 5px 0px;
+
+        &:hover {
+          color: #fff;
+          background: transparent;
+        }
+
+        .ui-button-text {
+          padding: 0;
+        }
+      }
+    }
+  }
+
+}
+

@@ -1,0 +1,128 @@
+<p-dialog [(visible)]="showGitconfigModel" [closable]="false" [baseZIndex]="10000100011" [resizable]="true"
+    [modal]="true" class="secondary-dialog" [draggable]="false" [style]="{width: '40vw'}">
+    <!-- <p-dialog header="Git Configuration" [closable]="false" [(visible)]="showGitconfigModel" class="secondary-dialog" [style]="{width: '40vw'}"
+    [modal]="true" [baseZIndex]="10000100011" [draggable]="false" [resizable]="false" i class="icons8 icons8-delete"> -->
+    <p-header>
+        <div class="compare-data-title w-100-p p-grid p-justify-between">
+            <div>
+                Git Configuration
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-help"></i>
+                <i class="icons8 icons8-delete" (click)="showGitconfigModel=false"></i>
+            </div>
+        </div>
+    </p-header>
+    <!-- <div class="warningInputField" *ngIf="missingField">* Please Enter {{missingFieldValue}} </div> -->
+    <div class="p-align-start p-justify-between">
+        <div class="p-grid p-col-12">
+            <p-checkbox name="group1" [(ngModel)]="useGit" inputId="gituse" binary="true"></p-checkbox>
+            <label for="gituse" class="pl-5 pt-5">use GIT for Version Control</label>
+        </div>
+        <label for="note" class="pt-20 pl-10 gitlable">Note:If GIT is not use for Version Control,then cavisson Version
+            Control System is used.</label>
+        <div class="dialog-content">
+            <div class="config-display">
+                <div class="p-col-5">
+                    <span class="line-height">Protocol</span>
+                </div>
+                <div class="p-col-7">
+                    <p-radioButton [disabled]="!useGit" class="pl-0" name="groupname" value="http" label="http"
+                        [(ngModel)]="selectedProtocolValue" (click)="changePort('http')">
+                    </p-radioButton>
+                    <p-radioButton [disabled]="!useGit" class="btn-padding" name="groupname" value="https" label="https"
+                        [(ngModel)]="selectedProtocolValue" (click)="changePort('https')">
+                    </p-radioButton>
+                    <p-radioButton [disabled]="!useGit" class="btn-padding" name="groupname" value="ssh" label="ssh"
+                        [(ngModel)]="selectedProtocolValue" (click)="changePort('ssh')">
+                    </p-radioButton>
+                </div>
+            </div>
+            <div class="config-display" *ngIf="selectedProtocolValue == 'https'">
+                <p-checkbox binary="true" label="Disable SSL Certificate" [(ngModel)]="isSSLCertificateDisable"
+                    (onChange)="CheckboxValue($event)"></p-checkbox>
+            </div> <br>
+            <div class="config-display">
+                <div class="p-col-5">
+                    <span class="line-height">Repository IP/Domain Name</span>
+                </div>
+                <div class="p-col-7">
+                    <input [disabled]="!useGit" class="w-100-p" type="text" placeholder="Enter Repo IP/Domain"
+                        [(ngModel)]="domainIp" pInputText />
+                </div>
+            </div>
+            <div class="config-display">
+                <div class="p-col-5">
+                    <span class="line-height">Repository Port</span>
+                </div>
+                <div class="p-col-7">
+                    <input [disabled]="!useGit" class="w-100-p" type="text" placeholder="22" [(ngModel)]="port"
+                        pInputText />
+                </div>
+            </div>
+            <div class="config-display">
+                <div class="p-col-5">
+                    <span class="line-height">Repository Path</span>
+                </div>
+                <div class="p-col-7">
+                    <input [disabled]="!useGit" class="w-100-p" type="text" placeholder="Enter Repo Path"
+                        [(ngModel)]="repoPath" pInputText />
+                </div>
+            </div>
+            <div class="config-display">
+                <div class="p-col-5">
+                    <span class="line-height">User Name</span>
+                </div>
+                <div class="p-col-7">
+                    <input [disabled]="!useGit" class="w-100-p" type="text" placeholder="Enter Username"
+                        [(ngModel)]="userName" pInputText />
+                </div>
+            </div>
+            <div class="config-display" *ngIf="selectedProtocolValue != 'ssh'">
+
+                <div class="p-col-5">
+                    <span class="line-height">Password</span>
+                </div>
+                <div class="p-col-7">
+                    <input [disabled]="!useGit" class="w-100-p" type="password" placeholder="Enter Password"
+                        [(ngModel)]="password" pInputText />
+                </div>
+            </div>
+            <div class="config-display" *ngIf="selectedProtocolValue == 'ssh'">
+                <div class="p-col-5">
+                    <span class="line-height">SSH Key</span>
+                </div>
+                <div class="p-col-7">
+                    <button pButton type="button" class="btn-display" label="Browse SSH Key" title="Browse SSH Key"
+                        (click)="openDialog()">
+                    </button>
+                </div>
+            </div>
+            <div class="config-display">
+                <div class="p-col-5">
+                    <span class="line-height">Pass Phrase</span>
+                </div>
+                <div class="p-col-7">
+                    <input [disabled]="!useGit" class="w-100-p" type="password" placeholder="Enter Password"
+                        [(ngModel)]="passPhrase" pInputText />
+                </div>
+            </div>
+        </div>
+    </div>
+    <p-footer>
+        <div class="p-col-12 form-buttons">
+            <button [disabled]="!useGit" pButton type="button" class="btn-display" (click)="authorizeCredential()"
+                label="Test">
+            </button>
+            <button pButton type="button" class="btn-display" label="Ok" (click)="setGitConfig()">
+            </button>
+            <button pButton type="button" class="close-btn" label="close" (click)="close()">
+            </button>
+        </div>
+    </p-footer>
+    <div id="centerpoint">
+        <p-confirmDialog key="GitConfigInfo" header="Status" acceptLabel="Ok"></p-confirmDialog>
+    </div>
+</p-dialog>
+<app-confirmation-dialog #confirmDialog></app-confirmation-dialog>
+<app-file-manager #fileManager></app-file-manager>

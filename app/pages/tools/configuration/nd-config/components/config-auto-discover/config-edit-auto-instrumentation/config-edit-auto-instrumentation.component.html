@@ -1,0 +1,101 @@
+<div>
+    <!-- <app-method-bt-configuration></app-method-bt-configuration> -->
+    <app-http-bt-configuration></app-http-bt-configuration>
+</div>
+<div class="ui-g configUI">
+    <fieldset style="width:100%">
+        <div class="ui-g-12" style="padding:0px">
+            <div class="ui-g-5">
+                <div class="ui-g-12 header" style="padding:3.5px">
+                    <div class="ui-g-5" style="margin-top: 3px; padding:0px">Session Name</div>
+                    <div class="ui-g-7" style="padding:0px">
+                        <input type="text" [disabled]="true" [(ngModel)]="showSessionName" required size=35 title="{{showSessionName}}" pInputText>
+                    </div>
+                </div>
+                <div class="ui-g-12" style="background:white; border: 1px solid lightgray;">
+                    <p-tree class="nde-ui" [value]="leftSideTreeData" (onNodeExpand)="nodeExpand($event)" (onNodeSelect)="onNodeSelect()" selectionMode="checkbox" [style]="{'height':'400px','width':'92%','margin-right':'-10px'}" [(selection)]="instrFromLeftSideTree">
+                        <ng-template let-col let-node="rowData" pTemplate>
+                            <span title="{{node[col.field]}}" class="node.icon">{{node[col.field]}}</span>
+                        </ng-template>
+                    </p-tree>
+                </div>
+            </div>
+            <div class="ui-g-2 config-ui-auto" align="center">
+                <div>
+                    <button type="button" [disabled]="isAutoPerm" (click)="getValuesForSelectedList()" pButton label=' Instrument  >> ' style="width: 180px"> </button>
+                </div>
+                <div style="padding-top:5px;">
+                    <button class="unInstrumentation-css" type="button" [disabled]="isAutoPerm" (click)="removeValuesFromSelectedList()" pButton label='<< Uninstrument' style="width:180px"></button>
+                </div>
+                <div style="padding-top:5px;">
+                    <button type="button" [disabled]="isAutoPerm" (click)="createMethodAndValidateFQM()" pButton label=' Method Monitor ' title="This feature is applicable only for the FQM(s) present in LHS Tree" style="width:180px"></button>
+                </div>
+                <div style="padding-top:5px;">
+                    <button type="button" (click)="createMethodBTRule()" pButton label=' Method BT ' title="This feature is applicable only for the FQM(s) present in LHS Tree" style="width:180px"> </button>
+                </div>
+            </div>
+            <div class="ui-g-5">
+                <div class="ui-g-12 header">
+                    <div style="margin-top: 3px">Instrumented List</div>
+                </div>
+                <div class="ui-g-12" style="background:white; border: 1px solid lightgray">
+                    <p-tree class="nde-ui" [value]="rightSideTreeData" selectionMode="checkbox" [style]="{'height':'400px','width':'93%','margin-right':'-10px'}" [(selection)]="instrFromRightSideTree"></p-tree>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="ui-g-12 " style="background-color:white;margin-left: 6px;width: 99%;">
+            <div style="float:right">
+                <span>Save instrumentation profile as</span>
+                <span><input type="text" class="mx-6" onkeypress="return String.fromCharCode(event.charCode).match(/[_\-a-zA-Z0-9 ]/g) != null" [(ngModel)]="instrfileName" size=25 pInputText (keydown.space)="$event.preventDefault()"></span>
+                <span><button type="button" class="ui-button-sucess mx-6" [disabled] = "isAutoPerm" (click)="saveInstrumentationFile()" pButton label="Save" icon="icons8 icons8-checkmark"></button></span>
+            </div>
+        </div>
+    </fieldset> 
+</div>
+
+<!--Dialog to open select profile dialog -->
+<p-dialog class="secondary-dialog" [style]="{width: '40vw'}" header="Select Profile" *ngIf="selectProfileDialog" [(visible)]="selectProfileDialog" modal="modal" responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveMethodMonitorForSelectedProfile(calledFor)" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g">
+            <div class="ui-g-3">
+                <label>Profile Name</label>
+            </div>
+            <div class="ui-g-7" *ngIf="calledFor == 'methodMonitor'">
+                <input name="profileIdList" type="text" size="25" class='hidden-validator configinput' pInputText [(ngModel)]="profileIdList" required ngModel/>
+                <p-multiSelect [options]="profileListItem" name="profileIdList" [style]="{'width':'240px'}" dropdownIcon="icons8 icons8-expand-arrow" required [(ngModel)]="profileIdList" placeholder="Select Profile(s)" appendTo="body"></p-multiSelect>
+            </div>
+            <div class="ui-g-7" *ngIf="calledFor == 'methodBT'">
+                <input name="dropdown1" type="text" size="25" class='hidden-validator configinput' pInputText [(ngModel)]="profileId" required ngModel/>
+                <p-dropdown [options]="profileListItem" name="dropdown1"dropdownIcon="icons8 icons8-expand-arrow"  [style]="{'width':'210px'}" required [(ngModel)]="profileId" placeholder="Select a Profile" appendTo="body"></p-dropdown>
+            </div>
+        </div>
+        <div class="ui-g">
+
+        </div>
+        <footer>
+            <div class="p-grid p-align-center p-justify-end py-5">
+                <button pButton type="button" label="Cancel"  (click)="selectProfileDialog=false" label="Cancel" class="ui-button-rounded ui-button-secondary mr-5"></button>
+                <button pButton type="submit" label="Save" class="ui-button-rounded"></button>
+
+
+              
+            </div>
+        </footer>
+    </form>
+</p-dialog>
+
+<!-- Dialog if node count exceeds -->
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}"  header="Warning" *ngIf="isShowWarningDialog" [(visible)]="isShowWarningDialog" responsive="true" modal=true width="406" [resizable]="true">
+    <div>
+        <label>Higher nodes count in Instrumented List section might impact performance.</label>
+    </div>
+    <footer>
+        <div class="p-grid p-align-center p-justify-end py-5">
+            <button pButton type="button" label="Cancel"  (click)="isShowWarningDialog=false" label="Cancel" class="ui-button-rounded ui-button-secondary mr-5"></button>
+            <button pButton type="submit" (click)="checkInstrumentFileExistOrNot()" label="Ok" class="ui-button-rounded"></button>
+
+            
+        </div>
+    </footer>
+</p-dialog>

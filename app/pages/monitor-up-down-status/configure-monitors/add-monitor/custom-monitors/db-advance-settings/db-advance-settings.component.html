@@ -1,0 +1,92 @@
+<div>
+    <p-fieldset styleClass="mb-10" legend="Advanced Settings" [toggleable]="true" [collapsed]="true">
+      <div class="p-grid p-align-center w-100-p">
+        <div class="width-135">Vector persist count</div>
+        <div class="p-col-2">
+          <input pInputText type="number" class="w-100-p"  name="vpc" pTooltip="Count to hold non-exist vector"
+            tooltipPosition="bottom" [(ngModel)]="item['adv']['delVecCount']"/>
+        </div>
+  
+        <div class="width-140 text-right">Retry Count</div>
+        <div class="p-col-2">
+          <input pInputText name="number" class="w-100-p" [(ngModel)]="item['adv']['rCount']" 
+            pTooltip="Count of maximum retry monitor" tooltipPosition="bottom" type="number"/>
+        </div>
+  
+        <div class="width-140 text-right">Sample Interval</div>
+        <div class="p-col-2">
+          <input pInputText type="number" class="w-100-p" tooltipPosition="bottom" name="sInterval"
+            [(ngModel)]="item['adv']['interval']" pTooltip="Sample interval (in milliseconds)">
+        </div>
+        <div class="mx-3"> ms</div>
+      </div>
+  
+      <div class="p-grid w-100-p">
+        <div class="p-col-12">
+          <p-checkbox [(ngModel)]="item['adv']['dbCon']" name="dbConn" binary="true" label="DB Connection">
+          </p-checkbox>
+        </div>
+        </div>
+ 
+        <div class="p-grid w-100-p p-align-center">
+          <div class="width-135">Service account json file path</div>
+        <div class="p-col-4">
+          <input pInputText name="text" class="w-100-p" [(ngModel)]="item['adv']['jFile']"  type="text"
+            pTooltip="File path of service account json file." tooltipPosition="bottom" />
+        </div>
+  
+        <div class="width-140 text-right">Token file path</div>
+        <div class="p-col-4">
+          <input pInputText name="number" class="w-100-p" [(ngModel)]="item['adv']['tFile']" type="text"
+            pTooltip="Service account token file path." tooltipPosition="bottom" />
+        </div>
+      </div>
+  
+      <div class="p-grid w-100-p p-align-center">
+        <div class="width-135">Alternate JRE Home</div>
+        <div class="p-col-4">
+          <input pInputText name="text"  class="w-100-p" [(ngModel)]="item['javaHome']" type="text"
+            pTooltip="Alternate JRE Home" tooltipPosition="bottom" />
+        </div>
+  
+        <div class="width-140 text-right">Add Library Classpath</div>
+        <div class="p-col-4">
+          <input pInputText name="number" class="w-100-p" [(ngModel)]="item['classPath']"  type="text"
+            pTooltip="Add Library Classpath" tooltipPosition="bottom" />
+        </div>
+  
+      </div>
+  
+  
+        <p-table class="all-tables" [columns]="cols" [value]="item['adv']['oP']" [rows]="5"
+          [paginator]="item['adv']['oP']?.length >5" [pageLinks]="3">
+          <ng-template pTemplate="caption">Other Parameters
+          </ng-template>
+  
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th *ngFor="let col of columns">
+                {{col.header}}
+              </th>
+            </tr>
+          </ng-template>
+  
+          <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex" let-editing="editing">
+            <tr>
+              <td>{{rowData.pattern}}</td>
+  
+              <td>
+                <input pInputText type="text" [(ngModel)]="rowData.upVal" class="w-100-p">
+              </td>
+            </tr>
+          </ng-template>
+  
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td [attr.colspan]="columns.length" class="noRecords text-center">No records found.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+  
+    </p-fieldset>
+  </div>

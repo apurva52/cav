@@ -1,0 +1,185 @@
+<div class="container">
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+</div>
+
+<div #widgetHeight *ngIf="data && !isOn" class="h-100-vh vertical-container">
+    <div (rowClick)="serviceMethodTiming($event)">
+        <div class="p-grid p-justify-start p-align-center">
+            <div class="p-col-12">
+                <div *ngFor="let panel of data.panels; let i = index" class="w-100-p">
+
+                    <div id="panel-{{i+1}}" class="hotspot-summary-panel">
+                        <div class="charts-panel pb-10">
+                            <p-panel *ngIf="panel.charts" #chartPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="chartPnl.collapsed" [ngClass]="chartPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                                <p-header class="cav-panel-header pt-5">
+                                    <div class="panel-title" (click)="chartPnl.toggle($event)">
+                                        <span [class]="chartPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                        </span> Method Timing Stats
+                                    </div>
+                                </p-header>
+                                <div class="p-grid p-align-stretch p-justify-center work-in-progress">
+                                    <div class="p-col-6" *ngFor="let chart of panel.charts;let indexOfelement=index;">
+                                        <app-chart [data]="chart" (click)="clickHandler($event,indexOfelement)"></app-chart>
+                                    </div>
+
+                                </div>
+                            </p-panel>
+                        </div>
+                        <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="panel.collapsed" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                            <p-header class="cav-panel-header pt-5">
+                                <div class="cav-panel-content p-grid p-align-center">
+                                    <div class="panel-title" (click)="pnl.toggle($event)">
+                                        <a tabindex="{{i}}">
+                                            <span [class]="pnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                            </span>
+                                        </a>
+                                        {{panel.label }}{{methodCount}}{{pointName}}
+                                    </div>
+                                    <div class="p-grid p-justify-center p-align-center">
+
+                                        <!-- <div class="ui-inputgroup-addon-flow">
+                                            <button pButton icon="icons8 icons8-search" class="icon-button no-shadow" pTooltip="Search" [tooltipZIndex]="100000"></button>
+                                        </div> -->
+                                        <div class="ui-inputgroup-addon-flow">
+                                            <div class="methodTiming-search-box">
+                                                <input #searchInput type="text" [value]="" class="w-100-p" pInputText size="50" placeholder="Search" *ngIf="isShowSearch" (input)="methodTiming.filterGlobal($event.target.value, 'contains')" class="search-box" />
+                                                <!-- <button pButton type="button" *ngIf="isShowSearch" class="ui-icon-button ui-button-rounded clear-button" pTooltip="Clear filter" tooltipZIndex="100001005" icon="icons8 icons8-delete" (click)="clearFilters()"></button> -->
+                                                <button pButton icon="icons8 icons8-search" (click)="isShowSearch = !isShowSearch" class="icon-button no-shadow"></button>
+                                            </div>
+                                        </div>
+                                        <p-menu appendTo="ui-icon-button" #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                        <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                        <button pButton *ngIf = "refreshTable" icon="icons8 icons8-synchronize" class="ui-icon-button" (click)="refreshData()" pTooltip="Refresh Table Data"></button>
+                                        <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" (click)="toggleFilters()" pTooltip="Toggle Filter"></button>
+                                        <p-multiSelect [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false" appendTo="body" dropdownIcon='icons8 icons8-columns' pTooltip="Toggle Columns" [panelStyle]="{minWidth: '200px'}">
+                                        </p-multiSelect>
+                                        <i pButton icon="icons8 icons8 icons8-menu-vertical" class="ui-icon-button" (click)="menuOptions.toggle($event);" pTooltip="Menu"></i>
+                                        <p-menu #menuOptions [popup]="true" styleClass="widget-menu psitionSetMenu" style="position: relative;" [model]="allmenuOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" [style]="{ minWidth: '18em' }"></p-menu>
+                                    </div>
+                                </div>
+                            </p-header>
+
+                            <p-table #methodTiming [resizableColumns]="true"  [reorderableColumns]="true" class="all-tables" [columns]="selectedColumns" [value]="tableDataAll" [paginator]="showPagination" [rows]="panel.paginator.rows" [showCurrentPageReport]="showPagination" [responsive]="true"
+                                [rowsPerPageOptions]="panel.paginator.rowsPerPageOptions" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [totalRecords]="panel.data.length" [scrollable]="true" [globalFilterFields]="globalFilterFields"
+                                scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 160px)">
+                                <ng-template pTemplate="colgroup" let-columns>
+                                    <colgroup>
+                                        <col *ngFor="let col of columns">
+                                    </colgroup>
+                                </ng-template>
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                        <th *ngFor="let col of columns" pResizableColumn pReorderableColumn [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan" [pSortableColumn]="col.valueField" [ngStyle]="{
+                                            'width.px':col.label === 'Fully Qualified Name With Signature' ? '140' : '110'}" pTooltip ={{col.label}} >
+                                            <div class="elipseText"> {{ col.label }} </div>
+                                            <p-sortIcon [field]="col.valueField"></p-sortIcon>
+                                        </th>
+                                    </tr>
+                                    <tr *ngFor="let headerRow of panel.headers">
+                                        <ng-container *ngIf="isEnabledColumnFilter">
+                                            <th *ngIf="isCheckbox" class="columnwidth"></th>
+                                            <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                <div *ngIf="
+                                                col.filter.isFilter === true &&
+                                                col.filter.type === 'custom'
+                                              ">
+                                                    <input class="w-100-p" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                        methodTiming.filter(
+                                                    $event.target.value,
+                                                    col.value,
+                                                    'custom'
+                                                  )
+                                                " />
+                                                </div>
+                                                <div *ngIf="
+                                                col.filter.isFilter === true &&
+                                                col.filter.type === 'contain'
+                                              ">
+                                                    <input class="w-100-p" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                        methodTiming.filter(
+                                                    $event.target.value,
+                                                    col.valueField,
+                                                    'contains'
+                                                  )
+                                                " />
+                                                </div>
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row let-columns="columns" let-index="rowIndex">
+                                    <tr [pReorderableRow]="index">
+                                        <td *ngFor="let col of columns let i = index" class="{{ col.classes }}" [ngStyle]="{
+                                            'width.px':col.label === 'Fully Qualified Name With Signature' ? '140' : '110'}" pTooltip= {{row[col.valueField]|f_ddr:col.format}}>
+                                            <div *ngIf="col.severityColorField" class="severity-color" [ngStyle]="{'backgroundColor': row.severityBgColorField}"></div>
+                                            <span *ngIf="(col.label == 'Method' && row[col.valueField].endsWith('%40'))">
+                                                <a class="activeLink" (click)="openServiceMT(row)">{{
+                                                    row[col.valueField].substring(0,row[col.valueField].indexOf('%40'))
+                                                    }}</a>
+
+                                            </span>
+                                            <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon"></i>
+                                            <span *ngIf="!(col.label == 'Method' && row[col.valueField].endsWith('%40'))">
+                                                {{ row[col.valueField] | f_ddr: col.format }}
+                                            </span>
+
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.colspan]="columns.length + 1" class="text-center">
+                                            <span *ngIf="error">Error while loading data</span>
+                                            <span *ngIf="emptyTable">No Data</span>
+                                            <span *ngIf="loading">Loading</span>
+                                            <span *ngIf="!empty && !loading && !error && searchInput && searchInput.nativeElement.value.length  ">Nothing
+                                                found matching
+                                                "{{searchInput.nativeElement.value}}"</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </p-panel>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="service-method-timing" *ngIf="isOn">
+    <app-service-method-timing [serviceMethodparams]="serviceMethodparams" (arrowClick)="openServiceMethodtiming($event)"></app-service-method-timing>
+</div>
+
+<p-dialog class="secondary-dialog foterDialog" header="Dynamic Diagnostics Configuration" [resizable]="false" 
+	*ngIf="showAutoInstrPopUp" [(visible)]="showAutoInstrPopUp" modal="modal" [style]="{width: '60vw'}"
+	[contentStyle]="{'max-height':'500px'}" responsive="true">
+  <app-dynamic-diagnostics (resultAfterStart)="startInstrumentation($event)" (closeAIDDGui)="closeAIDDDialog($event)" 
+	[passAIDDSettings]="argsForAIDDSetting"></app-dynamic-diagnostics>
+</p-dialog>
+
+<p-dialog appendto="body" class="scenmodal" [resizable]="false" [(visible)]="ignoreFlag" header="Exclude Flowpaths"
+    [responsive]="true">
+    <div style="width: 300px; float: left; margin-top: 15px;margin-left: 15px;">
+        <p-checkbox [(ngModel)]="valuechbx" binary="true" label="Exclude L1 Flowpaths"></p-checkbox>
+        <span style="text-align:center;float:right;margin-right: 30px">
+            <button pButton type="button" label="Apply" (click)="applyIgnoreFP()"></button>
+        </span>
+    </div>
+</p-dialog>

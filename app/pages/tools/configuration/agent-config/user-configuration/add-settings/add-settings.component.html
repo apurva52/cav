@@ -1,0 +1,78 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false" [style]="{width: '40vw'}">
+    <p-header>
+        <div class="compare-data-title">
+            <div>
+                Add Settings
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+
+    <div class="dialog-content">
+        <div class="p-grid">
+            <div class="p-col-2">
+                <span class="line-height">Name</span>
+            </div>
+            <div class="p-col-4">
+                <input class="w-100-p" type="text" placeholder="Enter name" pInputText />
+            </div>
+            <div class="p-col-2">
+                <span class="line-height">Agent</span>
+            </div>
+            <div class="p-col-4">
+                <p-dropdown label="custom" [options]="allState" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+        </div>
+
+        <div class="p-grid">
+            <div class="p-col-2">
+                <span class="line-height">Type</span>
+            </div>
+            <div class="p-col-4">
+                <p-dropdown label="custom" [options]="allEvent" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+            <div class="p-col-2">
+                <span class="line-height">Default Value</span>
+            </div>
+            <div class="p-col-4">
+                <input class="w-100-p" type="text" placeholder="Enter value" pInputText />
+            </div>
+        </div>
+
+        <div class="p-grid">
+            <div class="p-col-2">
+                <span class="line-height">Min Value</span>
+            </div>
+            <div class="p-col-4">
+                <input class="w-100-p" type="text" placeholder="Enter value" pInputText />
+            </div>
+            <div class="p-col-2">
+                <span class="line-height">Max Value</span>
+            </div>
+            <div class="p-col-4">
+                <input class="w-100-p" type="text" placeholder="Enter value" pInputText />
+            </div>
+        </div>
+        <div class="p-grid">
+            <div class="p-col-2">
+                <span class="line-height">Description</span>
+            </div>
+            <div class="p-col-10">
+                <textarea [rows]="2" [cols]="78" pInputTextarea autoResize="autoResize"></textarea>
+
+            </div>
+
+        </div>
+
+
+
+    </div>
+    <p-footer>
+        <div class="p-col-12 form-buttons right">
+            <button pButton type="submit" (click)="closeDialog()" label="Cancel" class="ui-outline-button ui-button-secondary"></button>
+            <button pButton type="submit" label="Add" class="ui-button-rounded"></button>
+        </div>
+    </p-footer>
+</p-dialog>

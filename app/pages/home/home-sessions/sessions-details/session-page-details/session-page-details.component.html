@@ -1,0 +1,284 @@
+<div class="session-page-details-container">
+    <div class="p-grid ">
+        <div class="p-col-4">
+            <div class="main-block border-1">
+            <div class="block-img">
+                <img src= "assets/icons-svg/desktop.svg" >
+            </div>
+            <ul class="block-desc">
+                <li> Channel<strong>{{selectedSession.channel.name}}</strong></li>
+                <li *ngIf="selectedSession.AndroidBrowserFlag == true && selectedSession.appstarttime != ''"> App Start Time : 
+                    <strong>{{selectedSession.appstarttime}}</strong></li>
+
+                <li>Device<strong>{{selectedSession.deviceType.name}}</strong></li>
+
+                <i class="icons8 icons8-spinner spin" *ngIf="appFlag"></i>
+                <li *ngIf="selectedSession.applicationName !=''" > Application
+                    <strong>{{selectedSession.applicationName}}({{selectedSession.applicationVersion}})</strong></li>
+                <li>OS<strong>{{selectedSession.os.name}}{{(selectedSession.osVersion != null && selectedSession.osVersion != 'null') ? ("(" + selectedSession.osVersion + ")") : "" }}</strong></li>
+                <li>Connection Type : <strong>{{selectedSession.conType.name}}</strong></li>
+            </ul>
+            </div>
+        </div>
+        <div class="p-col-4 ">
+            <div class="main-block border-1">
+            <div class="block-img">
+                <!-- <i [ngClass]="sessionDetail.icon"></i> -->
+                <img [src]="selectedSession.browser.icon" >
+            </div>
+            <ul class="block-desc">
+                <li>Browser <strong>{{selectedSession.browser.name}}({{selectedSession.browserVersion}})</strong></li>
+                <li class="w-100-p">UserAgent <strong>{{selectedSession.userAgent}}</strong></li>
+            </ul>
+        </div>
+        </div>
+
+        <div class="p-col-4" >
+            <div class="main-block border-1">
+            <div class="block-img">
+                <!-- <i [ngClass]="sessionDetail.icon"></i> -->
+                <img src= "assets/icons-svg/enter.svg" >
+            </div>
+            <ul class="block-desc">
+                <li>Entry Page <strong>{{selectedSession.entryPage}}</strong></li>
+                <li>Exit Page <strong>{{selectedSession.exitPage}}</strong></li>
+            </ul>
+        </div>
+        </div>
+
+        <div class="p-col-4">
+            <div class="main-block border-1">
+            <div class="block-img">
+                <!-- <i [ngClass]="sessionDetail.icon"></i> -->
+                <img src= "assets/icons-svg/padlock.svg" >
+            </div>
+            <ul class="block-desc">
+                <li>Store Id <strong>{{(((selectedSession.store.id + '') == '') || ((selectedSession.store.id) == -1)) ? '-' : selectedSession.store.id}}</strong></li>
+                <li>Terminal Id <strong>{{(((selectedSession.terminalId + '') == '') || ((selectedSession.terminalId) == -1) )? '-' : selectedSession.terminalId}}</strong></li>
+            </ul>
+        </div>
+        </div>
+
+        <div class="p-col-4">
+            <div class="main-block border-1">
+            <div class="block-img">
+                <!-- <i [ngClass]="sessionDetail.icon"></i> -->
+                <img src= "assets/icons-svg/desktop.svg" >
+            </div>
+            <ul class="block-desc">
+                <li>Bot User <strong *ngIf='selectedSession.botFlag == true'>
+                    <i class="pi pi-check-circle mr-5"></i> {{(selectedSession.badBot) ? "" : "Web Crawler"}}</strong>
+
+                    <strong *ngIf='selectedSession.botFlag == false'> <i class="pi pi-times-circle mr-5"></i></strong></li>
+
+                    <li *ngIf='selectedSession.botData != null'> Bot Score 
+                        <strong>{{selectedSession.botData.botScore}}% <i class="pi pi-info" title='Open Bot Summary' style='cursor:pointer;' (click)='showbots()'></i></strong>
+                        <!-- <i class="pi pi-pi-info mr-5" (click)='showBotSummary=true' title='Open Bot Summary' style='cursor:pointer;' ></i> -->
+                    </li>
+                
+                <li>Secure Client Authentication
+                    <strong> Attempted
+                    <span *ngIf='selectedSession.authentic == true'> <i class="pi pi-check-circle"></i></span>
+                    <span *ngIf='selectedSession.authentic == false'> <i class="pi pi-times-circle"></i></span>
+                    </strong>
+                    </li>
+     
+                    <li>
+                    <span *ngIf='selectedSession.authentic == true'> 
+                        Status : <strong *ngIf='selectedSession.authFailed == true'>Failed <i class="pi pi-times-circle"></i> </strong>
+                    <span *ngIf='selectedSession.authFailed == false'>Success <i class="pi pi-check-circle"></i> </span>
+                    </span>
+                </li>
+
+            </ul>
+            </div>
+        </div>
+
+        <div class="p-col-4">
+            <div class="main-block border-1">
+            <div class="block-img">
+                <!-- <i [ngClass]="sessionDetail.icon"></i> -->
+                <img src= "assets/icons-svg/Computer.svg" >
+            </div>
+            <ul class="block-desc">
+                <li>Screen Resolution <strong>{{selectedSession.screenResolution.dim}}</strong></li>
+                <li>Monitor Pixel Depth <strong> {{selectedSession.monitorPixelDepth}}</strong></li>
+                <li>Monitor Color Depth <strong> {{selectedSession.monitorColorDepth}}</strong></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-col-4" >
+            <div class="main-block border-1">
+            <div class="block-img">
+                <!-- <i [ngClass]="sessionDetail.icon"></i> -->
+                <img src= "assets/icons-svg/shopping-cart.svg" >
+            </div>
+            <ul class="block-desc">
+                <li>Order Total <strong> ${{selectedSession.orderTotal}}</strong></li>
+                <li>Order Count <strong> {{selectedSession.orderCount}}</strong></li>
+            </ul>
+        </div>
+        </div>
+
+
+        <div class="p-col-4">
+            <div class="main-block border-1">
+            <div class="block-img">
+                <!-- <i [ngClass]="sessionDetail.icon"></i> -->
+                <!-- <img [src]="selectedSession.location.icon" > -->
+                <i class="las-map-marker-solid font-55"></i>
+            </div>
+            <ul class="block-desc">
+                <li>Location <strong> {{(selectedSession.location.state ? (selectedSession.location.state + ',') : '')}}{{selectedSession.location.country}}({{selectedSession.clientIp}})</strong></li>
+            </ul>
+            </div>
+        </div>
+
+        <div class="p-col-4">
+            <div class="main-block border-1">
+            <div class="block-img">
+                <!-- <i [ngClass]="sessionDetail.icon"></i> -->
+                <img src= "assets/icons-svg/Group 2001.svg" >
+            </div>
+            <ul class="block-desc">
+                <li class="w-100-p">Session ID <strong> {{selectedSession.sid}}</strong></li>
+                <li>Session Start <strong> {{selectedSession.formattedStartTime}}</strong></li>
+                <li>Session End <strong> {{selectedSession.formattedEndTime}}</strong></li>
+                <li>Session Duration <strong> {{selectedSession.duration}}</strong></li>
+            </ul>
+            </div>
+        </div>
+
+        <div class="p-col-4">
+            <div class="main-block border-1">
+            <div class="block-img">
+                <!-- <i [ngClass]="sessionDetail.icon"></i> -->
+                <img src= "assets/icons-svg/user.svg" >
+            </div>
+            <ul class="block-desc">
+                <li>Login ID <strong> {{selectedSession.loginId || '-'}} </strong></li>
+                <li>Client IP <strong> {{selectedSession.clientIp}}</strong></li>
+		  <li *ngIf='selectedSession.userSegments.length == 0'>User Segment : -</li>
+          <strong>
+                <ng-container *ngIf='selectedSession.userSegments.length > 0'>
+                    User Segment :
+                    <span *ngFor='let key of selectedSession.userSegments'> {{key.name}}</span>
+                </ng-container>
+            </strong>
+            </ul>
+        </div>
+        </div>
+
+        <div class="p-col-4">
+            <div class="main-block border-1">
+            <div class="block-img">
+                <!-- <i [ngClass]="sessionDetail.icon"></i> -->
+                <img src= "assets/icons-svg/desktop.svg" >
+            </div>
+            <ul class="block-desc">
+                <li class="w-100-p"> JS Agent Version <strong> {{jsVersion}}</strong></li>
+                <li>Config Version <strong> {{configVersion}}</strong></li>
+            </ul>
+            </div>
+        </div>
+
+        <!--bit summary true--> 
+        <p-dialog header="Bot Summary " [(visible)]="display" [baseZIndex]="10000100011" class="secondary-dialog foterDialog"
+            [resizable]="true" [modal]="true" [style]="{width: '450px'}" class="secondary-dialog" [draggable]="false">
+         <div *ngIf ="showBotSummary==true" > 
+              
+        <div *ngIf='selectedSession.botData != null' class="jarviswidget jarviswidget-sortable" id="bot-wid" role="widget" > 
+            <!-- <div *ngIf='selectedSession.botData != null' class="jarviswidget jarviswidget-sortable" id="bot-wid" role="widget"
+                [class.hide]="showBotSummary==false" [class.show]="showBotSummary==true"> -->
+            <header role="heading">
+                    <h2 style='text-align:center;'><i class='fa fa-user-secret'></i></h2>
+                    <div class="jarviswidget-ctrls" role="menu">     <a class="button-icon jarviswidget-delete-btn" (click)='showBotSummary=false' rel="tooltip" title="" data-placement="bottom" data-original-title="Delete"><i class="fa fa-times"></i></a></div></header>
+            <div *ngIf='selectedSession.botData == null'>
+            <div class='row'>
+                     <div class="p-col-12" style='text-align:center;'>
+                     Bot Summary not available.
+            </div></div>
+            </div>
+            <div role="content" *ngIf='selectedSession.botData != null'>
+                    <div class="widget-body">
+                     <div class='row'>
+                     <div class="p-col-12" style='text-align:center;'>
+                     <span style='font-size:14px'> <b class="mr-3"> BOT SCORE </b></span><span style='font-size:16px'>{{selectedSession.botData.botScore}}%</span>
+                     </div></div>
+                     <br> 
+                     
+                     <div class="p-col-12 p-grid">
+                     <div class='p-col-8'>
+                      Automation Framework Present
+                     </div> 
+                     <div class='p-col-4'>
+                        <i *ngIf='selectedSession.botData.automationFramework == true' class="pi pi-check-circle mr-5"></i>
+                        <i *ngIf='selectedSession.botData.automationFramework == false' class="pi pi-times-circle mr-5"></i>
+                     </div>
+                     </div> 
+                    
+                      <div class="p-col-12 p-grid">
+                     <div class='p-col-8'>
+                      Bot User Agent
+                     </div>
+                     <div class='p-col-4'>
+                        <i *ngIf='selectedSession.botData.botUserAgent == true' class="pi pi-check-circle mr-5"></i>
+             <i *ngIf='selectedSession.botData.botUserAgent == false' class="pi pi-times-circle mr-5"></i>
+             </div>
+                     </div>
+            
+                     <div class="p-col-12 p-grid">
+                     <div class='p-col-8'>
+                      Browser Extension present
+                     </div>
+                     <div class='p-col-4'>
+                        <i *ngIf='selectedSession.botData.browserExtensionPresent == true' class="pi pi-check-circle mr-5"></i>
+                        <i *ngIf='selectedSession.botData.browserExtensionPresent == false' class="pi pi-times-circle mr-5"></i>
+                     </div>
+                     </div>
+                     <div class="p-col-12 p-grid">
+                     <div class='p-col-8'>
+                      Avg time spent on page
+                     </div>
+                     <div class='p-col-4'>
+                        {{selectedSession.botData.avgPageTime}} ms
+                     </div>
+                     </div>
+                      <div class="p-col-12 p-grid">
+                     <div class='p-col-8'>
+                      Avg gap between action
+                     </div>
+               <div class='p-col-4'>
+                        {{selectedSession.botData.avgGapTime}} ms
+                     </div>
+                     </div>
+             <div class="p-col-12 p-grid">
+                     <div class='p-col-8'>
+                      Total non trusted event
+            </div>
+                     <div class='p-col-4'>
+                        {{selectedSession.botData.nonTrustedEvents}} ({{selectedSession.botData.nonTrustedEventsPct}} %)
+                     </div>
+                     </div>
+             <div class="p-col-12 p-grid">
+                     <div class='p-col-8'>
+                      Bot Actions <i class="pi pi-info-circle mr-5" style="cursor:pointer;" title="Actions excluding mouse and keyboard interactions."></i>
+                     </div>
+                     <div class='p-col-4'>
+                        {{selectedSession.botData.botActions}} ({{selectedSession.botData.botActionsPct}} %)
+                     </div>
+                     </div>
+            
+            
+                    <div class="container-fluid">
+                    </div>
+                    </div>
+            </div>
+         
+        
+    </div>  
+          
+    </div> 
+        </p-dialog>
+</div>

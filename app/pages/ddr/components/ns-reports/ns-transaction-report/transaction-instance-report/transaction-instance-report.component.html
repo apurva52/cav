@@ -1,0 +1,110 @@
+<!--component html goes here -->
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+<div>
+	<div class= "ddr-box">
+<!-- COMMON TOOLBAR -->
+<div class="ddr-toolbar">
+  <p-toolbar>
+    <div class="ui-toolbar-group-left">
+          <label class="headerInfo">{{filterCriteria}}</label>
+          <label class="headerInfo" title="{{toolTipStatus}}">{{filterStatus}}</label>
+    </div>      
+    <div class="ui-toolbar-group-right">
+       <span  title="Download PDF Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")' src='./images/iconPDF.gif'></span>
+       <span  title="Download Word Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")' src='./images/iconWord.gif'></span>
+       <span  title="Download Excel Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")' src='./images/iconExcel.gif'></span>
+    </div>
+  </p-toolbar>
+
+</div>
+<!-- COMMON BOX SCROLLLBAR -->
+<div class="ddruiscroll"  style="overflow:auto; height:85vh;">
+  
+<p-dialog class="ddr-dialog" [(visible)]="loader" appendTo="body" [width]="500" [height]="75" [closable]="false" [resizable]="false" modal="modal" [responsive]="true">
+  <div *ngIf="loader">
+    <p-progressBar [value]="value"></p-progressBar>
+  </div>
+</p-dialog>
+<p-accordion class="ddr-accordion" >
+<p-accordionTab header="Transaction Instance" [selected]="true">
+        <p-toolbar>
+            <div class="ui-toolbar-group-right" style="text-align:right">
+                <p-multiSelect title="Show/Hide columns" [options]="columnOptions" class="dashboard-lowerPanel-multiSelect ddr-multiselect-down"
+                (onChange)="showHideColumn($event)" [(ngModel)]="visibleCols"></p-multiSelect>
+                <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o"></button>
+                <button pButton type="button" title={{toggleFilterTitle}} icon="fa fa-bars" (click)="toggleColumnFilter()"></button>
+                <i class="fa fa-search" style="margin:0 0 0 0;"></i>
+                <input #gb type="text" pInputText size="50" style="width: 30% !important;" placeholder="Search">
+            </div>
+        </p-toolbar>
+<p-dataTable class="scen-table scrollable-div" [value]="TransactionInstanceData" [globalFilter]="gb" selectionMode="single" resizableColumns="true" [style]="{'height':'auto','max-height':'65vh','font-size':'12px'}">
+        <div *ngFor = "let col of cols">
+        <p-column *ngIf = "col.action" [field] = "col.field" [header] = "col.header" [filter] = "col.filter" [sortable] = "col.sortable" (sortFunction)="CustomsortOnColumns($event,TransactionInstanceData)" [style]="{'width':col.width+'px','color':col.color,'text-align':col.align}">
+            <ng-template let-col let-node="rowData" pTemplate="body">
+            <div class = "ddr-table-left"  *ngIf="(col.field == 'scriptName')" pTooltip={{node[col.field]}} tooltipPosition="top" (click)="openSessionName(node)">
+                {{node[col.field]}} </div> 
+            <div class = "ddr-table-right"  *ngIf="(col.field == 'userId')" pTooltip={{node[col.field]}} tooltipPosition="right" (click)="openUserSessionReport(node)">
+                {{node[col.field]}} </div> 
+            <div class = "ddr-table-right"  *ngIf="(col.field == 'responseTime')" pTooltip={{msToTimeFormate(node[col.field])}}(HH.MM.SS.ms) tooltipPosition="right" (click)="opentimeDetailsReport(node)">
+                {{msToTimeFormate(node[col.field])}} </div> 
+            <div style="text-align: right ;" *ngIf = "(col.field == 'startTime')" pTooltip={{msToTimeFormate(node[col.field])}}(HH.MM.SS.ms) tooltipPosition="right">{{msToTimeFormate(node[col.field])}}</div>
+           
+            <div *ngIf = "!(col.field == 'scriptName') && !(col.field == 'userId') && !(col.field == 'responseTime') && !(col.field == 'startTime') && !(col.field == 'TransactionName')">{{node[col.field]}}</div>
+            <div *ngIf="(col.field == 'TransactionName')" pTooltip={{node[col.field]}} tooltipPosition="top">
+              {{node[col.field]}} </div> 
+          </ng-template>
+          //For Heading selfexplanatory
+          <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'TransactionName'">
+              <span pTooltip="Transaction Name"  tooltipPosition="top" tooltipEvent="hover">Transaction Name</span>
+          </ng-template>
+          <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'scriptName'">
+              <span pTooltip="Script Name"  tooltipPosition="top" tooltipEvent="hover">Script Name</span>
+          </ng-template>
+          <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'location'">
+              <span pTooltip="Location"  tooltipPosition="top" tooltipEvent="hover">Location</span>
+          </ng-template> 
+          <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'access'">
+              <span pTooltip="Access"  tooltipPosition="top" tooltipEvent="hover">Access</span>
+          </ng-template> 
+          <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'browser'">
+            <span pTooltip="Browser"  tooltipPosition="top" tooltipEvent="hover">Browser</span>
+         </ng-template> 
+          <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'userId'">
+              <span pTooltip="User Id"  tooltipPosition="top" tooltipEvent="hover">User Id</span>
+          </ng-template> 
+          <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'sessionId'">
+              <span pTooltip="Session Id"  tooltipPosition="top" tooltipEvent="hover">Session Id</span>
+          </ng-template> 
+          <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'startTime'">
+              <span pTooltip="This is the start time of particular Transaction, started after mentioned time when the Test Run starts" tooltipPosition="top" tooltipEvent="hover">Start Time</span>
+          </ng-template> 
+          <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'responseTime'">
+              <span pTooltip="Response Time"  tooltipPosition="top" tooltipEvent="hover">Response Time</span>
+          </ng-template> 
+          <ng-template let-col let-node="rowData" pTemplate="header" *ngIf="col.field == 'statusName'">
+              <span pTooltip="Status"  tooltipPosition="top" tooltipEvent="hover">Status</span>
+          </ng-template>              
+        </p-column>
+        </div>
+    </p-dataTable>
+
+    <div> {{txOffset+1}} - {{txOffset+txLimit}} of {{txTotalCount}} </div>
+    <p-paginator rows="50" [totalRecords]="txTotalCount" [rowsPerPageOptions]="[50,100,150,200,300,400]" pageLinkSize="3" (onPageChange)="paginate($event)"></p-paginator>
+
+</p-accordionTab>       
+</p-accordion>
+</div>
+</div>
+</div>
+  <p-dialog class="ddr-dialog"   appendTo="body" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true" [height]="120" [width]="600" > 
+  <p-header>
+      <i class="fa fa-info-circle" style="color:red"></i>
+      <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+  </p-header>  
+  <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+  <p-footer>
+  <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait" style="height: 25px;"></button>
+  <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" label="Cancel" style="height: 25px;"></button>
+  </p-footer>
+</p-dialog>

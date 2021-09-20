@@ -1,0 +1,38 @@
+<div class="add-parameter-dialog">
+    <p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true"
+        class="secondary-dialog" [draggable]="false" [style]="{width: '35vw'}">
+        <p-header>
+            <div class="compare-data-title">
+                <div>Add Parameter</div>
+                <div class="action-buttons">
+                    <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+                </div>
+            </div>
+        </p-header>
+        <div class="dialog-content">
+            <div class="p-grid p-col-12">
+                <div class="p-grid p-col-12">
+                    <div class="p-grid p-col-12">
+                        <div class="p-col-4 p-grid p-align-center">
+                            <span class="label">Enter Parameter Name:</span>
+                        </div>
+                        <div class="p-col-6">
+                            <input  class="w-100-p" type="text" pInputText>
+                        </div>
+                    </div>   
+                    <div class="p-grid p-col-12">
+                        <p-radioButton name="group1" value="scenario" label="Used in Scenario" class="mh-10" [(ngModel)]="selectedParameter"></p-radioButton>
+                        <p-radioButton name="group1" value="script" label="Used in Script" class="mh-10" [(ngModel)]="selectedParameter"></p-radioButton>
+                    </div>                  
+                </div>               
+            </div>
+        </div>
+        <p-footer>
+            <div class="p-col-12 form-buttons right">                
+                <button pButton type="button" label="Cancel" class="ui-button-rounded ui-button-secondary"
+                    (click)="closeDialog()"></button>
+                <button pButton type="submit" label="OK" class="ui-button-rounded"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+</div>

@@ -1,0 +1,50 @@
+<div class="ndegui-mainbox">
+    <div class="configUI auditviewtableht">
+        <div class="header pb-6"><i aria-hidden="true"></i>Audit Log</div>
+        <div class="config-ui-table-margin">
+            <p-table #tt [columns]="cols" class="nde-ui all-tables nde-ui-auditLogTable config-view-audit" [value]="auditLogData" [rows]="50" [paginator]="true" [rowsPerPageOptions]="[50,100,200,400]" [pageLinks]="3" scrollable="true" scrollHeight="418px" resizableColumns="true">
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <!-- <col style="width:5%"> -->
+                        <col style="width:6%">
+                        <col style="width:15%">
+                        <col style="width:20%">
+                        <col style="width:12%">
+                        <col style="width:50%">
+                    </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                            {{col.header}}
+                            <span *ngIf="col.field !=''">
+                            <p-sortIcon [field]="col.field"></p-sortIcon>
+                            </span>
+                        </th>
+                        <!-- <th>S.no</th>
+                        <th>TimeStamp</th>
+                        <th>Action</th>
+                        <th>User Name</th>
+                        <th>Description</th> -->
+                    </tr>
+                    <tr>
+                        <th *ngFor="let col of columns">
+                            <span *ngIf="col.field !=''">
+                                <input style="width: 90%;" pInputText type="text" (input)="tt.filter($event.target.value, col.field, 'contains')" placeholder="Search">
+                            </span>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template class="tableCss config-ui" pTemplate="body" let-nde let-i="rowIndex" >
+                    <tr>
+                        <td><span>{{i+1}}</span></td>
+                        <td class="tableCss" title="{{nde.timestamp}}">{{nde.timestamp}}</td>
+                        <td class="tableCss" title="{{nde.action}}">{{nde.action}}</td>
+                        <td class="tableCss" title="{{nde.username}}">{{nde.username}}</td>
+                        <td class="tableCss" title="{{nde.description}}">{{nde.description}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>

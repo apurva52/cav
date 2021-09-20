@@ -1,0 +1,10 @@
+declare var require: any;
+export let Highcharts = require('../../../../../node_modules/highcharts/highcharts.src');
+export let HighchartMore = require('../../../../../node_modules/highcharts/highcharts-more.src');
+export let HighchartBoostCanvas = require('../../../../../node_modules/highcharts/modules/boost-canvas.src');
+export let HighchartBoost = require('../../../../../node_modules/highcharts/modules/boost.src');
+export let HighchartNoDataToDisplay = require('../../../../../node_modules/highcharts/modules/no-data-to-display');
+export let HighchartData = require('../../../../../node_modules/highcharts/modules/data.src');
+// export let Highmap = require('../../../../vendors/highcharts-plugins/map');
+export let HighchartExport = require('../../../../../node_modules/highcharts/modules/exporting.src');
+export let HighchartExportOffline = require('../../../../../node_modules/highcharts/modules/offline-exporting.src');

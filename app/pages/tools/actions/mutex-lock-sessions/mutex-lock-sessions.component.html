@@ -1,0 +1,326 @@
+<div class="header">
+  <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+  <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+    <a routerLink="/home">
+      <i class="icons8 icons8-left toolbar-icon-color"></i>
+    </a>
+    <div class="p-col ui-toolbar-text">MUTEX LOCK PROFILING</div>
+  </div>
+</p-toolbar>
+<p-progressBar *ngIf="isProgressBar" [style]="{'height':'5px'}" mode="indeterminate"></p-progressBar>
+<div class="ddr_landing popins-fonts">
+  <div class="memory_profile">
+    <div class="memoryAllocation">
+      <span> Mutex Lock Profiling Sessions</span>
+      <button pButton type="button" icon="icons8 icons8-plus-math" title="Add New Session" (click)="redirectMemProfToInstance()"></button>
+    </div>
+    <ul class="memory_allocation_list" *ngIf="isShowSessions">
+      <li *ngFor="let list of allocatioList; let i = index"
+        [ngStyle]="{'background-color':activeProjectIndex === i? '#b3e5fc' : 'white' }"
+        (click)="selectedSessionDetails(list, i)">
+        <div class="memory_alo_name">
+          <div class="aloc_name">
+            <label>Name</label>
+            <span pTooltip="{{list.sessionName}}" tooltipPosition="top"
+              tooltipStyleClass="mytooltip">{{list.sessionName}}</span>
+          </div>
+          <div class="aloc_name">
+            <label>Tier</label>
+            <span pTooltip="{{list.tierName}}" tooltipPosition="top"
+              tooltipStyleClass="mytooltip">{{list.tierName}}</span>
+          </div>
+          <div class="aloc_name" style="text-align: right;">
+            <label>Start Time</label>
+            <span style="margin-right: 11px;" pTooltip="{{list.startTime}}" tooltipPosition="top"
+              tooltipStyleClass="mytooltip">{{list.splitStartTime}}</span>
+          </div>
+          <div style="text-align: right;" class="aloc_name">
+            <label>Duration</label>
+            <span pTooltip="{{list.duration}}" tooltipPosition="top" tooltipStyleClass="mytooltip">{{list.duration}}
+              mins</span>
+          </div>
+
+          <div class="action_btn">
+            <i class="icons8 icons8-trash" style="color: #e91224;" (click)="showDeleteDialog(list)"></i>
+          </div>
+        </div>
+
+        <div class="des_cription">
+          <div class="aloc_name">
+            <label>Description</label>
+            <span tooltipPosition="top" pTooltip="{{list.description}}"
+              tooltipStyleClass="mytooltip">{{list.description}}</span>
+          </div>
+        </div>
+        <i class="icons8 icons8-spinner spin" title="In Progress" *ngIf="list.status == 'In progress'"
+          aria-hidden="true"></i>
+      </li>
+    </ul>
+
+
+    <!-- -------------------------add session--------------------->
+    <div *ngIf="!isShowSessions" class="cav-central noWrap">
+      <p class="cav-fnt-13 cav-fnt-weight500 opc5">Click to add mutex lock session</p>
+      <button pButton type="button" class="button-all button" (click)="redirectMemProfToInstance()">Add Session</button>
+    </div>
+    <!-- -------------------------add session--------------------->
+  </div>
+
+  <div *ngIf="isShowSessionData && !isSessionInProgress" class="memory_alocation cav-px-2">
+    <div class="memoryAllocation cav-px-0">
+      <span>Session Details : {{ selectedSessionName }}</span>
+    </div>
+    <div class="cav-d-flex cav-justify-content-center cav-my-3" style="text-align: center;">
+      <p-selectButton styleClass="sigmented-btn" [options]="types" (click)="changeMutexUI()" [(ngModel)]="selectedType">
+      </p-selectButton>
+    </div>
+
+    <div class="chrtside_div" style="height: 580px;" *ngIf="!isNoData">
+      <table class="normalTable apiResultTable" style="width: 100%;">
+        <tr>
+          <th style="width: 158px;">Tier</th>
+          <th style="width: 158px;">Server</th>
+          <th style="width: 158px;">Instance</th>
+          <th style="text-align: right;">Duration</th>
+          <th style="text-align: right;">Overall Wait Time</th>
+          <th style="text-align: right;">Overall Block Time</th>
+        </tr>
+        <tr>
+          <td style="text-overflow: ellipsis;overflow: hidden;" pTooltip="{{ tierName }}" tooltipPosition="top"
+            tooltipStyleClass="mytooltip">{{ tierName }}</td>
+          <td style="text-overflow: ellipsis;overflow: hidden;" pTooltip="{{ serverName }}" tooltipPosition="top"
+            tooltipStyleClass="mytooltip">{{ serverName }}</td>
+          <td style="text-overflow: ellipsis;overflow: hidden;" pTooltip="{{ instanceName }}" tooltipPosition="top"
+            tooltipStyleClass="mytooltip">{{ instanceName }}</td>
+          <td style="text-align: right;text-overflow: ellipsis;overflow: hidden;" pTooltip="{{ duration }}"
+            tooltipPosition="top" tooltipStyleClass="mytooltip">{{ duration }} mins</td>
+          <td style="text-align: right;text-overflow: ellipsis;overflow: hidden;" pTooltip="{{ totalWaitTime }}"
+            tooltipPosition="top" tooltipStyleClass="mytooltip">{{ totalWaitTimeMins }} mins {{ totalWaitTimeSecs }}
+            secs</td>
+          <td style="text-align: right;text-overflow: ellipsis;overflow: hidden;" pTooltip="{{ totalBlockTime }}"
+            tooltipPosition="top" tooltipStyleClass="mytooltip">{{ totalBlockTimeMins }} mins {{totalBlockTimeSecs}}
+            Secs</td>
+        </tr>
+      </table>
+
+      <p-tabView>
+        <p-tabPanel header="Class Data">
+      <h3 class="cav-fnt-12 cav-fnt-weight600 cav-my-0">
+        <span *ngIf="selectedType != 'topBlockingThreads'">TOP {{topNLocksLabel}} LOCKS</span>
+        <span *ngIf="selectedType == 'topBlockingThreads'">TOP BLOCKING THREADS</span>
+      </h3>
+      <!-- Tree tabel For top blocking locks and top blocked threads -->
+      <p-treeTable *ngIf="selectedType != 'topBlockingThreads'" [columns]="topNLocksCols" [value]="topNLocks"
+        [scrollable]="true" scrollHeight="148px" class="apiResultTable" selectionMode="single" dataKey="name"
+        [(selection)]="selectedNode1" sortField="totalBlockTime" [sortOrder]="-1" (sortFunction)="customSort($event, 'topClass')" [customSort]="true">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col style="width: 40%;">
+            <col style="width: 20%;">
+            <col style="width: 20%;">
+            <col style="width: 20%;">
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns" [ttSortableColumn]="col.field" class="stHeader">
+              {{ col.header }} <p-treeTableSortIcon [field]="col.field"></p-treeTableSortIcon>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+          <tr :not [ttRow]="rowNode" [ttSelectableRow]="rowNode" style="word-break: break-word;"
+            (click)="!rowNode.node.children ? getSelectedClassData(rowData) : ''">
+            <td *ngFor="let col of columns; let i = index"
+              [ngStyle]="{'text-align' : col.field == 'name' ? 'left' : 'right'}" pTooltip="{{rowData[col.field]}}"
+              tooltipStyleClass="mytooltip" tooltipPosition="top">
+              <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+              {{rowData[col.field]}}
+            </td>
+          </tr>
+        </ng-template>
+      </p-treeTable>
+      <!-- Table for top blocking threads -->
+      <p-table *ngIf="selectedType == 'topBlockingThreads'" [columns]="topBlockingThreadCol" [value]="blockingThread"
+        [scrollable]="true" scrollHeight="148px" class="apiResultTable" selectionMode="single" dataKey="name"
+        (sortFunction)="customSort($event, 'topClass')" [customSort]="true">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col style="width:40%">
+            <col style="width:20%">
+            <col style="width:20%">
+            <col style="width:20%">
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+              {{col.header}}
+              <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+              </p-sortIcon>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr [pSelectableRow]="rowData">
+            <td *ngFor="let col of columns" pTooltip="{{rowData[col.field]}}" tooltipStyleClass="mytooltip"
+              tooltipPosition="top" [ngStyle]="{'text-align' : col.field == 'name' ? 'left' : 'right'}"
+              style="text-overflow: ellipsis;overflow: hidden;" (click)="getSelectedClassData(rowData)">
+              {{rowData[col.field]}}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+    <p-tabPanel header="Statistics">
+      <div class="p-grid p-align-center my-5">
+        <div class="allocation_chart1">
+          <p-dropdown [options]="chartOptions" [style]="{'width': '150px'}" [(ngModel)]="selectedChart" (onChange)="changeGraph()" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+        </div>
+        <div class="allocation_chart1">
+          <h3 class="font-13 font-weight-700 m-5">LOCK FREQUENCY ANALYSIS</h3>
+        </div>
+      </div>
+      <div class="allocation_chart cav-mb-3">
+        <div class="allocation_chart1">
+          <highcharts-chart [Highcharts]="highcharts" [options]="pieCharts"
+            style="width: 400px; height: 180px; display: block;">
+          </highcharts-chart>
+        </div>
+        <div class="allocation_chart2">
+          <highcharts-chart [Highcharts]="highcharts" [options]="lineCharts"
+            style="width: 100%; height: 180px; display: block;">
+          </highcharts-chart>
+        </div>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+      <h3 class="cav-fnt-12 cav-fnt-weight600 cav-my-0">&nbsp;&nbsp;&nbsp;&nbsp;Stack Trace <span *ngIf="selectedThreadName != ''">of {{
+          selectedThreadName }}</span></h3>
+      <!-- <p-table [columns]="stacTracCols" [value]="stackTraceData" [scrollable]="true" scrollHeight="148px"
+        class="apiResultTable">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col style="width: 90%;">
+            <col style="width: 10%;">
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns">
+              {{ col.header }}
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr>
+            <td *ngFor="let col of columns" style="white-space: pre-wrap;"
+              [ngStyle]="{'text-align': col.field == 'count' ? 'right' : ''}">
+              {{rowData[col.field]}}
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="columns.length" style="text-align: center;">
+              <b>No Stack Traces To Show.</b>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table> -->
+      <p-treeTable #tt [columns]="stacTracCols" [value]="stackTraceData" [scrollable]="true" scrollHeight="148px" class="apiResultTable"
+        selectionMode="single" dataKey="name" (sortFunction)="customSort($event, 'st')" [customSort]="true" sortField="count" [sortOrder]="-1">
+          <ng-template pTemplate="caption">
+            <div style="text-align: right">        
+                <i class="pi pi-search" style="margin:4px 4px 0 0"></i>
+                <input type="text" pInputText size="50" placeholder="Search Stack Traces" (input)="tt.filterGlobal($event.target.value, 'contains')" style="width:auto">
+            </div>
+          </ng-template>
+          <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+              <col style="width:90%">
+              <col style="width:10%">
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header" let-columns>
+              <tr>
+                  <th *ngFor="let col of columns" class="stHeader" [ttSortableColumn]="col.field == 'count' ? 'count' : ''">
+                      {{col.header}} <p-treeTableSortIcon *ngIf="col.field == 'count'" [field]="'count'"></p-treeTableSortIcon>
+                  </th>
+              </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+              <tr>
+                  <td *ngFor="let col of columns; let i = index" style="white-space: pre-wrap;"
+                  [ngStyle]="{'text-align' : col.field == 'name' ? 'left' : 'right'}">
+                      <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+                      {{rowData[col.field]}} <i class="pi pi-copy copyIcon" *ngIf="col.field == 'name' && rowNode.level === 0" [cdkCopyToClipboard]="rowNode.level === 0 ? rowNode.node.children[0].data.name : ''" 
+                      pTooltip="Click to Copy Stack Trace" tooltipPosition="top" tooltipStyleClass="mytooltip"></i>
+                  </td>
+              </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="columns.length" style="font-weight: bolder; text-align: center;">
+                    No records found
+                </td>
+            </tr>
+        </ng-template>
+      </p-treeTable>
+    </div>
+  </div>
+
+  <div *ngIf="isNoData" class="cav-central noWrap">
+    <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">{{ noDataMessage }}</p>
+  </div>
+
+  <!-- -------------------------when no session configured--------------------->
+  <div *ngIf="!isShowSessions" class="cav-central noWrap">
+    <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">No session configured.
+      To
+      configure a mutex lock session, click on 'Add Session'
+    </p>
+  </div>
+  <!-- -------------------------when no session configured--------------------->
+
+  <!-- -------------------------- When session in progress ------------------------- -->
+  <div *ngIf="isSessionInProgress && isShowSessionData" class="cav-central noWrap">
+    <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">
+      Session is currently in progress. Please wait for the session to finish to see the data.
+    </p>
+  </div>
+  <!-- -------------------------- When session in progress ------------------------- -->
+
+  <!-- -------------------------- When no session data available ------------------------- -->
+  <div *ngIf="isSessionInProgress && !isShowSessionData && isNoSessionData" class="cav-central noWrap">
+    <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">
+      No Session data is available. Please see logs for more details.
+    </p>
+  </div>
+  <!-- -------------------------- When no session data available ------------------------- -->
+
+  <!-- -------------------------when no session is selected--------------------->
+  <div *ngIf="!isShowSessionData && allocatioList.length != 0 && !isNoSessionData" class="cav-central noWrap">
+    <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">
+      Click on session to view session's data
+    </p>
+  </div>
+  <!-- -------------------------when no session is selected--------------------->
+
+</div>
+
+<!-- <div *ngIf="isShowSessionData" class="cav-central noWrap">
+  <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">
+    No Data Found</p>
+</div> -->
+
+<p-dialog [(visible)]="isOpenDeletedDialog" modal="modal" [resizable]="false" [draggable]="false"   header="Confirmation" [style]="{'width':'400px'}" class="secondary-dialog foterDialog" >
+    <div>Do you want to delete this session ?</div>
+  <div class="p-grid p-align-center p-justify-end py-5">
+    <button type="button" pButton class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="isOpenDeletedDialog=false;">Cancel</button>
+    <button type="button" pButton class="ui-button-rounded px-15" (click)="deleteSession()">Okay</button>
+  </div>
+</p-dialog>

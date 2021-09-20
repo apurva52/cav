@@ -1,0 +1,71 @@
+<div class="h-100-vh page-container home-page">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <div class="global-time-bar">
+        <app-time-bar></app-time-bar>
+    </div>
+
+
+
+    <!-- <div cdkDropList cdkDropListOrientation="horizontal" class="example-list" (cdkDropListDropped)="drop($event)">
+        <div class="example-box"  *ngFor="let nav of tabs" cdkDrag>{{nav.label}}</div>
+      </div> -->
+
+    <!-- <nav mat-tab-nav-bar cdkDropList cdkDropListOrientation="horizontal" class="example-list" (cdkDropListDropped)="drop($event)">
+        <a mat-tab-link 
+          cdkDrag 
+          class="navbar"
+          *ngFor="let nav of tabs"
+           [routerLink]="nav.routerLink"
+           [routerLinkActive]="'link-active'"
+           >
+           {{nav.label}}
+           <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+        </a>
+      </nav> -->
+
+<div class="nav-elipse relative">
+    <nav mat-tab-nav-bar cdkDropList cdkDropListOrientation="horizontal" class="example-list" (cdkDropListDropped)="drop($event)">
+        <ng-container *ngIf="access">
+        <div cdkDrag *ngFor="let nav of tabs"  class="navbar">
+            <a routerLink="{{ nav.routerLink }}" [routerLinkActive]="'nav-active'"  class="categories-item-drag">
+               
+                    {{nav.label}}
+               
+
+           
+            <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+            </a>
+        </div>
+    </ng-container>
+        <ng-container *ngIf="!access">
+        <div  *ngFor="let nav of tabs"  class="navbar">
+            <a routerLink="{{ nav.routerLink }}" [routerLinkActive]="'nav-active'"  class="categories-item-drag">
+               
+                    {{nav.label}}
+               
+
+           
+            <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+            </a>
+        </div>
+        </ng-container>
+    </nav>
+    <!-- <button type="button" class="exta-nav" (click)="menu.toggle($event)"><i class="pi pi-ellipsis-v"></i></button> -->
+</div>
+<!-- <p-menu styleClass="menu-scroll" #menu [popup]="true" [model]="tabs"></p-menu> -->
+
+
+
+
+    <div class="content-body">
+        <router-outlet></router-outlet>
+    </div>
+</div>
+
+
+
+
+
+

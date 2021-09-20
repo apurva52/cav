@@ -1,0 +1,341 @@
+<!------------ Dialog component-------------------->
+<div class="rc-modal">
+    <p-dialog [header]="modelpanelCaption" class="secondary-dialog foterDialog" styleClass="max-dialogheight" [(visible)]="display" modal="modal"
+    [style]="{width: '1000px', height: '600px'}"
+        *ngIf="display==true">
+        <app-add-command [editAddGroupInfo]="editAddGroupInfo"></app-add-command>
+    </p-dialog>
+</div>
+<!------------ Dialog component end-------------------->
+
+<div class="main-box mainDivEditRunCommand">
+
+    <div class="rc-footer" layout="row" id="actionButtonDiv">
+        <!-- <i class="material-icons editIcons" (click)="showRunComaandAddDialog()" title="Add Command">add_circle_outline</i><span class="spanClass"></span>
+        <i class="material-icons editIcons" (click)="saveUserDefinedCommandToServer()" title="Save Command">save</i><span class="spanClass"></span> -->
+        <button type="button" class="btn-icon mx-3" pTooltip="Add Command" (click)="showRunComaandAddDialog()">
+            <i class="pi pi-plus-circle"></i>
+        </button>
+        <button type="button" class="btn-icon mx-3" (click)="saveUserDefinedCommandToServer()" pTooltip="Save Command">
+            <i class="icons8 icons8-save"></i>
+        </button>
+
+
+        <button type="button" class="btn-icon mx-3" pTooltip="Toggle Filter"
+            [tooltipZIndex]="100000" (click)="isShowColumnFilter = !isShowColumnFilter">
+        <i class="icons8 icons8-search-property"></i>
+        </button>
+    </div>
+    <div class="mx-5">
+    <p-tabView  (onChange)="handleTabChange($event)">
+        <p-tabPanel header="System Defined Commands">
+                <p-table #monitor [columns]="tableHeaderInfo" [value]="data" [scrollable]="true" scrollHeight="52vh"
+                    class="all-tables" [rows]="20" [paginator]="true" [rowsPerPageOptions]=[20,40,100]
+                    [resizableColumns]="true" scrollWidth="150%">
+                    <ng-template pTemplate="colgroup" let-columns>
+                      <colgroup>
+                        <col style="width:115px">
+                        <col style="width:190px">
+                        <col style="width:150px">
+                        <col style="width:80px">
+                        <col style="width:110px">
+                        <col style="width:125px">
+                        <col style="width:100px">
+                        <col style="width:150px">
+                        <col style="width:100px">
+                        <col style="width:140px">
+                        <col style="width:170px">
+                        <col style="width:110px">
+                      </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th *ngFor="let col of columns" [pSortableColumn]="col.field" title="{{col.header}}">
+                                {{ col.header }}
+                                <p-sortIcon *ngIf="col.isSort" [field]="col.field" class="right"
+                                    ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                    ariaLabelAsc="Activate to sort in ascending order">
+                                </p-sortIcon>
+                            </th>
+                        </tr>
+                        <tr>
+                            <ng-container *ngIf="isShowColumnFilter">
+                                <th *ngFor="let col of columns" [ngSwitch]="col.header">
+                                    <div
+                                        *ngIf=" col.filter && col.filter.isFilter === true && col.filter.type === 'custom'">
+                                        <input class="w-100-p"
+                                            pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                            *ngSwitchCase="col.header" pInputText type="text"
+                                            (input)="monitor.filter($event.target.value,col.value,'custom')"
+                                            placeholder="Search" />
+                                    </div>
+                                    <div
+                                        *ngIf=" col.filter && col.filter.isFilter === true && col.filter.type === 'contains'">
+                                        <input class="w-100-p" pTooltip="Will filter data which contains given text."
+                                            *ngSwitchCase="col.header" pInputText type="text"
+                                            (input)="monitor.filter($event.target.value,col.field,'contains')"
+                                            placeholder="Search" />
+                                    </div>
+                                </th>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowData let-columns="columns">
+                        <tr>
+                            <td *ngFor="let col of columns">{{rowData[col.field]}}</td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td colspan="8" class="text-center">
+                                <span *ngIf="data && data.length == 0">No records found</span>
+                                <!-- <span
+                                *ngIf="groupUserObject && groupUserObject.length > 0 && searchInput1.value.length">Nothing
+                                found
+                                matching "{{searchInput1.value}}"</span> -->
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+
+            <!-- <p-dataTable [value]="data" [scrollable]="true" class="commandListClass" [rows]="20" [paginator]="true" resizableColumns="true" [style]="{'height':'70vh'}" scrollWidth="150%">
+                <p-column field="Group Name" header="Group Name" [sortable]="true" [filter]="true" filterPlaceholder="Search" [style]="{'width':'126px'}">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Group Name']}}">{{rowData['Group Name']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Command Display Name" header="Command Display Name" [sortable]="true" [filter]="true" filterPlaceholder="Search" [style]="{'width':'150px'}">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Command Display Name']}}">{{rowData['Command Display Name']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Actual Command" header="Actual Command" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Actual Command']}}">{{rowData['Actual Command']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Role" header="Role" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Role']}}">{{rowData['Role']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Server Type" header="Server Type" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Server Type']}}">{{rowData['Server Type']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Filter Keyword" header="Filter Keyword" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Filter Keyword']}}">{{rowData['Filter Keyword']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="View Type" header="View Type" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['View Type']}}">{{rowData['View Type']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Is Header Contains" header="Is Header Contains" [sortable]="true" [filter]="true" filterPlaceholder="Search" [style]="{'width':'150px'}">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Is Header Contains']}}">{{rowData['Is Header Contains']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Separator" header="Separator" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Separator']}}">{{rowData['Separator']}}</span>
+                    </ng-template>
+                </p-column>
+                <p-column field="CommandUIArgs" header="CommandUIArgs" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['CommandUIArgs']}}">{{rowData['CommandUIArgs']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Max Inline Arguments" header="Max Inline Arguments" [sortable]="true" [filter]="true" filterPlaceholder="Search" [style]="{'width':'135px'}">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Max Inline Arguments']}}">{{rowData['Max Inline Arguments']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Description" header="Description" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Description']}}">{{rowData['Description']}}</span>
+                    </ng-template>
+                </p-column>
+            </p-dataTable> -->
+        </p-tabPanel>
+        <p-tabPanel header="User Defined Commands">
+                <p-table #event [columns]="tableHeaderInfo" [value]="data2" [scrollable]="true" scrollHeight="52vh"
+                    class="all-tables" [resizableColumns]="true" selectionMode="single"
+                    [(selection)]="selectedCar1" scrollWidth="150%" [rows]="20" [paginator]="true"
+                    [rowsPerPageOptions]=[20,40,100] [resizableColumns]="true" columnResizeMode="expand">
+                    <ng-template pTemplate="colgroup" let-columns>
+                      <colgroup>
+                        <col style="width:115px">
+                        <col style="width:190px">
+                        <col style="width:150px">
+                        <col style="width:80px">
+                        <col style="width:110px">
+                        <col style="width:125px">
+                        <col style="width:100px">
+                        <col style="width:150px">
+                        <col style="width:100px">
+                        <col style="width:140px">
+                        <col style="width:170px">
+                        <col style="width:110px">
+                        <col style="width:100px">
+                      </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th *ngFor="let col of columns" [pSortableColumn]="col.field" title="{{col.header}}">
+                                {{ col.header }}
+                                <p-sortIcon *ngIf="col.isSort" [field]="col.field" class="right"
+                                    ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                    ariaLabelAsc="Activate to sort in ascending order">
+                                </p-sortIcon>
+                            </th>
+                            <th>Action</th>
+                        </tr>
+                        <tr>
+                            <ng-container *ngIf="isShowColumnFilter">
+                                <th *ngFor="let col of columns" [ngSwitch]="col.header">
+                                    <div
+                                        *ngIf=" col.filter && col.filter.isFilter === true && col.filter.type === 'custom'">
+                                        <input class="w-100-p"
+                                            pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                            *ngSwitchCase="col.header" pInputText type="text"
+                                            (input)="event.filter($event.target.value,col.value,'custom')"
+                                            placeholder="Search" />
+                                    </div>
+                                    <div
+                                        *ngIf=" col.filter && col.filter.isFilter === true && col.filter.type === 'contains'">
+                                        <input class="w-100-p" pTooltip="Will filter data which contains given text."
+                                            *ngSwitchCase="col.header" pInputText type="text"
+                                            (input)="event.filter($event.target.value,col.field,'contains')"
+                                            placeholder="Search" />
+                                    </div>
+                                </th>
+                                <th></th>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowData let-columns="columns" let-i="rowIndex">
+                        <tr>
+                            <td *ngFor="let col of columns">{{rowData[col.field]}}</td>
+                            <td>
+                              <button class="mr-3" type="button" pButton pTooltip="Edit" (click)="editRow(rowData)">
+                              <i class="icons8 icons8-edit-2 edit-icon"></i>
+                              </button>
+                              <button type="button" pButton pTooltip="Delete" (click)="deleteRow(rowData, i)">
+                                <i class="icons8 icons8-trash"></i></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td colspan="8" class="text-center">
+                                <span *ngIf="data2 && data2.length == 0">No records found</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+
+            <!-- <p-dataTable [value]="data2" scrollable="true" class="commandListClass" [resizableColumns]="true" selectionMode="single" [(selection)]="selectedCar1" scrollWidth="150%" [rows]="20" [paginator]="true" resizableColumns="true" columnResizeMode="expand" [style]="{'height':'70vh'}">
+                <p-column field="Group Name" header="Group Name" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Group Name']}}">{{rowData['Group Name']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Command Display Name" header="Command Display Name" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Command Display Name']}}">{{rowData['Command Display Name']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Actual Command" header="Actual Command" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Actual Command']}}">{{rowData['Actual Command']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Role" header="Role" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Role']}}">{{rowData['Role']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Server Type" header="Server Type" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Server Type']}}">{{rowData['Server Type']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Filter Keyword" header="Filter Keyword" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Filter Keyword']}}">{{rowData['Filter Keyword']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="View Type" header="View Type" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['View Type']}}">{{rowData['View Type']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Is Header Contains" header="Is Header Contains" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Is Header Contains']}}">{{rowData['Is Header Contains']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Separator" header="Separator" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Separator']}}">{{rowData['Separator']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="CommandUIArgs" header="CommandUIArgs" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['CommandUIArgs']}}">{{rowData['CommandUIArgs']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Max Inline Arguments" header="Max Inline Arguments" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Max Inline Arguments']}}">{{rowData['Max Inline Arguments']  | number : '1.0-0'}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column field="Description" header="Description" [sortable]="true" [filter]="true" filterPlaceholder="Search">
+                    <ng-template let-rowData="rowData" pTemplate="body">
+                        <span title="{{rowData['Description']}}">{{rowData['Description']}}</span>
+                    </ng-template>
+                </p-column>
+
+                <p-column styleClass="col-button">
+                    <ng-template pTemplate="header">
+                        Action
+                    </ng-template>
+                    <ng-template let-rowIndex="rowData" pTemplate="body" let-i="rowIndex">
+                        <button type="button" pButton (click)="editRow(rowIndex)" class ="icon-width" icon="fa fa-edit"></button>
+                        <button type="button" pButton (click)="deleteRow(rowIndex, i)" class = "icon-width" icon="fa fa-trash"></button>
+                    </ng-template>
+                </p-column>
+            </p-dataTable> -->
+        </p-tabPanel>
+    </p-tabView>
+</div>
+</div>
+<!-- Action Buttons  -->
+<div class="p-grid p-justify-center my-5">
+    <button pButton class="ui-button-secondary" icon="icons8 icons8-delete" label="Close" (click)="closeTab()"><i class="material-icons"></i></button>
+</div>

@@ -1,0 +1,159 @@
+<div class="h-100-vh template-container">
+
+  <div #widgetHeight class="mh-10" [ngStyle]="{
+      height: isEnabledColumnFilter
+        ? 'calc(100vh - 165px)'
+        : 'calc(100vh - 120px)'
+    }">
+
+    <app-source-viewer [editorInfo]="editorInfo" [stackTrace]="stackTrace" [message]="message"
+      (onEditorClose)="showEditor = $event" *ngIf="showEditor">
+    </app-source-viewer>
+
+
+    <div class="action-container" *ngIf="!showEditor">
+      <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+        <div class="global-search-block">
+          <div class="p-input-icon-left search-div-css">
+            <i class="icons8 icons8-search"></i>
+            <input #searchInputTemplate pInputText type="text" class="input-field-search"
+              (input)="template.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+          </div>
+        </div>
+      </div>
+
+      <p-table #template [resizableColumns]="true" [columns]="selectedColumns" [value]="data.data" [rowHover]="true"
+        [paginator]="true" [rows]="data.paginator.rows" [totalRecords]="data.data.length"
+        [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+        [scrollable]="true" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 145px)"
+        [globalFilterFields]="['timestamp','message','statusCode','file','lineNumber','col']" dataKey="seq"
+        class="all-tables">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col *ngFor="let col of columns" [style.width]="col.width" />
+          </colgroup>
+        </ng-template>
+
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns" pResizableColumn [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+              [pSortableColumn]="col.valueField" class="text-left">
+              <div class="left">
+                <!--{{ col.label }}-->
+                <span title="{{ col.label }}">{{ col.label }}</span>
+              </div>
+              <div *ngIf="col.isSort" class="right">
+                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort"
+                  ariaLabelDesc="Activate to sort in descending order"
+                  ariaLabelAsc="Activate to sort in ascending order">
+                </p-sortIcon>
+              </div>
+            </th>
+
+          </tr>
+          <tr *ngFor="let headerRow of data.headers">
+            <ng-container *ngIf="isEnabledColumnFilter">
+              <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'custom'
+                      ">
+                  <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label" pInputText
+                    type="text" (input)="
+                          template.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'custom'
+                          )
+                        " />
+                </div>
+                <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'contains'
+                      ">
+                  <input class="w-100-p" pTooltip="Will filter metric names which contains given text."
+                    *ngSwitchCase="col.label" pInputText type="text" (input)="
+                          template.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'contains'
+                          )
+                        " />
+                </div>
+              </th>
+            </ng-container>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex" let-expanded="expanded">
+          <tr [ngStyle]="{ backgroundColor: row.rowBgColor }" [pSelectableRow]="row"
+            [pSelectableRowDisabled]="isCheckbox" [pRowToggler]="row">
+            <!--
+                <td>
+                  <button type="button" pButton pRipple [pRowToggler]="row" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                </td>
+                -->
+            <td *ngFor="let col of columns" class="{{ col.classes }}">
+              <ng-template [ngIf]="col.valueField != 'action'" [ngIfElse]="actionBlock">
+                <span title="{{row[col.valueField]}}"> {{((row[col.valueField]) !=
+                  null ? row[col.valueField] : '-')}}</span>
+              </ng-template>
+              <ng-template #actionBlock>
+                <span [innerHtml]="row[col.valueField] != null ? row[col.valueField] : '-'"></span>
+              </ng-template>
+
+            </td>
+
+
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="columns.length + 1" class="text-center">
+              <span *ngIf="error">Error while loading data</span>
+              <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i>Loading...</span>
+              <span *ngIf=" !loading && !error && searchInputTemplate.value.length;else noRecords">
+                Nothing found matching "{{searchInputTemplate.value}}"</span>
+              <ng-template #noRecords>
+                <span *ngIf="!loading && !error">No Records Found</span>
+              </ng-template>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-row>
+          <tr class="bg-color">
+            <td colspan="5">
+              <div style='background: #f5f5f5;padding: 20px;font-size: 11px;line-height: 2;font-weight: 700;'>
+
+                <div style="color: red;">
+                  <i class="pi pi-times-circle" style="vertical-align: text-bottom;"></i>
+                  ERROR {{row.message}}
+                </div>
+                <ng-container *ngFor="let token of row.tokenizedStackTrace">
+
+                  <span *ngIf="token.type !== 1" style="color: red;margin-left: 30px;">
+                    <span>at {{token.text}}</span>&nbsp;
+                  </span>
+                  <ng-container *ngIf="token.type === 1">
+                    <span (click)="addInJSEditor(token, row.tokenizedStackTrace, row.message)" [pTooltip]="token.text">
+                      <a style="text-decoration: underline;cursor: pointer;">
+                        <span style="color: red;">(</span>
+                        {{token.text.split('/').pop()}}
+                        <span style="color: red;">)</span>
+                      </a>
+                    </span>
+                    <br>
+                  </ng-container>
+
+                </ng-container>
+              </div>
+
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+    </div>
+  </div>
+</div>

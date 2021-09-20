@@ -1,0 +1,242 @@
+<div class="header">
+  <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+  <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+    <a class = "clickable" (click) = "navToPreviousPage()">
+      <span class="icons8 icons8-left toolbar-icon-color"></span>
+    </a>
+    <div class="p-col ui-toolbar-text">Configure AWS Monitors</div>
+  </div>
+</p-toolbar>
+<div class="viewportHeight">
+  <p-tabView class="tabWauto">
+    <p-tabPanel header="Configuration">
+      <form (ngSubmit)="addData()" #form="ngForm" ngNativeValidate>
+        <div class="p-grid p-align-center my-5">
+          <label class="mr-5 required-mark">AWS Account Name</label>
+          <input name="aNKey" pInputText type="text" [(ngModel)]="formData.aNKey" required placeholder="Account Name"
+            ngModel />
+        </div>
+        <p-tabView (onChange)="handleChange($event)">
+          <p-tabPanel header="Access Keys">
+            <div class="p-grid p-align-center my-5">
+              <label class="mr-5 required-mark">AWS Access Key</label>
+              <input name="accKey" type="text" pInputText [(ngModel)]="formData.aKey" required
+                placeholder="Access Key Id" [disabled]="index == 1" ngModel class="w-25-p" />
+              <label class="ml-40 mr-5 required-mark">AWS Secret Access Key</label>
+              <input name="skey" type="password" pInputText [(ngModel)]="formData.sKey" required
+                placeholder="Secret Access Key" ngModel autocomplete="new-password" [disabled]="index == 1"
+                class="w-25-p" />
+            </div>
+          </p-tabPanel>
+          <p-tabPanel header="Role Delegation">
+            <div class="p-grid p-align-center my-5">
+              <label class="mr-5 required-mark">AWS Account ID</label>
+              <input name="accid" type="text" pInputText [(ngModel)]="formData.dAccID" class="w-25-p"
+                placeholder="123456789" ngModel [disabled]="index == 0" required />
+              <label class="ml-40 mr-5 required-mark">AWS Role Name</label>
+              <input name="rname" type="text" pInputText [(ngModel)]="formData.dRole" class="w-25-p"
+                placeholder="AWS Role Name" [disabled]="index == 0" ngModel required />
+            </div>
+          </p-tabPanel>
+        </p-tabView>
+        <div class="ui-g-12">
+          <p-accordion>
+            <p-accordionTab header="Advanced Settings">
+              <div class="p-grid p-align-center my-5">
+                <label class="mr-5">Limit Monitoring of selected Region(s)</label>
+                <p-multiSelect name="region" [options]="regionList" defaultLabel="Select Region"
+                  dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="region"
+                  [style]="{'width': '188px','display': 'inline-flex'}" ngModel>
+                </p-multiSelect>
+                <div class="mx-30">
+                  <p-checkbox name="clct1" binary=true label="Collect CloudWatch alarms"
+                    [(ngModel)]="formData.isCWAlarm"></p-checkbox>
+                </div>
+                <div class="mx-30">
+                  <p-checkbox name="clct2" binary=true label="Collect custom metrics" [(ngModel)]="formData.isCustM">
+                  </p-checkbox>
+                </div>
+              </div>
+              <p-fieldset styleClass="my-10" legend="Optionally limit resource collection" [toggleable]="true"
+                [collapsed]="true">
+                <div class="p-grid p-align-center my-5">
+                  <label class="mr-5">To Hosts with tag</label>
+                  <input name="hostTag" type="text" pInputText [(ngModel)]="formData.toHostWithTag" class="w-25-p"
+                    placeholder="key:value" ngModel />
+                  <label class="ml-30 mr-5">To Lambdas with tag</label>
+                  <input name="lamTag" type="text" pInputText [(ngModel)]="formData.toLamdaWithTag" class="w-25-p"
+                    placeholder="key:value" ngModel />
+                </div>
+              </p-fieldset>
+              <p-fieldset styleClass="my-10" legend="Proxy" [toggleable]="true" [collapsed]="true">
+                <div class="p-grid p-align-center my-5">
+                  <label class="mr-5">Host</label>
+                  <input name="host" type="text" pInputText [(ngModel)]="formData.pHost" placeholder="Enter Host"
+                    ngModel class="mx-5" />
+                  <label class="ml-30">Port</label>
+                  <input name="port" type="number" [(ngModel)]="formData.pPort" pInputText class="mx-5" ngModel min="1"
+                    max="65535" />
+                  <label class="ml-30">Username</label>
+                  <input name="usr" type="text" pInputText [(ngModel)]="formData.pUser" placeholder="Enter User Name"
+                    ngModel class="mx-5" />
+                  <label class="ml-30">Password</label>
+                  <input name="pwd" type="password" [(ngModel)]="formData.pPwd" pInputText ngModel class="mx-5" />
+                </div>
+              </p-fieldset>
+              <div class="p-grid p-align-center my-10">
+                <label class="mr-5">Exclude Namespace</label>
+                <p-multiSelect name="ns" [options]="monNameList" defaultLabel="Choose Monitor list"
+                  dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="excludeMon" [style]="{'width': '220px'}"
+                  ngModel>
+                </p-multiSelect>
+              </div>
+            </p-accordionTab>
+          </p-accordion>
+        </div>
+        <div class="buttonCont mb-10">
+          <button type="submit" pButton class="ui-button ui-button-rounded ui-button-right" *ngIf="!isFromEdit"
+            label="Add"></button>
+          <button type="submit" pButton class="ui-button ui-button-rounded ui-button-right" *ngIf="isFromEdit"
+            label="Update"></button>
+          <button type="button" pButton class="ui-button ui-button-rounded ui-button-right" (click)="closeConfiguration()"
+            *ngIf="isFromEdit" label="Cancel"></button>
+        </div>
+        <div class="ui-g-12">
+          <p-table [columns]="cols" [value]="awsMonData" class="all-tables" [rows]="10"
+            [paginator]="awsMonData?.length >10" [pageLinks]="3">
+            <ng-template pTemplate="colgroup" let-columns>
+              <colgroup>
+                <col style="width:30px">
+                <col style="width:30%">
+                <col style="width:30%">
+                <col style="width:30%">
+                <col style="width:10%">
+              </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th style="width:25px">
+                  #
+                </th>
+                <th *ngFor="let col of columns">
+                  {{col.header}}
+                </th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+              <tr>
+                <td class="text-center columnwidth">
+                  <span style="float:right">{{rowIndex+1}}
+                  </span>
+                </td>
+                <td *ngFor="let col of columns">
+                  {{rowData[col.field]}}
+                </td>
+                <td class="action-icon width-130 text-center">
+                  <button type="button" class="btn-icon m-2" title="Delete Configured Profile"
+                    (click)="deleteSpecificConfig(rowData)">
+                    <i class="icons8 icons8-trash red-fg disabled"></i>
+                  </button>
+                  <button type="button" class="btn-icon m-2" title="Edit Configured Profile" (click)="editData(rowData)" >
+                    <i class="icons8-edit-2"></i>
+                  </button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+              <tr>
+                <td [attr.colspan]="columns.length + 2" class="noRecords" style="text-align: center">No records found.
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </form>
+    </p-tabPanel>
+    <p-tabPanel header="Monitor(s)">
+      <div class="hlthChkSettingsTab">
+        <div class="buttonCont my-10">
+          <button pButton class="toolbarIcon" *ngIf="!isShowFilter" type="button" icon="icons8 icons8-search"
+            (click)="showFilter()" title="Show Filter"></button>
+          <button pButton class="toolbarIcon" *ngIf="isShowFilter" type="button" icon="icons8 icons8-search"
+            (click)="showFilter()" title="Hide Filter"></button>
+        </div>
+        <p-table #searchable [value]="cloudMonitorData" class="all-tables" [paginator]="cloudMonitorData?.length > 20"
+          [rows]="20" [pageLinks]="3">
+          <ng-template pTemplate="colgroup" let-columns>
+            <col style="width: 40px;">
+            <col style="width: auto;">
+          </ng-template>
+          <ng-template pTemplate="header">
+            <tr class="scen-ptable-thead">
+              <th rowspan="2"></th>
+              <th>
+                Monitor Name
+              </th>
+            </tr>
+            <tr *ngIf="isShowFilter">
+              <th [ngSwitch]="'monName'">
+                <input class="w-100-p" pInputText type="text"
+                  (input)="searchable.filter($event.target.value, 'monName', 'contains')">
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
+            <tr class="scen-ptable-tbody">
+              <td>
+                <span>
+                  <p-checkbox name="chk" binary=true [(ngModel)]="rowData.enabled">
+                  </p-checkbox>
+                </span>
+              </td>
+              <td>
+                <span title="Click to view Metric Information"> <a class="clickable"
+                    (click)="advanceSettings(rowData)">{{rowData.monName}}</a></span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td [attr.colspan]="2" class="noRecords" style="text-align: center">No records found.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <!-- SAVE/CANCEL -->
+      <div class="buttonCont my-10">
+        <button pButton type="button" class="ui-button ui-button-rounded ui-button-right" *ngIf="runTimeMode != 3"
+          [disabled]="modeStatus || awsMonData.length == 0 || userRole == 'guest'" (click)="saveData()" label="Save"
+          title="Save"></button>
+        <button pButton type="button" *ngIf="runTimeMode == 3" class="ui-button ui-button-rounded ui-button-right"
+          [disabled]="modeStatus || awsMonData.length == 0 || userRole == 'guest'"
+          title="Saves the Configuration(s) at runtime" label="Save & Apply"
+          (click)="saveData()"></button>
+      </div>
+    </p-tabPanel>
+
+    <div class="confirm-dialog">
+
+      <p-confirmDialog #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+        <p-footer>
+          <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton icon="pi pi-check"
+            label={{acceptLable}} (click)="cd.accept()"></button>
+          <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton icon="pi pi-times"
+            label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+        </p-footer>
+      </p-confirmDialog>
+
+    </div>
+
+    <div class="loading-indicator" *ngIf="loading">
+      <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+      </p-progressSpinner>
+    </div>
+
+  </p-tabView>
+</div>
+<div *ngIf = "display">
+  <app-mon-stats [display] = "display" [item]="gdfDetail" (displayChange)="onDialogClose($event)"></app-mon-stats>
+</div>

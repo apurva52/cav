@@ -1,0 +1,42 @@
+<div class="overview">
+    <div class="p-grid p-col-12">
+    
+        <div class="p-grid loader-container vertical-container" *ngIf="datacommon.reportformdata == null">
+           <div class="p-col p-col-align-center text-center">
+           <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+           </div>
+         </div>
+        <div class="p-col-12 no-padding" *ngIf = 'datacommon.reportformdata != null && datacommon.formfieldnamerefill.length == 0'>
+            <p-card>
+                <p-header>
+                    <span class="selected-label line-height">
+                     Form was never submitted.
+                    </span>
+                 </p-header>
+              </p-card>
+        </div>
+
+        <div class="p-col-12 no-padding" *ngIf = 'datacommon.reportformdata != null && datacommon.formfieldnamerefill.length > 0'>
+            <p-card>
+                <p-header>
+                    <span class="selected-label line-height">
+                        <ul>
+                         <li><b>{{datacommon.formfieldnamerefill[datacommon.formfieldnamerefill.length-1].fdata.toFixed(2) }}</b> is the lowest refill value on an avearge taken by field <b>"{{datacommon.formfieldnamerefill[datacommon.formfieldnamerefill.length-1].fname }}"</b></li>
+                         <li><b>{{datacommon.formfieldnamerefill[0].fdata.toFixed(2)}}</b> is the highest refill value on an average taken by field <b>"{{datacommon.formfieldnamerefill[0].fname}}"</b></li>
+                         <li>* Refill value higher than 1.5 is indicating that users are refilling the feild frequently.</li>
+                         <li>* Refill Value less than 0.5 is indicating that users are leaving the fields blank.</li>
+                        </ul>
+                    </span>
+                </p-header>
+                <div class="p-grid p-align-stretch p-justify-center ">
+                    <div class="p-grid p-col-12 time-details" *ngFor="let progressDetail of datacommon.formfieldnamerefill">
+                        <label class="p-col-2 text-right" title='{{breakWord(progressDetail.fname)}}'>{{progressDetail.fname}}</label>
+                        <div class="p-col-9">
+                            <p-progressBar title="{{(progressDetail.fdata).toFixed(2)}} x" [value]="(progressDetail.fdata).toFixed(2)" unit="x"></p-progressBar>
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,289 @@
+<div class="header">
+    <app-header></app-header>
+</div>
+
+<p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a routerLink="/custom-monitors">
+            <span class="icons8 icons8-left toolbar-icon-color"></span>
+        </a>
+        <div class="p-col ui-toolbar-text">Configure SNMP Monitors</div>
+        <div>
+            <button pButton class="ui-button ui-button-rounded ui-button-right" label="Save" (click) = "saveSnmp()"></button>
+        </div>
+    </div>
+</p-toolbar>
+<div class="p-grid p-align-center w-100-p" >
+    <div class="ui-g-1">Instance</div>
+    <div class="ui-g-2">
+    <input name="inst" class="w-100-p"  [(ngModel)] = "item.instance"  type="text" required="true" pInputText />
+    </div>
+    
+    <div class="ui-g-1 labelCss" style="white-space: nowrap">
+        <div class="ui-g-1">Snmp Host</div>
+    </div>
+    <div class="ui-g-2">
+    <input name="host" style="margin-left:10px" [(ngModel)] = "item.snmpHost"  type="text" pInputText required ngModel />
+    </div>
+    
+    <div class="ui-g-1 labelCss">
+        <div class="ui-g-1">Group Name</div>
+    </div>
+    <div class="ui-g-2">
+    <input name="grpN" [(ngModel)] = "item.gdfName"  type="text" pInputText required ngModel/>
+    </div>
+    
+    <div class="ui-g-1 labelCss" style="white-space: nowrap">
+    <label>Group Hierarchy</label>
+    </div>
+    <div class="ui-g-2">
+    <input name="gH" type="text" [(ngModel)]= "item.metaData"  pInputText required ngModel />
+    </div>
+    </div>
+
+    <div class = "ui-g-12 chkMonCss" >
+    <div class="ui-g-1 labelCss" style="white-space: nowrap">
+        <label>Monitor Name</label>
+        </div>
+        <div class="ui-g-2">
+        <input name="monName" type="text" [(ngModel)] = "item.name"  pInputText required ngModel />
+        </div>
+    </div>
+    
+    <div class="ui-g-12">
+    <p-accordion>
+    <p-accordionTab header="Monitor Settings">
+    <!-- <p-dataTable class="monitor-ui-table tableCss" [value]="" [(selection)]="selectedGDFdetails" [rows]="5"
+    [pageLinks]="3">
+    <p-header class="monitor-header">
+    <div class="monitor-btn-right">
+    <button pButton type="button" (click)="openDialog()" title="Add Graph Details" icon="fa fa-plus"></button>
+    <button pButton type="button" (click)="editDialog()" title="Edit Graph Details" icon="fa fa-pencil"></button>
+    <button pButton type="button" class="ui-button-danger" title="Delete Graph Details" (click)="deleteGDFDetails()" icon="fa fa-trash"></button>
+    </div>
+    </p-header>
+    
+    <p-column [style]="{'width':'24px'}" selectionMode="multiple"></p-column>
+    <p-column field="oid" header="OID"></p-column>
+    <p-column field="type" header="Type"></p-column>
+    <p-column field="rel" header="Relative"></p-column>
+    <p-column field="formulae" header="Formulae"></p-column>
+    <p-column field="fVal" header="Formulae Value"></p-column>
+    <p-column field="grN" header="Graph Name"></p-column>
+    <p-column field="grphDesc" header="Graph Description"></p-column>
+    </p-dataTable> -->
+    
+    <p-table   [columns]="cols" [value]="item.gdfDetails" [(selection)]="selectedGDFdetails" [rows]="5"  [rows]="5">
+      
+        <ng-template pTemplate="caption">
+            <div style="text-align: right">
+                <button pButton type="button" (click)="openDialog()" title="Add Graph Details" icon="fa fa-plus"></button>
+                <button pButton type="button" (click)="editDialog()" title="Edit Graph Details" icon="fa fa-pencil"></button>
+                <button pButton type="button" class="ui-button-danger" title="Delete Graph Details" (click)="deleteGDFDetails()" icon="fa fa-trash"></button>
+            </div>
+          </ng-template>
+
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th style="width:25px">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <!-- <th>OID</th>
+                <th>Type</th>
+                <th>Relative</th>
+                <th>Formulae</th>
+                <th>Formulae Value</th>
+                <th>Graph Name</th>
+                <th>Graph Description</th> -->
+                <th *ngFor="let col of columns">
+                    {{col.header}}
+                  </th>
+                <!-- <th class="text-left columnwidth"></th> -->
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+            <tr>
+                <td class="text-center columnwidth">
+                    <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                </td>
+                <td *ngFor="let col of columns">
+                    {{rowData[col.field]}}
+                  </td>
+                <!-- <td>{{product.met}}</td>
+                <td>{{product.cKey}}</td> -->
+                
+            </tr>
+        </ng-template>
+    </p-table>
+
+</p-accordionTab>
+    </p-accordion>
+    </div>
+    
+    <div class = "ui-g-12">
+    <p-accordion>
+    <p-accordionTab header="Advance Settings">
+    
+<div class="ui-g">
+    <div class="ui-g-1 labelCss">
+    <label>Community</label>
+    </div>
+    <div class="ui-g-2">
+    <input value="Public" name="com" [(ngModel)] = "item.com" type="text"  pInputText ngModel/>
+    </div>
+    <div class="ui-g-1 labelCss">
+    <label>User Name</label>
+    </div>
+    <div class="ui-g-2">
+    <input name="user" type="text" [(ngModel)] = "item.user"  pInputText />
+    </div>
+    
+    <div class="ui-g-1 labelCss">
+        <label>Interval (In secs)</label>
+    </div>
+    <div class="ui-g-2">
+        <input name="intrval" type="number" [(ngModel)] = "item.interval" pInputText />
+    </div> 
+
+    <div class="ui-g-1 labelCss" style="width: 6%;">
+        <label>Version</label>
+    </div>
+        
+    <div class="ui-g-1"> 
+        <p-dropdown name="vers" 
+        [options]="versionList" [(ngModel)] = "item.ver" ></p-dropdown>
+    </div>
+</div>
+
+<div class="ui-g" *ngIf="item.ver == '3'">
+    <div class="ui-g-1 labelCss">
+    <label>Auth Protocol</label>
+    </div>
+    <div class="ui-g-2">
+    <input name="auth_protocol" type="text" [(ngModel)] = "item.authPro"  pInputText />
+    </div>
+    <div class="ui-g-1 labelCss">
+    <label>Auth Passphrase</label>
+    </div>
+    <div class="ui-g-2">
+    <input name="auth_params" type="text" [(ngModel)] = "item.authParams" pInputText />
+    </div>
+    <div class="ui-g-2 labelCss" style="width: 10%;">
+    <label>Privacy Protocol</label>
+    </div>
+    <div class="ui-g-2" style="margin-right: 10%;margin-left: -16px">
+    <input name="encry_protocol" type="text" [(ngModel)]="item.encryPr" pInputText />
+    </div>
+    <div class="ui-g-2 labelCss">
+    <label> Privacy Protocol Passphrase</label>
+    </div>
+    <div class="ui-g-2">
+    <input name="priv_params" type="text"  [(ngModel)]="item.privParams"  pInputText />
+    </div>
+    
+    <!-- <div class="ui-g-1 labelCss" style="width: 6%;">
+    <label>Version</label>
+    </div>
+    
+    <div class="ui-g-1"> 
+    <p-dropdown name="vers" [(ngModel)]="item['ver']"
+    [options]="versionList" >
+    </p-dropdown>
+    </div> -->
+    
+    <div class="ui-g-1 labelCss">
+    <label>Security Level</label>
+    </div>
+    <div class="ui-g-2">
+        <p-dropdown name="sl" [(ngModel)]="item.sl" [options]="levelList" [style]="{'width': '109%'}"></p-dropdown>
+    <!-- <input name="sl" type="text" [(ngModel)]="item['sl']" pInputText /> -->
+    </div>
+</div>
+    
+    <!-- <div class="ui-g-1 labelCss">
+    <label>Interval in secs</label>
+    </div>
+    <div class="ui-g-2">
+    <input name="intrval" type="number" [(ngModel)]="item['interval']" pInputText />
+    </div>  -->
+    </p-accordionTab>
+    </p-accordion>
+    </div>
+    
+    <p-dialog class="monitor-dialog" header="{{dialogHeaderForTable}}" *ngIf="addDialog" [(visible)]="addDialog"
+    modal="modal" width="500" responsive="true">
+    <form (ngSubmit)="saveGDFdetails()" #groupForm="ngForm" ngNativeValidate>
+    <div class="ui-g">
+    <div class="ui-g-3">
+    <label>OID</label>
+    </div>
+    <div class="ui-g-8">
+    <input name="oid" type="text" [(ngModel)]="gdfData.oid" style="width:180px" pInputText required ngModel />
+    </div>
+    </div>
+    
+    <div class="ui-g">
+    <div class="ui-g-3">
+    <label>Type</label>
+    </div>
+    <div class="ui-g-8">
+    <p-dropdown [style]="{'width':'180px'}" name="type" [(ngModel)]="gdfData.type" [options]="graphTypeList" >
+    </p-dropdown>
+    </div>
+    </div>
+    
+    <div class="ui-g">
+    <div class="ui-g-3">
+    <label>Relative</label>
+    </div>
+    <div class="ui-g-8">
+            <p-dropdown [style]="{'width':'180px'}" name="rel" [(ngModel)]="gdfData.rel"
+             [options]="relationList" >
+            </p-dropdown>
+    <!-- <input name="rel" type="text" style="width:180px" [(ngModel)]="gdfData.rel" pInputText required ngModel /> -->
+    </div>
+    </div>
+    
+    <div class="ui-g">
+    <div class="ui-g-3">
+    <label>Formulae</label>
+    </div>
+    <div class="ui-g-8">
+    <p-dropdown [style]="{'width':'180px'}" name="formulaType" [(ngModel)]="gdfData.formulae"
+     [options]="formulaTypeList" >
+    </p-dropdown>
+    </div>
+    </div>
+    
+    <div class="ui-g">
+    <div class="ui-g-3">
+    <label>Formulae value</label>
+    </div>
+    <div class="ui-g-8">
+    <input name="fVal" type="text" style="width:180px" [(ngModel)]="gdfData.fVal" pInputText ngModel />
+    </div>
+    </div>
+
+    <div class="ui-g">
+    <div class="ui-g-3">
+    <label>Graph Name</label>
+    </div>
+    <div class="ui-g-8">
+    <input name="GrN" type="text" style="width:180px" [(ngModel)]="gdfData.grN" pInputText required ngModel />
+    </div>
+    </div>
+    
+    <div class="ui-g">
+    <div class="ui-g-3">
+    <label>Graph Description</label>
+    </div>
+    <div class="ui-g-8">
+    <input name="GrphDesc" type="text" style="width:180px" [(ngModel)]="gdfData.grphDesc" pInputText required ngModel />
+    </div>
+    </div>
+    <footer style="float: right">
+    <button type="submit" pButton icon="fa fa-check" label="Save"></button>
+    <button type="button" pButton icon="fa fa-close" (click)="closeDialog()" label="Cancel"></button>
+    </footer>
+    </form>
+    </p-dialog>

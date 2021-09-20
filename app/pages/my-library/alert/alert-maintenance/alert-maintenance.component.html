@@ -1,0 +1,212 @@
+<p-confirmDialog [style]="{width: '30vw'}"></p-confirmDialog>
+<div class="h-100-vh alert-maintenance-container" #widget>
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <!-- <a routerLink="/my-library/alert">
+        <i class="icons8 icons8-left toolbar-icon-color"></i>
+      </a> -->
+      <div class="p-col ui-toolbar-text">
+        ALERT MAINTENANCE
+      </div>
+    </div>
+  </p-toolbar>
+
+  <div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (inItemClick)="breadcrumb.handleBreadcrumbClick($event)" ></p-breadcrumb>
+  </div>
+
+  <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+    <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+    </div>
+  </div>
+  <div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="error" text="{{ error.msg }}"></p-message>
+    </div>
+  </div>
+  <div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="normal" text="No Data"></p-message>
+    </div>
+  </div>
+
+  <div *ngIf="data">
+    <div class="action-container">
+      <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+        <div class="global-search-block">
+          <div class="p-input-icon-left search-div-css">
+            <i class="icons8 icons8-search"></i>
+            <input #searchInput pInputText type="text" class="input-field-search"
+              (input)="filter($event.target.value, '-1', 'contains')" [(ngModel)]="globalFilterVla" placeholder="Search" />
+            <p-dropdown class="mx-2" placeholder="All" [options]="searchOptions" (onChange)="searchChange($event)"
+              dropdownIcon="icons8 icons8-expand-arrow">
+            </p-dropdown>
+          </div>
+        </div>
+
+        <div class="icons-container p-justify-between p-align-center">
+
+          <button pButton type="button" class="ui-button ui-button-rounded btn-margin" label="Configure Maintenance"
+            (click)="configureMaintenance.open()">
+          </button>
+          <button pButton icon="icons8 icons8-settings" class="icon-button no-shadow" pTooltip="Settings"
+            (click)="settings.toggle($event)"></button>
+          <p-menu #settings [popup]="true" styleClass="widget-menu" [model]="alertSetting"
+            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+            <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns"
+            optionLabel="label" [displaySelectedLabel]="false" (onChange)="onChangeToggleColumn($event)" dropdownIcon="icons8 icons8-columns"
+            pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+          </p-multiSelect>
+          <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" (click)="toggleFilters()"
+            pTooltip="Column Filter"></button>
+          <button pButton icon="icons8 icons8-export" class="icon-button no-shadow" pTooltip="Export"
+            (click)="importExportMaintenance(1)"></button>
+          <button pButton icon="icons8 icons8-import" [disabled]="isOnlyReadable" class="icon-button no-shadow" pTooltip="Import"
+            (click)="importExportMaintenance(0)"></button>
+          <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+          <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+            (click)="menu.toggle($event)" pTooltip="Download"></button>
+          <button pButton icon="icons8 icons8-delete-trash" [disabled]="isOnlyReadable" class="icon-button no-shadow" (click)="deleteMaintenances()"
+            pTooltip="Delete"></button>
+          <button pButton icon="icons8-synchronize" class="icon-button no-shadow" pTooltip="Refresh Alert Maintenance"
+            (click)="refreshMaintenance()">
+          </button>
+        </div>
+      </div>
+
+      <ng-container>
+        <div #widgetHeight [ngStyle]="{
+                    height: isEnabledColumnFilter
+                      ? 'calc(100vh - 215px)'
+                      : 'calc(100vh - 172px)'
+                  }">
+          <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+            Select column to show
+          </div>
+          <p-card class="content-body">
+            <p-table #alertMaintenance [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true"
+              [totalRecords]="totalRecords" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+              [loading]="loading"
+              [rows]="data.paginator.rows" [scrollable]="true" [globalFilterFields]="globalFilterFields"
+              scrollHeight="calc({{widgetHeight.offsetHeight}}px - 91px)" [(selection)]="selectedMaintenances"
+              (sortFunction)="customSort($event)" [customSort]="true" class="all-tables">
+              <ng-template pTemplate="header" let-columns>
+                <tr>
+                  <th [style]="{ width: '4%' }">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                  </th>
+                  <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField"
+                    [style.width]="col.width">
+                    <div class="text-left">
+                      {{ col.label }}
+                      <p-sortIcon *ngIf="col.sort" [field]="col.sort" class="right" ariaLabel="Activate to sort"
+                        ariaLabelDesc="Activate to sort in descending order"
+                        ariaLabelAsc="Activate to sort in ascending order">
+                      </p-sortIcon>
+                    </div>
+                  </th>
+                  <th [style]="{ width: '4%' }"></th>
+                </tr>
+                <tr *ngFor="let headerRow of data.headers">
+                  <ng-container *ngIf="isEnabledColumnFilter">
+                    <th [style]="{ width: '4%' }"></th>
+                    <th *ngFor="let col of columns" [style.width]="col.width" [ngSwitch]="col.label">
+                      <div *ngIf="col.filters.filter === true && col.filters.type === 'custom'">
+                        <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                          pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                          *ngSwitchCase="col.label" pInputText type="text" (input)="
+                          filter(
+                            $event.target.value,
+                            col.valueField,
+                            'custom'
+                          )
+                        " />
+                      </div>
+                      <div *ngIf="
+                        col.filters.filter === true &&
+                        col.filters.type === 'contains'
+                      ">
+                        <input class="w-100-p" pTooltip="Enter Text To Search" *ngSwitchCase="col.label" pInputText
+                          type="text" (input)="
+                                                    filter(
+                            $event.target.value,
+                            col.valueField,
+                            'contains'
+                          )
+                        " />
+                      </div>
+                    </th>
+                    <th [style]="{ width: '4%' }"></th>
+                  </ng-container>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-row let-columns="columns">
+                <tr>
+                  <td [style]="{ width: '4%' }" class="text-center">
+                    <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                  </td>
+                  <td *ngFor="let col of columns" class="{{ col.classes }}" [style.width]="col.width">
+                    <div class="rowData">
+                      <span pTooltip="{{ row['name'] }}" tooltipPosition="bottom"
+                        *ngIf="col.valueField=='schedName'">
+                        {{ row['name'] }}
+                      </span>
+                      <span pTooltip="{{ row['attributes']['scheduleConfig'] | schedule}}" tooltipPosition="bottom"
+                        *ngIf="col.valueField =='name'">
+                        {{ row['attributes']['scheduleConfig'] | schedule}}
+                      </span>
+                      <span pTooltip="{{ row['attributes'][col.valueField] }}" tooltipPosition="bottom"
+                        *ngIf="col.valueField=='description'">
+                        {{ row['attributes'][col.valueField] }}
+                      </span>
+                      <span pTooltip="{{ row['attributes'][col.valueField] }}" tooltipPosition="bottom"
+                        *ngIf="col.valueField=='tagInfo'">
+                        {{ row['attributes'][col.valueField] }}
+                      </span>
+                      <span pTooltip="{{ row['attributes']['scheduleConfig'][col.valueField] | scheduleType}}"
+                        tooltipPosition="bottom" *ngIf="col.valueField=='type'">
+                        {{ row['attributes']['scheduleConfig'][col.valueField] | scheduleType}}
+                      </span>
+                      <span pTooltip="{{ row['attributes']['scheduleConfig'] | upcomingWindow}}"
+                        tooltipPosition="bottom" *ngIf="col.valueField=='maintenanceWindow'">
+                        {{ row['attributes']['scheduleConfig'] | upcomingWindow}}
+                      </span>
+                    </div>
+                  </td>
+                  <td [style]="{ width: '4%' }">
+                    <div class="p-grid p-justify-center">
+                      <button pButton icon="icons8 icons8-edit-2 edit-icon" class="ui-icon-button" pTooltip="Edit"
+                        (click)="configureMaintenance.editMaintenance(row)"></button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+              <!-----------Empty table error handling--------------------->
+              <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                  <td [attr.coldiv]="columns.length + 1" class="text-center">
+                    <span *ngIf="error">Error while loading data</span>
+                    <span *ngIf="loading">Loading</span>
+                    <span *ngIf="!empty && !loading && !error">No records found</span>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-card>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<app-configure-maintenance #configureMaintenance [alertMaintenanceComponent]="this" (stateData)="addData($event)">
+</app-configure-maintenance>
+<app-selected-indices #indices></app-selected-indices>
+<app-confirmation-dialog #appConfirmationDialog (command)="executeCommand($event)"></app-confirmation-dialog>
+<app-generic-import-export #impExpComponent (importedData)="addImportedData($event)"></app-generic-import-export>

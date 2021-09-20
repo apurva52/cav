@@ -1,0 +1,258 @@
+<div class="h-100-vh aws-config-container">
+
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/aws-monitoring">
+                <span class="icons8 icons8-left toolbar-icon-color"></span>
+            </a>
+            <div class="p-col ui-toolbar-text">AWS Configuraion</div>
+
+            <div>
+                <button pButton class="ui-button ui-button-rounded ui-button-right" label="Save & Apply"></button>
+            </div>
+        </div>
+    </p-toolbar>
+
+    <div class="content-body">
+
+
+
+        <span *ngFor="let field of formData">
+            <ng-container *ngTemplateOutlet="tree;context:{node:field}">
+            </ng-container>
+        </span>
+
+        <ng-template #tree let-node="node">
+            <ng-container *ngIf="node.type === 'TextField'">
+                <div class="p-col-3 p-justify-start p-align-start">
+                    <div class="input-label">
+                        {{node.label}}
+                    </div>
+                    <div>
+                        <input [type]="node.validation.input" pInputText [(ngModel)]="node.value" />
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="node.type === 'Checkbox'">
+                <div class="p-grid p-col-12 p-justify-start p-align-center form-checkbox">
+
+                    <p-checkbox [(ngModel)]="node.value" [binary]="true"></p-checkbox>
+                    <div class="checkbox-label">{{node.label}}</div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="node.type === 'NewLine'">
+                <br>
+            </ng-container>
+
+            <ng-container *ngIf="node.type === 'FieldSet'">
+                <div class="p-col field-label">{{node.label}}</div>
+            </ng-container>
+
+
+            <ng-container *ngIf="node.type === 'instanceName'">
+                <div class="p-grid p-col-4 p-justify-start p-align-center">
+                    <div class="input-label">
+                        {{node.label}}
+                    </div>
+                    <div><input type="text" pInputText [(ngModel)]="node.value" [required]="node.required" [pattern]="node.pattern" /></div>
+                </div>
+
+
+            </ng-container>
+
+            <ng-container *ngIf="node.type === 'Accordion'">
+                <p-accordion>
+                    <p-accordionTab [header]="node.label" [selected]="true">
+                        <span *ngIf="node.type === 'Accordion'">
+                        <ng-container *ngFor="let data of node.dependentComp">
+
+                            <ng-container *ngTemplateOutlet="tree;context:{node:data}">
+                            </ng-container>
+
+                        </ng-container>
+                    </span>
+                    </p-accordionTab>
+
+                </p-accordion>
+
+            </ng-container>
+
+            <ng-container *ngIf="node.type === 'Spinner'">
+
+            </ng-container>
+
+            <ng-container *ngIf="node.type === 'Note'">
+
+            </ng-container>
+
+            <ng-container *ngIf="node.type === 'Dropdown'">
+                <div class="p-col-4 p-justify-start p-align-center" [style]="node.style">
+                    <div class="input-label">{{node.label}}</div>
+                    <!-- [options]="serverItems" -->
+                    <p-dropdown class="" [options]="node.list" [placeholder]="node.placeholder" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="node.type === 'RadioButtonGroup'">
+                <div class="p-grid p-justify-start p-align-start">
+                    <div class="p-col-12 input-label">{{node.label}}</div>
+                    <span class=" p-col-12">
+                        <p-radioButton *ngFor="let data of node.items" name="groupname" [value]="data.value" [label]="data.label" [(ngModel)]="node.value" class="radio-button" (onClick)="selectedRadioOption = data" ></p-radioButton>
+                    </span>
+                    <div class="p-grid p-col-12">
+                        <ng-container *ngIf="selectedRadioOption && node.value === selectedRadioOption.value &&  selectedRadioOption.dependentComp && selectedRadioOption.dependentComp.length > 0">
+                            <ng-container *ngFor="let node of selectedRadioOption.dependentComp">
+                                <ng-container *ngTemplateOutlet="tree;context:{node:node}">
+                                </ng-container>
+                            </ng-container>
+
+                        </ng-container>
+                    </div>
+
+                </div>
+
+
+            </ng-container>
+
+            <ng-container *ngIf="node.type === 'Textbox'">
+                <textarea pInputTextarea [(ngModel)]="node.value"></textarea>
+            </ng-container>
+
+
+
+            <div *ngIf="showChild(node) && node.type !=='Accordion'" class="p-grid">
+
+                <ng-container *ngFor="let child of node.dependentComp">
+
+                    <ng-container *ngTemplateOutlet="tree;context:{node:child}">
+                    </ng-container>
+
+                </ng-container>
+            </div>
+        </ng-template>
+
+        <div class="p-col p-justify-end p-align-end p-grid">
+            <button pButton class="ui-button ui-button-rounded ui-button-right" label="ADD"></button>
+        </div>
+
+        <div class="action-container" *ngIf="configData">
+
+            <div class="clean-up">
+                <ng-container>
+                    <div #widgetHeight class="mh-10" [ngStyle]="{
+                height: !isEnabledColumnFilter
+                  ? 'calc(100vh - 350px)'
+                  : 'calc(100vh - 244px)'
+              }">
+                        <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                            Select column to show
+                        </div>
+                        <div class="clean-up-table">
+                            <p-card>
+                                <p-table #AwsConfig [resizableColumns]="true" [columns]="selectedColumns" [value]="configData.data" [rowHover]="true" [paginator]="true" [rows]="configData.paginator.rows" [totalRecords]="configData.data.length" [rowsPerPageOptions]="configData.paginator.rowsPerPageOptions"
+                                    [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true" [scrollable]="true" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 100px)" selectionMode="single"
+                                    [globalFilterFields]="globalFilterFields" [reorderableColumns]="true">
+                                    <ng-template pTemplate="colgroup" let-columns>
+                                        <colgroup>
+                                            <col *ngFor="let col of columns" [style.width]="col.width" />
+                                        </colgroup>
+                                    </ng-template>
+                                    <ng-template pTemplate="header" let-columns>
+                                        <tr>
+                                            <th class="columnwidth">
+                                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                            </th>
+
+                                            <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.valueField" class="text-left" pResizableColumn pReorderableColumn>
+                                                <div class="left">
+                                                    {{ col.label }}
+                                                </div>
+                                                <div *ngIf="col.isSort" class="right">
+                                                    <p-sortIcon *ngIf="col.isSort" field="col.isSort" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                    </p-sortIcon>
+                                                </div>
+                                            </th>
+
+                                        </tr>
+                                        <tr *ngFor="let headerRow of configData.headers">
+                                            <ng-container *ngIf="isEnabledColumnFilter">
+                                                <th></th>
+                                                <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                                    <div *ngIf="
+                                col.filter.isFilter === true &&
+                                col.filter.type === 'custom'
+                              ">
+                                                        <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                  AwsConfig.filter(
+                                    $event.target.value,
+                                    col.valueField,
+                                    'custom'
+                                  )
+                                " />
+                                                    </div>
+                                                    <div *ngIf="
+                                col.filter.isFilter === true &&
+                                col.filter.type === 'contains'
+                              ">
+                                                        <input class="w-100-p" pTooltip="Will filter reports which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                  AwsConfig.filter(
+                                    $event.target.value,
+                                    col.valueField,
+                                    'contains'
+                                  )
+                                " />
+                                                    </div>
+                                                </th>
+
+                                            </ng-container>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                                        <tr [pReorderableRow]="rowIndex">
+                                            <td class="text-center columnwidth">
+                                                <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                                            </td>
+
+
+                                            <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}" pReorderableRowHandle>
+                                                {{ row[col.valueField] }}
+                                                <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon" class="column-icon"></i>
+                                                <span class="action-icon">
+                                                  <!-- <i *ngIf="col.actionIcon" class="icons8 icons8-spinner"></i> -->
+                                                  <i *ngIf="col.actionIcon" class="icons8 icons8-more"></i>
+                                                </span>
+                                            </td>
+
+                                        </tr>
+                                    </ng-template>
+
+                                    <!-----------Empty table error handling--------------------->
+                                    <ng-template pTemplate="emptymessage" let-columns>
+                                        <tr>
+                                            <td [attr.colspan]="columns.length + 1" class="text-center">
+                                                <span *ngIf="error">Error while loading data</span>
+                                                <span *ngIf="emptyTable">Empty Table</span>
+                                                <span *ngIf="loading">Loading</span>
+                                                <!-- <span *ngIf="!empty && !loading && !error && searchInput.value.length">Nothing found
+                            matching
+                            "{{searchInput.value}}"</span> -->
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </p-card>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,51 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false" [style]="{width: '40vw'}">
+    <p-header>
+        <div class="compare-data-title">
+            <div>
+                Add Tier Group
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+
+    <div class="dialog-content">
+        <div class="p-grid">
+            <div class="p-col-2">
+                <span class="line-height">Server Name</span>
+            </div>
+            <div class="p-col-4">
+                <input class="w-100-p" type="text" placeholder="Enter name" pInputText />
+            </div>
+            <div class="p-col-4 ml-15">
+                <p-checkbox name="groupname" value="val1"></p-checkbox>
+
+                <span class="line-height">Master</span>
+            </div>
+        </div>
+
+        <div class="p-grid">
+            <div class="p-col-2">
+                <span class="line-height">IP</span>
+            </div>
+            <div class="p-col-4">
+                <input class="w-100-p" type="text" placeholder="IP" pInputText />
+            </div>
+            <div class="p-col-2">
+                <span class="line-height">Port</span>
+            </div>
+            <div class="p-col-4">
+                <input class="w-100-p" type="text" placeholder="Port" pInputText />
+            </div>
+        </div>
+        <p-fieldset legend="Advance Setting" [toggleable]="true">
+        </p-fieldset>
+    </div>
+    <p-footer>
+        <div class="p-col-12 form-buttons right">
+            <button pButton type="submit" (click)="closeDialog()" label="Cancel" class="ui-outline-button ui-button-secondary"></button>
+            <button pButton type="submit" label="Add" class="ui-button-rounded"></button>
+        </div>
+    </p-footer>
+</p-dialog>

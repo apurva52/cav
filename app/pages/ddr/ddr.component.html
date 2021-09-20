@@ -1,0 +1,29 @@
+<!-- <div class="blockedUI" *ngIf="commonServices.loaderForDdr">
+    <img class="loadingIcon" src="./assets/images/loading.gif" />
+</div> -->
+<div class="header">
+    <app-header></app-header>
+</div>
+<div *ngIf="commonServices.isToLoadSideBar">
+    <app-ddr-header-top-nav-bar></app-ddr-header-top-nav-bar>
+</div>
+<div *ngIf="commonServices.isToLoadSideBar">
+    <!-- <app-ddr-bread-crumb></app-ddr-bread-crumb> -->
+    <p-breadcrumb styleClass="pl-30" [model]="breadcrumb.getBreadcrumbMenu() | async" (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+</div>
+<div *ngIf="!commonServices.isToLoadSideBar">
+    <!-- <app-ddr-bread-crumb></app-ddr-bread-crumb> -->
+    <p-breadcrumb styleClass="pl-30"  [model]="breadcrumb.getBreadcrumbMenu() | async" (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+</div>
+<div *ngIf="commonServices.isToLoadSideBar" class="sidenav">
+    <i class="icons8 icons8-menu font-18" title="UI Filters" style="height:23px" type="button" *ngIf="commonServices.isToLoadSideBar" 
+        (click)="openSideNav()"></i>
+</div>
+<mat-sidenav-container class="sidebarUI-container ddr-side-bar-override">
+    <mat-sidenav class="sidebarUI-sidenav" *ngIf="commonServices.isToLoadSideBar" #navSideBar mode='slide'>
+        <app-ddr-side-bar></app-ddr-side-bar>
+    </mat-sidenav>
+    <router-outlet></router-outlet>
+</mat-sidenav-container>
+<!-- <p-growl life=50000 [value]="commonServices.errMsg"></p-growl> -->
+<p-toast></p-toast>

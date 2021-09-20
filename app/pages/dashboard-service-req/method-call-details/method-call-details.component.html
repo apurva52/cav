@@ -1,0 +1,586 @@
+
+<div class="method-call-details-container" *ngIf="isOn == 1">
+    <div class="method-call-details">
+        <ng-container>
+            <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+                <div class="p-col p-col-align-center text-center">
+                    <div>
+                        <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-grid vertical-container" *ngIf="error">
+                <div class="p-col p-col-align-center text-center">
+                    <p-message severity="error" text="{{error.msg}}"></p-message>
+                </div>
+            </div>
+            <div class="p-grid vertical-container" *ngIf="empty">
+                <div class="p-col p-col-align-center text-center">
+                    <p-message severity="normal" text="No Data"></p-message>
+                </div>
+            </div>
+
+            <div #widgetHeight *ngIf="data" class="mh-10" [ngStyle]="{'height': 'calc(100vh - 130px)'}">
+
+                <div class="p-grid upper-section">
+                    <div class="p-col-10">
+                        <div>
+                            <div class="legend-group" *ngFor="let legend of data.treeTable.legend">
+                                <div class="legent-item">
+                                    <div *ngIf="legend.showInLegend" class="paginator-legend"
+                                        [ngStyle]="{'backgroundColor': legend.color}">
+                                    </div>
+                                    <span class="lagent-label" *ngIf="legend.showInLegend">{{legend.name}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-2 alert-group">
+                        <!-- <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" (click)="toggleFilters()" pTooltip="Column Filter"></button> -->
+                        <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button"
+                            (click)="menu.toggle($event);" pTooltip="Download"></button>
+                        <p-menu #menu [popup]="true" styleClass="widget-menu psitionSetMenu" [model]="downloadOptions"
+                            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" [style]="{minWidth:'5em'}">
+                        </p-menu>
+                        <p-multiSelect [options]="cols" name="multiSelect" [(ngModel)]="selectedColumns"
+                            optionLabel="label" [displaySelectedLabel]="false" dropdownIcon='icons8 icons8-columns'
+                            pTooltip="Toggle Columns" [panelStyle]="{minWidth: '200px'}">
+                        </p-multiSelect>
+                        <button pButton icon="icons8 icons8-filter" class="icon-button no-shadow left"
+                            (click)="showBasicDialog()" pTooltip="Filter Setting"></button>
+                        <button pButton icon="icons8 icons8-menu-vertical" class="ui-icon-button"
+                            (click)="menuitems.toggle($event);" pTooltip="Menu"></button>
+                        <p-menu #menuitems [popup]="true" styleClass="widget-menu psitionSetMenu" [model]="itemsall"
+                            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                    </div>
+                </div>
+                <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                    Select column to show
+                </div>
+
+                <div class="method-call-details-table">
+                    <p-card>
+                        <div>
+                            <button pButton type="button" *ngIf='showExpandBtn'
+                                (click)="showExpandBtn =false;toggleNode(true)" icon="icons8 icons8-add"
+                                class="icon-button no-shadow " title="Click to Expand Method calling tree"></button>
+                            <button pButton type="button" *ngIf='!showExpandBtn'
+                                (click)="showExpandBtn = true;toggleNode(false)" icon="icons8 icons8-minus-sign"
+                                class="icon-button no-shadow" title="Click to Collapse Method calling tree"></button>
+                            <span style ="font-size: 11px;">
+                                <b>Method Call Details</b>{{mctAppliedFilter}}
+                            </span>
+                        </div>
+                        <div style ="font-size: 11px;">
+                            <i> &nbsp; &nbsp; {{mctNote}} </i>
+                        </div>
+                        <p-treeTable #methodCallDetailsData class="all-tables" [value]="mctData" [columns]="selectedColumns"
+                            [resizableColumns]="true" (onNodeSelect)="loadNodeUpto($event)" [loading]="loading"
+                            [rowHover]="true" [showCurrentPageReport]="true" dataKey="Method" [scrollable]="true"
+                            selectionMode="single" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 200px)"
+                            (contextmenu)="onNodeRightClick($event,cm)" selectionMode="single"
+                            [(selection)]="selectedNode" [(contextMenuSelection)]="selectedNode" [contextMenu]="cm"
+                            (onColResize)="resizingColumns($event)">
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                    <ng-container *ngFor="let col of columns">
+                                        <col [style.width]="col.width">
+                                    </ng-container>
+                                </colgroup>
+                            </ng-template>
+
+                            <ng-template pTemplate="header" let-columns>
+                                <tr>
+                                    <ng-container *ngFor="let col of columns">
+                                        <th [style.width]="col.width" ttResizableColumn
+                                            [ttSortableColumn]="col.valueField" pTooltip={{col.label}}>
+                                            <div class="elipseText"> {{ col.label }} </div>
+                                        </th>
+                                    </ng-container>
+                                </tr>
+
+                                <!-- <tr *ngFor="let headerRow of data.treeTable.headers">
+                                    <ng-container *ngIf="isEnabledColumnFilter">
+                                        <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                            <div *ngIf="col.filter.isFilter === true && col.filter.type === 'custom'">
+                                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="methodCallDetailsData.filter($event.target.value, col.valueField , 'custom')">
+                                            </div>
+                                            <div *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+                                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="methodCallDetailsData.filter($event.target.value, col.valueField, 'contains')">
+                                            </div>
+                                        </th>
+                                    </ng-container>
+                                </tr> -->
+                            </ng-template>
+                            <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                                <tr [ngStyle]="{'backgroundColor': rowData.rowBgColor}" [ttRow]="rowData"
+                                    [ttContextMenuRow]="rowNode">
+                                    <ng-container *ngFor="let col of columns; let i=index">
+                                        <td *ngIf=" col.label !== 'Methods' && col.label !== 'Flag'"
+                                            class="{{ col.classes }}" pTooltip={{rowData[col.valueField]|f_ddr:col.format}}>
+                                        
+                                            <div class="no-wrap">
+                                                <span class="textElipse"> {{ rowData[col.valueField] | f_ddr: col.format
+                                                    }}</span>
+                                            </div>
+                                        </td>
+                                        <td *ngIf=" col.label === 'Flag'" class="{{ col.classes }}"
+                                            ttSelectableRowDblClick>
+                                            <div class="no-wrap">
+                                                <img *ngIf="(rowData.dynLogFlag == '1')" src="./assets/images/dl.png"
+                                                    pTooltip='View Dynamic Logging' (click)="commonModuleCall(rowData)"
+                                                    style="overflow: auto;display: inline-block; margin-left: 10px;width:16px;height:16px;cursor:pointer;" />
+                                            </div>
+                                        </td>
+                                        <td *ngIf=" col.label === 'Methods'" class="{{ col.classes }}"
+                                            pTooltip={{htmlencodeFormat(rowData[col.valueField])}}>
+                                            <div *ngIf="col.severityColorField"> 
+					   <span class="severity-color" [ngStyle]="{'backgroundColor': rowData.severityBgColorField}"></span>
+                                           <span class="severity-color2" [ngStyle]="{'backgroundColor': rowData.severityBgColorField2}"></span>
+                                   	 </div>
+                                            <div class="no-wrap">
+                                                <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                                                <span *ngIf=" rowData.repeatedMethodCount >0"
+                                                    title="View Repeated Details">
+                                                    <a class="activeLink"
+                                                        (click)="showRepeatedData(rowData,0,3)">{{rowData.repeatedMethodCount+1
+                                                        }}</a>&nbsp;x&nbsp; </span>
+                                                <span [ngSwitch]="rowData.showMethodColor">
+                                                    <span *ngSwitchCase="'httpOrthreadCallout'">
+                                                        <a class="activeLink"
+                                                            (click)="getChildFLowpathsData(rowNode)">{{
+                                                            rowData[col.valueField] | f_ddr: col.format }}</a>
+                                                    </span>
+                                                    <span *ngSwitchCase="'httpOrthreadCallout,highlightWallTime'">
+                                                        <a class="activeLink"
+                                                            (click)="getChildFLowpathsData(rowNode)">{{
+                                                            rowData[col.valueField] | f_ddr: col.format }}</a>
+                                                    </span>
+                                                    <span *ngSwitchDefault class="textElipse">
+                                                        {{ rowData[col.valueField] | f_ddr: col.format }}
+                                                    </span>
+                                                </span>
+                                                <span *ngIf="rowData.limit >0 && ( rowData.offset <=rowData.last) && rowData.limit < rowData.last && rowData.type==2"
+                                                     class="ddr-table-left" (click)="expandSameLeveluptoFixLevelforValue(rowData.line,rowData.limit,rowData.last)">
+                                                    Next({{rowData.limit+1}} - {{rowData.offset}} of {{rowData.last}})>>
+                                               </span>
+                                                <span *ngIf="rowData.limit >=0 && ( rowData.offset <= rowData.last) && rowData.limit <rowData.last && rowData.type==1" 
+                                                    class="ddr-table-left" (click)="expandSameLeveluptoFixLevelforValue(rowData.line,rowData.limit,rowData.last)">
+                                                    <<Previous({{rowData.limit+1}} - {{rowData.limit+50}} of {{rowData.last}})
+                                               </span>
+                                                <span *ngIf="rowData.limit >= 0 && ( rowData.offset <= rowData.last) && rowData.limit <rowData.last && rowData.type==1"
+                                                     class="ddr-table-left" (click)="expandSameLeveluptoFixLevelforValue(rowData.line,0,rowData.last)">
+                                                    &nbsp;&nbsp;&nbsp;FIRST
+                                               </span>
+                                               <span *ngIf="rowData.limit >0 && ( rowData.offset <= rowData.last) && rowData.limit <rowData.last && rowData.type==2"
+                                                 class="ddr-table-left" (click)="expandSameLeveluptoFixLevelforValue(rowData.line,rowData.last,rowData.last)">
+                                                    &nbsp;&nbsp;&nbsp;LAST
+                                               </span>
+                                            </div>
+                                        </td>
+
+                                    </ng-container>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                        <span *ngIf="error">Error while loading data</span>
+                                        <span *ngIf="emptyTable">Empty Table</span>
+                                        <span *ngIf="loading">Loading</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-treeTable>
+                    </p-card>
+                    <!-- <p-overlayPanel #op3 [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'">
+                        <ng-template pTemplate>
+                            <ul class="rowSubElement">
+                                <li><a (click)="showPage(2)">Dynamic Logging</a></li>
+                               <li><a (click)="showPage(3)">Repeated Callout Details</a></li>
+                            </ul>
+                        </ng-template>
+                    </p-overlayPanel>  -->
+                </div>
+
+                <p-contextMenu #cm [model]="contextMenuIte" appendTo="body" [style]="{'width':'100px'}"></p-contextMenu>
+
+                <p-dialog header="Method Call Tree Filter Setting" [(visible)]="displayBasic" [style]="{width: '50vw'}"
+                    class="secondary-dialog tree-filter" [modal]="true" [baseZIndex]="10000" [draggable]="false"
+                    [resizable]="false" closeIcon="icons8-delete">
+
+                    <div class="p-col-12 main-content">
+                        <div class="p-field p-col-12">
+                            <label class="control-label">Show Method(max depth)</label>
+                            <input class="control-input-right" type="text" pInputText [(ngModel)]="txtFlterMethodLevel"
+                                name="showmethod1" />
+                        </div>
+                        <div class="p-field p-col-12">
+                            <label class="control-label">Show Methods(walltime in ms)>=</label>
+                            <input class="control-input-right" type="text" pInputText [(ngModel)]="txtFilterWallTime"
+                                name="showmethod2" />
+                        </div>
+                        <div class="p-field p-col-12">
+                            <label class="control-label">Highlight Methods(walltime in ms)>=</label>
+                            <input class="control-input-right" type="text" pInputText [(ngModel)]="txtThresholdWallTime"
+                                name="showmethod3" />
+                        </div>
+                        <div class="p-field p-col-12">
+                            <label class="control-label">Highlight Successor Methods(w.r.t. elapsed time in
+                                ms)>=</label>
+                            <input class="control-input-right" type="text" pInputText
+                                [(ngModel)]="txtThresholdelapsedTime" name="showmethod4" />
+                        </div>
+                        <p-accordion [multiple]="true">
+                            <p-accordionTab header="POSITIVE FILTERS" [selected]="true">
+                                <div class="ui-g">
+                                    <div class='ui-g-6'>
+                                        <label class="control-label">Packages</label>
+                                    </div>
+                                    <div class='ui-g-6'>
+                                        <p-multiSelect styleClass="w-100-p" class="w-100-p control-input"
+                                            [options]="packageList" [(ngModel)]="selectedPackageList"
+                                            (onChange)="getClassList()" [maxSelectedLabels]=2 [overlayVisible]=true>
+                                        </p-multiSelect>
+                                    </div>
+                                </div>
+                                <div class="ui-g">
+                                    <div class="ui-g-6">
+                                        <label class="control-label">Classes</label>
+                                    </div>
+                                    <div class="ui-g-6">
+
+                                        <p-multiSelect class="control-input" [options]="classList"
+                                            [(ngModel)]="selectedClassList" (onChange)="getMethodList()"
+                                            [maxSelectedLabels]=2 [overlayVisible]=true>
+
+                                        </p-multiSelect>
+                                    </div>
+                                </div>
+                                <div class="ui-g">
+                                    <div class="ui-g-6">
+                                        <label class="control-label">Methods</label>
+                                    </div>
+                                    <div class="ui-g-6">
+
+                                        <p-multiSelect class="control-input" [options]="methodList"
+                                            [(ngModel)]="selectedMethodList" [maxSelectedLabels]=2 [overlayVisible]=true
+                                            (onChange)=getActualMethodList()>
+                                        </p-multiSelect>
+                                    </div>
+                                </div>
+                            </p-accordionTab>
+                            <p-accordionTab header="NEGATIVE FILTERS" [selected]="false">
+                                <div class="ui-g">
+                                    <div class="ui-g-6">
+                                        <label class="control-label">Do Not Show Methods</label>
+                                    </div>
+                                    <div class="ui-g-6">
+                                        <p-autoComplete class="w-100-p" [(ngModel)]="selectedNegativeMethod"
+                                            styleClass="ddr-autocomplete" [suggestions]="negativeMethodArr"
+                                            (completeMethod)="searchMethodName($event)" [multiple]="true"
+                                            [panelStyle]="{'z-index':'10004'}"></p-autoComplete>
+                                    </div>
+                                </div>
+                            </p-accordionTab>
+                            <p-accordionTab header="ADVANCED SETTINGS" [selected]="false">
+                                <div class="p-grid">
+                                    <div class="p-col-6">
+                                        <p-checkbox name="group1" label="HTTP CallOuts" value="T,E"
+                                            [(ngModel)]="ignoreFilterCallOuts" inputId="hc"></p-checkbox>
+                                    </div>
+                                    <div class="p-col-6">
+                                        <p-checkbox name="group3" label="DB CallOuts" value="D"
+                                            [(ngModel)]="ignoreFilterCallOuts" inputId="db">
+                                        </p-checkbox>
+                                    </div>
+                                    <div class="p-col-6">
+                                        <p-checkbox name="group4" label="JMS CallOuts" value="J,j"
+                                            [(ngModel)]="ignoreFilterCallOuts" inputId="jc"></p-checkbox>
+                                    </div>
+                                    <div class="p-col-6">
+                                        <p-checkbox name="group5" label="Exceptions" value="e"
+                                            [(ngModel)]="ignoreFilterCallOuts" inputId="ec">
+                                        </p-checkbox>
+                                    </div>
+                                    <div class="p-col-6">
+                                        <p-checkbox name="group6" label="Thread CallOuts" value="t"
+                                            [(ngModel)]="ignoreFilterCallOuts" inputId="tc"></p-checkbox>
+                                    </div>
+                                    <div class="p-col-6">
+                                        <p-checkbox name="group7" label="Async CallOuts" value="a,A"
+                                            [(ngModel)]="ignoreFilterCallOuts" inputId="ac"></p-checkbox>
+                                    </div>
+                                    <div class="p-col-12">
+                                        <p-checkbox name="group2" label="Show Thread Queue Time and Self Time"
+                                            [(ngModel)]="isEnabledQAS" binary="true" inputId="tq"></p-checkbox>
+                                    </div>
+                                    <div class="p-col-4">
+                                        <p-checkbox name="expand" label="Expand methods upto"
+                                            [(ngModel)]="isExpandCount" (onChange)="expandSetter()" binary="true"
+                                            inputId="em"></p-checkbox>
+                                    </div>
+                                    <div class="p-col-6">
+                                        <input class="control-input" [disabled]="!isExpandCount" maxlength="5"
+                                            type="text" pInputText [(ngModel)]="txtExpandCount" name="showmethod4" />
+                                    </div>
+                                </div>
+                            </p-accordionTab>
+                        </p-accordion>
+                    </div>
+                    <p-footer>
+                        <div class="p-col-12 form-buttons">
+                            <button pButton type="submit" label="Apply" (click)="applyThresholdFilter()"
+                                class="ui-button-rounded"></button>
+                            <button pButton type="reset" label="Reset" (click)="applyDefaultValue()"
+                                class="ui-outline-button ui-button-secondary"></button>
+                            <button pButton type="button" label="Cancel" (click)="filterDialog =false"
+                                class="ui-outline-button ui-button-secondary" (click)="closeDialog()"></button>
+                        </div>
+                    </p-footer>
+                </p-dialog>
+                <p-dialog [header]="methodDetailsHeaderName" width="500" [(visible)]="displayChildRowDetails"
+                    [(dismissableMask)]="mask" [draggable]="false" class="primary-dialog" closeIcon="icons8-delete">
+                    <div class="methDetais mt-3">
+                        <table>
+                            <tr class="ddr-method-detail">
+                                <th style="text-align:justify">Method</th>
+                                <td><textarea class="ddr-method-textarea"
+                                        readonly>{{htmlencodeFormat(methodname)}}</textarea></td>
+                            </tr>
+                            <tr class="ddr-method-detail" *ngIf="classname != '-'">
+                                <th style="text-align:justify">Class</th>
+                                <td>{{classname}}</td>
+                            </tr>
+                            <tr class="ddr-method-detail" *ngIf="packagename != '-'">
+                                <th style="text-align:justify">Package</th>
+                                <td>{{packagename}}</td>
+                            </tr>
+                            <tr class="ddr-method-detail">
+                                <th style="text-align:justify">Instance</th>
+                                <td>{{appname}}</td>
+                            </tr>
+                            <tr class="ddr-method-detail">
+                                <th style="text-align:justify">Server</th>
+                                <td>{{servername}}</td>
+                            </tr>
+                            <tr class="ddr-method-detail">
+                                <th style="text-align:justify">Tier</th>
+                                <td>{{tiername}}</td>
+                            </tr>
+                            <tr class="ddr-method-detail">
+                                <th style="text-align:justify">Elapsed Time(ms)</th>
+                                <td>{{(timeStamp)}}</td>
+                            </tr>
+                            <tr class="ddr-method-detail">
+                                <th style="text-align:justify">Wall Time(ms)</th>
+                                <td>{{(walltime)}}</td>
+                            </tr>
+                            <tr class="ddr-method-detail">
+                                <th style="text-align:justify">CPU Time(ms)</th>
+                                <td>{{(cputime)}}</td>
+                            </tr>
+                            <tr class="ddr-method-detail">
+                                <th style="text-align:justify">Percentage</th>
+                                <td>{{(percentage)}}%</td>
+                            </tr>
+                            <tr class="ddr-method-detail" *ngIf="pagename != '-'">
+                                <th style="text-align:justify">Page</th>
+                                <td>{{pagename}}</td>
+                            </tr>
+                            <tr class="ddr-method-detail">
+                                <th style="text-align:justify">Thread Id</th>
+                                <td>{{threadId}}</td>
+                            </tr>
+                            <tr class="ddr-method-detail">
+                                <th style="text-align:justify">Thread</th>
+                                <td><textarea class="ddr-method-textarea"
+                                        readonly>{{htmlencodeFormat(threadname)}}</textarea></td>
+                            </tr>
+
+                            <tr class="ddr-method-detail">
+                                <th style="text-align:justify">Argument</th>
+                                <td><textarea class="ddr-method-textarea"
+                                        readonly>{{htmlencodeFormat(argument)}}</textarea></td>
+                            </tr>
+                            <tr class="ddr-method-detail">
+                                <th style="text-align:justify">Return Value</th>
+                                <td><textarea class="ddr-method-textarea" readonly>{{returnvalue}}</textarea></td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </p-dialog>
+
+            </div>
+        </ng-container>
+    </div>
+</div>
+
+
+<div *ngFor="let value of values ;let i=index">
+    <p-dialog width="800px" appendTo="body" [(visible)]="visibleArr[i]" [closable]="true" [resizable]=false
+        autoAlign="true">
+        <p-header><span title="Parent Method Name: {{value.parentMethodName}}">{{value.subsParentMethodName}}</span> >
+            <span title={{value.Callout}}>{{value.subCallout}}</span></p-header>
+
+        <div class="text-right"> 
+            <p-multiSelect class="icon-button no-shadow" [options]="cols" name="multiSelect" [(ngModel)]="selectedColumns" optionLabel="label"
+                [displaySelectedLabel]="false" dropdownIcon='icons8 icons8-columns' pTooltip="Toggle Columns" appendTo="body"
+                [panelStyle]="{minWidth: '200px'}"></p-multiSelect>
+        </div>
+        <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+            Select column to show
+        </div>
+        <div class="method-call-details-table">
+            <p-card>
+                <p-treeTable #methodCallDetailsData class="all-tables" [value]="value.treeData" [columns]="selectedColumns"
+                    [resizableColumns]="true" (onNodeSelect)="loadNodeUpto($event)" [loading]="loading"
+                    [rowHover]="true" [showCurrentPageReport]="true" dataKey="Method" [scrollable]="true"
+                    scrollHeight="200px" selectionMode="single" [(selection)]="selectedNode"
+                    [style]="{'word-wrap': 'normal','height':'auto','max-height':'60vh','width':'1100px','overflow-x':'auto','white-space':'nowrap'}">
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                            <ng-container *ngFor="let col of columns">
+                                <col [style.width]="col.width">
+                            </ng-container>
+                        </colgroup>
+                    </ng-template>
+
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <ng-container *ngFor="let col of columns">
+                                <th [style.width]="col.width" ttResizableColumn >
+                                    <div class="elipseText"> {{ col.label }} </div>
+                                </th>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                        <tr [ngStyle]="{'backgroundColor': rowData.rowBgColor}" [ttRow]="rowData"
+                            [ttContextMenuRow]="rowNode">
+                            <ng-container *ngFor="let col of columns; let i=index">
+                                <td *ngIf=" col.label !== 'Methods'" class="{{ col.classes }}"
+                                    pTooltip={{rowData[col.valueField]|f_ddr:col.format}}>
+                                    
+                                    <div class="no-wrap">
+                                        <span class="textElipse"> {{ rowData[col.valueField] | f_ddr: col.format
+                                            }}</span>
+                                    </div>
+                                </td>
+                                <td *ngIf=" col.label === 'Methods'" class="{{ col.classes }}"
+                                    pTooltip={{htmlencodeFormat(rowData[col.valueField])}}>
+                                    <div *ngIf="col.severityColorField"> 
+					   <span class="severity-color" [ngStyle]="{'backgroundColor': rowData.severityBgColorField}"></span>
+                                           <span class="severity-color2" [ngStyle]="{'backgroundColor': rowData.severityBgColorField2}"></span>
+                                   	 </div>
+                                    <div class="no-wrap">
+                                        <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                                        <span *ngIf=" rowData.repeatedMethodCount >0" title="View Repeated Details">
+                                            <a class="activeLink"
+                                                (click)="showRepeatedData(rowData,0,3)">{{rowData.repeatedMethodCount+1
+                                                }}</a>&nbsp;x&nbsp; </span>
+                                        <span [ngSwitch]="rowData.showMethodColor">
+                                            <span *ngSwitchCase="'httpOrthreadCallout'">
+                                                <a class="activeLink" (click)="getChildFLowpathsData(rowNode)">{{
+                                                    rowData[col.valueField] | f_ddr: col.format }}</a>
+                                            </span>
+                                            <span *ngSwitchCase="'httpOrthreadCallout,highlightWallTime'">
+                                                <a class="activeLink" (click)="getChildFLowpathsData(rowNode)">{{
+                                                    rowData[col.valueField] | f_ddr: col.format }}</a>
+                                            </span>
+                                            <span *ngSwitchDefault class="textElipse">
+                                                {{ rowData[col.valueField] | f_ddr: col.format }}
+                                            </span>
+                                        </span>
+                                    </div>
+                                </td>
+
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                <span *ngIf="error">Error while loading data</span>
+                                <span *ngIf="emptyTable">Empty Table</span>
+                                <span *ngIf="loading">Loading</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-treeTable>
+            </p-card>
+        </div>
+    </p-dialog>
+</div>
+
+<!--app-dynamic-logging *ngIf="isOn == 2" (arrowClick)="hotspotSummary(1)"></app-dynamic-logging-->
+<app-repeated-callout-details *ngIf="isOn == 3" (backClick)="backToMCTReport(1)"
+    [argsForRepeatedMethods]="argsForRepeatedMethods"></app-repeated-callout-details>
+
+<!-- <p-dialog [(visible)]="displayDetails" [resizable]="true" [modal]="true" class="secondary-dialog" header="Dynamic Diagnostics Configuration" [draggable]="false" closeIcon="icons8-delete" [style]="{width: '50vw'}">
+    <app-diagnostics-configuration></app-diagnostics-configuration>
+</p-dialog> -->
+
+<p-dialog class="secondary-dialog foterDialog" header="Dynamic Diagnostics Configuration" [resizable]="false"
+    *ngIf="showAutoInstrPopUp" [(visible)]="showAutoInstrPopUp" modal="modal" [style]="{width: '60vw'}"
+    [contentStyle]="{'max-height':'500px'}" responsive="true">
+    <app-dynamic-diagnostics (resultAfterStart)="startInstrumentation($event)" (closeAIDDGui)="closeAIDDDialog($event)"
+        [passAIDDSettings]="argsForAIDDSetting"></app-dynamic-diagnostics>
+</p-dialog>
+
+<!-- <p-dialog class="profile-dialog" appendTo="body" [resizable]="false"
+    header="Enter Fully Qualified Class Name For Dynamic Logging " *ngIf="openDLDialogFromButton"
+    [(visible)]="openDLDialogFromButton" modal="modal" width="500" responsive="true">
+    <form (ngSubmit)="openDLbasedOnFQC()" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g">
+            <div class="ui-g-4">
+                <label> Fully Qualified Class Name :</label>
+            </div>
+            <div class="ui-g-8">
+                <input name="className" type="text" size="100" class="configUI-profile-dialog" pInputText
+                    [(ngModel)]="FQCforDL" ngModel />
+            </div>
+        </div>
+        <footer>
+            <div class="ui-dialog-buttonpane ui-wnameget-content ui-helper-clearfix">
+                <button type="button" pButton icon="fa fa-close" (click)="openDLDialogFromButton=false"
+                    label="Cancel"></button>
+                <button type="button" pButton icon="fa fa-check" label="View" [disabled]="!FQCforDL"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog> -->
+
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" appendTo="body" [resizable]="false"
+    header="Enter Fully Qualified Class Name For Dynamic Logging " *ngIf="openDLDialogFromButton"
+    [(visible)]="openDLDialogFromButton" modal="modal" width="500" responsive="true">
+    <form (ngSubmit)="openDLbasedOnFQC()" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g">
+            <div class="ui-g-4">
+                <label> Fully Qualified Class Name :</label>
+            </div>
+            <div class="ui-g-7">
+                <input name="className"  type="text" size="100" class="configUI-profile-dialog w-100-p" pInputText
+                    [(ngModel)]="FQCforDL" ngModel />
+            </div>
+        </div>
+        <footer>
+            <div class="p-grid p-align-center p-justify-end py-8">
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-delete" (click)="openDLDialogFromButton=false"
+                    label="Cancel"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-checkmark" label="View"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>
+
+
+
+
+<app-dynamic-logging *ngIf="ShowCommonDLModule" (closeDLGui)="closeDynamicLogging($event)"
+    [DynamicLoggingData]="argsForDynamicLogging"></app-dynamic-logging>
+
+
+<app-flow-path-dialog *ngIf="isFlowpathDialog" (closeFlowpathDialog)="closeFlowpathDialog($event)"
+    [flowpathDialogData]="argsForflowpathDialogData"></app-flow-path-dialog>

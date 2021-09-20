@@ -1,0 +1,153 @@
+<div class="get-log-file">
+  <form (ngSubmit)="saveLogData()" #form="ngForm" ngNativeValidate>
+    <p-panel>
+      <p-header>
+        <p-checkbox [binary]="true" name="isChk" [(ngModel)] = "enabled"
+        ngDefaultControl></p-checkbox>
+        <span class="checkbox-label">Get Log File</span>
+        </p-header>
+      <div class="p-grid p-align-center w-100-p">
+
+        <div class="width-160 required-mark px-12">Log Monitor Name</div>
+        <div class="p-col-2">
+          <input name="metricGrpName" type="text" pInputText style="margin-left: 10px;" required
+            [(ngModel)]="getLogData.gdfName" placeholder="Enter Metric Group Name" ngModel />
+        </div>
+
+
+        <div class="input-label required-mark pl-20">File Name Selection</div>
+        <div class="p-col-2">
+          <p-dropdown name="logFileName" [options]="logFileSelectionList"
+            [(ngModel)]="getLogData.fileNameSelection" defaultLabel="Choose Server list"
+            [style]="{'min-width': '100%'}" ngModel dropdownIcon="icons8 icons8-expand-arrow">
+          </p-dropdown>
+        </div>
+
+        <div class="p-col-4" *ngIf="getLogData.fileNameSelection != '-f __journald'">
+          <input style="width:300px" name="FileName" type="text" required="true" [(ngModel)]="getLogData.fileName"
+            pInputText />
+        </div>
+
+        <div class="p-col-2" *ngIf="getLogData.fileNameSelection == '-f __journald'">
+          <span>
+            <p-radioButton value="all" name="all" label="All logs" [(ngModel)]="getLogData.journalType"></p-radioButton>
+          </span>
+
+          <span class="ml-10">
+            <p-radioButton value="-u" name="Specified" label="Specified" [(ngModel)]="getLogData.journalType"></p-radioButton>
+          </span>
+        </div>
+
+        <div class="p-col-2" *ngIf="getLogData.fileNameSelection == '-f __journald'">
+          <input [disabled]="getLogData.journalType != '-u'" [(ngModel)]="getLogData.fileName"
+            name="specificJournalType" type="text" required="true" pInputText ngModel />
+        </div>
+
+      </div>
+
+      <div class="p-grid p-align-center w-100-p">
+        <div class="p-col-2">
+          <p-checkbox label="Read multiple log files" [disabled]="getLogData.fileNameSelection != '-f'"
+            binary="true" title="For reading multiple log file(s) use regex * ? [ ] { } ( ) + in file path"
+            tooltipPosition="bottom" name="readMulFile" [(ngModel)]="getLogData.readMulFile"></p-checkbox>
+
+        </div>
+      </div>
+
+      <div class="listText px-12">
+        <p class="font-weight-600">Note(s):-</p>
+        <ol>
+          <li>{{noteLabel}}</li>
+          <li>If you want all files matching regular expression to be used then use the read multiple log file checkbox.
+          <ol>
+            <li>{{noteLabel1}}</li>
+            <li>Use $Instance in file path, if file path has instance name.</li>
+            <li>$Instance cannot be used more than once.</li>
+            <li>Regex cannot be used with $Instance.</li>
+          </ol>
+        </li>
+        </ol>
+      </div>
+      
+      <p-accordion [multiple]="true">
+        <p-accordionTab [selected]="false" header="Save File Settings">
+          <div class="p-grid p-align-center w-100-p">
+            <div class="required-mark width-130">Save File Location</div>
+            <div class="p-col-2">
+              <p-dropdown name="FileLocation" appendTo="body" [options]="savefileOptList"
+                [(ngModel)]="getLogData.fileLocation" defaultLabel="Choose Server list"
+                [style]="{'min-width': '100%'}" dropdownIcon="icons8 icons8-expand-arrow" ngModel>
+              </p-dropdown>
+            </div>
+
+            <div class="p-col-2" *ngIf="getLogData.fileLocation == '-d'">
+              <input name="fileloc" type="text" pInputText name="fileLocationval" required
+                [(ngModel)]="getLogData.fileLocationval" ngModel />
+            </div>
+
+            <div class="p-col-2">
+              <p-checkbox label="Truncate file, if it exists" [disabled]="getLogData.fileLocation != '-d'" binary="true"
+                tooltipPosition="bottom" name="trunc" [(ngModel)]="getLogData.truncateFile"></p-checkbox>
+    
+            </div>
+          </div>
+          <div class="p-grid p-align-center w-100-p">
+            <div class="width-130">Log File Size (MB)</div>
+            <div class="p-col-2">
+              <input name="lFileSize" type="number" pInputText class="w-100-p" min="1" max="100000"
+                [(ngModel)]="getLogData.logFileSize" ngModel />
+            </div>
+          </div>
+        </p-accordionTab>
+        <p-accordionTab [selected]="false" header="Advanced Settings">
+          <span>
+            <p-checkbox label="Enable to get events from Remote Server (Only for Windows CavWMonAgent)" binary="true" name="logRemoteServer"
+              [(ngModel)]="getLogData.checkLogRemote">
+            </p-checkbox>
+          </span>
+
+          <div class="p-grid p-align-center w-100-p">
+            <div class="required-mark">Remote Server</div>
+            <div class="p-col-2">
+              <input name="remoteServer" type="text" pInputText [disabled]="!getLogData.checkLogRemote"
+                [(ngModel)]="getLogData.remoteServer" ngModel required/>
+            </div>
+
+            <div class="required-mark">Hierarchy</div>
+            <div class="p-col-2">
+              <input name="remoteHierarchy" type="text" pInputText [disabled]="!getLogData.checkLogRemote"
+                [(ngModel)]="getLogData.remoteHierarchy" ngModel required/>
+            </div>
+          </div>
+
+        </p-accordionTab>
+      </p-accordion>
+    </p-panel>
+
+
+    <app-tier-server></app-tier-server>
+
+    <div class="action-container">
+      <div class="p-col-12 p-grid p-justify-end p-align-end">
+        <!-- <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow"
+            (click)="toggleFilters()" title="Column Filter"></button> -->
+        <p-button type="submit" label="{{AddEditLabel}}" title="{{AddEditLabel}} Configuration"
+          class="ui-button ui-button-rounded ui-button-right">
+        </p-button>
+        <p-button type="button" *ngIf="AddEditLabel === 'Update'" title="Cancel Update" label="Cancel"
+          class="ui-button ui-button-rounded ui-button-right" (click)="resetUI()">
+        </p-button>
+      </div>
+    </div>
+
+    <app-configured-monitor-info [techName]="'getLogFile'" [showCols]="tableInfo" (logMonData)="editData($event)"></app-configured-monitor-info>
+
+  </form>
+  <div class="loading-indicator" *ngIf="loading">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+    </p-progressSpinner>
+  </div>
+</div>
+
+
+<!-- </div> -->

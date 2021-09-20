@@ -1,0 +1,58 @@
+<button pButton class="icon-button theme ui-button-rounded header-icon-width" icon="icons8 icons8-fill-color" pTooltip="Themes" (click)="menu.toggle($event)">
+</button>
+<p-overlayPanel #menu [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'">
+    <div class="overlay-menu theme">
+        <!-- <div class="overlay-menu-header">
+            <span>THEMES</span>
+        </div> -->
+        <div class="overlay-menu-body p-grid">
+            <div class="loader-container spinner small" *ngIf="loading">
+                <i class="pi pi-spin pi-spinner"></i>
+            </div>
+            <div class="empty-container" *ngIf="empty">
+                No data.
+            </div>
+            <ul *ngIf="data">
+                <!-- <li *ngFor="let theme of data" (click)="changeTheme(theme)" [ngClass]="{'selected': selected && selected.id === theme.id}">
+                    <div class="color-frame">
+                        <div *ngFor="let col of theme.colors" [ngStyle]="{ 'background-color': col }">
+                        </div>
+                    </div>
+                    <div class="theme-title">
+                        {{theme.label}}
+                    </div>
+                </li> -->
+ 
+                <li (click)="changeTheme1('theme-1','theme-2')">
+                    <div class="color-frame" *ngFor="let theme of data">
+                        <div *ngFor="let col of theme.colors" [ngStyle]="{ 'background-color': col }">
+                        </div>
+                    </div>
+                    <div class="theme-title">
+                        Theme 1
+                    </div>
+                </li>
+                <li (click)="changeTheme1('theme-2','theme-1')">
+                    <div class="color-frame" *ngFor="let theme of data">
+                        <div *ngFor="let col of theme.colors" [ngStyle]="{ 'background-color': col }">
+                        </div>
+                    </div>
+                    <div class="theme-title">
+                        Theme 2
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</p-overlayPanel>
+
+<p-tieredMenu class="config-tier" #menuconfig [model]="options" [popup]="true">
+    <ng-template>dnsvsk</ng-template>
+</p-tieredMenu>
+<button pButton class="icon-button theme ui-button-rounded header-icon-width" icon="icons8 icons8-maintenance" pTooltip="Configuration" (click)="menuconfig.toggle($event)">
+</button>
+
+<app-download-file #downloadFile></app-download-file>
+<app-git-configuration #gitConfig></app-git-configuration>
+<app-ldap-server-setting #ldapServerSetting></app-ldap-server-setting>
+<app-second-level-authorization #secondLevelAuthorization></app-second-level-authorization> 

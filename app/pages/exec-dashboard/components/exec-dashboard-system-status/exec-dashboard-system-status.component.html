@@ -1,0 +1,393 @@
+<p-growl [(value)]="execDashboardKpiDataService.kpimsgs"></p-growl>
+<p-blockUI [blocked]="blockUIFlag">
+    <i class="fa fa-circle-o-notch fa-spin fa-5x fa-fw gKpiLoadingIcon"></i>
+</p-blockUI>
+
+<!-- For dispaying toolbar -->
+<p-toolbar class="ed-toolbar">
+    <div class="ui-toolbar-group-left">
+        <p-breadcrumb [model]="mainBreadCrumb"></p-breadcrumb>
+    </div>
+    <div class="ui-toolbar-group-right">
+        <span class="labelClass">Capacity</span>
+        <button pButton type="button" style="background: #ff0000bd;" pTooltip="Critical Alerts: {{ccalert}}" tooltipPosition="bottom" class="ui-button-danger" label="{{ccalert}}" (click)="showAlertsTable('Critical', 3, 'Capacity', op)"></button>
+        <button pButton type="button" style="background: orange;" pTooltip="Major/Minor Alerts: {{cmmalert}}" tooltipPosition="bottom" class="ui-button-warning" label="{{cmmalert}}" (click)="showAlertsTable('Major', 2, 'Capacity', op)"></button>
+
+        <span class="labelClass">Behavioral</span>
+        <button pButton type="button" pTooltip="Critical Alerts: {{bcalert}}" style="background: #ff0000bd;" tooltipPosition="bottom" class="ui-button-danger" label="{{bcalert}}" (click)="showAlertsTable('Critical', 3, 'Behavior', op)"></button>
+        <button pButton type=" button" pTooltip="Major/Minor Alerts: {{bmmalert}}" style="background: orange;" tooltipPosition="bottom" class="ui-button-warning" label="{{bmmalert}}" (click)="showAlertsTable('Major', 2, 'Behavior', op)"></button>
+
+        <p-dropdown [options]="drpFilterArr" [(ngModel)]="drpSelecterdFilter" (onChange)="applyFilter()" name="filters" [disabled]="showAlertTable"></p-dropdown>
+
+        <span class="labelClass">Levels</span>
+        <p-dropdown [options]="drpLevelArr" [(ngModel)]="drpSelectedLevel" name="levels" [disabled]="showAlertTable" (onChange)="applyFilter()"></p-dropdown>
+        <button pButton type="button" pTooltip="Refresh" icon="fa fa-refresh" (click)="getUpdatedData()"></button>
+    </div>
+</p-toolbar>
+
+<!--<perfect-scrollbar class="container" >
+    <div style="max-height:89vh"> -->
+<!-- Main DIV -->
+<div *ngIf="showCompleteView" id="mainDiv" class="alertTableClass mainDivClass" style="height: 89vh; overflow: auto">
+    <p-panel class="edPanelClass">
+        <p-header title="{{customer}}">
+            <div class="headerDiv" [style.background]="customerColorCode ? '#00B050' : '#FF4500'">
+                <i class="fa fa-user-md fontClass"></i> {{customer}}
+            </div>
+        </p-header>
+        <div class="ui-g">
+
+            <!-- Level 1 START-->
+            <div class="ui-g-12" *ngIf="drpSelectedLevel === '1'">
+                <div [class]="dcClass" *ngFor="let d of sysStatusMainArr">
+                    <div class="ui-g-3" *ngFor="let c of d.childrens">
+                        <span class="fieldClass" [style.width]="spanLabelFieldClass" (dblclick)="showOneEntity(customer, c, '', '', '')" title="{{c}}">
+              <i class="fa fa-check-circle fontClass" *ngIf="d.data[c]['c'] === 'G'" [style.color]="normalAlertCode"></i>
+              <i class="fa fa-minus-circle fontClass" *ngIf="d.data[c]['c'] === 'R'" [style.color]="criticalAlertCode"></i>
+              <i class="fa fa-exclamation-triangle fontClass" *ngIf="d.data[c]['c'] === 'Y'" [style.color]="warningAlertCode"></i>
+              {{c}}
+            </span>
+                    </div>
+                </div>
+            </div>
+            <!-- Level 1 END-->
+
+            <!-- Level 2 START-->
+            <div class="ui-g-12" *ngIf="drpSelectedLevel === '2'">
+                <div [class]="dcClass" *ngFor="let d of sysStatusMainArr">
+                    <p-panel class="edPanelClass" [toggleable]="true">
+                        <p-header title="{{d.name}}">
+                            <div class="headerDiv" [style.background]="d.data.c === 'G' ? '#00B050' : d.data.c === 'R' ? '#e82620' : '#EA9215'">
+                                <span class="fieldClass" [style.width]="headerSpanClass"><i class="fa fa-database fontClass"></i> {{d.name}}</span>
+                            </div>
+                        </p-header>
+                        <div class="ui-g">
+                            <!-- For Level 2 -->
+                            <div [class]="respClass" *ngFor="let c of d.childrens">
+                                <span class="fieldClass" [style.width]="spanLabelFieldClass" (dblclick)="showOneEntity(customer, d.name, c, '', '')" title="{{c}}">
+                  <i class="fa fa-check-circle fontClass" *ngIf="d.data['m'][c]['c'] === 'G'" [style.color]="normalAlertCode"></i>
+                  <i (click)="showAlert($event, customer, d.name, c, '', '', op)" class="fa fa-minus-circle fontClass" *ngIf="d.data['m'][c]['c'] === 'R'"
+                    [style.color]="criticalAlertCode"></i>
+                  <i (click)="showAlert($event, customer, d.name, c, '', '', op)" class="fa fa-exclamation-triangle fontClass" *ngIf="d.data['m'][c]['c'] === 'Y'"
+                    [style.color]="warningAlertCode"></i>
+                  {{c}}
+                </span>
+                            </div>
+                        </div>
+                    </p-panel>
+                </div>
+            </div>
+            <!-- Level 2 END-->
+
+            <!-- Level 3, 4 and 5 START-->
+            <div class="ui-g-12" *ngIf="drpSelectedLevel === '3' || drpSelectedLevel === '4' || drpSelectedLevel === '5'">
+                <div [class]="dcClass" *ngFor="let d of sysStatusMainArr; let i = index">
+                    <p-panel class="edPanelClass" [toggleable]="true">
+                        <p-header title="{{d.label}}">
+                            <div class="headerDiv" [style.background]="systemStatusData.customerData[customer]['m'][d.label].c === 'G' ? '#00B050' : systemStatusData.customerData[customer]['m'][d.label].c === 'R' ? '#e82620' : '#EA9215'">
+                                <span class="fieldClass" [style.width]="headerSpanClass"><i class="fa fa-database fontClass"></i> {{d.label}}</span>
+                            </div>
+                        </p-header>
+                        <div class="ui-g">
+                            <div [class]="respClass" *ngFor="let c of sysStatusMainArr[i].data;">
+
+                                <!-- For scaler graphs LEVEL 3-->
+                                <div class="divClass" *ngIf="c.childrens.length === 0" title="{{c.name}}" [style.border-color]="(c.data.c === 'G') ? normalAlertCodeL : (c.data.c === 'R') ? crticalAlertCodeL : warningAlertCodeL">
+                                    <span class="fieldClass" [style.width]="spanLabelFieldClass" (dblclick)="showOneEntity(customer, d.label, c.name, '', '')">
+                    {{c.name}}
+                  </span>
+                                    <span>
+                    <i class="fa fa-check-circle fontClass spanAlertIconClass" *ngIf="c.data.c === 'G'" [style.color]="normalAlertCode"></i>
+                    <i (click)="showAlert($event, customer, d.label, c.name, '', '', op)" class="fa fa-minus-circle fontClass spanAlertIconClass"
+                      *ngIf="c.data.c === 'R'" [style.color]="criticalAlertCode"></i>
+                    <i (click)="showAlert($event, customer, d.label, c.name, '', '', op)" class="fa fa-exclamation-triangle fontClass spanAlertIconClass"
+                      *ngIf="c.data.c === 'Y'" [style.color]="warningAlertCode"></i>
+                  </span>
+                                </div>
+                                <!-- For scaler graphs ENDS-->
+
+                                <!-- For vector graphs LEVEL 3-->
+                                <div *ngIf="c.childrens.length !== 0">
+                                    <p-panel [toggleable]="true" class="edPanelClass">
+                                        <p-header title="{{c.name}}">
+                                            <!-- Tier -->
+                                            <div class="headerDiv" (dblclick)="showOneEntity(customer, d.label, c.name, '', '')" [style.background]="c.data.c === 'G' ? '#00B050' : c.data.c === 'R' ? '#e82620' : '#EA9215'">
+                                                <span class="fieldClass" [style.width]="headerSpanClass"><i class="fa fa-sitemap fontClass"></i> {{c.name}}</span>
+                                            </div>
+                                        </p-header>
+                                        <div class="ui-g" *ngIf="drpSelectedLevel === '3'">
+                                            <div [class]="levelThreeClass" *ngFor="let f of c.childrens;">
+                                                <span class="fieldClass" [style.width]="spanLabelFieldClass" (dblclick)="showOneEntity(customer, d.label, c.name, f, '')" title="{{f}}">
+                          <i class="fa fa-check-circle fontClass" *ngIf="c.data['m'][f]['c'] === 'G'" [style.color]="normalAlertCode"></i>
+                          <i (click)="showAlert($event, customer, d.label, c.name, f, '', op)" class="fa fa-minus-circle fontClass" *ngIf="c.data['m'][f]['c'] === 'R'"
+                            [style.color]="criticalAlertCode"></i>
+                          <i (click)="showAlert($event, customer, d.label, c.name, f, '', op)" class="fa fa-exclamation-triangle fontClass" *ngIf="c.data['m'][f]['c'] === 'Y'"
+                            [style.color]="warningAlertCode"></i>
+                          {{f}}
+                        </span>
+                                            </div>
+                                        </div>
+                                        <div class="ui-g" *ngIf="drpSelectedLevel === '4' || drpSelectedLevel === '5'">
+                                            <div class="ui-g-12" *ngFor="let j of c.childrens; let m = index;">
+                                                <p-panel [toggleable]="true" class="edPanelClass">
+                                                    <p-header title="{{j}}">
+                                                        <!-- Server Panel -->
+                                                        <div class="headerDiv" (dblclick)="showOneEntity(customer, d.label, c.name, j, '')" [style.background]="c.data['m'][j].c === 'G' ? '#00B050' : c.data['m'][j].c === 'R' ? '#e82620' : '#EA9215'">
+                                                            <span class="fieldClass" [style.width]="headerSpanClass"><i class="fa fa-server fontClass"></i> {{j}}</span>
+                                                        </div>
+                                                    </p-header>
+                                                    <div *ngFor="let k of d.serverChild[c.name][m].children[0]" (dblclick)="showOneEntity(customer, d.label, c.name, j, k)">
+                                                        <span *ngIf="drpSelectedLevel === '4'" class="fieldClass" [style.width]="spanLabelFieldClass2" title="{{k}}">
+                              <i class="fa fa-check-circle fontClass" *ngIf="d.serverChild[c.name][m].data['m'][k].c === 'G'" [style.color]="normalAlertCode"></i>
+                              <i (click)="showAlert($event, customer, d.label, c.name, j, k, op)" class="fa fa-minus-circle fontClass" *ngIf="d.serverChild[c.name][m].data['m'][k].c === 'R'"
+                                [style.color]="criticalAlertCode"></i>
+                              <i (click)="showAlert($event, customer, d.label, c.name, j, k, op)" class="fa fa-exclamation-triangle fontClass" *ngIf="d.serverChild[c.name][m].data['m'][k].c === 'Y'"
+                                [style.color]="warningAlertCode"></i>
+
+                              {{k}}
+                            </span>
+                                                        <span *ngIf="drpSelectedLevel === '5'">
+                              <div class="divClass marginClass" *ngIf="d.serverChild[c.name][m].children[1][k].length === 0" title="{{k}}"  
+                                [style.border-color]="(d.serverChild[c.name][m].data['m'][k].c === 'G') ? normalAlertCodeL : (d.serverChild[c.name][m].data['m'][k].c === 'R') ? crticalAlertCodeL : warningAlertCodeL">
+                                <span class="fieldClass" [style.width]="spanLabelFieldClass2">
+                                  {{k}}
+                                </span>
+                                                        <span>
+                                  <i class="fa fa-check-circle fontClass spanAlertIconClass" *ngIf="d.serverChild[c.name][m].data['m'][k].c === 'G'" [style.color]="normalAlertCode"></i>
+                                  <i (click)="showAlert($event, customer, d.label, c.name, j, k, op)" class="fa fa-minus-circle fontClass spanAlertIconClass"
+                                    *ngIf="d.serverChild[c.name][m].data['m'][k].c === 'R'" [style.color]="criticalAlertCode"></i>
+                                  <i (click)="showAlert($event, customer, d.label, c.name, j, k, op)" class="fa fa-exclamation-triangle fontClass spanAlertIconClass"
+                                    *ngIf="d.serverChild[c.name][m].data['m'][k].c === 'Y'" [style.color]="warningAlertCode"></i>
+                                </span>
+                                                    </div>
+                                                    <div *ngIf="d.serverChild[c.name][m].children[1][k].length !== 0">
+                                                        <p-panel [toggleable]="true" *ngFor="let p of d.serverChild[c.name][m].children[1][k]" class="edPanelClass">
+                                                            <p-header title="{{k}}">
+                                                                <div class="headerDiv" [style.background]="c.data['m'][j].c === 'G' ? '#00B050' : c.data['m'][j].c === 'R' ? '#e82620' : '#EA9215'">
+                                                                    <span class="fieldClass" [style.width]="headerSpanClass"><i class="fa fa-server fontClass"></i> {{k}}</span>
+                                                                </div>
+                                                            </p-header>
+                                                            <div class="divClass" title="{{p}}">
+                                                                <span class="fieldClass" [style.width]="spanLabelFieldClass2">
+                                        {{p}}
+                                    </span>
+                                                            </div>
+                                                        </p-panel>
+                                                    </div>
+                                                    </span>
+                                            </div>
+                                            </p-panel>
+                                        </div>
+                                </div>
+                                </p-panel>
+                            </div>
+                        </div>
+                </div>
+                </p-panel>
+            </div>
+        </div>
+        <!-- Level 3, 4 and 5 END-->
+
+</div>
+</p-panel>
+</div>
+
+<!-- One Entity DIALOG-->
+<p-dialog [resizable]="false" class="scenmodal" [(visible)]="showOneEntityView" modal="modal" width="1200" [responsive]="true" [draggable]="false">
+    <p-header>
+        One Entity View
+    </p-header>
+
+    <p-toolbar class="scenario">
+        <div class="ui-toolbar-group-left">
+            <p-breadcrumb [model]="breadcrumbs"></p-breadcrumb>
+        </div>
+    </p-toolbar>
+
+    <!-- <perfect-scrollbar class="container" >
+      <div style="height:66vh"> -->
+    <!-- One Entity View START -->
+    <div class="alertTableClass" style="height: 65vh">
+        <p-panel class="edPanelClass">
+            <p-header title="{{levelOne}}">
+                <!-- Customer -->
+                <div class="headerDiv" [style.background]="customerColorCode === 'G' ? '#00B050' : customerColorCode === 'R' ? '#e82620' : '#EA9215'">
+                    <i class="fa fa-user-md fontClass"></i> {{levelOne}}
+                </div>
+            </p-header>
+            <div class="alertTableClass">
+                <p-panel class="edPanelClass">
+                    <p-header title="{{levelTwo}}">
+                        <!-- DC -->
+                        <div class="headerDiv" [style.background]="levelTwoColorCode === 'G' ? '#00B050' : levelTwoColorCode === 'R' ? '#e82620' : '#EA9215'">
+                            <i class="fa fa-database fontClass"></i> {{levelTwo}}
+                        </div>
+                    </p-header>
+
+                    <div class="alertTableClass">
+                        <!-- For scaler graphs -->
+                        <div class="divClass" *ngIf="sysStatusEntityMainArr[0].childrens.length === 0" [style.border-color]="(sysStatusEntityMainArr[0]['data'].c === 'G') ? normalAlertCodeL : (sysStatusEntityMainArr[0]['data'].c === 'R') ? crticalAlertCodeL : warningAlertCodeL">
+                            <span class="entityfieldClass">
+                {{levelThree}}
+              </span>
+                            <span>
+                <i class="fa fa-check-circle fontClass spanAlertIconClass" *ngIf="sysStatusEntityMainArr[0]['data'].c === 'G'" [style.color]="normalAlertCode"></i>
+                <i class="fa fa-minus-circle fontClass spanAlertIconClass" *ngIf="sysStatusEntityMainArr[0]['data'].c === 'R'" [style.color]="criticalAlertCode"></i>
+                <i class="fa fa-exclamation-triangle fontClass spanAlertIconClass" *ngIf="sysStatusEntityMainArr[0]['data'].c === 'Y'" [style.color]="warningAlertCode"></i>
+              </span>
+                        </div>
+                        <!--scaler graphs ENDS -->
+
+                        <!-- For vector graphs -->
+                        <p-panel *ngIf="sysStatusEntityMainArr[0].childrens.length !== 0" class="edPanelClass">
+                            <div class="ui-g" *ngIf="sysStatusEntityMainArr[0].level === '2'">
+                                <div class="ui-g-3" *ngFor="let c of sysStatusEntityMainArr[0].childrens">
+                                    <span class="entityfieldClass" (dblclick)="showOneEntity(levelOne, levelTwo, c, '', '')" title="{{c}}">
+                    <i class="fa fa-check-circle fontClass" *ngIf="sysStatusEntityMainArr[0].data[c]['c'] === 'G'" [style.color]="normalAlertCode"></i>
+                    <i class="fa fa-minus-circle fontClass" *ngIf="sysStatusEntityMainArr[0].data[c]['c'] === 'R'" [style.color]="criticalAlertCode"></i>
+                    <i class="fa fa-exclamation-triangle fontClass" *ngIf="sysStatusEntityMainArr[0].data[c]['c'] === 'Y'" [style.color]="warningAlertCode"></i>
+                    {{c}}
+                  </span>
+                                </div>
+                            </div>
+                            <p-header *ngIf="sysStatusEntityMainArr[0].level !== '2'">
+                                <div class="headerDiv" [style.background]="levelThreeColorCode === 'G' ? '#00B050' : levelThreeColorCode === 'R' ? '#e82620' : '#EA9215'">
+                                    <i class="fa fa-sitemap fontClass"></i> {{levelThree}}
+                                </div>
+                            </p-header>
+                            <span>
+                <div class="ui-g" *ngIf="sysStatusEntityMainArr[0].level === '3'">
+                  <div class="ui-g-3" *ngFor="let c of sysStatusEntityMainArr[0].childrens">
+                    <span class="entityfieldClass" (dblclick)="showOneEntity(levelOne, levelTwo, levelThree, c, '')" title="{{c}}">
+                      <i class="fa fa-check-circle fontClass" *ngIf="sysStatusEntityMainArr[0].data['m'][c]['c'] === 'G'" [style.color]="normalAlertCode"></i>
+                      <i class="fa fa-minus-circle fontClass" *ngIf="sysStatusEntityMainArr[0].data['m'][c]['c'] === 'R'" [style.color]="criticalAlertCode"></i>
+                      <i class="fa fa-exclamation-triangle fontClass" *ngIf="sysStatusEntityMainArr[0].data['m'][c]['c'] === 'Y'" [style.color]="warningAlertCode"></i>
+                      {{c}}
+                    </span>
+                    </div>
+            </div>
+            <span *ngIf="sysStatusEntityMainArr[0].level === '4' || sysStatusEntityMainArr[0].level === '5'">
+                  <div class="alertTableClass">
+                    <p-panel class="edPanelClass">
+                      <p-header title="{{levelFour}}">
+                        <div class="headerDiv" [style.background]="sysStatusEntityMainArr[0].data.c === 'G' ? '#00B050' : sysStatusEntityMainArr[0].data.c === 'R' ? '#e82620' : '#EA9215'">
+                          <i class="fa fa-server fontClass"></i> {{levelFour}}
+                        </div>
+                      </p-header>
+
+                      <!-- Server Childrens -->
+                      <div class="ui-g" *ngIf="sysStatusEntityMainArr[0].level === '4'" style="max-height:31.5vh; overflow-y:auto">
+                        <div class="ui-g-3" *ngFor="let c of sysStatusEntityMainArr[0].childrens" (dblclick)="showOneEntity(levelOne, levelTwo, levelThree, levelFour, c)">
+                          <span class="entityfieldClass" title="{{c}}">
+                            <i class="fa fa-check-circle fontClass" *ngIf="sysStatusEntityMainArr[0].data['m'][c]['c'] === 'G'" [style.color]="normalAlertCode"></i>
+                            <i class="fa fa-minus-circle fontClass" *ngIf="sysStatusEntityMainArr[0].data['m'][c]['c'] === 'R'" [style.color]="criticalAlertCode"></i>
+                            <i class="fa fa-exclamation-triangle fontClass" *ngIf="sysStatusEntityMainArr[0].data['m'][c]['c'] === 'Y'" [style.color]="warningAlertCode"></i>
+                            {{c}}
+                          </span>
+    </div>
+    </div>
+    <!-- Server Childrens ENDS -->
+
+    <!-- Instance level Childrens -->
+    <div *ngIf="sysStatusEntityMainArr[0].level === '5'">
+        <div class="divClass" *ngIf="sysStatusEntityMainArr[0]['levelFiveChild'][levelFive].length === 0" [style.border-color]="(sysStatusEntityMainArr[0].data['m'][levelFive]['c'] === 'G') ? normalAlertCodeL : (sysStatusEntityMainArr[0].data['m'][levelFive]['c'] === 'R') ? crticalAlertCodeL : warningAlertCodeL">
+            <span class="entityfieldClass">
+                            {{levelFive}}
+                          </span>
+            <span>
+                            <i class="fa fa-check-circle fontClass spanAlertIconClass" *ngIf="sysStatusEntityMainArr[0].data['m'][levelFive]['c'] === 'G'"
+                              [style.color]="normalAlertCode"></i>
+                            <i class="fa fa-minus-circle fontClass spanAlertIconClass" *ngIf="sysStatusEntityMainArr[0].data['m'][levelFive]['c'] === 'R'"
+                              [style.color]="criticalAlertCode"></i>
+                            <i class="fa fa-exclamation-triangle fontClass spanAlertIconClass" *ngIf="sysStatusEntityMainArr[0].data['m'][levelFive]['c'] === 'Y'"
+                              [style.color]="warningAlertCode"></i>
+                          </span>
+        </div>
+        <span *ngIf="sysStatusEntityMainArr[0]['levelFiveChild'][levelFive].length !== 0">
+                          <!-- TODO add for level after instance -->
+                        </span>
+    </div>
+    <!-- Instance level ENDS -->
+    </p-panel>
+    </div>
+    </span>
+    </span>
+    </p-panel>
+    <!-- Vector Graph Panel ENDS -->
+    </div>
+    </p-panel>
+
+    </div>
+    </p-panel>
+    </div>
+    <!--  </div></perfect-scrollbar> -->
+    <!-- One Entity View END -->
+
+    <p-footer>
+        <button type="button" pButton icon="fa fa-close" (click)="showOneEntityView=false" label="Close"></button>
+    </p-footer>
+</p-dialog>
+
+<!-- For displaying alert table START-->
+<div *ngIf="showAlertTable" class="alertTableClass mainDivClass">
+    <div class="ui-widget-header" style="padding:4px 10px;border-bottom: 0 none">
+        <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+        <input #gb type="text" pInputText size="50" placeholder="Global Filter">
+    </div>
+    <p-dataTable [globalFilter]="gb" (onFilter)="onFilter($event)" [value]="alertTableData" [rows]="24" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[30,50,100,200]" class="scen-table sysTable" scrollable="true" scrollHeight="450px">
+        <p-header *ngIf="gridHeaderFlag">{{gridHeader}}</p-header>
+        <p-column field="severity" header="Severity" [style]="{'text-align': 'center', 'width': '0.5%'}">
+            <ng-template let-data="rowData" pTemplate="body">
+                <i class="fa fa-exclamation-triangle fontClass" pTooltip="Minor" *ngIf="data.severity === '1'" [style.color]="minorAlertCode"></i>
+                <i class="fa fa-minus-circle fontClass" pTooltip="Critical" *ngIf="data.severity === '3'" [style.color]="criticalAlertCode"></i>
+                <i class="fa fa-exclamation-triangle fontClass" pTooltip="Major" *ngIf="data.severity === '2'" [style.color]="majorAlertCode"></i>
+            </ng-template>
+        </p-column>
+        <p-column field="dc" header="Data Center" [sortable]="true" [style]="{'text-align': 'left', 'width': '1%'}"></p-column>
+        <p-column field="rn" header="Rule Name" [sortable]="true" [style]="{'text-align': 'left', 'width': '2%'}"></p-column>
+        <p-column field="am" header="Alert Message" [sortable]="true" [style]="{'text-align': 'left', 'width': '2%'}">
+            <ng-template let-data="rowData" pTemplate="body">
+                <div *ngIf="!gridHeaderFlag" (click)="openHistoryTable(data)" style="cursor: pointer" pTooltip="Click to View Alert History" tooltipPosition="bottom">{{data.am}}</div>
+                <span *ngIf="gridHeaderFlag" title="{{data.am}}">{{data.am}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="atime" header="Time" [sortable]="true" [style]="{'text-align': 'right', 'width': '1%'}"></p-column>
+        <p-column field="vec" header="Indices" [sortable]="true" [style]="{'text-align': 'left', 'width': '2%'}"></p-column>
+        <p-column field="val" header="Alert Value" [sortable]="true" [style]="{'text-align': 'left', 'width': '2%'}"></p-column>
+    </p-dataTable>
+    <p-toolbar>
+        <div class="ui-toolbar-group-left">
+            <button pButton type="button" pTooltip="Download as PDF" (click)="onDownload('pdf',alertTableData, 0)" icon="fa fa-file-pdf-o" class="ui-button-success"></button>
+            <button pButton type="button" pTooltip="Download as Excel" (click)="onDownload('excel',alertTableData, 0)" icon="fa fa-file-excel-o" class="ui-button-warning"></button>
+            <button pButton type="button" pTooltip="Download as Word" (click)="onDownload('word',alertTableData, 0)" icon="fa fa-file-word-o" class="ui-button-info"></button>
+        </div>
+    </p-toolbar>
+</div>
+<!-- For displaying alert table ENDS-->
+<!-- </div></perfect-scrollbar> -->
+
+<!-- Overlay Alert Panel Start -->
+<p-overlayPanel #op [showCloseIcon]="true" class="edOverlayPanel">
+    <p-dataTable [value]="overlayAlertGrid" class="scen-table sysTable" [rows]="15" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[15,50,100,200]" scrollable="true" scrollHeight="200px">
+        <p-column field="severity" header="Severity" [style]="{'text-align': 'center', 'width': '0.5%'}">
+            <ng-template let-data="rowData" pTemplate="body">
+                <i class="fa fa-exclamation-triangle fontClass" pTooltip="Minor" *ngIf="data.severity === '1'" [style.color]="minorAlertCode"></i>
+                <i class="fa fa-minus-circle fontClass" pTooltip="Critical" *ngIf="data.severity === '3'" [style.color]="criticalAlertCode"></i>
+                <i class="fa fa-exclamation-triangle fontClass" pTooltip="Major" *ngIf="data.severity === '2'" [style.color]="majorAlertCode"></i>
+            </ng-template>
+        </p-column>
+        <p-column field="am" header="Alert Message" [sortable]="true" [style]="{'text-align': 'left', 'width': '2%'}"></p-column>
+        <p-column field="atime" header="Time" [sortable]="true" [style]="{'text-align': 'right', 'width': '1%'}"></p-column>
+        <p-column field="vec" header="Indices" [sortable]="true" [style]="{'text-align': 'left', 'width': '2.5%'}"></p-column>
+        <p-column field="val" header="Alert Value" [sortable]="true" [style]="{'text-align': 'left', 'width': '2%'}"></p-column>
+    </p-dataTable>
+
+    <p-toolbar>
+        <div class="ui-toolbar-group-left">
+            <button pButton type="button" pTooltip="Download as PDF" (click)="onDownload('pdf', overlayAlertGrid, 1)" icon="fa fa-file-pdf-o" class="ui-button-success"></button>
+            <button pButton type="button" pTooltip="Download as Excel" (click)="onDownload('excel', overlayAlertGrid, 1)" icon="fa fa-file-excel-o" class="ui-button-warning"></button>
+            <button pButton type="button" pTooltip="Download as Word" (click)="onDownload('word', overlayAlertGrid, 1)" icon="fa fa-file-word-o" class="ui-button-info"></button>
+        </div>
+    </p-toolbar>
+</p-overlayPanel>
+<!-- Overlay Alert Panel ENDS -->

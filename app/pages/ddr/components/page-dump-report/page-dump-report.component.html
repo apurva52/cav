@@ -1,0 +1,11 @@
+<!--component html goes here -->
+<div id="pageDumpStyleID" style="overflow: hidden;">
+    <split direction="vertical" (dragStart)="showIframeHider = true" (dragEnd)="onScrollDown()" class="ddr-split-area">
+        <split-area size="50" #pageTable>
+            <app-pagedump [heightVal]="heightVal" (getLowerFrameData)="getLowerPaneData($event)"></app-pagedump>
+        </split-area>
+        <split-area size="50" >
+            <page-dump-lower-frame [snapshotData]="snapshotData" [showIframeHider]="showIframeHider" [recfrm]="recfrm" [recordedFrame]="recordedFrame"></page-dump-lower-frame>
+        </split-area>
+    </split>
+</div>

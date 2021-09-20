@@ -1,0 +1,128 @@
+<div #widgetHeight [ngStyle]="{ backgroundColor: widget.settings.types.table.bgColor  }">
+  <div class="widget-header" >
+    <ul class="widget-options" (click)="select()" [ngStyle]="{ color: widget.settings.types.table.iconColor}">
+      <!-- Widget wise time applied -->
+      <li  *ngIf="widget.widgetWiseInfo && widget.widgetWiseInfo.widgetWise"
+      style="display: inline-block;color: red;" [pTooltip]= 'widgetWiseTimeToolTip'><i class="icons8 icons8-clock app-graph "></i></li>
+
+      <li *ngIf="loading"><i class="pi pi-spin pi-spinner"></i></li>
+      <li *ngIf="dashboard.mode =='EDIT'" (click)='dashboard.copyWidget(widget);'>
+        <i style="display: inline-block;" pTooltip= 'Clone Widget' class="icons8 icons8-copy clickable"></i>
+    </li>
+      <li *ngIf="errorMessage">
+        <i style="display: inline-block;color: red;" [pTooltip]= 'errorMessage' class="icons8 icons8-error"></i>
+    </li>
+      <li [ngStyle]="{ display: !loading ? 'inline-block' : 'none' }">
+        <app-widget-menu *ngIf="visiblityMenu == undefined && !visiblityMenu" [widget]="this"></app-widget-menu>
+      </li>
+      <li *ngIf="widget.icon">
+        <i
+          [pTooltip]="widget.iconTooltip"
+          class="widget-icon"
+          [ngClass]="widget.icon"
+        ></i>
+      </li>
+    </ul>
+    <div class="widget-title" (click)="select()" (dblclick)="toggleFocus()"  [style.color]="widget.settings.types.table.displayWidgetFontColor" [style.fontWeight]= "widget.settings.types.table.bold ?'600' : 'normal'" [style.fontFamily]= "widget.settings.types.table.displayWidgetFontFamily" [style.fontStyle]="widget.settings.types.table.italic ?'italic' : 'normal'" [style.textDecoration]="widget.settings.types.table.underline ?'Underline' : 'none'" >
+      <span [pTooltip]="widget.name" [tooltipPosition]="'top'">{{
+        widget.name
+      }}</span>
+    </div>
+  </div>
+  <div class="widget-body" (dblclick)="toggleFocus()">
+    <div *ngIf="tableOptions && !empty">
+      <p-table
+        #tabular
+        [columns]="tableOptions.headers"
+        [value]="tableOptions.data"
+        [resizableColumns]="tableOptions.resize"
+        [scrollable]="true"
+        scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 80px)"
+        class="all-tables"
+        (sortFunction)="customSort($event)" [customSort]="true"
+      >
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup *ngFor="let colgroup of tableOptions.headers">
+            <col *ngFor="let col of colgroup.cols" [style.width]="col.width" />
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr *ngFor="let headerRow of tableOptions.headers">
+            <th
+              *ngFor="let col of headerRow.cols"
+              [attr.colspan]="col.colspan"
+              [attr.rowspan]="col.rowspan"
+              [pSortableColumn]="col.valueField"
+              pResizableColumn
+            >
+              {{ col.label }}
+              <p-sortIcon *ngIf="col.label==='Metric Name'"
+                [field]="col.valueField"
+                ariaLabel="Activate to sort"
+                ariaLabelDesc="Activate to sort in descending order"
+                ariaLabelAsc="Activate to sort in ascending order"
+              >
+              </p-sortIcon>
+            </th>
+          </tr>
+
+          <tr *ngFor="let headerRow of tableOptions.headers">
+            <ng-container *ngIf="!tableOptions.tableFilter">
+              <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                <div>
+                  <input
+                    class="w-100-p"
+                    *ngSwitchCase="col.label"
+                    pInputText
+                    type="text"
+                    (input)="
+                      tabular.filter(
+                        $event.target.value,
+                        col.valueField,
+                        'contains'
+                      )
+                    "
+                  />
+                </div>
+              </th>
+            </ng-container>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row let-columns="columns">
+          <!-- <tr *ngFor="let val of tableOptions.data">
+                    <td *ngFor="let data of val" class="ui-resizable-column" [ngClass]="{'text-right': getClass(data.value)}">
+                        {{data.value}}
+                    </td>
+                </tr> -->
+
+          <tr>
+            <td
+              *ngFor="
+                let col of tableOptions.headers[tableOptions.headers.length - 1]
+                  .cols;let i=index;
+              "
+              [ngClass]="{ 'text-right': getClass(row[col.valueField+i]) }"
+            >
+             <span *ngIf="i == 0" [title]="row[col.valueField]"> {{ row[col.valueField] }}</span>
+             <span *ngIf="i > 0" [title]="row[col.valueField + i]"> {{ row[col.valueField+i] }}</span>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="columns.length + 1" class="text-center">
+              No data found
+            </td>
+            <td [attr.coldiv]="columns.length + 1" class="text-center">
+              <span *ngIf="error">Error while loading data</span>
+              <span *ngIf="empty">No data available</span>
+              <span *ngIf="loading">Loading</span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <div class="empty-container" *ngIf="empty">Data Not Available</div>
+  </div>
+</div>

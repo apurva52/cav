@@ -1,0 +1,260 @@
+<div class="h-100-vh transaction-filter-container w-100-p" id="nothing">
+    <div class="sectionwidth">
+        <div class="header ">
+            <app-header></app-header>
+        </div>
+        <p-toolbar class="ui-secondary-toolbar ">
+            <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+                <a routerLink="/home/home-sessions">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">Transaction Filter</div>
+                <div class="p-col text-right elipseText" *ngIf="filterLabel != ''">
+                    <i class="icons8 icons8-clock ph-2" style="cursor: pointer;" title="View Applied Time Filter"
+                        (click)="transactionFilter.show()"></i>
+                    <span [attr.title]="filterLabel">{{filterLabel}}</span>
+                </div>
+            </div>
+        </p-toolbar>
+    </div>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async"
+            (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+    </div>
+
+    <div class="action-container" id="aaa">
+        <div class="p-grid p-col-12 p-justify-between p-align-center">
+            <div class="p-grid p-align-centrer global-search-block">
+                <button pButton icon="icons8 icons8-filter" class="btn-icon mr-5"
+                    (click)="transactionFilter.show()"></button>
+                <div class="type-search width-200">
+                    <i class="icons8 icons8-search left-icon" (click)="applySmartSearchFilter($event)"></i>
+                    <p-autoComplete class="input-field-search" [(ngModel)]="smartSearchInput" [suggestions]="suggestions"
+                    (completeMethod)="findSuggestions($event)" field="value" [size]="30" placeholder="smart search filter"
+                    [minLength]="1"  dropdownIcon="icons8 icons8-expand-arrow"
+                    [multiple]="true" (onSelect)="smartSearchItemAdded($event)"
+                    (onUnselect)="smartSearchItemRemoved($event)" (onKeyUp)="handleKeyUpInSmartSearch($event)">
+                        <ng-template let-suggestion pTemplate="item">
+                        <ng-template [ngIf]="suggestion.filterName != 'Header' && suggestion.filterName != 'FailedTransaction'" [ngIfElse]="headerBlock">
+                            <b>{{suggestion.value}}</b>
+                            {{suggestion.separator}}
+                            <b class="text-info">{{suggestion.filterName}}
+                            </b>
+                        </ng-template>
+                        <ng-template #headerBlock>
+                            <!--TODO: proper css.-->
+                            <b>{{suggestion.value}}</b>
+                        </ng-template>
+                        </ng-template>
+                    </p-autoComplete>
+                </div>
+            </div>
+            <div class="p-grid p-align-centrer">
+                <button pButton icon="icons8 icons8-search-property" class="btn-icon mx-3" (click)="toggleFilters()"
+                    pTooltip="Column Filter"></button>
+                <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns"
+                    optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                    pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }" styleClass="dropdown-panel-left">
+                </p-multiSelect>
+                <p-menu #downloadMenu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"></p-menu>
+                <button pButton icon="icons8 icons8-installing-updates" class="btn-icon mx-3"
+                    (click)="downloadMenu.toggle($event)" pTooltip="Download"></button>
+            </div>
+        </div>
+
+        <ng-container>
+            <div #widgetHeight [ngStyle]="{
+                      height: isEnabledColumnFilter
+                        ? 'calc(100vh - 215px)'
+                        : 'calc(100vh - 172px)'
+                    }" class="ph-10">
+                <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                    Select column to show
+                </div>
+
+                <p-table #table class="all-tables" [value]="groupData" [columns]="selectedColumns"
+                    [showCurrentPageReport]="!countLoading && totalRecords && !loading" [rowHover]="true"
+                    [(selection)]="selectedRow" selectionMode="single"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true"
+                    [lazy]="true" (onLazyLoad)="loadPagination($event)" [lazyLoadOnInit]="false"
+                    [totalRecords]="totalRecords" [responsive]="true"
+                    [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [rows]="data.paginator.rows"
+                    [scrollable]="true" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 91px)"
+                    [globalFilterFields]="globalFilterFields" [resizableColumns]="true" [loading]="loading"
+                    stateStorage="session" stateKey="transaction-table" (onRowSelect)="onRowSelect($event)">
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                            <col>
+                            <col *ngFor="let col of columns" [style.width]="col.width ? col.width:'120px'" />
+                        </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th pResizableColumn></th>
+                            <th *ngFor="let col of columns; let i = index" pResizableColumn
+                                [pSortableColumn]="col.valueField">
+                                <div class="text-left">
+                                    <!--{{ col.label }}-->
+                                    <span class="elipseText w-70-p" title="{{ col.label }}">{{ col.label }}</span>
+                                    <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                        ariaLabel="Activate to sort"
+                                        ariaLabelDesc="Activate to sort in descending order"
+                                        ariaLabelAsc="Activate to sort in ascending order">
+                                    </p-sortIcon>
+                                </div>
+                            </th>
+
+                        </tr>
+                        <tr *ngFor="let headerRow of data.headers">
+                            <ng-container *ngIf="isEnabledColumnFilter">
+                                <th [ngStyle]="{ 'width': '3px', 'heigth':'15px', 'padding':'0px'}"></th>
+                                <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                    <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'custom'
+                        ">
+                                        <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                            pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                            *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                      table.filter(
+                              $event.target.value,
+                              col.valueField,
+                              'custom'
+                            )
+                          " />
+                                    </div>
+                                    <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'contains'
+                        ">
+                                        <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                            pTooltip="Will filter metric names which contains given text."
+                                            *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                      table.filter(
+                              $event.target.value,
+                              col.valueField,
+                              'contains'
+                            )
+                          " />
+                                    </div>
+                                </th>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-row let-columns="columns" let-i="rowIndex">
+                        <tr [pSelectableRow]="row" [pSelectableRowIndex]="i" (click)="toggleMenu($event, menu)">
+                            <p-menu #menu [popup]="true" class="menu-item" [model]="items" appendTo="body"></p-menu>
+
+                            <td class="ui-resizable-column ">
+                                <div class="sortLine"></div>
+                            </td>
+                            <td *ngFor="let col of columns" class="{{ col.classes }} ui-resizable-column"
+                                [ngSwitch]="col.valueField">
+
+                                <span *ngSwitchCase="'formattedStartTime'" [attr.title]="row.formattedStartTime">
+                                    {{row.formattedStartTime}}
+                                </span>
+                                <span *ngSwitchCase="'name'" [attr.title]="row.name">
+                                    {{row.name}}
+                                </span>
+                                <span *ngSwitchCase="'formattedDuration'" [attr.title]="row.formattedDuration">
+                                    {{row.formattedDuration}}
+                                </span>
+                                <span *ngSwitchCase="'pageName'" [attr.title]="row.pageName.name">
+                                    {{row.pageName.name}}
+                                </span>
+                                <span *ngSwitchCase="'sid'" [attr.title]="row.sid">
+                                    {{row.sid}}
+                                </span>
+                                <span *ngSwitchCase="'pageInstance'" [attr.title]="row.pageInstance">
+                                    {{row.pageInstance}}
+                                </span>
+                                <!-- browser template if browser is  iphone app-->
+
+
+                                <!-- browser template -->
+                                <span *ngSwitchCase="'browser'" [attr.title]="row.browser.name"
+                                    class="p-grid p-align-center">
+                                    <!-- browser template if browser is  iphone app-->
+                                    <!-- <span *ngIf='col.valueField == "browser" && row.browser.id == "21"'>
+                                        <img title="{{row.browser.name}}" [src]="row.browser.icon" class="mr-3"
+                                            style='height:16px;width:16px;'> {{row.browser.name}}
+                                        </span>
+                                        <!-- browser template 
+                                    <span *ngIf='col.valueField == "browser" && row.AndroidBrowserFlag == false && row.browser.id != "21"'>
+                                    <img title="{{row.browser.name}}" [src]="row.browser.icon" class="mr-3"
+                                        style='height:16px;width:16px;'> {{row.browser.name}}
+                                    {{(row.browserVersion != "" && row.browserVersion != null &&
+                                    row.browserVersion != "null" ) ? ("("+row.browserVersion+ ")") : "" }} 
+                                </span>
+                                <!-- browser template 
+
+                                <span *ngIf='col.valueField == "browser"  && row.AndroidBrowserFlag == true && row.browser.id != "21"'>
+                                    <img title="{{row.browser.name}}" [src]="row.browser.icon" class="mr-3"
+                                        style='height:16px;width:16px;'> AndroidApp
+                                   </span>-->
+                                    <img title="{{row.browser.name}}" [src]="row.browser.icon" class="mr-3"
+                                        style='height:16px;width:16px;'> {{row.browser.name}}
+                                </span>
+
+                                <!-- browser template -->
+                                <span *ngSwitchCase="'location'"
+                                    [attr.title]="(row.location.state ? (row.location.state + ','): '') + row.location.country">
+                                    {{(row.location.state ? (row.location.state + ','): '')}}
+                                    {{row.location.country}}
+                                </span>
+                                <span *ngSwitchCase="'device'" [attr.title]="row.device.name">
+                                    <i [class]='row.device.font'></i>
+                                    {{row.device.name}}
+                                </span>
+                                <span *ngSwitchCase="'os'" [attr.title]="row.os">
+
+                                    {{row.os}}
+                                </span>
+                                <span *ngSwitchCase="'channel'" [attr.title]="row.channel.name">
+                                    <i [class]='row.channel.font'></i>
+                                    {{row.channel.name}}
+                                </span>
+                                <span *ngSwitchCase="'store'" [attr.title]="row.store.id">
+                                    {{(row.store.name == '' || row.store.name == '-1') ? '-' : row.store.name }}
+                                </span>
+                                <span *ngSwitchCase="'terminal'" [attr.title]="row.terminal">
+                                    {{(row.terminal == '' || row.terminal == '-1') ? '-' : row.terminal }}
+                                </span>
+                                <span *ngSwitchCase="'failedTransaction'"
+                                    [attr.title]="row.failedTransaction ? 'Yes' : 'No'">
+                                    {{row.failedTransaction ? 'Yes' : 'No'}}
+                                </span>
+                                <span *ngSwitchCase="'clientIp'" [attr.title]="row.clientIp">
+                                    {{row.clientIp}}
+                                </span>
+
+                            </td>
+
+                        </tr>
+                    </ng-template>
+                    <!-----------Empty table error handling--------------------->
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td [attr.colspan]="columns.length + 1" class="text-center">
+                                <span *ngIf="error">Error while loading data</span>
+                                <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i>Loading</span>
+                                <span *ngIf="!loading && !error">No Records Found</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <!--Paginator template-->
+                    <ng-template pTemplate="paginatorright" let-state>
+                        <p-progressSpinner *ngIf="loading || countLoading"
+                            [style]="{width: '20px', height: '20px', paddingLeft: '50px'}"></p-progressSpinner>
+                    </ng-template>
+                </p-table>
+
+            </div>
+        </ng-container>
+    </div>
+</div>
+
+
+<app-transaction-filter-sidebar #transactionFilter (submit)="applyFilter($event)"></app-transaction-filter-sidebar>
+<p-toast></p-toast>

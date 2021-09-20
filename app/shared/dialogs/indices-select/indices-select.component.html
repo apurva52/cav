@@ -1,0 +1,115 @@
+<div class="select-indices-container">
+    <p-dialog [(visible)]="visible" [modal]="true" class="derived-metric-indices" [baseZIndex]="10000100011"
+      [draggable]="false" [resizable]="false" [closable]="false">
+      <p-header>
+        <div class="p-grid">
+          <div class="derived-title" (click)="hide()">
+            <i class="icons8 icons8-back toolbar-icon-color"></i>
+            Select Indices
+          </div>
+          <div class="action-buttons">
+            <button pButton label="APPLY" class="ui-outline-button ui-button-primary" (click)="applyChanges()"></button>
+          </div>
+        </div>
+      </p-header>
+      <div class="content-body h-100-p">
+        <div class="p-grid h-100-p">
+          <div class="p-col-3 left-panel h-100-p">
+            <div class="indices-operations">
+              <div class="p-grid">
+                <div class="ui-fluid p-col-12">
+                  <div class="p-grid">
+                    <!-- <div class="p-col-12">
+                      <p-radioButton class="pr-60" name="groupname" value="val1" label="Advance"
+                        [(ngModel)]="selectedValue"></p-radioButton>
+                      <p-radioButton name="groupname" value="val2" label="Specified" [(ngModel)]="selectedValue">
+                      </p-radioButton>
+                    </div> -->
+                    <div class="p-col-12">
+                      <div class="p-field p-grid">
+                        <label for="groupName" class="p-col-12 p-md-4">Tire</label>
+                        <div class="p-col-12 p-md-8">
+                          <p-dropdown [options]="data.tire" [(ngModel)]="tire" dropdownIcon="icons8-expand-arrow">
+                          </p-dropdown>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="p-col-12">
+                      <div class="p-field p-grid">
+                        <label for="description" class="p-col-12 p-md-4">Server</label>
+                        <div class="p-col-12 p-md-8">
+                          <p-dropdown [options]="data.server" [(ngModel)]="server" dropdownIcon="icons8-expand-arrow">
+                          </p-dropdown>
+                        </div>
+                        
+                        <div class="p-col-12 p-md-8 p-offset-4">
+                          <input id="serverName" type="text" pInputText />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="p-col-12">
+                      <div class="p-field p-grid">
+                        <label for="groupName" class="p-col-12 p-md-4">Instance</label>
+                        <div class="p-col-12 p-md-8">
+                          <p-dropdown [options]="data.instance" [(ngModel)]="instance" dropdownIcon="icons8-expand-arrow">
+                          </p-dropdown>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="p-col-12">
+                      <div class="p-field p-grid">
+                        <label for="groupName" class="p-col-12 p-md-4">Pages</label>
+                        <div class="p-col-12 p-md-8">
+                          <p-dropdown [options]="data.pages" [(ngModel)]="pages" dropdownIcon="icons8-expand-arrow">
+                          </p-dropdown>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="test-button">
+                <button pButton label="TEST" class="ui-outline-button ui-button-secondary"></button>
+              </div>
+            </div>
+          </div>
+          <div class="p-col-9 right-panel h-100-p" *ngIf="IndicesSelect">
+            <div class="p-grid h-100-p">
+              <div #widgetHeight class="p-col-12 table-section h-100-p">
+                <p-treeTable #metricIndices [columns]="IndicesSelect.headers[0].cols" [value]="IndicesSelect.data"
+                  [rowHover]="true" [paginator]="true" [rows]="IndicesSelect.paginator.rows" [showCurrentPageReport]="true"
+                  dataKey="Method" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                  [rowsPerPageOptions]="IndicesSelect.paginator.rowsPerPageOptions" [(first)]="IndicesSelect.paginator.first"
+                  [scrollable]="true" selectionMode="single"
+                  scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 122px)">
+                  <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                      <col *ngFor="let col of columns" [style.width]="col.width">
+                    </colgroup>
+                  </ng-template>
+                  <ng-template pTemplate="header" let-columns>
+                    <tr>
+                      <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+                        [ttSortableColumn]="col.valueField" class="text-left">
+                        {{ col.label }}
+                        <p-treeTableSortIcon [field]="col.isSort" class="right"></p-treeTableSortIcon>
+                      </th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                    <tr>
+                      <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}">
+                        <p-treeTableCheckbox [value]="rowNode" *ngIf="i == 0"></p-treeTableCheckbox>
+                        <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+                        {{ rowData[col.valueField] }}
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-treeTable>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-dialog>
+  </div>

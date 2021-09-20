@@ -1,0 +1,101 @@
+<div class="app-auto-discover-container" *ngIf="isShow">
+    <div class="p-grid p-col-12 p-md-6">
+        <label class="p-col-12 p-md-3">Agent Type</label>
+        <div class="p-col-12 p-md-7">
+            <p-dropdown [options]="options" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow">
+            </p-dropdown>
+        </div>
+    </div>
+    <div class="p-col-12 p-md-6 p-grid p-align-center">
+        <label class="p-col-12 p-md-3">Connected Agent(s)</label>
+        <div class="p-col-12 p-md-7">
+            <p-dropdown [options]="options" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow">
+            </p-dropdown>
+        </div>
+    </div>
+    <div class="box mb-30">
+        <div class="p-col-12 p-md-6 p-grid p-align-center">
+            <label class="p-col-12 p-md-3">Discovery Mode</label>
+            <div class="p-col-12 p-md-7">
+                <p-radioButton name="groupname" value="val1" class="mh-10" label="Discover By Filler" [(ngModel)]="selectedValue"></p-radioButton>
+                <p-radioButton name="groupname" value="val2" class="mh-10" label="Discover All" [(ngModel)]="selectedValue"></p-radioButton>
+            </div>
+        </div>
+        <div class="p-col-12 p-md-6 p-grid p-align-center">
+            <label class="p-col-12 p-md-3">Class Filter <i class="icons8-info"></i></label>
+            <div class="p-col-12 p-md-7">
+                <input type="text" class="w-100-p" pInputText />
+            </div>
+        </div>
+        <div class="p-col-12 p-md-6 p-grid p-align-center">
+            <label class="p-col-12 p-md-3">Method Filter <i class="icons8-info"></i></label>
+            <div class="p-col-12 p-md-7">
+                <input type="text" class="w-100-p" pInputText />
+            </div>
+        </div>
+        <div class="p-col-12 p-md-6 p-grid p-align-center p-justify-center">
+            <button pButton icon="icons8 icons8-edit-2" class="ui-button ui-button-rounded mh-10"
+            label="Discover"></button>
+            <button pButton icon="icons8 icons8-synchronize" class="ui-button-rounded ui-button-secondary mh-10"
+            label="Reset"></button>
+        </div>
+    </div>
+    <div class="box">
+        Instrument Profile Setting
+        <div class="p-col-12 p-md-6 p-grid p-align-center">
+            <label class="p-col-12 p-md-4">Autodiscovered Instance(s)</label>
+            <div class="p-col-12 p-md-6">
+                <p-dropdown [options]="options" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="p-col-12 p-md-2">
+                <button pButton class="ui-button-rounded ui-button-secondary mh-10"
+                label="OPEN" (click)="openAutoDiscoverFinder()"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="open-container" *ngIf="!isShow">
+    <div class="p-grid p-col-12">
+        <div class="head-box">
+            Tier7^AppServer7^Insrance77
+        </div>
+        <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl1.toggle($event)">
+                        <a><span
+                                [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span></a>
+                        Auto Discover Data by Agent
+                    </div>
+                </div>
+            </p-header>
+            <div class="content p-grid p-col-12">
+                <p-tree [value]="files"></p-tree>
+            </div>
+        </p-panel>
+        <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl2.toggle($event)">
+                        <a><span
+                                [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span></a>
+                        Instrumented List
+                    </div>
+                </div>
+            </p-header>
+            <div class="content p-grid p-col-12">
+                <p-tree [value]="files"></p-tree>
+            </div>
+        </p-panel>
+        <div class="p-grid p-col-12 p-align-center p-justify-end pv-20">
+            <button pButton class="ui-button-rounded ui-button-secondary mh-10" label="RESET" (click)="resetAutoDiscoverFinder()"></button>
+            <button pButton class="ui-button-rounded ui-button-secondary mh-10" label="INSTRUMENT >>"></button>
+            <button pButton class="ui-button-rounded ui-button-secondary mh-10" label="UNINSTRUMENT"></button>
+            <button pButton class="ui-button-rounded ui-button-secondary mh-10" label="METHOD MONITOR"></button>
+            <button pButton class="ui-button-rounded ui-button-secondary mh-10" label="METHOD BT"></button>
+        </div>
+    </div>
+</div>

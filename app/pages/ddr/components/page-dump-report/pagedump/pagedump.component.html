@@ -1,0 +1,332 @@
+<div>
+    <p-blockUI [blocked]="loading"></p-blockUI>
+    <img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+    <p-panel [toggleable]="true" class="ddr-panel" (onAfterToggle)="onFilterToggle($event)">
+        <p-header>
+            <span class="ui-panel-title" style="font-size:12px;line-height: 20px;">{{header}}</span>
+            <div class="ui-toolbar-group-right">
+                <span title="Download PDF Report">
+                    <i class='icon ddrui-icon-pdf' style=' cursor:pointer;margin-top: 2px;' (click)='downloadReports("pdf")'></i>
+                </span>
+                <span title="Download Word Report">
+                    <i class='icon ddrui-icon-word' style='cursor:pointer;margin-top: 2px;' (click)='downloadReports("word")'></i>
+                </span>
+                <span title="Download Excel Report">
+                    <i class='icon ddrui-icon-excel' style=' cursor:pointer;margin-top: 2px;' (click)='downloadReports("excel")'></i>
+                </span>
+            </div>
+            <span *ngIf="flagOfDrillDown == 'no'">
+                <span style="float:right;margin-top:2px;margin-right: 4px;">
+                    <i class='icon ddrui-icon-refresh' title='Refresh' style=' cursor:pointer' (click)='refresh()'></i>
+                </span>
+                <span style="float:right;margin-top:2px;margin-right: 4px;">
+                    <i class='icon ddrui-icon-reset' title='Reset' style=' cursor:pointer' (click)='reset()'></i>
+                </span>
+                <span *ngIf="!recfrm" style="float:right;margin-top:2px;margin-right: 2px;">
+                    <i class='icon ddrui-icon-play-snapshot' title='View page snapshot of recorded script (it will come in lower frame)' style=' cursor:pointer'
+                        (click)='showRecordedFrame()'></i>
+                </span>
+                <span *ngIf="recfrm" style="float:right;margin-top:1px;margin-right: 2px;">
+                    <i class='icon ddrui-icon-play-snapshot ddr-transform' title='View page snapshot (it will come in lower frame)' style=' cursor:pointer'
+                        (click)='hideRecordedFrame()'></i>
+                </span>
+                <span  style="float:right;margin-top:4px;margin-right: 4px;">
+                    <i class='fa fa-user-o fa-lg' title={{userSessiontitle}} style=' cursor:pointer'
+                        (click)='openuserFilter()'></i>
+                </span>
+		<span style="float:right;margin-top:4px;margin-right: 4px;">
+                    <i class='fa fa-filter' title={{paramsFilter}} style=' cursor:pointer;font-size:15px'
+                        (click)="selectParamFilter()"></i>
+                 </span>
+            </span>
+            <!-- <span style="float:right;margin-top:2px;margin-right: 2px;">
+                <div *ngIf="(totalCount >= pageOffset+pageLimit); else showless">Page {{pageOffset+1}} of {{pageOffset+pageLimit}} (Total {{totalCount}} Rows)</div>
+                <ng-template #showless> Page {{pageOffset+1}} of {{totalCount}} (Total {{totalCount}} Rows) </ng-template>
+            </span> -->
+            <!-- <p-splitButton [style]="{'float':'right'}" label="Save" icon="fa-check" (onClick)="save()" [model]="items"></p-splitButton> -->
+        </p-header>
+        <div *ngIf="flagOfDrillDown == 'no'">
+            <span style="text-align:center;float:right;margin-top:2px">
+                <button pButton type="button" label="Apply" (click)="Apply()"></button>
+            </span>
+            <span class="ddr-page-dump-toolbar">
+                <p-dropdown [options]="pageList" (onChange)="showPages($event)" [(ngModel)]="pageListOption" [style]="{'width':'150px'}"pTooltip={{pageTooltipPageListLabel}} tooltipPosition="bottom"></p-dropdown>
+                <p-multiSelect *ngIf="showFailedList" [options]="failedTypeList" [(ngModel)]="failedType" [style]="{'width':'150px','margin-left':'10px'}"></p-multiSelect>
+                <p-dropdown [options]="sessionList" (onChange)="showSessions($event)" [(ngModel)]="sessionListOption" [style]="{'width':'150px','margin-left': '10px'}"pTooltip={{pageTooltipSessionLabel}} tooltipPosition="bottom"></p-dropdown>
+                <p-multiSelect *ngIf="showSessionFailedList" [options]="sessionFailedList" [(ngModel)]="sessionFailedType" [style]="{'width':'150px','margin-left': '10px'}"></p-multiSelect>
+                <p-dropdown [options]="scriptArrDropDown" [(ngModel)]="scriptArrValue" (onChange)="showScript(scriptArrValue,0)" [style]="{'width':'150px','margin-left': '10px'}"pTooltip={{pageTooltipScriptLabel}} tooltipPosition="bottom"></p-dropdown>
+                <p-dropdown [options]="PageArrDropDown" [(ngModel)]="pageArrValue" (onChange)="showPageArrValue(pageArrValue)" [style]="{'width':'150px','margin-left': '10px'}"pTooltip={{pageTooltipPageArrLabel}} tooltipPosition="bottom"></p-dropdown>
+                <p-dropdown [options]="timeDropDown" (onChange)="showTime(timeValue)" [(ngModel)]="timeValue" [style]="{'width':'150px','margin-left': '10px'}"pTooltip={{pageTooltipTimeLabel}} tooltipPosition="bottom"></p-dropdown>
+            </span>
+            <div *ngIf="calendar" style="margin-top:5px;">
+                <span>
+                    <span>
+                        Start Time &nbsp;:
+                    </span>
+                    <span>
+                        <p-calendar readonlyInput="true" dateFormat="mm/dd/yy" appendTo="body" [(ngModel)]="txtStartDateId"></p-calendar>
+                    </span>
+                    <span>
+                        <input pInputText type='text' title='HH' [(ngModel)]="txtStartTimeHourId" (keypress)='valEnteredKeyN($event)' placeholder='HH'
+                            autocomplete='off' style='width:2%' maxlength='2'> :
+                        <input pInputText type='text' title='MM' [(ngModel)]="txtStartTimeMinuteId" (keypress)='valEnteredKeyN($event)' placeholder='MM'
+                            autocomplete='off' style='width:2%' maxlength='2'> :
+                        <input pInputText type='text' title='SS' [(ngModel)]="txtStartTimeSecId" (keypress)='valEnteredKeyN($event)' placeholder='SS'
+                            autocomplete='off' style='width:2%' maxlength='2'>
+                    </span>
+                </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span>
+                    <span>
+                        End Time &nbsp;:
+                    </span>
+                    <span>
+                        <p-calendar readonlyInput="true" appendTo="body" [(ngModel)]="txtEndDateId"></p-calendar>
+                    </span>
+                    <span>
+                        <input pInputText type='text' title='HH' [(ngModel)]="txtEndTimeHourId" placeholder='HH' (keypress)='valEnteredKeyN($event)'
+                            autocomplete='off' style='width:2%' maxlength='2'> :
+                        <input pInputText type='text' title='MM' [(ngModel)]="txtEndTimeMinuteId" placeholder='MM' (keypress)='valEnteredKeyN($event)'
+                            autocomplete='off' style='width:2%' maxlength='2'> :
+                        <input pInputText type='text' title='SS' [(ngModel)]="txtEndTimeSecId" placeholder='SS' (keypress)='valEnteredKeyN($event)'
+                            autocomplete='off' style='width:2%' maxlength='2'>
+                    </span>
+                </span>
+            </div>
+        </div>
+        <div *ngIf="(flagOfDrillDown == 'yes')  && (flowPathInstanceNo) > 0" class="ddr-toolbar">
+            <p-toolbar>
+                <div class='ui-toolbar-group-left'>
+                    <label class='headerInfo'>
+                        <b>Filter Criteria : </b>
+                    </label>
+                    <label class='headerInfo'>{{filterData}}</label>
+                </div>
+            </p-toolbar>
+            <span *ngIf="!recfrm" class="ddr-table-right">
+                <label style="cursor: pointer" title='View page snapshot of recorded script for flowpath instance {{flowPathInstance}} (it will come in lower frame)'
+                    (click)="showRecordedFrame()">Show recorded frame &nbsp;</label>
+            </span>
+            <span *ngIf="recfrm" class="ddr-table-right">
+                <label style="cursor: pointer" title='View page snapshot of recorded script for flowpath instance {{flowPathInstance}} (it will come in lower frame)'
+                    (click)="hideRecordedFrame()">Hide recorded frame &nbsp;</label>
+            </span>
+            <span class="ddr-table-right">
+                <label style="cursor: pointer" title='View Sequence Diagram for flowpath instance {{flowPathInstance}}' (click)="viewSequenceDiagram()">Sequence Diagram({{pageNamefrm}}) &nbsp;</label>
+            </span>
+        </div>
+        <!-- <p-footer>
+            <button pButton type="button" icon="fa-plus" label="New" class="ui-button-info"></button>
+                    <button pButton type="button" icon="fa-list" label="View" class="ui-button-success"></button>
+                </p-footer> -->
+    </p-panel>
+    <p-panel [toggleable]="true" (onAfterToggle)="toggle($event)" class="ddr-panel">
+        <p-header>
+            <span class="ui-panel-title" style="font-size:12px;line-height: 20px;">Page Dump</span>
+        </p-header>
+        <div style="height:auto;overflow:auto" [style.max-height]="maxValue">
+            <p-tree [value]="treeData" class="ddr-custom-tree">
+                <ng-template let-node pTemplate="default">
+                    <span *ngIf="(node.label.indexOf('Session - ') == -1)">{{node?.label}} </span>
+                    <span *ngIf="(node.label.indexOf('Session - ') != -1)">
+                        {{node?.label}} (
+                        <span class="ddr-table-right" pTooltip={{node.script}} tooltipPosition="bottom" (click)="openScriptPage(node.script,node.children)">{{node.script}}</span>, {{node.group}}, {{node.sessionStatus}}) </span>
+                    <span *ngIf="(node.label === '')">
+                        <p-dataTable class="scen-table" [value]="node.key" [style]="{'font-size':'12px','height':'auto', 'width':'89%'}" resizableColumns="true"
+                            reorderableColumns="true" selectionMode="single" [(selection)]="selectedRow">
+                            <div *ngFor="let col of cols">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [style]="{'width':col.width+'px'}" [sortable]="col.sortable"
+                                    (sortFunction)="customSortOnColumns($event,node,node.key)">
+                                    <ng-template let-col let-node="rowData" pTemplate type="body">
+                                        <div *ngIf="(col.field == 'startTime')" style="text-align: right !important; cursor: auto;" pTooltip={{msToTimeFormate(node[col.field])}}
+                                            tooltipPosition="right">{{msToTimeFormate(node[col.field])}}</div>
+                                        <div *ngIf="(col.field == 'absoluteStartTime')" style="text-align: right !important;cursor: auto;" pTooltip={{node[col.field]}} tooltipPosition="right">{{node[col.field]}}</div>
+                                        <div class="ddr-table-left" *ngIf="(col.field == 'pageName')" pTooltip="View HTTP response page snapshot" tooltipPosition="right"
+                                            (click)="viewSnapShot(node)">{{node[col.field]}}</div>
+                                        <div style="text-align: left !important;cursor: auto;" *ngIf="(col.field == 'pageStatus' && node.pageStatus != 'CVFail')" pTooltip={{node[col.field]}}
+                                            tooltipPosition="right">{{node[col.field]}}</div>
+                                        <div  class="ddr-table-left" *ngIf="(col.field == 'pageStatus' && node.pageStatus == 'CVFail')" pTooltip={{node[col.field]}}
+                                            tooltipPosition="right" (click)="viewPageStatus(node.errorCodesMessage)">
+                                            <u>{{node[col.field]}}</u>
+                                        </div>
+                                        <div style="text-align: right !important; cursor: auto;" *ngIf="(col.field == 'pageResponseTime')" pTooltip={{msToTimeFormate(node[col.field])}}
+                                            tooltipPosition="right">{{msToTimeFormate(node[col.field])}}</div>
+                                        <div class="ddr-table-left" style="word-break: break-all;white-space: normal;" *ngIf="(col.field == 'parameterSubstitution' && node[col.field].trim().length > 0 )"
+                                            (click)="viewParameterSubstitute(node)" [innerHTML]="replaceStr(node[col.field])"></div>
+                                        <div style="text-align: center !important;" *ngIf="(col.field == 'parameterSubstitution' && node[col.field].trim() == '')">-</div>
+                                        <div style="text-align: center !important;" *ngIf="(col.field == 'req' && !checkFilePath(node.req,node.pageStatus))">-</div>
+                                        <div class="ddr-table-left" *ngIf="(col.field == 'req' && checkFilePath(node.req,node.pageStatus))" pTooltip="Click to view HTTP request"
+                                            tooltipPosition="left" (click)="openHTTPRequestFile(node.partitionNumber,node.req,'HTTP Request')">
+                                            <u>View</u>
+                                        </div>
+                                        <div style="text-align: center !important;" *ngIf="(col.field == 'repBody' && !checkFilePath(node.repBody,node.pageStatus))">-</div>
+                                        <div class="ddr-table-left" *ngIf="(col.field == 'repBody')" pTooltip="Click to view HTTP response body" tooltipPosition="left"
+                                            (click)="openHTTPRequestFile(node.partitionNumber,node.repBody,'HTTP Response Body')">
+                                            <u>View</u>
+                                        </div>
+                                        <div style="text-align: center !important;" *ngIf="(col.field == 'rep' && !checkFilePath(node.rep,node.pageStatus))">-</div>
+                                        <div class="ddr-table-left" *ngIf="(col.field == 'rep')" pTooltip="Click to view HTTP response" tooltipPosition="left"
+                                            (click)="openHTTPRequestFile(node.partitionNumber,node.rep,'HTTP Response')">
+                                            <u>View</u>
+                                        </div>
+                                    </ng-template>
+                                </p-column>
+                            </div>
+                        </p-dataTable>
+                    </span>
+                </ng-template>
+            </p-tree>
+        </div>
+        <div *ngIf="(this.totalCount == '0')" style="text-align: center;margin-bottom: 15px;">No page dump were found based on current Filter Settings.</div>
+        <div>
+            <!-- <p-toolbar> -->
+                <span>
+                    <p-paginator #paginateRef rows="50" [totalRecords]="totalCount" [rowsPerPageOptions]="[50,100,200,400]" pageLinkSize="3"
+                    (onPageChange)="paginate($event)" class="drop-menu-up"></p-paginator>
+                    <span class= "rowsCountClass" title="Rows per page">
+                        <label>
+                            <div *ngIf="(totalCount >= pageOffset+pageLimit); else showless">{{pageOffset+1}} - {{pageOffset+pageLimit}} Rows Per Page  (Total {{totalCount}} Rows)</div>
+                            <ng-template #showless>{{pageOffset+1}} - {{totalCount}} Rows Per Page  (Total {{totalCount}} Rows) </ng-template>
+                        </label>
+                        <!-- <label>Rows per page</label> -->
+                    </span>
+                    <!-- <app-ddr-paginator [limit]="pageLimit" [offset]="pageOffset" [totalCount]="totalCount" (paginateData)="setPaginateData($event)"></app-ddr-paginator> -->
+                <!-- </p-toolbar> -->
+            </span>
+        </div>
+    </p-panel>
+    <!-- </p-accordionTab> -->
+    <!-- </p-accordion> -->
+</div>
+
+<p-dialog class="scenmodal" header="Parameter Substitution Values" [(visible)]="display" appendTo="body" [resizable]="false"
+    modal="modal" [responsive]="true" [contentStyle]="{'max-height':'500px','overflow': 'auto'}" [style]="{width: '900px'}">
+    <div>
+        <div class="ddr-toolbar">
+            <p-toolbar>
+                <div class="group-left">
+                    <span>{{filterParameter}}</span>
+                </div>
+            </p-toolbar>
+        </div>
+        <p-checkbox class="ui-toolbar-group-right" label="Decode" (onChange)="decodeValues($event)"></p-checkbox>
+        <div class="ui-g-12" style="float:left">
+            <p-dataTable class="scen-table" [value]="array1" resizableColumns="true" reorderableColumns="true" scrollHeight="250px" [style]="{'max-height':'56vh','height':'auto','font-size':'12px'}">
+                <div *ngFor="let col of colsForparameter">
+                    <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [style]="{'width':col.width+'px','word-wrap': 'break-word','word-break': 'break-all','white-space': 'normal'}">
+                        <ng-template let-col let-node="rowData" pTemplate type="body">
+                            <div style="text-align: left !important;word-break: break-all;white-space: normal;" *ngIf="(col.field == 'name')">{{node[col.field]}}</div>
+                            <div style="text-align: left !important;word-break: break-all;white-space: normal;" *ngIf="(col.field == 'value' && !isKeyValuePairExist(node.value))">{{decodeURI(node[col.field])}}</div>
+                            <div class="ddr-table-left" style="word-break: break-all;white-space: normal;" *ngIf="(col.field == 'value' && isKeyValuePairExist(node.value))"
+                                (click)="viewlowertable(node)">{{decodeURI(node[col.field])}}</div>
+                        </ng-template>
+                    </p-column>
+                </div>
+            </p-dataTable>
+        </div>
+    </div>
+    <div class="ui-g-12" *ngIf="(lowerTable.length > 0)">
+
+        <div style="margin-top: 15px">
+
+            <p-toolbar class="ddr-toolbar">
+                <div class="group-left">Parameter '{{parameterName}}' Key/Value(s)</div>
+            </p-toolbar>
+            <p-dataTable class="scen-table" [value]="lowerTable" resizableColumns="true" reorderableColumns="true" scrollHeight="250px"
+                [style]="{'max-height':'56vh','height':'auto','font-size':'11px'}">
+                <div *ngFor="let col of colsForLowerTable">
+                    <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [style]="{'width':col.width+'px'}" [sortable]="col.sortable">
+                        <ng-template let-col let-node="rowData" pTemplate type="body">
+                            <div style="text-align: right !important;word-break: break-all;white-space: normal;" *ngIf="(col.field == 'Key')">{{convertDataForValue(node[col.field],'Value')}}</div>
+                            <div style="text-align: left !important;word-break: break-all;white-space: normal;" *ngIf="(col.field == 'Value')">{{convertDataForValue(node[col.field],'Value')}}</div>
+                        </ng-template>
+                    </p-column>
+                </div>
+            </p-dataTable>
+        </div>
+    </div>
+</p-dialog>
+
+
+<p-dialog class="scenmodal" modal="true" header="CVFail Cause" [(visible)]="cvFail" appendTo="body" width="500" height="150"
+    responsive="true">
+    <label style="font-size: 12px;">{{cvMsg}}</label>
+</p-dialog>
+
+<!-- Form can also be used for the user filter, below is the code -->
+<!-- <p-dialog class="ddr-dialog" header="Apply Filters" appendTo="body" [(visible)]="usersessionFilter" [width]="500" [resizable]="false"
+modal="modal" [responsive]="true">
+<form (ngSubmit)="userFilter()" #f="ngForm">
+    <div style="padding:13px">
+        <p-checkbox name="formfilter" [(ngModel)]="val1" binary="true"></p-checkbox>
+        <label>Virtual User</label>&nbsp;&nbsp;&nbsp;&nbsp;
+        <span *ngIf="val1" style='margin-top: 6px;'>
+            <input type="text"  style='width:10%'
+            [(ngModel)]="childIdxFilter" maxlength="4" pattern= "[0-9]*"> :
+            <input type="text" style='width:10%' name="useridFilter" required
+            ngModel maxlength="4" [disabled]="!childIdxFilter" pattern= "[0-9]*">
+        </span>
+    </div>
+    <div style="padding:13px">
+            <p-checkbox name="formfilter" [(ngModel)]="val2" binary="true"></p-checkbox>
+            <label>Session</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <span *ngIf="val2" style='margin-top: 6px;'>
+            <input type="text" style='width:10%'
+               [(ngModel)]="childIdxFilter"
+              maxlength="4" pattern= "[0-9]*"> :
+            <input type="text" style='width:10%' required  
+            name="sessionidFilter" [disabled]="!childIdxFilter"  ngModel maxlength="4" pattern= "[0-9]*">
+        </span>
+    </div>
+    <div>
+        <div *ngIf="!f.valid">
+            <p-message severity="error" text="Number is required in the field"></p-message>
+        </div>
+    </div>
+    <p-footer style="margin-left: 312px">
+            <button type="button submit" pButton icon="fa fa-apply" label="Apply" [disabled]="!f.valid"></button>
+            <button pButton type="button" icon="fa fa-close" (click)="closeuserFilter()"  label="Cancel"></button>
+    </p-footer>
+</form>
+</p-dialog> -->
+
+<p-dialog class="ddr-dialog" header="Apply Filters" appendTo="body" [(visible)]="usersessionFilter" [width]="500" [resizable]="false"
+    modal="modal" [responsive]="true">
+    <div style="padding:13px">
+        <p-checkbox [(ngModel)]="val1" binary="true"></p-checkbox>
+        <label>Virtual User</label>&nbsp;&nbsp;&nbsp;&nbsp;
+        <span *ngIf="val1" style='margin-top: 6px;'>
+            <input type="text" style='width:10%' pTooltip="Please fill Virtual User ID" tooltipPosition="bottom" [(ngModel)]="childIdxFilter" maxlength="4" (keypress)='valEnteredKeyN($event)'> :
+            <input type="text" style='width:10%' pTooltip="Please fill Virtual User ID" tooltipPosition="bottom" [(ngModel)]="virtualUserid" maxlength="4" [disabled]="!childIdxFilter" (keypress)='valEnteredKeyN($event)'>
+        </span>
+    </div>
+    <div style="padding:13px">
+        <p-checkbox name="formfilter" [(ngModel)]="val2" binary="true"></p-checkbox>
+        <label>Session</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span *ngIf="val2" style='margin-top: 6px;'>
+            <input type="text" style='width:10%' pTooltip="Please fill Session ID" tooltipPosition="bottom" [(ngModel)]="childIdxFilter" maxlength="4" (keypress)='valEnteredKeyN($event)'> :
+            <input type="text" style='width:10%' pTooltip="Please fill Session ID" tooltipPosition="bottom"[(ngModel)]="virtualSessionid" [disabled]="!childIdxFilter" maxlength="4" (keypress)='valEnteredKeyN($event)'>
+        </span>
+    </div>
+    <div *ngIf="applyButton()">
+        <div *ngIf="!val1 && !val2; else elseb">
+            <p-message severity="info" text="Please select filters"></p-message>
+        </div>
+        <ng-template #elseb>
+            <p-message severity="error" text="Number is required in the field"></p-message>
+        </ng-template>
+    </div>
+    <p-footer style="margin-left: 312px">
+        <button pButton type="button" icon="fa fa-check" (click)="userFilter()" label="Apply" [disabled]="applyButton()"></button>
+        <button pButton type="button" icon="fa fa-close" (click)="closeuserFilter()" label="Cancel"></button>
+    </p-footer>
+</p-dialog>
+<p-dialog class="ddr-dialog" header="Apply Param Filters" [modal]="true" appendTo="body" [(visible)]="paramFilter" [width]="500" [style]="{'min-width':'161px','min-height':'127px'}">
+    <div style="padding:13px">
+       <span> <label>Parameter Name : </label> &nbsp;&nbsp;</span>
+      <input type = "text" title="Enter Parameter Name" [(ngModel)]="value1" placeholder= "Enter Parameter Name" (keypress)="validateQty($event)" style="width:180px;height=10px"> &nbsp;
+      </div>
+      <p-footer>
+        <button pButton type="button" icon="fa fa-check" [disabled]="!value1"  label="Submit" (click) = openParamFilter()></button>
+    </p-footer>
+</p-dialog>
+

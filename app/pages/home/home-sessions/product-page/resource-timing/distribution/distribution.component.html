@@ -1,0 +1,146 @@
+<div class="distribution-container">
+ <div class="host-statistics border-bottom">
+      <div class="p-grid p-align-stretch p-justify-center chart-container ">  
+         
+        <!-- host static graph --->
+        <div class="p-col-12" >
+            <app-chart *ngIf="hostData != null && hostlimit == 0"  [data]="chart" ></app-chart> 
+            <app-chart *ngIf="hostData != null && hostlimit == 1"  [data]="chart" ></app-chart> 
+             <app-chart *ngIf="hostData != null && hostlimit == 2"  [data] = "chartB"></app-chart> 
+        </div>   
+      </div> 
+ 
+        <div style="text-align: center;">
+            <b>Top&nbsp;&nbsp;
+             <input type="text" id="selecttophost"  style="width:5%;" value="10" [(ngModel)]= "limitInput" (blur)="onBlurMethod()"> 
+            <select style="border: none;font-weight: bold;" id="hostselect" (change)="onHostChange($event.target.value)">
+               <option value="0">Host &amp; PageLoad</option>
+               <option value="1">Host &amp; Request</option>
+               <option value="2">Host &amp; AvgResponse</option>
+            </select>
+            </b>
+          </div>  
+          <br>
+          <br>
+          <br>
+       <!-- hoststatic table -->
+    <div class="p-grid p-col-12 ">
+        <p-table  [columns]="columns" [value]="tableData" [scrollable]="true" scrollHeight="200px"
+            [resizableColumns]="true" class="all-tables"> 
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns">
+                </colgroup>
+            </ng-template> 
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+                        <!--{{col.header}}-->
+                        <span title="{{col.header}}">{{col.header}}</span>
+                        <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                            ariaLabelDesc="Activate to sort in descending order"
+                            ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                    </th>
+                </tr>
+            </ng-template> 
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr>
+                    
+                    <td class="ui-resizable-column text-right" [pTooltip]="rowData['hostName']">
+                        {{rowData['hostName']}}
+                    </td>
+                    <td class="ui-resizable-column text-right" [pTooltip]="rowData['hostRequest']">
+                        {{rowData['hostRequest']}}
+                    </td>
+                    <td class="ui-resizable-column text-right"
+                        [pTooltip]="rowData['hostRequestPct'] ">
+                        {{rowData['hostRequestPct']}}
+                    </td>
+                    <td class="ui-resizable-column text-right"
+                        [pTooltip]="rowData['hostAvgResponse'] ">
+                        {{rowData['hostAvgResponse']}}
+                    </td>
+                    <td class="ui-resizable-column text-right"
+                        [pTooltip]="rowData['hostLoadDuration'] ">
+                        {{rowData['hostLoadDuration']}}
+                    </td>
+                    
+                </tr>
+            </ng-template> 
+        </p-table>
+    </div> 
+ </div>
+ 
+ <div class="content-statistics">
+    
+        <div>
+        <!-- content type graph -->
+        <div class="p-col-12">
+            <app-chart *ngIf="contentPieData != null && limit == 0"  [data] = "chart_C"></app-chart> 
+             <app-chart *ngIf="contentPieData != null && limit == 1"  [data] = "chart_C"></app-chart>  
+            <app-chart *ngIf="contentPieData != null && limit == 2"  [data] = "chartCB"></app-chart>
+        </div> 
+      
+    </div> 
+    
+     <div style="text-align: center;margin-top: 0%;margin-left: 0%;">
+        <select style="border: none;font-weight: bold;" id="contentselect" (change)="onChange($event.target.value)">
+           <option value="0">ContentType &amp; PageLoad</option>
+           <option value="1">ContentType &amp; Request</option>
+           <option value="2">ContentType &amp; AvgResponse</option>
+        </select>
+       </div>
+  
+       <br><br> 
+       <!-- content type table -->
+    <div class="p-grid p-col-12 ">
+        <p-table  [columns]="columns_c" [value]="contentTableData" [scrollable]="true" scrollHeight="200px"
+        [resizableColumns]="true" class="all-tables"> 
+        <ng-template pTemplate="colgroup" let-columns_c>
+            <colgroup>
+                <col *ngFor="let col of columns_c">
+            </colgroup>
+        </ng-template> 
+        <ng-template pTemplate="header" let-columns_c>
+            <tr>
+                
+                <th *ngFor="let col of columns_c"  [pSortableColumn]="col.field" pResizableColumn>
+                    <!--{{col.header}}-->
+                    <span title="{{col.header}}">{{col.header}}</span>
+                    <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                        ariaLabelDesc="Activate to sort in descending order"
+                        ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                </th>
+            </tr>
+        </ng-template> 
+        <ng-template pTemplate="body" let-rowData let-columns="columns_c">
+            <tr>
+                
+                <!--<td class="ui-resizable-column numberalign" [pTooltip]="rowData['ContentType']">-->
+                <td class="ui-resizable-column text-left" [pTooltip]="rowData['ContentType']">
+                    {{rowData['ContentType']}}
+                </td>
+                <td class="ui-resizable-column text-right" [pTooltip]="rowData['Request']">
+                    {{rowData['Request']}}
+                </td>
+                <td class="ui-resizable-column text-right"
+                    [pTooltip]="rowData['RequestPct'] ">
+                    {{rowData['RequestPct']}}
+                </td>
+                <td class="ui-resizable-column text-right"
+                    [pTooltip]="rowData['AvgResponse'] ">
+                    {{rowData['AvgResponse']}}
+                </td>
+                <td class="ui-resizable-column text-right"
+                    [pTooltip]="rowData['LoadDuration'] ">
+                    {{rowData['LoadDuration']}}
+                </td>
+                
+            </tr>
+        </ng-template> 
+    </p-table> 
+    </div>
+ </div>
+</div>
+

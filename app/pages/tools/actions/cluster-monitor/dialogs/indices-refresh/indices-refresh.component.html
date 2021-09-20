@@ -1,0 +1,48 @@
+<p-dialog
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [modal]="true"
+  [(visible)]="visible"
+  [style]="{ width: '25vw' }"
+  [baseZIndex]="10000"
+  class="indices"
+>
+  <p-header>
+    <div class="p-grid indices-header">
+      <div class="title">Index Refreshed</div>
+      <div class="close-button">
+        <button
+          pButton
+          icon="icons8 icons8-delete"
+          class="ui-icon-button"
+          (click)="hide()"
+        ></button>
+      </div>
+    </div>
+  </p-header>
+  <div class="body">
+    <ace-editor
+    [(text)]="jsonView"
+    [mode]="'object'"
+    [readOnly]="true"
+    style="min-height: 200px; width: 100%; overflow: auto"
+  ></ace-editor>
+  </div>
+  <p-footer>
+    <div class="action-buttons">
+      <button
+        pButton
+        label="CLOSE"
+        class="ui-outline-button ui-button-secondary"
+        (click)="hide()"
+      ></button>
+      <button
+        pButton
+        label="SAVE"
+        class="ui-outline-button ui-button-primary"
+        (click)="saveChanges()"
+      ></button>
+    </div>
+  </p-footer>
+</p-dialog>

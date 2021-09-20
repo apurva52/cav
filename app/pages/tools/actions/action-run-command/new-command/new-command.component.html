@@ -1,0 +1,311 @@
+<div class="new-command-container">
+      <div class="p-grid p-col-12 new-command-panel h-100-p">
+            <div class="p-grid p-col-4 left-section">
+                  <div class="ui-fluid w-100-p">
+                        <div class="p-field p-grid">
+                              <label for="firstname" class="p-col-12 p-md-4">Tier Name</label>
+                              <div class="p-col-12 p-md-8">
+                                    <p-dropdown [options]="data.dropDownOptions.tireName" [(ngModel)]="tierName"
+                                          optionLabel="label" dropdownIcon="icons8 icons8-expand-arrow"> </p-dropdown>
+                              </div>
+                        </div>
+
+                        <div class="p-field p-grid">
+                              <label for="firstname" class="p-col-12 p-md-4">Server Name</label>
+                              <div class="p-col-12 p-md-8">
+                                    <p-dropdown [options]="data.dropDownOptions.serverName" [(ngModel)]="serverName"
+                                          optionLabel="label" dropdownIcon="icons8 icons8-expand-arrow"> </p-dropdown>
+                              </div>
+                        </div>
+                        <div class="p-field p-grid">
+                              <label for="firstname" class="p-col-12 p-md-4">Group Name</label>
+                              <div class="p-col-12 p-md-8">
+                                    <p-dropdown [options]="data.dropDownOptions.groupName" [(ngModel)]="groupName"
+                                          optionLabel="label" dropdownIcon="icons8 icons8-expand-arrow"> </p-dropdown>
+                              </div>
+                        </div>
+                        <div class="p-field p-grid">
+                              <label for="firstname" class="p-col-12 p-md-4">Command Name</label>
+                              <div class="p-col-12 p-md-8">
+                                    <p-dropdown [options]="data.dropDownOptions.commandName" [(ngModel)]="commandName"
+                                          optionLabel="label" dropdownIcon="icons8 icons8-expand-arrow"> </p-dropdown>
+                              </div>
+                        </div>
+
+                        <div class="p-grid p-col-12">
+                              <div class="p-grid p-col-6">
+                                    <p-checkbox name="reverseOrder" value="reverseOrder" label="Reverse Order"
+                                          [(ngModel)]="reverseOrder" inputId="ny"></p-checkbox>
+                              </div>
+                              <div class="p-grid p-col-6">
+                                    <p-checkbox name="humanReadableFormat" value="humanReadableFormat"
+                                          label="Human Readable Format" [(ngModel)]="humanReadableFormat" inputId="ny">
+                                    </p-checkbox>
+                              </div>
+                              <div class="p-grid p-col-6">
+                                    <p-checkbox name="longList" value="longList" label="Long List"
+                                          [(ngModel)]="longList" inputId="ny"></p-checkbox>
+                              </div>
+                              <div class="p-grid p-col-6">
+                                    <p-checkbox name="hiddenFiles" value="hiddenFiles" label="Show all Hidden Files"
+                                          [(ngModel)]="hiddenFiles" inputId="ny"></p-checkbox>
+                              </div>
+                              <div class="p-grid p-col-6">
+                                    <p-checkbox name="sortByTime" value="sortByTime" label="Sort by Time"
+                                          [(ngModel)]="sortByTime" inputId="ny"></p-checkbox>
+                              </div>
+                        </div>
+
+                        <div class="p-grid p-col-12">
+                              <label for="tile" class="pb-5">Absolute Directory Path</label>
+                              <input type="text" pInputText placeholder="Asd/dsd/dd/" class="directory-path" />
+                        </div>
+
+                        <div class="p-grid p-col-12">
+                              <label for="tile" class="title pb-5">Reset Options</label>
+                              <div class="p-grid reset-options">
+                                    <div>
+                                          <p-checkbox name="repeatCommand" value="repeatCommand"
+                                                label="Repeat Command For" [(ngModel)]="repeatCommand"></p-checkbox>
+                                    </div>
+                                    <div class="w-18-p">
+                                          <p-inputNumber [(ngModel)]="repeatVal" mode="decimal" [showButtons]="true"
+                                                [min]="0" [max]="1001" decrementButtonClass="decrement-button"
+                                                incrementButtonClass="increment-button">
+                                          </p-inputNumber>
+                                    </div>
+                                    <div>
+                                          <label for="tile">Time on Interval(sec)</label>
+                                    </div>
+                                    <div class="w-18-p">
+                                          <p-inputNumber [(ngModel)]="repeatVal" mode="decimal" [showButtons]="true"
+                                                [min]="0" [max]="1001" decrementButtonClass="decrement-button"
+                                                incrementButtonClass="increment-button">
+                                          </p-inputNumber>
+                                    </div>
+                              </div>
+                        </div>
+
+                        <div class="p-grid p-col-12">
+                              <label for="title" class="title pb-5">Filter Options</label>
+                              <input type="text" pInputText placeholder="Search" class="filter-input" />
+                        </div>
+                        <div class="p-field p-grid">
+                              <div class="p-col-12 p-md-8">
+                                    <p-dropdown [options]="data.dropDownOptions.commandName" [(ngModel)]="commandName"
+                                          optionLabel="label" dropdownIcon="icons8 icons8-expand-arrow"> </p-dropdown>
+                              </div>
+                              <div class="p-col-12 p-md-4">
+                                    <p-inputNumber [(ngModel)]="repeatVal" mode="decimal" [showButtons]="true" [min]="0"
+                                          [max]="1000" decrementButtonClass="filter-decrement-button"
+                                          incrementButtonClass="filter-increment-button">
+                                    </p-inputNumber>
+                              </div>
+                        </div>
+                        <div class="p-grid p-col-12 p-md-6">
+                              <p-checkbox name="saveOutput" value="saveOutput" label="Save Output On Server"
+                                    [(ngModel)]="saveOutput" inputId="ny"></p-checkbox>
+                        </div>
+                  </div>
+                  <div (click)="runCommand()" class="run-command">
+                        <div>
+                              <i class="icons8 icons8-play"></i>
+                        </div>
+                        <div>
+                              <label for="run">Run</label>
+                        </div>
+                  </div>
+            </div>
+            <div class="p-grid p-col-8 right-section">
+                  <div class="right-section-header">
+                        <div>
+                              <div class="p-field p-grid">
+                                    <label for="firstname" class="p-col-12 p-md-4">View Type</label>
+                                    <div class="p-col-12 p-md-8">
+                                          <p-dropdown [options]="data.dropDownOptions.viewType" [(ngModel)]="viewType"
+                                                optionLabel="label" dropdownIcon="icons8 icons8-expand-arrow">
+                                          </p-dropdown>
+                                    </div>
+                              </div>
+                        </div>
+                        <div>
+                              <div class="p-field p-grid">
+                                    <label for="firstname" class="p-col-12 p-md-4">Delimeter</label>
+                                    <div class="p-col-12 p-md-8">
+                                          <p-dropdown [options]="data.dropDownOptions.deliMeter" [(ngModel)]="deliMeter"
+                                                optionLabel="label" dropdownIcon="icons8 icons8-expand-arrow">
+                                          </p-dropdown>
+                                    </div>
+                              </div>
+                        </div>
+                        <div>
+                              <button pButton type="button" class="ui-button-primary ui-button-rounded"
+                                    label="Add As Scheduled"></button>
+                        </div>
+                        <div>
+                              <button pButton type="button" class="ui-button-secondary ui-button-rounded"
+                                    label="Download"></button>
+                        </div>
+                  </div>
+                  <div class="p-grid p-col-12 command-details-card">
+                        <div class="p-grid p-col-3 command-list-view">
+                              <div class="order-list-view">
+                                    <div class="list-view">
+                                          <p-orderList *ngIf="showData" [value]="data.commandDetails.commandReportList"
+                                                [(selection)]="selectedReport">
+                                                <ng-template pTemplate="item" let-rowData>
+                                                      <div class="ui-helper-clearfix">
+                                                            <div class="list">
+                                                                  <span class="startTime">{{rowData.details}}</span>
+                                                            </div>
+                                                      </div>
+                                                </ng-template>
+                                          </p-orderList>
+                                    </div>
+                                    <div (click)="clearData()" class="clear-button">
+                                         <div class="p-15">
+                                          CLEAR
+                                         </div>
+                                    </div>
+                              </div>
+                        </div>
+                        <div class="p-grid p-col-9" *ngIf="showData">
+                              <div class="table-info" >
+                                    <div class="server-info">
+                                          <label for="serverName">Server Name:
+                                                {{data.commandDetails.serverName}}</label>
+                                          <label for="serverName">Command Name:
+                                                {{data.commandDetails.commandName}}</label>
+                                          <label for="serverName">Server Time:
+                                                {{data.commandDetails.serverTime}}</label>
+                                    </div>
+                                    <div class="action-icons">
+                                          <div>
+                                                <button pButton icon="icons8 icons8-installing-updates"
+                                                      class="icon-button no-shadow"
+                                                      (click)="downloadMenu.toggle($event)"
+                                                      pTooltip="Download"></button>
+                                                <p-menu #downloadMenu [popup]="true" styleClass="widget-menu"
+                                                      [model]="downloadOptions" [showTransitionOptions]="'0ms'"
+                                                      [hideTransitionOptions]="'0ms'"></p-menu>
+                                          </div>
+                                          <div>
+                                                <p-multiSelect class="icon-button no-shadow" [options]="cols"
+                                                      [(ngModel)]="selectedColumns" optionLabel="label"
+                                                      [displaySelectedLabel]="false"
+                                                      dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns"
+                                                      [panelStyle]="{ minWidth: '200px' }">
+                                                </p-multiSelect>
+                                          </div>
+
+                                          <div>
+                                                <button pButton icon="icons8 icons8-delete-trash"
+                                                      class="icon-button no-shadow" pTooltip="Delete"></button>
+                                          </div>
+
+                                    </div>
+
+                              </div>
+                              <div #widgetHeight class="table-data">
+                                    <p-card>
+                                          <p-table #command [columns]="selectedColumns"
+                                                [value]="data.commandDetails.commandData.data" [paginator]="true"
+                                                [rows]="data.commandDetails.commandData.paginator.rows"
+                                                [rowsPerPageOptions]="data.commandDetails.commandData.paginator.rowsPerPageOptions"
+                                                [resizableColumns]="true" [showCurrentPageReport]="true"
+                                                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                                                [responsive]="true" [scrollable]="true"
+                                                scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 100px)"
+                                                selectionMode="multiple">
+
+                                                <ng-template pTemplate="colgroup" let-columns>
+                                                      <colgroup>
+                                                            <col *ngFor="let col of columns"
+                                                                  [style.width]="col.width" />
+                                                      </colgroup>
+                                                </ng-template>
+                                                <ng-template pTemplate="header" let-columns>
+                                                      <tr>
+                                                            <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv"
+                                                                  [attr.rowdiv]="col.rowdiv" pResizableColumn
+                                                                  [pSortableColumn]="col.valueField" class="text-left">
+                                                                  <div class="left">
+                                                                        {{ col.label }}
+                                                                  </div>
+                                                                  <div *ngIf="col.isSort" class="float-right">
+                                                                        <p-sortIcon *ngIf="col.isSort"
+                                                                              [field]="col.valueField" class="text-right"
+                                                                              ariaLabel="Activate to sort"
+                                                                              ariaLabelDesc="Activate to sort in descending order"
+                                                                              ariaLabelAsc="Activate to sort in ascending order">
+                                                                        </p-sortIcon>
+                                                                  </div>
+                                                            </th>
+                                                      </tr>
+                                                      <tr
+                                                            *ngFor="let headerRow of data.commandDetails.commandData.headers">
+                                                            <ng-container *ngIf="isShowColumnFilter">
+                                                                  <th *ngFor="let col of columns"
+                                                                        [ngSwitch]="col.label">
+                                                                        <div *ngIf="
+                                                        col.filter.isFilter === true &&
+                                                        col.filter.type === 'custom'
+                                                      ">
+                                                                              <input class="w-100-p"
+                                                                                    pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                                                    *ngSwitchCase="col.label" pInputText
+                                                                                    type="text" (input)="
+                                                          command.filter(
+                                                            $event.target.value,
+                                                            col.value,
+                                                            'custom'
+                                                          )
+                                                        " />
+                                                                        </div>
+                                                                        <div *ngIf="
+                                                        col.filter.isFilter === true &&
+                                                        col.filter.type === 'contains'
+                                                      ">
+                                                                              <input class="w-100-p"
+                                                                                    pTooltip="Will filter metric names which contains given text."
+                                                                                    *ngSwitchCase="col.label" pInputText
+                                                                                    type="text" (input)="
+                                                          command.filter(
+                                                            $event.target.value,
+                                                            col.valueField,
+                                                            'contains'
+                                                          )
+                                                        " />
+                                                                        </div>
+                                                                  </th>
+                                                            </ng-container>
+                                                      </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="body" let-row let-columns="columns"
+                                                      let-rowIndex="rowIndex">
+                                                      <tr>
+                                                            <td *ngFor="let col of columns" class="{{ col.classes }}"
+                                                                  pTooltip="{{ row[col.valueField] }}">
+                                                                  <i *ngIf="col.iconField && row.icon"
+                                                                        [ngClass]="row.icon" class="column-icon"></i>
+                                                                  {{ row[col.valueField] | ellipsis: 35 }}
+                                                            </td>
+                                                      </tr>
+                                                </ng-template>
+
+                                                <!-----------Empty table error handling--------------------->
+                                                <ng-template pTemplate="emptymessage" let-columns>
+                                                      <tr>
+                                                            <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                                                  <span *ngIf="loading">Loading</span>
+                                                            </td>
+                                                      </tr>
+                                                </ng-template>
+                                          </p-table>
+                                    </p-card>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+      </div>
+</div>

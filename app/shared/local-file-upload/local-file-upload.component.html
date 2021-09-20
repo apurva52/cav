@@ -1,0 +1,11 @@
+<p-dialog header="Upload" class="success-dialog" [(visible)]="isDialogOpen" [baseZIndex]="10000" [draggable]="false"
+    [resizable]="false" closeIcon="icons8-delete" styleClass="file-upload-dialog" [style]="{width: '50vw'}">
+    <p-fileUpload name="file[]" [url]="uploadUrl" (onUpload)="onUpload($event)" multiple="multiple"
+        accept=".txt, .csv, .xls, .xlsx, .text" maxFileSize="1000000">
+        <ng-template pTemplate="content">
+            <ul *ngIf="uploadedFiles.length">
+                <li *ngFor="let file of uploadedFiles">{{file.name}} </li>
+            </ul>
+        </ng-template>
+    </p-fileUpload>
+</p-dialog>

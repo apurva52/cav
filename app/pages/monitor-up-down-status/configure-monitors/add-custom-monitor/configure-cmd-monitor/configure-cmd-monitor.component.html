@@ -1,0 +1,288 @@
+<div>
+<div class="header">
+  <app-header></app-header>
+</div>
+    
+   <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a routerLink="/custom-monitors/availCustMon/cmd">
+            <span class="icons8 icons8-left toolbar-icon-color"></span>
+        </a>
+        <div class="p-col ui-toolbar-text">Configure Command Monitors</div>
+        <div>
+            <button  pButton form="ngForm" class="ui-button ui-button-rounded ui-button-right" label="Save"></button>
+        </div>
+    </div>
+</p-toolbar>
+   <div class="content-body">
+    <form class="monitor-ui-form" (ngSubmit)="saveMonitorsConfigurationData()" id="ngForm" ngNativeValidate>
+      <!-- Metric Group Information -->
+      <div class="p-col-12">
+        <app-metric-group-info [item]="cmdMonData"></app-metric-group-info>
+      </div>
+
+    <div class="p-grid p-align-center w-100-p">
+        <div class="width-128 required-mark">Command/ Script</div>
+
+        <div class="p-col-5" >
+          <input type="text" pInputText name="inpOpt" [(ngModel)]="cmdMonData.inputOpt" required placeholder="Enter command/script" style="width: 584px;"
+            class="w-100-p">
+        </div>
+      <!-- BROWSE BUTTON -->
+      <div class="p-col-2" style="margin-left: 34px;">
+      <button pButton type="button" class="mx-3 ui-button ui-button-rounded ui-button-right" (click)="openScriptDialog()" title="Create/Upload script"
+      label="Use Script"></button>
+
+      <button pButton type="button" class="mx-3 ui-button ui-button-rounded ui-button-right" (click)="openRunDialog()" label="Run" icon="icons8 icons8-circled-play"
+      title="Run Command/Script"></button>
+    </div>
+    <!-- RUN BUTTON -->
+    </div>
+
+      <div class="p-grid p-align-center w-100-p">
+        <div class="p-col-4 p-grid p-align-center" style="flex-wrap: nowrap;">
+          <div class="width-117" style="min-width: 117px;">Output</div>
+            <textarea  id="foo" name="cOutput" [rows]="5" class="w-100-p m-5"  pInputTextarea 
+              [(ngModel)]="cmdMonData.output" style="white-space: nowrap;"></textarea>
+        </div>
+
+        <div class="p-grid p-align-center p-col-8">
+          <div class="p-grid p-align-center w-100-p mb-10">
+              <div class="width-100">Delimeter</div>
+              <p-dropdown [options]=" delimiterList" name="delimit"    [(ngModel)]="cmdMonData.delimiter" 
+              [style]="{'min-width': '110px'}" class="mx-2" dropdownIcon="icons8 icons8-expand-arrow">
+              </p-dropdown>
+        <input type="text" class="width-110 mx-2" [disabled]="cmdMonData.delimiter != 'custom'"  name="cDeli" [(ngModel)]="cmdMonData.cD" pInputText required />
+
+        <div class="mx-2 width-230">
+          <p-checkbox label="Use Column as Metric name" [binary]="true" [(ngModel)]="useColNameAsMetricName" (onChange)="oTypeChange()" name="useColNameAsMetricName"></p-checkbox>
+      </div>
+        <div class="width-80">Header Lines</div>
+        <input class="width-110 mx-2" type="number" name="headerline" [disabled]="!useColNameAsMetricName" min="1" 
+        max="2147483647" [(ngModel)]="cmdMonData.hl" pInputText  />
+        <div>
+          <button pButton type="button" class="ui-button ui-button-rounded mx-2" (click)="autoFillData()" [disabled]=" cmdMonData.hl < 0 || cmdMonData.hl == 0   || cmdMonData.hl == undefined || !useColNameAsMetricName" label="Auto Fill"></button>
+      </div>
+          </div>
+          <div class="p-grid p-align-center w-100-p mb-10">
+           
+              <div class="width-100">Skip line Top </div>
+              <p-dropdown  [options]="topList" placeholder="--Select--"  name="topList" [(ngModel)]="cmdMonData.skipLineTop" (onChange)="onSkipTopChange()"
+               dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width': '110px'}" class="mx-2">
+              </p-dropdown>
+          
+            <!-- <div class="width-100"></div> -->
+            <input type="number" class="width-110 mx-2" [disabled]="cmdMonData.skipLineTop == ''" [(ngModel)]="cmdMonData.top"  *ngIf="cmdMonData.skipLineTop != 'topActionStr'" name="topSkip" pInputText required />
+            <input type="text" class="width-110 mx-2" *ngIf="cmdMonData.skipLineTop == 'topActionStr'" [(ngModel)]="cmdMonData.topActionStr" name="topCmdstr" pInputText required />
+            <div class="width-130" style = "margin-left: 2px;">Replace Character</div>
+            <input type="text" name="rKey" class="width-110 mx-2" [(ngModel)]="cmdMonData.rChar" pInputText  />
+            </div>
+          <div class="p-grid p-align-center w-100-p mb-10">
+              <div class="width-100">Skip line Bottom </div>
+              <p-dropdown  [options]="bottomList" placeholder="--Select--" name="bottomList"  [(ngModel)]="cmdMonData.skipLineBottom" (onChange)="onSkipBottomChange()"  dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width': '110px'}" class="mx-2">
+              </p-dropdown>
+              
+            <input type="number" [disabled]="cmdMonData.skipLineBottom == ''" *ngIf="cmdMonData.skipLineBottom != 'bottomActionStr'"  name="bottomskip" [(ngModel)]="cmdMonData.bottom"  pInputText class="width-110 mx-2" required />
+            <input type="text"  name="bottomCmdstr"  *ngIf="cmdMonData.skipLineBottom == 'bottomActionStr'" [(ngModel)]="cmdMonData.bottomActionStr"  pInputText class="width-110 mx-2" required/>
+          </div>
+        </div>
+      </div>
+
+    <app-metric-hierarchy [showMetHierCols]="arrMetricHier" (tableData)="metricTableData($event)" [item]="cmdMonData">
+    </app-metric-hierarchy>
+
+    <app-metric-configuration [showMetConfCols]="arrMetricConf" (mConfTableData)="metricConfTableData($event)"
+      [item]="cmdMonData"></app-metric-configuration>
+
+    <!-- DIALOG FOR CREATE/UPLOAD SCRIPT -->
+    <p-dialog 
+    [(visible)]="showdialog"
+[resizable]="true"
+[modal]="true"
+class="secondary-dialog foterDialog"
+[draggable]="true"
+[closable]="false"
+[style]="{ width: '30vw' }"
+closeIcon="icons8-delete"
+    >
+    <p-header>
+      <div class="compare-data-title">
+        <div>Create/Upload Script</div>
+        <div class="action-buttons">
+          <i class="icons8 icons8-delete"  (click)="showdialog = false"></i>
+        </div>
+      </div>
+    </p-header>
+      <!-- <div class="cav-d-flex cav-mb-2 cav-align-items-center">
+        <textarea id="foo" name="scrpOut" style="width: 455px;height: 200px" placeholder="Enter script"
+          [(ngModel)]="scriptOut"></textarea>  
+      </div> -->
+      <div class="p-grid p-col-12">
+        <!-- <div class="p-grid p-col-4">
+          <span class="label">Selected Test Run: </span>
+        </div> -->
+        <div class="p-grid p-col-12">
+            <textarea id="foo" name="scrpOut" style="width: 455px;height: 200px" [(ngModel)]="scriptOut" placeholder="Enter script"
+            ></textarea>
+        </div>
+      </div>
+      <div class="p-grid p-col-12 form-buttons p-col-align-end">
+        
+          <!-- <input hidden type="file" #uploader (change)="uploadFile($event.target.files)" />
+          <p-button type="button" title="Upload script" (click)="uploader.click()" label="Browse"></p-button>
+          <p-button type="button" (click)="saveScript()" label="OK"></p-button>
+          <p-button type="button" (click)="showdialog = false" label="Cancel"></p-button> -->
+          <button pButton type="button" label="Cancel" class="mx-3 ui-button-rounded"
+(click)="showdialog = false"></button>    
+<button pButton type="button" (click)="saveScript()" id="foo"  label="OK" class="mx-3 ui-button-rounded"></button>
+<input hidden type="file" #uploader (change)="uploadFile($event.target.files)" />
+<button pButton type="button" label="Browse" (click)="uploader.click()" class="mx-3 ui-button-rounded"></button>
+        
+      </div>
+    </p-dialog>
+
+    </form>
+      
+  
+  
+      <!-- DAILOG FOR RUN COMMAND/SCRIPT -->
+      <p-dialog [resizable]="false" [(visible)]="showRundialog"
+        [modal]="true"
+        class="secondary-dialog foterDialog"
+        [draggable]="true"
+        [closable]="false"
+        [style]="{ width: '700px' }"
+        closeIcon="icons8-delete">
+        <p-header>
+          <div class="compare-data-title">
+            <div>Run Command</div>
+            <div class="action-buttons">
+              <i class="icons8 icons8-delete"  (click)="showRundialog = false"></i>
+            </div>
+          </div>
+        </p-header>
+         <form (ngSubmit)="run()" id="ngForm1" ngNativeValidate>
+          <div class="p-grid p-align-center">
+              <div class="p-col-12">
+                  <p-radioButton name="r2" value="ts" [(ngModel)]="settingType" label="Excute On Server"></p-radioButton>
+              </div>
+              <div class="p-col-1 required-mark">Tier</div>
+                <div class="p-col-5">
+                    <p-dropdown  name= "list" (onChange)="onTierChange(_tierForRunCmd)" [disabled]="settingType == 'remote'" filter="true" [options]="tierList" placeholder="--Select--" [(ngModel)]="_tierForRunCmd" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                </div>
+  
+                <div class="p-col-1 text-right required-mark">Server</div>
+                  <div  class="p-col-5" >
+                  <p-dropdown name= "lists" [disabled]="_tierForRunCmd == ''|| settingType == 'remote'" [options]="serverList" [(ngModel)]="_serverForRunCmd" filter="true"  placeholder="--Select--" dropdownIcon="icons8 icons8-expand-arrow">
+                  </p-dropdown>
+                </div>
+              </div>
+          
+          <div class="p-grid p-align-center">
+              <div class="p-col-12 mt-10">
+                  <p-radioButton name="r2" value="remote"  [(ngModel)]="settingType" label="Execute remotely(Make SSH connection from Cavisson Server)"></p-radioButton>
+              </div>
+              <div class="p-col-2 required-mark">Host</div>
+              <div  class="p-col-4">
+                  <input class="w-100-p" pInputText  [disabled]="settingType == 'ts'" [(ngModel)]="cmdMonData.rCon.host" name="ip"
+                  type="text"  autofocus required ngModel />
+              </div>
+  
+              <div class="p-col-2">Port</div>
+              <div class="p-col-4" >
+                  <input class="w-100-p" pInputText  [disabled]="settingType == 'ts'" name="port" 
+                  type="number" [(ngModel)]="cmdMonData.rCon.port"  autofocus required ngModel />
+                  
+              </div>
+  
+              <div class="p-col-2">Authentication</div>
+              <div class="p-col-4" >
+                   <p-dropdown [style]="{'min-width':'100%'}" required name="at" [options]="authenticationList"
+                  [(ngModel)]="auth" [disabled]="settingType == 'ts'" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+              </div>
+  
+              <div class="p-col-2 required-mark">User</div>
+              <div class="p-col-4" >
+                  <input class="w-100-p" pInputText [disabled]="settingType == 'ts'" name="user" [(ngModel)]="cmdMonData.rCon.user" 
+                  type="text"  autofocus required ngModel />
+              </div>
+  
+              <div class="p-col-2 required-mark">Password</div>
+              <div class="p-col-4" >
+                  <input class="w-100-p" pInputText [disabled]="settingType == 'ts'" [(ngModel)]="cmdMonData.rCon.pwd" name="pwd"
+                  type="password"  autofocus required ngModel />
+              </div>
+  
+              <div class="p-col-2">Passphrase</div>
+              <div  class="p-col-4" >
+                  <input class="w-100-p" pInputText [disabled]="settingType == 'ts'" name="pass"  [(ngModel)]="cmdMonData.rCon.passphrase" type="password"  autofocus  ngModel />
+              </div>
+  
+              <div class="p-col-2">Private Key</div>
+              <div  class="p-col-4" >
+                  <input class="w-100-p" pInputText [disabled]="settingType == 'ts'" name="pvtKey"
+                  type="text" placeholder="Enter absolute file path"   [(ngModel)]="cmdMonData.rCon.prvKey" autofocus  ngModel />
+              </div>
+  
+              <div class="p-col-2">Public Key</div>
+              <div  class="p-col-4" >
+                  <input class="w-100-p" pInputText [disabled]="settingType == 'ts' || auth == '1'" name="pubKey"
+                  type="text" placeholder="Enter absolute file path"  [(ngModel)]="cmdMonData.rCon.pubKey"  autofocus  ngModel />
+              </div>
+          </div>
+  
+          <p-fieldset legend="Proxy Settings" [toggleable]="true" [collapsed]="true">
+              <div class="configure-days">
+                 <div class="p-grid p-align-center">
+                  <div class="p-col-2">Proxy Host</div>
+              <div  class="p-col-4">
+                  <input class="w-100-p" pInputText [disabled]="settingType == 'ts'"  name="pip" [(ngModel)]="cmdMonData.rCon.pHost" type="text"  autofocus  ngModel />
+              </div>
+  
+              <div class="p-col-2">Proxy Port</div>
+              <div  class="p-col-4">
+                  <input class="w-100-p" pInputText [disabled]="settingType == 'ts'" name="pp" [(ngModel)]="cmdMonData.rCon.pPort" 
+                  type="number"  autofocus  ngModel />
+              </div>
+  
+              <div class="p-col-2">Proxy User</div>
+              <div  class="p-col-4" >
+                  <input class="w-100-p" pInputText [disabled]="settingType == 'ts'" name="pUser" [(ngModel)]="cmdMonData.rCon.pUser"
+                  type="text"  autofocus  ngModel />
+              </div>
+  
+              <div class="p-col-2">Proxy Password</div>
+              <div class="p-col-4" >
+                  <input class="w-100-p" pInputText [disabled]="settingType == 'ts'" name="pPwd" [(ngModel)]="cmdMonData.rCon.proxyPwd" 
+                  type="password"  autofocus  ngModel />
+              </div>
+              </div>
+              </div>
+                  
+          </p-fieldset> 
+          <div class="p-grid p-justify-end mt-20">
+            <button pButton label="Close" class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="showRundialog = false"></button>
+              <button pButton type = "submit" label="Run" class="ui-button-rounded px-15"></button>
+              
+          </div>
+         </form>
+        <div class="fixed-footer">
+          <p-footer>
+              <!-- <div class="p-col-12 form-buttons">
+                  <button pButton label="Close" class="ui-outline-button ui-button-secondary" (click)="showRunDialog = false"></button>
+                  <button pButton type = "submit" label="Run" class="ui-outline-button ui-button-secondary"></button>
+              </div> -->
+          </p-footer>
+      </div>
+        </p-dialog>
+
+  
+    </div>
+    <div class="loading-indicator" *ngIf="loading">
+      <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+      </p-progressSpinner>
+  </div>
+  </div>
+ 

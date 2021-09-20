@@ -1,0 +1,37 @@
+<button pButton class="icon-button ui-button-rounded header-icon-width" icon="icons8 icons8-user" pTooltip="User Options"
+    (click)="menu.toggle($event);">
+</button>
+<p-overlayPanel #menu class="parent" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'">
+    <div class="overlay-menu user-menu">
+        <div class="overlay-menu-header p-grid p-justify-center p-align-center">
+            <div class="user-profile p-col-12">
+                <i class="icons8 icons8-user"></i>
+            </div>
+            <div class="overlay-menu-name p-col-12">
+                <div class="name">
+                    <span>  {{userName}}</span></div>
+                <!-- <div class="email">
+                    <span>{{emailId}}</span>
+                </div> -->
+                <div class="mt-10 mbn-10 " >
+                    <span class="font-12"> {{capability}}</span> 
+                  </div>
+            </div>
+        </div>
+        <div class="overlay-menu-body">
+            <div class="loader-container spinner small" *ngIf="loading">
+                <i class="pi pi-spin pi-spinner"></i>
+            </div>
+            <div class="empty-container" *ngIf="empty">
+                No data.
+            </div>
+            <p-slideMenu class="animationMenu" #slideMenu [showTransitionOptions]="'0ms'"
+                [hideTransitionOptions]="'0ms'" [model]="data"
+                [viewportHeight]="slideMenu.left === 0 ? 160 : slideMenu.left === -190 ? 200 : 100">
+            </p-slideMenu>
+        </div>
+        <div class="overlay-menu-footer" *ngIf="!sessionService.isSSO()">
+            <a pButton class="ui-outline-button ui-button-secondary mb-10" type="button" label="Sign Out" routerLink="/logout"></a>
+        </div>
+    </div>
+</p-overlayPanel>

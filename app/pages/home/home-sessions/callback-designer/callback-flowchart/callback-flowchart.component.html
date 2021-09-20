@@ -1,0 +1,39 @@
+<div class="diagram-height">
+
+    <p-dialog [header]="apiData?.api?.label" [(visible)]="showApiForm" [position]="'left'" [style]="{width:'23vw'}"
+        [contentStyle]="{overflow:'visible'}">
+        <app-callback-action-api-form [data]="apiData" (actionSubmit)="onActionSubmit($event)" [callback]="callback">
+        </app-callback-action-api-form>
+    </p-dialog>
+
+
+    <p-dialog header="Condition" [(visible)]="showConditionForm" [position]="'left'" [style]="{width:'23vw'}"
+        [contentStyle]="{overflow:'visible'}">
+        <app-callback-action-condition-form [data]="conditionData" (conditionSubmit)="onConditionSubmit($event)">
+        </app-callback-action-condition-form>
+    </p-dialog>
+
+
+    <jsplumb-surface [toolkitId]="toolkitId" [surfaceId]="surfaceId" [view]="view" [renderParams]="renderParams">
+    </jsplumb-surface>
+
+    <div style="position: absolute;top: 0;right: 0;">
+        <jsplumb-miniview [surfaceId]="surfaceId"></jsplumb-miniview>
+    </div>
+
+
+</div>
+
+<p-dialog [(visible)]="showEditorDialog" [modal]="true" header="Code Editor" [style]="{'width':'40vw'}"
+    [contentStyle]="{'height':'40vh'}" (onResizeEnd)="onResizeEnd()">
+    <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="code" style="height: 100%;width: 100%;"
+        *ngIf="showCodeEditor" (onInit)="onEditorInit($event)">
+    </ngx-monaco-editor>
+    <p-footer>
+        <div class="p-grid p-justify-end">
+            <button type="button" pButton label="Cancel" class="ui-button-rounded ui-button-secondary"
+                (click)="showEditorDialog = false"></button>
+            <button type="button" pButton label="Save" class="ui-button-rounded" (click)="saveCode()"></button>
+        </div>
+    </p-footer>
+</p-dialog>

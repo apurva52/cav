@@ -1,0 +1,198 @@
+<!--component html goes here -->
+
+<!-- <p-blockUI [blocked]="loading"></p-blockUI> -->
+
+<div class="ddr-box">
+
+    <!-- COMMON TOOLBAR -->
+    <div class="ddr-toolbar">
+        <div class="p-grid p-justify-between p-align-center ui-table-header">
+    
+            <div>
+                <!--<label class="headerInfo"><b>Filter criteria : </b></label>-->
+                <span title="{{completeTier}}">{{filterTierName}}</span>
+                <span title="{{completeServer}}">{{filterServerName}}</span>
+                <span title="{{completeInstance}}">{{filterInstanceName}}</span>
+                <span title="{{CompleteURL}}">{{urlStr}}</span>
+                <span title="{{completeGroupBy}}">{{filterGroupByStr}}</span>
+                <span title="{{completeOrderBy}}">{{filterOrderByStr}}</span> 
+                <label class="headerInfo">{{headerInfo}}</label>
+
+            </div>
+
+            <div>
+
+                <button pButton icon="icons8 icons8-doc" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReport("word")'
+                pTooltip="Download as Word Report"></button>
+                <button pButton icon="icons8 icons8-spreadsheet-file" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReport("excel")'
+                pTooltip="Download as Excel Report"></button>
+                <button pButton icon="icons8 icons8-pdf-2" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReport("pdf")'
+                pTooltip="Download as PDF Report"></button>
+
+               
+            </div>
+        </div>
+        
+
+        <!-- <p-toolbar>
+        <div  class="p-grid p-justify-between p-align-center p-6">
+            <div>
+               
+                <span title="{{completeTier}}">{{filterTierName}}</span>
+                <span title="{{completeServer}}">{{filterServerName}}</span>
+                <span title="{{completeInstance}}">{{filterInstanceName}}</span>
+                <span title="{{CompleteURL}}">{{URLstr}}</span>
+                <span title="{{completeGroupBy}}">{{filterGroupByStr}}</span>
+                <span title="{{completeOrderBy}}">{{filterOrderByStr}}</span> 
+                <label class="headerInfo">{{headerInfo}}</label>
+
+            </div>
+
+            <div>
+                <span title="Download as Word Report"><i class ="icons8 icons8-doc" style='cursor:pointer' (click)='downloadReports("word")' ></i></span>
+                <span title="Download Excel file"><i class ="icons8 icons8-spreadsheet-file" style='cursor:pointer' (click)='downloadReports("ExcelFile")' ></i></span>
+                <span title="Download PDF file"><i class ="icons8 icons8-pdf-2" style='cursor:pointer' (click)='downloadReports("PDFFile")' ></i></span>
+            </div>
+        </div>
+
+        </p-toolbar> -->
+    </div>
+    <div class="ddruiscroll" style="overflow:auto; height: 500px;">
+            <p-accordion class="ddr-accordion">
+                <p-accordionTab [selected]='false' header="{{totalQueryCount}}">
+                    <div class = 'ui-g' style="overflow:auto">
+                       <p-card class = 'ui-g-6'>
+                            <div class="ddr-graphpanel" *ngIf="showChartForBT == true">
+                                <highcharts-chart [options]="btOptions" (click)="clickHandlerBTCount($event)"
+                                    [Highcharts] = "highcharts">
+                                </highcharts-chart>
+                            </div>
+                        <div *ngIf="showChartForBT == false" style="text-align:center;">No Pie Chart found based on current Filter Settings.</div>
+                       </p-card> 
+                        <p-card class = 'ui-g-6'>
+                                <div class="ddr-graphpanel" *ngIf="showChartForRespTime == true">
+                                    <highcharts-chart [options]="respOptions" (click)="clickHandlerResponseTime($event)"
+                                    [Highcharts] = "highcharts">
+                                </highcharts-chart>
+                                </div>
+                            <div *ngIf="showChartForRespTime == false" style="text-align:center;">No Response Time Pie Chart found based on current Filter Settings.</div>
+                        </p-card> 
+                    </div>
+                </p-accordionTab>
+            </p-accordion>
+            <p-accordion class="ddr-accordion dynamic-column-width-acc">
+        <p-accordionTab [selected]= 'true' header="{{headerName}}">
+        <!-- <p-growl life=5000 [(value)]="msgs"></p-growl>    -->
+ 
+        <div class="p-grid p-justify-end p-align-center my-6 mx-6">
+
+            <button pButton icon="icons8 icons8-menu" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)="toggleColumnFilter()"
+            pTooltip="{{toggleFilterTitle}}"></button>
+    
+            <!-- <button pButton type="button" title={{toggleFilterTitle}} icon="fa fa-bars" (click)="toggleColumnFilter()"></button> -->
+           <p-multiSelect title="Show/Hide columns" [options]="columnOptions" class="icon-button no-shadow" (onChange)="showHideColumn($event)"
+                   [(ngModel)]="visibleCols" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" [panelStyle]="{ minWidth: '200px' }">
+                </p-multiSelect>
+               <button pButton *ngIf="showAllOption" icon="icons8 icons8-synchronize" class="btn-icon mx-3" title="Show all data" (click)="showAllData()"></button>
+                   <!-- <i class="icons8 icons8-search font-16" style="margin:4px 4px 0 0"></i>
+                   <input #gbFlowpath type="text" pInputText size="15" placeholder="Search">                -->
+                 
+
+                   <button pButton icon="icons8 icons8-search"class="btn-icon mx-3"></button>
+                   <input pInputText type="text" placeholder="Search keyword" (input)="dbg.filterGlobal($event.target.value, 'contains')" />
+         
+           </div>
+        <div class='ui-g' style="overflow:auto">
+	    <p-table #dbg class="all-tables" [value]="dbQueryData" [scrollable]="true" scrollHeight="340px" [style]="{'height':'auto','font-size':'12px'}"
+            resizableColumns="true" reorderableColumns="true" [globalFilterFields]="visibleCols">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                  <ng-container *ngFor="let col of cols">
+                    <col  *ngIf = "col.action" [style]="{'width': col.width+'px'}" >
+                  </ng-container>
+                </colgroup>
+              </ng-template>          
+                <ng-template pTemplate="header">
+                    <tr>
+                        <ng-container *ngFor="let col of cols">
+                            <th *ngIf="col.action" pResizableColumn pReorderableColumn [pSortableColumn]="col.field"> 
+                                <span>{{ col.header }}
+                                <p-sortIcon *ngIf="col.action" [field]="col.field" ariaLabel="Activate to sort"
+                            ariaLabelDesc="Activate to sort in descending order"
+                            ariaLabelAsc="Activate to sort in ascending order">
+                          </p-sortIcon>
+                          </span>
+
+                            </th>
+                        </ng-container>
+                    </tr>
+                    <tr *ngIf="isEnabledColumnFilter">
+                        <ng-container *ngFor="let col of cols">
+                            <th *ngIf="col.action">
+                                <input pInputText type="text"
+                                    (input)="dbg.filter($event.target.value, col.field, 'contains')">
+                            </th>
+                        </ng-container>
+                      </tr>
+                
+                </ng-template>
+                <ng-template pTemplate="body" let-node>
+                    <tr>
+                        <ng-container *ngFor="let col of cols">
+                            <td *ngIf="col.action">
+                                <!-- <div style="color:blue; text-align: left;cursor: pointer ;"
+                                *ngIf="(col.field == 'count')" (click)="openQueryCount(node)">{{node[col.field]}}</div>   -->
+                                <span *ngIf="(col.field == 'urlName')" class="ddr-table-right">
+                                
+                                    {{node[col.field]}}</span>
+                                <span class = "right" style="color:blue; cursor: pointer ;" *ngIf="(col.field == 'count')"
+                                    (click)="openQueryCount(node)">
+                                
+                                    {{node[col.field]}}</span>
+                                
+                            </td>
+                        </ng-container>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage" let-columns>
+                    <tr>
+                        <td [attr.colspan]="3" class="text-center">
+                            <span>No Records Found</span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+                    <!-- <p-dataTable class="scen-table"  [value]="dbQueryData" [globalFilter]="gb" scrollHeight="340px" [style]="{'height':'auto','font-size':'12px'}"
+            resizableColumns="true" reorderableColumns=" true">
+            <div *ngFor="let col of cols">
+                <p-column *ngIf="col.action" [field]="col.field" [filter] = "col.filter" [header]="col.header" [style]="{'width': dynamicWidthColumn +'px' ,'text-align': col.align}" (sortFunction)= "sortColumnsOnCustom($event, dbQueryData)" [sortable]="col.sortable">
+               <ng-template let-col let-node="rowData" *ngIf="(col.field == 'count') "   pTemplate type="body">
+                    <span  *ngIf=" node[col.field] != '0' " class="ddr-table-right"  (click)="openQueryCount(node)">{{node[col.field]}}</span>
+               </ng-template>
+                </p-column>
+            </div>
+        </p-dataTable> -->
+    </div>
+    <div *ngIf="!showAllOption"> {{offset+1}} - {{offset+limit}} of {{totalCount}} </div>
+    <div *ngIf="showAllOption"> 1 - 1 of 1</div>
+	<div *ngIf="showPagination">
+        <p-paginator rows="50" [totalRecords]="totalCount"  [rowsPerPageOptions]="[50,100,200,400]" pageLinkSize="3" (onPageChange)="paginate($event)"></p-paginator>
+	</div>
+
+    </p-accordionTab>
+</p-accordion>
+    </div>
+</div>
+  <p-dialog class="secondary-dialog foterDialog" [style]="{width: '45vw'}" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true"> 
+  <p-header>
+      <i class="icons8 icons8-info" style="color:red"></i>
+      <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+  </p-header>  
+  <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+  <footer>
+    <div class="p-grid p-justify-end sevbtn py-12">
+    <button pButton type="button" label="Cancel" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" class="ui-button-rounded ui-button-secondary mx-3"></button>
+    <button pButton type="button" label="Wait" (click)="waitQuery();" class="ui-button-rounded mx-3"></button>
+    </div>
+  </footer>
+</p-dialog>

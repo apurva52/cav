@@ -1,0 +1,20 @@
+<div class="chart-container">
+  <div class="chart-header" *ngIf="data?.title">
+    <!-- <ul class="chart-options" *ngIf="loading"> -->
+    <!-- <li><i class="pi pi-spin pi-spinner"></i></li> -->
+    <!-- <li [ngStyle]="{ display: !loading ? 'inline-block' : 'none' }">
+          <app-chart-menu [chart]="this"></app-chart-menu>
+        </li> -->
+    <!-- </ul> -->
+    <div class="chart-title">
+      <span [pTooltip]="data.title" [tooltipPosition]="'top'">{{
+        data.title
+        }}</span>
+    </div>
+  </div>
+
+  <div class="chart-body" #container>
+    <div #chartContainer></div>
+    <div class="empty-container" *ngIf="empty">Data Not Available</div>
+  </div>
+</div>

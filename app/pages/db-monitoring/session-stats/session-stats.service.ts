@@ -1,0 +1,90 @@
+import { Injectable } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
+import { SessionService } from 'src/app/core/session/session.service';
+import { Store } from 'src/app/core/store/store';
+import { GlobalTimebarTimeLoadedState } from 'src/app/shared/time-bar/service/time-bar.state';
+import { environment } from 'src/environments/environment';
+import { DBMonitoringLoadedState, DBMonitoringLoadingErrorStatus, DBMonitoringLoadingState } from '../db-monitoring.state';
+import { DBMonitoringService } from '../services/db-monitoring.services';
+import { DBMonCommonParam } from '../services/request-payload.model';
+import { SqlSessionService } from '../sql-activity/sql-sessions/sql-sessions.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SessionStatService extends Store.AbstractService {
+  logger: any;
+ 
+  constructor(private sessionService: SessionService,
+    private dbmonService: DBMonitoringService,
+    private sqlSessionService: SqlSessionService) {
+      super();
+     }
+/*used to when dbMonitorUI.json is not present */
+load(payload: DBMonCommonParam): Observable<Store.State> {
+  const me = this;
+  const output = new Subject<Store.State>();
+
+  setTimeout(() => {
+      output.next(new DBMonitoringLoadingState());
+  }, 0);
+  const session = me.sessionService.session;
+  payload = me.dbmonService.loadDefaultCommonParam(payload);
+  if (session) {
+          payload.cctx = me.sessionService.session.cctx;
+          payload.tr = me.sessionService.testRun.id;
+    }
+         payload.updateRealTimeStamp = -1;
+         payload.drilldownSessionId = Number(me.sqlSessionService.spid);
+        //  payload.drilldownWaitType = 'NA';
+        if(me.dbmonService.isSystemSessions){
+          payload.isSystemSessions = me.dbmonService.isSystemSessions;
+        }
+       
+      const path = environment.api.dbMonitoring.sessionStats.endpoint;
+      me.controller.post(path, payload).subscribe(
+          (result: any) => {
+            const state = new DBMonitoringLoadedState();
+              if (result != undefined) {
+                state.data = result;
+                output.next(state);
+
+                  return;
+              }
+          },
+          (e: any) => {
+              output.error(new DBMonitoringLoadingErrorStatus(e));
+              output.complete();
+
+              me.logger.error('Lock Stats is not loaded successfully');
+          }
+      );
+      return output;
+  }
+  getPresetAndLoad(payload: DBMonCommonParam): Observable<Store.State>{
+
+    const me = this;
+    const output = new Subject<Store.State>();
+    
+      me.dbmonService.getPresetTime().subscribe(
+        (state: Store.State) => {
+          
+          if (state instanceof GlobalTimebarTimeLoadedState) {
+            me.load(payload).subscribe(
+              (state: Store.State) => {
+                if (state instanceof DBMonitoringLoadedState) {
+                  output.next(state);
+                }
+              }
+              );
+            return;
+          }
+        });
+  
+        return output;
+  }
+
+  showAllSessions(val) {
+    this.dbmonService.scheduleDataRequest.next(val);
+    }
+}

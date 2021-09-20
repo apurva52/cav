@@ -1,0 +1,97 @@
+<p-dialog [contentStyle]="{'overflow':'visible'}" #dialog header="Pattern Matching"  class="secondary-dialog" [(visible)]="isVisible" [resizable]="false" closeIcon="icons8-delete" [draggable]="false" [modal]="true" [closable]="true" [baseZIndex]="10000" [style]="{width: '70vw'}">
+    <div class="p-grid">
+        <div class="p-col-12">
+            <p-fieldset legend="Metric Information" pTooltip= "Metric Informations">
+                <div class="ui-fluid p-formgrid p-grid mv-3 mb-15" >
+                    BaseLine Metric - {{baselineGraph}}
+                </div>
+                <div class="ui-fluid p-formgrid p-grid mv-3">
+                    <div class="p-field p-col-6 relative">
+                        <div class="slider-toltip" [style.left.%]="patternSlider">{{patternSlider}}</div>
+                        <p-slider [(ngModel)]="patternSlider" [min]="0" [max]="100"></p-slider>
+                    </div>
+                    <div class="p-field p-col-6 pl-30">
+                        <p-checkbox name="inverse_pattern_matching" value="inverse_pattern_matching" label="Inverse Pattern Matching" binary="true"  [(ngModel)]="inversePatternMatch" (click)="onclickONInversePatternMatch($event);">
+                        </p-checkbox>
+                    </div>
+                </div>
+                <div class="ui-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-3">
+                        <label class="line-height" for="category">Select Category</label>
+                        <p-dropdown inputId="category" [options]="categoryOptions" [(ngModel)]="categoryType" (onChange)="selectGraphs(categoryType)" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-field p-col-3" *ngIf="categoryType == 'select_metric_catalogue'">
+                        <label class="line-height" for="category">Select Catalogue</label>
+                        <p-dropdown inputId="catalogue" class="ui-dropdown-label" [options]="catalogueList" [(ngModel)]="graphType" dropdownIcon="icons8-expand-arrow" (onChange)="selectCatalogue(graphType)">
+                        </p-dropdown>
+                    </div>
+                    <div>
+                        <div class="action-buttons" *ngIf="categoryType == 'select_metric_catalogue'">
+                            <button *ngIf="!userCatalogueFlag" type="button" [disabled]="noCatalogueAvail" pButton icon="icons8 icons8-edit-2" class="ui-button ui-button-rounded" label="View" (click)="catalogueManagement.open()"></button>
+                            <button *ngIf="userCatalogueFlag" type="button" [disabled]="noCatalogueAvail" pButton icon="icons8 icons8-edit-2" class="ui-button ui-button-rounded" label="Edit" (click)="catalogueManagement.open()"></button>
+                            <button type="button" [disabled]="!userCatalogueFlag" pButton icon="icons8 icons8-trash" class="ui-button ui-button-rounded" label="Delete" (click)="deleteCataloguebyName();"></button>
+                        </div>
+                        <div class="action-buttons" *ngIf ="categoryType == 'all_graphs'">
+                            <p-checkbox name="Cumulative" value="cumulative" label="Cumulative" >
+                            </p-checkbox>
+                            <p-checkbox name="Response Time Graph" value="responseTimeGraph" label="Response Time Graph" >
+                            </p-checkbox>
+                        </div>
+                    </div>
+                </div>
+                <p-card *ngIf="categoryType == 'select_graphs'">
+                    <div class="">
+                        <span class="selected-graph-span">Select Metrics to Match Pattern</span>
+                    <div class="w-100-p mt-5 p-grid">
+                            <p-dropdown inputId="catalogue" [options]="groupList" dropdownIcon="icons8-expand-arrow"  [filter]="true"  class="category-type-css" [(ngModel)]="graphType" (onChange)="selectGraphsForBaseline(graphType)"  [showClear] = "false" placeholder ="Select Metric Name">
+                            </p-dropdown>
+                            <div [style]="{width:'10%'}">
+                            </div>
+                            <div [style]="{width:'45%'}">
+                                <div class="p-grid">
+                                    <p-radioButton class="ml-10 line-height" name="radioButtonCheck" value="all" [(ngModel)]="metricTypeNormal" label="All" (onClick)="checkAll()"></p-radioButton>
+                                    <p-radioButton class="ml-10 mr-10 line-height" name="radioButtonCheck" value="zero"  [(ngModel)]="metricTypederived" label="Specified" (onClick)= "dmIndices.openDerivedIndecesWindow(dashboard, patternMatchingService.getGroupNameObject().groupName, patternMatchingService.groupData.group , null, false);"></p-radioButton>
+                                    <input  *ngIf ="patternMatchingService.selectedTestIndices==='Specified'" type="text" class="w-50-p ml-10 mb-10" [(ngModel)]="patternMatchingService.finalArrayOfSelectedIndices"   />
+                                    <input  *ngIf ="patternMatchingService.selectedTestIndices==='Advance'" type="text" class="w-50-p ml-10 mb-10" [(ngModel)]="patternMatchingService.expressionForAdvancedSelection"   />
+                                    <!-- <input  type="text" class="w-50-p ml-10 mb-10" [(ngModel)]="expressionForAdvance"  pInputText  (keyup)="getDerievedFormula()" /> -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-10">
+                            <p-pickList [source]="graphList" [target]="targetData" [showSourceControls]="false" [showTargetControls]="false" [responsive]="true" dragdrop="true" [sourceStyle]="{'height':'140px'}" [targetStyle]="{'height':'140px'}" (onMoveToTarget)="picklistToTarget($event);" (onMoveToSource)= "pickListToSource($event);">
+                                <ng-template let-items pTemplate="item" >
+                                    <div class="ui-helper-clearfix">
+                                        <div class="ui-pick-list-text">{{items.label}}</div>
+                                    </div>
+                                </ng-template>
+                            </p-pickList>
+                        </div>
+                    </div>
+                </p-card>
+
+            </p-fieldset>
+        </div>
+    </div>
+    <p-footer>
+        <div class="p-col-12 button-group">
+            <button type="button" pButton icon="icons8 icons8-delete" label="Close" class="ui-outline-button ui-button-secondary" (click)="closeDialog()"></button>
+        <button type="button" pButton *ngIf="categoryType == 'select_graphs'" icon="icons8 icons8-save" class="ui-button ui-button-rounded" label="Save as Catalogue" (click)="saveCatalogue.show(targetData,graphType,metricTypederived,catalogueList)"></button>
+        <button type="button" pButton icon="icons8 icons8-checkmark" class="ui-button ui-button-rounded" label="Match Pattern" (click)="matchPatternMatching();"></button>
+        </div>
+    </p-footer>
+    <div id="centerpoint" >
+        <p-confirmDialog  acceptButtonStyleClass="ui-button-secondary-green"
+        rejectButtonStyleClass="ui-outline-button"  class="confirmdialog" key="deleteCatByName"  acceptLabel="Ok" rejectLabel="Cancel" [(visible)]="deleteCatalogue"></p-confirmDialog>
+        <p-confirmDialog  acceptButtonStyleClass="ui-button-secondary-green"
+        rejectButtonStyleClass="ui-outline-button"  class="confirmdialog" key="metaData"  acceptLabel="Ok"  [(visible)]="metaDataNotFound1"></p-confirmDialog>
+    </div>
+    <div class="loading-indicator" *ngIf="loading">
+        <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4"  animationDuration=".5s"></p-progressSpinner>
+      <!-- <span style="color:black">Saving Dashboard</span>   -->
+      </div>
+</p-dialog>
+<app-save-catalogue #saveCatalogue [patternMatchingComponent]=this></app-save-catalogue>
+<app-catalogue-management #catalogueManagement [dashboard]="dashboard"></app-catalogue-management>
+<app-derived-metric #derivedMetric ></app-derived-metric>
+<app-derived-metric-indices #dmIndices ></app-derived-metric-indices>

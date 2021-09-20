@@ -1,0 +1,23 @@
+<div class="sequence-diagram-container">
+      <div class="p-grid loader-container vertical-container h-100-p" *ngIf="loading && !data">
+            <div class="p-col p-col-align-center text-center">
+                  <div class="loader"><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+            </div>
+      </div>
+
+      <div class="p-grid vertical-container h-100-p" *ngIf="error">
+            <div class="p-col p-col-align-center text-center">
+                  <p-message severity="error" text="{{ error.msg }}"></p-message>
+            </div>
+      </div>
+
+      <div class="p-grid empty-container vertical-container h-100-p" *ngIf="empty">
+            <div class="p-col p-col-align-center text-center">
+                  <!-- <p-message severity="normal" text="No Data"></p-message> -->
+                  <span>No Data Available</span>
+            </div>
+      </div>
+      <div #graphContainer class="graph-container h-100-vh">
+            <app-chart [data]="chartConfigData"></app-chart>
+      </div>
+</div>

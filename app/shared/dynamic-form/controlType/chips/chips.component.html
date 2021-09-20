@@ -1,0 +1,27 @@
+<form [formGroup]="form">
+    <span *ngIf="fieldData?.validators?.required" style="color: red;">*</span>
+    <label>{{fieldData.label }}</label>
+    <i class="icons8 icons8-info" *ngIf="fieldData.description" [pTooltip]="fieldData.description"></i>&nbsp;
+    <i class="fa fa-bolt" *ngIf="fieldData.notifications" [pTooltip]="fieldData.notifications"></i>&nbsp;
+    <p-chips [formControlName]="fieldData.key" [style]="{'margin-top':'5px'}" [attr.readonly]="fieldData.readonly"
+        pTooltip="Press Enter to accept value(s)." class="input-chips" placeholder="Press Enter to accept value(s)."
+        (onBlur)="onBlur($event)">
+    </p-chips>
+
+</form>
+
+<div *ngIf="form.status === 'INVALID'">
+    <b *ngIf="form.controls[fieldData.key].errors !== null" style="color: red;">
+        <ng-container *ngIf="form.controls[fieldData.key].errors.min != null">
+            {{errorMsg?.min + fieldData?.validators?.min}}</ng-container>
+        <ng-container *ngIf="form.controls[fieldData.key].errors.max != null">
+            {{errorMsg?.max + fieldData?.validators?.max}} </ng-container>
+        <ng-container
+            *ngIf="form.controls[fieldData.key].touched && form.controls[fieldData.key].errors.required != null">
+            {{errorMsg?.required}}
+        </ng-container>
+        <ng-container *ngIf="form.controls[fieldData.key].errors.email != null">{{errorMsg?.email}} </ng-container>
+        <ng-container *ngIf="form.controls[fieldData.key].errors.pattern != null">{{errorMsg?.pattern}}
+        </ng-container>
+    </b>
+</div>

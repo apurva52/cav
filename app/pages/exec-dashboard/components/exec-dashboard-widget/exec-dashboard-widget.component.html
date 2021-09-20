@@ -1,0 +1,14 @@
+<!-- <div #widgetRef [(ngGridItem)]="widgetInfo" (onChangeStop)="onChangeStop($event)" > -->
+  <div  class = "graphicalwidgetDiv">
+   <i class="fa fa-arrows graphicalHandle" title = "Drag widget"></i>
+    <div  >
+      <exec-dashboard-hchart [options]="widgetInfo.options"  (load)="load($event.context)" >
+      </exec-dashboard-hchart>
+    </div>
+    <div *ngIf = "_dataContainerService.getOrderRevPanel().includes(widgetInfo.widgetId)" class ="dialpanel">
+      <!-- <exec-dashboard-hchart   [options]="widgetInfo.options" (load)="load($event.context)"> -->
+      <exec-dashboard-hchart   [options]="pannel2" (load)="loadDial($event.context)">
+      </exec-dashboard-hchart>
+    </div>  
+  </div>
+<!-- </div> -->

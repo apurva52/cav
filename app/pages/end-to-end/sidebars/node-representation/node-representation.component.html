@@ -1,0 +1,60 @@
+<p-sidebar
+  #sidebar
+  [(visible)]="visible"
+  position="right"
+  baseZIndex="10000"
+  blockScroll="true"
+  appendTo="body"
+  styleClass="node-action-sidebar"
+  [showCloseIcon]="false"
+  [baseZIndex]="100"
+>
+  <div class="sidebar-header">
+    <div class="sidebar-title">
+      <span>Node Representation</span>
+      <i class="icons8-delete close-icon-css" (click)="hide()"></i>
+    </div>
+  </div>
+
+  <div class="sidebar-content ui-fluid h-100-p">
+    <div class="node-representation-container">
+      <div class="action-button">
+        <div>
+          <button
+          pButton
+          type="button"
+          class="ui-button-secondary ui-button-rounded"
+          label="REMOVE"
+        ></button>
+        <button
+          pButton
+          type="button"
+          class="ui-button-secondary ui-button-rounded"
+          label="ADD"
+        ></button>
+        </div>
+      </div>
+
+      <div class="action-list p-grid">
+        <div class="list-item p-col-3" *ngFor="let item of nodes">
+          <div
+            class="item-icon"
+            [ngClass]="{ selected: item.selected }"
+            (click)="item.selected = !item.selected"
+          >
+            <i [ngClass]="item.icon"></i>
+          </div>
+          <label class="item-label" for="item">{{ item.label }}</label>
+        </div>
+      </div>
+      <div class="text-center button-position p-col-8">
+        <button
+          pButton
+          type="submit"
+          label="SAVE"
+          class="ui-button ui-button-rounded w-100-p"
+        ></button>
+      </div>
+    </div>
+  </div>
+</p-sidebar>

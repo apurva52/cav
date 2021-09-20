@@ -1,0 +1,74 @@
+<p-dialog header="Monitor Information - {{monName}}" [(visible)]="showDialog1" modal="modal"
+  [style]="{width: '900px'}" [baseZIndex]="999" (onHide)="dialogCloseEvent()" appendTo="body">
+  <ng-container *ngIf="displayErrorMsg  === ''">
+    <p-accordion>
+      <p-accordionTab header="{{monName}}" [selected]="true">
+        <ng-container *ngFor="let monGrpData of arrPerGrpData; let i = index;">
+          <div style="margin-bottom: 4%;border: 1px solid">
+            <div class="ui-g">
+              <div class="ui-g-12">
+                <b>Group Description: </b>{{monGrpData.desc}}
+              </div>
+            </div>
+
+            <div class="ui-g">
+              <div class="ui-g-12">
+                <b>Hierarchical View: </b>{{monGrpData.meta}}
+              </div>
+            </div>
+
+            <div class="ui-g">
+              <div class="ui-g-12">
+                <b>Category Name: </b>{{monGrpData.category}}
+              </div>
+            </div>
+          </div>
+
+          <div class="p-grid p-justify-between p-align-center pl-5 pr-5 pb-20">
+            <p-table class="all-tables" [columns]="cols" [value]="monGrpData.graph" scrollable="true" scrollHeight="180px">
+              <ng-template pTemplate="header" let-columns>
+                <tr>
+                  <th style="width:40px">
+                    <span title="Serial Number">#</span>
+                  </th>
+                  <th *ngFor="let col of columns" style="width: 100%;">
+                    {{col.header}}
+                  </th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+                <tr class="scen-ptable-tbody">
+                  <td style="width:40px">
+                    {{index + 1}}
+                  </td>
+                  <td *ngFor="let col of columns" style="white-space: pre-wrap;">
+                    {{rowData[col.field]}}
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                  <td [attr.colspan]="columns.length+3" class="noRecords text-center">No records found.
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+
+        </ng-container>
+      </p-accordionTab>
+    </p-accordion>
+  </ng-container>
+</p-dialog>
+
+<p-dialog header="Monitor Information - {{monName}}" [(visible)]="showDialog2" modal="modal"
+  [style]="{width: '900px'}" [baseZIndex]="999" (onHide)="dialogCloseEvent()" appendTo="body">
+  <ng-container *ngIf="displayErrorMsg != ''">
+    <div style="text-align: center; font-weight: 700; padding:12px">
+      {{displayErrorMsg}}
+    </div>
+  </ng-container>
+</p-dialog>

@@ -1,0 +1,252 @@
+<div class = 'maincontainer'>  
+    <div class="header ">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar ">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+          
+            <div class="p-col ui-toolbar-text">Ip details</div>
+        </div>
+    </p-toolbar>
+    <p-card  style='text-align:center;'> 
+        <p-header></p-header>
+        <div class="p-grid"> 
+            <div class="p-col">Server Name</div>
+            <div class="p-col">Run</div>
+        </div>
+        <div class="p-grid"> 
+            <div class="p-col">Server Ip</div>
+            <div class="p-col">Run</div>
+        </div>
+        <div class="p-grid"> 
+            <div class="p-col">Ubuntu Version</div>
+            <div class="p-col">Status</div>
+        </div>
+        <div class="p-grid">
+            <div class="p-col">Status</div>
+            <div class="p-col">Status</div>
+        </div>
+        <div class="p-grid"> 
+            <div class="p-col">Server Type</div>
+            <div class="p-col">Run</div>
+        </div>
+        <div class="p-grid"> 
+            <div class="p-col">vendor</div>
+            <div class="p-col">Run</div>
+        </div>
+        <div class="p-grid"> 
+            <div class="p-col">Location</div>
+            <div class="p-col">Run</div>
+        </div>
+        <div class="p-grid"> 
+            <div class="p-col">Zone</div>
+            <div class="p-col">Run</div>
+        </div>
+        <div class="p-grid"> 
+            <div class="p-col">CPU</div>
+            <div class="p-col">Run</div>
+        </div>
+        <div class="p-grid"> 
+            <div class="p-col">RAM</div>
+            <div class="p-col">Run</div>
+        </div>
+        <div class="p-grid">
+            <div class="p-col">Disk Size</div>
+            <div class="p-col">Run</div>
+        </div>
+        <div class="p-grid"> 
+            <div class="p-col">Security Group</div>
+            <div class="p-col">Run</div>
+        </div>
+       
+    </p-card>
+    <p-card>  
+        <p-header>General Information for IP</p-header>
+        <p-table #servers [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true"
+           
+            
+            [scrollable]="true" [responsive]="true" selectionMode="single" editMode="row" class="all-tables">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width">
+                </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                        <div class="text-left">
+                            {{ col.label }}
+                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right" ariaLabel="Activate to sort"
+                                ariaLabelDesc="Activate to sort in descending order"
+                                ariaLabelAsc="Activate to sort in ascending order">
+                            </p-sortIcon>
+                        </div>
+                    </th>
+        
+                </tr>
+               
+            </ng-template>
+            <ng-template pTemplate="body" let-row let-columns="columns">
+                <tr>
+                    <td *ngFor="let col of columns" class="{{ col.classes }}">
+                        <span title="{{ row[col.valueField] }}"
+                           >
+                            {{ row[col.valueField] }}
+                        </span>
+                        
+                    </td>
+                </tr>
+            </ng-template>
+        
+        </p-table>
+    </p-card>
+    <p-card> 
+        <p-table #servers [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true"
+           
+            [scrollable]="true" [responsive]="true" selectionMode="single" editMode="row" class="all-tables">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width">
+                </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                        <div class="text-left">
+                            {{ col.label }}
+                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right" ariaLabel="Activate to sort"
+                                ariaLabelDesc="Activate to sort in descending order"
+                                ariaLabelAsc="Activate to sort in ascending order">
+                            </p-sortIcon>
+                        </div>
+                    </th>
+        
+                </tr>
+                <!-- <tr *ngFor="let headerRow of data.headers">
+                    <ng-container *ngIf="isEnabledColumnFilter">
+        
+                        <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                            <div *ngIf="
+                                                  col.filter.isFilter === true &&
+                                                  col.filter.type === 'custom'
+                                                ">
+                                <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label" pInputText
+                                    type="text" (input)="servers.filter($event.target.value,col.valueField,'custom' )" />
+                            </div>
+                            <div *ngIf=" col.filter.isFilter === true && col.filter.type === 'contains'
+                                                ">
+                                <input class="w-100-p" pTooltip="Enter text to search" *ngSwitchCase="col.label" pInputText
+                                    type="text" (input)="
+                                            servers.filter( $event.target.value,col.valueField,'contains' )" />
+                            </div>
+                        </th>
+                    </ng-container>
+                </tr> -->
+            </ng-template>
+            <ng-template pTemplate="body" let-row let-columns="columns">
+                <tr>
+                    <td *ngFor="let col of columns" class="{{ col.classes }}">
+                        <span title="{{ row[col.valueField] }}">
+                            {{ row[col.valueField] }}
+                        </span>
+                        
+                    </td>
+                </tr>
+            </ng-template>
+        
+        </p-table>
+    </p-card>
+    <p-card> 
+        <p-header> Run Command</p-header> 
+        <div class="p-grid">
+            <div class="p-col">Command</div>
+            <div class="p-col">Run</div>
+        </div>
+        <div class="p-grid"> 
+            <div class="p-col"> 
+                <p-dropdown [options]="Commands" [(ngModel)]="selectedComand"></p-dropdown>
+            </div>
+            <div class="p-col"> 
+                <button pButton type="button" label="run"></button>
+            </div>
+        </div> 
+        <div>  
+            <div class="action-buttons">
+                <div class="search-section">
+                    <div class="pr-10">
+                        <i class="dashboard icons8 icons8-search"></i>
+                        <div class="p-align-center">
+                            <input type="text" [value]="" pInputText size="50" placeholder="Search"
+                                (input)="servers.filterGlobal($event.target.value,'contains')" class="search-box" />
+                        </div>
+                    </div>
+                </div>
+                <div class="icons-container">
+                   
+            </div> 
+            </div>
+            <p-table #servers [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true" [scrollable]="true" 
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true"
+            [totalRecords]="totalRecords" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                [responsive]="true" selectionMode="single" editMode="row" class="all-tables">
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col *ngFor="let col of columns" [style.width]="col.width">
+                    </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                            <div class="text-left">
+                                {{ col.label }}
+                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right" ariaLabel="Activate to sort"
+                                    ariaLabelDesc="Activate to sort in descending order"
+                                    ariaLabelAsc="Activate to sort in ascending order">
+                                </p-sortIcon>
+                            </div>
+                        </th>
+            
+                    </tr>
+                    <!-- <tr *ngFor="let headerRow of data.headers">
+                                <ng-container *ngIf="isEnabledColumnFilter">
+                    
+                                    <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                        <div *ngIf="
+                                                              col.filter.isFilter === true &&
+                                                              col.filter.type === 'custom'
+                                                            ">
+                                            <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label" pInputText
+                                                type="text" (input)="servers.filter($event.target.value,col.valueField,'custom' )" />
+                                        </div>
+                                        <div *ngIf=" col.filter.isFilter === true && col.filter.type === 'contains'
+                                                            ">
+                                            <input class="w-100-p" pTooltip="Enter text to search" *ngSwitchCase="col.label" pInputText
+                                                type="text" (input)="
+                                                        servers.filter( $event.target.value,col.valueField,'contains' )" />
+                                        </div>
+                                    </th>
+                                </ng-container>
+                            </tr> -->
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns">
+                    <tr>
+                        <td *ngFor="let col of columns" class="{{ col.classes }}">
+                            <span title="{{ row[col.valueField] }}"
+                                >
+                                {{ row[col.valueField] }}
+                            </span>
+                           
+                        </td>
+                    </tr>
+                </ng-template>
+            
+            </p-table>
+        </div>
+    </p-card>
+    <p-card> 
+        <p-header>
+            Location Wise servers <a href="#" style="color: rgb(0, 89, 255);display: block">click to load map</a>
+        </p-header> 
+        <div style="height: 400px;"></div>
+    </p-card>
+</div>

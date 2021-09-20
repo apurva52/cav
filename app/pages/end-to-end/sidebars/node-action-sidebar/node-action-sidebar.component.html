@@ -1,0 +1,44 @@
+<p-sidebar #sidebar [(visible)]="isVisible" position="right" baseZIndex="10000" blockScroll="true" appendTo="body" styleClass="node-action-sidebar" [showCloseIcon]="false" [baseZIndex]="100">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <i *ngIf="topTransaction" class="icons8 icons8-left" (click)="closeSidepanel()"></i>
+            <span *ngIf="nodeRepresentation" class="capitalize">Node Representation </span>
+            <span *ngIf="nodeInfo">Tier : CC-E-OH-Columbus-CO</span>
+            <span *ngIf="showDashboard ">Tier : CC-E-OH-Columbus-CO </span>
+            <span *ngIf="topTransaction" class="capitalize">Top 10 Transactions By Tps </span>
+            <i class="icons8-delete close-icon-css" (click)="closeClick()"></i>
+            <app-node-action-menu *ngIf="showDashboard || nodeInfo"></app-node-action-menu>
+        </div>
+    </div>
+
+    <div class="sidebar-content ui-fluid">
+        show something
+        <!-- for node transaction -->
+        <ng-container *ngIf="nodeRepresentation">
+            <app-node-representation></app-node-representation>
+        </ng-container>
+
+        <!-- for top transaction -->
+        <ng-container *ngIf="topTransaction">
+            <app-top-transaction></app-top-transaction>
+        </ng-container>
+
+        <!-- for dashboard -->
+        <ng-container *ngIf="showDashboard">
+            <!-- <app-show-dahboard></app-show-dahboard> -->
+        </ng-container>
+
+        <!-- for node-info -->
+        <ng-container *ngIf="nodeInfo">
+            <app-node-info></app-node-info>
+        </ng-container>
+
+
+
+    </div>
+</p-sidebar>
+
+<ng-container *ngIf="searchSidebar">
+    <app-search-sidebar></app-search-sidebar>
+
+</ng-container>

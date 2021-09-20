@@ -1,0 +1,62 @@
+<p-dialog
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [modal]="true"
+  [(visible)]="visible"
+  [style]="{ width: '25vw' }"
+  [baseZIndex]="10000"
+  class="create-indices"
+>
+  <p-header>
+    <div class="p-grid create-indices-header">
+      <div class="title">Create Indices</div>
+      <div class="close-button">
+        <button
+          pButton
+          icon="icons8 icons8-delete"
+          class="ui-icon-button"
+          (click)="hide()"
+        ></button>
+      </div>
+    </div>
+  </p-header>
+  <div class="body">
+    <div class="ui-fluid">
+      <div class="p-field p-grid">
+        <label for="indexName" class="p-col-12 p-md-2">Index Name</label>
+        <div class="p-col-12 p-md-10">
+          <input id="indexName" type="text" pInputText />
+        </div>
+      </div>
+      <div class="p-field p-grid">
+        <label for="shards" class="p-col-12 p-md-2">#Shards</label>
+        <div class="p-col-12 p-md-10">
+          <input id="shards" type="text" pInputText />
+        </div>
+      </div>
+      <div class="p-field p-grid">
+        <label for="replicas" class="p-col-12 p-md-2">#Replicas</label>
+        <div class="p-col-12 p-md-10">
+          <input id="replicas" type="text" pInputText />
+        </div>
+      </div>
+    </div>
+  </div>
+  <p-footer>
+    <div class="action-buttons">
+      <button
+        pButton
+        label="Cancel"
+        class="ui-outline-button ui-button-secondary"
+        (click)="hide()"
+      ></button>
+      <button
+        pButton
+        label="Save"
+        class="ui-outline-button ui-button-primary"
+        (click)="saveChanges()"
+      ></button>
+    </div>
+  </p-footer>
+</p-dialog>

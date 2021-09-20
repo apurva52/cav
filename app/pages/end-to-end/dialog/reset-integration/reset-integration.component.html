@@ -1,0 +1,72 @@
+<p-dialog class="secondary-dialog" [draggable]="false" [(visible)]="visible" closeIcon="icons8-delete" header="Reset Integration Point Names" [style]="{width: '50vw'}">
+    <div class="">
+        <div class="p-col-12 button-row-position">
+            <i class="icons8-search-property filter-search-icon " (click)="toggleFilters()"></i>
+        </div>
+        <div class="p-col-12"> <label class="label-css">Select Integration Point Names to reset</label> </div>
+        <!-- <p-card class="min-card">
+            <p-table #resetIntegration [columns]="data.tableData3.headers" [value]="data.tableData3.data" [rowHover]="true" [paginator]="false" [responsive]="true" [scrollable]="true" scrollHeight="calc(100px)" selectionMode="single">
+                <ng-template pTemplate="header" let-columns>
+                    <tr *ngFor="let column of columns;let i = index">
+                        <th class="columnwidth"> </th>
+                        <th *ngFor="let col of column.cols;let i = index" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" class="text-left">
+                            <div class="p-grid p-align-center p-justify-between">
+                                <div class="text-center"> {{ col.label }} </div>
+                            </div>
+                        </th>
+                    </tr>
+                    <tr *ngFor="let headerRow of data.tableData3.headers">
+                        <ng-container *ngIf="isEnabledColumnFilter">
+                            <th class="columnwidth"> </th>
+                            <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                <div *ngIf="col.filter.isFilter === true && col.filter.type === 'custom'"> <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText
+                                        type="text" (input)="resetIntegration.filter($event.target.value, col.valueField , 'custom')">
+                                </div>
+                                <div *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'"> <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="resetIntegration.filter($event.target.value, col.valueField , 'contains')">
+                                </div>
+                            </th>
+                        </ng-container>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                    <tr *ngFor="let column of columns;let i = index">
+                        <td class="columnwidth">
+                            <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                        </td>
+                        <td *ngFor="let col of column.cols; let i = index" class="{{ col.classes }}"> <span>
+                                {{ row[col.valueField] }} </span> </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage" let-columns>
+                    <tr>
+                        <td [attr.coldiv]="columns.length + 1" class="text-center"> <span *ngIf="error">Error while
+                                loading data</span> <span *ngIf="empty">Empty Table</span> <span *ngIf="loading">Loading</span> </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card> -->
+
+    </div>
+
+    <p-footer>
+        <div class="p-grid p-col-12 button-row-position">
+            <!-- <button pButton type="button" class="ui-outline-button ui-button-secondary button-right-margin" label="" (click)="closePopup()">
+                <div class="button-text-margin"> 
+                    <i class="icons8-delete left"></i> 
+                    <label>Cancel</label> 
+                </div>
+            </button>
+            <button pButton type="button" label="" class="ui-outline-button ui-button-secondary button-right-margin">
+                <div class="button-text-margin"> 
+                    <i class="icons8-checkmark left"></i> 
+                    <label>Reset</label>
+                 </div>
+            </button> -->
+
+            <button pButton type="button" class="ui-outline-button ui-button-secondary" icon="icons8 icons8-delete" iconPos="left" label="Cancel" (click)="closePopup()"></button>
+
+            <button pButton type="button" class="ui-outline-button ui-button-secondary" icon="icons8 icons8-checkmark" iconPos="left" label="Reset" (click)="closePopup()"></button>
+
+        </div>
+    </p-footer>
+</p-dialog>

@@ -1,0 +1,142 @@
+<div class="header">
+    <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a routerLink="/home/home-sessions">
+            <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">
+            Page Performance Details
+        </div>
+    </div>
+</p-toolbar>
+<div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+</div>
+
+
+<div class="p-grid loader-container vertical-container" *ngIf="loading && !data">
+    <div class="p-col p-col-align-center text-center">
+        <div><i class="pi pi-spin pi-spinner"></i> <span>Loading ...</span></div>
+    </div>
+</div>
+<div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+        <p-message severity="error" text="Failed to get the data."></p-message>
+    </div>
+</div>
+<div class="performance-container">
+    <div>
+        <div class="action-container" *ngIf="data">
+            <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p p-nogutter">
+                <div class="p-col">
+                    <button type="button" pButton icon="icons8 icons8-filter" pTooltip="Page Performance Filter"
+                        class="icon-button no-shadow" (click)="pagePerformanceSidebar.open()"></button>
+                </div>
+                <div class="p-col text-right">
+                    <p-toggleButton [(ngModel)]="compareMode" [onLabel]="'COMPARE ON'" [offLabel]="'COMPARE OFF'"
+                        styleClass="ui-button-rounded ui-button-secondary"
+                        [pTooltip]="'Turn ' + (compareMode? 'OFF':'ON') + ' Compare Mode'"></p-toggleButton>
+
+                    <button pButton type="button" label="PAGE PERFORMANCE OVERVIEW"
+                        class="ui-button-rounded ui-button-secondary ml-10" (click)="navigate()"></button>
+                </div>
+            </div>
+
+
+            <div class="p-grid p-col-12 p-justify-between p-align-center p-col-nogutter">
+
+                <p-tabMenu [model]="items" [activeItem]="activeTab" class="w-100-p"></p-tabMenu>
+                <!-- Detail/Compare Detail Tab -->
+                <div class="tab-content" *ngIf="selectedTab === 'details'">
+                    <ng-container *ngIf="!compareMode">
+                        <div class="p-grid p-col-12 content">
+                            <p-card>
+                                <div class="p-grid p-justify-center" *ngIf="pagePerformanceItems.length">
+
+                                    <div class="loaded-data mh-10 mv-10" *ngFor="let item of pagePerformanceItems">
+                                        <div class="heading">
+                                            <span>{{item.header}} <i (click)="getInformation(item.key)"
+                                                    class="icons8 icons8-info"></i></span>
+                                        </div>
+                                        <div class="description">
+                                            <div> {{ (item.description < 0 ) ? "-" : (item.description + " sec" ) }}
+                                                    </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                            </p-card>
+                        </div>
+
+                        <div class="p-col-12">
+                            <app-chart [data]="data.charts[0]" [setChart]="data.charts[0]"></app-chart>
+                        </div>
+
+                        <div class="p-grid p-col-12">
+                            <p-card>
+                                <p-table #cavissonServices [resizableColumns]="true" [columns]="data.headers[0].cols"
+                                    [value]="data.data" [paginator]="true" [rows]="data.paginator.rows"
+                                    [rowHover]="true" [responsive]="true" [scrollable]="true" scrollHeight="400px"
+                                    [rowsPerPageOptions]="data.paginator.rowsPerPageOptions">
+
+                                    <ng-template pTemplate="header" let-columns>
+                                        <tr>
+                                            <th *ngFor="let col of columns; let i = index"
+                                                [pSortableColumn]="col.valueField">
+                                                <div class="text-left">
+                                                    {{ col.label }}
+                                                    <p-sortIcon *ngIf="col.isSort" [field]="col.valueField"
+                                                        class="right" ariaLabel="Activate to sort"
+                                                        ariaLabelDesc="Activate to sort in descending order"
+                                                        ariaLabelAsc="Activate to sort in ascending order">
+                                                    </p-sortIcon>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+
+                                        <tr>
+                                            <td *ngFor="let col of columns">
+                                                {{ row[col.valueField] }}
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+
+
+                                </p-table>
+                            </p-card>
+                        </div>
+                    </ng-container>
+
+                    <app-performance-details-compare [parsepagefilter]='filterforcompare' *ngIf="compareMode">
+                    </app-performance-details-compare>
+                </div>
+                <!-- Resource/Compare REsource Tab -->
+                <div class="tab-content" *ngIf="selectedTab === 'resource'">
+                    <app-resource-performance [newFilterEvent]="filterCriteria" *ngIf="!compareMode">
+                    </app-resource-performance>
+                    <app-resource-performance-compare [parsepagefilter]='filterforcompare' *ngIf="compareMode">
+                    </app-resource-performance-compare>
+                </div>
+                <!-- Domain/Compare Resource Tab -->
+                <div class="tab-content" *ngIf="selectedTab === 'domain'">
+                    <app-domain-performance [newFilterEvent]="filterCriteria" *ngIf="!compareMode">
+                    </app-domain-performance>
+                    <app-domain-performance-compare [parsepagefilter]='filterforcompare' *ngIf="compareMode">
+                    </app-domain-performance-compare>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <app-page-performance-filter #pagePerformanceSidebar (newFilterEvent)="pageperformancefilter($event)">
+    </app-page-performance-filter>
+    <p-dialog [(visible)]="display" [header]="header" [responsive]="true" [style]="{width:'35vw'}"
+        class="success-dialog">
+        <p>{{content}}</p>
+    </p-dialog>

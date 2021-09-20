@@ -1,0 +1,39 @@
+<div class="blockedUI" *ngIf="execDashboardCommonKpiDataService.$blockUI"
+  style=" position: absolute;margin-top: 0.4%; ">
+  <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw gkpiloadingIcon"></i>
+</div>
+<p-toolbar class="ed-toolbar">
+  <!-- <div class="ui-toolbar-group-left">
+    <p-paginator class="dashboard-pagination" rows="10" totalRecords="100" pageLinkSize="3" (onPageChange)="paginateView($event)"></p-paginator>
+  </div> -->
+  <div class="ui-toolbar-group-right">
+    <span class="sampleTimeClass">Last Sample Time:</span>
+    <span class="timeLabel">{{lastSampleTime}}</span>
+
+    <!-- Refreshes Graphical KPI -->
+    <!-- Right Now refresh button is commented-->
+    <!-- <button class="marginRight" pButton type="button" pTooltip="Refresh View" icon="fa fa-refresh" (click)="onRefreshClick()"
+      tooltipPosition="bottom"></button> -->
+
+    <!-- Displaying Graph Time -->
+    <app-exec-dashboard-graph-time class="marginRight" tooltipPosition="bottom"></app-exec-dashboard-graph-time>
+  </div>
+</p-toolbar>
+<!-- Creating div for widgets -->
+<div class="ed-gkpi">
+  <!-- <div [ngGrid]="widgetConf"> -->
+    <div *ngFor="let widget of widgets" (dblclick)="onWidgetMaximize($event,widget)">
+      <app-exec-dashboard-widget [widgetInfo]="widget"></app-exec-dashboard-widget>
+    </div>
+
+    <div *ngIf="display">
+      <p-dialog [header]="singleViewHeaderTitle" class='edSinglePanelPopup' [(visible)]="display" [draggable]="false"
+        [resizable]="false" modal="true" [responsive]="true">
+        <app-exec-dashboard-single-view-panel [chartData]="chart"></app-exec-dashboard-single-view-panel>
+      </p-dialog>
+    </div>
+  <!-- </div> -->
+</div>
+<div>
+  <p-growl [(value)]="_graphicalKpiService.msgs"></p-growl>
+</div>

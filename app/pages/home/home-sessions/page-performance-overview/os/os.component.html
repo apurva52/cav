@@ -1,0 +1,175 @@
+<div class="p-grid loader-container vertical-container" *ngIf="loading && !data">
+  <div class="p-col p-col-align-center text-center">
+    <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+  </div>
+</div>
+<div class="p-grid vertical-container" *ngIf="error != null">
+  <div class="p-col p-col-align-center text-center">
+    <p-message severity="error" text="{{ error.message }}"></p-message>
+  </div>
+</div>
+<div class="p-grid vertical-container" *ngIf="empty">
+  <div class="p-col p-col-align-center text-center">
+    <p-message severity="normal" text="No Data"></p-message>
+  </div>
+</div>
+<div class="page-container" *ngIf="isShowAll">
+ <p-messages *ngIf="msg.length > 0 " [(value)]="msg"> </p-messages>
+  <div #widgetHeight [ngStyle]="{
+      height: isEnabledColumnFilter
+        ? 'calc(100vh - 270px)'
+        : 'calc(100vh - 230px)'
+    }">
+    <div class="action-container" *ngIf="data" (rowClick)="serviceMethodTiming($event);">
+      <div class="p-grid p-justify-between p-align-center action-grid w-100-p mb-5">
+        <div class="global-search-block p-grid">
+          <button type="button" class="btn-icon mx-3" (click)="pagePerformanceSidebar.openfilter()">
+              <i class="icons8 icons8-filter"></i>
+            </button>
+            <div class="type-search width-250">
+              <i class="icons8 icons8 icons8-search btn-icon left-icon"></i>
+            <input pInputText type="text" #searchInput class="pl-20"
+            (input)="rumanalytics.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+        </div>
+        </div>
+
+
+        <div class="icons-container p-justify-between p-align-center">
+
+          <p-menu #analyticsMenu [popup]="true" styleClass="widget-menu" [model]="analyticsOptions"
+            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+          <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns"
+            optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+            pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }" styleClass="dropdown-panel-left">
+          </p-multiSelect>
+          <button pButton icon="icons8 icons8-search-property" class="btn-icon mx-3" (click)="toggleFilters()"
+            pTooltip="Column Filter"></button>
+		<button pButton icon="icons8 icons8-installing-updates" class="btn-icon mx-3"
+                                    (click)="rumanalytics.exportCSV()" pTooltip="Export table as CSV"></button>
+           <button pButton icon="icons8 icons8-export" class="icon-button no-shadow" (click)="exportRumpageOverview()" pTooltip="Export as XLS"></button>
+
+          <p-menu #menuDownload [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+        
+        <button pButton label="COMPARE PERFORMANCE" (click)="showResponse(1,{})"
+          class="ui-button ui-button-rounded ui-button-secondary results"></button>
+        <button pButton label="Page Performance Detail" (click)="showPerformanceDetails()"
+   class="ui-button ui-button-rounded ui-button-secondary results"></button>
+        </div>
+      </div>
+
+      <ng-container>
+     
+          <p-table #rumanalytics [globalFilterFields]="globalFilterFields" exportFilename="RUMAnalyticsOverview" [resizableColumns]="true" [columns]="selectedColumns" [value]="data.data" [rowHover]="true"
+            [paginator]="true" [rows]="data.paginator.rows" [totalRecords]="data.data.length"
+            class="all-tables"
+            [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+            [scrollable]="true" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 200px)" selectionMode="single"
+            [(selection)]="selectedRow" sortMode="single">
+            <ng-template pTemplate="colgroup" let-columns>
+              <colgroup>
+                <col *ngFor="let col of columns" [style.width]="col.width" />
+              </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th *ngFor="let col of columns; let i = index" pResizableColumn [pSortableColumn]="col.field">
+                    <div class="text-left" style="white-space: normal;">
+                          <span title="{{ col.label }}">{{ col.label }}</span>
+			<p-sortIcon *ngIf="col.isSort" [field]="col.field" class="right"
+                        ariaLabel="Activate to sort"
+                        ariaLabelDesc="Activate to sort in descending order"
+                        ariaLabelAsc="Activate to sort in ascending order">
+                    </p-sortIcon>
+                </div>
+                  <!-- <div class="text-left">
+                    {{ col.label }}
+                    <p-sortIcon *ngIf="col.isSort" [field]="col.field" class="right" ariaLabel="Activate to sort"
+                      ariaLabelDesc="Activate to sort in descending order"
+                      ariaLabelAsc="Activate to sort in ascending order">
+                    </p-sortIcon>
+                  </div> -->
+                </th>
+              </tr>
+              <tr *ngFor="let headerRow of data.headers">
+                <ng-container *ngIf="isEnabledColumnFilter">
+                  <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                    <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'custom'
+                      ">
+                      <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                        pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                          rumanalytics.filter(
+                            $event.target.value,
+                            col.field,
+                            'custom'
+                          )
+                        " />
+                    </div>
+                    <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'contains'
+                      ">
+                      <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                        pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label"
+                        pInputText type="text" (input)="
+                          rumanalytics.filter(
+                            $event.target.value,
+                            col.field,
+                            'contains'
+                          )
+                        " />
+                    </div>
+                  </th>
+                </ng-container>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row let-columns="columns ">
+              <tr [pSelectableRow]="row" >
+                <td *ngFor="let col of columns" class="{{ col.classes }}">
+    		<span *ngIf="col.field == 'osall' || col.field == 'pagecount'" pTooltip={{row[col.field]}}>
+                {{ row[col.field]}}
+               </span>
+               <span *ngIf="col.field != 'osall' && col.field != 'pagecount'" style="color:blue;cursor:pointer" pTooltip={{row[col.field]}} (click)="showResponse(2,row)">
+              {{ row[col.field]}}
+              </span>
+                </td>
+              </tr>
+            </ng-template>
+            <!-----------Empty table error handling--------------------->
+            <ng-template pTemplate="emptymessage" let-columns>
+              <tr>
+                <td [attr.colspan]="columns.length + 1" class="text-center">
+                  <span *ngIf="error != null">Error while loading data</span>
+                  <span *ngIf="emptyTable">Empty Table</span>
+                  <span *ngIf="loading">Loading</span>
+
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        
+      </ng-container>
+      <br>
+      <div *ngIf ="enableChart">
+      <div class="p-col-12 no-padding" *ngFor="let chart of data.charts">
+        <app-chart [data]="chart"></app-chart>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isShowComparePerformance">
+  <app-compare-performance  [hname] = '"osall"' [cname] = '"OS Name"' [Type]='"osAll"' [parsepagefilter]='filterforcompare' (arrowClick)="hotspotSummary($event)"></app-compare-performance>
+</div>
+<div *ngIf="isShowPerformance">
+  <app-performance-details [hname] = '"osall"' [metadata]='metadata' [pagedetailinfo] ='pagedetailinfo.osall' [parsepagefilter]='filterforcompare' ></app-performance-details>
+</div>
+<div *ngIf="isShowPerformancedetail">
+  <app-performance-details [metadata]='metadata'  [parsepagefilter]='filterforcompare' (arrowClick)="hotspotSummary($event)"></app-performance-details>
+</div>
+<app-page-performance-filter (newFilterEvent)="pageperformancefilter($event)" #pagePerformanceSidebar></app-page-performance-filter>

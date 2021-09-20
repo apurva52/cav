@@ -1,0 +1,48 @@
+<div class="h-100-vh postgress-stats-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/home-sessions">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                PATH ANALYTICS
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+   
+    <div>
+        <div class="action-container">
+            <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                <div>
+                    <i class="icons8 icons8-filter left filter-icon clickable" title="Clik Here to Open Filter Path Analytics Filter" (click)="filterSidebar.open()"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="!navdata">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="navdata && navdata.length == 0">
+        <div class="p-col p-col-align-center text-center">
+            No Data Available !
+        </div>
+    </div>
+
+ <app-navigationpathanalysis  *ngIf='navdata !== null && len > 0 && mode == "NavigationSummary"'  [refinedData]='navdata' [filter]='filter' [maxnodelength]= 'maxnodelength'></app-navigationpathanalysis>
+
+ <app-viewflowpathanalysis *ngIf='navdata != null && len > 0 && mode == "UserFlowReport"'  (onChange)='applyFilter($event)' (onFilterData) = 'applyFilter($event)' [response]='responsedata'  [filter]='filter' [refinedData]='navdata' [totalCount]='totalCount' [maxSankeyChartDepth]='maxSankeyChartDepth' [maxnodelength]='maxnodelength'></app-viewflowpathanalysis>
+ 
+</div>
+
+<app-path-analytics-filter #filterSidebar (filterChange)="applyFilter($event)"></app-path-analytics-filter>

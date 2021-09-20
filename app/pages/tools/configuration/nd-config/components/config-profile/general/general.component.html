@@ -1,0 +1,142 @@
+<div class='tabs-all' *ngIf="agentType == 'Java' || agentType == '-'">
+  <p-tabView class="sessionTab" (onChange)="handleChange($event)">
+    <p-tabPanel header="Flowpath" [selected]="index == 0">
+      <app-flowpath *ngIf="index == 0" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-flowpath>
+    </p-tabPanel>
+    <p-tabPanel header="Hotspot" [selected]="index == 1">
+      <app-hotspot *ngIf="index == 1" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-hotspot>
+    </p-tabPanel>
+    <p-tabPanel header="Exception Capturing" [selected]="index == 2">
+        <app-exception-capturing *ngIf="index == 2" (keywordData)="saveKeywordData($event)"></app-exception-capturing>
+    </p-tabPanel>
+    <p-tabPanel header="HTTP Data" [selected]="index == 3">
+      <app-headerss *ngIf="index == 3" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-headerss>
+    </p-tabPanel>
+    <p-tabPanel header="Custom Data" [selected]="index == 4">
+      <app-custom-dataa *ngIf="index == 4" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-custom-dataa>
+    </p-tabPanel>
+    <p-tabPanel header="Instrumentation Profile" [selected]="index == 5">
+      <app-instrumentation-profiles [profileId]="profileId" *ngIf="index == 5" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-instrumentation-profiles>
+    </p-tabPanel>
+    <p-tabPanel header="Percentile" [selected]="index == 6">
+      <app-percentile *ngIf="index == 6" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-percentile>
+    </p-tabPanel>
+    <p-tabPanel header="Others" [selected]="index == 7">
+      <app-other *ngIf="index == 7" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-other>
+    </p-tabPanel>
+  </p-tabView>
+</div>
+
+<div class='tabs-all' *ngIf="agentType == 'NodeJS'">
+    <p-tabView class="sessionTab" (onChange)="handleChange($event)">
+      <p-tabPanel header="Flowpath" [selected]="index == 0">
+        <app-flowpath *ngIf="index == 0" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-flowpath>
+      </p-tabPanel>
+      <p-tabPanel header="Hotspot" [selected]="index == 1">
+        <app-hotspot *ngIf="index == 1" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-hotspot>
+      </p-tabPanel>
+      <p-tabPanel header="Exception Capturing" [selected]="index == 2">
+        <app-exception-capturing *ngIf="index == 2" (keywordData)="saveKeywordData($event)"></app-exception-capturing>
+      </p-tabPanel>
+      <p-tabPanel header="HTTP Data" [selected]="index == 3">
+        <app-headerss *ngIf="index == 3" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-headerss>
+      </p-tabPanel>
+      <p-tabPanel header="Custom Data" [selected]="index == 4">
+        <app-custom-dataa *ngIf="index == 4" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-custom-dataa>
+      </p-tabPanel>
+      <p-tabPanel header="Instrumentation Profile" [selected]="index == 5">
+        <app-instrumentation-profiles [profileId]="profileId" *ngIf="index == 5" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-instrumentation-profiles>
+      </p-tabPanel>
+      <p-tabPanel header="Event Correlation" [selected]="index == 6">
+	<app-event-correlation [profileId]="profileId" *ngIf="index == 6" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-event-correlation>
+      </p-tabPanel>
+      <p-tabPanel header="Percentile" [selected]="index == 7">
+            <app-percentile *ngIf="index == 7" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-percentile>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+
+  <div class='tabs-all' *ngIf="agentType == 'Dot Net'">
+      <p-tabView class="sessionTab" (onChange)="handleChange($event)">
+        <p-tabPanel header="Flowpath" [selected]="index == 0">
+          <app-flowpath *ngIf="index == 0" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-flowpath>
+        </p-tabPanel>
+        <p-tabPanel header="Hotspot" [selected]="index == 1">
+          <app-hotspot *ngIf="index == 1" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-hotspot>
+        </p-tabPanel>
+        <p-tabPanel header="Exception Capturing" [selected]="index == 2">
+            <app-exception-capturing *ngIf="index == 2" (keywordData)="saveKeywordData($event)"></app-exception-capturing>
+        </p-tabPanel>
+        <p-tabPanel header="HTTP Data" [selected]="index == 3">
+          <app-headerss *ngIf="index == 3" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-headerss>
+        </p-tabPanel>
+        <p-tabPanel header="Instrumentation Profile" [selected]="index == 4">
+          <app-instrumentation-profiles [profileId]="profileId" *ngIf="index == 4" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-instrumentation-profiles>
+        </p-tabPanel>
+    	<p-tabPanel header="Percentile" [selected]="index == 5">
+     	 <app-percentile *ngIf="index == 5" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-percentile>
+   	 </p-tabPanel>
+      </p-tabView>
+    </div>
+
+    <div class='tabs-all' *ngIf="agentType == 'Php'">
+      <p-tabView class="sessionTab" (onChange)="handleChange($event)">
+        <p-tabPanel header="Flowpath" [selected]="index == 0">
+          <app-flowpath *ngIf="index == 0" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-flowpath>
+        </p-tabPanel>
+        <p-tabPanel header="Instrumentation Profile" [selected]="index == 1">
+          <app-instrumentation-profiles [profileId]="profileId" *ngIf="index == 1" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-instrumentation-profiles>
+        </p-tabPanel>
+      </p-tabView>
+    </div>
+
+    <div class='tabs-all' *ngIf="agentType == 'Python'">
+      <p-tabView class="sessionTab" (onChange)="handleChange($event)">
+        <p-tabPanel header="Flowpath" [selected]="index == 0">
+          <app-flowpath *ngIf="index == 0" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-flowpath>
+        </p-tabPanel>
+        <p-tabPanel header="Instrumentation Profile" [selected]="index == 1">
+          <app-instrumentation-profiles [profileId]="profileId" *ngIf="index == 1" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-instrumentation-profiles>
+        </p-tabPanel>
+      </p-tabView>
+    </div>
+
+<p-dialog class="secondary-dialog" header="{{dialogHeader}}" *ngIf="errDialog" [(visible)]="errDialog" modal="modal"
+  width="500" responsive="true">
+  <div style="max-height: 500px; overflow-y: auto;" *ngIf="!showLevels">
+    Runtime changes successfully applied on: 
+    <ul>
+     <li *ngFor="let err of msg">
+        <span>{{err}}</span>
+     </li>
+    </ul>
+    Error while applying Runtime changes on:
+    <ul>
+      <li *ngFor="let e of errMsg">
+         <span>{{e}}</span>
+      </li>
+     </ul>
+  </div>
+  <div *ngIf="showLevels" style="font-size: 13px;color: #111113; margin-top: 15px;">
+This profile is applied at following levels:
+<br><br>
+<b>
+  <ul>
+    <li *ngFor="let i of info">
+      <span>{{i}}</span>
+    </li>
+  </ul>
+</b>
+<br>
+Are you sure you want to send Run Time Changes ?
+<br>
+<!-- <h6 style="color: red">Saving settings will also send the RTC at the above levels</h6> -->
+  </div>
+  <footer>
+    <div class="p-grid p-align-center p-justify-end py-5 mt-6">
+      <button type="button" pButton class="ui-button-sucess mr-6" pButton (click)="errDialog=false" *ngIf="!showLevels" icon="icons8 icons8-checkmark" label="Ok"></button>
+      <button type="button" pButton class="ui-button-sucess mr-6" pButton (click)="errDialog=false" *ngIf="showLevels" icon="icons8 icons8-delete" label="Cancel"></button>      
+      <button type="button" pButton class="ui-button-sucess mr-6" pButton (click)="saveSettings()" *ngIf="showLevels" icon="icons8 icons8-checkmark" label="Save"></button> 
+    </div>
+  </footer>
+</p-dialog>

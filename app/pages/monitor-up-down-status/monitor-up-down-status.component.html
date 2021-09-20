@@ -1,0 +1,177 @@
+<div class="h-100-vh monitor-up-down-container">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <a (click)="goBack()">
+        <span class="icons8 icons8-left toolbar-icon-color"></span>
+      </a>
+      <div class="p-col ui-toolbar-text">Monitor Up/Down Status</div>
+      <div>
+        <button pButton type="button" class="ui-button ui-button-rounded" label="Configuration" (click)="showConfigureMonitor()" title="Configuration will be supported in future"></button>
+      </div>
+    </div> 
+  </p-toolbar>
+  <app-time-bar></app-time-bar>
+  <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="!data">
+    <div class="p-col p-col-align-center text-center">
+      <div>
+      <h1><i class="pi pi-spin pi-spinner"></i><span>Loading</span></h1>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="data">
+    <div class="mh-10" #widgetHeight [ngStyle]="{
+      height: !isEnabledColumnFilter
+      ? 'calc(100vh - 44px)'
+      : 'calc(100vh - 78px)'
+    }">
+      <div class="p-grid">
+        <div class="p-col-4">
+          <div class="search-global">
+            <i class="icons8 icons8-search"></i>
+            <input pInputText type="text" #searchInput class="input-field-search"
+              (input)="monitor.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+          </div>
+        </div>
+        <div class="p-col-8 icons-container">
+          <!-- <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" (click)="toggleFilters()"
+            pTooltip="Column Filter"></button> -->
+          <button pButton *ngIf="data && data.tableFilter" icon="icons8 icons8-search-property" class="icon-button no-shadow"
+              pTooltip="Toggle Filter" [tooltipZIndex]="100000" (click)="isShowColumnFilter = !isShowColumnFilter"></button>
+          <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+            (click)="menu.toggle($event)" pTooltip="Download"></button>
+          <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" appendTo="body"></p-menu>
+          <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns"
+            optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+            pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+          </p-multiSelect>
+          <button pButton icon="icons8 icons8-synchronize" class="icon-button no-shadow" (click)="refreshData()"
+            pTooltip="Refresh"></button>
+        </div>
+      </div>
+
+      <p-card class="content-body">
+        <p-table #monitor [resizableColumns]="true" [columns]="selectedColumns" [value]="data.data" [rowHover]="true"
+          [paginator]="showPaginator" [rows]="data.paginator.rows" [totalRecords]="totalRecords"
+          [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+          [scrollable]="true" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 266px)" selectionMode="single"
+          [globalFilterFields]="globalFilterFields" [pageLinks]="2" [(first)]="first" class="all-tables">
+          <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+              <col *ngFor="let col of columns" [style.width]="col.width" />
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField" title={{col.label}}>
+                <div class="text-left">
+                  {{ col.label }}
+                  <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right" ariaLabel="Activate to sort"
+                    ariaLabelDesc="Activate to sort in descending order"
+                    ariaLabelAsc="Activate to sort in ascending order">
+                  </p-sortIcon>
+                </div>
+              </th>
+            </tr>
+            <tr *ngFor="let headerRow of data.headers">
+              <ng-container *ngIf="isShowColumnFilter">
+                <!-- <th *ngIf="isCheckbox" class="columnwidth"></th> -->
+                <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                  <div *ngIf=" col.filter &&
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'custom'
+                    ">
+                    <input class="w-100-p"
+                      pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                      *ngSwitchCase="col.label" pInputText type="text" (input)="
+                      monitor.filter(
+                            $event.target.value,
+                            col.value,
+                            'custom'
+                        )
+                        " />
+                  </div>
+                  <div *ngIf=" col.filter &&
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'contains'
+                    ">
+                    <input class="w-100-p" pTooltip="Will filter data which contains given text."
+                      *ngSwitchCase="col.label" pInputText type="text" (input)="
+                      monitor.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'contains'
+                        )
+                        " />
+                  </div>
+                </th>
+              </ng-container>
+            </tr>
+            <!-- <tr *ngFor="let headerRow of data.headers">
+              <ng-container *ngIf="isEnabledColumnFilter">
+                <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                  <div *ngIf=" col.filter &&
+                    col.filter.isFilter === true && col.filter.type === 'custom'
+                  ">
+                    <input class="w-100-p"
+                      pTooltip="Enter number to search"
+                      *ngSwitchCase="col.label" pInputText type="text" (input)="
+                      monitor.filter(
+                        $event.target.value,
+                        col.valueField,
+                        'custom'
+                      )
+                    " />
+                  </div>
+                  <div *ngIf="  col.filter &&
+                    col.filter.isFilter === true &&
+                    col.filter.type === 'contains'
+                  ">
+                    <input class="w-100-p" pTooltip="Enter text to search"
+                      *ngSwitchCase="col.label" pInputText type="text" (input)="
+                      monitor.filter(
+                        $event.target.value,
+                        col.valueField,
+                        'contains'
+                      )
+                    " />
+                  </div>
+                </th>
+              </ng-container>
+            </tr> -->
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-columns="columns">
+            <tr>
+              <td *ngFor="let col of columns" class="{{ col.classes }}" title={{row[col.valueField]}}>
+                {{ row[col.valueField] }}
+                <i class="direction" *ngIf="col.iconField && row.icon == 'icons8 icons8-up'" [ngClass]="row.icon" pTooltip="Monitor is UP"></i>
+                <i class="direction" *ngIf="col.iconField && row.icon == 'icons8 icons8-down'" [ngClass]="row.icon" pTooltip="Monitor is DOWN"></i>
+              </td>
+            </tr>
+          </ng-template>
+          <!-----------Empty table error handling--------------------->
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td [attr.colspan]="columns.length + 1" class="text-center">
+              <b><span *ngIf="error">Error while loading data</span>
+                <span *ngIf="emptyTable">Empty Table</span>
+                <span *ngIf="loading">Loading</span>
+                <span *ngIf="data.data && data.data.length == 0">{{errorMessage}}</span>
+                <span class="empty-table-message" *ngIf="selectedColumns.length === 0">Loading</span>
+                <span *ngIf="data.data && data.data.length > 0 && !empty && !loading && !error && searchInput.value.length">Nothing found
+                  matching "{{searchInput.value}}"</span>
+              </b>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,26 @@
+<p-fieldset>
+  <p-header>
+    <ng-container *ngIf="fieldData?.description">
+      <i class="icons8 icons8-info" style="font-size: large;
+    vertical-align: middle;" pTooltip=" {{fieldData.description}}"></i>
+    </ng-container>
+    <ng-container *ngIf="fieldData?.notifications">
+      <i class="fa fa-bolt" style="font-size: large;" pTooltip="{{fieldData.notifications}}"></i>
+    </ng-container>
+    {{fieldData.subFormName}}
+  </p-header>
+
+
+  <ng-container *ngFor="let i of fieldData.fields">
+
+    <!-- insert class here -->
+    <div class="p-col-12" *ngIf="i.subFormName != undefined">
+      <app-fieldset [fields]="i" [form]="form.controls[fieldData.key]"></app-fieldset>
+    </div>
+
+    <div [class]="i.classes">
+      <app-dynamic-form-right [fields]="i" [form]="form.controls[fieldData.key]"></app-dynamic-form-right>
+    </div>
+
+  </ng-container>
+</p-fieldset>

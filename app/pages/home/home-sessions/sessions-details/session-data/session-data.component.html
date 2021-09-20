@@ -1,0 +1,53 @@
+<div class="session-data-container" #widgetHeight>
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div>
+                <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+            </div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{error.msg}}"></p-message>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+    <p-card>
+
+        <div class="custom-search">
+
+            <ng-container *ngFor="let session of data.data" >
+                <ul [class]="selectedRow === session ? 'active sessionData border-1' : 'sessionData border-1'" (click)="openSession(session)">
+                    <div class="alertLine" [ngStyle]="{'background-color':session.struggling ? '#e91224':null}"></div>
+                    <li>{{session.startTime}}</li>
+                    <li>
+                        <ng-container *ngFor="let event of session.events">
+                            <img *ngIf="event.iconCls == null" title="{{event.name}}" style='width:16px;height:16px;' [src]="event.icon">
+                            <i *ngIf="event.iconCls != null" title="{{event.name}}" class="{{event.iconCls}} mx-3 font-16"></i>
+                        </ng-container>
+                    </li>
+                    <li><label class="badge" title="Order Total">${{session.orderTotal}}</label></li>
+                    <li><i class="las-file" title="Page Count"></i> {{session.pageCount}}</li>
+                    <li><i class="icons8 icons8-clock" title="Duration"></i>{{session.duration}}</li>
+                    <!-- <li><i class="icons8 icons8-clock"></i>01:01:035</li> -->
+                    <li><i class="las-exchange-alt-solid" title="Channel"></i>{{session.channel.name}}</li>
+                    <li>
+                        <img [src]="session.browser.icon" [attr.title]="session.browser.name" style="width: 16px;height:16px">
+                        <i [class]="session.deviceType.font" [attr.title]="session.deviceType.name"></i>
+                        <i class="las-windows" [attr.title]="session.os.name"></i>
+                    </li>
+                    <li> <i class="las-map-marker-alt-solid" title="Location"></i>{{session.location.country}}</li>
+                    <li>
+                        <span title="MaxonLoad" class="mr-10">{{session.maxOnLoad }}s</span>
+                        <span title="MaxTTDI">{{session.maxTTDI}}s</span>
+                    </li>
+                </ul>
+            </ng-container>
+
+        </div>
+    </p-card>
+</div>

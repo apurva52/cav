@@ -1,0 +1,15 @@
+export const MONITORS = '/monitors';
+export const ADD_MONITORS = '/add-monitors';
+export const AWS = '/cav-mon-aws';
+export const AZURE = '/cav-mon-azure';
+export const GCP = '/cav-mon-gcp';
+export const NEW_RELIC = '/cav-mon-newrelic';
+export const DYNATRACE = '/cav-mon-dynatrace';
+export const CLOUD_AWS = 'aws';
+export const CLOUD_AZURE = 'azure';
+export const CLOUD_GCP_Ex = 'gcp';
+export const CLOUD_NEW_RELIC = 'newrelic';
+export const CLOUD_DYNATRACE = 'dynatrace';
+export const SNMP = 'snmp';
+export const HEALTH_CHECK = 'healthCheck';
+export const HEALTH_CHECK_URL = '/health-check-monitor';

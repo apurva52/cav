@@ -1,0 +1,96 @@
+<div #widgetHeight >
+      <div class="widget-header" (click)="select()">
+            <ul class="widget-options">
+                  <li>
+                        <i class="icons8 icons8-upload" (click)="dashboard.openGetFileDialog()"></i>
+                  </li>
+                  <li *ngIf="!loading">
+                        <i pTooltip="Edit Title" [tooltipPosition]="'top'" class="icons8 icons8-edit"
+                              (click)="editTitle = true; addFocus();"></i>
+                  </li>
+                  <li [ngStyle]="{ display: !loading ? 'inline-block' : 'none' }">
+                        <!-- <app-widget-menu *ngIf="visiblityMenu == undefined && !visiblityMenu" [widget]="this"></app-widget-menu> -->
+                  </li>
+                  <li *ngIf="dashboard.mode =='EDIT'" (click)='dashboard.copyWidget(widget);'>
+                        <i style="display: inline-block;" pTooltip= 'Clone Widget' class="icons8 icons8-copy clickable"></i>
+                    </li>
+            </ul>
+            <div *ngIf="fileOptions" class="widget-title" (dblclick)="toggleFocus()">
+                  <span *ngIf="!editTitle" [pTooltip]="fileOptions.fileWidgetTitle" [tooltipPosition]="'top'">{{
+                        fileOptions.fileWidgetTitle }}</span>
+                  <input id="title" *ngIf="editTitle" (keydown.enter)="editTitle = false" type="text" pInputText
+                        [(ngModel)]="fileOptions.fileWidgetTitle" (blur)="onBlurMethod()"/>
+            </div>
+      </div>
+      <div class="widget-body" (dblclick)="toggleFocus()">
+            <div *ngIf="fileOptions">
+                  <!-- <p-table #tabular  [value]="tableData"
+                        [scrollable]="true"
+                        scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 80px)">
+                        <ng-template pTemplate="colgroup" let-columns>
+                              <colgroup >
+                                    <col *ngFor="let col of tableColumns" [style.width]="col.width" />
+                              </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                              <tr >
+                                    <th *ngFor="let col of tableColumns" [attr.colspan]="col.colspan"
+                                          [attr.rowspan]="col.rowspan" [pSortableColumn]="col.field"
+                                          pResizableColumn>
+                                          {{ col.label }}
+                                          <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                                                ariaLabelDesc="Activate to sort in descending order"
+                                                ariaLabelAsc="Activate to sort in ascending order">
+                                          </p-sortIcon>
+                                    </th>
+                              </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns">
+                              <tr>
+                                    <td *ngFor=" let col of tableColumns">
+                                          <span > {{ row[col.field] }}</span>
+                                    </td>
+                              </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage" let-columns>
+                              <tr>
+                                    <td [attr.colspan]="columns.length + 1" class="text-center">
+                                          No data found
+                                    </td>
+                                    <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                          <span *ngIf="error">Error while loading data</span>
+                                          <span *ngIf="empty">No data available</span>
+                                          <span *ngIf="loading">Loading</span>
+                                    </td>
+                              </tr>
+                        </ng-template>
+                  </p-table> -->
+          
+                  <p-table [value]="tableData" scrollable="true" 
+                  [loading]="loading"  scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 80px)"
+                  >
+                  <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup >
+                              <col *ngFor="let col of tableColumns" style="width: 50px;" />
+                        </colgroup>
+                  </ng-template>
+                  <ng-template pTemplate="header">
+                      <tr>
+                          <th *ngFor="let column of tableColumns" style="overflow: hidden; text-overflow: ellipsis;">
+                              {{column.header}}
+                          </th>
+                      </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-rowData>
+                      <tr>
+                          <td *ngFor="let col of  tableColumns" style="overflow: hidden; text-overflow: ellipsis;">
+                              {{rowData[col.field]}}
+                          </td>
+                      </tr>
+                  </ng-template>
+              </p-table>
+            </div>
+
+            <div class="empty-container" *ngIf="empty">Data Not Available</div>
+      </div>
+</div>

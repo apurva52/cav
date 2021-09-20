@@ -1,0 +1,352 @@
+<div class="h-100-vh config-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/dashboard">
+                <span class="icons8 icons8-left toolbar-icon-color"></span>
+            </a>
+            <div class="p-col ui-toolbar-text">Configure Monitors</div>
+        </div>
+    </p-toolbar>
+
+    <div class="content-body">
+        <div class="p-grid p-col-12">
+            <p-panel class="customPanel" [toggleable]="true" expandIcon="icons8-expand-arrow" collapseIcon="icons8-collapse-arrow">
+                <p-header class="p-grid p-align-center p-justify-between w-100-p">
+                    <div>CONFIGURED MONITORS BY TECHNOLOGY</div>
+
+
+
+                    <div class="top-selected-technology">
+                        <div class="technology">
+                            Technology
+                            <label class="count">{{totalTechCount}}</label>
+                        </div>
+                       
+                        <div class="monitor">
+                            <span class="font-weight-600">Monitors</span>
+                            <i class="icons8 icons8-forward mx-6"></i>
+                            <label>Running</label>
+                            <label class="count">{{totalMonRunCount}}</label>
+                        </div>
+
+                        <div class="failed">
+                            Failed
+                            <label class="count">{{totalMonFailCount}}</label>
+                        </div>
+
+                        <div class="disabled">
+                            Disabled
+                            <label class="count">{{totalMonDisCount}}</label>
+                        </div>
+                        
+                    </div>
+
+
+
+                    <div class="p-grid p-align-center">
+                        <div class="type-search width-200">
+                            <i  class="left-icon icons8 icons8-search"></i>
+                            <input pInputText #searchInput [(ngModel)]="searchConfiguredMonitors" type="text"
+                                class="pl-20" placeholder="Search" />
+                        </div>
+
+                            <div class="tierLine">Tier</div>
+                            <p-dropdown [style]="{'min-width':'100px'}" [options]=" tierList" [(ngModel)]="tierName"
+                                placeholder="--Select--" (onChange)="onTierChange()"
+                                dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                       
+                    </div>
+                </p-header>
+
+                <div class="monitor-panel-container">
+
+
+                    <div class="p-grid w-100-p p-justify-start p-align-start configure-monitors">
+                        <div *ngFor="let data of configuredMonitorsData._conf | filter:searchConfiguredMonitors;let i = index"
+                            class="p-grid p-col-4">
+                            <div class="card-container">
+                                <div class="tech-title"> 
+                                  <label class="tech-name">{{data.dn}}</label> 
+                                  <a class="monitor-add" (click)="configureMonitor(data.n, data.dn)"><i class="icons8 icons8-plus-math"></i></a>
+                                </div>
+
+                                <div class="p-grid p-align-center height-90">
+                                <div class="p-col-7 p-align-center p-justify-between p-grid">
+                                    <img src="./assets/images/{{data.asset}}" class="icon-img">
+                                    <!-- <i class="{{data.asset}}" class="btn-icon mx-3 font-36"></i> -->
+                                    <div class="instance-circle font-weight-600" [style.backgroundColor]="data.rgb">
+                                        <div class="font-28">{{data.ic}}</div>
+                                        <div>Instance</div>
+                                    </div>
+                                </div>
+
+                                    <div class="p-col-3 p-offset-2">
+                                        <div class="p-grid p-col-12 p-justify-between p-align-center clickable bdr-btm"
+                                             (click)="openTier(data)">
+                                            <div class="p-grid p-align-center">
+                                                <i class="cav tier-group mr-5 font-16 btn-icon"></i>
+                                                <div class="font-13 font-weight-600">Tier</div>
+                                            </div>
+                                            <div [className]="data.tc ==0 ? '' : 'count'">{{data.tc}}</div>
+                                        </div>
+                                        <div class="p-grid p-col-12 p-justify-between p-align-center clickable" (click)="openServer(data)">
+                                            <div class="p-grid p-align-center">
+                                            <i class="cav servers mr-5 font-16 btn-icon"></i>
+                                            <div class="font-13 font-weight-600">Server</div>
+                                            </div>
+                                            <div [className]="data.sc == 0 ? '' : 'count'">{{data.sc}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                               
+
+                                <div class="p-grid p-align-center bottom-monitors">
+                                    <div class="my-col p-grid p-align-center" 
+                                        (click)="navigateToMonitors(data,data.mon.mtc,data.mon.mtc,'All')">
+                                        <div class="monitor-header">Monitor</div>
+                                        <div [className]="data.mon.mtc ==0 ? '' : 'count'">{{data.mon.mtc}}</div>
+                                    </div>
+
+                                    <div class="my-col p-grid p-align-center monitor-active"
+                                    (click)="navigateToMonitors(data,data.mon.mrc,data.mon.mtc,'Running')">
+                                    <div class="p-justify-between p-grid p-align-center">
+                                        <i class="icons8 icons8-clock"></i>
+                                        <span class="title">Running</span>
+                                        </div>
+                                        <div [className]="data.mon.mrc ==0 ? '' : 'count'">{{data.mon.mrc}}</div>
+                                    </div>
+
+                                    <div class="my-col p-grid p-align-center monitor-failed"
+                                    (click)="navigateToMonitors(data,data.mon.mfc,data.mon.mtc,'Failed')">
+                                    <div class="p-justify-between p-grid p-align-center">
+                                        <i class="icons8 icons8-error"></i>
+                                        <span class="title">Failed</span>
+                                    </div>
+                                    <div [className]="data.mon.mfc ==0 ? '' : 'count'">{{data.mon.mfc}}</div>
+                                    </div>
+
+                                    <div class="my-col p-grid p-align-center clickable monitor-disabled"
+                                        (click)="navigateToMonitors(data,data.mon.mdc,data.mon.mtc,'Disabled')">
+                                        <div class="p-justify-between p-grid p-align-center">
+                                            <i class="icons8 icons8-unavailable"></i>
+                                            <span class="title">Disabled</span>
+                                        </div>
+                                        <div [className]="data.mon.mdc ==0 ? '' : 'count'">{{data.mon.mdc}}</div>
+                                    </div>
+                                </div>
+
+                               
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p-panel>
+        </div>
+
+
+        <div class="p-grid p-col-12">
+            <p-panel [toggleable]="true"  class="customPanel" expandIcon="icons8-expand-arrow" collapseIcon="icons8-collapse-arrow">
+                <p-header class="p-grid p-align-center p-justify-between w-100-p">
+                    <div>AVAILABLE TECHNOLOGY</div>
+
+                    <div class="p-grid p-align-center">
+                    <div class="type-search width-200 mr-10">
+                        <i  class="left-icon icons8 icons8-search"></i>
+                        <input pInputText #searchInput [(ngModel)]="searchAvailableTech" placeholder="Search" type="text"
+                            class="pl-20" placeholder="Search" />
+                    </div>
+
+                    <a pButton class="ui-button-rounded ui-button-secondary mx-3" label="Custom Monitors"
+                    routerLink="/custom-monitors/availCustMon/db"></a>
+
+                    <a pButton class="ui-button-rounded ui-button-secondary" label="Auto Monitors" routerLink="/auto-monitor"></a>
+                </div>
+
+
+                </p-header>
+                <div class="monitor-panel-container">
+
+
+                    <div class="p-grid w-100-p available-tech-container">
+                        <div *ngFor="let data of availableTechnologyData._at | filter:searchAvailableTech;let i = index"
+                            class="p-grid p-col-2 smt">
+                            <div class="p-grid p-align-center card-container p-dir-col p-15">
+                                <a class="monitor-add" (click)="configureMonitor(data.n, data.dn)"><i class="icons8 icons8-plus-math"></i></a>
+                                    
+                                    <!-- <img [src]="{{data.asset}}" class="icon-img"> -->
+                                    <img src="./assets/images/{{data.asset}}" class="icon-img">
+                                    <!-- <i class="icons8 icons8-server btn-icon font-36"></i> -->
+                                    <label class="font-weight-600 my-5 text-center">{{data.dn}}</label>
+                              
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p-panel>
+        </div>
+
+        <div class="p-grid p-justify-start p-align-start">
+            <div class="p-grid p-col-8">
+                <p-panel [toggleable]="false" expandIcon="icons8-expand-arrow" collapseIcon="icons8-collapse-arrow">
+                    <p-header>
+                        CLOUD INTEGRATION
+                    </p-header>
+
+                    <div class="monitor-panel-container">
+                        <div class="mln-5 mrn-5">
+                        <p-carousel styleClass="custom-carousel" [value]="availableTechnologyData._cloud" [numVisible]="4" [numScroll]="3" [circular]="false">
+                            <ng-template let-cloud pTemplate="item">
+                                <div class="p-grid p-align-center p-dir-col p-15 m-5 card-container clickable" (click)="openCloudMonComp(cloud.n)">
+                                        <img src="./assets/images/{{cloud.asset}}" class="icon-img">
+                                        <label class="font-weight-600 my-5 text-center">{{cloud.dn}}</label>
+                                </div>
+                            </ng-template>
+                        </p-carousel>
+                    </div>
+                    </div>
+                </p-panel>
+            </div>
+            <div class="p-grid p-col-4">
+
+                <p-panel [toggleable]="false" expandIcon="icons8-expand-arrow" collapseIcon="icons8-collapse-arrow">
+                    <p-header>
+                        KUBERNETES
+                    </p-header>
+
+                    <div class="monitor-panel-container">
+
+                        <div class="p-grid p-justify-start p-align-start">
+
+                            <div *ngFor="let data of kubernetesMonData" 
+                            class="p-grid w-50-p p-5">
+                                <a class="p-grid p-align-center p-dir-col p-14 card-container clickable"
+                                    (click)="configureMonitor(data.n, data.dn)">
+                                    <div class="cloud-image"><img src="assets/icons/kubernets.svg" class="icon-img"></div>
+                                    <div class="font-weight-600 my-5 text-center">{{data.dn}}</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </p-panel>
+            </div>
+        </div>
+
+        <div class="p-grid p-col-12 ">
+            <p-panel [toggleable]="false " expandIcon="icons8-expand-arrow " collapseIcon="icons8-collapse-arrow ">
+                <p-header>
+                    OTHER MONITORS
+                </p-header>
+
+                <div class="monitor-panel-container">
+
+
+                    <div class="mln-5 mrn-5">
+                        <p-carousel styleClass="custom-carousel" [value]="otherMonitorData._other" [numVisible]="3" [numScroll]="2" [circular]="false">
+                            <ng-template let-other pTemplate="item">
+                                <div class="card-container m-5">
+                                    <div class="tech-title">
+                                        <label class="tech-name">{{other.n}}</label>
+                                        <a class="monitor-add" (click)="openOtherMon(other.n)"><i class="icons8 icons8-plus-math"></i></a>
+                                    </div>
+                                    
+                                    <div class="p-grid p-align-center bottom-monitors">
+                                        <div class="my-col p-grid p-align-center">
+                                           <div class="monitor-header">Monitors</div>
+                                           <div class="count">{{other.mon.mtc}}</div>
+                                        </div>
+
+                                        <div class="my-col p-grid p-align-center monitor-active">
+                                            <div class="p-justify-between p-grid p-align-center">
+                                                <i class="icons8 icons8-clock"></i>
+                                                <span class="title">Running</span>
+                                            </div>
+                                           <div class="count">{{other.mon.mrc}}</div>
+                                        </div>
+
+                                        <div class="my-col p-grid p-align-center monitor-failed">
+                                            <div class="p-justify-between p-grid p-align-center">
+                                                <i class="icons8 icons8-error"></i>
+                                                <span class="title">Failed</span>
+                                            </div>
+                                           <div class="count">{{other.mon.mtc}}</div>
+                                        </div>
+                                        
+                                        <div class="my-col p-grid p-align-center monitor-disabled clickable">
+                                            <div class="p-justify-between p-grid p-align-center clickable">
+                                                <i class="icons8 icons8-unavailable"></i>
+                                                <span class="title">Disabled</span>
+                                            </div>
+                                           <div class="count">{{other.mon.mdc}}</div>
+                                        </div>
+                                    </div>
+
+
+                                         
+                                </div>
+                            </ng-template>
+                        </p-carousel>
+                    </div>
+
+
+
+
+
+
+                    <!-- <div class="p-grid p-justify-start p-align-start ">
+
+                        <div *ngFor="let data of otherMonitorData._other;let i = index" class="p-grid w-20-p p-5">
+                            <div class="p-grid p-col-12 card-container" (mouseover)="showAdd[i]=true"
+                                (mouseout)="showAdd[i]=false">
+
+                                <a pButton type="button" [ngClass]="showAdd[i] ? 'show':'hide'"
+                                    class="ui-button ui-button-rounded ui-button-right add-monitor-button" label="ADD"
+                                    (click)="openOtherMon(data.n)"></a>
+
+                                <div class="p-grid p-col-5 p-justify-center p-align-center other-monitors-label ">
+                                    {{data.n}}</div>
+
+                                <div class="p-grid p-col-7 other-monitors ">
+                                    <div class="p-grid p-col-12 p-justify-between p-align-center section-header ">
+                                        <div class="monitor-header ">Monitors</div>
+                                        <div class="count ">{{data.mon.mtc}}</div>
+                                    </div>
+                                    <div class="p-grid p-col-12 p-justify-between p-align-center monitor-active ">
+                                        <div class="p-justify-between p-grid p-align-center ">
+                                            <i class="icons8 icons8-clock"></i>
+                                            <span class="p-col title ">Running</span>
+                                        </div>
+                                        <div class="count ">{{data.mon.mrc}}</div>
+                                    </div>
+                                    <div class="p-grid p-col-12 p-justify-between p-align-center monitor-failed ">
+                                        <div class="p-justify-between p-grid p-align-center ">
+                                            <i class="icons8 icons8-error"></i>
+                                            <span class="p-col title ">Failed</span>
+                                        </div>
+                                        <div class="count ">{{data.mon.mfc}}</div>
+                                    </div>
+                                    <div class="p-grid p-col-12 p-justify-between p-align-center monitor-disabled ">
+                                        <div class="p-justify-between p-grid p-align-center ">
+                                            <i class="icons8 icons8-unavailable"></i>
+                                            <span class="p-col title ">Disabled</span>
+                                        </div>
+                                        <div class="count ">{{data.mon.mdc}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+                </div>
+            </p-panel>
+        </div>
+        <div class="loading-indicator pageLoading" *ngIf="loading">
+            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+            </p-progressSpinner>
+        </div>
+    </div>
+</div>

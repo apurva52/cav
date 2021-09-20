@@ -1,0 +1,863 @@
+<!-- <p-toast></p-toast> -->
+<div class="header">
+    <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a routerLink="/home/dashboard">
+            <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">AGENT INFO</div>
+    </div>
+</p-toolbar>
+ <div class="configui-progressbar">
+   <!-- <mat-progress-bar *ngIf="isProgressBar" mode="indeterminate" [color]="color"></mat-progress-bar>-->
+    <p-progressBar *ngIf="isProgressBar" mode="indeterminate" [style]="{'height' : '5px'}"></p-progressBar>
+</div>
+<div class="ndegui-mainbox">
+
+    <!-- <p-blockUI [blocked]="loading"></p-blockUI> -->
+    <div class="pageLoading" *ngIf="loading">
+        <i class="icons8 icons8-spinner spin font-24"></i>
+    </div>
+    <div class="accordian-css">
+        <p-accordion class="ndagent">
+            <p-accordionTab header="Machine Agent Status {{totalMachineAgent}}" [selected]="true">
+                <p-table #tt [value]="cmonStatusData" id=accordion [rows]="15" scrollable="true" scrollHeight="400px" [(selection)]="selectedCmonAgentList" class="all-tables" [paginator]="cmonStatusData?.length > 15" [rowsPerPageOptions]="[15,30,50,100,150,200]"
+                    [pageLinks]="3" [globalFilterFields]="['cp','tier', 'sn', 'si', 'mt', 'cv', 'cst', 'cpath', 'ccut', 'aia', 'act']">
+                    <ng-template pTemplate="caption">
+                        <div class="p-grid p-align-center p-justify-between mtn-10">
+                        <div class="type-search width-150">        
+                            <i class="pi pi-search left-icon"></i>
+                            <input type="text" pInputText size="25" placeholder="Search" (input)="tt.filterGlobal($event.target.value, 'contains')" style="width:auto">
+                        </div>
+
+                        <div>
+                            <p-multiSelect [options]="columnOptions" name="selectedViewCols" [(ngModel)]="selectedViewCols" class="headeragentinfo"></p-multiSelect>
+
+                            <button pButton icon="icons8 icons8-help" (click)="sendHelpNotificationForApplication()" class="mx-3"></button>
+
+                            <button  pButton icon="icons8 icons8-filter" *ngIf="isCmonCheckFilter" title="Show column filters" (click)="showCmonFilter('check')" class="mx-3"></button>
+
+                            <button pButton icon="icons8 icons8-filter" *ngIf="isCmonCloseFilter" title="Hide column filters" (click)="showCmonFilter('uncheck')" class="mx-3"></button>
+
+                            <button pButton icon="icons8 icons8-synchronize" class="mx-3" (click)="loadCmonAgentData()"></button>
+
+                            <button *ngIf="readWritePermission != '4'" 
+                            pButton icon="icons8 icons8-circled-play" (click)="restartCmonAgent()" class="mx-3"></button>
+
+                        </div>
+                        </div>
+                    </ng-template>
+                    <ng-template class="tableCss config-ui" pTemplate="header">
+                        <tr>
+                            <th class="width-50">
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+                            <ng-container *ngFor="let col of columnOptions">
+                                <!-- <th *ngIf="selectedViewColsApp.indexOf(col.value) != -1"> --> 
+                                <th *ngIf="selectedViewCols.indexOf(col.value) != -1">
+                                    <span class="elipseText">{{col.label}}</span>
+                                </th>
+                            </ng-container>
+                            <!-- <th *ngFor="let col of columnOptions">
+                                <span *ngIf="selectedViewColsApp.indexOf(col.value) != -1">{{col.label}}</span>
+                            </th> -->
+                        </tr>
+                        <tr *ngIf="isCmonFilter">
+                        <th></th>    
+                           <ng-container *ngFor="let col of columnOptions">
+                                <th *ngIf="selectedViewCols.indexOf(col.value) != -1">
+                                    <span *ngIf="col.label == 'Status'">
+                                        <input pInputText type="text" class="w-100-p" (input)="tt.filter($event.target.value, col.value, 'startsWith')">
+                                    </span>
+                                    <span *ngIf="col.label != 'Status'">
+                                        <input pInputText type="text" class="w-100-p" (input)="tt.filter($event.target.value, col.value, 'contains')">
+                                    </span>
+                                </th> 
+                            </ng-container>
+                        </tr> 
+                    </ng-template>
+                    <ng-template class="tableCss config-ui" pTemplate="body" let-ndagent>
+                        <tr>
+                            <td class="width-50 text-center">
+                                <p-tableCheckbox [value]="ndagent"></p-tableCheckbox>
+                            </td>
+                            <ng-container *ngFor="let col of columnOptions">
+                                <td *ngIf="selectedViewCols.indexOf(col.value) != -1" [style]="{'text-align':'center'}">
+                                    <span *ngIf="col.value != 'cpath' && col.value != 'aia' && col.value != 'act'" title="{{ndagent[col.value]}}">{{ndagent[col.value]}}</span>
+                                    <span *ngIf="col.value == 'cpath' && col.value != 'aia' && col.value != 'act'" title="{{ndagent[col.value]}}">
+                                        <a class="hyperlink" *ngIf="ndagent[col.value] != '-'; else notLink" (click)='routeToConfigPath(ndagent)'>{{ndagent[col.value]}}</a>
+                                        <ng-template #notLink>
+                                            <span>{{ndagent[col.value]}}</span>
+                                        </ng-template>
+                                    </span>
+                                    <span *ngIf="col.value != 'cpath' && col.value == 'aia' && col.value != 'act'" title="{{ndagent[col.value]}}">
+                                        <span *ngIf="ndagent[col.value] == 'Active' || ndagent[col.value] == 'active'" title="{{ndagent[col.value]}}">
+                                            <!-- <mat-icon class="activeIconClass">fiber_manual_record</mat-icon> -->
+                                            <i class="icons8-filled-circle activeIconClass"></i>
+                                        </span>
+                                        <span *ngIf="ndagent[col.value] == 'Inactive' || ndagent[col.value] == 'InActive'" title="{{ndagent[col.value]}}">
+                                            <!-- <mat-icon class="inActiveIconClass">fiber_manual_record</mat-icon> -->
+                                            <i class="icons8-filled-circle inActiveIconClass"></i>
+                                        </span>
+                                    </span>
+                                    <span *ngIf="col.value != 'cpath' && col.value != 'aia' && col.value == 'act'" title="{{ndagent[col.value]}}">
+                                        <div style="font-size: 16px; text-align: center;">
+                                            <span style="cursor: pointer;" (click)="ViewAndUpdateCmonEnvData('View', ndagent['cp'], ndagent['si'], ndagent['ch'], ndagent['tier'], ndagent['sn'], ndagent['mt'])">
+                                                <!-- <i class="fa fa-eye" aria-hidden="true" title="View Configuration"></i> -->
+                                                <i class="icons8 icons8-eye" aria-hidden="true" title="View Configuration"></i>
+                                            </span>
+                                            <span style="cursor: pointer;" *ngIf="readWritePermission != '4'" (click)="ViewAndUpdateCmonEnvData('Edit', ndagent['cp'], ndagent['si'], ndagent['ch'], ndagent['tier'], ndagent['sn'], ndagent['mt'])">
+                                                <!-- <i class="fa fa-pencil-square-o" aria-hidden="true" title="Update Configuration"></i> -->
+                                                <i class="icons8 icons8-edit" aria-hidden="true" title="Update Configuration"></i>
+                                            </span>
+                                        </div>
+                                    </span>
+                                </td>
+                            </ng-container>
+                            <!-- <td class="tableCss" title="{{ndagent.cp}}">{{ndagent.cp}}</td>
+                            <td class="tableCss" title="{{ndagent.tier}}">{{ndagent.tier}}</td>
+                            <td class="tableCss" title="{{ndagent.sn}}">{{ndagent.sn}}</td>
+                            <td class="tableCss" title="{{ndagent.si}}">{{ndagent.si}}</td>
+                            <td class="tableCss" title="{{ndagent.mt}}">{{ndagent.mt}}</td>
+                            <td class="tableCss" title="{{ndagent.cv}}">{{ndagent.cv}}</td>
+                            <td class="tableCss" title="{{ndagent.cst}}">{{ndagent.cst}}</td>
+                            <td class="tableCss" title="{{ndagent.cpath}}">
+                                <span title="{{ndagent.cpath}}" style="float:left">
+                                <a class="hyperlink" *ngIf="ndagent.cpath != '-'; else notLink" (click)='routeToConfigPath(ndagent)'>{{ndagent.cpath}}</a>
+                                <ng-template #notLink>
+                                    <span>{{ndagent.cpath}}</span>
+                                </ng-template>
+                                 </span>
+                            </td>
+                            <td class="tableCss" title="{{ndagent.ccut}}">{{ndagent.ccut}}</td>
+                            <td class="tableCss" title="{{ndagent.aia}}">
+                                <span *ngIf="ndagent.aia == 'Active' || ndagent.aia == 'active'" title="{{ndagent.aia}}"></span>
+                                <span *ngIf="ndagent.aia == 'Inactive' || ndagent.aia == 'InActive'" title="{{ndagent.aia}}"></span>
+                                 <span *ngIf="ndagent[ndagent.aia] != 'Active' && ndagent[col.field] != 'active' &&  ndagent[ndagent.aia] != 'Inactive' && ndagent[ndagent.aia] != 'InActive'" title="{{ndagent.aia}}"></span> -->
+                            <!-- </td> -->
+                            <!-- <td class="tableCss" style="font-size: 16px; text-align: center;" title="{{ndagent.act}}">
+                                <span style="cursor: pointer;" (click)="ViewAndUpdateCmonEnvData('View', ndagent['cp'], ndagent['si'], ndagent['ch'], ndagent['tier'], ndagent['sn'], ndagent['mt'])">
+                                    <i class="icons8 icons8-eye" aria-hidden="true" title="View Configuration"></i>
+                                </span>
+                                <span style="cursor: pointer;" *ngIf="readWritePermission != '4'" (click)="ViewAndUpdateCmonEnvData('Edit', ndagent['cp'], ndagent['si'], ndagent['ch'], ndagent['tier'], ndagent['sn'], ndagent['mt'])">
+                                    <i class="icons8 icons8-edit" aria-hidden="true" title="Update Configuration"></i>
+                                </span> 
+                            </td> -->
+                         </tr>
+                    </ng-template>
+                </p-table>
+                <!-- <p-dataTable [value]="cmonStatusData" id=accordion [globalFilter]="ga" #dt [rows]="15" scrollable="true" scrollHeight="400px" [(selection)]="selectedCmonAgentList" class="nde-ui" [paginator]="cmonStatusData?.length > 15" [rowsPerPageOptions]="[15,30,50,100,150,200]" -->
+                    <!-- [pageLinks]="3"> -->
+                    <!-- <p-column [style]="{'width':'26px'}" selectionMode="multiple"></p-column> -->
+                    <!-- <p-column field="cp" *ngIf="selectedViewCols.indexOf('cp') != -1" header="Pid" sortable="custom" (sortFunction)="myCmonSort($event,cmonStatusData)" [style]="{'width':'5%'}" [filter]="isCmonFilter" filterMatchMode="contains">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span style="float:right" title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="tier" *ngIf="selectedViewCols.indexOf('tier') != -1" header="Tier" [sortable]="true" [filter]="isCmonFilter" filterMatchMode="contains" filterMatchMode="contains" [style]="{'width':'15%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="sn" *ngIf="selectedViewCols.indexOf('sn') != -1" header="Server" [sortable]="true" [filter]="isCmonFilter" filterMatchMode="contains" [style]="{'width':'15%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="si" *ngIf="selectedViewCols.indexOf('si') != -1" header="Server IP" [sortable]="true" [filter]="isCmonFilter" filterMatchMode="contains" [style]="{'width':'11%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span title="{{ndagent[col.field]}}" style="float:right">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="mt" *ngIf="selectedViewCols.indexOf('mt') != -1" header="OS" [sortable]="true" [filter]="isCmonFilter" filterMatchMode="contains" [style]="{'width':'10%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="cv" *ngIf="selectedViewCols.indexOf('cv') != -1" header="Version" [sortable]="true" [filter]="isCmonFilter" filterMatchMode="contains" [style]="{'width':'10%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span style="float:right" title="{{ndagent[col.field]}} ({{ndagent.ch}})">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="cst" *ngIf="selectedViewCols.indexOf('cst') != -1" header="Agent Start Time" [sortable]="true" [filter]="isCmonFilter" filterMatchMode="contains" [style]="{'width':'12%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span style="float:right" title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="cpath" *ngIf="selectedViewCols.indexOf('cpath') != -1" [filter]="isCmonFilter" header="Configuration URL" [sortable]="true" filterMatchMode="contains" [style]="{'width':'12%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span title="{{ndagent[col.field]}}" style="float:left">
+                                <a class="hyperlink" *ngIf="ndagent[col.field] != '-'; else notLink" (click)='routeToConfigPath(ndagent)'>{{ndagent[col.field]}}</a>
+                                <ng-template #notLink>
+                                    <span>{{ndagent[col.field]}}</span>
+                        </ng-template>
+                        </span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="ccut" *ngIf="selectedViewCols.indexOf('ccut') != -1" header="Setting Last Updated Time" [sortable]="true" [filter]="isCmonFilter" filterMatchMode="contains" [style]="{'width':'16%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span style="float:right" title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column [style]="{'text-align':'center', 'width':'65px'}" *ngIf="selectedViewCols.indexOf('aia') != -1" field="aia" header="Status" [sortable]="true">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span *ngIf="ndagent[col.field] == 'Active' || ndagent[col.field] == 'active'" title="{{ndagent[col.field]}}">
+                                <mat-icon class="activeIconClass">fiber_manual_record</mat-icon>
+                            </span>
+                            <span *ngIf="ndagent[col.field] == 'Inactive' || ndagent[col.field] == 'InActive'" title="{{ndagent[col.field]}}">
+                                <mat-icon class="inActiveIconClass">fiber_manual_record</mat-icon>
+                            </span>
+                            <span *ngIf="ndagent[col.field] != 'Active' && ndagent[col.field] != 'active' &&  ndagent[col.field] != 'Inactive' && ndagent[col.field] != 'InActive'" title="{{ndagent[col.field]}}"><mat-icon class="blockerIconClass">fiber_manual_record</mat-icon></span>  -->
+                        <!-- </ng-template> -->
+                    <!-- </p-column> -->
+                    <!-- <p-column field="act" *ngIf="selectedViewCols.indexOf('act') != -1" header="Action(s)" [sortable]="true" [filter]="isCmonFilter" filterMatchMode="contains" [style]="{'width':'85px'}"> -->
+                        <!-- <ng-template let-col let-ndagent="rowData" pTemplate> -->
+                            <!-- <div style="font-size: 16px; text-align: center;"> -->
+                                <!-- <span style="cursor: pointer;" (click)="ViewAndUpdateCmonEnvData('View', ndagent['cp'], ndagent['si'], ndagent['ch'], ndagent['tier'], ndagent['sn'], ndagent['mt'])">
+                                    <i class="fa fa-eye" aria-hidden="true" title="View Configuration"></i>
+                                </span>
+                                <span style="cursor: pointer;" *ngIf="readWritePermission != '4'" (click)="ViewAndUpdateCmonEnvData('Edit', ndagent['cp'], ndagent['si'], ndagent['ch'], ndagent['tier'], ndagent['sn'], ndagent['mt'])">
+                                    <i class="fa fa-pencil-square-o" aria-hidden="true" title="Update Configuration"></i>
+                                </span> -->
+                                <!-- <span *ngFor="let member of selectedCmonAgentPidList">
+
+                                    <span *ngIf="restartStatus == 'waiting' && member == ndagent['cp']">
+                                        <i class="fa fa-opera" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                                <span *ngFor="let member of arrComplete; let i=index">
+                                    <span *ngIf="completedStatus == 'complete' && member == ndagent['cp']">
+                                        <i class="fa fa-check-circle" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                                <span *ngIf="runningStatus == 'running' && processId == ndagent['cp']">
+                                    <img class="loadingIconAgentInfo" src="./images/loading.gif" />
+                                </span>
+                                <span *ngIf="runningStatus == 'running' && processId == ndagent['cp']" (click)="stopRunningCmonAgent(ndagent['cp'])"
+                                    style="cursor: pointer;">
+                                    <i class="fa fa-ban" aria-hidden="true" title="Stop Cmon Process"></i>
+                                </span> -->
+                            <!-- </div>
+                        </ng-template>
+                    </p-column> -->
+
+                <!-- </p-dataTable> -->
+                <div class="p-grid p-align-center">
+                    <label class="mr-5">Download Reports as: </label>
+		 <button pButton class="icon-button no-shadow" icon="icons8 icons8-doc" style='margin-bottom: -3px; cursor:pointer' title="Download Word file" (click)='downloadReports("WordFile")'></button>
+                    <button pButton class="icon-button no-shadow" icon="icons8 icons8-spreadsheet-file" style='margin-bottom: -3px; cursor:pointer' title="Download Excel file" (click)='downloadReports("ExcelFile")'></button>
+                    <button pButton class="icon-button no-shadow" icon="icons8 icons8-pdf-2" style='margin-bottom: -3px; cursor:pointer' title="Download PDF file" (click)='downloadReports("PDFFile")'></button>
+                </div>
+            </p-accordionTab>
+
+            <p-accordionTab header="Application Agent Status {{totalApplicationAgent}}">
+               
+
+                <p-table [value]="ndAgentStatusData" id=accordion [rows]="15" scrollable="true" scrollHeight="400px" #dt class="nde-ui" selectionMode="multiple" [paginator]="ndAgentStatusData?.length > 15" [rowsPerPageOptions]="[15,30,50,100,150,200]" class="all-tables"
+                    [pageLinks]="3" [globalFilterFields]="['pid','tier', 'server', 'si', 'instance', 'iD', 'at', 'ver', 'brs', 'cpath', 'st']">
+                    <ng-template pTemplate="caption">
+
+                        <div class="p-grid p-align-center p-justify-between mtn-10">
+                            <div class="type-search width-150">        
+                                <i class="pi pi-search left-icon"></i>
+                                <input type="text" pInputText size="25" placeholder="Search"  (input)="dt.filterGlobal($event.target.value, 'contains')" style="width:auto">
+                            </div>
+    
+                            <div>
+                                <p-multiSelect [options]="columnOptionsForApp" name="selectedViewColsApp" [(ngModel)]="selectedViewColsApp" class="headeragentinfo"></p-multiSelect>
+    
+                                <button pButton icon="icons8 icons8-help" (click)="sendHelpNotificationForApplication()" class="mx-3"></button>
+    
+                                <button  pButton icon="icons8 icons8-filter"  *ngIf="isNdCheckFilter" title="Show column filters" (click)="showNDFilter('check')" class="mx-3"></button>
+    
+                                <button pButton icon="icons8 icons8-filter" *ngIf="isNdCloseFilter" title="Hide column filters" (click)="showNDFilter('uncheck')" class="mx-3"></button>
+    
+                                <button pButton icon="icons8 icons8-synchronize" class="mx-3" (click)="loadNDAgentStatusData()"></button>
+    
+                                <button *ngIf="readWritePermission != '4'" 
+                                pButton icon="icons8 icons8-circled-play" (click)="restartCmonAgent()" class="mx-3"></button>
+    
+                            </div>
+                            </div>
+
+
+
+
+
+   
+                    </ng-template>
+                    <ng-template class="tableCss config-ui" pTemplate="header">
+                        <tr>
+                            <ng-container *ngFor = "let col of columnOptionsForApp">
+                                <th *ngIf="selectedViewColsApp.indexOf(col.value) != -1">
+                                    <span>{{col.label}}</span>
+                                </th>
+                            </ng-container>
+                        </tr>
+                        <tr *ngIf="isNdFilter">
+			 <ng-container *ngFor="let col of columnOptionsForApp">
+                                <th *ngIf="selectedViewColsApp.indexOf(col.value) != -1">
+                                <span *ngIf="col.label == 'Status'">
+                                    <input pInputText class="w-100-p" type="text" (input)="dt.filter($event.target.value, col.value, 'startsWith')">
+                                </span>
+                                <span *ngIf="col.label != 'Status'">
+                                    <input pInputText class="w-100-p" type="text" (input)="dt.filter($event.target.value, col.value, 'contains')">
+                                </span>
+                            </th>
+                        </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template class="tableCss config-ui" pTemplate="body" let-ndagent>
+                        <tr>
+                            <ng-container *ngFor="let col of columnOptionsForApp">
+				<td *ngIf="selectedViewColsApp.indexOf(col.value) != -1" [style]="{'text-align':'center'}">
+                                    <span *ngIf="col.value != 'cpath' && col.value != 'st'" title="{{ndagent[col.value]}}">{{ndagent[col.value]}}</span>
+                                    <span *ngIf="col.value == 'cpath'" title="{{ndagent[col.value]}}">
+                                        <span title="{{ndagent[col.value]}}" style="float:left">
+                                            <a class="hyperlink" *ngIf="ndagent[col.value] != '-'; else notLink" (click)='routeToConfigPath(ndagent)'>{{ndagent[col.value]}}</a>
+                                            <ng-template #notLink>
+                                                <span>{{ndagent[col.value]}}</span>
+                                            </ng-template>
+                                        </span>
+                                    </span>
+                                    <span *ngIf="col.value == 'st'" title="{{ndagent[col.value]}}">
+                                        <span *ngIf="ndagent[col.value] == 'Active' || ndagent[col.value] == 'active'" title="{{ndagent[col.value]}}">
+                                            <!-- <mat-icon class="activeIconClass">fiber_manual_record</mat-icon> -->
+                                            <i class="icons8-filled-circle activeIconClass"></i>
+                                        </span>
+                                        <span *ngIf="ndagent[col.value] == 'Inactive' || ndagent[col.value] == 'InActive'" title="{{ndagent[col.value]}}">
+                                            <!-- <mat-icon class="inActiveIconClass">fiber_manual_record</mat-icon> -->
+                                            <i class="icons8-filled-circle inActiveIconClass"></i>
+                                        </span>
+                                        <span *ngIf="ndagent[col.value] != 'Active' && ndagent[col.value] != 'active' && ndagent[col.value] != 'Inactive' && ndagent[col.value] != 'InActive'" title="{{ndagent[col.value]}}">
+                                            <!-- <mat-icon class="blockerIconClass">fiber_manual_record</mat-icon> -->
+                                            <i class="icons8-filled-circle blockerIconClass"></i>
+                                        </span>
+                                    </span>
+                                </td>
+                            </ng-container>
+                            <!-- <td class="tableCss" style="float:right" title="{{ndagent.pid}}">{{ndagent.pid}}</td>
+                            <td class="tableCss" title="{{ndagent.tier}}">{{ndagent.tier}}</td>
+                            <td class="tableCss" title="{{ndagent.server}}">{{ndagent.server}}</td>
+                            <td class="tableCss" style="float:right" title="{{ndagent.si}}">{{ndagent.si}}</td>
+                            <td class="tableCss" title="{{ndagent.instance}}">{{ndagent.instance}}</td>
+                            <td class="tableCss" title="{{ndagent.iD}}">{{ndagent.iD}}</td>
+                            <td class="tableCss" title="{{ndagent.at}}">{{ndagent.at}}</td>
+                            <td class="tableCss" title="{{ndagent.ver}}">{{ndagent.ver}}</td>
+                            <td class="tableCss" title="{{ndagent.brs}}">{{ndagent.brs}}</td>
+                            <td class="tableCss" title="{{ndagent.cpath}}">
+                                <span title="{{ndagent.cpath}}" style="float:left">
+                                    <a class="hyperlink" *ngIf="ndagent.cpath != '-'; else notLink" (click)='routeToConfigPath(ndagent)'>{{ndagent.cpath}}</a>
+                                    <ng-template #notLink>
+                                        <span>{{ndagent.cpath}}</span>
+                                    </ng-template>
+                            </span>
+                        </td>
+                            <td class="tableCss" title="{{ndagent.st}}">
+                                <span *ngIf="ndagent.st== 'Active' || ndagent.st == 'active'" title="{{ndagent.st}}"></span>
+                                <span *ngIf="ndagent.st == 'Inactive' || ndagent.st == 'InActive'" title="{{ndagent.st}}"></span>
+                                <span *ngIf="ndagent.st != 'Active' && ndagent.st != 'active' && ndagent.st != 'Inactive' && ndagent.st != 'InActive'" title="{{ndagent.st}}"></span>
+                            </td> -->
+                        </tr>
+                    </ng-template>
+                </p-table>
+
+                <!-- <p-dataTable [value]="ndAgentStatusData" id=accordion [rows]="15" scrollable="true" scrollHeight="400px" [globalFilter]="gb" #dt class="nde-ui" selectionMode="multiple" [paginator]="ndAgentStatusData?.length > 15" [rowsPerPageOptions]="[15,30,50,100,150,200]" -->
+                    <!-- [pageLinks]="3"> -->
+                    <!-- <p-column field="pid" header="Pid" *ngIf="selectedViewColsApp.indexOf('pid') != -1" sortable="custom" (sortFunction)="mysort($event,ndAgentStatusData)" [style]="{'width':'4%'}" [filter]="isNdFilter" filterMatchMode="contains">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span style="float:right" title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="tier" header="Tier" *ngIf="selectedViewColsApp.indexOf('tier') != -1" [sortable]="true" [filter]="isNdFilter" [style]="{'width':'10%'}" filterMatchMode="contains">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="server" header="Server" *ngIf="selectedViewColsApp.indexOf('server') != -1" [sortable]="true" [filter]="isNdFilter" filterMatchMode="contains" [style]="{'width':'10%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="si" [filter]="isNdFilter" header="Server IP" *ngIf="selectedViewColsApp.indexOf('si') != -1" [sortable]="true" filterMatchMode="contains" [style]="{'width':'6%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span title="{{ndagent[col.field]}}" style="float:right">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="instance" header="Instance" *ngIf="selectedViewColsApp.indexOf('instance') != -1" [sortable]="true" [filter]="isNdFilter" filterMatchMode="contains" [style]="{'width':'10%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="iD" header="Installation Dir" *ngIf="selectedViewColsApp.indexOf('iD') != -1" [sortable]="true" [filter]="isNdFilter" filterMatchMode="contains" [style]="{'width':'10%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="at" header="Agent Type" *ngIf="selectedViewColsApp.indexOf('at') != -1" [sortable]="true" [filter]="isNdFilter" filterMatchMode="contains" [style]="{'width':'6%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="ver" header="Version" *ngIf="selectedViewColsApp.indexOf('ver') != -1" [sortable]="true" [filter]="isNdFilter" filterMatchMode="contains" [style]="{'width':'6%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span style="float:right" title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="brs" header="Agent Start Time" *ngIf="selectedViewColsApp.indexOf('brs') != -1" [sortable]="true" [filter]="isNdFilter" filterMatchMode="contains" [style]="{'width':'8%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span style="float:right" title="{{ndagent[col.field]}}">{{ndagent[col.field]}}</span>
+                        </ng-template>
+                    </p-column> -->
+
+                    <!-- <p-column field="cpath" [filter]="isNdFilter" header="Configuration URL" *ngIf="selectedViewColsApp.indexOf('cpath') != -1" [sortable]="true" filterMatchMode="contains" [style]="{'width':'12%'}">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span title="{{ndagent[col.field]}}" style="float:left">
+                                <a class="hyperlink" *ngIf="ndagent[col.field] != '-'; else notLink" (click)='routeToConfigPath(ndagent)'>{{ndagent[col.field]}}</a>
+                                <ng-template #notLink>
+                                    <span>{{ndagent[col.field]}}</span>
+                        </ng-template>
+                        </span>
+                        </ng-template>
+                    </p-column> -->
+                    <!-- <p-column field="st" header="Status" *ngIf="selectedViewColsApp.indexOf('st') != -1" [style]="{'text-align':'center','width':'4%'}" [sortable]="true">
+                        <ng-template let-col let-ndagent="rowData" pTemplate>
+                            <span *ngIf="ndagent[col.field] == 'Active' || ndagent[col.field] == 'active'" title="{{ndagent[col.field]}}">
+                                <mat-icon class="activeIconClass">fiber_manual_record</mat-icon>
+                            </span>
+                            <span *ngIf="ndagent[col.field] == 'Inactive' || ndagent[col.field] == 'InActive'" title="{{ndagent[col.field]}}">
+                                <mat-icon class="inActiveIconClass">fiber_manual_record</mat-icon>
+                            </span>
+                            <span *ngIf="ndagent[col.field] != 'Active' && ndagent[col.field] != 'active' && ndagent[col.field] != 'Inactive' && ndagent[col.field] != 'InActive'" title="{{ndagent[col.field]}}">
+                                <mat-icon class="blockerIconClass">fiber_manual_record</mat-icon>
+                            </span>
+                        </ng-template>
+                    </p-column> -->
+                <!-- </p-dataTable> -->
+                <div class="p-grid p-align-center">
+                    <label class="mr-5">Download Reports as: </label>
+		<button pButton class="icon-button no-shadow" icon="icons8 icons8-doc" style='margin-bottom: -3px; cursor:pointer' title="Download Word file" (click)='downloadNdReports("WordFile")'></button>
+                    <button pButton class="icon-button no-shadow" icon="icons8 icons8-spreadsheet-file" style='margin-bottom: -3px; cursor:pointer' title="Download Excel file" (click)='downloadNdReports("ExcelFile")'></button>
+                    <button pButton class="icon-button no-shadow" icon="icons8 icons8-pdf-2" style='margin-bottom: -3px; cursor:pointer' title="Download PDF file" (click)='downloadNdReports("PDFFile")'></button>
+                </div>
+            </p-accordionTab>
+
+        </p-accordion>
+    </div>
+
+</div>
+
+<p-dialog class="secondary-dialog" header="{{isUpdate ? 'Edit Machine Configuration' : 'Machine Configuration (View Only)'}}" *ngIf="viewEditCmonDialog" [(visible)]="viewEditCmonDialog" modal="modal" responsive="true" [style]="{'top': '39px', 'width':'60%', 'max-height':'87%'}"
+    [resizable]="false">
+    <!-- <form (ngSubmit)="saveUpdatedCmonAgent()" #groupForm="ngForm" ngNativeValidate> -->
+    <p-accordion class="ndagent ddAIaccordion" [multiple]="true">
+        <p-accordionTab header="Setting(s)" [selected]="true">
+            <div *ngIf="cmonEnvNormalKeyLabelList.length == 0" class="ui-g">
+                <div class="ui-g-12" style="text-align: center">
+                    <label>There is no Normal Setting(s)</label>
+                </div>
+            </div>
+            <div *ngIf="cmonEnvNormalKeyLabelList.length != 0" class="ui-g">
+                <div *ngFor='let label of cmonEnvNormalTextAreaLabelList; let i=index; trackBy:trackByFn'>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3" style="width: 137px">
+                            <div style="padding-top: 9px">
+                                <label title="{{label}}" class="labelDisplay">
+                                    {{label}} <label style="color:red"  *ngIf="(label == 'Class Path' || label == 'Machine agent Settings') && isUpdate">*</label>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="ui-g-9">
+                            <div>
+                                <textarea [cols]="100" [rows]="3" pInputTextarea [disabled]='!isUpdate' title=" {{cmonEnvNormalTextAreaValueList[i]}}" style="max-width:500px" [(ngModel)]="cmonEnvNormalTextAreaValueList[i]" autoResize="autoResize"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-g-12" style="padding: 0px">
+                    <div class="ui-g-6">
+                        <div class="ui-g-6">
+                            <div *ngFor='let label of cmonEnvNormalKeyLabelList; let i=index'>
+				<div *ngIf="i%2 != 0" style="padding: 3px">
+                                </div>
+                                <div *ngIf="i%2 == 0">
+                                    <div style="padding-top: 7px">
+                                        <label title=" {{label}}" class="labelDisplay">
+                                        {{label}}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui-g-6">
+                            <div *ngFor="let value of cmonEnvNormalValueList; let i=index ;trackBy:trackByFn">
+                                <div *ngIf="i%2 == 0" style="padding-top: 3px;margin-right: 5px">
+                                    <input type="text" pInputText [disabled]='!isUpdate' title="{{cmonEnvNormalValueList[i]}}" [(ngModel)]="cmonEnvNormalValueList[i]" ngModel />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g-6">
+                        <div class="ui-g-6">
+                            <div *ngFor='let label of cmonEnvNormalKeyLabelList; let i = index'>
+				<div *ngIf="i%2 == 0" style="padding: 2px">
+                                </div>
+                                <div *ngIf="i%2 != 0">
+                                    <div style="padding-top: 7px">
+                                        <label title=" {{label}}" class="labelDisplay">
+                                         {{label}}
+                                    </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui-g-6">
+                            <div *ngFor="let value of cmonEnvNormalValueList; let i=index; trackBy:trackByFn">
+                                <div *ngIf="i%2 != 0" style="padding-top: 3px;margin-right: 5px">
+                                    <input name='cmonEnvNormalValueList' title="{{cmonEnvNormalValueList[i]}}" [disabled]='!isUpdate' type="text " pInputText [(ngModel)]="cmonEnvNormalValueList[i]" ngModel /></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-accordionTab>
+        <p-accordionTab header="Advanced Setting(s)">
+            <div class="ui-g">
+                <div *ngIf="cmonEnvAdvancedKeyLabelList.length == 0" class="ui-g-12" style="text-align: center;">
+                    <label>There is no Advanced Setting(s)</label>
+                </div>
+                <div *ngIf="cmonEnvAdvancedKeyLabelList.length != 0" class="ui-g-12" style="margin-top: -5px">
+                    <div class="ui-g-6">
+                        <div class="ui-g-6">
+                            <div *ngFor='let label of cmonEnvAdvancedKeyLabelList; let i=index'>
+                                <div *ngIf="i%2 != 0" style="padding: 3px">
+                                </div>
+                                <div *ngIf="i%2 == 0" style="padding-top: 7px">
+                                    <label title=" {{label}}" class="labelDisplay">
+                                        {{label}}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui-g-6">
+                            <div *ngFor="let value of cmonEnvAdvancedValueList; let i=index ;trackBy:trackByFn">
+                                <div *ngIf="!isUpdate">
+                                    <div *ngIf="i%2 == 0 && !(cmonEnvAdvancedKeyLabelList[i] == 'Class Path' || cmonEnvAdvancedKeyLabelList[i] == 'Machine Settings')" style="padding-top: 3px;margin-right: 5px">
+                                        <input type="text" pInputText [disabled]='!isUpdate' title="{{cmonEnvAdvancedValueList[i]}}" [(ngModel)]="cmonEnvAdvancedValueList[i]" ngModel/>
+                                    </div>
+                                </div>
+                                <div *ngIf="isUpdate">
+                                    <div *ngIf="i%2 == 0 && !(cmonEnvAdvancedKeyLabelList[i] == 'Class Path' || cmonEnvAdvancedKeyLabelList[i] == 'Machine Settings') && cmonEnvAdvancedKeyLabelList[i] != 'NDC communication protocol'" style="padding-top: 3px;margin-right: 5px">
+                                        <input type="text" pInputText [disabled]='!isUpdate' title="{{cmonEnvAdvancedValueList[i]}}" [(ngModel)]="cmonEnvAdvancedValueList[i]" ngModel />
+                                    </div>
+                                    <div *ngIf="i%2 == 0 && !(cmonEnvAdvancedKeyLabelList[i] == 'Class Path' || cmonEnvAdvancedKeyLabelList[i] == 'Machine Settings') && cmonEnvAdvancedKeyLabelList[i] == 'NDC communication protocol'" style="padding-top: 3px;">
+                                        <p-dropdown [options]="protocolList" [(ngModel)]="cmonEnvAdvancedValueList[i]" [style]="{'width': '52%', 'min-width': '176px'}" appendTo="body" dropdownIcon="icons8 icons8-expand-arrow" class="widthDD"></p-dropdown>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-g-6 ">
+                        <div class="ui-g-6 ">
+                            <div *ngFor='let label of cmonEnvAdvancedKeyLabelList; let i = index'>
+                                <div *ngIf="i%2 == 0" style="padding: 3px">
+                                </div>
+                                <div *ngIf="i%2 !=0" style="padding-top: 7px ">
+                                    <label title=" {{label}} " class="labelDisplay ">
+                                            {{label}}
+                                        </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui-g-6 ">
+                            <div *ngFor="let value of cmonEnvAdvancedValueList; let i=index; trackBy:trackByFn ">
+                                <!-- <div *ngIf="i%2 !=0 && !(cmonEnvAdvancedKeyLabelList[i]=='Class Path' || cmonEnvAdvancedKeyLabelList[i]=='Machine Settings' ) " style="padding-top: 3px;margin-right: 5px ">
+                                    <input name='cmonEnvAdvancedValueList' [disabled]='!isUpdate' type="text " pInputText title="{{cmonEnvAdvancedValueList[i]}} " [(ngModel)]="cmonEnvAdvancedValueList[i] " ngModel />
+                                </div> -->
+                                <div *ngIf="!isUpdate">
+                                    <div *ngIf="i%2 != 0" style="padding-top: 3px;margin-right: 5px">
+                                        <input type="text" pInputText [disabled]='!isUpdate' title="{{cmonEnvAdvancedValueList[i]}}" [(ngModel)]="cmonEnvAdvancedValueList[i]" ngModel/>
+                                    </div>
+                                </div>
+                                <div *ngIf="isUpdate">
+                                    <div *ngIf="i%2 != 0 && cmonEnvAdvancedKeyLabelList[i] != 'NDC communication protocol'" style="padding-top: 3px;margin-right: 5px">
+                                        <input type="text" pInputText [disabled]='!isUpdate' title="{{cmonEnvAdvancedValueList[i]}}" [(ngModel)]="cmonEnvAdvancedValueList[i]" ngModel />
+                                    </div>
+                                    <div *ngIf="i%2 != 0 && cmonEnvAdvancedKeyLabelList[i] == 'NDC communication protocol'" style="padding-top: 3px;">
+                                        <p-dropdown [options]="protocolList" [(ngModel)]="cmonEnvAdvancedValueList[i]" [style]="{'width': '52%', 'min-width': '176px'}" appendTo="body" dropdownIcon="icons8 icons8-expand-arrow" class="widthDD"></p-dropdown>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-accordionTab>
+    </p-accordion>
+    <footer style="margin: 10px -5px 0px ">
+        <div class="pull-right pb-6" style="text-align: right;">
+            <label *ngIf="isUpdate " style="margin: 9px 0px 0px 6px; float:left "><b>Note: </b> Change(s) in field(s) with asterisk (*) needs CMON Re-Starts.</label>
+            <button *ngIf="isUpdate " type="button " pButton class="ui-button-rounded  px-10" (click)="saveSettingsOfCmonAgent() " label="Save "></button>
+            <button *ngIf="isUpdate " type="button " pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="viewEditCmonDialog=false " label="Cancel "></button>
+            <button *ngIf="!isUpdate " type="button " pButton icon="icons8 icons8-checkmark" class="ui-button-sucess mr-6" (click)="viewEditCmonDialog=false " label="Ok "></button>
+        </div>
+    </footer>
+
+    <!-- </form> -->
+</p-dialog>
+<!--
+    Help Icon Dialog for Machine Agent Status
+-->
+<p-dialog class="profile-dialog ndagenthelp" header="Agent Info" *ngIf="customDataHelpDialogMachine" [(visible)]="customDataHelpDialogMachine" modal="modal" width="700" responsive="true" [resizable]="false">
+    <p-accordion class="ndagent ddAIaccordion" [multiple]="true">
+        <p-accordionTab [selected]="true">
+            <p-header>
+                <span class="fa fa-cogs"><label style="margin-left: 6px">Machine Agent Status </label></span>
+            </p-header>
+            <div class="configHelpFile configHelp configHelpColor">
+                <div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Pid 
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This is the ID of the process.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Tier
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This is the logical grouping of servers.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Server
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This is the server which is running in the given tier.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Server IP
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This is the IP address of the server.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> OS
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This is the operating system on which the agent is deployed.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Version
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This shows the build of the agent.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Agent Start Time
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This shows the time when the agent was started.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Configuration URL
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This refers the URL path of the server where the configuration settings are stored.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Setting Last Updated Time
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This shows the time when the settings of the agent were last updated.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Status
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This shows the status of the agent in a color format (Green - Active, Yellow - Inactive, Red - Disconnected).
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Actions
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This shows the actions which the user can perform, such as view and update the configurations.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-accordionTab>
+    </p-accordion>
+</p-dialog>
+
+<!--
+    Help Icon Dialog for Application Agent Status
+-->
+<p-dialog class="secondary-dialog foterDialog" header="Agent Info" *ngIf="customDataHelpDialogApplication" [(visible)]="customDataHelpDialogApplication" modal="modal" width="700" responsive="true" [resizable]="false">
+    <p-accordion class="ndagent ddAIaccordion" [multiple]="true">
+        <p-accordionTab [selected]="true">
+            <p-header>
+                <span class="fa fa-cogs"><label style="margin-left: 6px">Application Agent Status </label></span>
+            </p-header>
+            <div class="configHelpFile configHelp configHelpColor">
+                <div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Pid 
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This is the ID of the process.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Tier
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This is the logical grouping of servers.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Server
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This is the server which is running in the given tier.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Server IP
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This is the IP address of the server.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Instance
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This shows the instance of the server.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Installation Directory
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This is the directory in which the agent is installed.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Agent Type
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This shows the type of agent, such as Java, .NET, and so on.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Version
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This shows the build of the agent.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Agent Start Time
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This shows the time when the agent was started.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Configuration URL
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This refers the URL path of the server where the configuration settings are stored.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="configHelpSubHeading">
+                            <i class="fa fa-square" aria-hidden="true"></i> Status
+                        </span>
+                        <div>
+                            <p class="configHelpSubHeadText" name="name" style="margin-right: 6px">
+                                This shows the status of the agent in a color format (Green - Active, Yellow - Inactive, Red - Disconnected).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-accordionTab>
+    </p-accordion>
+</p-dialog>

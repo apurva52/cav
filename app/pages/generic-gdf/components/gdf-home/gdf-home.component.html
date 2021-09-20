@@ -1,0 +1,54 @@
+<div class="nishaa">
+    <p-toolbar class="monitor-toolbar">
+        <div class="ui-toolbar-group-left">
+          <button pButton type="submit" title="Saves GDF" icon="fa fa-save"
+            form="ngForm" label="Save"></button>
+        </div>
+      </p-toolbar>
+
+      <!-- <div class="tableScroll" style="height: 545px"> -->
+  <div class="tableScroll">
+    <form class="monitor-ui-form" (ngSubmit)="saveGdfInfo()" id="ngForm" ngNativeValidate>
+      <div class="ui-g-12 divPad">
+        <div class="ui-g-1 labelCss">
+          <label>Group Name</label>
+        </div>
+        <div class="ui-g-2">
+          <input type="text" pInputText  name="grp"
+            placeholder="Enter Metric Group Name" [(ngModel)] = "gdfDetails.grpN" style="width: 180px;background-color: white" autofocus
+            (focusout)="fillGrpDesc()" (keydown)="validateGdfInfo($event)" required>
+        </div>
+
+        <div class="ui-g-2 labelCss">
+          <label>Group Description</label>
+        </div>
+        <div class="ui-g-2" style="margin-left: -7%;">
+          <input type="text" pInputText  name="mgDesc"
+            placeholder="Enter Metric Group Description" [(ngModel)] = "gdfDetails.gD"
+            style="width: 268px;background-color: white">
+        </div>
+
+        <div class="ui-g-3 labelCss" style="margin-left: 8%;"> 
+          <label>Metric</label>
+       </div>
+       
+       <div class="ui-g-3 labelCss" style="margin-left: -20%;">  
+         <p-dropdown [style]="{'width':'39%'}" name="ml" [(ngModel)] = "gdfDetails.mV"
+         [options]="metricList" > </p-dropdown>
+         <input  style="margin-left: 33px" placeholder="Enter custom metric"  *ngIf="gdfDetails.mV == 'Custom Metrics'"
+           name="cm" type="text"  required="true" [(ngModel)]="customMetric" pInputText />
+         </div> 
+
+
+         
+      </div> 
+  
+
+     
+    </form>
+  </div>
+
+  <!-- <p-confirmDialog class="profile-dialog monitor-dialog" width="425" closable=false></p-confirmDialog>
+
+  <p-growl life="5000" [value]="message"></p-growl> -->
+</div>

@@ -1,0 +1,160 @@
+<div class="funnel-chart">
+    <div class="action-header-section">
+        <div>
+            <button pButton icon="icons8 icons8-filter" class="icon-button no-shadow" pTooltip="Business Process Filter"
+                (click)="toggle = true"></button>
+        </div>
+
+        <div class="header-section-button">
+            <button *ngIf="!compareMode" pButton type="button" class="ui-button-secondary ui-button-rounded"
+                (click)="onCompareMode(true)" label="ADD TO COMPARE"
+                pTooltip="Add Business Process for Comparison"></button>
+            <button *ngIf="compareMode && closeCompareIcon" pButton icon="icons8 icons8-delete"
+                class="icon-button no-shadow" pTooltip="Close Business Process Comparison"
+                (click)="onCompareMode(false)"></button>
+        </div>
+    </div>
+    <div class="filterDiv" [innerHTML]="filterLabel" *ngIf="filterLabel !== ''"></div>
+
+    <!-- Loader -->
+    <div class="p-grid loader-container vertical-container" style="height: 50vh" *ngIf="loading">
+        <div class="p-col p-col-align-center text-center">
+            <div>
+                <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error -->
+    <div class="p-grid vertical-container" style="height:50vh" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="Error while loading data."></p-message>
+        </div>
+    </div>
+
+    <div class="chart-section">
+        <div class="funnel-section">
+            <div class="p p-grid" [class.selected]="CurrentPage == page.PageName"
+                *ngFor="let page of pages; let i = index" (click)="viewPageDetails(page , i)">
+                <div *ngIf="compareMode && CurrentPage === page.PageName" class="p-col-12 text-center">
+                    <label class="subtitle">{{CurrentPage}}</label>
+                </div>
+                <div class="p-grid p-col-2 title p-0">
+                    <label for="title">{{page.PageName}}</label>
+                </div>
+                <div class="p-grid p-col-9 p-0">
+                    <div class="page" [ngStyle]="{ width: page.width +'%' }">
+                        <ng-template [ngIf]="page.TotalCount" [ngIfElse]="elseBlock">
+                            <div class="entry-page"
+                                [ngStyle]="{width:page.EntryPage.entryCountPct === 100 ? 'calc('+page.EntryPage.entryCountPct+'% - 15px)': page.EntryPage.entryCountPct + '%', 
+                         'min-width':page.EntryPage.entryCountPct > 0 && page.EntryPage.entryCountPct < 100 ? '40px' : null }"
+                                pTooltip="{{page.EntryPage.entryCountPct}}% ({{(page.TotalCount - page.ExitPage.TotalExitCount) | number}})"
+                                *ngIf="page.EntryPage && page.EntryPage.entryCountPct >=1">
+                                <span [class.less5Percent]="page.EntryPage.entryCountPct <= 10">
+                                    {{page.EntryPage.entryCountPct+'%'}} ({{(page.TotalCount -
+                                    page.ExitPage.TotalExitCount) | number}})
+                                </span>
+
+                                <!-- <span class="less5Percent">{{page.EntryPage.entryCountPct+'%'}} ({{(page.TotalCount - page.ExitPage.TotalExitCount) | number}})</span> -->
+                            </div>
+                            <div class="exit-page" *ngIf="page.ExitPage && page.ExitPage.exitCountPct >= 1 "
+                                pTooltip="{{page.ExitPage.exitCountPct}}% ({{page.ExitPage.TotalExitCount | number}})"
+                                [ngStyle]="{width: page.ExitPage.exitCountPct + '%','min-width':page.EntryPage.entryCountPct > 0 && page.EntryPage.entryCountPct < 100 ? '30px' : null}">
+                                <span [class.less5Percent]="page.ExitPage.exitCountPct <= 10">
+                                    {{page.ExitPage.exitCountPct+'%'}} ({{page.ExitPage.TotalExitCount | number}})
+                                </span>
+                                <!-- <span class="less5Percent">{{page.ExitPage.exitCountPct+'%'}} ({{page.ExitPage.TotalExitCount | number}})</span> -->
+                            </div>
+                        </ng-template>
+                        <ng-template #elseBlock>
+                            <div class="no-record"><span>0%</span></div>
+                        </ng-template>
+                    </div>
+                </div>
+
+
+                <div class="view-page-detail-compare-mode p-col-12" *ngIf="compareMode && index == i">
+                    <app-page-details [funnelDetails]="this" [data]="pageDetails"
+                        (pageDetails)="pageDetailsComponent = $event"></app-page-details>
+                </div>
+            </div>
+        </div>
+
+        <div class="funnel-conversion-section">
+            <div class="p-grid p-justify-center">
+                <div class="p-col-6">
+                    <p-card header="Funnel Conversion Rate" *ngIf="pages.length">
+
+                        <div class="p-grid p-justify-between p-nogutter">
+                            <div class="p-col">
+                                <div class="p-grid p-dir-col p-nogutter">
+                                    <!-- Funnel Conversion Rate -->
+                                    <div class="p-col">
+                                        <div class="p-grid p-justify-between">
+                                            <div class="p-col">
+                                                <h3
+                                                    [style]="{margin:pageDetailsComponent?.conversionRate?.newValue ? '5px 0px 0px':null}">
+                                                    {{pages[pages.length-1].BPNextPageCountPct + '%'}}
+                                                </h3>
+                                            </div>
+                                            <div class="p-col text-right"
+                                                *ngIf="pageDetailsComponent?.conversionRate?.newValue">
+                                                <h3 style="margin: 5px 0px 0px;">
+                                                    {{pageDetailsComponent?.conversionRate?.newValue
+                                                    + '%'}}
+                                                </h3>
+                                                <span [style]="{color:pageDetailsComponent?.conversionRate?.color}">
+                                                    <i [class]="pageDetailsComponent?.conversionRate?.icon"></i>
+                                                    {{pageDetailsComponent?.conversionRate?.percent|percent:'1.0-2'}}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Completed User -->
+                                    <div class="p-col">
+                                        <h3 style="text-transform: uppercase;font-weight:unset;margin: 0;">
+                                            Converted Session
+                                        </h3>
+                                    </div>
+                                    <div class="p-col">
+                                        <div class="p-grid p-justify-between">
+                                            <div class="p-col">
+                                                <h3 [class.sessions-link]="pages[pages.length -1].TotalCount"
+                                                    [style]="{margin:pageDetailsComponent?.conversionRate?.newValue ? '5px 0px 0px':null}"
+                                                    pTooltip="Sessions with Completed Business Process"
+                                                    (click)="pages[pages.length -1].TotalCount?pageDetailsComponent?.bpBPCompleteDDR(pages[pages.length -1].TotalCount):''">
+                                                    {{pages[pages.length -1].TotalCount}}</h3>
+                                            </div>
+                                            <div class="p-col text-right"
+                                                *ngIf="pageDetailsComponent?.completedUser?.newValue">
+                                                <h3 style="margin: 5px 0px 0px;">
+                                                    {{pageDetailsComponent?.completedUser?.newValue}}
+                                                </h3>
+                                                <span [style]="{color:pageDetailsComponent?.completedUser?.color}">
+                                                    <i [class]="pageDetailsComponent?.completedUser?.icon"></i>
+                                                    {{pageDetailsComponent?.completedUser?.percent|percent:'1.0-2'}}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="p-col">
+                                <app-chart [data]="chartData" [setChart]="chartData"></app-chart>
+                            </div>
+                        </div>
+                    </p-card>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<app-business-process [visible]="toggle" (bpSubmit)="onSubmit($event);retryCount = 0" (sidebarClose)="toggle=false">
+</app-business-process>
+
+<p-toast></p-toast>

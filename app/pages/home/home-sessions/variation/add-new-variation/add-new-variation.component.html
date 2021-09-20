@@ -1,0 +1,75 @@
+<div class="add-new-variation-dialog">
+    <p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true"
+        class="secondary-dialog" [draggable]="false" [style]="{width: '45vw'}">
+        <p-header>
+            <div class="add-new-variation-title">
+                <div>
+                    Add New Variation
+                </div>
+                <div class="action-buttons">
+                    <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+                </div>
+            </div>
+        </p-header>
+
+        <div class="dialog-content">
+            <div class="ui-fluid">
+                <div class="p-grid">
+                    <div class="p-col-12">
+                        <input id="hostport" type="text" placeholder="Name" class="w-100-p" pInputText />
+                    </div>
+                </div>
+                <div class="p-grid">
+                    <div class="p-col-12">
+                        <input id="hostport" type="text" placeholder="Description" class="w-100-p" pInputText />
+                    </div>
+                </div>
+                <div class="p-grid p-col-12 alignment">
+                    <div class="p-col-6">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-2">
+                                <p-radioButton name="groupname" value="val1" [(ngModel)]="selectedValue" (onClick)="updateCountry()">
+                                </p-radioButton>
+                            </div>
+                            <div class="p-col-8">
+                                <p-dropdown class="ui-dropdown-label" [options]="page"
+                                    dropdownIcon="icons8-expand-arrow" [disabled]="disableDropdown">
+                                </p-dropdown>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-6">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-2">
+                                <p-radioButton name="groupname" value="val2" [(ngModel)]="selectedValue" (onClick)="updateCountry()">
+                                </p-radioButton>
+                            </div>
+                            <div class="p-col-8">
+                                <input id="hostport" type="text" placeholder="URL Pattern" class="w-100-p" pInputText [disabled]="disableInput" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12 p-align-center">
+                    <label class="p-col-6">Channel</label>
+                    <label class="p-col-6">Traffic Allocation 1(%)</label>
+                </div>
+                <div class="p-grid p-col-12 p-align-center">
+                    <div class="p-col-6">
+                        <p-dropdown class="ui-dropdown-label" [options]="channel" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-col-6">
+                        <p-slider [(ngModel)]="val"></p-slider>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p-footer>
+            <div class="p-col-12 form-buttons right">
+                <button pButton type="submit" icon="icons8 icons8-save" iconPos="left" label="Save"
+                    class="ui-button-rounded"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+</div>

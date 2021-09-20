@@ -1,0 +1,329 @@
+<p-toast key="reportToastKey"></p-toast>
+<p-confirmDialog class="confirmdialog" key="availableReportDialogue" header="Info" acceptLabel="Ok" rejectLabel="Cancel"
+  [(visible)]="dialogVisible"></p-confirmDialog>
+
+<div class="metrics-container">
+  <p-dialog [(visible)]="schDialogVisible" header="Report List" [modal]="true" [draggable]="false"
+ [resizable]="false" styleClass="schedulerDialog" onHide="closeDialog($event)">
+ <div class="pb-40">
+  <div class="report-float-right">
+    <button pButton icon="icons8 icons8-installing-updates" class="btn-icon mx-3" (click)="menuSch.toggle($event)"
+      pTooltip="Download" tooltipPosition="top"></button>
+    <p-multiSelect class="icon-button no-shadow multiSelect" [options]="colsScheduler" [(ngModel)]="selectedColsScheduler" optionLabel="label"
+      [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Show/Hide Columns"
+      tooltipPosition="top" [panelStyle]="{ minWidth: '160px'}" appendTo="body" styleClass="dropdown-panel-left">
+    </p-multiSelect>
+    <p-menu #menuSch [popup]="true" styleClass="widget-menu psitionSetMenu" [model]="downloadOptions"
+      [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+    <button pButton icon="icons8 icons8-search-property" class="btn-icon mx-3" (click)="toggleFiltersScheduler()"
+      pTooltip="Column Filter" tooltipPosition="top"></button>
+    <button *ngIf="featurePermission > 4" pButton icon="icons8 icons8-delete-trash" class="btn-icon mx-3"
+      pTooltip="Delete" tooltipPosition="top" (click)="deleteSchedulerReport()"></button>
+  </div>
+</div>
+  <div>
+    <p-table class="all-tables" #schedulerMetric [columns]="selectedColsScheduler" [value]="miniDataTable.data"
+      [(selection)]="selectedSchedulerRow" [rows]="miniDataTable.paginator.rows" [totalRecords]="totalRecordMini"
+      (onPage)="paginateScheduleTable($event)" [(first)]="miniDataTable.paginator.first" [resizableColumns]="true"
+      [showCurrentPageReport]="true" [rowsPerPageOptions]="miniDataTable.paginator.rowsPerPageOptions"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      (onHeaderCheckboxToggle)="headerCheckToggleSchedulerTable($event)" [responsive]="true"
+      [rowHover]="true" [paginator]="true" [scrollable]="true">
+    
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th class="columnwidthmini" *ngIf="featurePermission > 4">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+            [pSortableColumn]="col.valueField" class="text-left" pResizableColumn>
+            <div class="left">
+              {{ col.label }}
+            </div>
+            <div *ngIf="col.isSort" class="right">
+              <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort"
+                ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+              </p-sortIcon>
+            </div>
+          </th>
+        </tr>
+        <tr *ngFor="let headerRow of miniDataTable.headers">
+          <ng-container *ngIf="isEnabledColumnFilterScheduler">
+            <th class="columnwidthmini" *ngIf="featurePermission > 4"></th>
+            <th *ngFor="let col of selectedColsScheduler" [ngSwitch]="col.label">
+              <div *ngIf="
+                    col.filter.isFilter === true &&
+                    col.filter.type === 'custom'
+                  ">
+                <input class="w-100-p" pTooltip="Enter number to search" tooltipPosition="top" *ngSwitchCase="col.label"
+                  pInputText type="text" (input)="
+                  schedulerMetric.filter(
+                        $event.target.value,
+                        col.valueField,
+                        'custom'
+                      )
+                    " />
+              </div>
+              <div *ngIf="
+                    col.filter.isFilter === true &&
+                    col.filter.type === 'contains'
+                  ">
+                <input class="w-100-p" pTooltip="Will filter metric names which contains given text." tooltipPosition="top"
+                  *ngSwitchCase="col.label" pInputText type="text" (input)="
+                  schedulerMetric.filter(
+                        $event.target.value,
+                        col.valueField,
+                        'contains'
+                      )
+                    " />
+              </div>
+            </th>
+          </ng-container>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row let-columns="columns">
+        <tr>
+          <td class="columnwidthmini" *ngIf="featurePermission > 4">
+            <p-tableCheckbox [value]="row"></p-tableCheckbox>
+          </td>
+          <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}">
+            <span pTooltip="{{row[col.valueField]}}" tooltipPosition="top">
+              <p class="text-left" *ngIf="col.valueField !== 'rN'"> {{ row[col.valueField] }}
+                <img *ngIf="col.valueField === 'cD' && row['bR'] === true " height='15'
+                  style='margin-bottom: -3px;float:right' src='./assets/images/play.gif'>
+                <i [style]="{'float':'right'}"
+                  *ngIf="col.valueField === 'cD' && featurePermission > 4 && (row['rT'] === 'Compare (WORD)' || row['rT'] === 'Compare (Tabular)' || row['rT'] === 'Compare (HTML)')"
+                  class="icons8 icons8-resize" (click)="reuseReport(row)"></i>
+              </p>
+              <a class="text-left" *ngIf="col.valueField === 'rN' && row['bR'] === true"> {{ row[col.valueField] }} </a>
+              <a class="link" *ngIf="col.valueField === 'rN' && row['bR'] === false" (click)="openReports(row)">
+                {{ row[col.valueField] }} </a>
+              <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon" class="column-icon"></i>
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td class="text-center" colspan="8">No Records found.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <p-footer>
+  </p-footer>
+</p-dialog>
+  <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="!data">
+    <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+    </div>
+  </div>
+  <div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="error" text="{{ error.msg }}"></p-message>
+    </div>
+  </div>
+  <div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="normal" text="No Data"></p-message>
+    </div>
+  </div>
+  <div class="action-container" *ngIf="data">
+    <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+      <div class="p-col-4 p-justify-end">
+        <div>
+          <i class="icons8 icons8-filter left filter-icon"></i>
+        </div>
+        <div class="p-input-icon-left search-div-css">
+          <i class="icons8 icons8-search"></i>
+          <input #searchInputMetrics pInputText type="text" [(ngModel)]="filterResetReports" class="input-field-search"
+            (input)="metrics.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+        </div>
+      </div>
+      <div class="p-col-4 p-grid p-justify-space-around p-align-center">
+        <!-- <span class="labels">All Reports</span> -->
+        <p-dropdown [options]="data.allReports" [(ngModel)]="selectedReport"
+          (ngModelChange)='loadAvailableReportList()'> </p-dropdown>
+      </div>
+
+      <!-- <div class="p-col-2 icons-container">    
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary" label="ADD REPORT" (click)="showAddReport()">
+            </button>
+          </div> -->
+      <div class="p-col-4 icons-container relative p-justify-between p-align-center">
+        <button *ngIf ="featurePermission > 4 && this.selectedReport !== 'Summary'" pButton type="button" class="reportbtn ui-button ui-button-rounded ui-button-secondary"
+          label="ADD REPORT" (click)="showAddReport()"></button>
+        <button pButton icon="icons8 icons8-installing-updates" class="btn-icon mx-3"
+          (click)="menu.toggle($event)" pTooltip="Download" tooltipPosition="top"></button>
+        <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label"
+          [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Show/Hide Columns" tooltipPosition="top"
+          [panelStyle]="{ minWidth: '200px' }" styleClass="dropdown-panel-left">
+        </p-multiSelect>
+
+        <p-menu #menu [popup]="true" styleClass="widget-menu psitionSetMenu" [model]="downloadOptions" [showTransitionOptions]="'0ms'"
+          [hideTransitionOptions]="'0ms'"></p-menu>
+        <button pButton icon="icons8 icons8-search-property" class="btn-icon mx-3" (click)="toggleFilters()"
+          pTooltip="Column Filter" tooltipPosition="top"></button>
+        <button *ngIf ="featurePermission > 4" pButton icon="icons8 icons8-delete-trash" class="btn-icon mx-3" pTooltip="Delete" tooltipPosition="top"
+          (click)="deleteReportRow()"></button>
+        <!--  <button pButton pTooltip="Toggle Check" 
+                        [ngClass]="isCheckbox == true ? 'icons8-delete' : 'icons8-tick-box'" 
+                        class="icon-button no-shadow check" 
+                        (click)="isCheckbox = !isCheckbox;
+                        selectedRow = null">
+                   </button> -->
+      </div>
+    </div>
+
+
+    <div class="metrics">
+      <ng-container>
+        <div #widgetHeight class="mh-10" [ngStyle]="{
+          height: isEnabledColumnFilter
+            ? 'calc(100vh - 200px)'
+            : 'calc(100vh - 155px)'
+        }">
+          <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+            Select column to show
+          </div>
+          <div>
+            <p-card>
+              <p-table class="all-tables" #metrics [columns]="selectedColumns" [value]="uniqueReportList" [rowHover]="true" [paginator]="true"
+                [rows]="data.paginator.rows" [totalRecords]="totalRecord" [(first)]="data.paginator.first" (onPage)="paginate($event)" [loading]="loading"
+                [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [(selection)]="selectedRow"
+                [resizableColumns]="true" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+                [scrollable]="true" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 140px)"
+                [globalFilterFields]="globalFilterFields" rowExpandMode="single"
+                dataKey="rN" (onSort)="onSort()" (onHeaderCheckboxToggle)="headerCheckToggle($event)">
+                <ng-template pTemplate="colgroup" let-columns>
+                  <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width" />
+                  </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th class="columnwidth" *ngIf="featurePermission > 4">
+                      <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+                      [pSortableColumn]="col.valueField" class="text-left" pResizableColumn>
+                      <div class="left">
+                        {{ col.label }}
+                      </div>
+                      <div *ngIf="col.isSort" class="right">
+                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right"
+                          ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                          ariaLabelAsc="Activate to sort in ascending order">
+                        </p-sortIcon>
+                      </div>
+                    </th>
+                  </tr>
+                  <tr *ngFor="let headerRow of data.headers">
+                    <ng-container *ngIf="isEnabledColumnFilter">
+                      <th class="columnwidth" *ngIf ="featurePermission > 4"></th>
+                      <th *ngFor="let col of selectedColumns" [ngSwitch]="col.label">
+                        <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'custom'
+                        ">
+                          <input class="w-100-p" pTooltip="Enter number to search" tooltipPosition="top" *ngSwitchCase="col.label" pInputText
+                            type="text" (input)="
+                            metrics.filter(
+                              $event.target.value,
+                              col.valueField,
+                              'custom'
+                            )
+                          " />
+                        </div>
+                        <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'contains'
+                        ">
+                          <input class="w-100-p" pTooltip="Will filter metric names which contains given text." tooltipPosition="top"
+                            *ngSwitchCase="col.label" pInputText type="text" (input)="
+                            metrics.filter(
+                              $event.target.value,
+                              col.valueField,
+                              'contains'
+                            )
+                          " />
+                        </div>
+                      </th>
+                    </ng-container>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex"
+                  let-expanded="expanded">
+                  <tr [ngStyle]="{ backgroundColor: row.rowBgColor }" [pSelectableRowDisabled]="isCheckbox"
+                    [pSelectableRow]="row" [pRowToggler]="row">
+                    <td class="text-center columnwidth" *ngIf="featurePermission > 4">
+                      <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                    </td>
+                    <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}">
+                      <span  pTooltip="{{row[col.valueField]}}" tooltipPosition="top">
+                      <p class="text-left" *ngIf="col.valueField !== 'rN'"> {{ row[col.valueField] }} 
+                        <img *ngIf="col.valueField === 'cD' && row['bR'] === true " height='15' style='margin-bottom: -3px;float:right' src='./assets/images/play.gif'>
+                        <i [style]="{'float':'right'}" *ngIf="col.valueField === 'cD' && featurePermission > 4 && (row['rT'] === 'Compare (WORD)' || row['rT'] === 'Compare (Tabular)' || row['rT'] === 'Compare (HTML)')"
+                          class="icons8 icons8-resize" (click)="reuseReport(row)" pTooltip="Reuse Report" tooltipPosition="top"></i>
+                      </p>
+                      <a class="text-left" *ngIf="col.valueField === 'rN' && row['bR'] === true"> {{ row[col.valueField] }} </a>
+                      <a class="link" *ngIf="col.valueField === 'rN' && row['bR'] === false" (click)="openReports(row)">
+                        {{ row[col.valueField] }} </a>
+                      <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon" class="column-icon report-pointer"
+                      (click)="showMiniTableData(row)"></i>
+                      <span class="pt-2 report-float-right" *ngIf="col.iconField && row.icon">({{getCount(row)}})</span>
+                      <!-- <i *ngIf="col.iconField && row.icon"></i> -->
+                      </span>
+                    </td>
+                  </tr>
+                </ng-template>
+                <!-- <ng-template pTemplate="rowexpansion" let-row let-columns="columns" let-rowIndex="rowIndex">
+                 
+                  <tr class="bg-color" *ngIf="getIndex(row) !== rowIndex">
+                    <td class="text-center columnwidth">
+                      <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                    </td>
+                    <td *ngFor="let col of columns" class="{{ col.classes }}" pTooltip="{{ row[col.valueField] }}" tooltipPosition="top">
+                      <p class="text-left" *ngIf="col.valueField !== 'rN'"> {{ row[col.valueField] }} </p>
+                      <a class="text-left" *ngIf="col.valueField === 'rN' && row['bR'] === true"> {{ row[col.valueField] }} </a>
+                      <a class="link" *ngIf="col.valueField === 'rN' && row['bR'] === false" (click)="openReports(row)">
+                        {{ row[col.valueField] }} </a>
+                      <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon" class="column-icon"></i>
+                      <span *ngIf="col.label === 'Description'"></span>
+                      <span class="action-icon">
+                        <i *ngIf="col.valueField === 'cD' && (row['rT'] === 'Compare (WORD)' || row['rT'] === 'Compare (Tabular)' || row['rT'] === 'Compare (HTML)')"
+                          class="icons8 icons8-resize"></i>
+                        <i *ngIf="col.valueField === 'cD' && row['bR'] === true " class="icons8 icons8-spinner"></i>
+                      </span>
+
+                    </td>
+                  </tr>
+                </ng-template> -->
+
+                <!-----------Empty table error handling--------------------->
+                <!-- <ng-template pTemplate="emptymessage" let-columns>
+                  <tr>
+                    <td [attr.colspan]="columns.length + 1" class="text-center">
+                      <span *ngIf="error">Error while loading data</span>
+                      <span *ngIf="!emptyTable">Empty Table</span>
+                      <span *ngIf="loading">Loading</span>
+                      <span *ngIf="!empty && !loading && !error && searchInputMetrics.value.length">Nothing found
+                        matching
+                        "{{searchInputMetrics.value}}"</span>
+                    </td>
+                  </tr>
+                </ng-template> -->
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                      <td class="text-center" colspan="8">No Records found.</td>
+                  </tr>
+              </ng-template>
+              </p-table>
+            </p-card>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

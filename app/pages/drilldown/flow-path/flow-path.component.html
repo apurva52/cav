@@ -1,0 +1,245 @@
+<div class="flow-path-container h-100-vh">
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="Error while loading data"></p-message>
+        </div>
+    </div>
+    <div #widgetHeight *ngIf="data" [ngStyle]="{
+      height: data.tableFilter ? 'calc(100vh - 170px)' : 'calc(100vh - 120px)'
+    }">
+        <div class="p-grid">
+            <div class="p-col-4 filter-group">
+                <div class="p-10 p-col-3" *ngIf="isCheckbox">
+                    {{ selectedRow ? selectedRow.length + " " + "selected" : "" }}
+                </div>
+                <div class="p-col-9" *ngIf="isShow">
+                    <button pButton type="button" label="SHOWING ALL FLOWPATH OF SELECTED FLOWPATH NV SESSION"
+                        class="ui-outline-button ui-button-secondary padding-check" [routerLink]="['/']">
+                        <i (click)="hideSession()" class="btn-icon icons8-delete"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-col-6 flow-path-filter-button-group">
+                <!-- <button *ngIf="isCheckbox" pButton type="reset" label="COMPARE" class="ui-outline-button ui-button-secondary" [routerLink]="['/compare-flowpaths']"></button> -->
+                <button pButton type="reset" label="COMPARE" class="ui-outline-button ui-button-secondary" (click) ="compareFlowpath()"></button>
+                <button *ngIf="!isCheckbox" pButton class="ui-outline-button ui-button-secondary" (click)="openTierStatus()" label="TIER STATUS"></button>
+                <button pButton class="ui-outline-button ui-button-secondary" label="LOGS" (click)="openNetForest()"></button>
+                <button pButton class="ui-outline-button ui-button-secondary" label="SESSIONS" (click)="openNVFromND()"></button>
+                <button pButton icon="icons8 icons8-search" pTooltip="Search" (click)="isShowSearch = !isShowSearch" class="icon-button no-shadow"></button>
+
+                <div class="ui-inputgroup">
+                    <div class="p-col-2 pl-0 flowpath-search-box" *ngIf="isShowSearch">
+                        <input #searchInput type="text" [value]="" class="w-100-p" pInputText size="50"
+                            placeholder="Search" (input)="flowPath.filterGlobal($event.target.value, 'contains')"
+                            class="search-box" />
+                    </div>
+                    <!-- <div class="text-right ph-5" *ngIf="isShowSearch">
+                        <button pButton type="button"  class="ui-icon-button ui-button-rounded clear-button"
+                            pTooltip="Clear filter" tooltipZIndex="100001005" icon="icons8 icons8-delete"
+                            (click)="clearFilters()"></button>
+                    </div> -->
+                </div>
+            </div>
+            <div class="p-col-2 flow-path-alert-group">
+                <!-- TODO: Export Data Functionality -->
+                <p-menu appendTo="ui-icon-button" #menu [popup]="true" styleClass="widget-menu"
+                    [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                    pTooltip="Download" (click)="menu.toggle($event)"></button>
+                <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns"
+                    optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                    pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+                </p-multiSelect>
+                <i pButton pTooltip="Toggle Check" [ngClass]="isCheckbox == true ? 'icons8-delete' : 'icons8-tick-box'" class="icon-button no-shadow toggle-check" (click)="isCheckbox = !isCheckbox; selectedRow = null"></i>
+                <i *ngIf="nvtondReport" pButton icon="icons8 icons8-back" class="icon-button no-shadow" pTooltip="View Previous Flowpaths" (click)="clickBack()"></i>
+                <i *ngIf="data.tableFilter" pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" pTooltip="Toggle Filter" [tooltipZIndex]="100000" (click)="isShowColumnFilter = !isShowColumnFilter"></i>
+                <i pButton icon="icons8 icons8 icons8-menu-vertical" class="icon-button no-shadow" pTooltip="Menu" (click)="menuOptions.toggle($event)"></i>
+                <p-menu #menuOptions [popup]="true" styleClass="widget-menu psitionSetMenu" [model]="allOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" [style]="{ minWidth: '24em' }">
+                </p-menu>
+            </div>
+        </div>
+        <div class="flow-path-table">
+            <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                Select column to show
+            </div>
+            <p-card>
+                <p-table #flowPath class="all-tables" [resizableColumns]="true" [reorderableColumns]="true" [columns]="selectedColumns"
+                    [value]="data.data" [rowHover]="true" [paginator]="false" [pageLinks]="3" [rows]="data.paginator.rows" 
+                    (onPage)="onPageChange($event);" [(first)]="data.paginator.first" [totalRecords]="totalRecords"
+                    [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [showCurrentPageReport]="true" [lazy]="false"
+                    currentPageReportTemplate="Showing {first} to {last} of {{totalRecords}} entries" [responsive]="true"
+                    [scrollable]="true" selectionMode="single" [(selection)]="selectedRow" [loading]="loading"
+                    scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 160px)"
+                    [globalFilterFields]="globalFilterFields" (sortFunction)="sortColumnsOnCustom($event)" [customSort]="true">                   
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                            <col *ngFor="let col of columns" [style.width]="col.width">
+                        </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns>
+                        <tr *ngFor="let headerRow of data.headers">
+                            <th *ngIf="isCheckbox" class="columnwidth"></th>
+                            <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField" pResizableColumn pReorderableColumn
+                                [ngStyle]="{'width.px': col.label === 'Business Transaction' ? '150' : '120'}">
+                                    {{ col.label }}                                   
+                                    <p-sortIcon *ngIf="col.isSort" [field]="col.valueField"
+                                        ariaLabel="Activate to sort"
+                                        ariaLabelDesc="Activate to sort in descending order"
+                                        ariaLabelAsc="Activate to sort in ascending order">
+                                    </p-sortIcon>
+                            </th>
+                            <!-- <th pResizableColumn *ngFor="let col of columns" [attr.coldiv]="col.coldiv"
+                                [attr.rowdiv]="col.rowdiv" [ngStyle]="{
+                  'width.px':
+                    col.label === 'Business Transaction' ? '150' : '120'
+                }" [pSortableColumn]="col.isSort && col.valueField" class="text-left">
+                                {{ col.label }}
+                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                ariaLabel="Activate to sort"
+                                ariaLabelDesc="Activate to sort in descending order"
+                                ariaLabelAsc="Activate to sort in ascending order">
+                            </p-sortIcon>
+                            </th> -->
+                        </tr>
+                        <tr *ngFor="let headerRow of data.headers">
+                            <ng-container *ngIf="isShowColumnFilter">
+                                <th *ngIf="isCheckbox" class="columnwidth"></th>
+                                <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                    <div *ngIf="
+                      col.filter.isFilter === true &&
+                      col.filter.type === 'custom'
+                    ">
+                                        <input class="w-100-p"
+                                            pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                            *ngSwitchCase="col.label" pInputText type="text" (input)="
+                        flowPath.filter(
+                          $event.target.value,
+                          col.value,
+                          'custom'
+                        )
+                      " />
+                                    </div>
+                                    <div *ngIf="
+                      col.filter.isFilter === true &&
+                      col.filter.type === 'contain'
+                    ">
+                                        <input class="w-100-p"
+                                            pTooltip="Will filter metric names which contains given text."
+                                            *ngSwitchCase="col.label" pInputText type="text" (input)="
+                        flowPath.filter(
+                          $event.target.value,
+                          col.valueField,
+                          'contains'
+                        )
+                      " />
+                                    </div>
+                                </th>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                        <tr [pSelectableRow]="row" [pSelectableRowDisabled]="isCheckbox" [ngStyle]="{
+                backgroundColor: row.rowBgColor,
+                borderLeft: '5px solid' + row.severityBgColorField
+              }" (click)="menu1.toggle($event)">
+                            <p-menu class="menu-item" #menu1 [popup]="true" [model]="items1" appendTo="body"></p-menu>
+                            <td class="text-center columnwidth" *ngIf="isCheckbox">
+                                <p-tableCheckbox [value]="row" (click)=onSelectedRow()></p-tableCheckbox>
+                            </td>
+                            <ng-container *ngFor="let col of columns; let i=index">
+                            <td [ngStyle]="{
+                  'width.px':
+                    col.label === 'Business Transaction' ? '150' : '120'
+                }" class="{{ col.classes }}">
+                                <!-- <button
+                  *ngIf="i === columns.length - 1 && row === selectedRow"
+                  [routerLink]="['/aggregate-transaction-flowmap']"
+                  pButton
+                  icon="icons8 icons8-bar-chart"
+                  class="row-action-btn-prev"
+                ></button> -->
+                                <span>
+                                    <a [ngClass]="{
+                      activeLink:
+                        col.label == 'Business Transaction' ||
+                        col.label == 'URL' ||
+                        col.label == 'Category' ||
+                        col.label == 'Start Time' ||
+                        col.label == 'CallOuts' ||
+                        col.label == 'Total Response Time(ms)' ||
+                        col.label == 'Methods' ||
+                        col.label == 'DB Callouts' ||
+                        col.label == 'FlowpathInstance'
+                    }" (click)="getColumnData(col.label, row)"
+                                        [pTooltip]="col.valueField === 'url'? col.tooltipField +'&#13;'+row[col.valueField]:col.tooltipField">
+                                        {{ row[col.valueField] | f_ddr: col.format: 32 }}
+                                    </a>
+                                </span>
+                                <!-- <button
+                                {{ row[col.valueField] }}
+                                 <button
+                  *ngIf="i === columns.length - 1 && row === selectedRow"
+                  [routerLink]="['/dashboard-service-req']"
+                  pButton
+                  icon="icons8 icons8-more"
+                  class="row-action-btn-next"
+                ></button> -->
+                                <span *ngIf="col.label == 'Flag'">
+                                    <img *ngIf="(row.dynamicLoggingFlag == '1')" src="./assets/images/dl.png"
+                                        style="overflow: auto;display: inline-block; margin-left: 10px;width:16px;height:16px;cursor:pointer;" />&nbsp;
+                                        <img *ngIf="(row.traceRequest != '0')" src="./assets/images/HttpIcon.png" title="View Trace Request" style="margin-right :10px;font-size: 16px;cursor:pointer;"/>
+                                </span>
+                                
+                            </td>
+                        </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td [attr.colspan]="columns.length + 1" class="text-center">
+                                <span *ngIf="error">Error while loading data</span>
+                                <span *ngIf="emptyTable">No Data</span>
+                                <span *ngIf="loading">Loading</span>
+                                <span
+                                    *ngIf="!empty && !loading && !error && searchInput && searchInput.nativeElement.value.length  ">Nothing
+                                    found matching
+                                    "{{searchInput.nativeElement.value}}"</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+
+                <p-paginator *ngIf="showPagination" currentPageReportTemplate="Showing {first} to {last} of {{totalRecords}} entries" [showCurrentPageReport]="true" [(first)]="data.paginator.first"
+                 [rows]="data.paginator.rows" [totalRecords]="totalRecords" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" (onPageChange)="onPageChange($event)"></p-paginator>
+            </p-card>
+        </div>
+    </div>
+    <p-dialog class="ddr-dialog" header="Clear Cached Data" appendTo="body" [(visible)]="deleteCachedFlag" [style]="{ width: '30vw' }" [draggable]="false" [resizable]="false">
+        <div *ngIf="deleteCachedFlag">
+          <ng-container *ngFor="let val of reportList">
+            <span class="ui-g-6">
+              <p-checkbox  value={{val.value}} name="group1" label={{val.label}} [(ngModel)]="selectedReport"></p-checkbox >
+            </span>
+          </ng-container>
+        </div>
+        <p-footer>
+          <button type="button" pButton icon="fa fa-apply" (click)="onApply();" label="Apply" ></button>
+          <button type="button" pButton icon="fa-close" (click)="deleteCachedFlag=false;" label="Close"></button>
+        </p-footer>
+    </p-dialog>
+    <p-toast></p-toast> <!-- used for error or success notification -->
+    <p-dialog [(visible)]="displayDetails" [resizable]="true" [modal]="true" class="secondary-dialog foterDialog"
+        header="Dynamic Diagnostics Configuration" [draggable]="false" closeIcon="icons8-delete"
+        [style]="{ width: '50vw' }">
+        <app-ip-summary-open-box></app-ip-summary-open-box>
+    </p-dialog>
+</div>
+<app-long-value #longValue></app-long-value>
+<p-dialog class="secondary-dialog foterDialog" header="Dynamic Diagnostics Configuration" [resizable]="false" *ngIf="showAutoInstrPopUp" [(visible)]="showAutoInstrPopUp" modal="modal" [style]="{width: '60vw'}" [contentStyle]="{'max-height':'500px'}" responsive="true">
+    <app-dynamic-diagnostics (resultAfterStart)="startInstrumentaion($event)" (closeAIDDGui)="closeAIDDDialog($event)" [passAIDDSettings]="argsForAIDDSetting"></app-dynamic-diagnostics>
+  </p-dialog>

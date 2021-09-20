@@ -1,0 +1,419 @@
+<p-dialog [(visible)]="visible" [resizable]="true" [modal]="true" class="secondary-dialog compare-data "
+    [draggable]="false" [closable]="false" [style]="{width: '95vw'}">
+    <p-header>
+        <div class="compare-data-title">
+            <div pTooltip="Compare Session Window">
+                Compare
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-help" (click)="help.show('comparedata', 'Compare Sessions')"></i>
+                <i class="icons8 icons8-delete" pTooltip="Close Compare Window" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+    <div class="p-grid p-col-12" *ngIf="data">
+        <div class="p-col-3">
+            <!-- <p-card class="p-grid p-col-12"> -->
+            <fieldset class="p-grid p-col-12 p-align-center fieldset" style="margin-bottom: 1em;">
+                <legend pTooltip="Measurement Details">Measurements</legend>
+
+                <!-- <div class="p-col-5">
+<label class="label-name">Saved Snapshots</label>
+</div>
+<div class="p-col-7">
+<p-dropdown class="ui-dropdown-label inputSelect" [options]="data.snapshots" [(ngModel)]="selectedSnap" dropdownIcon="icons8-expand-arrow" (onChange)="onSnapShotChange($event)" #drop>
+</p-dropdown>
+</div> -->
+
+                <div class="p-col-3">
+                    <label class="label-name">
+
+                        <p-checkbox name="preset" label="Preset" (onChange)="onTimeFilterTypeChange(true)"
+                            pTooltip="Preset Options" binary="true" [(ngModel)]="preset">
+                        </p-checkbox>
+
+                    </label>
+                </div>
+                <div class="p-col-9" *ngIf="!preset">
+                    <input pInputText class="inputDropdown customInput" [disabled]=true placeholder="Custom Time">
+                </div>
+                <div *ngIf="preset"  class="p-col-9">
+                    <!-- <p-dropdown class="ui-dropdown-label" [options]="presetList" [(ngModel)]="selectedPreset" dropdownIcon="icons8-expand-arrow">
+</p-dropdown> -->
+
+                    <button *ngIf="preset" [disabled]="disableBaselineTime" pButton
+                        class="slideMenu ui-button ui-button-custom inputDropdown"
+                        (click)="timePeriodMenu.toggle($event);toggle(tmpValue);">
+                        <span class="text-left p-col-10 left">
+                            {{(tmpValue.timePeriod.selected && tmpValue.timePeriod.selected.label)
+                            || 'Select time period'}}
+                        </span>
+                        <i class="p-col-2 p-3 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+                    </button>
+                    <span>
+                        <p-slideMenu #timePeriodMenu appendTo="body" [model]="tmpValue.timePeriod.options"
+                            id="time-period" [popup]="true">
+                        </p-slideMenu>
+                    </span>
+
+            </div>
+                <!-- <ng-template *ngIf ="tmpValue.timePeriod.options[3] === 'Time Back'"> -->
+                <div class="p-col-3"
+                    *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB0' ||tmpValue.timePeriod.selected.id=== 'TB1' || tmpValue.timePeriod.selected.id=== 'TB2'||tmpValue.timePeriod.selected.id=== 'TB3'">
+                    <label class="label-name">{{tmpValue.timePeriod.selected.label}}</label>
+                </div>
+                <div class="p-col-9" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB0'">
+                    <input class="inputDropdown" pInputText min="1" maxlength="2" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);var val = Math.abs(parseInt(this.value, 10));this.value = val > 24 ? 24 : val;" (keypress)="numberOnly($event)" max="24"
+                        type="number" [(ngModel)]="timeBack" (mouseout)="timeBackCall()" placeholder="Enter time back">
+                </div>
+                <div class="p-col-9" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB1'">
+                    <input class="inputDropdown" pInputText min="1" maxlength="2" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);var val = Math.abs(parseInt(this.value, 10));this.value = val > 31 ? 31 : val;" (keypress)="numberOnly($event)" max="31"
+                        type="number" [(ngModel)]="timeBack" (mouseout)="timeBackCall()" placeholder="Enter time back">
+                </div>
+                <div class="p-col-9" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB2'">
+                    <input class="inputDropdown" pInputText min="1" maxlength="2" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);var val = Math.abs(parseInt(this.value, 10));this.value = val > 65 ? 65 : val;" (keypress)="numberOnly($event)" max="65"
+                        type="number" [(ngModel)]="timeBack" (mouseout)="timeBackCall()" placeholder="Enter time back">
+                </div>
+                <div class="p-col-9" *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB3'">
+                    <input class="inputDropdown" pInputText min="1" maxlength="2" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);var val = Math.abs(parseInt(this.value, 10));this.value = val > 12 ? 12 : val;" (keypress)="numberOnly($event)" max="12"
+                        type="number" [(ngModel)]="timeBack" (mouseout)="timeBackCall()" placeholder="Enter time back">
+                </div>
+                <!-- </ng-template> -->
+
+                <div class="p-col-3">
+                    <label class="label-name ">Starts at</label>
+                </div>
+                <div class="p-col-9 search-div-css" *ngIf="tmpValue && preset">
+                    <input pInputText class="inputDropdown" [disabled]="true"
+                        placeholder="{{tmpValue.time.frameStart.value | formatDateTime: 'default' }}">
+                    <p-message *ngIf="invalidDate" severity="error"
+                        text="Start date and End date should not be the same.">
+                    </p-message>
+                </div>
+                <div class="p-col-9 search-div-css" *ngIf="!preset">
+
+                    <input pInputText readonly id="start-date-time" class="inputDropdown"
+                        [owlDateTime]="customStartDateTime" [owlDateTimeTrigger]="customStartDateTime"
+                        placeholder="{{(customTimeFrame[0] | date: 'MM/dd/yyyy HH:mm') || 'Select Start Time'}}"
+                        (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'"
+                        [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame">
+                    <owl-date-time #customStartDateTime></owl-date-time>
+                    <p-message *ngIf="invalidDate" severity="error"
+                        text="Start date and End date should not be the same."></p-message>
+                </div>
+                <div class="p-col-3">
+                    <label class="label-name">Ends at</label>
+                </div>
+                <div class="p-col-9" *ngIf="tmpValue && preset">
+                    <input pInputText class="inputDropdown" [disabled]="true"
+                        placeholder="{{tmpValue.time.frameEnd.value | formatDateTime: 'default' }}">
+                    <p-message *ngIf="invalidDate" severity="error"
+                        text="End date and Start date should not be the same.">
+                    </p-message>
+                </div>
+                <div class="p-col-9" *ngIf="!preset">
+                    <input pInputText readonly id="end-date-time" class="inputDropdown"
+                        [owlDateTime]="customEndDateTime" [owlDateTimeTrigger]="customEndDateTime"
+                        placeholder="{{(customTimeFrame[1] | date: 'MM/dd/yyyy HH:mm') || 'Select Start Time'}}"
+                        (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeTo'"
+                        [(ngModel)]="customTimeFrame">
+                    <owl-date-time #customEndDateTime></owl-date-time>
+                    <p-message *ngIf="invalidDate" severity="error"
+                        text="End date and Start date should not be the same."></p-message>
+
+                </div>
+                <div class="p-col-3">
+                    <label class="label-name">Name</label>
+                </div>
+                <div class="p-col-9" *ngIf="preset">
+                    <input type="text" maxlength="42" pInputText [(ngModel)]="baselineName" class="inputDropdown"
+                        placeholder="{{tmpValue.timePeriod.selected.label}}">
+                </div>
+                <div class="p-col-9" *ngIf="!preset">
+                    <input type="text" pInputText [(ngModel)]="baselineName" class="inputDropdown">
+                </div>
+                <div class="p-col-3" *ngIf="!snapshots.trendCompare">
+                    <span class="label-name-1">Color</span>
+                </div>
+                <div class="p-col-9 p-grid p-align-center p-justify-between">
+                    <!-- <span [disabled]="disableBaselineTime"> -->
+                    <p-colorPicker *ngIf="!snapshots.trendCompare && tmpMeasurement" [disabled]="isDisabled"
+                        [(ngModel)]="tmpMeasurement.rowBgColorField" class="measure-color" (click)=chooseColor($event)>
+                    </p-colorPicker>
+                    <!-- </span> -->
+                    <div class="filter-group" *ngIf="!updateRow && !snapshots.trendCompare">
+                        <button pButton type="button" label="Add" class="ui-outline-button ui-button-secondary-green"
+                            (click)="AddNewMeasuremnt($event)">
+                            <i class="btn-icon icons8-forward"></i>
+                        </button>
+                    </div>
+                    <div class="filter-group" *ngIf="updateRow && !snapshots.trendCompare">
+                        <button pButton type="button" label="Update" class="ui-outline-button ui-button-secondary-green"
+                            (click)="UpdateMeasuremnt($event)">
+                            <i class="btn-icon icons8-forward"></i>
+                        </button>
+                    </div>
+                    <div class="filter-group" *ngIf="!updateRow && snapshots.trendCompare" style="padding-left: 170px;">
+                        <button pButton type="button" label="Add" class="ui-outline-button ui-button-secondary-green"
+                            (click)="AddNewMeasuremnt($event)">
+                            <i class="btn-icon icons8-forward"></i>
+                        </button>
+                    </div>
+                    <div class="filter-group" *ngIf="updateRow && snapshots.trendCompare" style="padding-left: 150px;">
+                        <button pButton type="button" label="Update" class="ui-outline-button ui-button-secondary-green"
+                            (click)="UpdateMeasuremnt($event)">
+                            <i class="btn-icon icons8-forward"></i>
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+            <!-- </p-card> -->
+            <!-- <div class="p-col-6"> -->
+            <!-- <p-card class="p-grid p-col-12"> -->
+            <!-- <div class="p-grid gridChange"> -->
+            <fieldset class="p-grid p-col-12 fieldset">
+                <legend pTooltip="Compare Advance Settings">Settings</legend>
+                <!-- <div class="p-grid p-justify-between p-align-center p-col-12"> -->
+                <!-- <div class="p-grid p-align-center">
+<label class="label-name ">View by</label>
+<p-dropdown appendTo="body" [style]="{'width':'80px'}" class="ml-5em ui-dropdown-label inputSelect" [options]="viewbyList" scrollHeight="120px" [(ngModel)]="viewByselected" dropdownIcon="icons8-expand-arrow" (onChange)="onChange($event)">
+</p-dropdown>
+</div>
+
+<div class="p-grid p-align-center">
+<label class="label-name2 ">Value</label>
+<p-dropdown appendTo="body" [style]="{'width':'80px'}" class="ml-5em ui-dropdown-label inputSelect" scrollHeight="120px" [options]="viewByValueList" [(ngModel)]="viewByValueSelected" dropdownIcon="icons8-expand-arrow">
+</p-dropdown>
+</div> -->
+
+                <div class="p-grid p-justify-between p-align-center p-col-12"
+                    *ngIf="tmpValue && tmpValue.viewBy && tmpValue.viewBy.options && tmpValue.viewBy.options.length">
+                    <div class=" p-grid p-align-center">
+                        <label for="view-by" class="viewBy">View By</label>
+                    </div>
+                    <div class="p-grid p-align-center p-col-9">
+                        <button pButton class="ui-button ui-button-custom mh-10 inputDropdown"
+                            (click)="viewByMenu.toggle($event)">
+                            <span class="text-left p-col-10 left">
+                                {{(tmpValue.viewBy.selected && tmpValue.viewBy.selected.label) || 'Select view by'}}
+                            </span>
+                            <i class="p-col-2 p-3 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+                        </button>
+                        <p-slideMenu #viewByMenu appendTo="body" [model]="tmpValue.viewBy.options" id="view-by"
+                            [popup]="true">
+                        </p-slideMenu>
+                    </div>
+                </div>
+
+                <!-- </div> -->
+                <!-- <div class="p-col-3">
+
+</div>
+<div class="p-col-3">
+
+</div>
+<div class="p-col-3" >
+
+</div>
+<div class="p-col-3" >
+
+</div> -->
+                <div class="p-grid p-justify-between p-col-12">
+                    <!-- <p-checkbox name="group3" value="include default dashboard as Baseline" [(ngModel)]="selectedBaseline"
+inputId="idb"></p-checkbox> -->
+                    <div>
+                        <p-checkbox name="selectedBase" label="Use Current Session"
+                            pTooltip="Enable it for Dashboard Current session" binary="true"
+                            [(ngModel)]="snapshots.includeDefaultBaseline" (onChange)="selectToggle($event)">
+                        </p-checkbox>
+                    </div>
+                    <div >
+                        <p-checkbox name="trend" label="Show Trend" value="Trend" pTooltip="Enable it for Trend Compare"
+                            binary="true" [(ngModel)]="snapshots.trendCompare"
+                            (click)="trendCompareApply(snapshots.trendCompare)">
+                        </p-checkbox>
+                        <!-- <label for="tc">Trend</label> -->
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <!-- <label for="idb">include default dashboard as Baseline</label> -->
+                        <p-checkbox name="selectedWidget" label="Apply on All Widgets"
+                            pTooltip="Enable it for doing compare on All widget" binary="true"
+                            [(ngModel)]="snapshots.applyAllWidget" (click)="applyAllWidget(snapshots.applyAllWidget)">
+                        </p-checkbox>
+                    </div>
+
+                    <!-- <p-checkbox name="group3" value="include default dashboard as Baseline" [(ngModel)]="selectedWidget"
+inputId="idb"></p-checkbox>
+<label for="idb">Apply Compare on All Widget</label> -->
+
+                </div>
+            </fieldset>
+            <!-- </div> -->
+            <!-- </p-card> -->
+            <!-- </div> -->
+        </div>
+        <!-- <div class="p-col-5">
+<p-checkbox name="group1" [(ngModel)]="snapshots.saveMeasurement" binary="true" inputId="sm" ></p-checkbox>
+<label for="sm">Save SnapShots as</label>
+</div>
+<div class="p-col-7">
+<input *ngIf="snapshots.saveMeasurement" type="text" pInputText [(ngModel)]="snapshots.snapShotName" class="inputDropdown">
+</div> -->
+
+        <!-- <div class="p-col-6" *ngIf="selectedSnap">
+<label class="label-name">Snapshot Name</label>
+</div>
+<div class="p-col-6" *ngIf="selectedSnap" >
+<input type="text" pInputText >
+</div> -->
+
+        <!--
+</div>
+</p-card> -->
+
+        <div class="p-col-9">
+
+            <div class="p-grid p-justify-end p-align-center" style="margin-right: 3px;">
+                <!-- *ngIf= "data.snapshotsData!==undefined" -->
+                <label class="measur-label">Measurement Set</label>
+                <p-dropdown [style]="{'width':'133px'}" class="ui-dropdown-label  inputSelect1 mrl-5em comparecheck"
+                    [options]="data.snapshots" [(ngModel)]="selectedSnap" dropdownIcon="icons8-expand-arrow"
+                    (onChange)="onSnapShotChange($event)"  #drop>
+                </p-dropdown>
+                <i class="icons8 icons8-trash deletedrop" (click)="deleteSnapShotFromList(drop)"
+                    style="font-size: 12px;"></i>
+            </div>
+
+
+
+
+
+            <!-- <p-card class="p-grid p-col-12"> -->
+            <fieldset class="p-grid p-col-12 p-align-center fieldset" style="margin-bottom: 1em;">
+                <legend pTooltip="Measurements Detail Information">Measurements Detail</legend>
+                <p-table #comparedata class="all-tables" [columns]="selectedColumns" [value]="snapshots.compareData"
+                    [rowHover]="true" [responsive]="true" [scrollable]="true" scrollHeight="260px"
+                    selectionMode="single" [(selection)]="selectedRow" (onRowSelect)="onRowSelect($event)"
+                    (onRowUnselect)="onRowUnselect($event)">
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup *ngIf="!snapshots.trendCompare">
+                            <col style="width:5%">
+                            <col style="width:35%">
+                            <col style="width:20%">
+                            <col style="width:15%">
+                            <col style="width:15%">
+                            <col style="width:10%">
+                        </colgroup>
+                        <colgroup *ngIf="snapshots.trendCompare">
+                            <col style="width:40%">
+                            <col style="width:20%">
+                            <col style="width:15%">
+                            <col style="width:15%">
+                            <col style="width:10%">
+                        </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns class="headerClass">
+                        <tr>
+                            <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+                                [pSortableColumn]="col.isSort && col.valueField" style="border: 1px solid #327aba;">
+
+                                <div class="left">
+                                    {{ col.label }}
+                                </div>
+                                <div *ngIf="col.isSort" class="right">
+                                    <p-sortIcon *ngIf="col.isSort" field="col.isSort" class="text-right"
+                                        ariaLabel="Activate to sort"
+                                        ariaLabelDesc="Activate to sort in descending order"
+                                        ariaLabelAsc="Activate to sort in ascending order">
+                                    </p-sortIcon>
+                                </div>
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex"
+                        let-rowData="rowData">
+
+                        <tr [pSelectableRow]="row">
+                            <td *ngFor="let col of columns" class="{{ col.classes }}">
+
+                                <div *ngIf="col.rowColorField" class="row-color"
+                                    [ngStyle]="{'backgroundColor': row.rowBgColorField}"></div>
+                                <span *ngIf="row['presetlabel'] === 'Custom Time' && (col.valueField==='start'||col.valueField==='end')"> {{
+                                    row[col.valueField] | formatDateTime: 'customcompare' }}
+                                </span>
+                                <span *ngIf="row['presetlabel'] !== 'Custom Time' && (col.valueField==='start'||col.valueField==='end'); else loggedOut"> {{
+                                    row[col.valueField] | formatDateTime: 'default' }}
+                                </span>
+                                <ng-template #loggedOut>
+                                    {{row[col.valueField]}}
+                                </ng-template>
+                                <button *ngIf="col.valueField==='remove'" pButton icon="icons8 icons8-trash" class="icon-button no-shadow m-1 p-1" (click)="deleteRow(rowIndex,row)">
+                                </button>
+
+                                <!-- <span *ngIf="col.valueField==='remove'">
+                                    <i class="icons8 icons8-trash" (click)="deleteRow(rowIndex,row)"></i>
+                                </span> -->
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <!-----------Empty table error handling--------------------->
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td colspan="5" class="text-center">No Measurment Added</td>
+                            <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                <span *ngIf="error">Error while loading data</span>
+                                <span *ngIf="empty">Data not available</span>
+                                <span *ngIf="loading">Loading</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </fieldset>
+            <!-- </p-card> -->
+            <div class="p-grid p-align-center p-col-12 p-justify-end" style="height: 46px;">
+                <div>
+                    <p-checkbox class="checkBox" name="group1" pTooltip="Enable it for Saving Measurement"
+                        [(ngModel)]="snapshots.saveMeasurement" binary="true" inputId="sm"></p-checkbox>
+                    <label class="measur-label mrl-5em" for="sm">Save Measurement As</label>
+                </div>
+                <div>
+                    <input *ngIf="snapshots.saveMeasurement" maxlength="42" type="text" pInputText
+                        [(ngModel)]="snapshots.snapShotName" class="inputDropdown1" required>
+                </div>
+            </div>
+        </div>
+        <!-- <button pButton type="submit" label="Delete Snapshot"(click)="deleteSnapShotFromList(drop)" class="ui-outline-button ui-button-secondary" style="margin: 0px 10px;"></button> -->
+    </div>
+    <p-footer>
+        <div class="p-col-12 form-buttons">
+            <button *ngIf="!applyCompare" pButton type="submit" label="Apply" pTooltip="Apply Compare"
+                (click)="testCompareData()" class="ui-button-rounded ui-button-right"></button>
+            <button *ngIf="applyCompare" pButton type="submit" label="Update" (click)="testCompareData()"
+                class="ui-button-rounded ui-button-right"></button>
+            <button *ngIf="disableCompareFlagonApply" pButton type="button" pTooltip="Disable Compare" label="Disable"
+                class="ui-outline-button ui-button-secondary" (click)="disableCompare()"></button><br>
+        </div>
+    </p-footer>
+    <!-- <p-toast position="top-right"></p-toast> -->
+    <app-informative-dialog #informativeDialog [data]="informativeData"></app-informative-dialog>
+</p-dialog>
+
+
+<div class="loading-indicator" *ngIf="loading">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4"  animationDuration=".5s"></p-progressSpinner>
+  <span style="color:black">Loading Compare...</span>
+  </div>
+<p-toast *ngIf="confirmDisableCompare||confirmCompare" position="top-right"></p-toast>
+<!-- <div>
+    <p-confirmDialog class="confirmdialog" key="confirm-measurement" header="Compare Success Window1" acceptLabel="Ok" rejectLabel="Cancel"
+        [(visible)]="confirmMeasurementDialogVisible1"></p-confirmDialog>
+</div> -->
+<div>
+    <p-confirmDialog class="confirmdialog secondary-dialog" key="confirm-measurement" header="Compare Success" acceptLabel="Ok" rejectLabel="Cancel"
+        [(visible)]="confirmMeasurementDialogVisible"></p-confirmDialog>
+</div>
+<div>
+    <p-confirmDialog class="confirmdialog secondary-dialog" key="confirm-snapShot" header="Compare Error" acceptLabel="Ok" rejectLabel="Cancel"
+        [(visible)]="confirmSnapshotDialogVisible"></p-confirmDialog>
+</div>
+<app-help #help ></app-help>

@@ -1,0 +1,75 @@
+<!--component html goes here -->
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+<div class="ddr-box">
+    <p-toolbar>
+        <div class="ui-toolbar-group-left">
+            <label class="headerInfo">{{filterCriteria}}</label>
+            <label class="headerInfo" title="{{toolTipStatus}}">{{failureFilter}}</label>
+        </div>
+        <div class="ui-toolbar-group-right">
+            <span title="Download PDF Report">
+                <img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")'
+                    src='./images/iconPDF.gif'>
+            </span>
+            <span title="Download Word Report">
+                <img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")'
+                    src='./images/iconWord.gif'>
+            </span>
+            <span title="Download Excel Report">
+                <img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")'
+                    src='./images/iconExcel.gif'>
+            </span>
+        </div>
+    </p-toolbar>
+    <div style="overflow:auto;">
+        <p-accordion class="ddr-accordion" [multiple]="true">
+            <div class="ui-g-6">
+                <p-accordionTab header="Session Failure Stats" [selected]="true">
+                    <div style="overflow:auto;height:65vh">
+                        <chart [options]="options"></chart>
+                    </div>
+                </p-accordionTab>
+            </div>
+            <div class="ui-g-6">
+                <p-accordionTab header="Session Failure" [selected]="true">
+                    <div style="overflow:auto;height:65vh">
+                    <p-toolbar>
+                    <div class="ui-toolbar-group-right" style="text-align: right">
+                        <i class="fa fa-search" style="margin:0 0 0 0;"></i>
+                        <input #gb type="text" pInputText size="50" style="width: 30% !important;" placeholder="Search">
+                    </div>
+                        </p-toolbar>
+                        <p-dataTable class="scen-table" [value]="data" [globalFilter]="gb" selectionMode="single" resizableColumns="true" [style]="{'height':'auto','max-height':'65vh','font-size':'12px'}" [rows]="10" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                            <div *ngFor = "let col of cols">
+                            <p-column *ngIf = "col.action" [field] = "col.field" [header] = "col.header" [sortable] = "col.sortable"  [style]="{'width':'320px','text-align':col.align}">
+                                
+                        <ng-template *ngIf="(col.header == 'Number Of Failures')"  pTemplate="header">
+                        <span>{{col.header}} <a class = "totalCountlink" (click)="openInstanceReport(node,'totalCount')"><u>({{totalFailure}})</u></a>
+                        </span> 
+                        </ng-template>
+                                <ng-template let-col let-node="rowData" pTemplate="body">
+                                <div class = "ddr-table-right" title="Number Of Failures" *ngIf="(col.field == 'numberOfFailure')" (click)="openInstanceReport(node)">
+                                    {{node[col.field]}} </div> 
+                                <div *ngIf = "!(col.field == 'numberOfFailure')">{{node[col.field]}}</div>
+                            </ng-template>
+                            </p-column>
+                            </div>
+                        </p-dataTable>
+                    </div>
+                </p-accordionTab>
+            </div>
+        </p-accordion>
+    </div>
+</div>
+<p-dialog class="ddr-dialog"   appendTo="body" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true" [height]="120" [width]="600" > 
+    <p-header>
+        <i class="fa fa-info-circle" style="color:red"></i>
+        <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+    </p-header>  
+    <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+    <p-footer>
+    <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait" style="height: 25px;"></button>
+    <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" label="Cancel" style="height: 25px;"></button>
+    </p-footer>
+  </p-dialog>

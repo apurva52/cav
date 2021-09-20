@@ -1,0 +1,49 @@
+<div class="custom-metrics-container">
+  <p-card>
+    <p-header>
+      <div class="card-title">
+        <div class="heading">
+          <i class="icons8 icons8-power-bi" pTooltip="Custom Metrics" tooltipZIndex="1000010056" tooltipPosition="top"></i>
+          <span>Custom Metrics</span>
+        </div>
+        <div class="action-icons">
+          <i class="icons8-reboot sidebar-icon"  (click)="refreshTree()"></i>
+          <i class="icons8-delete sidebar-icon" (click)="closePanel()"></i>
+        </div>
+      </div>
+      <div class="ui-inputgroup w-100-p global-search pt-10" *ngIf="showSearch">
+        <span class="ui-inputgroup-addon">
+          <i class="icons8 icons8-search"></i>
+        </span>
+        <input type="text" pInputText placeholder="Search"
+          class="ui-inputtext ui-corner-all ui-state-default ui-widget w-100-p" />
+      </div>
+    </p-header>
+
+
+    <div class="card-content ui-fluid d-flex" *ngIf="metricData" [ngStyle]="{ height: showSearch ? 'calc(100vh - 275px)' : 'calc(100vh - 234px)'}">
+      <div class="custom-metrics-tree w-100-p">
+
+        <p-tree #treeNode [value]="data" selectionMode="single" (onNodeExpand)="nodeExpand($event)"
+        [contextMenu]="menu1" (onNodeContextMenuSelect)="nodeContentMenu($event)" (onNodeSelect)="treeNodeSelected($event)" [(selection)]="selectedFile">
+          <ng-template let-node pTemplate="default">
+            <div #tree1 class="tree-node">
+              <div title="{{ node.name || node.label}}" [ngClass]="(node.matched)?'classHighlighted':''"  tooltipZIndex="100001005"
+                tooltipPosition="top">
+                <span *ngIf="node != undefined && node.leaf == true" style="color: blue;"> {{ node.name||node.label }}</span>
+                <span *ngIf="node != undefined && (!node.leaf || node.leaf == false) && node.level === 2" style="color:#800080;" >{{ node.name||node.label }}</span>
+                <span *ngIf="node != undefined && (!node.leaf || node.leaf == false) && (node.level === 1 || node.level === 0 )" > {{ node.name||node.label}}</span>
+                <span *ngIf="node != undefined && (!node.leaf || node.leaf == false) && node.level === -1"  > {{ node.name||node.label}}</span>
+              </div>
+            </div>
+          </ng-template>
+        </p-tree>
+        <p-contextMenu  #menu1 [model]="menuData" appendTo="body"></p-contextMenu>
+      </div>
+    </div>
+    <div id="centerpoint">
+      <p-confirmDialog class= "confirmdialog secondary-dialog" key="customMetrics" header="Error" acceptLabel="Ok" rejectLabel="Cancel"  [(visible)]="dialogVisible"></p-confirmDialog>
+      </div>
+  </p-card>
+</div>
+<app-confirmation-dialog #confirmDialog></app-confirmation-dialog>

@@ -1,0 +1,325 @@
+<p-blockUI [blocked]="this.heapDumpService.blockuiForTakeHeapDump">
+  <div class="loader-container spinner" *ngIf="this.heapDumpService.loading1">
+    <i class="pi pi-spin pi-spinner font-40" style="color: #fff;"></i><span class="font-25" style="color: #fff;">Taking Heap Dump</span>
+  </div>
+</p-blockUI>
+<!-- <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="this.heapDumpService.loading1">
+  <div class="p-col p-col-align-center text-center">
+  <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+  </div>
+  </div> -->
+<div id="heapDumpDialog" [style]="{'overflow': 'auto','height': '450px'}">
+  <!-- Header -->
+  <h2 class="custom-color pl-15 font-weight-500">Heap Dump Manager
+    <!-- <div style="float:right;">
+      <mat-icon style="cursor: pointer;" fontSet='fa' fontIcon='fa-times' title="Close" (click)="closeHeapDumpWin()" class='dashboard-menu-nav-header-icon'></mat-icon>
+    </div> -->
+  </h2>
+  <div *ngIf="isFromGraph" class="p-grid p-justify-between">
+    <div class="p-col-8 p-grid p-align-center" *ngIf="hidebutton">
+      <div class="p-grid p-col-4 p-align-center ml-5"><label class="w-20-p font-14 font-weight-500">Tier:</label>
+        <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" [options]="tiers"  pTooltip="{{selectedTierVal}}" tooltipPosition="bottom" appendTo='body' [(ngModel)]="selectedTierVal" [filter]='true' [style]="{'width':'130px'}" (onChange)="getServerValue(selectedTierVal)"></p-dropdown></div>
+        <div class="p-grid p-col-6 p-align-center"><label class="w-20-p font-14 font-weight-500">Server:</label>
+      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" [options]="servers" pTooltip="{{selectedServerVal}}" tooltipPosition="bottom" appendTo='body' [(ngModel)]="selectedServerVal" [filter]="true" [style]="{'width':'130px'}" (onChange)="resetInstanceTableData()"></p-dropdown></div>
+    </div>
+    <div class="p-grid p-justify-center ml-15">
+      <input id="input" type="text" size="25" pInputText [(ngModel)]="backendHeapPath" *ngIf="showTable == 2 ">
+      <button pButton type="button" (click)='heapAnalyzeAtBackend(backendHeapPath)' label="Analyze Heap" title="Analyze Heap dump from Backend" *ngIf="showTable == 2 " class="ui-button-rounded mx-10"></button>
+      <button pButton type="button" (click)="showInstanceTable()" icon="icons8 icons8-back" *ngIf="showTable == 2 " title="Go Back" class="ui-button-rounded mx-10"></button>
+      <button pButton type="button" (click)="getJavaInstances()" label="All" title="Get All Instances through Cavmonagent" *ngIf="hidebutton" class="ui-button-rounded mx-3"></button>
+      <button pButton type="button" (click)="getNDInstances()" label="ND" title="Get ND Instances through ND Collector" *ngIf="hidebutton" class="ui-button-rounded mx-10"></button>
+      <!-- <button pButton type="button" title="Reset" icon="fa fa-refresh"  (click)="resetData()"></button> -->
+    </div>
+  </div>
+  <p-toolbar *ngIf="(!isFromGraph && showAll && showTable == 2)" [style]="{'margin-left': '10px','margin-right': '10px','margin-top':'20px'}">
+      <div class="ui-toolbar-group-right">
+          <input id="input" type="text" size="25" pInputText [(ngModel)]="backendHeapPath">
+          <button pButton type="button" (click)='heapAnalyzeAtBackend(backendHeapPath)' label="Analyze Heap" title="Analyze Heap dump from Backend"></button>
+        <button pButton type="button" (click)="showInstanceTable()" icon="icons8 icons8-back" title="Go Back"></button>
+      </div>
+    </p-toolbar>
+  
+  <!-- <img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" /> -->
+  <div mat-dialog-content style="margin:10px; height: auto">
+    <div class="p-grid loader-container vertical-container h-75-vh" style="margin-top:20px; margin-bottom: 20px;" *ngIf="loading">
+      <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+      </div>
+      </div>
+    <div class="ui-dialog-content" *ngIf="showTable == 0" style="margin-top:10px;">
+      <p>        
+        {{ErrorResult}}
+      </p>
+    </div>
+    <div *ngIf="showTable == 1">
+      <p-accordion class="ddr-accordion">
+        <p-accordionTab header="Instances" [selected]="true">
+          <div>
+            <p-table class="all-tables" [value]="instanceInfo" selectionMode="single"  [(selection)]="selectedInstanceInfo" [rows]="10" [paginator]="true" [pageLinks]="3" [scrollable]="true" scrollwidth="40px"scrollHeight="92px" [style]="{'overflow':'unset'}"[rowsPerPageOptions]="[10,20,50,100]" >
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th class="w-5-p"></th>
+                        <th>Process ID</th>
+                        <th>Instance Name</th>
+                        <th *ngIf="!isNDCase">Process Arguments</th>
+                        <th *ngIf="isNDCase">Agent Type</th>
+                        <th *ngIf="isNDCase">Status</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-node>
+                    <tr>
+			              <td class="w-5-p text-center">
+                          <p-tableRadioButton [value]="node"></p-tableRadioButton>
+                        </td>
+                        <td><a class="elipseText" pTooltip="Process ID" tooltipPosition="bottom" tooltipEvent="hover">{{ node.pid }}</a></td>
+                        <td><a class="elipseText" pTooltip="{{ node.appName }}" tooltipPosition="bottom" tooltipEvent="hover">{{ node.appName }}</a></td>
+                        <td *ngIf="!isNDCase">
+                            <a class="elipseText" *ngIf='(node.arguments.length > 70)' >{{node.arguments.substring(0, 70)}}</a>
+                            <a class="elipseText" *ngIf='(node.arguments.length <= 70)'>{{node.arguments}}</a>
+                        </td>
+                        <td *ngIf="isNDCase"><a class="elipseText" pTooltip="{{ node.agentType }}" tooltipPosition="bottom" tooltipEvent="hover">{{ node.agentType }}</a></td>
+                        <td *ngIf="isNDCase"><a class="elipseText" pTooltip="{{ node.status }}" tooltipPosition="bottom" tooltipEvent="hover">{{ node.status }}</a></td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td style="text-align: center">
+                      <span *ngIf="emptyInsTable == true">No records found</span> </td>
+                  </tr>
+                </ng-template>
+            </p-table>
+            <!-- <p-dataTable class="scen-table" [value]="instanceInfo" selectionMode="single"  [(selection)]="selectedInstanceInfo" [rows]="10" [paginator]="true" [pageLinks]="3" [scrollable]="true" scrollwidth="40px"scrollheight="200px" [style]="{'overflow':'unset'}"[rowsPerPageOptions]="[10,20,50,100]" >
+              <p-column [style]="{'width':'0.9em'}"  selectionMode="single"> </p-column>
+              <p-column field="pid" header="Process ID" [filter]="true" [filterMatchMode]="filterMatchMode" sortable="custom" (sortFunction)="CustomsortForPID($event,instanceInfo)"  [style]="{'width':'35px','text-align':'right'}">
+                <ng-template pTemplate="header">
+                  <a pTooltip="Process ID" tooltipPosition="bottom" tooltipEvent="hover">Process ID</a>
+                </ng-template>
+              </p-column>
+              <p-column field="appName" header="Instance Name" [filter]="true" [filterMatchMode]="filterMatchMode" [sortable]="true"  [style]="{'width':'55px','text-align':'left'}">
+                <ng-template pTemplate="header">
+                  <a pTooltip="Instance Name" tooltipPosition="bottom" tooltipEvent="hover">Instance Name</a>
+                </ng-template>
+              </p-column>
+              <p-column field="arguments" *ngIf="!isNDCase" header="Process Arguments" [filter]="true" [filterMatchMode]="filterMatchMode" [sortable]="true"  [style]="{'width':'162px','text-align':'left'}">
+                <ng-template pTemplate="header">
+                  <a pTooltip="Process Arguments" tooltipPosition="bottom" tooltipEvent="hover">Process Arguments</a>
+                </ng-template>
+                <ng-template let-col let-node="rowData" pTemplate="body">
+                  <a *ngIf='(node[col.field].length > 70)'>{{node[col.field].substring(0, 70)}}</a>
+                  <a *ngIf='(node[col.field].length <= 70)'>{{node[col.field]}}</a>
+                </ng-template>
+              </p-column>
+              <p-column field="agentType" *ngIf="isNDCase" header="Agent Type" [filter]="true" [filterMatchMode]="filterMatchMode" [sortable]="true"  [style]="{'width':'78px','text-align':'left'}">
+                  <ng-template pTemplate="header">
+                    <a pTooltip="Agent Type" tooltipPosition="bottom" tooltipEvent="hover">Agent Type</a>
+                  </ng-template>
+                </p-column>
+              <p-column field="status" *ngIf="isNDCase" header="Status" [filter]="true" [filterMatchMode]="filterMatchMode" [sortable]="true"  [style]="{'width':'80px','text-align':'left'}">
+                <ng-template pTemplate="header">
+                  <a pTooltip="Status" tooltipPosition="bottom" tooltipEvent="hover">Status</a>
+                </ng-template>
+              </p-column>
+            </p-dataTable> -->
+            <div *ngIf="(!isNDCase && selectedInstanceInfo)"><div  style="text-align: left;word-break: break-all;border: 1px solid"><div style="max-width:100%;margin:5px;overflow-y: auto;"> <b> Process Arguments: </b>
+             <div>
+          <textarea pInputTextarea rows="4" style="font-size:14px;width:100%;resize:none;max-height: 55px;" readonly>{{selectedInstanceInfo.arguments}}</textarea>
+        </div> </div></div></div>
+          </div>
+        </p-accordionTab>
+
+      </p-accordion>
+    </div>
+    <div *ngIf="showTable == 2">
+      <!-- tierName|serverName|instanceName|pid|partition|startTime|endTime|timestamp|fileName|filePath|userName|userNote -->
+      <p-table class="all-tables" [value]="heapDumpList" sortField="timestamp" [sortOrder]="-1" selectionMode="single" [scrollable]="true" scrollwidth="40px" scrollHeight="250px" [style]="{'font-size':'12px','overflow':'unset'}"
+      resizableColumns="true" reorderableColumns="true" [rows]="10" [paginator]="showAllHeapDumpPagination" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]" (sortFunction)="Customsort($event,heapDumpList)">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of cols">
+        </colgroup>
+      </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th *ngFor="let col of cols" [pSortableColumn]="col.field" pResizableColumn pReorderableColumn> {{ col.header }}
+                  <p-sortIcon *ngIf="col.sortable" [field]="col.field"
+                                        ariaLabel="Activate to sort"
+                                        ariaLabelDesc="Activate to sort in descending order"
+                                        ariaLabelAsc="Activate to sort in ascending order">
+                                    </p-sortIcon>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-node>
+                <!-- <div *ngFor="let col of cols"> -->
+                  <!-- <tr *ngFor="let col of cols"> -->
+                  <tr>
+                    <td *ngFor="let col of cols">
+                      <span *ngIf="(col.field == 'tierName')"><a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></span>
+                      <span *ngIf="(col.field == 'serverName')"><a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></span>
+                      <span *ngIf="(col.field == 'instanceName')"><a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></span>
+                      <span class="elipseText" *ngIf="(col.field == 'timestamp')"><a pTooltip="Time at which HeapDump is started successfully" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></span>
+                      <span *ngIf="(col.field == 'userName')"><a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></span>
+                      <span class="elipseText" *ngIf="(col.field == 'location')"><a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></span>
+                      <span class="elipseText" *ngIf="(col.field == 'filePath')"><a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></span>
+                      <span class="elipseText" *ngIf="(col.field == 'fileName')"><a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></span>
+                      <span *ngIf="(col.field == 'action')">
+                        <button pButton icon="icons8 icons8-download-2" title="download at local" (click)="downloadFile(node)" class="ui-button-secondary mr-5"></button>
+                        <button pButton icon="icons8 icons8-delete-trash" title="Remove heap dump" (click)="assignNodevalueToDelete(node)" class="ui-button-secondary mr-5"></button>
+                        <button pButton icon="las-chart-pie-solid" title="Analyze heap dump" (click)="analyzeHeapDump(node)" class="ui-button-secondary mr-5"></button>
+                      </span>
+                      <!-- <span></span>
+                      <span></span> -->
+                    </td>
+                    <!-- <td *ngIf="(col.field == 'tierName')"> {{ col.field }} <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></td>
+                    <td *ngIf="(col.field == 'serverName')"><a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></td>
+                    <td *ngIf="(col.field == 'instanceName')"><a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></td>
+                    <td *ngIf="(col.field == 'timestamp')"><a pTooltip="Time at which HeapDump is started successfully" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></td>
+                    <td *ngIf="(col.field == 'userName')"><a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></td>
+                    <td *ngIf="(col.field == 'location')"><a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></td>
+                    <td *ngIf="(col.field == 'filePath')"><a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a></td>
+                    <td *ngIf="(col.field == 'fileName')"><a pTooltip="{{showFileName(node[col.field])}}" tooltipPosition="bottom" tooltipEvent="hover">{{showFileName(node[col.field])}}</a></td>
+                    <td *ngIf="(col.field == 'action')">
+                        <button pButton type="button" title="download at local" icon="fa fa-download" (click)="downloadFile(node)" class="icon-width"></button>
+                        <button pButton type="button" title="Remove heap dump" icon="fa fa-trash-o" (click)="assignNodevalueToDelete(node)" class="icon-width"></button>
+                        <button pButton type="button" title="Analyze heap dump" icon="fa fa-pie-chart" (click)="analyzeHeapDump(node)" class="icon-width"></button>
+                    </td> -->
+                  </tr>
+                <!-- </div> -->
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td style="text-align: center" [attr.colspan]="cols.length + 1"> 
+              <span *ngIf="error">{{error}}</span>
+              <span *ngIf="empty">Empty Table</span>
+              <span *ngIf="loading">Loading</span> </td>
+          </tr>
+        </ng-template>
+    </p-table>
+      <!-- <p-dataTable class="scen-table" [value]="heapDumpList" sortField="timestamp" [sortOrder]="-1" selectionMode="single" [scrollable]="true" scrollwidth="40px"scrollheight="240px" [style]="{'font-size':'12px','overflow':'unset'}"
+        resizableColumns="true" reorderableColumns="true" [rows]="10" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+       <div *ngFor="let col of cols">   
+        <p-column [field]="col.field" [header]="col.header" [sortable]="col.sortable" (sortFunction)="Customsort($event,heapDumpList)" [style]="{'text-align':col.align,'width':'col.width' +'px'}">  
+          <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'tierName')">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+          <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'serverName')">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+          <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'instanceName')">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+          <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'timestamp')">
+            <a pTooltip="Time at which HeapDump is started successfully" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template> 
+          <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'userName')">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">
+              {{node[col.field]}}</a>
+            </ng-template>
+          <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'location')">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">
+              {{node[col.field]}}</a>
+           </ng-template>
+          <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'filePath')">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">
+              {{node[col.field]}}
+            </a>
+          </ng-template>
+          <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'fileName')">
+            <a pTooltip="{{showFileName(node[col.field])}}" tooltipPosition="bottom" tooltipEvent="hover">{{showFileName(node[col.field])}}</a>
+          </ng-template>
+          <ng-template let-col let-node="rowData" pTemplate="body" *ngIf="(col.field == 'action')">
+            <button pButton type="button" title="download at local" icon="fa fa-download" (click)="downloadFile(node)" class="icon-width"></button>
+            <button pButton type="button" title="Remove heap dump" icon="fa fa-trash-o" (click)="assignNodevalueToDelete(node)" class="icon-width"></button>
+	    <button pButton type="button" title="Analyze heap dump" icon="fa fa-pie-chart" (click)="analyzeHeapDump(node)" class="icon-width"></button>
+          </ng-template>
+        </p-column>
+       </div>
+      </p-dataTable> -->
+    </div>
+  </div>
+  <p-footer class="footer-element">
+    <div style="text-align: center" >
+      <span *ngIf="showThreadDumpOption == true">
+        <button pButton type="button" (click)="takeProcessIdHeapDump()" label="Take Heap Dump" *ngIf="((hidebutton || showHeapList) && selectedServerVal && instanceInfo)" class="ui-button-rounded mx-10"></button>
+        <button pButton type="button" (click)="openHeapDumpList()" label="Heap Dump List" *ngIf="(hidebutton && selectedServerVal && instanceInfo)" class="ui-button-rounded mx-10"></button>
+        <button pButton type="button" title="Refresh" label="Refresh" *ngIf="(showTable == 2)" (click)="refresh()" class="ui-button-rounded mx-10"></button>
+        <button pButton type="button" title="Migrate Heap Dump" label="Migrate Heap Dump" *ngIf="(showTable == 2)" (click)="migrateHeapDumpList()" class="ui-button-rounded mx-10"></button>
+      </span>
+      <span>
+        <button pButton type="button" (click)="showAllData()" label="Show All Heap Dump" class="ui-button-rounded mx-10"></button>
+
+	<button *ngIf="showTable ==2"  pButton type="button" (click)="analyzeHeapFromLocal()" label="Analyze Heap From Local" class="ui-button-rounded mx-10"></button>
+
+
+	<p-fileUpload *ngIf="showTable ==2 && cancelledUpload==false "  mode="advanced" [url]="uploadUrl" accept=".hprof,.gz" [auto]="true" (onUpload)="onUpload($event)" (onRemove)="onRemove($event)" (onProgress)= "onProgress($event)" [disabled]='isUploadDisable' class="ui-fileupload ui-progressbar"></p-fileUpload> 
+
+
+      </span>
+    </div>
+  </p-footer>
+</div>
+<p-dialog class="ddr-dialog" header="Heapdump Settings" modal="modal" appendTo="body" [(visible)]="showDialog" *ngIf="(showDialog && isNDCase)" width="700"
+  [responsive]="true">
+  <div class="ui-dialog-content">
+    <div style="overflow:auto;">
+      <p-accordion class="ddr-accordion" [multiple]="true">
+        <p-accordionTab header="General Settings" [selected]="true">
+          <!-- <p-checkbox label="Download heapdump file( at NDE Box)" [(ngModel)]="isDownload" binary="true"></p-checkbox> -->
+          <!-- <br/> --><div>
+          <span><p-checkbox label="Download"  value="isEnable" [(ngModel)]="selectedOption" binary="true" (onChange)="isDownloadCase($event)"></p-checkbox>&nbsp;</span>
+          <span *ngIf="isNodeJS">&nbsp;&nbsp;&nbsp;<p-checkbox [disabled]='!isEnable' label="Compressed Format" [(ngModel)]="isCompressed" binary="true"></p-checkbox></span>
+          <span *ngIf="!isNodeJS">&nbsp;&nbsp;&nbsp;<p-checkbox  label="Compressed Format" [(ngModel)]="isCompressed" binary="true"></p-checkbox></span>
+          <!-- <span *ngIf='isNodeJS'>&nbsp;&nbsp;&nbsp;<p-checkbox [disabled]='isEnable' label="Compressed Format" [(ngModel)]="isCompressed" binary="true"></p-checkbox></span> -->
+          <div *ngIf="isEnable">
+            <br/>
+            <span>&nbsp;<p-radioButton label="Delete from server after download" name="groupname" value="2" [(ngModel)]="selectedFields"></p-radioButton>&nbsp;</span><br/>
+            <span>&nbsp;<p-radioButton label="Keep copy on server after download" name="groupname" value="1" [(ngModel)]="selectedFields"></p-radioButton></span>
+          </div></div>
+        </p-accordionTab>
+        <p-accordionTab header="Advanced Settings" [selected]="true">
+         <span *ngIf="isNodeJS"> <p-checkbox label="Take heap dump forcefully by stopping other heap dump" [(ngModel)]="checkHDForcefully" binary="true"></p-checkbox>
+        <!--  <br/>
+          <p-checkbox label="Block other request such as Thread dump when heap dump is in process" [(ngModel)]="checkBlocking" binary="true"></p-checkbox> -->
+          <br/></span>
+          <p-checkbox [disabled]=true label="Max time for taking heap dump" value="checkMaxTimeOut" [(ngModel)]="selectedValues"></p-checkbox>
+          <input class="heap-dump-text-box"type="text" mdInput minlength="1" placeholder="" [(ngModel)]="maxTimeOut" style="width:30px; margin-left:3px; margin-right:3px; height:14px"> in minutes
+          <br/>
+          <p-checkbox [disabled]=true label="Heapdump File Path at server" value="filePath" [(ngModel)]="selectedValues"></p-checkbox>
+          <input class="heap-dump-text-box"type="text" mdInput minlength="1" maxlength="256" placeholder="File Name(required)" [(ngModel)]="fileName" style="width: 50%; margin-left: 3px">
+          <br/>
+          <!-- <p-checkbox [disabled]=true label="Command Arguments" value="checkCmdArgs" [(ngModel)]="selectedValues" binary="true"></p-checkbox>
+          <input mdInput minlength="1" placeholder="" [(ngModel)]="commandArgs" style="width:180px;"> -->
+          <br/>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+  </div>
+  <p-footer>
+    <div class="ui-dialog-footer">
+      <button pButton type="button" label="Apply" (click)="takeHeapDumpBasedOnSettings()" class='ui-button-rounded mx-5'></button>
+      <button pButton type="button" label="Reset" (click)="takeHeapDump()" class='ui-button-secondary ui-button-rounded mx-5'></button>
+      <button pButton (click)="close()" label="Cancel" type="button" class='ui-button-secondary ui-button-rounded mx-5'></button>
+    </div>
+  </p-footer>
+</p-dialog>
+<p-dialog class="ddr-dialog" header="Take Heap Dump" [(visible)]="showRetryPopup" *ngIf="showRetryPopup" width="400" [responsive]="true">
+  <label>Take Heap Dump Request is Failed due to TimeOut.</label>
+  <p-footer>
+    <div>
+      <button pButton type="button" label="Retry" (click)="takeHeapDumpBasedOnSettings()" class='ui-button-rounded mx-5'></button>
+      <button pButton (click)="closeRetry()" label="Cancel" type="button" class='ui-button-secondary ui-button-rounded mx-5'></button>
+    </div>
+  </p-footer>
+</p-dialog>
+
+<!-- <p-growl life=60000 [(value)]="_message"></p-growl> -->
+<p-dialog class="secondary-dialog confirmdialog" header="Delete Confirmation" [(visible)]="confirmationPopup"  [style]="{width: '35vw'}" [responsive]="true">
+  <label>Do you want to delete current heap dump from NDE box?</label>
+  <p-footer>
+    <div class="p-grid p-justify-end sevbtn py-10">
+      <button pButton type="button" label="Yes" (click)="removeFile()" class='ui-button-rounded mx-5'></button>
+      <button pButton label="No" (click)="confirmationPopup = false" type="button" class='ui-button-rounded mx-5'></button>
+    </div>
+  </p-footer>
+</p-dialog>
+

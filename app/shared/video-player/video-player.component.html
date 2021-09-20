@@ -1,0 +1,105 @@
+<div class="video-player-container">
+    <div class="video-widget">
+        <video id="my_video_1" src={{data[selectedIndex].source}} class="video-container" autoplay width="100%"
+            height="100%" preload="auto" poster={{data[selectedIndex].img}}>
+            <!-- <source src="" type='video/mp4'/>
+            <source src="https://vjs.zencdn.net/v/oceans.webm" type='video/webm'/> -->
+        </video>
+
+        <div class="controls">
+            <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-skip-to-start"
+                (click)="previous(selectedIndex)" pTooltip="Previous"></button>
+            <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-rewind-2"
+                (click)="skip(-10)" pTooltip="Rewind"></button>
+            <button pButton type="button" class="ui-button player-controls" icon={{playIcon}} (click)="playPause()"
+                pTooltip={{playLabel}}></button>
+            <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-fast-forward-2"
+                (click)="skip(10)" pTooltip="Forward"></button>
+            <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-end"
+                (click)="next(selectedIndex)" pTooltip="Next"></button>
+            <progress id='progress-bar' value="0" max="100"></progress>
+            <div class="video-playback-time">
+                <label id="timer" for="progress" role="timer"></label>
+            </div>
+            <button pButton type="button" class="ui-button player-controls" icon={{volumeIcon}} pTooltip={{volumeLabel}}
+                (click)="setVolume()"></button>
+            <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-share"
+                pTooltip="Share"></button>
+            <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-settings"
+                pTooltip="Settings" (click)="toggleSettingPanel()"></button>
+            <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-expand"
+                pTooltip="Fullscreen" (click)="expandScreen()"></button>
+            <div class="setting-panel" *ngIf="isShow">
+                <ul>
+                    <li>
+                        <p-colorPicker [(ngModel)]="color"></p-colorPicker>
+                        <span class="mh-10">Replay Color</span>
+                    </li>
+                    <li>
+                        <p-colorPicker [(ngModel)]="color"></p-colorPicker>
+                        <span class="mh-10">Replay Previous Color</span>
+                    </li>
+                    <li>
+                        <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues"
+                            label="Simulated Page load delay"></p-checkbox>
+                    </li>
+                    <li>
+                        <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues"
+                            label="Replay Unexpected mutation"></p-checkbox>
+                    </li>
+                    <li>
+                        <div class="text-bold pv-5">Progress Bar Mode</div>
+                        <p-radioButton name="progress-mode" value="count" label="Count" class="mh-10"
+                            [(ngModel)]="progressMode"></p-radioButton>
+                        <p-radioButton name="progress-mode" value="time" label="Time" class="mh-10"
+                            [(ngModel)]="progressMode"></p-radioButton>
+                    </li>
+                    <li>
+                        <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues"
+                            label="Show Silent user action count"></p-checkbox>
+                    </li>
+                    <li>
+                        <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues"
+                            label="Replay auto fill silently"></p-checkbox>
+                    </li>
+                    <li>
+                        <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues"
+                            label="Skip failed snapshot"></p-checkbox>
+                    </li>
+                    <li>
+                        <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" label="Show mouse move">
+                        </p-checkbox>
+                    </li>
+                    <li>
+                        <div class="text-bold pv-5">Replay Speed</div>
+                        <div class="pv-5">
+                            <p-radioButton name="replay-speed" value="actual" label="Actual" class="mh-10"
+                                [(ngModel)]="replaySpeed"></p-radioButton>
+                            <p-radioButton name="replay-speed" value="slower" label="Slower" class="mh-10"
+                                [(ngModel)]="replaySpeed"></p-radioButton>
+                        </div>
+                        <div class="pv-5">
+                            <p-radioButton name="replay-speed" value="faster" label="Faster" class="mh-10"
+                                [(ngModel)]="replaySpeed"></p-radioButton>
+                            <p-radioButton name="replay-speed" value="advanced" label="Advanced" class="mh-10"
+                                [(ngModel)]="replaySpeed"></p-radioButton>
+                        </div>
+                    </li>
+                    <li><i class="icons8 icons8-cursor"></i><span class="text-bold mh-10">Select Pointer Icon</span>
+                    </li>
+                    <li><i class="icons8 icons8-speaker"></i><span class="text-bold mh-10"
+                            (click)="menu.toggle($event)">Voice Edit</span></li>
+                    <p-menu #menu appendTo="body" [popup]="true" [model]="items"></p-menu>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="playlist">
+        <ul>
+            <li class="video-item-wrapper" *ngFor="let video of data; let i = index" (click)="selectedIndex = i">
+                <img src={{video.img}} />
+            </li>
+        </ul>
+    </div>
+</div>

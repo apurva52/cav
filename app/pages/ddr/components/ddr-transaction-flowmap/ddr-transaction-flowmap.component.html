@@ -1,0 +1,446 @@
+<div class="ddr-box">
+  <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="CommonServices.loaderForDdr">
+    <div class="p-col p-col-align-center text-center">
+        <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+    </div>
+  </div>
+    <!-- COMMON TOOLBAR -->
+        <div class="ddr-toolbar">
+   <!-- <p-toolbar>
+        <div class="reportInfo">
+            <label class="headerInfo"><b>{{strTitle}}</b></label>
+          </div>
+      </p-toolbar>-->
+      <div class="p-grid p-justify-between p-align-center ui-table-header">
+  <div>
+         <!-- <label ><b>Filter criteria : </b></label>-->
+          <div id='forFilter' class='for-filter'></div>
+  </div>
+  <div>
+      <!-- fa fa-search-plus (removed)-->
+      <!-- <button type="button" pButton icon="icons8 icons8-zoom-in font-18 mr-2" (click)="openAutoInstDialog()"title="Click to Start Auto Instrumentation"></button>
+      <button pButton type="button" *ngIf='showSelfLoop'  title='View Expanded mode' icon='fa fa-arrows-alt'  style ='height:16px;width:16px;' (click)='showTransactionData()'></button>
+      <button pButton type="button" *ngIf='!showSelfLoop' title='View ThreadMerge mode' icon='fa fa-compress'  style ='height:16px;width:16px;' (click)='showTransactionData()'></button> -->
+      <button pButton icon="icons8 icons8-zoom-in" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)="openAutoInstDialog()"
+      pTooltip="Click to Start Auto Instrumentation"></button>
+      <button pButton icon="icon='icons8 icons8-expand mtn-11 font-16" *ngIf='showSelfLoop' tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='showTransactionData()'
+      pTooltip="View Expanded mode"></button>
+      <button pButton icon="icons8 icons8-compress" *ngIf='!showSelfLoop' tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='showTransactionData()'
+      pTooltip="View ThreadMerge mode"></button>
+     <!-- <span  [style]="{'margin-left':'88%'}">
+        <img src='images/SequenceIcon.png' style="cursor: pointer" title='View Flowpath Details' (click)="isFromMain = true;openMethodCallingTree(dataOfFlowpathROw)"/>
+      </span>
+      <span [style]="{'margin-left':'89%'}">
+        <img src='images/MethodTiming.png' style="cursor: pointer" title='View Method Timing Report' (click)="isFromMain = true;openMethodTimingReport(dataOfFlowpathROw)"/>
+      </span>
+      <span [style]="{'margin-left':'90%'}">
+        <img src='images/hotspot.png' style="cursor: pointer" title='View HotSpot Report' (click)="isFromMain = true;openHotspotReport(dataOfFlowpathROw)"/>
+      </span>
+      <span  [style]="{'margin-left':'91%'}">
+        <img src='images/queryIcon.png' style="cursor: pointer" title='View DB Request Report' (click)="isFromMain = true;openDBReports(dataOfFlowpathROw)"/>
+      </span> -->
+  </div>
+ </div>
+ </div>
+ <div class="flowmap-box" id="flowmap-box">
+  <div *ngIf="!showSelfLoop">
+    <div class="ddrt-jtk-demo-canvas canvas-wide flowchart-demo ddrt-jtk-surface jtk-surface-nopan" style="position: relative" id="canvas">
+ <span style="width:100%;float:right;">
+ <!-- <button pButton type="button" id='dwnldbtn1'  icon="icons8 icons8-download-2 mr-3" style='float:right;height:18px;width:18px;margin-left:2px;margin-top:2px' title="Download with node information"  (click)="downloadReport('directDownload','')"></button>
+   <button pButton type="button"  id='dwnldbtn2' icon="icons8 icons8-download-2 mr-3" style='float:right;height:18px;width:18px;margin-top:2px' title="Download without node information"  (click)="downloadReport('directDownload','lessDetail')"></button> -->
+   <i class="icons8 icons8-download font-17 mr-3"  id='dwnldbtn1' style='float:right;height:18px;width:18px;margin-left:2px;margin-top:1px; color:#154771;' title="Download with node information"  (click)="downloadReport('directDownload','')"></i>
+  <i class="icons8 icons8-download-2 mr-3"  id='dwnldbtn2' style='float:right;height:18px;width:18px;margin-top:2px; color:#154771' title="Download without node information"  (click)="downloadReport('directDownload','lessDetail')"></i>
+   <span *ngIf='flowmapData.isRootFpMissing'  style='float:right;margin-right:2px' ><span style='font-weight:500'>View Actual Flowmap : </span>  <p-inputSwitch onLabel="Yes" [style]="{'top':'4px'}" offLabel="No" [(ngModel)]="flowmapData.showOrigFlowmap"  (onChange)="handleChange($event)"></p-inputSwitch></span>
+ <span style='float:right' *ngIf='flowmapData.isFPMissCase  || flowmapData.isRootFpMissing'>
+        <img src='./assets/images/warning.png' height='18' style="cursor: pointer; margin-right:6px"  (click)='showWarningMessgae()'/>
+      </span>
+    </span>
+
+    
+<div class="window node" [ngStyle]="{'top':'110px','background':'#bdef84', 'padding':' 15px 0 0 2px','margin-left':'4px'}" id="root"><strong>Entry</strong><br/><br/></div>
+      <div *ngFor="let col of dataToDraw,let i = index">
+        <!-- <p-contextMenu id='contextmenu' #contextRef  *ngIf="(col.instanceType == 'java'||col.instanceType == 'dotNet'||col.instanceType == 'NodeJS') && (col?.exceptionCount == 0 || col?.exceptionCount == undefined)" [style]="{'width':'147px', 'position': 'fixed'}"  [target]="nodediv" [model]="ContextMenuItems"></p-contextMenu>        -->
+        <!-- <p-contextMenu id='contextmenu' #contextRef  *ngIf="(col.instanceType == 'java'||col.instanceType == 'dotNet'||col.instanceType == 'NodeJS') && (col?.exceptionCount > 0)" [style]="{'width':'147px', 'position': 'fixed'}"  [target]="nodediv" [model]="ContextMenuItemsForExceeption" ></p-contextMenu>        -->
+        <div id='{{col.id}}' #nodediv  class='node window' [ngStyle]="{'top': col.top + 40+'px', 'left': col.left + 'px'}" (mouseover)="ShowtooltiponHover(col)"
+          (mouseleave)="removeTooltip(col)" (dblclick)="showDialogTable(col)" (mousedown)="getNodeDataforRouting($event,col)">
+          <!--<div class="tooltipfornodes"><strong><img (mouseover)="Showtooltip(col)" (mouseleave)="removeTooltip(col)" src="src/images/{{col.icon}}"></strong>
+     <div [innerHTML]="tooltipForNodes" class="tooltiptextfornodes"></div>
+      </div>-->
+          <a class='tooltips'><img src='./assets/images/{{col.icon}}' class="nodeImage"  style='padding: 4px;'><span  [ngStyle]="{'margin-top': '25px' }"> <div [innerHTML]="tooltipForNodes"></div></span></a>
+          <div class='nodeRight'>
+           <div class='nodeHeading' *ngIf="col.tierName == '-'">{{trimTextForLarge(col.mappedAppName)}} </div>
+           <div class='nodeHeading' *ngIf="col.tierName != '-'"> {{col.serverName}} : {{col.mappedAppName}}</div>
+           <div class="nodeBottom"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> 
+
+ <p-contextMenu id='contextmenu' #contextRef  [style]="{'width':'147px', 'position': 'absolute'}"   [model]="mainContextMenu"></p-contextMenu>       
+<div *ngIf="reCreateDiv">
+  <div *ngIf="showSelfLoop">
+    <div class="ddrt-jtk-demo-canvas canvas-wide flowchart-demo ddrt-jtk-surface jtk-surface-nopan" style="position: relative" id="canvas">
+ <span style="width:100%;float:right;">
+ <!-- <button pButton type="button" id='dwnldbtn1'  icon="icons8 icons8-download-2 mr-3" style='float:right;height:18px;width:18px;margin-left:2px;margin-top:2px' title="Download with node information"  (click)="downloadReport('directDownload','')"></button>
+   <button pButton type="button"  id='dwnldbtn2' icon="icons8 icons8-download-2 mr-3" style='float:right;height:18px;width:18px;margin-top:2px' title="Download without node information"  (click)="downloadReport('directDownload','lessDetail')"></button> -->
+  <i class="icons8 icons8-download font-17 mr-3"  id='dwnldbtn1' style='float:right;height:18px;width:18px;margin-left:2px;margin-top:1px; color:#154771;' title="Download with node information"  (click)="downloadReport('directDownload','')"></i>
+  <i class="icons8 icons8-download-2 mr-3"  id='dwnldbtn2' style='float:right;height:18px;width:18px;margin-top:2px; color:#154771' title="Download without node information"  (click)="downloadReport('directDownload','lessDetail')"></i>
+   <span *ngIf='flowmapData.isRootFpMissing'  style='float:right;margin-right:2px' ><span style='font-weight:500'>View Actual Flowmap : </span>  <p-inputSwitch onLabel="Yes" [style]="{'top':'4px'}" offLabel="No" [(ngModel)]="flowmapData.showOrigFlowmap"  (onChange)="handleChange($event)"></p-inputSwitch></span>
+ <span style='float:right' *ngIf='flowmapData.isFPMissCase  || flowmapData.isRootFpMissing'>
+        <img src='./assets/images/warning.png' height='18' style="cursor: pointer; margin-right:6px"  (click)='showWarningMessgae()'/>
+      </span></span>
+      <div class="window node" [ngStyle]="{'top':'110px','background':'#bdef84', 'padding':' 15px 0 0 2px','margin-left':'4px'}" id="root"><strong>Entry</strong><br/><br/></div>
+      <div *ngFor="let col of selfLoppedDataToDrawToView,let i = index">
+        <!-- <p-contextMenu id='contextmenu' #contextRef *ngIf="(col.instanceType == 'java'||col.instanceType == 'dotNet'||col.instanceType == 'NodeJS') && (col?.exceptionCount == 0 || col?.exceptionCount == undefined)" [style]="{'width':'150px', 'position': 'fixed'}"  [target]="nodediv" [model]="ContextMenuItems"></p-contextMenu>        -->
+        <!-- <p-contextMenu id='contextmenu' #contextRef  *ngIf="(col.instanceType == 'java'||col.instanceType == 'dotNet'||col.instanceType == 'NodeJS') && (col?.exceptionCount > 0)" [style]="{'width':'150px', 'position': 'fixed'}"  [target]="nodediv" [model]="ContextMenuItemsForExceeption" ></p-contextMenu>        -->
+        <div id='{{col.id}}' #nodediv class='node window' [ngStyle]="{'top': col.top + 40+'px', 'left': col.left + 'px'}" (mouseover)="ShowtooltiponHover(col)"
+          (mouseleave)="removeTooltip(col)" (dblclick)="showDialogTable(col)" (mousedown)="getNodeDataforRouting($event,col)">
+          <!--<div class="tooltipfornodes"><strong><img (mouseover)="Showtooltip(col)" (mouseleave)="removeTooltip(col)" src="src/images/{{col.icon}}"></strong>
+     <div [innerHTML]="tooltipForNodes" class="tooltiptextfornodes"></div>
+      </div>-->
+          <a class='tooltips'><img src='./assets/images/{{col.icon}}' class="nodeImage"  style='padding: 4px;'><span  [ngStyle]="{'margin-top': '25px' }"> <div [innerHTML]="tooltipForNodes"></div></span></a>
+          <div class='nodeRight'>
+           <div class='nodeHeading' *ngIf="col.tierName == '-'">{{trimTextForLarge(col.mappedAppName)}} </div>
+           <div class='nodeHeading' *ngIf="col.tierName != '-'"> {{col.serverName}} : {{col.mappedAppName}}</div>
+           <div class="nodeBottom"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> 
+</div>
+  
+
+</div>
+</div>
+
+ 
+
+
+
+  <p-dialog  class="secondary-dialog foterDialog" [style]="{width: '96vw', 'max-height':'500px'}"  [modal]="true" [(visible)]="tableDialogDisplay" [responsive]='true' [resizable]='false' [positionTop]='140' minHeight='200'>
+    <p-header>
+      {{popupTitle}}
+
+
+
+
+    </p-header>
+
+ 
+<div style="width:100%; height:22px; margin-top:-6px;">
+ <div class="ui-toolbar-group-right">
+       <span  title="Download as Word Report">
+           <!-- <i class = 'icon ddrui-icon-word'  style=' cursor:pointer' (click)='downloadReportForAgg("word")' ></i> -->
+           <i class = 'icons8 icons8-doc font-18 mx-4'  style=' cursor:pointer' (click)='downloadReportForAgg("word")' ></i>
+       </span>
+       <span  title="Download as Excel Report">
+            <!-- <i class = 'icon ddrui-icon-excel'  style=' cursor:pointer' (click)='downloadReportForAgg("excel")' ></i> -->
+            <i class = 'icons8 icons8-spreadsheet-file font-18 mx-4'  style=' cursor:pointer' (click)='downloadReportForAgg("excel")' ></i>
+       </span>
+       <span title="Download as PDF Report">
+          <!-- <i class = 'icon ddrui-icon-pdf'  style=' cursor:pointer' (click)='downloadReportForAgg("pdf")' ></i> -->
+          <i class = 'icons8 icons8-pdf-2 font-18 mx-4'  style=' cursor:pointer' (click)='downloadReportForAgg("pdf")' ></i>
+       </span>
+       </div>
+</div>
+
+    
+
+    <div>{{popupFilter}}</div>
+<div>
+
+  <p-table class="scen-table all-tables" *ngIf="tableDialogDisplay" scrollable='true' scrollHeight = '350px' [value]="transactionTableArray" sortField={{sortField}} sortOrder="-1">
+    <ng-template pTemplate="header">
+      <tr>
+            <th *ngFor="let col of col" [style]="{'width': col.Width + 'px'}">
+                {{col.header}}
+            </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData>
+      <tr>
+          <td *ngFor="let col of col" [style]="{'width': col.Width + 'px','text-align':col.colAlignment}">
+            <div *ngIf="(!col.action) && (col.field == 'URL' || col.field == 'Query')" class="textWrap"><span [title]="rowData[col.field]" (click)="onRowClick($event, rowData)">{{ rowData[col.field] }} </span></div>
+            <div *ngIf="col.action">
+              <span  [style]="{'margin-right':'5px'}">
+              <img src='./assets/images/SequenceIcon.png' style="cursor: pointer" title='View Method call Details' (click)="isFromMain = false;openMethodCallingTree(rowData,false)"/>
+              </span>
+              <span [style]="{'margin-right':'5px'}">
+              <img src='./assets/images/MethodTiming.png' style="cursor: pointer" title='View Method Timing Report' (click)="isFromMain = false;openMethodTimingReport(rowData)"/>
+              </span>
+              <span [style]="{'margin-right':'5px'}">
+              <img src='./assets/images/hotspot.png' style="cursor: pointer" title='View HotSpot Report' (click)="isFromMain = false;openHotspotReport(rowData)"/>
+              </span>
+              <span  [style]="{'margin-right':'5px'}">
+              <img src='./assets/images/queryIcon.png' style="cursor: pointer" title='View DB Request Report' (click)="isFromMain = false;openDBReports(rowData)"/>
+              </span>
+              <span  [style]="{'margin-right':'5px'}">
+              <!-- <i class="icon-http-data"  style="cursor: pointer; font-size: 16px" title='View Request/Response Body' (click)="openReqRespData(rowData)"></i> -->
+              <img src='./assets/images/HttpIcon.png'  style="cursor: pointer; font-size: 16px" title='View Request/Response Body' (click)="openReqRespData(rowData)">
+              </span>
+              <span [style]="{'margin-right':'5px'}">
+               <img src='./assets/images/HttpIcon.png' style="cursor: pointer; font-size: 16px" title='View CallOut Body' (click)="openReqRespDataForCallOut(rowData)">
+             </span>
+            </div>
+             <div *ngIf="(col.field == 'errorCount')">
+              <span  *ngIf='rowData[col.field] != 0 ' style="color:blue;cursor: pointer ;" title="View Exception Report" (click)="openExceptionReport(rowData)"> {{ rowData[col.field] }} </span>
+              <span  *ngIf='rowData[col.field]  == 0 '> {{ rowData[col.field] }} </span>
+             </div>
+             <div *ngIf="!(col.action || col.field == 'URL' || col.field == 'Query' || col.field == 'errorCount')"><span>{{ rowData[col.field] }} </span></div>
+          </td>
+      </tr>
+    </ng-template>
+  </p-table>
+    <!-- <p-dataTable class="scen-table" *ngIf="tableDialogDisplay" (onRowClick)='onRowClick($event)' scrollable='true' scrollHeight = '350px' [value]="transactionTableArray" sortField={{sortField}} sortOrder="-1">
+       <p-column *ngFor="let col of col"  [sortable]="col.sortable" [sortable]="true" (sortFunction)="sortColumnsOnCustom($event,transactionTableArray)" [style]="{'width': col.Width + 'px','text-align':col.colAlignment}" [field]='col.field'
+         [header]='col.header'>
+         <ng-template *ngIf="(!col.action) && (col.field == 'URL' || col.field == 'Query')" let-col let-rowData="rowData" pTemplate="body">
+          <div class="textWrap"><span [title]="rowData[col.field]">{{ rowData[col.field] }} </span></div>
+         </ng-template>
+         <ng-template *ngIf="col.action" let-col let-rowData="rowData" pTemplate="body">
+           <span  [style]="{'margin-right':'5px'}">
+           <img src='images/SequenceIcon.png' style="cursor: pointer" title='View Method call Details' (click)="isFromMain = false;openMethodCallingTree(rowData,false)"/>
+           </span>
+           <span [style]="{'margin-right':'5px'}">
+           <img src='images/MethodTiming.png' style="cursor: pointer" title='View Method Timing Report' (click)="isFromMain = false;openMethodTimingReport(rowData)"/>
+           </span>
+           <span [style]="{'margin-right':'5px'}">
+           <img src='images/hotspot.png' style="cursor: pointer" title='View HotSpot Report' (click)="isFromMain = false;openHotspotReport(rowData)"/>
+           </span>
+           <span  [style]="{'margin-right':'5px'}">
+           <img src='images/queryIcon.png' style="cursor: pointer" title='View DB Request Report' (click)="isFromMain = false;openDBReports(rowData)"/>
+           </span>
+           <span  [style]="{'margin-right':'5px'}">
+           <i class="icon-http-data"  style="cursor: pointer; font-size: 16px" title='View Request/Response Body' (click)="openReqRespData(rowData)"></i>
+           </span>
+           <span [style]="{'margin-right':'5px'}">
+            <img src='images/HttpIcon.png' style="cursor: pointer; font-size: 16px" title='View CallOut Body' (click)="openReqRespDataForCallOut(rowData)">
+          </span>
+         </ng-template>
+         <ng-template *ngIf="(col.field == 'errorCount')" let-col let-rowData="rowData" pTemplate="body">
+          <span *ngIf='rowData[col.field] != 0 ' style="color:blue;cursor: pointer ;" title="View Exception Report" (click)="openExceptionReport(rowData)"> {{ rowData[col.field] }} </span>
+          <span  *ngIf='rowData[col.field]  == 0 '> {{ rowData[col.field] }} </span>
+        </ng-template>
+       </p-column>
+    </p-dataTable> -->
+</div>
+    <p-footer >
+
+  <!-- <p-toolbar *ngIf="showClipboard">
+    <label style="float:right" class="icon ddrui-icon-copy-link" cbContent="popupFooter" ngxClipboard title="Copy Query"  (cbOnSuccess)=showNotification()></label>
+    </p-toolbar> -->
+    <div *ngIf="showClipboard">
+      <i class="icons8 icons8-copy font-22 mx-4" style="float:right; cursor:pointer" [cdkCopyToClipboard]="popupFooter" title="Copy Query"  (cbOnSuccess)=showNotification()></i>
+    </div>
+      <div style="border: 2px solid grey;min-height: 25px;padding: 4px;word-break: break-all;" >
+        <div style="text-align:left; font-size:10px;max-width:100%"> {{popupFooter}} </div>
+      </div>
+
+
+
+    </p-footer>
+    
+  </p-dialog>
+
+  <p-dialog  class="secondary-dialog foterDialog" [style]="{width: '50vw'}" [(visible)]="displayTFMPopUp"  [responsive]='true' [resizable]='false' [positionTop]='140' minHeight='200' [style]="{'max-height':'500px'}">
+    <p-header>HotSpot Thread Details</p-header>
+     <div>
+       <table  width="500"  height="150"   cellspacing="0" >
+          <tbody>
+             <tr><td style="border: 0px solid grey;font-size:10pt;text-align:center;">No Hotspots found based on current Filter Settings.</td></tr>
+          </tbody> 
+       </table>
+      </div>
+    </p-dialog>
+
+    <p-dialog class="secondary-dialog foterDialog" [style]="{width: '65vw'}" [responsive]='true'  [(visible)]="tableDialogDisplay1" [resizable]='false'  height='tabularViewPopUpHeight' >
+      <p-header>
+          {{headerForSRG}}
+        </p-header>
+        <div style="width: 1271px;height: 20px;">
+          <span style="float: right;">
+            <img src='./assets/images/all-graph.png' style="cursor: pointer" title='View All Graphs in Mulitple Frames' (click)="openAllGraphs()"/>
+          </span>
+          <span style="float: right;">
+            <img src='./assets/images/combined-graph.png' style="cursor: pointer" title='View All Graphs in one Frame' (click)="openSingleGraph('', 'merge')"/>
+          </span>
+          <span class= "btn" (click)="openSamplePopUp()">Set Samples</span>
+        </div>
+        <div style="overflow:auto">
+        <p-table class="scen-table all-tables" *ngIf="tableDialogDisplay1" scrollable='true' scrollHeight = '300px' [value]="graphTableArray" 
+        [style]= "{'width':'1280px', 'height': '240px'}" sortField={{sortField}} sortOrder="-1">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Graph Name</th>
+            <th>Min</th>
+            <th>Max</th>
+            <th>Avg</th>
+            <th>Std-Dev</th>
+            <th>Last</th>
+            <th>Samples</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-node>
+          <tr>
+            <td><span class ="ddr-table-left" (click)="openSingleGraph(node, 'single')">{{node['graphName']}}></span> </td>
+            <td>node.min</td>
+            <td>node.max</td>
+            <td>node.avg</td>
+            <td>node.stdev</td>
+            <td>node.last</td>
+            <td>node.count</td>
+          </tr>
+        </ng-template>
+        </p-table>
+        <!-- <p-dataTable class="scen-table" *ngIf="tableDialogDisplay1" scrollable='true' scrollHeight = '350px' [value]="graphTableArray" 
+        [style]= "{'width':'1280px', 'height': '240px'}" sortField={{sortField}} sortOrder="-1">
+            <p-column field="graphName" header="Graph Name" [sortable]="true" [style]="{'text-align':'left', 'width': '37%'}">
+              <ng-template let-col let-node="rowData" pTemplate="body">
+                <span class ="ddr-table-left" (click)="openSingleGraph(node, 'single')">{{node[col.field]}}></span> 
+              </ng-template>
+            </p-column>
+            <p-column field="min" header="Min" [sortable]="true" [style]="{'text-align':'right'}"></p-column>
+            <p-column field="max" header="Max" [sortable]="true" [style]="{'text-align':'right'}"></p-column>
+            <p-column field="avg" header="Avg" [sortable]="true" [style]="{'text-align':'right'}"></p-column>
+            <p-column field="stdev" header="Std-Dev" [sortable]="true" [style]="{'text-align':'right'}"></p-column>
+            <p-column field="last" header="Last" [sortable]="true" [style]="{'text-align':'right'}"></p-column>
+            <p-column field="count" header="Samples" [sortable]="true" [style]="{'text-align':'right'}"></p-column>
+        </p-dataTable> -->
+      </div>
+    </p-dialog>
+
+    <p-dialog class="secondary-dialog foterDialog" [style]="{width: '50vw'}" [responsive]='true'  [(visible)]="singleMergeGraph" [positionTop]='10' [resizable]='false' height='550' >
+      <p-header>
+          {{headerForSRG}}
+        </p-header>
+        <!-- <div>
+        <highcharts-chart [Highcharts] = "highcharts" [options]="options"></highcharts-chart>
+      </div> -->
+    </p-dialog>
+
+    <p-dialog  class="secondary-dialog foterDialog" [style]="{width: '65vw'}" [(visible)]="displayShowRelatedGraph"  (onHide)="onhideDialog($event)" [responsive]='true' [resizable]='false' [positionTop]='10' height='600' >
+      <p-header>{{headerForSRG}}</p-header>
+      <div style="display: flex;flex-wrap: wrap;">
+      <div style="width: 50%;float: left;text-align: right;box-sizing: border-box;padding: .5em;display: block;font-size: 15px;">{{graphMessage}}</div>
+      <div style="width: 50%;float: left;box-sizing: border-box;padding: .5em;display: block;font-size: 11px;">
+          <span id="next" class="pre_next">NEXT</span>
+          <span id="prev" class="pre_next">PREV</span>
+      </div>
+      </div>
+      <div id="firstDiv" style="width: 1305px; height: 600px">  
+         <app-ddr-show-related-graph *ngFor="let item of grapghData" [graphValue]= "item" [json]="graphJson"></app-ddr-show-related-graph>
+      </div>
+      <div id="secondDiv" style="width: 1305px; height: 600px">  
+        <app-ddr-show-related-graph *ngFor="let item of graphData" [graphValue]= "item" [json]="graphJson"></app-ddr-show-related-graph>
+      </div>
+    </p-dialog>
+
+    <p-dialog  class="secondary-dialog foterDialog" [style]="{width: '50vw'}" [(visible)]="displaySamplePopup"  [responsive]='true' [resizable]='false' [positionTop]='20' height='161' >
+        <p-header>Set Request Start/End Samples</p-header>
+        <div class='ui-g'>
+          <div class='ui-g-6'>
+            <span style='margin-right:13px'>Start Samples:</span>
+            </div>
+            <div class='ui-g-6'>
+            <input type="number" min=0 style='width:45%' (keypress)="validateQty($event)" pInputText [(ngModel)]="startSample" />
+          </div>
+          </div>
+          <div class='ui-g'>
+            <div class='ui-g-6'>
+              <span style='margin-right:13px'>End Samples:</span>
+              </div>
+              <div class='ui-g-6'>
+              <input type="number" min=0  style='width:45%' (keypress)="validateQty($event)" pInputText [(ngModel)]="endSample" />
+            </div>
+            </div>
+            <p-footer>
+              <div style="text-align: center">
+                <button pButton type="button" label="Apply" (click)="applySamplePopUp()"></button>
+                <button pButton type="button" label="Reset" (click)="applyDefaultValue()"></button>
+                <button pButton type="button" label="Cancel" (click)="displaySamplePopup =false"></button>
+               </div>      
+           </p-footer>
+    </p-dialog>
+
+    
+    <canvas id="canvasforDownload" style="background-color: white; display:none;" width="1400" height="1040"> </canvas>
+    <a id='trans' style='display:none;'></a>
+
+     <!-- <p-dialog  class="scenmodal  Ddr-popup-footer" [(visible)]="waningPopup"  [responsive]='true' [resizable]='false' [positionTop]='140' width="500"  [style]="{'height':'400px'}"> -->
+      <p-dialog  class="secondary-dialog foterDialog" [(visible)]="waningPopup"  [responsive]='true' [resizable]='false' [positionTop]='140' width="500">
+      <p-header> <img src='./assets/images/warning.png' style="cursor: pointer; height:18px;"  (click)='showWarningMessgae()'/> <span style='font-size: 14px'> Warning</span></p-header>
+       <b><span *ngIf="flowmapData.isRootFpMissing" style='font-size: 13px'>- Root Flowpath is missing</span></b>
+      <br>
+      <b><span  style='font-size: 13px'> -   One or more flow paths are not captured in the path shown by Red arrow(s).</span></b>
+     </p-dialog>
+
+     <p-dialog class="secondary-dialog foterDialog" [style]="{width: '50vw'}" header="Dynamic Diagnostics Configuration" [resizable]="false" *ngIf="showAutoInstrPopUp" [(visible)]="showAutoInstrPopUp" modal="modal" [contentStyle]="{'max-height':'500px'}" responsive="true">
+        <app-dynamic-diagnostics (resultAfterStart)="startInstrumentation($event)" (closeAIDDGui)="closeAIDDDialog($event)" [passAIDDSettings]="argsForAIDDSetting"></app-dynamic-diagnostics>
+     </p-dialog>
+     <p-dialog class="secondary-dialog foterDialog" [style]="{width: '50vw'}" [style]="{'margin-left':'35px', 'margin-top':'46px'}" header="Http Report" [(visible)]="httpDialog" [resizable]=false [modal]="true" autoAlign="true">
+      <div style="overflow: auto; height: 400px; width:600px">
+          <p-accordion class="ddr-accordion"  [multiple]="true">
+           <p-accordionTab header="Http Request Body">
+             <pre style="white-space: pre-wrap; word-break: break-word; outline: none;">{{httpRequestArrBody}}</pre>  
+          </p-accordionTab>
+         </p-accordion>
+         <p-accordion class="ddr-accordion"  [multiple]="true">
+          <p-accordionTab header="Http Response Body">
+            <pre style="white-space: pre-wrap; word-break: break-word; outline: none;">{{httpResponseArrBody}}</pre>  
+         </p-accordionTab>
+        </p-accordion>
+      </div>
+   </p-dialog>
+   <p-dialog class="secondary-dialog foterDialog" [style]="{'margin-left':'35px', 'margin-top':'46px'}" header="CallOut Body" [(visible)]="httpDialogTable" [resizable]=false [modal]="true" autoAlign="true">
+    <div style="overflow-x: fixed; overflow-y: auto; height: 200px; width: 800px">
+        <p-table [columns]="cols1" [value]="httpRequestArrBody1" [style]="{'width':'400px','float':'left'}" [scrollable]="true" scrollHeight="260px">
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th *ngFor="let col of columns">
+                                    {{col.header}}
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node let-columns="columns">
+                            <tr>
+                                <td *ngFor="let col of columns">
+                                    {{node[col.field]}}...
+                                    <span class="primary-text ui-toolbar-group-right" style="text-decoration-line: underline; cursor: pointer; margin-left: 5px;" (click)="onShowMore($event)">Show More...</span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                  
+        <p-table [columns]="cols2" [value]="httpResponseArrBody1" [style]="{'width':'400px', 'float':'right'}">
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns">
+                        {{col.header}}
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body"  let-node let-columns="columns" >
+                <tr>
+                    <td *ngFor="let col of columns">
+                        {{node[col.field]}}...
+                        <span class="primary-text ui-toolbar-group-right" style="text-decoration-line: underline; cursor: pointer; margin-left: 5px;" (click)="onShowMore1($event)">Show More...</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>         
+      </div>              
+ </p-dialog>
+<p-dialog class="secondary-dialog foterDialog" [style]="{'margin-left':'35px', 'margin-top':'46px'}" header="Request Body" [(visible)]="showmore" [resizable]=false [modal]="true" autoAlign="true">
+  <div style="overflow: auto; height: 300px; width: 400px;">
+   <pre style="white-space: pre-wrap; word-break: break-word; outline: none;">{{httpRequestArrBody2}}
+   </pre>
+  </div>
+</p-dialog>
+<p-dialog class="secondary-dialog foterDialog"[style]="{'margin-left':'35px', 'margin-top':'46px'}" header="Response Body" [(visible)]="showmore1" [resizable]=false [modal]="true" autoAlign="true">
+  <div style="overflow: auto; height: 300px; width:400px">
+      <pre style="white-space: pre-wrap; word-break: break-word; outline: none;">{{httpResponseArrBody2}}
+      </pre>
+  </div>
+</p-dialog>

@@ -1,0 +1,141 @@
+
+<div>
+    <form (ngSubmit)="startMutexLockSession()" #groupForm="ngForm" ngNativeValidate>
+        <p-accordion class="ndagent ddAIaccordion" [multiple]="true">
+	    <p-accordionTab header="General" [selected]="true">
+                <div class="p-grid p-align-center">
+                        <div class="ui-g-7">
+                            <label>Session Name</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+                        <div class="ui-g-4">
+                            <input type="text" pInputText name="name" [(ngModel)]="mutexLockDto['name']" class="text-width w-100-p" required ngModel>
+                        </div>
+                        <div class="ui-g-7">
+                            <label>Duration(mins)</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+                        <div class="ui-g-4">
+                            <input type="number" style= "text-align: right;" pInputText name="duration" min="5" max="120" [(ngModel)]="duration" class="text-width w-100-p" required ngModel>
+                        </div>
+
+
+                  <!--  <div class="ui-g-12 divCss">
+                        <div class="ui-g-7">
+                            <label>Session Overhead</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+                        <div class="ui-g-4">
+                            <input type="number" name="sessionOverhead" [(ngModel)]="mutexLockDto['sessionOverhead']" class="text-width" required ngModel>
+                        </div>
+                    </div> -->
+
+		    <div class="divCss w-100-p">
+                    <div>
+                        <div style="display: inline-block; margin-left: 27%;">0</div> 
+                        <div style="display: inline-block; margin-left: 15%;">Low</div> 
+                        <div style="display: inline-block; margin-left: 15%;">Med</div> 
+                        <div style="display: inline-block; margin-left: 14%;">High</div> 
+                    </div>
+                    <div class="ui-g-3">
+                        <label>Session Overhead</label>
+                    </div>
+                    <div class="ui-g-7" style="padding: 0px;">
+                        <input type="range" name="sessionOverhead" [(ngModel)]="mutexLockDto['sessionOverhead']" class="w-100-p" min="0" max="30" list="volsettings">
+                        <datalist id="volsettings">
+                            <option>0</option>
+                            <option>10</option>
+                            <option>20</option>
+                            <option>30</option>
+                        </datalist>
+                    </div>
+                    <div class="ui-g-2" style="text-align: center;">
+                        {{ mutexLockDto['sessionOverhead'] }} s/min.
+                    </div>
+                  </div>
+
+
+                        <div class="ui-g-7">
+                            <label>No. of Top Mutex Lock to capture</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+                        <div class="ui-g-4">
+                            <input type="number" style= "text-align: right;" pInputText name="topNmutexlocks" min="5" max="100" [(ngModel)]="mutexLockDto['topNmutexlocks']" class="text-width w-100-p" required ngModel>
+                        </div>
+			<div class="ui-g-7">
+                            <label>Description</label>
+                        </div>
+                        <!-- <div class="ui-g-1"></div> -->
+	                <div class="ui-g-12">
+        	            <textarea pInputTextarea name="description" style="height: 60px; width: 100%;" name="description" [(ngModel)]="mutexLockDto['description']" style="width: 100%;" ngModel></textarea>
+                	</div>
+		</div>
+	    </p-accordionTab>
+            <p-accordionTab header="Advance">
+		<div class="ui-g">
+                        <div class="ui-g-7">
+                            <label>Top N Mutex Lock Find Duration</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+                        <div class="ui-g-4">
+                            <input type="number" style= "text-align: right;" pInputText name="durTopMutexlocksFind" min="10" max="50" [(ngModel)]="mutexLockDto['durTopMutexlocksFind']" class="text-width w-100-p" required ngModel>
+                        </div>
+
+
+                            <div class="ui-g-7">
+                                <label>Total No. Mutex Lock to capture</label>
+                            </div>
+                            <div class="ui-g-1"></div>
+                            <div class="ui-g-4">
+                                <input type="number" style= "text-align: right;" pInputText name="maxlockcount" min="5" max="1000"  [(ngModel)]="mutexLockDto['maxlockcount']" class="text-width w-100-p" required ngModel>
+                            </div>
+
+                        
+                    <!-- <div class="ui-g-12 divCss">
+                        <div class="ui-g-7">
+                            <label>Maximum Thread Per Lock Count</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+                        <div class="ui-g-4">
+                            <input type="number" name="maxthreadperlockcount" [(ngModel)]="mutexLockDto['maxthreadperlockcount']" class="text-width" required ngModel>
+                        </div>
+                    </div> -->
+
+                        <div class="ui-g-7">
+                            <label>Total No. of threads to capture</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+                        <div class="ui-g-4">
+                            <input type="number" style= "text-align: right;" pInputText name="maxthreadcount" min="10" max="1000" [(ngModel)]="mutexLockDto['maxthreadcount']" class="text-width w-100-p" required ngModel>
+                        </div>
+
+
+                        <div class="ui-g-7">
+                            <label>Total No. of stack trace to capture</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+                        <div class="ui-g-4">
+                            <input type="number" style= "text-align: right;" pInputText name="maxstacktracecount" [(ngModel)]="mutexLockDto['maxstacktracecount']" class="text-width w-100-p" required ngModel>
+                        </div>
+
+                    <!-- <div class="ui-g-12 divCss">
+                        <div class="ui-g-7">
+                            <label>Maximum Stack Trace Count Per Thread</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+                        <div class="ui-g-4">
+                            <input type="number" name="maxstacktracecountperthread" [(ngModel)]="mutexLockDto['maxstacktracecountperthread']" class="text-width" required ngModel>
+                        </div>
+                    </div> -->
+		</div>
+            </p-accordionTab> 
+        </p-accordion>
+        <footer>
+            <div class="p-grid p-align-center p-justify-end py-10">
+                <button type="button" class="ui-button-rounded ui-button-secondary mx-3" pButton (click)="closeMutexLockDialog()" label="Cancel "></button>
+                <button type="submit" class="ui-button-rounded mx-3" pButton label="Start"></button>
+               <!-- <button type="button" class="ui-button-rounded mx-3" pButton (click)="resetToDefault()" style="float:left" label="Reset to default "></button>-->
+            </div>
+        </footer>
+    </form>
+</div>

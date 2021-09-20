@@ -1,0 +1,24 @@
+<div class="h-100-vh app-crash-summary-container" #widget>
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/app-crash-summary">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">CRASH REPORT</div>
+        </div>
+    </p-toolbar>
+    <div class="p-col-12 no-padding">
+        <div class="breadcrumbs">
+	  <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+        </div>
+    </div>
+    <div>
+        <div class="action-container">
+            <app-app-crash></app-app-crash>
+        </div>
+    </div>
+</div>

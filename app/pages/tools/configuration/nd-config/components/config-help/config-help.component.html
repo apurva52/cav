@@ -1,0 +1,123 @@
+<p-accordion class="accordHeader accordHeaderForHelp" > 
+<p-dialog class="secondary-dialog" [style]="{width: '80vw'}" header={{mainheader}} [(visible)]="helpdialog" modal="modal"> 
+    <div class="configHelpFile configHelp configHelpColor" *ngFor="let hd of header let h=index">
+    <p-accordionTab [selected]="true" *ngIf= "h == 0">
+        <p-header>
+            <span class="icons8-settings"><label style="margin-left: 6px">{{hd}} </label></span>
+        </p-header>
+        <div *ngIf= "h == 0">
+            <h3 *ngIf = "headermessage !=''">
+                <!-- <i class="fa fa-cogs" aria-hidden="true"></i> {{hd}}
+                <br> -->
+                <div  class="headerborder">{{headermessage}}</div>
+
+            </h3>
+            <div  *ngFor="let msg of messagefirst let j=index">
+                <span *ngIf= "msg != ''" class="configHelpSubHeading">
+                    <i class="icons8-rectangular" aria-hidden="true"></i> {{msg}} </span>
+                <div  *ngFor="let submsg of submessagefirst let k=index" >
+                    <p *ngIf = "j == k" class="configHelpSubHeadText" name ="name">{{submsg}}</p>
+                </div>
+            </div>
+        </div>
+    </p-accordionTab>
+    <p-accordionTab *ngIf= "h == 1">
+        <p-header>
+                    <span class="icons8-settings"><label style="margin-left: 6px">{{hd}} </label></span>
+        </p-header>
+        <div *ngIf= "h == 1">
+                <!-- <h3>
+                    <i class="fa fa-cogs" aria-hidden="true"></i> {{hd}}</h3> -->
+                <div  *ngFor="let msg of messagesecond let j=index">
+                    <span *ngIf= "msg != ''" class="configHelpSubHeading">
+                        <i class="icons8-rectangular" aria-hidden="true"></i> {{msg}} </span>
+                    <div  *ngFor="let submsg of submessagesecond let k=index" >
+                        <p *ngIf = "j == k" class="configHelpSubHeadText" name ="name" [innerHTML]="submsg"></p>
+                    </div>
+                </div>
+            </div>
+
+        </p-accordionTab>
+        <p-accordionTab *ngIf= "h == 2">
+            <p-header>
+                        <span class="icons8-settings"><label style="margin-left: 6px">{{hd}} </label></span>
+            </p-header>
+            <div *ngIf= "h == 2">
+                    <!-- <h3>
+                        <i class="fa fa-cogs" aria-hidden="true"></i> {{hd}}</h3> -->
+                    <div  *ngFor="let msg of messagethird let j=index">
+                        <span  *ngIf= "msg != ''" class="configHelpSubHeading">
+                            <i class="icons8-rectangular" aria-hidden="true"></i> {{msg}} </span>
+                        <div  *ngFor="let submsg of submessagethird let k=index" >
+                            <p *ngIf = "j == k" class="configHelpSubHeadText" name ="name">{{submsg}}</p>
+                        </div>
+                    </div>
+                </div>
+            </p-accordionTab>
+            <p-accordionTab *ngIf= "h == 3">
+                <p-header>
+                            <span class="icons8-settings"><label style="margin-left: 6px">{{hd}} </label></span>
+                </p-header>
+                <div *ngIf= "h == 3">
+                        <!-- <h3>
+                            <i class="fa fa-cogs" aria-hidden="true"></i> {{hd}}</h3> -->
+                        <div  *ngFor="let msg of messagefourth let j=index">
+                            <span *ngIf= "msg != ''" class="configHelpSubHeading">
+                                <i class="icons8-rectangular" aria-hidden="true"></i> {{msg}} </span>
+                            <div  *ngFor="let submsg of submessagefourth let k=index" >
+                                <p *ngIf = "j == k" class="configHelpSubHeadText" name ="name">{{submsg}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </p-accordionTab>
+                <p-accordionTab *ngIf= "h == 4">
+                    <p-header>
+                                <span class="icons8-settings"><label style="margin-left: 6px">{{hd}} </label></span>
+                    </p-header>
+                    <div *ngIf= "h == 4">
+                            <!-- <h3>
+                                <i class="icons8-settings" aria-hidden="true"></i> {{hd}}</h3> -->
+                            <div  *ngFor="let msg of messagefifth let j=index">
+                                <span *ngIf= "msg != ''" class="configHelpSubHeading">
+                                    <i class="icons8-rectangular" aria-hidden="true"></i> {{msg}} </span>
+                                <div  *ngFor="let submsg of submessagefifth let k=index" >
+                                    <p *ngIf = "j == k" class="configHelpSubHeadText" name ="name">{{submsg}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </p-accordionTab>
+    </div>
+</p-dialog>
+
+</p-accordion>
+
+
+<!-- <p-dialog class="profile-dialog" header={{mainheader}} [(visible)]="customDataHelpDialog" width=690>
+    <div class="configHelpFile configHelp configHelpColor">
+            <div>
+                 <h3>
+                        <i class="fa fa-cogs" aria-hidden="true"></i> Custom Data
+                    </h3>
+                        <div>
+                         <span class="configHelpSubHeading">
+                       <i class="fa fa-square" aria-hidden="true"></i> Method </span>
+                     <div>
+                 <p class="configHelpSubHeadText" name ="name">
+                        This section displays method based custom header rules, with details such as fully qualified method name, return type, and argument type. User can perform following operations:
+                        <li>
+                                Add method rule to capture custom headers:
+                                Provide Fully Qualified Method Name
+                                Select any one of following
+                                
+                        </li>
+                        <li>
+                                Enable/Disable Custom Header from Method Return value(s): When enabled, select the method return value rule(s) from the list or add a new one. 
+                        </li>
+                        <li>
+                                Enable/Disable Custom Header from Method Argument(s): When enabled, select the method argument rule(s) from the list or add a new one. 
+                        </li>
+                    </p>
+             </div>
+          </div>
+    </div>
+</p-dialog> -->

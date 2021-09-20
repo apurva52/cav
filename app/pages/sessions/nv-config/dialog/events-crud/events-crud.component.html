@@ -1,0 +1,119 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="999" [resizable]="true" [modal]="true"
+    class="secondary-dialog" [draggable]="false" [style]="{width: '35vw'}">
+    <p-header>
+        <div class="compare-data-title" *ngIf="!showFields">
+            <div>
+                Add Event
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+        <div class="compare-data-title" *ngIf="showFields">
+            <div>
+                Edit Event
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+
+    <div class="dialog-content">
+        <div class="p-grid p-align-center">
+          
+            <div class="p-col-4">
+                <span class="line-height">Icons For Event</span>
+            </div>
+            <div class="p-col-8" *ngIf="showFields">
+                <p-dropdown class="ui-dropdown-label" [(ngModel)]="updateIcons" [options]="items"
+                    dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'100%'}" [baseZIndex]="10001" appendTo="body">
+                    <ng-template let-icon pTemplate="item">
+                        <div class="ui-helper-clearfix" style="position: relative;height: 25px;width:100%;">
+                            <img src="{{base}}netvision/images/eventIcons/{{icon.label}}.png"
+                                style="width:14px;position:absolute;top:1px;left:5px" />
+                            <div style="font-size:10px;float:right;margin-top:4px">{{icon.label}}</div>
+                        </div>
+                    </ng-template>
+                </p-dropdown>
+            </div>
+            <div class="p-col-8" *ngIf="!showFields">
+                <p-dropdown class="ui-dropdown-label" [(ngModel)]="Icons" [options]="items"
+                    dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'100%'}" [baseZIndex]="10001" appendTo="body">
+                    <ng-template let-icon pTemplate="item">
+                        <div class="ui-helper-clearfix" style="position: relative;height: 25px;width:100%;">
+                            <img src="{{base}}eventIcons/{{icon.label}}.png"
+                                style="width:14px;position:absolute;top:1px;left:5px" />
+                            <div style="font-size:10px;float:right;margin-top:4px">{{icon.label}}</div>
+                        </div>
+                    </ng-template>
+                </p-dropdown>
+            </div>
+        </div>
+        <div class="p-grid p-align-center">
+          
+            <div class="p-col-4">
+                <span class="line-height">Name</span>
+            </div>
+            <div class="p-col-8" *ngIf="showFields">
+                <input type="text" placeholder="Enter Name" [(ngModel)]="updatename" disabled class="w-100-p"
+                    pInputText />
+            </div>
+            <div class="p-col-8" *ngIf="!showFields">
+                <input type="text" placeholder="Enter Name" [(ngModel)]="name" class="w-100-p" pInputText />
+            </div>
+        </div>
+        <div class="p-grid p-align-center">
+          
+            <div class="p-col-4">
+                <span class="line-height">Description</span>
+            </div>
+            <div class="p-col-8" *ngIf="showFields">
+                <textarea pInputTextarea placeholder="Enter Description" [(ngModel)]="updatedescription"
+                    class="w-100-p"></textarea>
+            </div>
+            <div class="p-col-8" *ngIf="!showFields">
+                <textarea pInputTextarea placeholder="Enter Description" [(ngModel)]="description"
+                    class="w-100-p"></textarea>
+            </div>
+        </div>
+        <div class="p-grid p-align-center">
+          
+            <div class="p-col-4">
+                <span class="line-height" title="Minimum iteration of an event in the session required to mark that session as struggling">Goal</span>
+            </div>
+            <div class="p-col-8" *ngIf="showFields">
+                <input type="text" min = "1" placeholder="Enter Goal" [(ngModel)]="updategoal" class="w-100-p" pInputText />
+            </div>
+            <div class="p-col-8" *ngIf="!showFields">
+                <input type="text" min = "1" placeholder="Enter Goal" [(ngModel)]="goal" class="w-100-p" pInputText />
+            </div>
+        </div>
+        <div class="p-grid p-align-center">
+          
+            <div class="p-col-4">
+                <span class="line-height">Struggling User Event</span>
+            </div>
+            <div class="p-col-8" *ngIf="showFields">
+                <p-dropdown class="ui-dropdown-label" [(ngModel)]="updateStrugglingEvent"
+                    [options]="strugglingUserItems" dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'100%'}" [baseZIndex]="10001" appendTo="body"> </p-dropdown>
+            </div>
+            <div class="p-col-8" *ngIf="!showFields">
+                <p-dropdown class="ui-dropdown-label" [(ngModel)]="StrugglingEvent" [options]="strugglingUserItems"
+                    dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'100%'}" [baseZIndex]="10001" appendTo="body"> </p-dropdown>
+            </div>
+        </div>
+    </div>
+    <p-footer>
+        <div class="p-col-12" *ngIf="!showFields">
+            <button pButton type="submit" label="Cancel" class="ui-button-rounded ui-button-secondary"
+                (click)="closeDialog()"></button>
+            <button pButton type="submit" label="Add" class="ui-button-rounded" (click)="addEvent()"></button>
+        </div>
+        <div class="p-col-12" *ngIf="showFields">
+            <button pButton type="submit" label="Cancel" class="ui-button-rounded ui-button-secondary"
+                (click)="closeDialog()"></button>
+            <button pButton type="submit" label="Update" class="ui-button-rounded" (click)="saveEvent()"></button>
+        </div>
+    </p-footer>
+</p-dialog>

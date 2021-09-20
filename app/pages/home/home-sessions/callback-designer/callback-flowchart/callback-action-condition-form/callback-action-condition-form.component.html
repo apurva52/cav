@@ -1,0 +1,59 @@
+<form [formGroup]="form">
+    <div class="p-grid ui-fluid p-justify-start">
+        <div class="p-col-12">
+            <label>LHS</label>
+            <p-dropdown (dragover)="allowDrop($event)" (drop)="drop($event, 'lhs')" [options]="groupedVariableList"
+                formControlName="lhs" [group]="true" [showClear]="true" placeholder="Select LHS" editable="true"
+                dropdownIcon="icons8 icons8-expand-arrow">
+                <ng-template let-group pTemplate="group">
+                    <i>{{group.label}}</i>
+
+                    <button type="button" pButton icon="icons8 icons8-add" class="icon-button no-shadow right"
+                        (click)="dataPoint.showDialog()" *ngIf="group.label === 'Data points'"
+                        pTooltip="Extract Data"></button>
+                    <button type="button" pButton icon="icons8 icons8-add" class="icon-button no-shadow right"
+                        (click)="localVar.showDialog()" *ngIf="group.label === 'Local variables'"
+                        pTooltip="Add Local Variable"></button>
+
+                </ng-template>
+            </p-dropdown>
+
+            <p-message severity="error" text="LHS is required" *ngIf="submitted && form.get('lhs').invalid"></p-message>
+        </div>
+        <div class="p-col-12">
+            <label>Operator</label>
+            <p-dropdown [options]="operators" formControlName="operator" dropdownIcon="icons8 icons8-expand-arrow"
+                placeholder="Select Operator" optionLabel="name" (dragover)="fireFox ? '' : allowDrop($event)"
+                (drop)="fireFox ? '' : drop($event, 'operator')"></p-dropdown>
+
+            <p-message severity="error" text="Operator is required" *ngIf="submitted && form.get('operator').invalid">
+            </p-message>
+        </div>
+        <div class="p-col-12">
+            <label>RHS</label>
+            <p-dropdown [options]="groupedVariableList" formControlName="rhs" [group]="true"
+                dropdownIcon="icons8 icons8-expand-arrow" [showClear]="true" placeholder="Select RHS" editable="true"
+                (dragover)="allowDrop($event)" (drop)="drop($event, 'rhs')">
+                <ng-template let-group pTemplate="group">
+                    <i>{{group.label}}</i>
+
+                    <button type="button" pButton icon="icons8 icons8-add" class="icon-button no-shadow right"
+                        (click)="dataPoint.showDialog()" *ngIf="group.label === 'Data Points'"
+                        pTooltip="Extract Data"></button>
+                    <button type="button" pButton icon="icons8 icons8-add" class="icon-button no-shadow right"
+                        (click)="localVar.showDialog()" *ngIf="group.label === 'Local Variables'"
+                        pTooltip="Add Local Variable"></button>
+
+                </ng-template>
+            </p-dropdown>
+            <p-message severity="error" text="RHS is required" *ngIf="submitted && form.get('rhs').invalid"></p-message>
+
+        </div>
+    </div>
+    <div class="p-grid p-justify-end">
+        <button type="button" pButton label="Save" (click)="submit()"></button>
+    </div>
+</form>
+
+<app-callback-datapoint></app-callback-datapoint>
+<app-callback-localvar></app-callback-localvar>

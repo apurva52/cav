@@ -1,0 +1,350 @@
+<div class="main-box footer-monitor">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <a routerLink="/custom-monitors/availCustMon/nf">
+        <span class="icons8 icons8-left toolbar-icon-color"></span>
+      </a>
+      <div class="p-col ui-toolbar-text">Configure Log Metric Monitors</div>
+      <div>
+        <button pButton class="ui-button ui-button-rounded ui-button-right" form="ngForm" label="Save"></button>
+      </div>
+    </div>
+  </p-toolbar>
+  <div class="tableScroll">
+    <form class="monitor-ui-form" (ngSubmit)="saveMonitorsConfiguration()" id="ngForm" ngNativeValidate>
+      <div class="p-align-center p-grid w-100-p px-10">
+        <div class="width-160 required-mark">Metric Group Name</div>
+        <div class="ui-g-2">
+          <input type="text" pInputText class="w-100-p" name="mgName" [(ngModel)]="custMonInfo.gdfInfo.grpN"
+            placeholder="Enter Metric Group Name" autofocus (focusout)="validateMon()" required
+            pattern="^[a-zA-Z0-9-_]*$">
+        </div>
+        <div class="ui-g-2">
+          <label>Metric Group Description</label>
+        </div>
+        <div class="ui-g-2">
+          <input type="text" class="w-100-p" pInputText name="mgDesc" [(ngModel)]="custMonInfo.gdfInfo.gD"
+            placeholder="Enter Metric Group Description">
+        </div>
+
+        <!-- <div class="mx-15">
+          <button pButton type="button"
+            title="Get list of saved queries from NF.You can then select one of the saved queries to configure Log Metric Monitor"
+            label="Get Saved Query"></button>
+        </div> -->
+
+        <!-- <div class="ui-g-2">
+          <p-dropdown name="sqry" [options]="ddList" [(ngModel)]="savedQueryName" placeholder="-- Select --"
+            [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow" ngModel
+            (onChange)="getSavedQuery($event.value)"></p-dropdown>
+        </div> -->
+      </div>
+
+      <div class="p-align-center p-grid w-100-p px-10">
+        <div class="width-160 required-mark">Query</div>
+        <div class="ui-g-6">
+          <textarea name="qry" [(ngModel)]="query" pInputTextarea class="w-100-p" rows="2" ngModel required></textarea>
+        </div>
+        <div class="mx-15">
+          <button icon="icons8 icons8-circled-play" pButton type="button" title="Execute" (click)="openExecuteDailog()"
+            label="Execute"></button>
+        </div>
+      </div>
+
+      <div class="ui-g-12">
+        <p-fieldset class="healthChkMonCss healthChkLegend" legend="Metric Hierarchy" [toggleable]="true"
+          [collapsed]="false">
+          <div>
+            <p-table class="all-tables" [columns]="cols" [value]="tableData" [rows]="5"
+              [paginator]="tableData?.length >5" [pageLinks]="3" [resizableColumns]='true'>
+              <ng-template pTemplate="header" let-columns>
+                <tr>
+                  <th *ngFor="let col of columns">
+                    {{col.header}}
+                  </th>
+                  <!-- <th class="text-left columnwidth"></th> -->
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+                <tr>
+                  <td>{{rowData.hrField}}</td>
+                  <td pEditableColumn>
+                    <p-cellEditor>
+                      <ng-template pTemplate="input">
+                        <input pInputText type="text" [(ngModel)]="rowData.dName" [ngModelOptions]="{standalone: true}">
+                      </ng-template>
+                      <ng-template pTemplate="output">
+                        {{rowData.dName}}
+                      </ng-template>
+                    </p-cellEditor>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+        </p-fieldset>
+      </div>
+
+      <div class="ui-g-12">
+        <p-fieldset class="healthChkMonCss healthChkLegend" legend="Metric Configuration" [toggleable]="true"
+          [collapsed]="false">
+
+          <div>
+            <p-table class="all-tables" [columns]="column" [value]="gdfInfoDataTable" [rows]="5"
+              [paginator]="gdfInfoDataTable?.length >5" [pageLinks]="3" [resizableColumns]='true'>
+              <ng-template pTemplate="header" let-columns>
+                <tr>
+                  <th *ngFor="let col of columns">
+                    {{col.header}}
+                  </th>
+                  <!-- <th class="text-left columnwidth"></th> -->
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+                <tr>
+                  <td>{{rowData.metricField}}</td>
+                  <td pEditableColumn>
+                    <p-cellEditor>
+                      <ng-template pTemplate="input">
+                        <input pInputText type="text" [(ngModel)]="rowData.graphNm" [ngModelOptions]="{standalone: true}">
+                      </ng-template>
+                      <ng-template pTemplate="output">
+                        {{rowData.graphNm}}
+                      </ng-template>
+                    </p-cellEditor>
+                  </td>
+                  <td pEditableColumn>
+                    <p-cellEditor>
+                      <ng-template pTemplate="input">
+                        <input pInputText type="text" [(ngModel)]="rowData.gD" [ngModelOptions]="{standalone: true}">
+                      </ng-template>
+                      <ng-template pTemplate="output">
+                        {{rowData.gD}}
+                      </ng-template>
+                    </p-cellEditor>
+                  </td>
+
+                </tr>
+              </ng-template>
+            </p-table>
+
+          </div>
+
+        </p-fieldset>
+      </div>
+
+      <div class="ui-g-12">
+        <p-fieldset class="healthChkMonCss healthChkLegend" legend="Advanced Settings" [toggleable]="true"
+          [collapsed]="true">
+          <div class="p-grid p-align-center p-5">
+            <div class="width-120">Delay Time</div>
+
+            <input type="number" pInputText name="dt" [(ngModel)]="custMonInfo.adv.delay" ngModel min=1 max=2147483647
+              class="width-100 mx-3">
+            <label>ms</label>
+
+
+
+            <label class="ml-30 mr-5">Send Nan data upto</label>
+
+
+            <input type="number" pInputText name="dv" [(ngModel)]="custMonInfo.adv.delVecCount" class="width-70 mx-3"
+              ngModel min=1 max=2147483647>
+            <label>Min(s) after that Delete Vector</label>
+
+
+            <div class="ml-30 mr-3">
+              <p-checkbox name="sichk" [(ngModel)]="SI" binary=true ngModel></p-checkbox>
+              <label>Use Sample Interval</label>
+            </div>
+
+
+            <input type="number" pInputText name="si" [(ngModel)]="custMonInfo.adv.interval" class="width-70 mx-3"
+              [disabled]="!SI" ngModel required min=1 max=2147483647>
+            <label>ms</label>
+
+          </div>
+
+        </p-fieldset>
+      </div>
+
+      <div class="ui-g-12">
+        <p-fieldset class="healthChkMonCss healthChkLegend" legend="NF Settings" [toggleable]="true" [collapsed]="true">
+          <div class="p-grid p-align-center mt-10 w-100-p">
+            <div class="width-125">Host</div>
+            <div class="p-col-3">
+              <input type="text" pInputText name="host" pattern="^((([0-9]{1,3}\.){3}[0-9]{1,3})|([A-Za-z][A-Za-z0-9-_.]*$))$" [(ngModel)]="nfS.host" class="w-70-p" ngModel required>
+            </div>
+            <div class="width-100 px-5">Port</div>
+            <div class="p-col-2 p-grid p-align-center">
+              <input type="number" pInputText name="port" min=1 max=65535 [(ngModel)]="nfS.port" class="width-80" ngModel
+                required>
+            <div class="width-120 px-5">
+              <p-checkbox name="chk1" [(ngModel)]="nFSecure" binary=true ngModel></p-checkbox>
+              <label class="mx-3">Secure</label>
+            </div>
+          </div>
+
+          <div class="width-125 required-mark">Index Pattern</div>
+          <div class="p-col-3">
+            <input type="text" pInputText name="ipt" [(ngModel)]="nfS.idx" class="w-70-p" ngModel>
+          </div>
+
+            <!-- <div class="ui-g-2">
+              <button icon="icons8 icons8-circled-play" pButton type="button" title="Get Environment List"
+                (click)="fillNFSettingInfo(nFSecure)" label="Get Environment List">
+              </button>
+            </div> -->
+          </div>
+
+          <div class="p-grid p-align-center w-100-p">
+            <div class="width-125">Base URL</div>
+          <div class="p-col-3">
+            <input type="text" pInputText name="mainBaseUrl" [(ngModel)]="nfS.mainBaseUrl" class="w-70-p" ngModel>
+          </div>
+            <!-- <div class="width-120">Environment</div>
+
+            <div class="ui-g-2">
+              <p-dropdown name="env" [options]="envList" [(ngModel)]="nfS.env" placeholder="-- Select --"
+                [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+
+            <div class="width-130">Index Pattern</div>
+            <div class="ui-g-2">
+              <input type="text" pInputText name="ipt" [(ngModel)]="nfS.idx" class="w-100-p" ngModel required>
+              <p-dropdown name="ipt" [options]="idxList" [(ngModel)]="nfS.idx" placeholder="-- Select --"
+                [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow">
+              </p-dropdown>
+            </div> -->
+           
+          </div>
+
+          <div class="ui-g-12">
+            <p-fieldset class="healthChkMonCss healthChkLegend" legend="Proxy Settings" [toggleable]="true"
+              [collapsed]="true">
+              <div class="p-grid p-align-center p-5">
+                <div class="width-120">Proxy Host</div>
+                <div class="ui-g-2">
+                  <input type="text" pInputText name="phost" [(ngModel)]="nfS.pHost" class="w-100-p" ngModel>
+                </div>
+                <div class="width-130">Proxy Port</div>
+                <div class="ui-g-2">
+                  <input type="number" pInputText name="pPort" [(ngModel)]="nfS.pPort" class="w-100-p" ngModel min=1
+                    max=65535>
+                </div>
+              </div>
+
+              <div class="p-grid p-align-center p-5">
+                <div class="width-120">Proxy Username</div>
+                <div class="ui-g-2">
+                  <input type="text" pInputText name="usr" [(ngModel)]="nfS.pUser" class="w-100-p" ngModel>
+                </div>
+                <div class="width-130">Proxy Password</div>
+                <div class="ui-g-2">
+                  <input type="password" pInputText name="pwd" [(ngModel)]="nfS.pPwd" class="w-100-p" ngModel>
+                </div>
+              </div>
+            </p-fieldset>
+          </div>
+
+        </p-fieldset>
+      </div>
+
+
+      <p-dialog class="secondary-dialog foterDialog" header="Execute" [(visible)]="showdialog" modal="false"
+        [style]="{width: '600px'}" responsive="true">
+        <div class="p-grid p-align-center w-100-p mt-10">
+          <div class="p-col-3">Query</div>
+          <div class="p-col-9">
+            <textarea name="qry" [(ngModel)]="custMonInfo.nf.query" pInputTextarea class="w-100-p" rows="4"
+              ngModel></textarea>
+          </div>
+        </div>
+
+        <div class="p-grid p-align-center w-100-p">
+          <div class="p-col-3">Tier</div>
+          <div class="p-col-6">
+            <p-dropdown name="tier" [options]="tierList" placeholder="-- Select --" [(ngModel)]="custMonInfo.nf.tier"
+              [style]="{'min-width':'100%'}" appendTo="body" required ngModel dropdownIcon="icons8 icons8-expand-arrow">
+            </p-dropdown>
+          </div>
+          <div class="ui-g-3 text-right">
+            <button class="ui-button-rounded" icon="icons8 icons8-circled-play" pButton type="button" title="Execute"
+              (click)="getQueryData()" label="Execute"></button>
+          </div>
+        </div>
+
+        <div class="p-grid p-align-center w-100-p" *ngIf="showDateDialog">
+          <div class="p-col-3">Start Time</div>
+          <div class="p-col-4">
+            <p-calendar [(ngModel)]="nfS.sT" appendTo="body" name="st" [showTime]="true" [showIcon]="true" showTime="true"
+              ></p-calendar>
+          </div>
+          </div>
+
+          <div class="p-grid p-align-center w-100-p" *ngIf="showDateDialog">
+          <div class="p-col-3"> End Time</div>
+          <div class="p-col-4">
+            <p-calendar [(ngModel)]="nfS.eT" appendTo="body" name="et" [showTime]="true" [showIcon]="true" showTime="true"
+              ></p-calendar>
+          </div>
+        </div>
+
+        <div class="p-grid p-align-center w-100-p">
+          <div class="p-col-3">Output</div>
+          <div class="p-col-9">
+            <textarea name="Op" [(ngModel)]="outPut" pInputTextarea class="w-100-p" rows="4" ngModel></textarea>
+          </div>
+        </div>
+
+        <div class="p-grid p-align-center p-justify-end m-5">
+          <button pButton type="button" class="ui-button-rounded ui-button-secondary mx-6"
+            (click)="closeExecuteDialog()" label="Cancel"></button>
+
+          <button pButton type="button" class="ui-button-rounded"
+            (click)="fillTableData()" label="OK"></button>
+
+        </div>
+      </p-dialog>
+
+      <p-dialog class="secondary-dialog" header="Error" [(visible)]="showErrorDialog" modal="modal"
+        [style]="{width: '800px'}" responsive="true">
+        <div *ngIf="!showDateDialog" class="my-15">
+          No data available for specified query and last 1 hour. Either modify the query or select different Start and
+          End date and re-execute.
+        </div>
+
+        <div *ngIf="showDateDialog" class="my-15">
+          No data available for specified query and specified time. Either modify the query or select different Start
+          and End date and re-execute.
+        </div>
+        <p-footer>
+          <button type="button" pButton icon="icons8 icons8-checkmark" class="ui-button-rounded"
+            (click)="showDateTimeFields()" label="OK"></button>
+        </p-footer>
+      </p-dialog>
+    </form>
+
+  </div>
+</div>
+
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+
+<div class="confirm-dialog">
+  <p-confirmDialog #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+      <p-footer>
+          <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton
+              icon="pi pi-check" label={{acceptLable}} (click)="cd.accept()"></button>
+          <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton
+              icon="pi pi-times" label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+      </p-footer>
+  </p-confirmDialog>
+</div>

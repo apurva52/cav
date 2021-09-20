@@ -1,0 +1,31 @@
+<p-fieldset class="custom-fieldset" legend="Advanced Settings" [toggleable]="true" [collapsed]="true">
+  <div class="p-grid p-align-center w-100-p">
+
+    <div class="">Retry Count</div>
+    <div class="p-col-2">
+      <input type="number" name="rCount"
+        pTooltip="Count of maximum retry to make connection" tooltipPosition="bottom" [(ngModel)]="item['rCount']"
+        min="1">
+    </div>
+
+    <div class="">Sample Interval</div>
+    <div class="p-col-2">
+      <input type="number" tooltipPosition="bottom" name="sInterval"
+        [(ngModel)]="item['interval']"
+        pTooltip="{{monType == 'statsd'?'Sample interval (in seconds)':'Sample interval (in milliseconds)'}}"
+        min="1"><span>{{monType == 'statsd'?'sec':'ms'}}</span>
+    </div>
+
+    <div class="">Vector Delete Time</div>
+    <div class="p-col-2">
+      <input name="vdTime" [(ngModel)]="item['delVecCount']"
+        pTooltip="Time (in minutes) to hold non-exist vector" tooltipPosition="bottom" type="number" min="1" /> min(s)
+    </div>
+
+    <div class="" *ngIf="monType == 'statsd'">Replace Characters</div>
+    <div class="p-col-2" *ngIf="monType == 'statsd'">
+     <input name="rKey" [(ngModel)]="item['rChar']" class="input-gui bg-2" style="width: 50px;" type="text"
+      pTooltip="Specify characters to replace it with underscore (_)." tooltipPosition="bottom" />
+    </div>
+  </div>
+</p-fieldset>

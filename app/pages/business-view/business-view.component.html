@@ -1,0 +1,32 @@
+<div class="h-100-vh business-view-wrapper">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <div class="business-view-content-body">
+
+        <div class="p-grid w-100-p h-100-p component-view">
+            <div class="action-buttons prv">
+                <button pButton (click)="onPrev()" icon="icons8 icons8-back" class="icon-button no-shadow size"></button>
+            </div>
+            <div class="action-buttons nxt">
+                <button pButton (click)="onNext()" class="icon-button no-shadow" icon="icons8 icons8-forward size"></button>
+            </div>
+            <div class="slider-component w-100-p h-100-p">
+                <app-slider [isIn]="current === 0" [left]="isLeftTransition(0)">
+                    <app-system-summary-view></app-system-summary-view>
+                </app-slider>
+                <app-slider [isIn]="current === 1" [left]="isLeftTransition(1)">
+                    <app-business-summary-view></app-business-summary-view>
+                </app-slider>
+                <app-slider [isIn]="current === 2" [left]="isLeftTransition(2)">
+                    <app-business-tier-component-view></app-business-tier-component-view>
+                </app-slider>
+            </div>
+        </div>
+        <div class="p-grid p-align-center p-justify-center v-dash">
+            <button pButton type="button" class="view-dashboard-btn" routerLink="/home/dashboard" label="VIEW DASHBOARD"></button>
+        </div>
+
+    </div>
+
+</div>

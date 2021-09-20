@@ -1,0 +1,133 @@
+<div class="h-100-vh hotspot-container">
+  <div class="p-grid p-col-12">
+    <p-card>
+      <div class="p-grid p-col-12">
+        <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl1.toggle($event)">
+                        <a><span [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span></a>
+                        Hotspot Detection
+                    </div>
+                </div>
+            </p-header>
+            <div class="content">
+                <div class="p-grid p-col-12">
+                    <div class="p-grid p-col-4 p-align-center">
+                        <div class="p-col-6">
+                         <span class="label text-bold">Thread Sampling Interval</span>
+                        </div> 
+                        <div class="p-col-3">
+                          <input type="text" class="w-100-p" value="100" pInputText />
+                        </div>  
+                        <div class="p-col-2">
+                          <span class="label">(ms)</span>
+                        </div>           
+                    </div> 
+                    <div class="p-grid p-col-4 p-align-center">
+                        <div class="p-col-10">
+                         <span class="label text-bold">Consecutive matching samples to mark as hotspot</span>
+                        </div> 
+                        <div class="p-col-2">
+                          <input type="text" class="w-100-p" value="5" pInputText />
+                        </div> 
+                    </div> 
+                    <div class="p-grid p-col-4 p-align-center">
+                        <div class="p-col-5">
+                         <span class="label text-bold">Compare Top</span>
+                        </div> 
+                        <div class="p-col-2">
+                          <input type="text" class="w-100-p" value="10" pInputText />
+                        </div> 
+                    </div> 
+                </div>
+                <div class="p-grid p-col-12 p-align-center">
+                    <div class="p-col-3">                          
+                        <p-checkbox name="groupname" value="select" label="Enable Method hotspot sensor" [(ngModel)]="selectedValues"></p-checkbox>                        
+                    </div>
+                    <div class="p-col-3">                        
+                        <p-checkbox name="groupname" value="select" label="Transaction based hotspot(s)" [(ngModel)]="selectedValues"></p-checkbox>                        
+                    </div>
+                    <div class="p-grid p-col-6 p-align-center">
+                        <div class="p-col-8">
+                         <span class="label text-bold">Maximum stack depth difference in consecutive matching samples</span>
+                        </div> 
+                        <div class="p-col-1">
+                          <input type="text" class="w-100-p" value="5" pInputText />
+                        </div> 
+                    </div> 
+                    <div class="p-grid p-col-4 p-align-center">
+                        <div class="p-col-10">
+                         <span class="label text-bold">Maximum thread of transaction hotspot</span>
+                        </div> 
+                        <div class="p-col-2">
+                          <input type="text" class="w-100-p" value="1000" pInputText />
+                        </div> 
+                    </div> 
+                </div>
+            </div>
+        </p-panel>
+        <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl2.toggle($event)">
+                        <a><span [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span></a>
+                        Filter
+                    </div>
+                </div>
+            </p-header>
+            <div class="content">
+                <div class="p-grid p-col-12 p-align-center">                    
+                    <div class="p-col-3">
+                        <span class="label text-bold">Maximum hotspot thread depth</span>
+                    </div> 
+                    <div class="p-col-1">
+                        <input type="text" class="w-100-p" value="100" pInputText />
+                    </div> 
+                </div>
+                <div class="p-grid p-col-12 p-align-center">                    
+                    <div class="p-col-3">
+                        <span class="label text-bold">Thread names to be included in hotspot</span>
+                    </div> 
+                    <div class="p-col-4">
+                        <input type="text" class="w-100-p" placeholder="Enter Value" pInputText />
+                    </div> 
+                </div>
+                <div class="p-grid p-col-12 p-align-center">                    
+                    <div class="p-col-3">
+                        <span class="label text-bold">Thread names to be excluded in hotspot</span>
+                    </div> 
+                    <div class="p-col-4">
+                        <input type="text" class="w-100-p" placeholder="Enter Value" pInputText />
+                    </div> 
+                </div>
+            </div>
+        </p-panel>
+      </div>
+      <p-footer>
+        <div class="p-grid p-align-center p-justify-end pv-30">
+          <div class="">
+            <button
+              pButton
+              type="button"
+              class="ui-button-secondary ui-button-rounded mh-10"
+              label="RESET TO DEFAULT"
+            ></button>
+            <button
+              pButton
+              type="button"
+              class="ui-button-secondary ui-button-rounded mh-10"
+              label="RESET"
+            ></button>
+            <button
+              pButton
+              type="button"
+              class="ui-button ui-button-rounded mh-10"
+              label="SAVE"
+            ></button>
+          </div>
+        </div>
+      </p-footer>
+    </p-card>
+  </div>
+</div>

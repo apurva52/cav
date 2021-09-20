@@ -1,0 +1,163 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+    blockScroll="true" appendTo="body" styleClass="time-filter" [baseZIndex]="100">
+    <div class="sidebar-header">
+        <div class="sidebar-title p-grid p-justify-between">
+            <div>
+                <i class="icons8 icons8-clock"></i>
+                <span>Crash Filter</span>
+            </div>
+            <i class="icons8-delete icons8 clickable" (click)="closeClick()"></i>
+        </div>
+    </div>
+
+    <p-toast></p-toast>
+
+    <form [formGroup]="myForm" (ngSubmit)="onSubmit(myForm.value)" *ngIf="!reloading">
+        <div class="sidebar-content">
+            <p-tabView>
+                <p-tabPanel header="General">
+                    <div class="first-tab">
+                        <!-- Last filter -->
+                        <div class="p-grid p-col-12 p-justify-between p-align-center p-col-nogutter">
+                            <div class="p-col">
+                                <p-radioButton name="timefilter" label="Last" value="true" formControlName="_timefilter"
+                                    (click)="triggerfilter()"></p-radioButton>
+                            </div>
+                            <div class="p-col">
+                                <p-dropdown [options]="duration" formControlName="lastval"
+                                    (onChange)="onSelectMethodLast()"
+                                    [disabled]="myForm.controls['_timefilter'].value != 'true' ? true: false"
+                                    dropdownIcon="icons8 icons8-expand-arrow">
+                                </p-dropdown>
+                            </div>
+
+                        </div>
+
+                        <!--Duration Filter-->
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-radioButton name="timefilter" label="Custom" value="Custom" formControlName="_timefilter"
+                                (click)="triggerfilter()"></p-radioButton>
+                        </div>
+                        <div formGroupName="timeFilter">
+                            <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                <label>Starts At</label>
+                                <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-calendar"></i>
+                                    <input pInputText class="customInput" readonly id="start-date-time"
+                                        [owlDateTime]="customStartDateTime" placeholder=""
+                                        [owlDateTimeTrigger]="customStartDateTime"
+                                        (ngModelChange)="onTimeFilterCustomTimeChange(true)" [selectMode]="'rangeFrom'"
+                                        [max]="customTimeFrameMax" formControlName="_customTimeFrameStart"
+                                        [disabled]="myForm.controls['_timefilter'].value == 'true' ? true: null">
+                                    <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                                    <p-message *ngIf="invalidDate" severity="error"
+                                        text="Start date and End date should not be the same.">
+                                    </p-message>
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                <label>Ends At</label>
+                                <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-calendar"></i>
+                                    <input pInputText class="customInput" readonly id="start-date-time"
+                                        [owlDateTime]="customEndDateTime" placeholder=""
+                                        [owlDateTimeTrigger]="customEndDateTime"
+                                        (ngModelChange)="onTimeFilterCustomTimeChange(false)" [selectMode]="'rangeTo'"
+                                        [max]="customTimeFrameMax" formControlName="_customTimeFrameEnd"
+                                        [disabled]="myForm.controls['_timefilter'].value == 'true' ? true: null">
+                                    <owl-date-time #customEndDateTime tooltipZIndex="100001005"></owl-date-time>
+                                    <p-message *ngIf="invalidDate" severity="error"
+                                        text="Start date and End date should not be the same.">
+                                    </p-message>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center ui-fluid">
+                            <p-dropdown [options]="pages" formControlName="entryPage" placeholder="Select Page"
+                                [showClear]="true" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center ui-fluid">
+                            <p-dropdown [options]="channels" formControlName="channel" placeholder="Select Channel"
+                                [showClear]="true" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center ui-fluid">
+                            <p-dropdown [options]="userSegments" formControlName="usersegment"
+                                placeholder="Select User Segment" [showClear]="true"
+                                dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                        </div>
+
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <input type="text" pInputText placeholder="Exception Message" id="loginid"
+                                formControlName="crashmessage" aria-describedby="loginid-help"
+                                class="input-field-search w-100-p" />
+                        </div>
+
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <input type="text" pInputText placeholder="Exception Name" formControlName="exception"
+                                id="clientip" aria-describedby="clientip-help" class="input-field-search w-100-p" />
+                        </div>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <input type="text" pInputText placeholder="Crash File Name" formControlName="crashname"
+                                id="clientip" aria-describedby="clientip-help" class="input-field-search w-100-p" />
+                        </div>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <input type="text" pInputText placeholder="Function" formControlName="function"
+                                id="clientip" aria-describedby="clientip-help" class="input-field-search w-100-p" />
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <input type="text" pInputText placeholder="Application Name" formControlName="appname"
+                                id="clientip" aria-describedby="clientip-help" class="input-field-search w-100-p" />
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <input type="text" pInputText placeholder="Application Version" formControlName="appversion"
+                                id="clientip" aria-describedby="clientip-help" class="input-field-search w-100-p" />
+                        </div>
+
+
+
+
+                    </div>
+                </p-tabPanel>
+                <p-tabPanel header="Advanced">
+
+                    <div class="p-grid p-col-12 p-justify-between p-align-center ui-fluid ">
+                        <p-dropdown [options]="device" formControlName="device" placeholder="Select Device"
+                            [showClear]="true" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center ui-fluid">
+                        <p-dropdown [options]="os" formControlName="platform" placeholder="Select PlatForm"
+                            [showClear]="true" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center ui-fluid">
+                        <p-dropdown [options]="locations" formControlName="location" placeholder="Select Location"
+                            [showClear]="true" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center ui-fluid">
+                        <p-dropdown [options]="mobileCarriers" formControlName="MobileCarrier"
+                            placeholder="Select Mobile Carrier" [showClear]="true"
+                            dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center ui-fluid">
+                        <p-dropdown [options]="connections" formControlName="connectionType"
+                            placeholder="Select Connection" [showClear]="true"
+                            dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+
+                </p-tabPanel>
+            </p-tabView>
+
+            <div class="p-grid p-col-12 p-justify-between">
+                <button pButton type="reset" label="RESET" class="ui-outline-button ui-button-secondary"
+                    (click)="resetbutton()"></button>
+                <button pButton type="submit" label="APPLY" class="ui-button-rounded ui-button-right"></button>
+            </div>
+
+        </div>
+    </form>
+</p-sidebar>

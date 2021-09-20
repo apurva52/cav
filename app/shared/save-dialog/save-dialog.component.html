@@ -1,0 +1,30 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false" [style]="{width: '30vw'}">
+    <p-header>
+        <div class="compare-data-title">
+            <div>
+                Save Search
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+
+    <div class="dialog-content">
+        <div class="p-col-12">
+            <input type="text" [(ngModel)]="saveTitle" [placeholder]="placeHolderVal" pInputText class="input-field-border-none" />
+
+        </div>
+        <!-- <div class="p-col-12">
+            <p-checkbox class="labels" name="groupname" value="val1" label="Set as default"></p-checkbox>
+        </div> -->
+
+    </div>
+    
+    <p-footer>
+        <div class="p-col-12 form-buttons">
+            <button pButton type="submit" (click)="saveObject($event)" label="APPLY" class="ui-button-rounded"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+<p-confirmDialog maskStyleClass="ui-dialog-mask ui-widget-overlay ui-dialog-visible ui-dialog-mask-scrollblocker" header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>

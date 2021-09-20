@@ -1,0 +1,85 @@
+<div class="solar-pref-node">
+  <!-- 2x Zoom -->
+
+
+  <div class="solar-pref-type" *ngIf="surface.getZoom() > 0.4">
+      {{ obj.nodeName }}
+  </div>
+
+  <svg id="source" height="120" width="120">
+
+  <!-- Business Health Circle -->
+  <circle class="stroke-normal" cy="55" cx="55" r="50"></circle>
+  <circle class="stroke-major" cy="55" cx="55" r="50" stroke-dasharray="176"
+    [style.strokeDashoffset]="obj.businessHealthMajorCircum"></circle>
+  <circle class="stroke-critical" cy="55" cx="55" r="50" stroke-dasharray="176"
+    [style.strokeDashoffset]="obj.businessHealthCriticalCircum"></circle>
+
+
+  <!-- Server Health Circle -->
+  <circle class="stroke-normal" cy="55" cx="55" r="40"></circle>
+  <circle class="stroke-major" cy="55" cx="55" r="40" stroke-dasharray="176"
+    [style.strokeDashoffset]="obj.serverHealthMajorCircum"></circle>
+  <circle class="stroke-critical" cy="55" cx="55" r="40" stroke-dasharray="176"
+    [style.strokeDashoffset]="obj.serverHealthCriticalCircum"></circle>
+
+
+    <circle *ngIf="surface.getZoom() <= 0.2" class="stroke-fill" cy="55" cx="55" r="40" fill="red"></circle>
+
+  <g *ngIf="surface.getZoom() > 0.7">
+
+    <image x="29%" y="21%" xlink:href="./assets/theme-images/icons8-bar-chart-100-2.png" dominant-baseline="central"
+      height="15px" width="15px">
+      <title>
+        TPS = {{obj.tps}}
+      </title>
+    </image>
+
+    <g><text x="60%" y="31%" text-anchor="middle">
+        {{obj.tps}}
+        <title>
+          TPS = {{obj.tps}}
+        </title>
+      </text></g>
+
+    <image x="29%" y="38%" xlink:href="./assets/theme-images/icons8-clock-100.png" dominant-baseline="central"
+      height="15px" width="15px">
+      <title>
+        Average Response Time (ms) = {{obj.avgResTime}}
+      </title>
+    </image>
+
+    <text x="60%" y="48%" text-anchor="middle">
+      {{obj.avgResTime}}
+      <title>
+        Average Response Time (ms) = {{obj.avgResTime}}
+      </title>
+    </text>
+
+    <image x="29%" y="58%" xlink:href="./assets/theme-images/icons8-microchip-100.png" dominant-baseline="central"
+      height="15px" width="15px">
+      <title>
+        CPU Utilization: {{obj.cpuUtilization}}%
+      </title>
+    </image>
+
+    <text x="60%" y="68%" text-anchor="middle">
+      {{obj.cpuUtilization}}%
+      <title>
+        CPU Utilization: {{obj.cpuUtilization}}%
+      </title>
+    </text>
+
+
+    <circle class="icon-circle" cx="98" cy="95" r="20"></circle>
+    <image x="71%" y="70%" [attr.xlink:href]="obj.icon" dominant-baseline="central" height="25px" width="25px">
+
+    </image>
+
+  </g>
+  <!-- Zoom Level 3 design -->
+  <image *ngIf="surface.getZoom() > 0.4 && surface.getZoom() <= 0.7" x="25%" y="25%" [attr.xlink:href]="obj.icon"
+    dominant-baseline="central" height="50px" width="50px">
+  </image>
+</svg>
+</div>

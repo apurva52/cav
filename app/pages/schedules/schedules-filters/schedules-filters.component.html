@@ -1,0 +1,75 @@
+<p-sidebar #sidebar class="schedules-sidebar" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000" blockScroll="true" appendTo="body">
+    <div class="sidebar-header">
+        <div class="sidebar-title p-grid p-justify-between">
+            <div>
+                <i class="icons8 icons8-filter"></i>
+                <span>Filter</span>
+            </div>
+            <i class="icons8-delete icons8" (click)="closeClick()"></i>
+        </div>
+    </div>
+    <div class="sidebar-content">
+        <div class="h-100-vh">
+            <div class="ui-fluid p-formgrid p-grid ph-10 pv-15 ">
+                <p-slideMenu #menu [model]="options" [popup]="true" (click)="onClickMenu($event)"></p-slideMenu>
+                <button pButton class="w-25-p ui-button ui-button-custom mh-10" (click)="menu.toggle($event)">
+                    <span class="text-left p-col-10 left"> {{ selectedItem || "Specified Time" }} </span>
+                    <i class="p-col-2 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+                </button>
+                <div class="p-col-12 mv-15">
+                    <p-checkbox name="group2" value="Technology" label="Include Inactive Sessions" [(ngModel)]="selectedSessions" inputId="technology">  </p-checkbox>
+                </div>
+                <p-accordion class="w-100-p">
+                    <p-accordionTab  class="accordion-header" header="Activity" [selected]="true">
+                        <div class="p-grid p-col-12" >   
+                            <ul class="chips-list">
+                                <li class="chips-item" *ngFor="let action of selectedActions"><span>{{action.name}}</span> <i class="icons8-delete" (click)="remove($event)"></i></li>
+                            </ul>     
+                            
+                            <p-listbox [options]="actions" [(ngModel)]="selectedActions"  [multiple]="true" [checkbox]="true" [filter]="false" optionLabel="name" [showToggleAll]="false">                       
+                                <ng-template let-action let-i="index" pTemplate="item">
+                                    <div class="ui-helper-clearfix">                               
+                                        <span>{{action.label}}</span>
+                                        <span class="icon"> <i class="{{action.value.icon}}"></i></span>
+                                    </div>
+                                </ng-template>
+                            
+                            </p-listbox>
+                        </div>
+                    </p-accordionTab>
+                    <p-accordionTab  class="accordion-header" header="Module">
+                        <div class="p-grid p-col-12" >   
+                            <ul class="chips-list">
+                                <li class="chips-item" *ngFor="let action of selectedActions"><span>{{action.name}}</span> <i class="icons8-delete" (click)="remove($event)"></i></li>
+                            </ul>     
+                            
+                            <p-listbox [options]="actions" [(ngModel)]="selectedActions"  [multiple]="true" [checkbox]="true" [filter]="false" optionLabel="name" [showToggleAll]="false">                       
+                                <ng-template let-action let-i="index" pTemplate="item">
+                                    <div class="ui-helper-clearfix">                               
+                                        <span>{{action.label}}</span>
+                                        <span class="icon"> <i class="{{action.value.icon}}"></i></span>
+                                    </div>
+                                </ng-template>
+                            
+                            </p-listbox>
+                        </div>
+                    </p-accordionTab>
+                </p-accordion>
+            </div>
+        </div>
+    </div>
+   
+
+    <div class="sidepanel-footer p-grid w-100-p" style="position: fixed;bottom:0;">
+        <div class="p-col-1"></div>
+        <div class="p-col-4">
+            <button pButton type="reset" (click)="drillDownFilterReset()" label="RESET" class="ui-outline-button ui-button-secondary"></button>
+        </div>
+        <div class="p-col-1"></div>
+        <div class="p-col-4">
+            <button pButton type="submit" (click)="drillDownFilterApply()" label="APPLY" class="ui-button-rounded"></button>
+        </div>
+        <div class="p-col-2"></div>
+
+    </div>
+</p-sidebar>

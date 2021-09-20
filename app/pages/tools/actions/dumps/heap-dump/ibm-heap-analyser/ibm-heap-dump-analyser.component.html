@@ -1,0 +1,132 @@
+<div class="header">
+    <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <div class="p-col-8">
+            <div class="p-grid p-align-center">
+                <a routerLink="/dumps/heap-dump">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">Heap Dump Analyzer</div>
+            </div>
+        </div>
+
+    </div>
+</p-toolbar>
+    <!-- <div>
+        <textarea pInputTextarea style="width:100%;resize:none;height: 80px;" readonly>{{property}}</textarea>
+    </div>
+    <div>  
+        <label style="margin-right:5px">PhdArgs: </label>
+        <input type="text" [(ngModel)]="phdArgs" size="150"  pInputText/>
+    </div>
+    <div >
+        <button pButton type="button" label="Submit Request" (click)="sendIbmAnalyserReq()"></button>
+    </div>    -->
+    <!-- <div class ="Container" *ngIf="ibmDataView"> -->
+        <!-- <pre class="Content" [innerHTML]="showData()"style="outline:none" style="overflow-x: scroll; height: 420px; outline: none;"></pre> -->
+        <div class="breadcrumbs">
+            <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+           </div>
+        <div>
+    <div>
+        <div class="ddr-box mx-15" style="max-height:80vh; overflow:auto;">
+            <div class="ddr-toolbar">
+            <div class="mt-20 p-grid p-justify-between p-align-center">
+                <div class="p-col-10 p-grid p-justify-start">
+                    <span><b>{{headerInfo}}</b></span>
+                </div> 
+                <div class="p-grid p-justify-end p-align-center">
+                    <span *ngIf="showDownLoadReportIcon" title="Download as Word Report">
+                        <i class = 'icons8 icons8-doc font-24 mx-5' style='cursor:pointer' (click)='downloadReports("word")' ></i>
+                      </span>
+                     <span *ngIf="showDownLoadReportIcon" title="Download as Excel Report">
+                        <i class = 'icons8 icons8-spreadsheet-file font-24 mx-5'  style=' cursor:pointer' (click)='downloadReports("excel")' ></i>
+                      </span>
+                     <span *ngIf="showDownLoadReportIcon" title="Download as PDF Report">
+                        <i class = 'icons8 icons8-pdf-2 font-24 mx-5'  style=' cursor:pointer' (click)='downloadReports("pdf")' ></i>
+                      </span>   
+                </div>
+            </div>
+            </div>      
+            <p-accordion>
+            <div >
+                <p-accordionTab header="Heap Objects Information" [selected]='true'>
+                    <div class="p-grid p-justify-end p-align-center mb-5">
+                        <div class="">
+                            <i class="icons8 icons8-search mx-5 mb-5"></i>
+                            <input type="text" pInputText size="50" style="width: 60% !important;" placeholder="Search" pInputText/>
+                        </div>
+                    </div>
+                <div style="overflow:auto;">
+                    <p-table class="all-tables" [value]="ibmHeapData" sortable="true" scrollHeight="180px" [rows]="10" [paginator]="true" [pageLinks]="3" [scrollable]="true" [rowsPerPageOptions]="[10,20,50,100]">
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th  *ngFor="let col of colsIBM">
+                                    {{col.header}}
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-node>
+                            <tr>
+                                <td *ngFor="let col of colsIBM">
+                                    <div class="elipseText" style="text-align: left " *ngIf = "(col.field == 'classname')">{{node[col.field]}}</div>
+                                    <div style="text-align: right "*ngIf = "!(col.field == 'classname')">{{formatter(node[col.field])}}</div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                    <!-- <div *ngFor="let col of colsIBM">
+                        <p-column [field]="col.field" [header]="col.header" [sortable]="true">
+                        <ng-template let-col let-node="rowData" pTemplate type="body">
+                        <div style="text-align: left " *ngIf = "(col.field == 'classname')">{{node[col.field]}}</div>
+                        <div style="text-align: right "*ngIf = "!(col.field == 'classname')">{{formatter(node[col.field])}}</div>
+                        </ng-template>
+                        </p-column>
+                    </div> -->
+            </div>
+        </p-accordionTab>
+        
+            <div *ngFor="let keys of dataKey">
+            <p-accordionTab header={{keys.key}} [selected]='true'>
+                <div *ngIf="ibmDataView">
+                <!-- <label style="margin-right:5px;"><h2 style="margin-bottom: 5px;">{{keys.key}}</h2> </label> -->
+                <textarea pInputTextarea style="width:100%;resize:none;height: 200px;" readonly>{{keys.value}}</textarea> 
+                </div>
+            </p-accordionTab>    
+            </div>
+            <p-accordionTab header="Run Custom Commands" >
+                <!-- <div>
+                    <textarea pInputTextarea style="width:100%;resize:none;height: 80px;" readonly>{{ibmHeapPathUrl}}</textarea>
+                </div> -->
+                <div>
+                    <label style="margin-right:10px">Enter command : </label>
+                    <input type="text" [(ngModel)]="phdArgs" size="150"  pInputText/>
+                    <i class="icons8 icons8-help" style="color: #318d31;cursor:pointer;font-size: 15px" pTooltip="Help" tooltipPosition="top" tooltipEvent="hover" (click)="openHelpPopup()" > </i>
+                </div>
+                <div >
+                    <button pButton type="button" label="Submit Request" style="margin-top: 5px;margin-bottom: 10px;" (click)="sendIbmAnalyserReq()"></button>
+                </div>
+                <div  *ngIf="advanceDataView">
+                     <textarea pInputTextarea style="width:100%;resize:none;height: 400px;" readonly>{{ibmAvdInfoData}}</textarea>
+                </div>
+            </p-accordionTab>
+            <p-accordionTab header="Instructions for further detailed analysis" >
+                <div>
+                    <textarea pInputTextarea style="width:100%;resize:none;height: 400px;" readonly>{{detailInstructions}}</textarea>
+                </div>
+
+            </p-accordionTab>
+        </div>
+        </p-accordion>
+    </div> 
+</div>
+
+<p-dialog class="ddr-dialog" appendTo="body" [(visible)]="isHelp" modal="modal" [resizable]='false'[responsive]="true" height="100" width="400" > 
+    <p-header>
+        <i class="icons8 icons8-help" style="color:green"></i>
+        <span>&nbsp;&nbsp;&nbsp;Help</span>
+    </p-header>  
+    <span style="font-size:14px">{{popUpMsg}} </span>
+  </p-dialog>

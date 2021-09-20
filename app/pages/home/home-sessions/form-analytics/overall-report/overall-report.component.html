@@ -1,0 +1,107 @@
+<div class="overview">
+    <div class="p-grid p-col-12">
+          <div class="p-grid loader-container vertical-container" *ngIf="data.reportformdata == null">
+           <div class="p-col p-col-align-center text-center">
+           <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+           </div>
+         </div> 
+        
+        <div class="rigntContent" id="tabss" >
+            <div>
+                <canvas id='myCanvas' style="position: absolute;"></canvas>
+                <table class="overall_table" id="tabela1" >
+                    <tr class="trfirst">
+                        <td></td>
+
+                        <td *ngFor="let ffield of data.reportformdatafield">
+                            <ul class="overall_user_list cav-fnt-12" style="font-weight: 600;">
+                                <li pTooltip='{{breakWord(ffield.name)}}' tooltipPosition="top" tooltipStyleClass="mytooltip">{{ffield.name}}</li>
+                                <li class="warning-text" pTooltip='Average fill duration sec {{(ffield.avgFillDuration).toFixed(2)}} s (counts:{{ffield.fillDurationSampleCounts }} )' tooltipPosition="top" tooltipStyleClass="mytooltip"><i class="icon8 icons8-clock"></i> {{ffield.avgFillDuration}}</li>
+                                <li class="success-text" pTooltip="Average hesitation time {{ (ffield.avgHesitationDuration).toFixed(2) }} s (counts: {{ffield.hesitationDurationSampleCounts}})" tooltipPosition="top" tooltipStyleClass="mytooltip"><i class="icon8 icons8-help"></i> {{ffield.avgHesitationDuration}} </li>
+                                <li class="danger-text" pTooltip="Refilled percentage {{ffield.totalUniqueInteraction > 0 ? ((ffield.totalInteraction / ffield.totalUniqueInteraction) * 100).toFixed(2) : 0.00}}" tooltipPosition="top" tooltipStyleClass="mytooltip"><i class="icon8 icons8-reboot"></i> {{ffield.totalUniqueInteraction > 0 ? ((ffield.totalInteraction / ffield.totalUniqueInteraction) * 100).toFixed(2) : 0.00}}</li>
+                                <li *ngIf='data.reportformdata != null' class="primary-text" pTooltip="Left blank percentage {{data.reportformdata.totalFormSubmit > 0 ? ((ffield.totalLeftBlank / data.reportformdata.totalFormSubmit) * 100).toFixed(2) : 0.00}}" tooltipPosition="top" tooltipStyleClass="mytooltip"><i class="icon8 icons8-circle"></i> {{data.reportformdata.totalFormSubmit > 0 ? ((ffield.totalLeftBlank / data.reportformdata.totalFormSubmit) * 100).toFixed(2) : 0.00}}</li>
+                            </ul>
+                        </td>
+
+
+                        <td>
+                            <p class="cav-fnt-14 cav-mt-0 cav-fnt-weight500 success-text">Successful Submit</p>
+                            <p *ngIf='data.reportformdata != null' class="cav-fnt-14" tooltipPosition="top" pTooltip="{{(((data.reportformdata.totalUniqueFormSubmit-data.reportformdata.totalUniqueFailedSubmit)/data.reportformdata.totalPageView)*100).toFixed(2) === 'NaN' ? 0.00 :(((data.reportformdata.totalUniqueFormSubmit-data.reportformdata.totalUniqueFailedSubmit)/data.reportformdata.totalPageView)*100).toFixed(2)}}% users have successfully submitted the form.">{{(((data.reportformdata.totalUniqueFormSubmit-data.reportformdata.totalUniqueFailedSubmit)/data.reportformdata.totalPageView)*100).toFixed(2) == "NaN" ? 0.00 :(((data.reportformdata.totalUniqueFormSubmit-data.reportformdata.totalUniqueFailedSubmit)/data.reportformdata.totalPageView)*100).toFixed(2)
+                                }}%
+                            </p>
+                            <p class="cav-fnt-14" *ngIf='data.reportformdata != null' tooltipPosition="top" tooltipStyleClass="mytooltip" pTooltip="{{(data.reportformdata.totalUniqueFormSubmit-data.reportformdata.totalUniqueFailedSubmit).toFixed()}} users have successfully submitted the form."><small>({{(data.reportformdata.totalUniqueFormSubmit-data.reportformdata.totalUniqueFailedSubmit).toFixed()}})</small></p>
+                        </td>
+                    </tr>
+                    <tr class="trsecond" >
+                        <td>
+                            <p class="cav-fnt-14 cav-mt-0" style="font-weight: 600;">Page View</p>
+                            <p *ngIf='data.reportformdata != null' pTooltip="{{data.reportformdata.totalPageView.toFixed(0) }} users viewed the page" tooltipPosition="top" tooltipStyleClass="mytooltip">{{ data.reportformdata.totalPageView.toFixed(0)}}</p>
+                            <p *ngIf='data.reportformdata != null'>{{(data.reportformdata.totalPageView - data.reportformdata.totalUniqueFormInteraction).toFixed()}} users left the page without any interaction with the form.</p>
+                        </td>
+                        <td *ngFor="let ffield of data.reportformdatafield">
+                            <p class="opc70 cav-fnt-13 cav-mt-0" tooltipStyleClass="mytooltip" pTooltip="An interaction is counted when a visitor clicks, taps or tabs to a field." tooltipPosition="top">Interaction</p>
+                            <p *ngIf='data.reportformdata != null' class="cav-fnt-14 cav-fnt-weight500" tooltipStyleClass="mytooltip" pTooltip="{{(ffield.totalUniqueInteraction).toFixed()}} out of {{(data.reportformdata.totalUniqueFormInteraction).toFixed()}} interacted with {{breakWord(ffield.name)}}"
+                                tooltipPosition="top">{{(ffield.totalUniqueInteraction).toFixed()}}</p>
+                        </td>
+                        <td>
+                            <p class=" cav-fnt-13 cav-mt-0 cav-fnt-weight500 success-text" tooltipStyleClass="mytooltip" pTooltip="Submit" tooltipPosition="top">Submit</p>
+                            <p class="cav-fnt-14 cav-fnt-weight500" *ngIf='data.reportformdata != null' tooltipStyleClass="mytooltip" pTooltip="{{(data.reportformdata.totalUniqueFormSubmit).toFixed()}} users have submitted the form." tooltipPosition="top">{{(data.reportformdata.totalUniqueFormSubmit).toFixed()}}</p>
+                        </td>
+                    </tr>
+                    <tr *ngIf='data.reportformdata != null'>
+                        <td>
+                            <ul class="dropoff_list">
+                                <li><span class="circle_Arrow icon8 icon8-down" tooltipStyleClass="mytooltip" pTooltip="Drop off from page" tooltipPosition="top">
+                                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+width="50" height="50"
+viewBox="0 0 226 226"
+style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><path d="M0,226v-226h226v226z" fill="none"></path><g><path d="M113,217.525c-57.63565,0 -104.525,-46.88935 -104.525,-104.525c0,-57.63565 46.88935,-104.525 104.525,-104.525c57.63565,0 104.525,46.88935 104.525,104.525c0,57.63565 -46.88935,104.525 -104.525,104.525z" fill="#666666"></path><path d="M113,11.3c56.07625,0 101.7,45.62375 101.7,101.7c0,56.07625 -45.62375,101.7 -101.7,101.7c-56.07625,0 -101.7,-45.62375 -101.7,-101.7c0,-56.07625 45.62375,-101.7 101.7,-101.7M113,5.65c-59.28545,0 -107.35,48.06455 -107.35,107.35c0,59.28545 48.06455,107.35 107.35,107.35c59.28545,0 107.35,-48.06455 107.35,-107.35c0,-59.28545 -48.06455,-107.35 -107.35,-107.35z" fill="#ffffff"></path><g fill="#ffffff"><path d="M124.3,135.6v-90.4h-22.6v90.4h-28.25l39.55,46.4091l39.55,-46.4091z"></path></g></g></g></svg>
+                                </span></li>
+                                <li *ngIf='data.reportformdata != null' pTooltip="{{(( ( data.reportformdata.totalPageView - data.reportformdata.totalUniqueFormInteraction ) / data.reportformdata.totalPageView ) * 100).toFixed(2) === 'NaN' ? 0.00 : ((( data.reportformdata.totalPageView - data.reportformdata.totalUniqueFormInteraction ) / data.reportformdata.totalPageView ) * 100).toFixed(2)}} % users left the page without any interaction with the form."
+                                    tooltipPosition="top">{{((( data.reportformdata.totalPageView - data.reportformdata.totalUniqueFormInteraction ) / data.reportformdata.totalPageView ) * 100).toFixed(2) == "NaN" ? 0.00 : ((( data.reportformdata.totalPageView - data.reportformdata.totalUniqueFormInteraction
+                                    ) / data.reportformdata.totalPageView ) * 100).toFixed(2)}} % </li>
+                                <li class="opc70" *ngIf='data.reportformdata != null' tooltipStyleClass="mytooltip" pTooltip="{{( ( data.reportformdata.totalPageView - data.reportformdata.totalUniqueFormInteraction ).toFixed() ) }} users left the page without any interaction with the form." tooltipPosition="top">({{(data.reportformdata.totalPageView - data.reportformdata.totalUniqueFormInteraction ).toFixed() }})</li>
+                            </ul>
+                        </td>
+                        <td *ngFor="let ffield of data.reportformdatafield">
+                            <ul class="dropoff_list">
+                                <li><span class="circle_Arrow icon8 icon8-down" tooltipStyleClass="mytooltip" pTooltip="Drop off from form" tooltipPosition="top">
+                                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+width="50" height="50"
+viewBox="0 0 226 226"
+style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><path d="M0,226v-226h226v226z" fill="none"></path><g><path d="M113,217.525c-57.63565,0 -104.525,-46.88935 -104.525,-104.525c0,-57.63565 46.88935,-104.525 104.525,-104.525c57.63565,0 104.525,46.88935 104.525,104.525c0,57.63565 -46.88935,104.525 -104.525,104.525z" fill="#666666"></path><path d="M113,11.3c56.07625,0 101.7,45.62375 101.7,101.7c0,56.07625 -45.62375,101.7 -101.7,101.7c-56.07625,0 -101.7,-45.62375 -101.7,-101.7c0,-56.07625 45.62375,-101.7 101.7,-101.7M113,5.65c-59.28545,0 -107.35,48.06455 -107.35,107.35c0,59.28545 48.06455,107.35 107.35,107.35c59.28545,0 107.35,-48.06455 107.35,-107.35c0,-59.28545 -48.06455,-107.35 -107.35,-107.35z" fill="#ffffff"></path><g fill="#ffffff"><path d="M124.3,135.6v-90.4h-22.6v90.4h-28.25l39.55,46.4091l39.55,-46.4091z"></path></g></g></g></svg>
+                                </span></li>
+
+                                <li tooltipStyleClass="mytooltip" pTooltip='({{(((ffield.totalUniqueInteraction >0 ?ffield.totalDropFromField / ffield.totalUniqueInteraction : 0 ) * 100).toFixed(2)== "NaN" ? 0  : (ffield.totalUniqueInteraction >0 ?ffield.totalDropFromField / ffield.totalUniqueInteraction : 0 ) * 100).toFixed(2) }}%) users drop off from {{ breakWord(ffield.name)}}'
+                                    tooltipPosition="top">{{(((ffield.totalUniqueInteraction >0 ?ffield.totalDropFromField / ffield.totalUniqueInteraction : 0) *100).toFixed(2) == "NaN" ? "0.00": ((ffield.totalUniqueInteraction >0 ?ffield.totalDropFromField / ffield.totalUniqueInteraction
+                                    : 0) *100).toFixed(2)) }}%</li>
+                                <li class="opc70" tooltipStyleClass="mytooltip" pTooltip="{{(ffield.totalDropFromField).toFixed()}} users drop off from {{breakWord(ffield.name)}}" tooltipPosition="top">({{(ffield.totalDropFromField).toFixed()}})</li>
+                            </ul>
+                        </td>
+
+                        <td>
+                            <ul class="dropoff_list">
+                                <li><i class="circle_Arrow fa fa-exclamation-circle" tooltipStyleClass="mytooltip" pTooltip="Failed Submit" tooltipPosition="top"></i></li>
+                                <li *ngIf='data.reportformdata != null' tooltipStyleClass="mytooltip" pTooltip='{{(data.reportformdata.totalUniqueFailedSubmit).toFixed()}} users out of {{(data.reportformdata.totalUniqueFormSubmit).toFixed()}} got some error while submitting the form and left the page.'
+                                    tooltipPosition="top">Failed Submit {{(data.reportformdata.totalUniqueFailedSubmit).toFixed()}} out of {{ (data.reportformdata.totalUniqueFormSubmit).toFixed() }} submitted.</li>
+                                <li class="opc70" *ngIf='data.reportformdata != null' pTooltip="{{(((data.reportformdata.totalUniqueFailedSubmit/data.reportformdata.totalUniqueFormSubmit) *100).toFixed(2) === 'NaN' ? 0 : ((data.reportformdata.totalUniqueFailedSubmit/data.reportformdata.totalUniqueFormSubmit) *100).toFixed(2)) }} % users got some error while submitting the form and left the page."
+                                    tooltipPosition="top">({{(((data.reportformdata.totalUniqueFailedSubmit/data.reportformdata.totalUniqueFormSubmit) *100).toFixed(2) == "NaN" ? 0 : ((data.reportformdata.totalUniqueFailedSubmit/data.reportformdata.totalUniqueFormSubmit) *100).toFixed(2))}}%)</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+
+                </table>
+            </div>
+        </div>
+
+
+        <!-- <div class="p-col-12 no-padding">
+            <div class="p-grid p-align-stretch p-justify-center chart-container ">
+                <div class="p-col-12 no-padding" *ngFor="let chart of data.charts">
+                    <app-chart [data]="chart"></app-chart>
+                </div>
+            </div>
+        </div> -->
+    </div>
+</div>

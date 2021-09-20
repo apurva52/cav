@@ -1,0 +1,279 @@
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+    <div class="p-col p-col-align-center text-center">
+        <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+    </div>
+</div>
+
+<div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+        <p-message severity="error" text="{{ error.msg }}"></p-message>
+    </div>
+</div>
+
+<div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+        <p-message severity="normal" text="No Data"></p-message>
+    </div>
+</div>
+
+<div *ngIf="data" class="vertical-container scrollmain">
+    <div class="p-col-12 alert-group">
+        <!-- <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+        <button pButton icon="icons8 icons8-download" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button> -->
+
+
+        <button pButton icon="icons8 icons8-filter" class="ui-icon-button" (click)="showBasicDialog()" pTooltip="Filter">
+        </button>
+        <p-menu #menuItems [popup]="true" styleClass="widget-menu psitionSetMenu" [model]="itemsall" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+        <button pButton icon="icons8 icons8-menu-vertical" class="ui-icon-button" (click)="menuItems.toggle($event);" pTooltip="Menu"></button>
+
+    </div>
+
+    <div *ngIf="data" class="vertical-container">
+        <div class="p-grid p-justify-start p-align-center">
+            <div *ngFor="let panel of data.panels; let i = index" class="w-100-p">
+                <div>
+                    <div id="panel-{{i+1}}" class="ip-summary-panel">
+                        <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="panel.collapsed" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                            <p-header class="cav-panel-header pt-5">
+                                <div class="cav-panel-content p-grid p-align-center">
+                                    <div class="panel-title" (click)="pnl.toggle($event)">
+                                        <a tabindex="{{i}}">
+                                            <span [class]="pnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                            </span>
+                                        </a>
+                                        {{panel.label}}
+                                    </div>
+                                    <div class="p-grid p-justify-center p-align-center">
+                                        <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionsCalloutSummary" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                        <button pButton icon="icons8 icons8-download" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                        <!-- <button pButton icon="icons8 icons8-search-property" class="ui-icon-button" pTooltip="Toggle Filter" [tooltipZIndex]="100000" (click)="panel.tableFilter = !panel.tableFilter">
+                                        </button> -->
+                                    </div>
+                                </div>
+                            </p-header>
+                            <p-table #ip class="all-tables" [resizableColumns]="true" [columns]="panel.headers" [rowsPerPageOptions]="panel.paginator.rowsPerPageOptions" [value]="ipSummaryData[i]" [paginator]="showPaginationIpSum" [lazy]="true" (onLazyLoad)="loadPagination($event,i)" [totalRecords]="panel.data.length"
+                                [rows]="panel.paginator.rows" [showCurrentPageReport]="showPaginationIpSum" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+                               
+                               
+                               
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr *ngFor="let headerRow of panel.headers">
+                                        <th *ngFor="let col of headerRow.cols" pResizableColumn [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan" [pSortableColumn]="col.valueField" pTooltip={{col.label}}>
+                                            <div class="elipseText"> {{ col.label }} </div>
+                                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                </p-sortIcon>
+                                            <!-- <div *ngFor="let p of panel.data.sort" class="float-right">
+                                                <p-sortIcon *ngIf="p == col.valueField" field="p" class="text-right"
+                                                    ariaLabel="Activate to sort"
+                                                    ariaLabelDesc="Activate to sort in descending order"
+                                                    ariaLabelAsc="Activate to sort in ascending order">
+                                                </p-sortIcon>
+                                            </div> -->
+                                        </th>
+                                    </tr>
+                                    <tr *ngFor="let headerRow of panel.headers">
+                                        <ng-container *ngIf="panel.tableFilter">
+                                            <th *ngIf="isCheckbox" class="columnwidth"></th>
+                                            <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                                <div *ngIf="
+                                                col.filter.isFilter === true &&
+                                                col.filter.type === 'custom'
+                                              ">
+                                                    <input class="w-100-p" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                        ip.filter(
+                                                    $event.target.value,
+                                                    col.value,
+                                                    'custom'
+                                                  )
+                                                " />
+                                                </div>
+                                                <div *ngIf="
+                                                col.filter.isFilter === true &&
+                                                col.filter.type === 'contain'
+                                              ">
+                                                    <input class="w-100-p" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                        ip.filter(
+                                                    $event.target.value,
+                                                    col.valueField,
+                                                    'contain'
+                                                  )
+                                                " />
+                                                </div>
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row let-columns="columns">
+                                    <tr *ngFor="let headerRow of panel.headers" (click)=indipload(row) class="pointer">
+                                        <td *ngFor="let col of headerRow.cols; let i = index" class="{{ col.classes }}" pTooltip={{row[col.valueField]|f_ddr:col.format}}>
+                                            {{ row[col.valueField] | f_ddr :col.format }}
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </p-panel>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="dataindip" class="vertical-container">
+        <div class="p-grid p-justify-start p-align-center">
+            <div *ngFor="let panel of dataindip.panels; let i = index" class="w-100-p">
+                <div>
+                    <div id="panel-{{i+1}}" class="ip-summary-panel">
+                        <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="panel.collapsed" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                            <p-header class="cav-panel-header pt-5">
+                                <div class="cav-panel-content p-grid p-align-center">
+                                    <div class="panel-title" (click)="pnl.toggle($event)">
+                                        <a tabindex="{{i}}">
+                                            <span [class]="pnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                            </span>
+                                        </a>
+                                        {{panel.label}}{{selectedBT}}{{TotalCalloutCount}}
+                                    </div>
+                                    <div class="p-grid p-justify-center p-align-center">
+                                        <div class="ui-inputgroup-addon-flow">
+                                            <div class="methodTiming-search-box">
+                                                <input #searchInput type="text" [value]="" class="w-100-p" pInputText size="20" placeholder="Search" *ngIf="isShowSearch" (input)="indip.filterGlobal($event.target.value, 'contains')" class="search-box" />
+                                                  <!-- <button pButton type="button" *ngIf="isShowSearch" class="ui-icon-button ui-button-rounded clear-button" pTooltip="Clear filter" tooltipZIndex="100001005" icon="icons8 icons8-delete" (click)="clearFilters()"></button> -->
+                                                <button pButton icon="icons8 icons8-search" (click)="isShowSearch = !isShowSearch" class="icon-button no-shadow"></button>
+                                                </div>
+                                        </div>
+                                      <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionsCalloutDetails" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                        <button pButton icon="icons8 icons8-download" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                        <button pButton icon="icons8 icons8-search-property" class="ui-icon-button" pTooltip="Toggle Filter" [tooltipZIndex]="100000" (click)="panel.tableFilter = !panel.tableFilter">
+                                        </button>
+
+                                    </div>
+                                </div>
+                                <div class="empty-table-message" *ngIf="indIpselectedColumns.length === 0">
+                                    Select column to show
+                                </div>
+                            </p-header>
+                            <p-table #indip class="all-tables" [resizableColumns]="true" [globalFilterFields]="globalFilterFields" [columns]="indIpselectedColumns" [rowsPerPageOptions]="panel.paginator.rowsPerPageOptions" [value]="panel.data" [paginator]="showPaginationIndIp" [lazy]="false" (onLazyLoad)="loadIndIpPagination($event,i)" [totalRecords]="panel.data.length"
+                                [rows]="panel.paginator.rows" [showCurrentPageReport]="showPaginationIndIp" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+                                <ng-template pTemplate="colgroup" let-columns>
+                                    <colgroup>
+                                        <col *ngFor="let col of columns">
+                                    </colgroup>
+                                </ng-template>
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                        <th *ngFor="let col of columns" pResizableColumn [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan" [pSortableColumn]="col.valueField" pTooltip={{col.label}}>
+                                            <div class="elipseText"> {{ col.label }} </div>
+                                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                </p-sortIcon>
+                                            <!-- <div *ngFor="let p of panel.data.sort" class="float-right">
+                                                <p-sortIcon *ngIf="p == col.valueField" field="p" class="text-right"
+                                                    ariaLabel="Activate to sort"
+                                                    ariaLabelDesc="Activate to sort in descending order"
+                                                    ariaLabelAsc="Activate to sort in ascending order">
+                                                </p-sortIcon>
+                                            </div> -->
+                                        </th>
+                                    </tr>
+                                    <tr *ngFor="let headerRow of panel.headers">
+                                        <ng-container *ngIf="panel.tableFilter">
+                                            <th *ngIf="isCheckbox" class="columnwidth"></th>
+                                            <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                <div *ngIf="
+                                                col.filter.isFilter === true &&
+                                                col.filter.type === 'custom'
+                                              ">
+                                                    <input class="w-100-p" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                        indip.filter(
+                                                    $event.target.value,
+                                                    col.value,
+                                                    'custom'
+                                                  )
+                                                " />
+                                                </div>
+                                                <div *ngIf="
+                                                col.filter.isFilter === true &&
+                                                col.filter.type === 'contain'
+                                              ">
+                                                    <input class="w-100-p" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                        indip.filter(
+                                                    $event.target.value,
+                                                    col.valueField,
+                                                    'contains'
+                                                  )
+                                                " />
+                                                </div>
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row let-columns="columns" let-index="rowIndex">
+                                    <tr [pReorderableRow]="index">
+                                        <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}">
+                                            <span *ngIf="col.label == 'Type'">
+                                                <a class="activeLink" title="View IP Individual Info" (click)="tableBox.showBasicDialogOpen()">
+                                                    {{ row[col.valueField] | f_ddr: col.format }}
+                                                </a>
+                                            </span>
+                                            <span *ngIf="!(col.label == 'Type' )" pTooltip={{row[col.valueField]|f_ddr:col.format}}>
+                                                {{ row[col.valueField] | f_ddr: col.format }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                            <span *ngIf="error">Error while loading data</span>
+                                            <span *ngIf="panel.data.length == 0">Empty Table</span>
+                                            <span *ngIf="loading">Loading</span>
+                                            <span *ngIf="!empty && !loading && !error && searchInput && searchInput.nativeElement.value.length  ">Nothing
+                                                found matching "{{searchInput.nativeElement.value}}"</span>
+                            
+                                        </td>
+                                    </tr>
+                                </ng-template>  
+                            </p-table>
+                        </p-panel>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-table-box #tableBox [aggIpInfo]="aggIpInfo"></app-table-box>
+<p-dialog header=" Filters" [(visible)]="displayBasic" [style]="{width: '30vw'}" class="secondary-dialog" [modal]="true" [baseZIndex]="10000" [draggable]="false" [resizable]="false" closeIcon="icons8-delete">
+
+    <div class="p-grid">
+
+        <div class="p-col-4 label">
+            <label class="control-label">Max Flowpaths(s)</label>
+
+        </div>
+        <div class="p-col-3">
+            <!-- <input class="control-input" type="text" pInputText placeholder="" name="showmethod1" value="10000" /> -->
+            <input class="control-input-right" type="text" pInputText [(ngModel)]="flowPathRange" name="showmethod3" />
+        </div>
+
+
+    </div>
+    <div class="fixed-footer">
+        <p-footer>
+            <div class="p-col-12 ip-summary-form-buttons">
+                <button pButton label="Apply" (click)="applyRangeFilter()" class="ui-button-rounded"></button>
+            </div>
+        </p-footer>
+    </div>
+
+</p-dialog>
+
+<p-dialog [(visible)]="displayDetails" [resizable]="true" [modal]="true" class="secondary-dialog" header="Dynamic Diagnostics Configuration" [draggable]="false" closeIcon="icons8-delete" [style]="{width: '50vw'}">
+    <app-ip-summary-open-box></app-ip-summary-open-box>
+</p-dialog>
+
+<p-dialog class="secondary-dialog foterDialog" [style]="{width: '60vw'}" header="Dynamic Diagnostics Configuration" [resizable]="false"
+    *ngIf="showAutoInstrPopUp" [(visible)]="showAutoInstrPopUp" modal="modal"
+    [contentStyle]="{'max-height':'500px'}" responsive="true">
+    <app-dynamic-diagnostics (resultAfterStart)="startInstrumentation($event)" (closeAIDDGui)="closeAIDDDialog($event)"
+        [passAIDDSettings]="argsForAIDDSetting"></app-dynamic-diagnostics>
+</p-dialog>

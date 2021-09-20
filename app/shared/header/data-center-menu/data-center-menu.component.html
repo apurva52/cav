@@ -1,0 +1,44 @@
+<button pButton class="ui-button-rounded ui-button-secondary" [ngClass]="{ 'multi-dc': sessionService.preSession.multiDc }"
+  (click)="sessionService.preSession.multiDc && menu && menu.toggle($event)" pTooltip="Node Health Status">
+  <!-- <i class="pr-5 icons8 {{selectedDcIcon}}" *ngIf="selectedDcIcon"></i> -->
+    <i  *ngIf="!isAnyNodeDown" class="node-up icons8 icons8-filled-circle font-14"></i>
+    <i *ngIf="isAnyNodeDown" class="node-down icons8 icons8-filled-circle font-14"></i>
+  <span class="text-left ui-text"> Node Health
+  </span>
+
+  <i *ngIf="sessionService.preSession.multiDc" class="icons8 icons8-expand-arrow ph-3"></i>
+</button>
+
+
+<p-overlayPanel #menu [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'">
+  <div class="overlay-menu data-center">
+    <!-- <div class="overlay-menu-header">
+      <span style="color: black;" >DATA CENTER</span>
+    </div> -->
+    <div class="overlay-menu-body p-grid">
+      <div class="loader-container spinner small" *ngIf="loading">
+        <i class="pi pi-spin pi-spinner"></i>
+      </div>
+      <div class="empty-container" *ngIf="empty">
+        No data.
+      </div>
+      <ul *ngIf="data">
+        <div *ngFor="let dc of data">
+
+        <li *ngIf="dc.name != 'ALL' "
+        [ngClass]="{'selected': selected && selected.name === dc.name, 'disabled': dc.status === 'DOWN' }">
+          <div class="icon-frame">
+            <i class="icons8 {{dc.icon}}"></i>
+          </div>
+          <div class="dataCenter-title">
+            {{dc.name}}
+          </div>
+          <div class="dataCenter-status" style="float: right;" [ngClass]="{'status-unknown': dc.status === 'UNKNOWN',
+                        'status-up': dc.status === 'UP','status-down': dc.status === 'DOWN'}">
+          </div>
+      </li>
+    </div>
+      </ul>
+    </div>
+  </div>
+</p-overlayPanel>

@@ -1,0 +1,42 @@
+<div class="profile-details">
+  <div class="action-container">
+    <div class="p-grid p-col-12 p-justify-end p-align-center action-grid w-100-p">
+      <!-- <div class="global-search-block">
+        <div class="p-input-icon-left search-div-css">
+          <i class="icons8 icons8-search"></i>
+          <input #searchInputTemplate pInputText type="text" class="input-field-search" placeholder="Search" />
+        </div>
+      </div> -->
+
+      <div class="icons-container p-justify-between p-align-center">
+        <button pButton icon="icons8 icons8-synchronize" class="icon-button no-shadow" pTooltip=""></button>
+        <button pButton icon="icons8 icons8-trash" class="icon-button no-shadow" pTooltip="Delete"></button>
+
+        <button pButton label="ADD NEW" class="ui-button ui-button-rounded ui-button-secondary"></button>
+        <button pButton label="IMPORT" class="ui-button ui-button-rounded ui-button-secondary"></button>
+        <button pButton label="EXPORT" class="ui-button ui-button-rounded ui-button-secondary"></button>
+      </div>
+    </div>
+
+    <ng-container>
+      <div class="main-block mh-10">
+        <div class="p-grid ">
+          <div class="p-grid p-col-10 p-offset-1 sub-block">
+            <div class="p-col-6" *ngFor="let profDetail of data.profDetails">
+              <p-card>
+                <p-header>
+                  <span class="selected-label line-height"> {{profDetail.heading}} </span>
+                </p-header>
+                  <span class="profile-icon"><i [ngClass]="profDetail.iconField"></i></span>
+                <div class="prof-name p-align-center" *ngFor="let profilename of profDetail.profilenames">
+                  <i class="icons8 icons8-circled-right"></i>
+                  <a [routerLink]="profilename.routeTo">{{profilename.label}}</a>
+                </div>
+              </p-card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

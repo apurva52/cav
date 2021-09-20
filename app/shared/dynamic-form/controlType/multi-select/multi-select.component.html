@@ -1,0 +1,28 @@
+<form [formGroup]="form">
+    <span *ngIf="fieldData?.validators?.required" style="color: red;">*</span>
+    <label>{{fieldData.label }}</label>
+    <i class="icons8 icons8-info" *ngIf="fieldData.description" [pTooltip]="fieldData.description"></i>&nbsp;
+    <i class="fa fa-bolt" *ngIf="fieldData.notifications" [pTooltip]="fieldData.notifications"></i>&nbsp;
+    <p-multiSelect [options]="options" [formControlName]="fieldData.key" [styleClass]="fieldData.styleClass"
+        [style]="{'margin-top':'5px'}" defaultLabel="Select" [attr.readonly]="fieldData.readonly"
+        (onPanelHide)="onBlur()" (onFocus)="onFocus()" appendTo="body" #select [selectedItemsLabel]="selectedItemsLabel"
+        (onChange)="onChange($event)" dropdownIcon="icons8-expand-arrow">
+    </p-multiSelect>
+
+</form>
+
+<div *ngIf="form.status === 'INVALID'">
+    <b *ngIf="form.controls[fieldData.key].errors !== null" style="color: red;">
+        <ng-container *ngIf="form.controls[fieldData.key].errors.min != null">
+            {{errorMsg?.min+ fieldData?.validators?.min}}</ng-container>
+        <ng-container *ngIf="form.controls[fieldData.key].errors.max != null">
+            {{errorMsg?.max+ fieldData?.validators?.max}} </ng-container>
+        <ng-container
+            *ngIf="form.controls[fieldData.key].touched && form.controls[fieldData.key].errors.required != null">
+            {{errorMsg?.required}}
+        </ng-container>
+        <ng-container *ngIf="form.controls[fieldData.key].errors.email != null">{{errorMsg?.email}} </ng-container>
+        <ng-container *ngIf="form.controls[fieldData.key].errors.pattern != null">{{errorMsg?.pattern}}
+        </ng-container>
+    </b>
+</div>

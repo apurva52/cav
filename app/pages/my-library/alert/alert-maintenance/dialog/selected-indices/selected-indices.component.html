@@ -1,0 +1,90 @@
+<p-dialog [(visible)]="visible" [closable]="false"  [resizable]="true" [modal]="true"
+class="secondary-dialog" [draggable]="false" [style]="{width: '67vw', height: '78vh'}">
+<p-header>
+    <div class="configure-maintenance-title">
+        <div>
+            Selected Indices
+        </div>
+        <div class="action-buttons">
+            <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+        </div>
+    </div>
+</p-header>
+  <div class="h-100-vh table-container">
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+    <div #widgetHeight class="mh-10" [ngStyle]="{
+        height: isEnabledColumnFilter
+          ? 'calc(100vh - 165px)'
+          : 'calc(100vh - 120px)'
+      }">
+        <div class="action-container" *ngIf="data">
+
+            <!-- <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                <div class="global-search-block">
+
+                    <div class="p-input-icon-left search-div-css">
+                        <i class="icons8 icons8-search"></i>
+                        <input #searchInputTemplate pInputText type="text" class="input-field-search" (input)="template.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                    </div>
+                </div>
+
+            </div> -->
+
+            <ng-container>
+
+                <!-- <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                    Select column to show
+                </div> -->
+                <div class="p-col-12 right-panel h-100-p"> 
+                <div #widgetHeight class="p-col-12 table-section h-100-p">
+                    <p-treeTable #tt
+                    [columns]="data.headers[0].cols" [value]="data.data" [rowHover]="true"
+                    [paginator]="false" [rows]="data.paginator.rows" [showCurrentPageReport]="true"
+                    [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                    [(first)]="data.paginator.first" [scrollable]="true" selectionMode="single"
+                    >
+                    <ng-template pTemplate="colgroup" let-columns>
+                      <colgroup>
+                        <col *ngFor="let col of columns" [style.width]="col.width">
+                      </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns>
+                      <tr>
+                        <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+                          [ttSortableColumn]="col.valueField" class="text-left">
+                          {{ col.label }}
+                          <p-treeTableSortIcon [field]="col.isSort" class="right"></p-treeTableSortIcon>
+                        </th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                      <tr>
+                        <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}">
+                          <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+    
+                          {{ rowData[col.valueField] }}
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-treeTable>
+                </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
+</p-dialog>

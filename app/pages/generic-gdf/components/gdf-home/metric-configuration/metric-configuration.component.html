@@ -1,0 +1,260 @@
+
+  <p-accordion class = "p-col-12">
+    <p-accordionTab header="Metric Configuration" [selected]="true">
+      <p-table class="all-tables" [columns]="cols" [value]="mConfTable"  [(selection)]="selectedMConf"	
+      [scrollable]="true" scrollHeight="185px" [resizableColumns]="true">
+        <ng-template pTemplate="caption">
+          <div class="p-grid p-align-center p-justify-end my-5" style="background-color:#ededed">
+            <button pButton class="mx-3" type="button" icon="icons8 icons8-plus-math" (click)="addMConf()" *ngIf="monType != 'jmx'"
+              title="Add Metric Configuration">
+            </button>
+            <button pButton class="mx-3" type="button" icon="cons8 icons8-plus-math" (click)="addMConf()" *ngIf="!jmxDataFlag && monType == 'jmx'"
+               title="Add Metric Configuration">
+          </button>
+
+            <button pButton type="button" class="ui-button-danger mx-3" style="background: #f12a2a;"
+                *ngIf="monType != 'jmx'" (click)="deleteAllConf()" icon="icons8 icons8-trash"></button>
+              <button pButton type="button" class="ui-button-danger mx-3" style="background: #f12a2a;"
+                *ngIf="!jmxDataFlag && monType == 'jmx'" (click)="deleteAllConf()" icon="icons8 icons8-trash"></button>
+            <button pButton class="mx-3" icon="icons8-calendar" type="button" (click) = "applyColumnGrouping()" *ngIf="monType == 'jmx'"	
+              title="Show/Hide columns : {{isColumnGrouping ? 'Remove' : 'Apply'}} Column Grouping"></button>	
+              <span [hidden]=!isColumnGrouping>	
+                <p-multiSelect [options]="columnOptions" [(ngModel)]="selectedCols" maxSelectedLabels="1"  defaultLabel="Select column" [style]="{'width':'13em', 'float': 'right'}" (onChange)="showHideColumnHeader($event)">	
+                  <ng-template let-option pTemplate="item">	
+                    <span title="{{option.label}}">{{option.label}}</span>	
+                  </ng-template>	
+                </p-multiSelect>	
+              </span>  
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <ng-container  *ngFor="let col of columns">
+              <col *ngIf="col.header" [hidden]="col['visible']">
+            </ng-container>
+            <ng-container>
+              <col>
+            </ng-container>
+        </colgroup>
+      </ng-template>
+
+        <ng-template pTemplate="header" let-columns>
+          <tr class="scen-ptable-thead">
+            <th style="width:40px" *ngIf="monType != 'jmx'" pResizableColumn>
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th style ="width: 35px;" *ngIf="monType == 'jmx'" pResizableColumn>
+              <p-checkbox (click)="selectAllRow(e.checked)" #e></p-checkbox>
+            </th>
+
+            <th *ngFor="let col of columns" [style.width]="col.width" [hidden]="col['visible']" 
+              [pSortableColumn]="col.field" pResizableColumn>
+              {{col.header}}
+              <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+              ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+            </p-sortIcon>
+            </th>
+            <th [style.width] = "monType != 'jmx' ? '80px' : 'auto'" pResizableColumn>
+              Actions
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+          <tr [className]="rowData._dT.includes('String') || rowData._dT.includes('ObjectName') || 
+            (rowData._dT.includes('CompositeData') && !rowData._metKeyIdx.includes('.')) || rowData.disabled
+            ? 'row-accessories' : 'scen-ptable-tbody'">
+            <td style="width:40px" *ngIf="monType != 'jmx'">
+              <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+            </td>
+            <td  style ="width: 35px;" *ngIf="monType == 'jmx'">
+              <p-tableCheckbox  [value]="rowData" (click)="selectRow(e.checked,index)" #e 
+                [disabled]="rowData._dT.includes('String') || rowData._dT.includes('ObjectName') || rowData.disabled || 
+                (rowData._dT.includes('CompositeData') && !rowData._metKeyIdx.includes('.'))"></p-tableCheckbox>
+            </td>
+
+            <td *ngFor="let col of columns" [style.width]="col.width" title="{{rowData[col.field]}}"
+              style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" [hidden]="col['visible']">
+              {{rowData[col.field]}}
+            </td>
+
+            <td [style.width] = "monType != 'jmx' ? '80px' : 'auto'" style="text-align: center;">
+              <!-- <i class="fa fa-pencil" *ngIf="userRole != 'guest' && !rowData._dT.includes('String') && !rowData._dT.includes('ObjectName') 
+                && !rowData.disabled || (rowData._dT.includes('CompositeData') && rowData._metKeyIdx.includes('.'))" (click)="editMConf(rowData)"
+                style="color: #2572b5;cursor:pointer" title="Edit Metric Configuration">
+              </i>
+
+              <i class="fa fa-pencil disabled" *ngIf="userRole == 'guest'" style="color: #2572b5;cursor:pointer"
+                title="Edit Metric Configuration">
+              </i>
+
+              <i class="fa fa-arrow-circle-right" (click)="openAdvanceDialog(rowData)" *ngIf="monType != 'statsd' 
+              && monType != 'db' && monType != 'jmx'" title="Advance metric configuration" style=" margin-left: 9px ">
+              </i>
+
+              <i class="fa fa-trash-o" *ngIf="userRole != 'guest' && !jmxDataFlag " (click)="deleteMConf(rowData)"
+                style="color: #f12a2a;cursor:pointer; margin-left: 6px" title="Delete"></i>
+              <i class="fa fa-trash-o disabled" *ngIf="userRole == 'guest' && monType != 'jmx'" style="color: #f12a2a;cursor:pointer;"
+               title="Delete"></i> -->
+               <span class="action-icon">
+                    <i   class="icons8-edit-2" *ngIf="  !rowData._dT.includes('String') && !rowData._dT.includes('ObjectName') 
+                    && !rowData.disabled || (rowData._dT.includes('CompositeData') && rowData._metKeyIdx.includes('.'))" (click)="editMConf(rowData)"></i>
+                    <i class="icons8-delete-trash red-fg" (click)="deleteMConf(rowData)" *ngIf="!jmxDataFlag " ></i>
+                    <i class="pi pi-arrow-circle-right" (click)="openAdvanceDialog(rowData)" *ngIf="monType != 'statsd' 
+                    && monType != 'db' && monType != 'jmx'" title="Advance metric configuration">
+                    </i>
+
+            <!-- <span *ngIf="editing" class="edit-action">
+                        <i pSaveEditableRow class="icons8-checkmark"></i>
+                        <i pCancelEditableRow class="icons8-delete"></i>
+                    </span> -->
+            </span>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="columns.length + 1" 
+              class="noRecords">No records found.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-accordionTab>
+  </p-accordion>
+
+
+
+
+  <!-- <p-dialog class="profile-dialog monitor-dialog" header="{{dailogHeader}}" *ngIf="showMConfDailog" [resizable]="false"
+    [(visible)]="showMConfDailog" modal="modal" width="500" appendTo="body"> -->
+    <p-dialog class="secondary-dialog foterDialog"  [resizable]="false" [(visible)]="showMConfDailog" *ngIf="showMConfDailog"
+    [modal]="true"
+    [draggable]="true"
+    [closable]="false"
+    [style]="{ width: '500px' }"
+    closeIcon="icons8-delete">
+    <p-header>
+      <div class="compare-data-title">
+        <div>{{dailogHeader}}</div>
+        <div class="action-buttons">
+          <i class="icons8 icons8-delete"  (click)="showMConfDailog = false"></i>
+        </div>
+      </div>
+    </p-header>
+    <form (ngSubmit)="saveMetricConf()" #groupForm="ngForm" ngNativeValidate>
+
+      <div class="p-grid p-align-center w-100-p">
+        <div class="required-mark p-col-4">Metric Name</div>
+            <div class="p-col-8">
+              <input class="w-100-p" pInputText  name="mn" type="text" [(ngModel)]="mConf._mN" autofocus
+                        required ngModel maxlength="256"/>
+            </div>
+      </div>
+
+
+     <div class="p-grid p-align-center w-100-p" *ngIf="displayUnit && monType != 'statsd' && monType != 'jmx'">
+          <div class="p-col-4">Unit</div>
+            <div class="p-col-8">
+              <input class="w-100-p" pInputText  name="unit"  type="text" [(ngModel)]="mConf._unit"
+              autofocus ngModel />
+            </div>       
+    </div>
+
+
+    <div class="p-grid p-align-center w-100-p">
+      <div class="p-grid p-align-center w-100-p" *ngIf="displayKeyInd || !jmxDataFlag">
+        <div  class="required-mark p-col-4">{{keyIndexLabel}}</div>
+
+        <div class="p-col-8"  *ngIf="monType != 'statsd' && monType != 'jmx'">
+          <p-dropdown [style]="{'min-width':'100%'}" name="kI" placeholder="--Select--" 
+		[editable]="monType == 'db' ? false : true" [(ngModel)]="mConf._metKeyIdx" [options]="indexList"
+    dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+        </div>
+
+        <div class="p-col-8" *ngIf="monType == 'statsd' || (monType == 'jmx' && !jmxDataFlag )">
+          <input class="w-100-p" pInputText name="metPat" type="text" [(ngModel)]="mConf._metKeyIdx"
+            autofocus required ngModel maxlength="256"/>
+        </div>  
+      </div>
+
+      <div class="p-grid p-align-center w-100-p" *ngIf="displayMetricType && monType != 'jmx'">
+        <div class="p-col-4">Metric Type</div>
+        <div class="p-col-8">
+          <p-dropdown [style]="{'min-width':'100%'}" name="metType" placeholder="--Select--" [(ngModel)]="mConf._metType"
+            [options]="mTList" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+        </div>
+      </div>
+    
+
+      <div class="p-grid p-align-center w-100-p" *ngIf="displayDataType || !jmxDataFlag">
+        <div class="required-mark p-col-4">Data Type</div>
+        
+        <div class="p-col-8">
+          <p-dropdown [style]="{'min-width':'100%'}" name="dTl" placeholder="--Select--" [(ngModel)]="mConf._dT "
+            [options]="dTList" required dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+          </div>
+        
+      </div>
+      </div>
+
+     
+     
+      
+      <div class="p-grid p-align-center w-100-p" *ngIf="displayMetricFormula && monType != 'statsd' && monType != 'jmx'">
+        <div class="p-col-4">Metric Formula</div>
+
+        <div class="p-col-8">
+          <p-dropdown [style]="{'min-width':'100%'}" name="mFormulae" placeholder="--Select--" [(ngModel)]="mConf._mF"
+            [options]="mFlist" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+          </div>
+        
+      </div>
+
+      <div class="p-grid p-align-center w-100-p">
+        <div class="p-col-4">Metric Description</div>
+
+        <div class="p-col-8">
+          <input class="w-100-p" pInputText name="metDesc"  type="text" [(ngModel)]="mConf._metDesc"
+            autofocus ngModel maxlength="256"/>
+            </div>
+        
+      </div>
+    
+      
+    <div class="confirm-dialog">
+
+
+      </div>
+      <div class="p-col-12 form-buttons" style="float: right">
+        
+        <button type="button" class="ui-outline-button mx-6"  pButton icon="icons8 icons8-delete" (click)="showMConfDailog = false;" label="Cancel"></button>
+        <button type="submit" class="ui-button-rounded" pButton icon="icons8 icons8-checkmark" label="OK"></button>
+      </div>
+    </form>
+  </p-dialog>
+  
+  <p-confirmDialog class="confirmdialog" #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+    <p-footer>
+    <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton
+    icon="pi pi-check" label="Yes" (click)="cd.accept()"></button>
+    <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton
+    icon="pi pi-times" label="No" (click)="cd.reject()"></button>
+    </p-footer>
+    </p-confirmDialog>
+ 
+<p-growl life="5000" [value]="message"></p-growl>
+
+<p-dialog class="secondary-dialog foterDialog" modal="modal" header="Advanced Metric Configuration"  [resizable]="true" [responsive]="true" [(visible)]="advanceMetricConfDialog" *ngIf="advanceMetricConfDialog"
+[modal]="true"
+[closable]="true"
+[style]="{ width: '800px' }">
+<div>
+  <app-advance-metric-configuration [item] = "mConf" (mConfTableData)= "metricConfTableData($event)"></app-advance-metric-configuration>
+</div>
+<div class="p-col-12 form-buttons" style="float: right">
+  <button pButton class="ui-button-rounded" type="button" title="Close" (click)="advanceMetricConfDialog = false" label="Close"></button>
+  <button pButton class="ui-outline-button mx-6" type="button" title="Add" (click)="addAdvConf()" label="OK"></button>
+</div>
+</p-dialog>

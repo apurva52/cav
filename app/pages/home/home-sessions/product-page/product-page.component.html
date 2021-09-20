@@ -1,0 +1,94 @@
+<div class="h-100-vh product-page-container">
+
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar *ngIf="loaded" class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/home-sessions">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">SESSIONID: {{selectedPage.sid}}/{{selectedPage.pagename}} PAGE</div>
+        </div>
+    </p-toolbar>
+    <div *ngIf="loaded" class="content-body" id="reports">
+        <div class="p-grid">
+            <div class="p-col-12 no-padding">
+                <div class="breadcrumbs">
+                    <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+                </div>
+            </div>
+            <!--
+                Narendra: Commented this because it is unncesessory increasing the complexity, also very less space left for page detail compomnents. 
+            <div class="p-col-3 no-padding">
+                <app-session-data ></app-session-data>
+            </div>
+            -->
+
+            <div class="p-col-12 no-padding main-table">
+                <p-card>
+
+                    <div class="p-grid">
+                        <div class="p-col-2 tab-menu-container">
+                            <div class="vertical-tabs-menu">
+                                <p-tabMenu [model]="items" [activeItem]="activeItem"></p-tabMenu>
+                            </div>
+                        </div>
+                        <div class="p-col-10 no-padding">
+                            <div class="p-grid  p-justify-center p-align-center border-bottom p-nogutter mtn-6">
+                                <div class="p-col text-left">
+                                    <button type="button" pButton icon="pi pi-arrow-circle-left"
+                                        class="ui-icon-button no-shadow" [disabled]="min === pageIndex"
+                                        pTooltip="Previous Page" (click)="prev()" style="font-size: 20px;"></button>
+                                </div>
+                                <div class="p-col-10">
+                                    <h4 class="p-grid p-justify-between p-align-center text-center m-0">
+                                        <div class="p-col-6 p-grid p-align-center p-justify-center">
+                                            <i class="icons8 icons8-document mx-3"
+                                                [pTooltip]="pages[pageIndex].pagename + ' Page'"></i>
+                                            {{pages[pageIndex].pagename + '(' + (pages[pageIndex].url | ellipsis:40)
+                                            + ')'}}
+                                            <i class="icons8 icons8-copy mx-3" pTooltip="Copy URL"
+                                                [cdkCopyToClipboard]="pages[pageIndex].url"></i>
+                                        </div>
+                                        <div class="p-col p-grid p-align-center p-justify-center">
+                                            <i class="icons8 icons8-clock mx-3"></i>{{pages[pageIndex].navigationStartTime }}
+                                        </div>
+                                        <div class="p-col p-grid p-align-center p-justify-center">
+                                            {{selectedSession.browser.id != 10 ? 'onLoad':'PageLoadTime'}}
+                                            {{pages[pageIndex].timeToLoad + ' (sec)'}}
+                                        </div>
+                                        <div class="p-col p-grid p-align-center p-justify-center">
+                                            <span *ngFor="let event of pages[pageIndex].events">
+                                                <img *ngIf="event.iconCls == null" title="{{event.name}}"
+                                                style='width:14px;height:14px;' [src]="event.icon" class="mr-5">
+                                                <i *ngIf="event.iconCls != null" title="{{event.name}}"
+                                                class="{{event.iconCls}} btn-icon mx-3"></i>
+                                            </span>
+                                            <!-- <img *ngFor="let event of pages[pageIndex].events" title="{{event.name}}"
+                                                style='width:14px;height:14px;' [src]="event.icon" class="mr-5"> -->
+                                        </div>
+                                    </h4>
+                                </div>
+                                <div class="p-col text-right">
+                                    <button type="button" pButton icon="pi pi-arrow-circle-right"
+                                        class="ui-icon-button no-shadow" [disabled]="max === pageIndex"
+                                        pTooltip="Next Page" (click)="next()" style="font-size: 20px;"></button>
+                                </div>
+
+                            </div>
+                            <div class="content-body">
+                                <router-outlet></router-outlet>
+                            </div>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+        </div>
+    </div>
+    <div class="loading-indicator" *ngIf="!loaded">
+        <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4">
+        </p-progressSpinner>
+    </div>  
+    
+</div>

@@ -1,0 +1,34 @@
+<div class="db-query-stats-filter-container">
+    <p-sidebar #sidebar [(visible)]="visible" [showCloseIcon]="false" blockScroll="true" appendTo="body"
+        [styleClass]="classes">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+                <i class="icons8 icons8-clock"></i>
+                <span>DB Query Stats Filter</span> 
+                <i class="icons8 icons8-delete" (click)="closeClick()"></i>
+            </div>
+        </div>
+        <div class="sidebar-content ui-fluid">
+            <p-accordion [multiple]="true" expandIcon="icons8-forward" collapseIcon="icons8-collapse-arrow">
+                <p-accordionTab header="Preset" [selected]="true">
+                    <app-stats-filter></app-stats-filter>
+                    <div class="p-grid">
+                        <div class="p-col-12" *ngIf= "(dbMonService.databaseType == 0)">
+                            Top
+                            <input type="text" [(ngModel)]="_dbQueryStatsService.queryCount" [disabled]="_dbQueryStatsService.queryBasis == 'ALL'" (change)="onFilterChange($event)" class="customInput" pInputText />
+                            Slow queries based on
+                           <p-dropdown [options]="_dbQueryStatsService.dbOptions" class="customInput"
+                           [(ngModel)]="_dbQueryStatsService.queryBasis" dropdownIcon="icons8 icons8-expand-arrow" (onChange)="onFilterValueChange($event)"></p-dropdown>
+                        </div>
+                    </div>
+                </p-accordionTab>
+                <p-accordionTab header="DB Server" [selected]="true">
+                    <app-datasource-navigation></app-datasource-navigation>
+                </p-accordionTab>
+            </p-accordion>
+        </div>
+        <!-- <div class="sidebar-footer">
+        <button pButton type="submit" label="Save" class="w-100-p"></button>
+    </div> -->
+    </p-sidebar>
+</div>

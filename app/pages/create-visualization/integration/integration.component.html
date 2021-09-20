@@ -1,0 +1,209 @@
+<div class="integration-container h-100-p">
+  <p-card>
+    <!-- <p-header> Integration </p-header> -->
+    <div class="body">
+      <p-tabView>
+        <p-tabPanel header="DATA">
+          <div class="p-grid p-col-12 no-padding">
+            <div class="p-grid p-align-center p-justify-between headers">
+              <span class="label">Metrics</span>
+              <button pButton type="button" class="ui-button-rounded ui-button-secondary ui-togglebutton right header-button"
+                label="Add Metrics" (click)="addSubMetric()"></button>
+            </div>
+            <div class="body-content ui-fluid" *ngFor="let item of metricArray;let i = index">
+              <p-panel [toggleable]="true" [collapsed]="true" expandIcon="pi pi-fw pi-chevron-right"
+                collapseIcon="pi pi-fw pi-chevron-down">
+                <p-header>
+                  Y-Axis
+                  <i class="icons8 icons8-delete clickable" (click)="removeFilter(i)"></i>
+                </p-header>
+                <div class="body-content ui-fluid">
+                  <div class="p-field mv-15">
+                    <span class="labels">Aggregation</span>
+                    <p-dropdown [options]="metricAgreegation" [(ngModel)]="item.metAgg" optionLabel="label"
+                      dropdownIcon="icons8 icons8-expand-arrow" (onChange)="setIsMetricFieldValue(item)">
+                    </p-dropdown>
+                  </div>
+                  <div class="p-field mv-15" *ngIf="item.isMetricFieldAgg">
+                    <span class="labels">Field</span>
+                    <p-dropdown [options]="mapping_fieldsdata.number_val" dropdownIcon="icons8 icons8-expand-arrow" placeholder="Select a Field" optionLabel="label" [filter]="true" [(ngModel)]="item.metfield" (onChange)="setFieldvalue(item)"
+                     ></p-dropdown>
+                  </div>
+                  <div class="p-field mv-15 p-grid p-align-center">
+                    
+                    <span class="labels">Custom Label</span>
+                  
+                  <div class="p-col-12">
+                    <input type="text" pInputText  [(ngModel)]="item.customName"/>
+                  </div>
+                    </div>
+                  <!-- <div class="p-field mv-15">
+                    <p-checkbox name="group1" value="color" label="Color Option" [(ngModel)]="selectedValues"
+                      inputId="ny"></p-checkbox>
+                  </div> -->
+                 
+                  <!-- <div class="p-col-5 mv-15">
+                    <p-dropdown [options]="advance" [(ngModel)]="selectedAdvance" optionLabel="label"
+                      dropdownIcon="icons8 icons8-expand-arrow" class="custom-dropdown">
+                    </p-dropdown>
+                  </div> -->
+                  <!-- <div class="p-field mv-15">
+                    <span class="labels">JSON Input</span>
+                    <textarea pInputTextarea></textarea>
+                  </div> -->
+                </div>
+              </p-panel>
+            </div>
+            <!-- <div class="body-content ui-fluid ml-10">
+              <div class="p-field mv-15 p-grid p-align-center">
+                <div class="p-col-4">
+                <span class="labels">Custom Label</span>
+              </div>
+              <div class="p-col-8">
+                <input type="text" pInputText  [(ngModel)]="customylabel"  (change)="customchanges()" />
+              </div>
+                </div>
+              
+              </div> -->
+          </div>
+
+          <div class="p-grid p-col-12 no-padding">
+            <div class="p-grid p-align-center p-justify-between headers">
+              <span class="label">Buckets</span>
+              <button pButton type="button" class="ui-button-rounded ui-button-secondary ui-togglebutton right header-button"
+                label="Add Sub-bucket" (click)="addSubBucket()"></button>
+            </div>
+            <div class="body-content ui-fluid" *ngFor="let bucket of bucketArray;let i = index">
+              <p-panel [toggleable]="true" [collapsed]="true" expandIcon="pi pi-fw pi-chevron-right"
+                collapseIcon="pi pi-fw pi-chevron-down">
+                <p-header>
+                  X-Axis
+                  <i class="icons8 icons8-delete clickable" (click)="removeFilter2(i)"></i>
+                </p-header>
+                <div class="body-content ui-fluid">
+                  <div class="p-field mv-15">
+                    <span class="labels">Aggregation</span>
+                    <p-dropdown [options]="bucketAgreegation" [(ngModel)]="bucket.buckAgg" optionLabel="label"
+                      dropdownIcon="icons8 icons8-expand-arrow" (onChange)="setBucketFieldValue(bucket)">
+                    </p-dropdown>
+                  </div>
+                  <!-- <div class="p-field mv-15">
+                    <p-checkbox name="group1" value="color" label="Color Option" [(ngModel)]="selectedValues"
+                      inputId="ny"></p-checkbox>
+                  </div> -->
+                  <div class="p-field mv-15">
+                    <span class="labels">Field</span>
+                    <p-dropdown [options]="bucketFieldList" [(ngModel)]="bucket.buckfield" placeholder="Select a Field" optionLabel="label"
+                    [filter]="true" appendTo="body" scrollHeight="200px"  (onChange)="setIsBucketFieldValue(bucket)" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                  </div>
+                  <div class="p-field mv-15" *ngIf="bucket.isDateBucket">
+                    <span class="labels">Interval</span>
+                    <p-dropdown [options]="interValArray" [(ngModel)]="bucket.interval" optionLabel="name" (onChange)="setIntervalValue(bucket.interval)" 
+                      dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                  </div>
+                  <div class="p-field mv-15 p-grid p-align-center">
+                  
+                    <span class="labels">Custom Label</span>
+                  
+                  <div class="p-col-12">
+                    <input type="text" pInputText  [(ngModel)]="bucket.customName"/>
+                  </div>
+                    </div>
+                  
+                  <!-- <div class="p-field mv-15">
+                    <span class="labels">JSON Input</span>
+                    <textarea pInputTextarea></textarea>
+                  </div> -->
+                  <!-- <div class="p-col-5 mv-15">
+                    <p-dropdown [options]="advance" [(ngModel)]="selectedAdvance" optionLabel="label"
+                      dropdownIcon="icons8 icons8-expand-arrow" class="custom-dropdown">
+                    </p-dropdown>
+                  </div> -->
+                </div>
+              </p-panel>
+            </div>
+            <div class="body-content ui-fluid ml-10">
+
+              <!-- <div class="p-field mv-15 p-grid p-align-center">
+                <div class="p-col-4">
+                <span class="labels">Custom Label</span>
+              </div>
+              <div class="p-col-8">
+                <input type="text" pInputText  [(ngModel)]="customxlabel"  (change)="customchanges()"/>
+              </div>
+                </div> -->
+</div>
+           
+            </div>
+         
+        </p-tabPanel>
+        <p-tabPanel header="OPTIONS">
+          <p-panel header="View Option">
+            <div class="body-content ui-fluid p-col-12">
+              <!-- <div class="p-field mv-15">
+                <span class="labels">Chart Mode</span>
+                <p-dropdown [options]="chartModeArray" [(ngModel)]="selectedChartMode" optionLabel="label"
+                  dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+              </div>
+              <div class="p-field mv-15">
+                <p-checkbox name="smoothline" value="color" label="Smooth Lines" [(ngModel)]="isSmoothLine" inputId="line">
+                </p-checkbox>
+              </div>
+              <div class="p-field mv-15">
+                <p-checkbox name="currenttime" value="color" label="Current Time Marker" [(ngModel)]="isCurrentTime"
+                  inputId="timemarker"></p-checkbox>
+              </div>
+              <div class="p-field mv-15">
+                <p-checkbox name="yaxisbound" value="color" label="Set Y-Axis to Data Bound" [(ngModel)]="isYaxisDataBound"
+                  inputId="xaxisdata"></p-checkbox>
+              </div>
+              <div class="p-field mv-15">
+                <p-checkbox name="xaxisbound" value="color" label="Set X-Axis to Data Bound" [(ngModel)]="isXaxisDataBound"
+                  inputId="yaxisdata"></p-checkbox>
+              </div> -->
+              <div *ngIf="chartType == 'Gauge'">
+                <div class="p-field mv-15">
+                  <span class="labels">Gauge min</span>
+                  <input pInputText [(ngModel)]="gaugeMinVal">
+                </div>
+                <div class="p-field mv-15">
+                  <span class="labels">Gauge max</span>
+                  <input pInputText [(ngModel)]="gaugeMaxVal">
+                </div>
+                
+                <div class="p-field mv-15" *ngFor="let gaugeOpt of gaugeLevelOpt; let i= index">
+                  <span class="labels">Gauge level {{i+1}}</span>
+                  <input pInputText [(ngModel)]="gaugeOpt.levelValue">
+                  <p-colorPicker [(ngModel)]="gaugeOpt.levelColor"></p-colorPicker>
+                </div>
+                <div class="p-align-center">
+                  <button pButton type="button" label="Add" (click)=addGaugeLevel() class="ui-button-rounded right width-100"></button>
+                  <button pButton type="button" label="Remove" (click)=removeGaugeLevel() class="ui-button-rounded width-100"></button>
+                </div>
+              </div>
+              <div class="p-field mv-15">
+                <span class="labels">Legend Position</span>
+                <p-dropdown [options]="legendOption" [(ngModel)]="legendPosition" optionLabel="label"
+                  dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+              </div>
+              <div class="p-field mv-15">
+                <p-checkbox name="tooltip" value="color" binary="true" label="Show Tooltip" [(ngModel)]="isTooltipEnable" inputId="tooltip">
+                </p-checkbox>
+              </div>
+            </div>
+          </p-panel>
+        </p-tabPanel>
+      </p-tabView>
+    </div>
+    <p-footer>
+    <div class="footer p-align-center">
+      <button pButton type="button" [style.background]='disableClrreset? reset_disablecolor : "1rem"' class="ui-button-rounded ui-button-secondary ui-togglebutton " (click)=reset() [disabled]="Reset_click" label="RESET"></button>
+      <button pButton type="button" class="ui-button-rounded ui-button-success right" label="APPLY" (click)=apply() ></button>
+    </div>
+  </p-footer>
+  </p-card>
+</div>

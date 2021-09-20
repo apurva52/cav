@@ -1,0 +1,334 @@
+
+<div class="ui-panel-contents">
+<!-- <p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" /> -->
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+  <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+  </div>
+</div>
+
+
+<div>
+  
+	<div class= "ddr-box" >
+<!-- COMMON TOOLBAR -->
+
+<!-- <p-toolbar>
+    <div class="reportInfo">
+       <label class="headerInfo"><b>{{reportHeader}}</b></label>
+    </div>
+  </p-toolbar>-->
+  <div class="p-grid p-align-center p-justify-between ui-table-header">
+    <div>
+      <!-- <label class="headerInfo"><b>Filter criteria : </b></label> -->
+      <span title="{{completeTier}}">{{filterTierName}}</span>
+      <span title="{{completeServer}}">{{filterServerName}}</span>
+      <span title="{{completeInstance}}">{{filterInstanceName}}</span>
+      <span>{{filterCriteria}}</span>
+      <span title="{{CompleteURL}}">{{URLstr}}</span>
+    </div>
+    <div class="mt-3">
+        <span *ngIf="showDCMenu">
+          <label>Data Center : </label>
+          <p-dropdown [options]="dcList" (onChange)="getSelectedDC($event)" [(ngModel)]="selectedDC" [style]="{'width':'75px'}"></p-dropdown>
+
+        </span>
+
+
+        <button pButton icon="icons8 icons8-doc" *ngIf="showDownLoadReportIcon" class="btn-icon"  (click)='downloadReports("word")'
+        pTooltip="Download Word Report"></button>
+        <button pButton icon="icons8 icons8-spreadsheet-file" *ngIf="showDownLoadReportIcon" class="btn-icon"  (click)='downloadReports("excel")'
+        pTooltip="Download Excel Report"></button>
+        <button pButton icon="icons8 icons8-pdf-2" *ngIf="showDownLoadReportIcon" class="btn-icon"  (click)='downloadReports("pdf")'
+        pTooltip="Download PDF Report"></button>
+
+        <button pButton icon="icons8 icons8-zoom-in" *ngIf="displayAutoInst" class="btn-icon"  (click)="openAutoInstDialog()"
+        pTooltip="Click to Start Auto Instrumentation"></button>
+
+        <button pButton icon="las-etsy font-16" class="btn-icon"  (click)= "ignoreFlag = true"
+        pTooltip="Exclude Level1 Flowpaths"></button>
+
+        <button pButton icon="icons8 icons8-sugar-cube" class="btn-icon"  (click)= "changeData('package','2')"
+        pTooltip="Show summary of all packages"></button>
+
+        <button pButton icon="cav wan" class="btn-icon"  (click)= "changeData('class','1')"
+        pTooltip="Show summary of all classes"></button>
+
+        <button pButton icon="las-maxcdn font-16" class="btn-icon"  (click)= "changeData('method','0')"
+        pTooltip="Show summary of all methods"></button>
+      
+      
+      
+        <!-- <button pButton type="button" title="Filter Pie chart" (click)="showDialogBox()" icon="fa fa-filter"></button> -->
+       <!-- <button pButton type="button" title="Time Filter" (click)="showTimeDialog()" icon="fa fa-cog" *ngIf="fptomtFilter == false"></button> -->
+   
+      
+     </div>
+  
+  <div style="background-color: #e4f2f9;margin-left: 6px;margin-right: 5px;">
+          </div>
+</div>
+<!-- COMMON BOX SCROLLLBAR -->
+<div class="ddruiscroll" [ngStyle]="{'height': 'calc(67vh - 17px)'}" style="overflow:auto;">
+  
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" [(visible)]="loader" height="75" [closable]="false" [resizable]="false" modal="modal" [responsive]="true">
+  <div *ngIf="loader">
+    <p-progressBar [value]="value"></p-progressBar>
+  </div>
+</p-dialog>
+
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" header="Time Filter" [(visible)]="display" [closable]="false" height="200" [resizable]="false" modal="modal"
+  [responsive]="true">
+  <div *ngIf="display">
+    <div class="ui-g-12">
+      <div class="ui-g-4">
+        <p-radioButton name="group2" value="custom" (click)="standFunction()" label="Custom Time" [(ngModel)]="custom"></p-radioButton>
+      </div>
+    </div>
+    <div *ngIf="custselect">
+      <div class="ui-g-12">
+        <div class="ui-g-6">
+          From :
+          <p-calendar [showIcon]="true" readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" (onSelect)="onStrDate($event)"
+            [monthNavigator]="true" [yearNavigator]="true" yearRange="1970:2030" [showTime]="true" [(ngModel)]="strDate"></p-calendar>
+        </div>
+        <div class="ui-g-6">
+          To :
+          <p-calendar [showIcon]="true" readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" (onSelect)="onEndDate($event)"
+            [monthNavigator]="true" [yearNavigator]="true" yearRange="1970:2030" [showTime]="true" [(ngModel)]="endDate"></p-calendar>
+        </div>
+      </div>
+    </div>
+
+    <div class="ui-g-12">
+      <div class="ui-g-4">
+        <p-radioButton name="group2" (click)="custFunction()" value="standard" label="Standard Time" [(ngModel)]="standard"></p-radioButton>
+      </div>
+      <div class="ui-g-6" *ngIf="standselect">
+        <p-dropdown [options]="standardTime" scrollHeight="100px" [(ngModel)]="selectedTime" [style]="{'width':'150px', 'position':'fixed'}"
+          placeholder="Select Time"></p-dropdown>
+      </div>
+    </div>
+  </div>
+  <p-footer>
+    <div class="p-grid p-align-center p-justify-end py-5">
+      <p style="color : red;text-align:left">{{msg}}</p>
+      <button pButton type="button" label="Cancel" (click)="close()" class="ui-button-rounded ui-button-secondary"></button>
+      <button pButton type="button" label="Apply" (click)="applyFilter()" class="ui-button-rounded"></button>
+     
+    </div>
+  </p-footer>
+</p-dialog>
+
+
+  <p-accordion class="ddr-accordion">
+     <p-accordionTab header="{{headerStats}}" [selected]="false">
+      <div class="ui-g">
+      <div class="ui-g-6" >
+   <p-card class="ddr-graphpanel" *ngIf="showChart; else pieChart"><highcharts-chart [Highcharts] = "highcharts" style="width: 100%; display: block; overflow: hidden;" [options]="options" ></highcharts-chart></p-card>
+   <ng-template #pieChart>No Pie Chart found based on current Filter Settings.</ng-template>
+   </div>
+  <div class="ui-g-6">
+<p-card class="ddr-graphpanel" *ngIf="showCountPieChart; else CountChart">
+  <highcharts-chart [Highcharts] = "highcharts" style="width: 100%; display: block; overflow: hidden;" [options]="CountPieChartOptions"></highcharts-chart></p-card>
+  <ng-template #CountChart>No RespTime Time Graph found based on current Filter Settings.</ng-template>
+</div>
+</div>
+     </p-accordionTab>
+  </p-accordion>
+
+  <div class="my-6">
+  <p-accordion class="ddr-accordion">
+     <p-accordionTab header="{{filterType}} Summary (Total: {{dataCount}}) {{pointName}}" [selected]="true">
+        <div>
+         <!-- <img src="./images/showall.png"  *ngIf="showAllOption" height="21px" width="21px" title="Show all data" style="float:right;cursor:pointer;" (click)="showAllData();"> -->
+        </div>
+        <div class="p-grid p-justify-end p-align-center mb-6">
+
+          
+
+          <button pButton icon="icons8 icons8-menu" class="btn-icon" (click)="toggleColumnFilter()"
+        pTooltip="{{toggleFilterTitle}}"></button>
+          
+          <p-multiSelect title="Show/Hide columns" [options]="columnOptions" class="icon-button no-shadow" appendTo="body"
+          (onChange)="showHideColumn($event)" [(ngModel)]="visibleCols" dropdownIcon="icons8 icons8-columns"></p-multiSelect>
+         
+          <button pButton icon="icons8 icons8-synchronize"  *ngIf="showAllOption"  class="btn-icon" (click)="showAllData();"
+          pTooltip="Show all data"></button>
+
+         
+          
+              <!-- <p-multiSelect title="Show/Hide columns" [options]="columnOptions" class="dashboard-lowerPanel-multiSelect ddr-multiselect-down"  (onChange)="showHideColumn($event)" [(ngModel)]="visibleCols"></p-multiSelect> -->
+              <!-- <button pButton type="button" title="Show/Hide columns" icon="fa fa-check-square-o"></button> -->
+              <!-- <i class="icons8 icons8-search font-18 mr-5" style="color:#1D5290;"></i>
+              <input #gb type="text" pInputText size="50" style="width: 13% !important;" placeholder="Search"> -->
+             
+              <button pButton icon="icons8 icons8-search"  class="btn-icon"></button>
+          <input pInputText type="text"  placeholder="Search keyword" (input)="mt.filterGlobal($event.target.value, 'contains')" />
+        </div>
+<div>
+
+  <p-table #mt class="all-tables" [value] = "methodTimingData" 
+  selectionMode="single"  [scrollable]="true" scrollHeight="300px" [resizableColumns]="true" [reorderableColumns]="true" 
+  [rows]="50" [paginator]="showPagination" [rowsPerPageOptions]="[50,100,200,400]" [pageLinks]="3" [globalFilterFields]="visibleCols">
+  <ng-template pTemplate="colgroup" let-columns>
+    <colgroup>
+      <ng-container *ngFor="let col of cols">
+        <col *ngIf="col.action" [style]="{'width': col.width+'px'}">
+      </ng-container>
+    </colgroup>
+  </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <ng-container *ngFor = "let col of cols">
+          <th style="text-overflow: inherit; white-space:normal; word-break: break-all;" *ngIf = "col.action" pResizableColumn pReorderableColumn [pSortableColumn]="col.field">
+            {{col.header}}
+            <p-sortIcon [field]="col.field"></p-sortIcon>
+          </th>
+        </ng-container>
+      </tr>
+      <tr *ngIf="isEnabledColumnFilter">
+        <ng-container *ngFor="let col of cols">
+            <th style="text-overflow: inherit; white-space:normal; word-break: break-all;" *ngIf="col.action">
+                <input pInputText type="text" class="w-100-p"
+                    (input)="mt.filter($event.target.value, col.field, 'contains')">
+            </th>
+        </ng-container>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-node>
+      <tr>
+        <!-- <ng-container *ngFor = "let col of cols">
+          <td *ngIf = "col.action" pTooltip="{{node[col.field]}}" tooltipPosition="bottom">
+            <span *ngIf = "(col.field == 'mN' && node[col.field].endsWith('%40'))">
+              <a class="activeLink" (click)="openServiceMethodTiming(node)">
+              {{node[col.field].substring(0,node[col.field].indexOf('%40'))}}</a>
+            </span>
+            <span *ngIf = "!(col.field == 'mN' && node[col.field].endsWith('%40'))">
+              {{node[col.field]}}
+            </span>
+          </td>
+        </ng-container> -->
+        <ng-container *ngFor = "let col of cols">
+          <td *ngIf = "col.action">
+            <div style="text-align: left ;" *ngIf = "(col.field == 'pN')" title="{{formatter(node[col.field])}}">{{formatter(node[col.field])}}</div>
+            <div style="text-align: left ;" *ngIf = "(col.field == 'cN')" title="{{formatterForClass(node[col.field])}}">{{formatterForClass(node[col.field])}}</div>
+            <div style="text-align: left ;" *ngIf = "(col.field == 'mN' && !node[col.field].endsWith('%40'))" title="{{node[col.field]}}">{{node[col.field]}}</div>
+            <div class ="ddr-table-left" *ngIf = "(col.field == 'mN' && node[col.field].endsWith('%40'))" title="{{node[col.field].substring(0,node[col.field].indexOf('%40'))}}" >
+              <a class="activeLink" (click)="openServiceMethodTiming(node)">
+              {{node[col.field].substring(0,node[col.field].indexOf('%40'))}}</a> </div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'sTOrg')">{{(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'percent')">{{pctFormatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'totWT')">{{secFormatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'avgST')">{{formatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'avgWT')">{{formatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'cumCPUST')">{{formatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'avgCPUST')">{{formatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'eC')">{{formatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'min')">{{formatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'max')">{{formatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'variance')">{{formatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'waitTime')">{{formatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'syncTime')">{{formatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'iotime')">{{formatter(node[col.field])}}</div>
+            <div style="text-align: right;" *ngIf = "(col.field == 'suspensiontime')">{{formatter(node[col.field])}}</div>
+            <div style="text-align: left ;" *ngIf = "(col.field == 'eN')" title="{{node[col.field]}}">{{node[col.field]}}</div>
+            <div *ngIf = "!(col.field == 'pN') && !(col.field == 'cN') && !(col.field == 'avgWT') && !(col.field == 'mN') && !(col.field == 'sTOrg') && !(col.field == 'percent')&& !(col.field == 'totWT')&& !(col.field == 'avgST')&& !(col.field == 'cumCPUST')&& !(col.field == 'avgCPUST')&& !(col.field == 'eC')&& !(col.field == 'min')&& !(col.field == 'max')&& !(col.field == 'variance')&& !(col.field == 'waitTime')&& !(col.field == 'syncTime')&& !(col.field == 'iotime')&& !(col.field == 'suspensiontime') && !(col.field == 'eN')">{{node[col.field]}}</div>    
+          </td>
+        </ng-container>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage" let-columns>
+      <tr>
+          <td [attr.colspan]="cols.length + 1" class="text-center">
+              <span>No Records Found</span>
+          </td>
+      </tr>
+  </ng-template>
+  </p-table>
+
+
+<!-- <p-dataTable class="scen-table auto-table-layout scrollable-div5 " [value] = "methodTimingData" sortField="sT" [sortOrder]="-1" [globalFilter]="gb" selectionMode="single" [style]="{'height':'auto','max-height':'65vh'}" scrollHeight="200px" resizableColumns="true" reorderableColumns="true" [rows]="50" [paginator]="showPagination" [rowsPerPageOptions]="[50,100,200,400]" [pageLinks]="3">
+    <div *ngFor="let col of cols">
+   <p-column *ngIf = "col.action" [field]="col.field"
+     [header]="col.header" [sortable]="col.sortable" [sortable]="true" [filter]="col.filter"
+     [filterMatchMode]='contains' (sortFunction)="sortColumnsOnCustom($event,methodTimingData)" [style]="{'width': col.width + 'px'}">
+    
+     <ng-template let-col let-node="rowData" pTemplate type="body">
+      <div style="text-align: left ;" *ngIf = "(col.field == 'pN')" title="{{formatter(node[col.field])}}">{{formatter(node[col.field])}}</div>
+      <div style="text-align: left ;" *ngIf = "(col.field == 'cN')" title="{{formatterForClass(node[col.field])}}">{{formatterForClass(node[col.field])}}</div>
+      <div style="text-align: left ;" *ngIf = "(col.field == 'mN' && !node[col.field].endsWith('%40'))" title="{{node[col.field]}}">{{node[col.field]}}</div>
+      <div class ="ddr-table-left" *ngIf = "(col.field == 'mN' && node[col.field].endsWith('%40'))" (click)="openServiceMethodTiming(node)" title="{{node[col.field].substring(0,node[col.field].indexOf('%40'))}}" >{{node[col.field].substring(0,node[col.field].indexOf('%40'))}} </div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'sTOrg')">{{(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'percent')">{{pctFormatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'totWT')">{{secFormatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'avgST')">{{formatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'avgWT')">{{formatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'cumCPUST')">{{formatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'avgCPUST')">{{formatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'eC')">{{formatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'min')">{{formatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'max')">{{formatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'variance')">{{formatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'waitTime')">{{formatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'syncTime')">{{formatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'iotime')">{{formatter(node[col.field])}}</div>
+      <div style="text-align: right;" *ngIf = "(col.field == 'suspensiontime')">{{formatter(node[col.field])}}</div>
+      <div style="text-align: left ;" *ngIf = "(col.field == 'eN')" title="{{node[col.field]}}">{{node[col.field]}}</div>
+      
+      <div *ngIf = "!(col.field == 'pN') && !(col.field == 'cN') && !(col.field == 'avgWT') && !(col.field == 'mN') && !(col.field == 'sTOrg') && !(col.field == 'percent')&& !(col.field == 'totWT')&& !(col.field == 'avgST')&& !(col.field == 'cumCPUST')&& !(col.field == 'avgCPUST')&& !(col.field == 'eC')&& !(col.field == 'min')&& !(col.field == 'max')&& !(col.field == 'variance')&& !(col.field == 'waitTime')&& !(col.field == 'syncTime')&& !(col.field == 'iotime')&& !(col.field == 'suspensiontime') && !(col.field == 'eN')">{{node[col.field]}}</div>
+    </ng-template>
+     </p-column>
+    </div>
+</p-dataTable> -->
+           
+</div>
+ </p-accordionTab>
+  </p-accordion>
+  </div>
+
+<!-- <p-growl life=50000 [value]="msgs" [sticky]="true"></p-growl> -->
+<!-- <p-growl life=50000 [(value)]="msgs"></p-growl> -->
+<p-toast></p-toast>
+
+<p-dialog class="secondary-dialog foterDialog" [style]="{width: '50vw'}" header="Dynamic Diagnostics Configuration" [resizable]="false" *ngIf="showAutoInstrPopUp" [(visible)]="showAutoInstrPopUp" modal="modal" [contentStyle]="{'max-height':'500px'}" responsive="true">
+  <app-dynamic-diagnostics (resultAfterStart)="startInstrumentation($event)" (closeAIDDGui)="closeAIDDDialog($event)" [passAIDDSettings]="argsForAIDDSetting"></app-dynamic-diagnostics>
+</p-dialog>
+<!-- <p-dialog class="ddr-dialog" header="{{filterType}} Filter" [(visible)]="showDialog" modal="modal" appendTo = "body" width="300" height="150">
+    <div class="modalPopUp">
+      Show Top <input id="input" type="text" size="12" maxlength="6" pattern="^[0-9]+$" title="Alphabates and special character(s) are not allowed" pInputText [(ngModel)]="topNText" required> {{filterType}} 
+    </div>
+    <footer>
+        <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+            <button type="button" pButton icon="fa-close" style="background:#3473a9 !important; margin-right:28%" (click)="showDialog=false" label="Cancel"></button>
+            <button type="button" pButton icon="fa-check" style="background:#3473a9 !important" (click)="applyNtopMethod(topNText)" label="Apply"></button>
+        </div>
+    </footer>
+</p-dialog> -->
+  
+<!-- <div class="section" *ngIf ="showDownLoadReportIcon">
+<label style="font-size: 12px;padding-left: 6px;" >Download Reports as: </label>
+    <span title="PDF Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")' src='./images/iconPDF.gif'></span>
+    <span title="Word Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")' src='./images/iconWord.gif'></span>
+    <span title="Excel Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")' src='./images/iconExcel.gif'></span> 
+</div> -->
+
+<p-dialog class="secondary-dialog foterDialog" [style]="{width: '50vw'}" [resizable]="false" [(visible)]="ignoreFlag" header="Exclude Flowpaths" height="160" 
+ [responsive]="true">
+      <div style="width: 140px; float: left; margin-top: 20px;margin-left: 15px;">
+    <p-checkbox [(ngModel)]="valuechbx" binary="true" label="Exclude L1 Flowpaths"></p-checkbox>
+      </div>
+      <div>
+          <span style="text-align:center;float:right;margin-top: 80px;margin-right: 30px">
+              <button pButton type="button" label="Apply" (click)="ApplyignoreFP()"></button>
+          </span>
+      </div>
+</p-dialog>
+
+</div>
+</div>
+</div>
+
+
+</div>

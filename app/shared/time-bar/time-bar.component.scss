@@ -1,0 +1,220 @@
+body {
+    app-time-bar {
+        .time-bar-container {
+            background: #fff;
+            margin: 0 -5px;
+            border: 1px solid #22537f;
+            border-width: 1px 0;
+            min-height: 60px;
+            .loader-container.spinner {
+                height: auto;
+                margin: 10px;
+            }
+            .track-container {
+                min-height: inherit;
+                position: relative;
+                .track-start,
+                .track-end {
+                    position: relative;
+                    margin: 0 5px;
+                    width: 75px;
+                    .text {
+                        position: absolute;
+                        bottom: 18px;
+                        width: 100%;
+                        text-align: center;
+                    }
+                }
+                .icon-right {
+                    float: right;
+                    font-size: 18px;
+                    cursor: pointer;
+                }
+                .time-summary {
+                    position: absolute;
+                    top: 0;
+                    width: 100%;
+                    text-align: center;
+                    padding: 4px;
+                    ul,
+                    li {
+                        margin: 0;
+                        padding: 0;
+                        list-style: none;
+                        display: inline-block;
+                    }
+                    li {
+                        margin: 0 5px;
+                    }
+                    i,
+                    span {
+                        vertical-align: middle;
+                    }
+                    i {
+                        margin-right: 3px;
+                    }
+                }
+                .track {
+                    position: relative;
+                    padding: 0;
+                    background-color: #22537f;
+                    height: 8px;
+                    border-radius: 4px 0 0 4px;
+                    margin: 24px 0 0 0;
+                    &:after {
+                        left: 100%;
+                        top: 50%;
+                        border: solid transparent;
+                        content: " ";
+                        position: absolute;
+                        height: 0;
+                        width: 0;
+                        pointer-events: none;
+                        border-color: rgba(136, 183, 213, 0);
+                        border-left-color: #22537f;
+                        border-width: 8px;
+                        margin-top: -8px;
+                    }
+                    .time-frame {
+                        position: relative;
+                        line-height: 0;
+                        .ui-slider {
+                            background: transparent;
+                        }
+                        .cdk-drag-handle {
+                            cursor: grab;
+                            &:active {
+                                cursor: grabbing;
+                            }
+                        }
+                        .ui-slider-handle,
+                        .ui-slider-handle:hover {
+                          position: absolute;
+                          bottom: 14px;
+                          left: 0;
+                          margin: 5px 0 0 -10px;
+                          border-radius: 0;
+                          width: 10px;
+                          height: 12px;
+                          border: 0;
+                          background: transparent;
+                          z-index: 13;
+                          cursor: pointer;
+                          border-bottom: solid 10px #53B771;
+                          border-left: solid 10px transparent;
+                          border-right: solid 10px transparent;
+                            &:after {
+                                bottom: 75%;
+                                left: 50%;
+                                border: solid transparent;
+                                content: " ";
+                                height: 0;
+                                width: 0;
+                                position: absolute;
+                                pointer-events: none;
+                                border-width: 8px;
+                                margin-left: -3px;
+                                border-color: rgba(136, 183, 213, 0);
+                                // border-bottom-color: #53B771;
+                            }
+                        }
+                        .end {
+                            right: -4px;
+                            left: auto;
+                        }
+                        .ui-slider-range {
+                            background-color: #53B771;
+                            height: 8px;
+                            border-radius: 0;
+                        }
+                    }
+                    ul.markers {
+                        margin: 0;
+                        padding: 0;
+                        list-style: none;
+                        >li {
+                            cursor: pointer;
+                            display: inline-block;
+                            z-index: 11;
+                            margin: 0;
+                            padding: 0;
+                            height: 8px;
+                            width: 4px;
+                            bottom: 4px;
+                            border-radius: 0;
+                            position: absolute;
+                            background-color: #ccc;
+                        }
+                        &.time-markers {
+                            >li {
+                                background-color: #22537f;
+                                width: 3px;
+                                bottom: -8px;
+                                height: 8px;
+                            }
+                        }
+                        &.alert-markers {
+                            >li {
+                                background-color: red;
+                                bottom: 0;
+                                margin-left: -1.5px;
+                            }
+                        }
+                    }
+                }
+                .time-bar-control,
+                .timebar-options {
+                    display: inline-flex;
+                    align-items: center;
+                }
+                .time-bar-control {
+                    .icon-button.ui-button {
+                        width: 15px;
+                        .ui-button-text {
+                            padding: 0;
+                        }
+                    }
+                }
+                .divider {
+                    width: 1px;
+                    margin: 16px 0;
+                    background: #22537f;
+                }
+            }
+        }
+        .time-period-section,
+        .view-by-section {
+            padding: 10px 15px;
+        }
+    }
+    .time-filter {
+        .p-field {
+            label {
+                padding-bottom: 3px;
+                display: inline-block;
+            }
+            .ui-button-secondary {
+                padding: 4px;
+                margin: 3px 0px;
+                display: flex;
+                justify-content: space-between;
+                .ui-text {
+                    text-align: left;
+                    display: inline-block;
+                    vertical-align: text-top;
+                    width: 100%;
+                }
+            }
+            .filter-value {
+                font-weight: 800;
+                font-size: 14px;
+                padding: 3px 0px;
+            }
+            input {
+                padding: 4px;
+                border: 2px solid #1d5290;
+                border-radius: 3px;
+            }
+        }
+    }
+}

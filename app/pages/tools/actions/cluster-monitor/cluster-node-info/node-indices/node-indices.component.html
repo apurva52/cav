@@ -1,0 +1,189 @@
+<div class="node-indices-wrapper h-100-vh" *ngIf="data">
+  <div class="action-container">
+    <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+
+      <div class="global-search-block">
+        <i class="icons8 icons8-filter ui-inputgroup-addon" pTooltip="Indices Filter"
+          (click)="IndicesFilter.show()"></i>
+        <div class="p-input-icon-left search-div-css">
+          <i class="icons8 icons8-search"></i>
+          <input pInputText type="text" #searchInput class="input-field-search"
+            (input)="nodeIndices.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+        </div>
+      </div>
+      <div class="icons-container p-justify-between p-align-center">
+        <button pButton label="Create Indices" class="ui-outline-button ui-button-secondary"
+          (click)="createIndices.show()"></button>
+        <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button icon-button no-shadow"
+          pTooltip="Download" (click)="menu.toggle($event);"></button>
+        <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'"
+          [hideTransitionOptions]="'0ms'" appendTo="body"></p-menu>
+        <i *ngIf="data.indicesData.tableFilter" pButton icon="icons8 icons8-search-property"
+          class="icon-button no-shadow" pTooltip="Column Filter" [tooltipZIndex]="100000"
+          (click)="isShowColumnFilter = !isShowColumnFilter"></i>
+        <p-multiSelect class="icon-button no-shadow" [(ngModel)]="selectedColumns" [options]="cols" optionLabel="label"
+          [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns"
+          [panelStyle]="{ minWidth: '200px' }">
+        </p-multiSelect>
+      </div>
+
+    </div>
+  </div>
+  <div class="p-col-12">
+    <div #widget>
+      <ng-container>
+        <div #widgetHeight [ngStyle]="{
+              height: isShowColumnFilter
+                ? 'calc(100vh - 255px)'
+                : 'calc(100vh - 212px)'
+            }">
+          <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+            Select column to show
+          </div>
+          <p-card class="content-body">
+            <p-table #nodeIndices dataKey="indices" [columns]="selectedColumns" [value]="data.indicesData.data"
+              [rowHover]="true" [paginator]="true" [rows]="data.indicesData.paginator.rows"
+              [totalRecords]="data.indicesData.data.length"
+              [rowsPerPageOptions]="data.indicesData.paginator.rowsPerPageOptions"
+              [(first)]="data.indicesData.paginator.first" [showCurrentPageReport]="true"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+              [scrollable]="true" selectionMode="single" editMode="row"
+              scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 110px)" [resizableColumns]="true"
+              [globalFilterFields]="globalFilterFields">
+              <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                  <col style.width="40px" />
+                  <col style.width="40px" />
+                  <col *ngFor="let col of columns" [style.width]="col.width" />
+                </colgroup>
+              </ng-template>
+              <ng-template pTemplate="header" let-columns>
+                <tr *ngFor="let headerRow of data.indicesData.headers">
+                  <th class="table-icon-field" pResizableColumn></th>
+                  <th class="table-icon-field" pResizableColumn>
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                  </th>
+                  <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+                    [pSortableColumn]="col.isSort && col.valueField" class="text-left" pResizableColumn>
+                    <div class="left">
+                      {{ col.label }}
+                    </div>
+                    <div *ngIf="col.isSort" class="right">
+                      <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort"
+                        ariaLabelDesc="Activate to sort in descending order"
+                        ariaLabelAsc="Activate to sort in ascending order">
+                      </p-sortIcon>
+                    </div>
+                  </th>
+                </tr>
+
+                <tr *ngFor="let headerRow of data.indicesData.headers">
+                  <ng-container *ngIf="isShowColumnFilter">
+                    <th class="table-icon-field"></th>
+                    <th class="table-icon-field"></th>
+                    <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                      <div *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'custom'
+                          ">
+                        <input class="w-100-p"
+                          pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                          *ngSwitchCase="col.label" pInputText type="text" (input)="
+                              nodeIndices.filter(
+                                $event.target.value,
+                                col.value,
+                                'custom'
+                              )
+                            " />
+                      </div>
+                      <div *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'contains'
+                          ">
+                        <input class="w-100-p" pTooltip="Will filter metric names which contains given text."
+                          *ngSwitchCase="col.label" pInputText type="text" (input)="
+                              nodeIndices.filter(
+                                $event.target.value,
+                                col.valueField,
+                                'contains'
+                              )
+                            " />
+                      </div>
+                    </th>
+                  </ng-container>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex" let-editing="editing">
+                <tr [pEditableRow]="row">
+                  <td class="text-center table-icon-field">
+                    {{ rowIndex }}
+                  </td>
+                  <td class="text-center table-icon-field">
+                    <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                  </td>
+                  <td pEditableColumn *ngFor="let col of columns; let i = index" class="{{ col.classes }}">
+                    <p-cellEditor *ngIf="col.editableCol && col.editableCol.editable">
+                      <ng-template *ngIf="col.editableCol && col.editableCol.editable" pTemplate="input">
+                        <p-dropdown [options]="nodeStatus" [(ngModel)]="row[col.valueField]"></p-dropdown>
+                      </ng-template>
+                      <ng-template *ngIf="col.editableCol && col.editableCol.editable" pTemplate="output">
+                        {{ row[col.valueField] }}
+                      </ng-template>
+                    </p-cellEditor>
+                    <span *ngIf="col.urlField">
+                      <a class="activeLink" [routerLink]="['/sub-indices']">{{
+                          row[col.valueField]
+                        }}</a>
+                    </span>
+                    <div *ngIf="
+                          !col.editableCol && !col.iconField && !col.urlField
+                        ">
+                      {{ row[col.valueField] }}
+                    </div>
+                    <div *ngIf="col.iconField">
+                      <button pButton type="button" pInitEditableRow [icon]="row.action"
+                        class="ui-icon-button column-icon"></button>
+                      <!-- <i *ngIf="col.iconField && row.action" pSaveEditableRow  [ngClass]="row.action" class="column-icon"></i> -->
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                  <td [attr.colspan]="columns.length + 1" class="text-center">
+                    <span *ngIf="error">Error while loading data</span>
+                    <span *ngIf="emptyTable">Empty Table</span>
+                    <span *ngIf="loading">Loading</span>
+                    <span *ngIf="!emptyTable && !loading && !error && searchInput.value.length">Nothing found
+                      matching
+                      "{{searchInput.value}}"</span>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-card>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+
+<!-- Create Indices Dialog -->
+<app-create-indices #createIndices></app-create-indices>
+
+<!-- Indices Filter Sidebar -->
+<app-indices-filter #IndicesFilter [indices]="this"></app-indices-filter>
+
+<!-- Indices Clear Cache Dialog -->
+<app-indices-clear-cache #IndicesClearCache [indices]="this"></app-indices-clear-cache>
+
+<!-- Indices Flushed Dialog -->
+<app-indices-flush #IndicesFlush [indices]="this"></app-indices-flush>
+
+<!-- Indices Optimize Dialog -->
+<app-indices-optimize #IndicesOptimize [indices]="this"></app-indices-optimize>
+
+<!-- Indices Refreshed Dialog -->
+<app-indices-refresh #IndicesRefreshed [indices]="this"></app-indices-refresh>

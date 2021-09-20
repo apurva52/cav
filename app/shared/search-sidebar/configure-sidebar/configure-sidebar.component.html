@@ -1,0 +1,181 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000" blockScroll="true" appendTo="body">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <i class="icons8 icons8-view-all"></i>
+            <span>Applications</span>
+            <i class="icons8-delete icon-right" (click)="closeClick()"></i>
+        </div>
+    </div>
+
+    <div class="p-col-12 body-container" *ngIf="data">
+
+        <!-- <div class="p-input-icon-left search-div">
+            <i class="pi pi-search"></i>
+            <input type="text" pInputText placeholder="Search" class="input-field-border-none" />
+        </div> -->
+
+
+        <form (ngSubmit)="addApplication(saveAppForm, configureData)" #saveAppForm="ngForm">
+            <div class="add-app-container">
+        <div class="p-grid p-col-12">
+            <div class="search-label">
+                <label>Name</label>
+            </div>
+            <div class="search-input">
+                        <input class="control-input" type="text" pInputText placeholder="Application Name" name="application" ngModel required/>
+            </div>
+        </div>
+
+        <div class="p-grid p-col-12">
+            <div class="search-label">
+                        <label>Tier(s)</label>
+            </div>
+            <div class="search-input">              
+                <p-multiSelect inputId="formula-type" [options]="data.values.tier" placeholder="Select"
+                     [filter]="false" class="w-100-p" styleClass="form-multi-select"
+                            dropdownIcon="icons8-expand-arrow" name="tier" ngModel required>
+                  </p-multiSelect>
+                  
+            </div>
+        </div>
+
+        <div class="p-grid p-col-12">
+            <div class="search-label">
+                <label>Front End Tier</label>
+            </div>
+            <div class="search-input">
+                        <p-dropdown inputId="formula-type" [options]="data.values.tier" placeholder="Select"
+                     [filter]="false" class="w-100-p" styleClass="form-multi-select"
+                            dropdownIcon="icons8-expand-arrow" name="frontTier" ngModel required>
+                          </p-dropdown>
+            </div>
+        </div>
+        <div class="p-grid p-justify-between p-col-12">
+            <button type="button" pButton icon="fa fa-close " (click)="closeClick()" label="Cancel" class=" w-40-p ui-button-rounded"></button>
+                    <button pButton type="submit" label="{{saveBtnLabel}}" class="w-40-p ui-button-rounded"></button>
+        </div> 
+            </div>
+        </form>
+
+        <div class="p-grid p-col-12 p-justify-end">            
+            <div class="search-input right">
+                <i pTooltip="Column Filter" tooltipZIndex="1000010056" class="icons8-search-property filter-search-icon " (click)="toggleFilters()"></i>
+            </div>
+        </div>
+
+        <div
+        #widgetHeight
+        class="mh-10"
+        [ngStyle]="{
+          height: !isEnabledColumnFilter
+          ? 'calc(100vh - 35px)'
+          : 'calc(100vh - 78px)'
+      }"
+      >
+        <p-card class="min-card">
+            <p-table #configureData [columns]="data.tableData.headers"
+             scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 336px)" 
+            [value]="data.tableData.data" 
+            [rowHover]="true" [paginator]="false" 
+            [responsive]="true" [scrollable]="true" 
+            selectionMode="single">
+
+                <ng-template pTemplate="header" let-columns>
+                    
+                    <tr *ngFor="let column of columns;let i = index">
+                       
+                          <th>
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                          </th>
+                        <th *ngFor="let col of column.cols;let i = index" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" class="text-left">
+                            <div class="p-grid p-align-center p-justify-between">
+                                <div class="text-left">
+                                    {{ col.label }}
+                                </div>
+
+                            </div>
+                        </th>
+                    </tr>
+
+                    <tr *ngFor="let headerRow of data.tableData.headers">
+                        <ng-container *ngIf="isEnabledColumnFilter">
+                            <th class="columnwidth"></th>
+                            <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                <div *ngIf="
+                                col.filter.isFilter === true &&
+                                col.filter.type === 'custom'
+                              ">
+                                    <input class="w-100-p" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                configureData.filter(
+                                    $event.target.value,
+                                    col.valueField,
+                                    'custom'
+                                  )
+                                " />
+                                </div>
+                                <div *ngIf="
+                                col.filter.isFilter === true &&
+                                col.filter.type === 'contains'
+                              ">
+                                    <input class="w-100-p" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                configureData.filter(
+                                    $event.target.valueField,
+                                    col.valueField,
+                                    'contains'
+                                  )
+                                " />
+                                </div>
+                            </th>
+                        </ng-container>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+
+                    <tr *ngFor="let column of columns;let i = index">
+                        <td class="columnwidth">
+                            <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                          </td>
+                        <td *ngFor="let col of column.cols; let i = index" class="{{ col.classes }}">
+
+                            <span> {{ row[col.valueField] }} </span>
+
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <!-----------Empty table error handling--------------------->
+
+                <ng-template pTemplate="emptymessage" let-columns>
+                    <tr>
+                        <td [attr.coldiv]="columns.length + 1" class="text-center">
+                            <span *ngIf="error">Error while loading data</span>
+                            <span *ngIf="empty">Data not available</span>
+                            <span *ngIf="loading">Loading</span>
+                        </td>
+                    </tr>
+                </ng-template>
+
+
+            </p-table>
+        </p-card>
+        </div>
+        <div class="p-grid p-col-12 footer">
+            <div class="p-col-6">
+                <button pButton type="submit" (click)="deleteConfiguration(configureData)" label="DELETE" class="ui-outline-button ui-button-secondary"></button>
+
+            </div>
+            <div class="p-col-1">
+            </div>
+            <div class="p-col-5">
+                <button pButton type="submit" (click)="onClickEdit(configureData, saveAppForm)" label="EDIT" class="ui-outline-button ui-button-secondary-green"></button>
+            </div>
+        </div>
+    </div>
+   
+
+
+
+</p-sidebar>
+
+<!-- <p-toast baseZIndex="200001000" position="top-left"></p-toast> -->

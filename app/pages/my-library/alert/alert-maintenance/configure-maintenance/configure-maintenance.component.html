@@ -1,0 +1,161 @@
+<div class="configure-maintenance-dialog">
+    <p-dialog [(visible)]="visible" [closable]="false"  [resizable]="true" [modal]="true"
+        class="secondary-dialog" [draggable]="false" [style]="{width: '89vw'}">
+        <p-header>
+            <div class="configure-maintenance-title">
+                <div>
+                    Configure Maintenance Schedule
+                </div>
+                <div class="action-buttons">
+                    <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+                </div>
+            </div>
+        </p-header>
+
+        <div class="dialog-content">
+            <div class="ui-fluid">
+                <div class="p-field p-grid">
+                    <label for="hostport" class="p-col-12 p-md-1">Schedule Name</label>
+                    <div class="p-col-12 p-md-11">
+                        <input id="schedName" [disabled]="isOnlyReadable" [(ngModel)]="maintenanceConfig.maintenances[0].name" type="text" placeholder="Schedule Name" class="w-100-p" pInputText />
+                    </div>
+                </div>
+                <div class="p-field p-grid">
+                    <label for="hostport" class="p-col-12 p-md-1">Subject Level</label>
+                    <div *ngFor="let indicesLevel of arrIndLavel; let i = index" class="p-col-12 p-md-2">
+                        <p-dropdown class="ui-dropdown-label" [options]="indicesLevel.indicesLevelList" [(ngModel)]="arrIndLavel[i].label"
+                            dropdownIcon="icons8-expand-arrow" placeholder=" Select Level " (onChange)="onChangeIndices(i)">
+                        </p-dropdown>
+                        <div *ngIf="arrIndLavel[i].label == 'pattern'" class="mt-5">
+                            <input type="text" [(ngModel)]="arrIndLavel[i].selectedValue" style="width: 58%; margin-right: 2%;" placeholder="  Pattern " pInputText />
+                             <button type="submit" pButton class="test-button" style="width: 40%;" label="Apply" (click)="onChangeIndices(i)"></button>
+                        </div>
+                    </div>
+                    <div *ngIf="arrIndLavel.length != 0 && arrIndLavel.length%5 == 0" class="p-col-12 p-md-2">
+
+                    </div>
+                    <div class="p-col-12 p-md-2">
+                        <button type="submit" pButton class="test-button" label="Test" (click)="indices.open(tagList,duration,status)"></button>
+                    </div>
+                </div>
+                <div class="p-grid">
+                    <div class="p-col-12 p-md-1 radiobutton1-align">
+                        <p-radioButton name="groupname" value="val1" [(ngModel)]="selectedValue" label="Preset">
+                        </p-radioButton>
+                    </div>
+                    <div [ngClass]="selectedValue == 'val2'? 'disabled':''">
+                        <app-advanced-configuration #advancedConfig [configMaintenanceComponent]=this></app-advanced-configuration>
+                    </div>
+                    <!-- <div class="p-col-12 p-md-2">
+                        <p-dropdown class="ui-dropdown-label" [options]="preset" [disabled]= "isDisable()" [(ngModel)]="scheduleType" dropdownIcon="icons8-expand-arrow"
+                            placeholder=" Select Preset "></p-dropdown>
+                    </div>
+                    <div class="p-col-12 p-md-2" *ngIf="scheduleType == 1" >
+                        <p-dropdown class="ui-dropdown-label custom-dropdown" [options]="days" [disabled]= "isDisable()" [(ngModel)]="scheduleConfig.day" dropdownIcon="icons8-expand-arrow"
+                        placeholder=" Select Day "></p-dropdown>
+                    </div>
+                    <div class="p-col-12 p-md-2" *ngIf="scheduleType == 2 || scheduleType == 3" >
+                        <p-dropdown class="ui-dropdown-label custom-dropdown" [options]="weekMonthDays" [disabled]= "isDisable()" [(ngModel)]="scheduleConfig.day" dropdownIcon="icons8-expand-arrow"
+                        placeholder=" Select Day "></p-dropdown>
+                    </div>
+                    <div class="p-col-12 p-md-2" *ngIf="(scheduleType == 2 || scheduleType == 3) && (scheduleConfig.day > 0 ) && (scheduleConfig.day < 10)">
+                        <p-dropdown class="ui-dropdown-label" [options]="week" [disabled]= "isDisable()" [(ngModel)]="scheduleConfig.week" dropdownIcon="icons8-expand-arrow"
+                        placeholder=" Select Week "></p-dropdown>
+                    </div>
+                    <div class="p-col-12 p-md-2" *ngIf="scheduleType == 3">
+                        <p-dropdown class="ui-dropdown-label" [options]="month" [disabled]= "isDisable()" [(ngModel)]="scheduleConfig.month" dropdownIcon="icons8-expand-arrow"
+                        placeholder=" Select Month "></p-dropdown>
+                    </div>
+                    <div class="p-field p-col-12 p-md-2">
+                        <div class="p-grid spacing">
+                            <label for="time1" class="p-col-12 p-md-4 label-align">From :</label>
+                            <div #from class="p-col-12 p-md-8 timerOnly">
+                                <p-calendar [(ngModel)]="scheduleConfig.st" dateFormat="HH:mm" [disabled]= "isDisable()" [timeOnly]="true"></p-calendar> 
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="(scheduleType == 3) && (scheduleConfig.day > 0 ) && (scheduleConfig.day < 10)" class="p-col-12 p-md-2">
+
+                    </div>
+                    <div class="p-col-12 p-md-2">
+                        <div class="p-grid spacing">
+                            <label for="time2" class="p-col-12 p-md-3 label-align">To :</label>
+                            <div #to class="p-col-12 p-md-8 timerOnly">
+                                <p-calendar [(ngModel)]="scheduleConfig.et" dateFormat="HH:mm" [disabled]= "isDisable()" [timeOnly]="true"></p-calendar> 
+                            </div>
+                        </div>
+                    </div> -->
+                </div>
+                <div class="p-col-12 p-grid ml-4">
+                    <div class="radiobutton2-align" [style]="{'margin-left': '-5px'}">
+                        <p-radioButton name="groupname" value="val2" [(ngModel)]="selectedValue" label="Custom" (click)="onCustomChg()">
+                        </p-radioButton>
+                    </div>
+                    <div class="mr-20">
+                        <div class="p-grid mt-2 ml-25">
+                            <label class="label-align mr-10"  [style]="{'margin-left': '8px'}">From :</label>
+                            <div class="p-input-icon-left search-div-css">
+                                <i class="icons8 icons8-calendar"></i>
+                                <input pInputText class="customInput" readonly id="start-date-time"
+                                    [owlDateTime]="customStartDateTime" placeholder="04:30 PM 23/04/2020"
+                                    [owlDateTimeTrigger]="customStartDateTime" [disabled] = "isCustomDisable()"
+                                    (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'"
+                                    [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame" appendTo="body"
+                                    tooltipZIndex="1000010056" baseZIndex="10000" />
+                                <owl-date-time #customStartDateTime tooltipZIndex="100001005" [showSecondsTimer]="true"></owl-date-time>
+                            </div>
+                            <p-message *ngIf="invalidDate && !isCustomDisable()" severity="error"
+                           text="Start date and End date should not be the same.">
+                        </p-message>
+                        </div>
+                    </div>
+                    <div class="mr-20">
+                        <div class="p-grid mt-2">
+                            <label class="label-align mr-10" [style]="{'margin-left': '8px'}">To :</label>
+                            <div class="p-input-icon-left search-div-css">
+                                <i class="icons8 icons8-calendar"></i>
+                                <input pInputText class="customInput" readonly id="end-date-time"
+                                    [owlDateTime]="customEndDateTime" placeholder="04:30 PM 13/06/2020"
+                                    [owlDateTimeTrigger]="customEndDateTime" [disabled] = "isCustomDisable()"
+                                    (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeTo'"
+                                    [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame" />
+                                <owl-date-time #customEndDateTime tooltipZIndex="100001005" [showSecondsTimer]="true"></owl-date-time>
+                            </div>
+                        </div>
+                        <p-message  *ngIf="invalidDate && !isCustomDisable()" severity="error"
+                               text="Start date and End date should not be the same.">
+                            </p-message>
+                    </div>
+                    <div [ngClass]="isCustomDisable()? 'disabled':''" class="width-170 ml-10">
+                        <p-dropdown [options]="sessionService.timeZoneLists" filter="true" [(ngModel)]="_selectedTimeZone"></p-dropdown>
+                    </div>
+                </div>
+
+                <div class="p-field p-grid">
+                    <label for="basedomain" class="p-col-12 p-md-1">Description</label>
+                    <div class="p-col-12 p-md-11">
+                        <input id="desc" [disabled]="isOnlyReadable" [(ngModel)]="maintenanceConfig.maintenances[0].attributes.description" type="text" placeholder="Text" class="w-100-p" pInputText />
+                    </div>
+                </div>
+                <div class="p-field p-grid">
+                    <label for="basedomain" class="p-col-12 p-md-1">Enter Email</label>
+                    <div class="p-col-12 p-md-11">
+                        <input id="email" [disabled]="isOnlyReadable" [(ngModel)]="maintenanceConfig.maintenances[0].attributes.mail" type="email" placeholder="team.member@cavisson.com" class="w-100-p"
+                            pInputText />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <p-footer>
+            <div class="p-col-12 form-buttons right">
+                <button *ngIf="!isOnlyReadable" pButton type="submit" label="Apply" (click)="applyChanges()" class="ui-button-rounded"></button>
+            </div>
+        </p-footer>
+
+    </p-dialog>
+</div>
+
+<app-selected-indices #indices></app-selected-indices> 
+<app-confirmation-dialog #appConfirmationDialog (command)="executeCommand($event)" ></app-confirmation-dialog>

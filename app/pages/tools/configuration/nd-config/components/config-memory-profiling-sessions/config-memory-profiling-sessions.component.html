@@ -1,0 +1,223 @@
+<div class="ddr_landing popins-fonts" style="height: calc(100vh - 115px);">
+  <div class="memory_profile">
+    <div class="memoryAllocation">
+      <span>Memory allocation profiling session</span>
+      <button pButton icon="icons8 icons8-plus-math" (click)="redirectMemProfToInstance()" class="m-3"></button>
+    </div>
+    <ul class="memory_allocation_list" *ngIf="isShowSessions" style="height:calc(100vh - 148px);">
+      <li *ngFor="let list of allocatioList; let i = index" [ngStyle]="{'background-color':activeProjectIndex === i? '#b3e5fc' : 'white' }" (click)="selectedSessionDetails(list, i)">
+        <div class="memory_alo_name">
+          <div class="aloc_name">
+            <label>Name</label>
+            <span pTooltip="{{list.sessionName}}" tooltipPosition="top"
+              tooltipStyleClass="mytooltip">{{list.sessionName}}</span>
+          </div>
+          <div class="aloc_name">
+            <label>Tier</label>
+            <span pTooltip="{{list.tierName}}" tooltipPosition="top"
+              tooltipStyleClass="mytooltip">{{list.tierName}}</span>
+          </div>
+          <div class="aloc_name">
+            <label>Start Time</label>
+            <span style="margin-left: 11px;" pTooltip="{{list.startTime}}" tooltipPosition="top"
+              tooltipStyleClass="mytooltip">{{list.splitStartTime}}</span>
+          </div>
+          <div style="text-align: right;" class="aloc_name">
+            <label>Duration</label>
+            <span pTooltip="{{list.duration}} mins" tooltipPosition="top"
+              tooltipStyleClass="mytooltip">{{list.duration}} mins</span>
+          </div>
+
+          <div class="action_btn">
+            <i class="icons8 icons8-trash" style="color: #e91224;" (click)="showDeleteDialog(list)"></i>
+          </div>
+        </div> 
+
+        <div class="des_cription">
+          <div class="aloc_name" style="width: 90%;">
+            <label>Description</label>
+            <span tooltipPosition="top" pTooltip="{{list.description}}"
+              tooltipStyleClass="mytooltip">{{list.description}}</span>
+          </div>
+        </div>
+	<i class="icons8 icons8-spinner spin spin_class" title="In Progress" *ngIf="list.status == 'In progress'" aria-hidden="true"></i>
+      </li>
+    </ul>
+
+    <!-- -------------------------add session--------------------->
+    <div *ngIf="!isShowSessions" class="cav-central noWrap">
+      <p class="font-13 opc5">Click to add memory profiling session</p>
+      <button pButton type="button" class="ui-button-rounded" (click)="redirectMemProfToInstance()">Add Session</button>
+    </div>
+    <!-- -------------------------add session--------------------->
+  </div>
+
+  <div *ngIf="isShowSessionData && !isSessionInProgress && allocatioList.length != 0" class="memory_alocation cav-px-2">
+    <div class="memoryAllocation px-0">
+      <span>Memory allocation profiling session details</span>
+    </div>
+
+    <div class="my-5 p-grid p-justify-center">
+      <p-selectButton [options]="types" [(ngModel)]="selectedType"></p-selectButton>
+    </div>
+
+    <div class="chrtside_div px-10">
+      <table class="mytables">
+        <tr>
+          <th>Tier</th>
+          <th>Server</th>
+          <th>Instance</th>
+          <th class="text-right">Duration</th>
+          <th class="text-right">Heap max size</th>
+          <th class="text-right">Used heap before</th>
+          <th class="text-right">Used heap after</th>
+          <th class="text-right">Free heap before</th>
+          <th class="text-right">Free heap after</th>
+        </tr>
+	<tr>
+          <td tooltipPosition="left" pTooltip="{{ tierName }}" tooltipStyleClass="mytooltip">{{ tierName }}</td>
+          <td tooltipPosition="left" pTooltip="{{ serverName }}" tooltipStyleClass="mytooltip">{{ serverName }}</td>
+          <td tooltipPosition="left" pTooltip="{{ instanceName }}" tooltipStyleClass="mytooltip">{{ instanceName }}</td>
+          <td tooltipPosition="right" pTooltip="{{ duration }} mins" tooltipStyleClass="mytooltip">{{ duration }} mins</td>
+          <td tooltipPosition="right" pTooltip="{{ memProfSessionRes['profiler_data'].heapMaxSize }} GB" tooltipStyleClass="mytooltip">{{ memProfSessionRes['profiler_data'].heapMaxSize }} GB</td>
+          <td tooltipPosition="right" pTooltip="{{ memProfSessionRes['profiler_data'].usedHeapBefore }} GB" tooltipStyleClass="mytooltip">{{ memProfSessionRes['profiler_data'].usedHeapBefore }} GB</td>
+          <td tooltipPosition="right" pTooltip="{{ memProfSessionRes['profiler_data'].usedHeapAfter }} GB" tooltipStyleClass="mytooltip">{{ memProfSessionRes['profiler_data'].usedHeapAfter }} GB</td>
+          <td tooltipPosition="right" pTooltip="{{ memProfSessionRes['profiler_data'].freeHeapBefore }} GB" tooltipStyleClass="mytooltip">{{ memProfSessionRes['profiler_data'].freeHeapBefore }} GB</td>
+          <td tooltipPosition="right" pTooltip="{{ memProfSessionRes['profiler_data'].freeHeapAfter }} GB" tooltipStyleClass="mytooltip">{{ memProfSessionRes['profiler_data'].freeHeapAfter }} GB</td>
+        </tr>
+      </table>
+
+      <h3 class="font-13 font-weight-700 my-10">TOP {{topNClassLabel}} CLASS</h3>
+      <p-table [columns]="topNclassCols" [value]="topNclass" [scrollable]="true" scrollHeight="148px"
+        class="all-tables" sortField="count" [sortOrder]="-1" selectionMode="single" dataKey="name">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col style="width:40%">
+            <col style="width:19%">
+            <col style="width:19%">
+            <col style="width:18%">
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+              {{col.header}}
+              <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+              </p-sortIcon>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr [pSelectableRow]="rowData">
+            <td *ngFor="let col of columns" pTooltip="{{rowData[col.field]}}" tooltipPosition="top" tooltipStyleClass="mytooltip"
+              [ngStyle]="{'text-align' : col.field == 'size' || col.field == 'count' || col.field == 'totalSize' ? 'right' : 'left'}"
+              (click)="getSelectedClassData(rowData)">
+              {{rowData[col.field]}}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <div div class="p-grid p-align-center my-5">
+            <!-- TOTAL ALLOCATION -->
+            <div class="allocation_chart1">
+            <p-dropdown [options]="chartOptions"
+	    [style]="{'width': '150px'}"
+            [(ngModel)]="selectedChart" (onChange)="changeGraph()"  dropdownIcon="icons8 icons8-expand-arrow">
+            </p-dropdown>
+            </div>
+            <div class="allocation_chart2">
+	    <h3 class="font-13 font-weight-700 m-5">ALLOCATION CHART</h3>
+      </div>
+      </div>
+      <div class="allocation_chart cav-mb-3">
+        <div class="allocation_chart1 border-1">
+          <highcharts-chart
+            [Highcharts] = "highcharts"
+            [options] = "pieCharts"
+            style = "width: 400px; height: 180px; display: block;">
+          </highcharts-chart>
+        </div>
+        <div class="allocation_chart2 border-1">
+          <highcharts-chart [options]="lineCharts" 
+          [Highcharts] = "highcharts"
+          style="width: 100%; height: 180px; display: block;">
+          </highcharts-chart>
+        </div>
+      </div>
+      <h3 class="font-13 font-weight-700 my-10">Stack Trace <span *ngIf="selectedClassName != ''">of {{ selectedClassName }}</span></h3>
+      <p-table [columns]="stacTracCols" [value]="stacTrac" [scrollable]="true" scrollHeight="148px"
+      class="all-tables" selectionMode="single" dataKey="name">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col style="width:93%">
+            <col style="width:7%">
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th *ngFor="let col of columns">
+                {{  col.header }}
+              </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr>
+                <td *ngFor="let col of columns" [ngStyle]="{'text-align' : col.field == 'name' ? 'left' : 'right'}" style="white-space: pre-wrap;">
+                  {{rowData[col.field]}}
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+              <td [attr.colspan]="columns.length" style="text-align: center;">
+                  <b>No Stack Traces To Show.</b>
+              </td>
+          </tr>
+      </ng-template>
+    </p-table>
+    </div>
+  </div>
+</div>
+
+<!-- -------------------------when no session configured--------------------->
+<div *ngIf="!isShowSessions && allocatioList.length == 0" class="cav-central noWrap">
+  <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">No session configured. To
+    configure a memory allocation profiling session, click on 'Add Session'</p>
+</div>
+<!-- -------------------------when no session configured--------------------->
+
+<!-- -------------------------- When session in progress ------------------------- -->
+<div *ngIf="isSessionInProgress && allocatioList.length != 0" class="cav-central noWrap">
+  <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">Session is currently in
+    progress. Please wait for the
+    session to finish to see the data.</p>
+</div>
+<!-- -------------------------- When session in progress ------------------------- -->
+
+<!-- -------------------------when no session is selected--------------------->
+<div *ngIf="!isShowSessionData && allocatioList.length != 0 && !isNoSessionData" class="cav-central noWrap">
+  <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">
+    Click on session to view session's data</p>
+</div>
+<!-- -------------------------when no session is selected--------------------->
+
+<!---------------------------- When no session data available -------------------------->
+<div *ngIf="isNoSessionData && allocatioList.length != 0" class="cav-central noWrap">
+  <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">No Session data is available. Please see logs for more details.</p>
+</div>
+<!---------------------------- When no session data available -------------------------->
+
+<p-dialog header="Confirmation" [style]="{'width':'400px'}" class="secondary-dialog foterDialog" [(visible)]="isOpenDeletedDialog" modal="modal" [resizable]="false" [draggable]="false">
+
+
+      <div>Do you want to delete this session ?</div>
+
+
+      <div class="p-grid p-align-center p-justify-end py-5">
+        <button type="button" pButton class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="isOpenDeletedDialog=false;">Cancel</button>
+        <button type="button" pButton class="ui-button-rounded px-15" (click)="deleteSession()">Ok</button>
+      </div>
+
+
+</p-dialog>

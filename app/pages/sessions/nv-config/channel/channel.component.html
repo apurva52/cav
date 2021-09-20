@@ -1,0 +1,151 @@
+<div class="channel-container" #widget>
+
+  <div class="action-container">
+    <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+      <div class="global-search-block">
+        <div class="p-input-icon-left search-div-css">
+          <i class="icons8 icons8-search"></i>
+          <input pInputText type="text" #searchInput class="input-field-search"
+            (input)="channel.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+        </div>
+      </div>
+
+      <div class="icons-container p-justify-between p-align-center">
+
+        <button pButton *ngIf="buttonflag" icon="icons8 icons8-delete-trash" class="icon-button no-shadow"
+          pTooltip="Delete" (click)="deleteEntry.open()"></button>
+
+        <p-multiSelect class="icon-button no-shadow " [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label"
+          [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns"
+          [panelStyle]="{ minWidth: '200px' }">
+        </p-multiSelect>
+
+        <i pButton class="icons8 icons8-search-property icon-button no-shadow column-filter" (click)="toggleFilters()"
+          pTooltip="Column Filter"></i>
+
+        <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'"
+          [hideTransitionOptions]="'0ms'"></p-menu>
+        <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+          (click)="menu.toggle($event);" pTooltip="Download"></button>
+
+        <button pButton *ngIf="buttonflag" label="ADD NEW" (click)="addChannel.showDialog(null, false)"
+          class="ui-button ui-button-rounded ui-button-secondary add-channel"></button>
+
+      </div>
+    </div>
+  </div>
+
+
+  <div #widgetHeight class="mh-10" [ngStyle]="{
+                height: !isEnabledColumnFilter
+                  ? 'calc(100vh - 172px)'
+                  : 'calc(100vh - 216px)'
+              }">
+    <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+      Select column to show
+    </div>
+    <div class="audit-logs-table">
+      <p-table #channel [resizableColumns]="true" [columns]="selectedColumns" [value]="data.data" [rowHover]="true"
+        [paginator]="true" [rows]="data.paginator.rows" [totalRecords]="data.data.length"
+        [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+        [scrollable]="true" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 150px)" selectionMode="single"
+        [globalFilterFields]="globalFilterFields" class="all-tables">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col *ngFor="let col of columns" [style.width]="col.width" />
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th class="columnwidth">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+
+            <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+              [pSortableColumn]="col.valueField" class="text-left" pResizableColumn>
+              <div class="left">
+                {{ col.label }}
+              </div>
+              <div *ngIf="col.isSort" class="right">
+                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort"
+                  ariaLabelDesc="Activate to sort in descending order"
+                  ariaLabelAsc="Activate to sort in ascending order">
+                </p-sortIcon>
+              </div>
+            </th>
+            <th class="columnwidth" *ngIf="buttonflag"></th>
+          </tr>
+          <tr *ngFor="let headerRow of data.headers">
+            <ng-container *ngIf="isEnabledColumnFilter">
+              <th></th>
+              <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                <div *ngIf="
+                                col.filter.isFilter === true &&
+                                col.filter.type === 'custom'
+                              ">
+                  <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label" pInputText
+                    type="text" (input)="
+                                  channel.filter(
+                                    $event.target.value,
+                                    col.valueField,
+                                    'custom'
+                                  )
+                                " />
+                </div>
+                <div *ngIf="
+                                col.filter.isFilter === true &&
+                                col.filter.type === 'contains'
+                              ">
+                  <input class="w-100-p" pTooltip="Enter text to search" *ngSwitchCase="col.label" pInputText
+                    type="text" (input)="
+                                  channel.filter(
+                                    $event.target.value,
+                                    col.valueField,
+                                    'contains'
+                                  )
+                                " />
+                </div>
+              </th>
+            </ng-container>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+          <tr>
+            <td class="text-center columnwidth">
+              <p-tableCheckbox [value]="row"></p-tableCheckbox>
+            </td>
+            <td *ngFor="let col of columns" class="{{ col.classes }}">
+              {{ row[col.valueField] }}
+            </td>
+            <td class="columnwidth text-center" *ngIf="buttonflag">
+              <!-- <div class="p-grid p-justify-start"> -->
+              <button pButton icon="icons8 icons8-edit-2 pr-5" (click)="addChannel.showDialog(row, true)"
+                class="ui-icon-button p-col-1" pTooltip="Edit"></button>
+              <!-- </div> -->
+            </td>
+          </tr>
+        </ng-template>
+
+        <!-----------Empty table error handling--------------------->
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="columns.length + 1" class="text-center">
+              <span *ngIf="error">Error while loading data</span>
+              <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i>Loading</span>
+              <span *ngIf="!loading && !error && searchInput.value.length;else noRecords">Nothing found
+                matching
+                "{{searchInput.value}}"</span>
+              <ng-template #noRecords>
+                <span *ngIf="!loading && !error">No Records Found</span>
+              </ng-template>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<app-channel-crud #addChannel></app-channel-crud>
+<app-delete-entry #deleteEntry></app-delete-entry>

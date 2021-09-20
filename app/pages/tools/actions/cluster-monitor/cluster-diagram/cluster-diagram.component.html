@@ -1,0 +1,131 @@
+<div class="h-100-vh cluster-wrapper">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <a routerLink="/cluster-monitor">
+        <i class="icons8 icons8-left toolbar-icon-color"></i>
+      </a>
+      <div class="p-col ui-toolbar-text">CLUSTER DIAGRAM</div>
+    </div>
+  </p-toolbar>
+  <div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+  </div>
+  <div class="content-body">
+    <div class="p-grid h-100-p">
+      <div class="p-col-4 p-0">
+        <div class="query-filter-container">
+          <div class="query-header">Query Filter</div>
+          <div class="query-content">
+            <p-panel #IndicesPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="IndicesPnl.collapsed" [ngClass]="IndicesPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+              <p-header class="cav-panel-header pt-5">
+                  <div class="panel-title" (click)="IndicesPnl.toggle($event)">
+                      <span [class]="IndicesPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                      </span> Indices
+                  </div>
+              </p-header>
+              <div class="indices">
+                    <div class="p-10" *ngFor="let item of indices">
+                          <p-checkbox name="{{item.value}}" value="val1" label="{{item.label}}"></p-checkbox>
+                    </div>
+              </div>
+            </p-panel>
+            <p-panel #FieldsPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="FieldsPnl.collapsed" [ngClass]="FieldsPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                  <p-header class="cav-panel-header pt-5">
+                      <div class="panel-title" (click)="FieldsPnl.toggle($event)">
+                          <span [class]="FieldsPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                          </span> Legends
+                      </div>
+                  </p-header>
+            </p-panel>
+          </div>
+          <div class="query-footer">
+                <button
+                  pButton
+                  label="CANCEL"
+                  class="ui-outline-button ui-button-secondary"
+                ></button>
+                <button
+                  pButton
+                  label="SEARCH"
+                  class="ui-outline-button ui-button-primary"
+                ></button>
+          </div>
+        </div>
+      </div>
+      <div class="p-col-8 p-0 diagram-container">
+        <div class="p-grid h-100-p">
+          <div class="p-col-12 diagram-header">
+            <div class="action-buttons">
+                  <div class="routing-buttons">
+                    <button
+                      pButton
+                      label="Indices"
+                      class="ui-outline-button ui-button-secondary"
+                      [routerLink]="['/cluster-node-info/node-indices']"
+                    ></button>
+                    <button
+                      pButton
+                      label="Query"
+                      class="ui-outline-button ui-button-secondary"
+                      [routerLink]="['/cluster-node-info/node-query']"
+                    ></button>
+                    <button
+                      pButton
+                      label="Mapping"
+                      class="ui-outline-button ui-button-secondary"
+                      [routerLink]="['/cluster-node-info/node-mapping']"
+                    ></button>
+                    <button
+                      pButton
+                      label="Rest API"
+                      class="ui-outline-button ui-button-secondary"
+                      [routerLink]="['/cluster-node-info/node-rest-api']"
+                    ></button>
+                  </div>
+                  <div>
+                    <p-dropdown
+                      [options]="nodeInfo"
+                      placeholder="Node Information"
+                      dropdownIcon="icons8-expand-arrow"
+                      (onChange)="nodeChanged($event)"
+                    ></p-dropdown>
+                  </div>
+                  <div class="action-icons">
+                    <button
+                      pButton
+                      icon="icons8 icons8-settings"
+                      class="ui-icon-button icon-button no-shadow"
+                      pTooltip="Edit Settings"
+                      (click)="nodeEditSetting.show()"
+                    ></button>
+                    <button
+                      pButton
+                      icon="icons8 icons8-synchronize"
+                      class="ui-icon-button icon-button no-shadow"
+                      pTooltip="Reload"
+                    ></button>
+                    <button
+                      pButton
+                      icon="icons8 icons8-flow-chart"
+                      class="ui-icon-button icon-button no-shadow"
+                      pTooltip="Cluster Monitor"
+                      [routerLink]="['/cluster-monitor']"
+                    ></button>
+                  </div>
+            </div>
+          </div>
+          <div class="p-col-12 diagram-body">
+            <div class="h-100-p">
+              <jsplumb-surface [surfaceId]="surfaceId" [toolkitId]="toolkitId" [view]="view" [renderParams]="renderParams"></jsplumb-surface>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-node-edit-settings #nodeEditSetting></app-node-edit-settings>

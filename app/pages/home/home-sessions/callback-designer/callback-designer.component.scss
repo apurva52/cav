@@ -1,0 +1,401 @@
+app-callback-designer {
+  .callback-designer-container {
+    .loading-indicator {
+      position: fixed;
+      z-index: 999;
+      height: 2em;
+      width: 2em;
+      overflow: show;
+      margin: auto;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+    }
+
+    /* Transparent Overlay */
+    .loading-indicator:before {
+      content: "";
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.53);
+    }
+
+    .ui-card {
+      padding: unset;
+    }
+    .vertical-container {
+      height: calc(100vh - 120px);
+      overflow: auto;
+      .custom-button {
+        border-radius: 20px;
+        margin-left: 1em;
+      }
+      .ui-accordion .ui-accordion-header a {
+        padding: 0.571em 1em;
+      }
+      .ui-panel {
+        .ui-panel-titlebar {
+          padding: 5px 10px;
+        }
+        .icon-button.ui-button {
+          margin: 0;
+        }
+      }
+      .cav-panel-content {
+        justify-content: space-between;
+        width: 100%;
+      }
+      .customInput {
+        border: none;
+        border-bottom: 1px solid #1d5290;
+        border-radius: 0;
+        width: 100%;
+        .ui-dropdown {
+          min-width: 100px;
+        }
+      }
+      .inline {
+        display: inline-flex;
+      }
+      .custom-min-width {
+        .ui-dropdown {
+          min-width: 130px;
+        }
+      }
+      .less-min-width {
+        .ui-dropdown {
+          min-width: 50px;
+        }
+      }
+      .right {
+        .icon-button.ui-button.no-shadow {
+          margin-top: -9px;
+        }
+      }
+      .h-50 {
+        height: 50%;
+        .box-stretched,
+        body {
+          height: 100%;
+          font-size: 16px;
+          // padding: 2em 0em;
+          border: 1px solid #cecece;
+          span {
+            margin-top: auto;
+            margin-bottom: auto;
+            font-size: 20px;
+          }
+        }
+      }
+      .action-container {
+        .menu-grid {
+          display: flex;
+          flex-direction: row-reverse;
+        }
+        .global-search-block {
+          width: 30%;
+          .input-field-search {
+            width: 100%;
+            padding-left: 25px;
+          }
+        }
+
+        .ui-button.ui-button-secondary {
+          margin-right: 5px;
+        }
+        .labels {
+          margin: 0px 10px;
+        }
+        i.filter-icon {
+          font-size: 1.5em;
+          color: #1d5290;
+          margin: 0 10px;
+          line-height: 30px;
+        }
+        .search-div-css {
+          position: relative;
+          i {
+            font-size: 1.5em;
+            position: absolute;
+            color: #1d5290;
+            top: 7px;
+            left: 5px;
+          }
+        }
+        .ui-multiselect {
+          border: none;
+          padding: 12px;
+          background: transparent;
+          .ui-helper-hidden-accessible {
+            display: none;
+          }
+          .ui-multiselect-label {
+            display: none;
+          }
+          .ui-multiselect-trigger {
+            margin-top: 1px;
+            background-color: transparent;
+            .ui-multiselect-trigger-icon {
+              font-size: 1.5em;
+            }
+          }
+        }
+      }
+      .icons-container {
+        i {
+          font-size: 1.5em;
+        }
+      }
+
+      .no-padding {
+        padding: 0;
+      }
+
+      .state-btn {
+        color: #5cb771;
+        border: 2px solid #5cb771;
+        padding: 0em 2em 0em 1em;
+        border-radius: 15px;
+        background-color: #ffffff;
+        margin: 0;
+        font-size: 13px;
+        transition: background-color 0.2s, box-shadow 0.2s;
+        display: inline-block;
+        position: relative;
+        text-decoration: none;
+        cursor: pointer;
+        text-align: center;
+        overflow: visible;
+      }
+      .state-btn:hover {
+        color: #5cb771;
+        border: 2px solid #5cb771;
+        padding: 0em 2em 0em 1em;
+        text-decoration: none;
+      }
+
+      .left-tabs {
+        border-right: 1px solid #cecece;
+        height: calc(100vh - 70px);
+        overflow: auto;
+
+        .align-items {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .ui-orderlist .ui-orderlist-list {
+          height: 66vh;
+        }
+
+        .ui-orderlist .ui-orderlist-list .ui-orderlist-item {
+          border-left: 5px solid #abbed0;
+        }
+
+        .ui-orderlist .ui-orderlist-list .ui-orderlist-item.ui-state-highlight {
+          border-left: 5px solid #53b771;
+        }
+      }
+
+      .diagram-body {
+        height: calc(100% - 60px);
+        overflow: auto;
+
+        .diagram-height {
+          height: 62vh;
+        }
+
+        jsplumb-surface {
+          height: 100%;
+        }
+
+        .jtk-surface {
+          height: 100%;
+          background-color: #ffffff;
+        }
+
+        .jtk-overlay {
+          background-color: white;
+          padding: 7px;
+        }
+
+        .connectingConnectorLabel {
+          height: 23px;
+          width: 110px;
+          border-radius: 13px;
+          color: #8d8d8d;
+          text-align: center;
+          z-index: 1 !important;
+          left: 50% !important;
+          background-color: #1d5290;
+        }
+
+        .flowchart-start {
+          svg {
+            position: absolute;
+            fill: #e3d627;
+            left: 0;
+            top: 0;
+            .outer {
+              stroke-width: 1px;
+              cursor: pointer;
+              &:hover {
+                stroke: yellow;
+                stroke-width: 2px;
+              }
+            }
+          }
+        }
+
+        .flowchart-end {
+          svg {
+            position: absolute;
+            fill: #e3d627;
+            left: 0;
+            top: 0;
+            .outer {
+              stroke-width: 1px;
+              cursor: pointer;
+              &:hover {
+                stroke: yellow;
+                stroke-width: 2px;
+              }
+            }
+          }
+        }
+
+        .flowchart-state {
+          svg {
+            position: absolute;
+            fill: white;
+            left: 0;
+            top: 0;
+            .outer {
+              stroke-width: 1px;
+              cursor: pointer;
+              &:hover {
+                stroke: yellow;
+                stroke-width: 2px;
+              }
+            }
+          }
+        }
+
+        .flowchart-action {
+          svg {
+            position: absolute;
+            fill: white;
+            left: 0;
+            top: 0;
+            .outer {
+              stroke-width: 1px;
+              stroke: #1d5290;
+              cursor: pointer;
+              &:hover {
+                stroke-width: 2px;
+              }
+            }
+          }
+        }
+
+        .flowchart-question {
+          svg {
+            position: absolute;
+            fill: white;
+            left: 0;
+            top: 0;
+            .outer {
+              stroke-width: 1px;
+              stroke: #1d5290;
+              cursor: pointer;
+              &:hover {
+                stroke-width: 2px;
+              }
+            }
+          }
+        }
+        .flowchart-object {
+          text {
+            stroke: none;
+            fill: black;
+            font-family: "Open Sans", sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+          }
+        }
+
+        .parent-cluster {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 50px;
+          height: 50px;
+          background-color: #e3d627;
+          border-radius: 50%;
+          color: #1d5290;
+        }
+        .child-node {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border: 1px solid #1d5290;
+          padding: 10px;
+          width: max-content;
+          border-radius: 20px;
+          .node-index {
+            border: 1px solid #1d5290;
+            border-radius: 50%;
+            display: flex;
+            height: 34px;
+            width: 34px;
+            align-items: center;
+            position: absolute;
+            left: 1px;
+            justify-content: center;
+          }
+          .node-name {
+            padding-left: 30px;
+          }
+        }
+        .child-indices {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border: 1px solid #1d5290;
+          padding: 10px;
+          width: max-content;
+          border-radius: 20px;
+        }
+      }
+    }
+  }
+
+  .jtk-surface-selected-element {
+    box-shadow: unset;
+    border: 2px dashed #f76258 !important;
+
+    .node-action {
+      display: block !important;
+    }
+
+    .node-edit {
+      right: 15px;
+    }
+
+    .node-delete {
+      right: -5px;
+    }
+  }
+
+  .node-action {
+    position: absolute;
+    top: -17px;
+    display: none;
+  }
+}

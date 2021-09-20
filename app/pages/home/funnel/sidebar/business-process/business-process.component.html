@@ -1,0 +1,117 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+      blockScroll="true" appendTo="body" [baseZIndex]="100" (onHide)="hide()">
+      <div class="sidebar-header">
+            <div class="sidebar-title">
+                  <div>
+                        <i class="icons8 icons8-star-filled"></i>
+                        <span>Business Process</span>
+                  </div>
+                  <div class="action-icons">
+                        <i class="icons8-delete" (click)="hide()"></i>
+                  </div>
+            </div>
+      </div>
+      <div class="sidebar-content">
+
+            <form [formGroup]="form">
+
+                  <div class="p-grid">
+                        <!-- Business Process Dropdown -->
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                              <label for="bpname" class="heading">Business Process</label>
+                              <p-dropdown [options]="businessProcess" placeholder="Select Business Process"
+                                    dropdownIcon="icons8 icons8-expand-arrow" formControlName="bpname"></p-dropdown>
+                        </div>
+                        <p-message *ngIf="submitted && form.get('bpname').invalid" severity="error"
+                              text="Please select a  business process">
+                        </p-message>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                              <label for="channel" class="heading">Channel</label>
+                              <p-dropdown [options]="channels" placeholder="Select Channel"
+                                    dropdownIcon="icons8 icons8-expand-arrow" formControlName="channel">
+                              </p-dropdown>
+                        </div>
+                        <p-message *ngIf="submitted && form.get('channel').invalid" severity="error"
+                              text="Please select a channel">
+                        </p-message>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                              <label for="usersegments" class="heading">User Segment</label>
+                              <p-dropdown [options]="usersegments" placeholder="Select Segment"
+                                    dropdownIcon="icons8 icons8-expand-arrow" formControlName="usersegment">
+                              </p-dropdown>
+                        </div>
+                        <p-message *ngIf="submitted && form.get('usersegment').invalid" severity="error"
+                              text="Please select a  user segment">
+                        </p-message>
+                  </div>
+
+
+                  <div class="p-grid details">
+                        <p-tabView class="h-100-p w-100-p">
+                              <p-tabPanel header="Time Filter">
+                                    <!-- TimeFilter Starts -->
+                                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                          <p-radioButton name="timeFilter" value="last" label="Last"
+                                                formControlName="timeFilter" (onClick)="onTimeFilterChange()">
+                                          </p-radioButton>
+                                          <p-dropdown [options]="lastTimes" placeholder="Select Duration"
+                                                dropdownIcon="icons8-expand-arrow" formControlName="lastTime">
+                                          </p-dropdown>
+                                    </div>
+                                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                          <p-radioButton name="timeFilter" value="custom" label="Custom"
+                                                formControlName="timeFilter" (onClick)="onTimeFilterChange()">
+                                          </p-radioButton>
+                                    </div>
+                                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                          <label>Starts At</label>
+                                          <div class="p-input-icon-left search-div-css">
+                                                <i class="icons8 icons8-calendar"></i>
+                                                <input pInputText class="customInput" readonly id="start-date-time"
+                                                      [owlDateTime]="customStartDateTime"
+                                                      [owlDateTimeTrigger]="customStartDateTime"
+                                                      placeholder="04:30 PM 23/04/2020"
+                                                      (dateTimeChange)="onTimeFilterCustomTimeChange('start')"
+                                                      [selectMode]="'rangeFrom'" [max]="maxDate"
+                                                      [formControl]="form.controls['customTime']">
+                                                <owl-date-time #customStartDateTime tooltipZIndex="100001005">
+                                                </owl-date-time>
+                                          </div>
+                                    </div>
+                                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                          <label>Ends At</label>
+                                          <div class="p-input-icon-left search-div-css">
+                                                <i class="icons8 icons8-calendar"></i>
+                                                <input pInputText class="customInput" readonly id="end-date-time"
+                                                      [owlDateTime]="customEndDateTime"
+                                                      [owlDateTimeTrigger]="customEndDateTime"
+                                                      placeholder="04:30 PM 23/04/2020"
+                                                      (dateTimeChange)="onTimeFilterCustomTimeChange('end')"
+                                                      [selectMode]="'rangeTo'" [max]="maxDate"
+                                                      [formControl]="form.controls['customTime']">
+                                                <owl-date-time #customEndDateTime tooltipZIndex=" 100001005">
+                                                </owl-date-time>
+
+                                          </div>
+                                    </div>
+                                    <p-message *ngIf="submitted && invalidDate" severity="error"
+                                          text="Start time cannot be greater than end time">
+                                    </p-message>
+                              </p-tabPanel>
+
+                        </p-tabView>
+                  </div>
+
+            </form>
+
+
+
+      </div>
+      <div class="p-grid p-justify-between ph-20">
+            <button pButton label="RESET" class="ui-button-rounded ui-button-secondary mr-5"
+                  (click)="initializeForm()"></button>
+            <button pButton label="APPLY" class="ui-outline-button ui-button-primary" (click)="submit()"></button>
+      </div>
+</p-sidebar>

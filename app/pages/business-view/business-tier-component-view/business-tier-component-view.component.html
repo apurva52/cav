@@ -1,0 +1,37 @@
+<div class="business-tier-wrapper">
+    <div class="h-100-p">
+        <jsplumb-surface [surfaceId]="surfaceId" [toolkitId]="toolkitId" [view]="view" [renderParams]="renderParams">
+        </jsplumb-surface>
+    </div>
+
+    <p-overlayPanel #solarPerf *ngIf="nodeOverlayData" appendTo="body">
+            <div class="solar-pref p-grid">
+                <div class="p-col-12 no-padding">
+                    <header>
+                        <span>TOP 5 TPS</span>
+                    </header>
+                </div>
+
+                <div class="p-col-12 info">
+                    <div class="p-grid server-info" *ngFor="let item of nodeOverlayData.serverInfo">
+                        <label for="serverName" class="p-col-12 server-title">
+                           <span><i class="icons8 {{item.icon}}"></i></span> 
+                           <span>{{item.serverName}}</span>
+                        </label>
+                        <div class="p-col-4">
+                            <i class="icons8 icons8-database"></i>
+                            <label for="count" class="count">{{item.docs}}</label>
+                        </div>
+                        <div class="p-col-4">
+                            <i class="icons8 icons8-bar-chart"></i>
+                            <label for="count" class="count">{{item.networks}}</label>
+                        </div>
+                        <div class="p-col-4">
+                            <i class="icons8 icons8-combo-chart"></i>
+                            <label for="count" class="count">{{item.calls}}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </p-overlayPanel>
+</div>

@@ -1,0 +1,610 @@
+<!-- <ng-progress></ng-progress> -->
+<div class="main-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                Data Retention & Cleanup
+            </div>
+        </div>
+    </p-toolbar>
+    <!-- <div class="content-body" id="reports"> -->
+    <div class="p-grid">
+        <div class="p-col-12 no-padding">
+            <div class="breadcrumbs">
+                <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+            </div>
+        </div>
+    </div>
+    <!-- </div> -->
+    <!-- <div class="shadow4 p-10 color-1 p-gridmr-10 p-align-center">
+        <i class="pro fill-copy cav-fnt-18"></i>
+        <p class="heading">DATA RETENTION AND CLEANUP<small>Configuration related to the data retained on the system and cleaning up the data.</small></p>
+    </div> -->
+    <!-- <div class="p-grid p-align-center p-10">
+    <button type="button" class="button btn-secondary">Global Configuration</button>
+    <button type="button" class="button btn-secondary">NDE Configuration</button>
+    <button type="button" class="button btn-secondary">Non-NDE Configuration</button>
+  </div> -->
+    <!-- <p-toast position="top-right" life='50000'></p-toast> -->
+    <p-tabView class="custom-tab" [activeIndex]="this.tabIndex" (onChange)="tabChange($event)">
+        <p-tabPanel header="Global Configuration">
+            <div class="p-10">
+                <div class="p-grid p-align-center">
+                    <p-inputSwitch [(ngModel)]="enableDisableRetentionPolicy"></p-inputSwitch>
+                    <label class="ml-5 mr-20">Enable Data Retention</label>
+
+                    <p-inputSwitch [(ngModel)]="enableDisableRecycleBin" [disabled]="!enableDisableRetentionPolicy"></p-inputSwitch>
+                    <label class="ml-5 mr-20">Enable Recyle Bin</label>
+
+                        <!-- <input type="checkbox" name="name1" id="name1" [(ngModel)]="enableDisableRetentionPolicy" /> -->
+
+
+                    <!-- <div class="p-grid p-align-center">
+                <label class="mr-10">Log File Size</label>
+                <input type="number" [(ngModel)]="logFilesize" class="input-gui" style="width: 130px;">
+              </div> -->
+                    <!-- <div class="p-grid p-align-center">
+                <label class="mr-10">Audit Logs File Size</label>
+                <input type="number" [(ngModel)]="auditLogFile" class="input-gui" style="width: 130px;">
+              </div>
+              <div class="p-grid p-align-center">
+                <label class="mr-10">Log Level</label>
+                <p-dropdown class="my-select" [style]="{'width':'130px'}" [options]="logLevelOptions" [(ngModel)]="loglevel"></p-dropdown>
+              </div> -->
+
+                    <div class="p-grid p-align-center">
+                        <label class="mr-10">Time</label>
+                        <p-dropdown class="my-select"
+                            [disabled]="!enableDisableRetentionPolicy || !enableDisableRecycleBin"
+                            [style]="{'min-width':'172px'}" [options]="recyclebinTimeOptions" dropdownIcon="icons8 icons8-expand-arrow"
+                            [(ngModel)]="recyclebinTime">
+                        </p-dropdown>
+                    </div>
+                </div>
+                <div class="p-grid p-align-center mt-15 mb-10">
+                    <label class="mr-18">Disable Entire Data Cleanup</label>
+                    <div class="mr-10">
+                        <!-- <p-calendar class="calender" placeholder="Start Date" [(ngModel)]="date4" ></p-calendar> -->
+                        <p-calendar class="calender" [(ngModel)]="startDate" title="Start Date"
+                            [disabled]="!enableDisableRetentionPolicy" [showIcon]="true" icon="icons8 icons8-calendar"
+                            styleClass="p-grid" inputStyleClass="width-130" placeholder='Start Date' mode='portrait' format="YYYY/MM/DD">
+                        </p-calendar>
+                    </div>
+                    <div class="mr-10">
+                        <p-calendar class="calender" [(ngModel)]="endDate" title="End Date"
+                            [disabled]="!enableDisableRetentionPolicy" placeholder='End Date' [showIcon]="true"
+                            icon="icons8 icons8-calendar" inputStyleClass="width-130" styleClass="p-grid" mode='portrait' format="YYYY/MM/DD">
+                        </p-calendar>
+                    </div>
+                    <div class="mr-10">
+                        <!-- <button type="button" class="button btn-secondary" (click)="callOnAddButton('negativeDate')" title="ADD" [disabled]="!enableDisableRetentionPolicy" title="Add"></button> -->
+                        <button class="ui-button-primary" pButton type="button" icon="icons8 icons8-plus-math" [disabled]="!enableDisableRetentionPolicy" (click)="callOnAddButton('negativeDate')" title="Add"></button>
+                    </div>
+                </div>
+                <div class="p-grid p-align-center mb-10">
+                    <p-chips [(ngModel)]="chipsForNegativeDate" [disabled]="!enableDisableRetentionPolicy" separator=","
+                        class="input-chips w-100-p" onkeydown="return false" title="{{chipsForNegativeDate}}">
+                    </p-chips>
+                </div>
+                <!-- <div class="p-grid p-align-center mt-15 mb-10">
+            <div class="p-grid p-align-center">
+              <label class="mr-10" style="width: 120px;">Retain Data for Test Run</label>
+              <p-dropdown class="my-select" [style]="{'width':'150px'}" [options]="testRunOptions" [(ngModel)]="testRun"></p-dropdown>
+            </div>
+            <button type="button" class="button btn-secondary cav-mx-2" (click) = "callOnAddButton('testRun')"><i class="fa fa-plus"></i></button>
+            <p-chips [(ngModel)]="chipsForTestRun" separator="," class="input-chips w-100-p"></p-chips>
+           </div> -->
+                <div class="mb-10">
+                    <p-fieldset legend="Cleanup Negative Days" [toggleable]="true" class="custom-fieldset">
+                        <div class="p-grid p-align-center my-10 p-justify-between">
+                            <div class="p-align-center p-grid mr-12 ml-2">
+                                <label class="mr-20">Select Component</label>
+                                <p-dropdown class="my-select mr-12 sync-DrpDwn" [options]="cols2"
+                                    [(ngModel)]="componentModel" [disabled]="!isUpdate || !enableDisableRetentionPolicy"
+                                    [style]="{'width':'155px'}" appendTo="body" dropdownIcon="icons8 icons8-expand-arrow"
+                                    ></p-dropdown>
+                                <div class="mr-12 cav-mt-2">
+                                    <p-inputSwitch [(ngModel)]="checked1" [disabled]="!enableDisableRetentionPolicy">
+                                    </p-inputSwitch>
+                                </div>
+                                <div class="mr-12 p-grid p-align-center" *ngIf="!checked1">
+                                    <label class="mr-12">Start Date</label>
+                                    <p-calendar class="calender" [disabled]="!enableDisableRetentionPolicy"
+                                        [(ngModel)]="compStartDate" title="Start Date" [showIcon]="true"
+                                        icon="icons8 icons8-calendar" styleClass="p-grid" inputStyleClass="width-130" placeholder='Start Date'
+                                        mode='portrait' format="YYYY/MM/DD"></p-calendar>
+                                </div>
+                                <!-- <div *ngIf="checked1"> -->
+                                <!-- <div *ngIf="checked1"class="mr-10"> -->
+                                <label class="mr-12" *ngIf="checked1">Both Start Date and End Date</label>
+                                <div *ngIf="checked1" class="mr-12">
+                                    <p-calendar class="calender" [(ngModel)]="compStartDateBoth" [showIcon]="true"
+                                        title="Start Date" [disabled]="!enableDisableRetentionPolicy"
+                                        icon="icons8 icons8-calendar" styleClass="p-grid" placeholder='Start Date'
+                                        mode='portrait' format="YYYY/MM/DD" inputStyleClass="width-130"></p-calendar>
+                                </div>
+                                <label class="mr-12" *ngIf="checked1">End Date</label>
+                                <div *ngIf="checked1" class="mr-10">
+                                    <p-calendar class="calender" [(ngModel)]="compEndDate" title="End Date"
+                                        [disabled]="!enableDisableRetentionPolicy" [showIcon]="true"
+                                        icon="icons8 icons8-calendar" inputStyleClass="width-130" styleClass="p-grid" placeholder='End Date'
+                                        mode='portrait' format="YYYY/MM/DD"></p-calendar>
+                                </div>
+                                <div style="align-items:flex-end">
+                                    <!-- <button type="button" class="button btn-secondary" [disabled]="!enableDisableRetentionPolicy" title="Add" (click)="addToChip()"><i class="fa fa-plus"></i></button> -->
+                                    <button class="ui-button-primary" pButton type="button" icon="icons8 icons8-plus-math" [disabled]="!enableDisableRetentionPolicy" (click)="addToChip()" title="Add"></button>
+                                </div>
+                            </div>
+                            <!-- </div> -->
+                        </div>
+                        <div class="mb-10">
+                            <p-chips [(ngModel)]="cleanUpdates" title="{{cleanUpdates}}" value=""
+                                [disabled]="!enableDisableRetentionPolicy" separator="," class="input-chips w-100-p"
+                                onkeydown="return false"></p-chips>
+                        </div>
+
+                        <div class="p-grid p-justify-end mb-10">
+                            <button *ngIf="isUpdate" class="ui-button-primary" pButton type="button" icon="icons8 icons8-plus-math" label="Add" (click)="addComponent()" title="Add Component" [disabled]="cleanUpdates.length == 0"></button>
+
+                            <div *ngIf="!isUpdate" class="p-grid p-align-center">
+                                    <button class="ui-button-secondary mx-3" pButton type="button" label="Cancel" (click)="cancelUpdate()" title="Cancel"></button>
+                                    <button class="ui-button-primary" pButton type="button" label="Update"
+                                        (click)="updateComp()" [disabled]="cleanUpdates.length == 0" title="Update">
+                                    </button>
+                            </div>
+                        </div>
+
+
+
+                        <p-table [columns]="columns1" [value]="ComponentData" (sortFunction)="customSort($event)"
+                            [customSort]="true" class="all-tables">
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                    <col style="width:30%">
+                                    <col style="width:60%">
+                                    <col style="width:10%">
+                                </colgroup>
+                            </ng-template>
+                            <ng-template pTemplate="header" let-columns>
+                                <tr class="">
+                                    <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                                        <span>{{col.header | headerFormatPipe}}</span>
+                                        <p-sortIcon *ngIf="col.header == 'Component Name' " [field]="col.field"
+                                            ariaLabel="Activate to sort"
+                                            ariaLabelDesc="Activate to sort in descending order"
+                                            ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                                    </th>
+                                    <th class="cav-text-center">Action</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-columns="columns">
+                                <tr class="" [pSelectableRow]="rowData">
+                                    <td *ngFor="let col of columns">
+                                        <span
+                                            title="{{col.field == 'dates' ? rowData[col.field] :rowData[col.field] | headerFormatPipe}}">{{rowData[col.field]
+                                            | headerFormatPipe}}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn-icon mx-3"
+                                            [disabled]="!enableDisableRetentionPolicy || disableEdit"
+                                            (click)="editComp(rowIndex)" title="Edit"><i
+                                                class="icons8 icons8-edit"></i></button>
+                                        <button type="button" class="btn-icon mx-3"
+                                            [disabled]="!enableDisableRetentionPolicy || disableEdit"
+                                            (click)="deleteInComponentTable(rowIndex)" title="Delete"><i
+                                                class="icons8 icons8-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </p-fieldset>
+                </div>
+                <div class="mb-10">
+                    <p-fieldset legend="Custom Clean Path" [toggleable]="true" class="custom-fieldset">
+                        <div class="py-10">
+                            <div class="p-grid p-justify-between p-align-center mb-10">
+                                <div class="p-grid p-align-center">
+                                    <label class="mr-10">Clean Path</label>
+
+                                    <div class="custom-upload" style="width: 300px;">
+                                        <input type="text" pInputText [(ngModel)]="text1"
+                                            [disabled]="!enableDisableRetentionPolicy || iseditComp" title="{{text1}}">
+                                        <div class="upload-btn-wrapper">
+                                            <button class="ui-button-primary mx-1" pButton type="button" label="Browse" (click)="browserMethod()" [disabled]="!enableDisableRetentionPolicy || iseditComp"
+                                                title="Browse"></button>
+                                        </div>
+                                    </div>
+                                    <label class="mr-10 ml-30">Time</label>
+                                    <div class="mr-10">
+                                        <p-dropdown [options]="timeOptions" [(ngModel)]="timeModel"
+                                            [style]="{'min-width':'130px'}" dropdownIcon="icons8 icons8-expand-arrow"
+                                            [disabled]="!enableDisableRetentionPolicy">
+                                        </p-dropdown>
+                                    </div>
+                                    <div class="mr-10">
+                                        <input type="number" min="1" [(ngModel)]="timeForCustomPath"
+                                            onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                            title="Time" pInputText class="width-80"
+                                            [disabled]="!enableDisableRetentionPolicy">
+                                    </div>
+                                </div>
+                                <div *ngIf="!iseditComp">
+                                    <button class="ui-button-primary" pButton type="button" icon="icons8 icons8-plus-math" label="Add" title="Add Path" [disabled]="!enableDisableRetentionPolicy" (click)="addingPath()"></button>
+                                </div>
+                                <div *ngIf="iseditComp" class="p-grid p-align-center">
+                                        <button class="ui-button-secondary mr-3" pButton type="button" label="Cancel" (click)="cancelUpdateForP()" title="Cancel">
+                                        </button>
+                                        <button class="ui-button-primary" pButton type="button" label="Update" title="Update"
+                                            (click)="updatePath()">
+                                        </button>
+                                </div>
+                            </div>
+                            <!-- ---------table-------- -->
+                            <p-table [columns]="cols" [value]="cleanPath" (sortFunction)="customSort($event)"
+                                [customSort]="true" class="all-tables">
+                                <ng-template pTemplate="colgroup" let-columns>
+                                    <colgroup>
+                                        <col style="width:70%">
+                                        <col style="width:15%">
+                                        <col style="width:80px">
+                                    </colgroup>
+                                </ng-template>
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr class="">
+                                        <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                                            {{col.header}}
+                                            <p-sortIcon *ngIf="col.header == 'Clean Path' " [field]="col.field"
+                                                ariaLabel="Activate to sort"
+                                                ariaLabelDesc="Activate to sort in descending order"
+                                                ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                                        </th>
+                                        <th class="cav-text-center">Action</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-columns="columns">
+                                    <tr class="" [pSelectableRow]="rowData">
+                                        <td *ngFor="let col of columns">
+                                            <span title="{{rowData[col.field]}}"
+                                                (click)="columnClick(columns,$event,col)">{{rowData[col.field] |
+                                                headerFormatPipe}}</span>
+                                        </td>
+                                        <td class="cav-text-center">
+                                            <button type="button" class="btn-icon mx-3"
+                                                (click)="editPath(rowIndex)" [disabled]="!enableDisableRetentionPolicy"
+                                                title="Edit"><i class="icons8 icons8-edit"></i></button>
+                                            <button type="button" class="btn-icon mx-3"
+                                                (click)="delete(rowIndex)" [disabled]="!enableDisableRetentionPolicy"
+                                                title="Delete"><i class="icons8 icons8-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </p-fieldset>
+                </div>
+            </div>
+            <p-accordion class="custom-accord">
+                <p-accordionTab header="Log Settings">
+                    <div class="p-grid p-align-center">
+                            <label class="mr-10">Log File Size</label>
+                            <input type="number" pInputText min="1" max="1024" [(ngModel)]="logFilesize"
+                                onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                class="width-100" [disabled]="!enableDisableRetentionPolicy"
+                                title="{{logFilesize}}">
+                            <span>(MB)</span>
+
+                        <!-- <div class="p-grid p-align-center"> -->
+
+                            <label class="ml-30 mr-10">Audit Logs File Size</label>
+                            <input type="number" pInputText min="1" max="1024" [(ngModel)]="auditLogFile"
+                                onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                class="width-100" [disabled]="!enableDisableRetentionPolicy"
+                                title="{{auditLogFile}}">
+                            <span>(MB)</span>
+
+                        <!-- </div> -->
+                        <!-- <div class="p-grid p-align-center"> -->
+
+                            <label class="ml-30 mr-10">Log Level</label>
+                            <p-dropdown class="my-select" [style]="{'min-width':'100px'}" [options]="logLevelOptions"
+                                [(ngModel)]="loglevel" [disabled]="!enableDisableRetentionPolicy" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+
+                    </div>
+                </p-accordionTab>
+            </p-accordion>
+        </p-tabPanel>
+        <p-tabPanel [disabled]="!enableDisableRetentionPolicy" header="Cleanup Configuration">
+            <div class="shadow4 p-10 ml-10 mr-10 mb-10mr-10">
+                <!-- <div class="rowBlock p-justify-between" *ngFor="let col of columns;index as i">
+              <div  class="p-grid p-align-center">
+                <label class="cav-fnt-weight600 cav-fnt-13" style="width: 110px;">{{col.header | headerFormatPipe | titlecase}}</label>
+                <label class="mr-10">Select Retention Time</label>
+                <div class="mr-10">
+                  <p-dropdown class="my-select"  [style]="{'width':'120px'}" [options]="timeOptions" [(ngModel)]="ndeForDropDown[i]"></p-dropdown>
+              </div>
+              <div class="customSpiner cav-mx-2">
+                <input type="number" class="input-gui" value="20" style="width: 60px;" [(ngModel)]="ndeForTime[i]">
+              </div>
+              </div>
+            </div> -->
+                <p-accordion class="custom-accord">
+                    <p-accordionTab header="Common">
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-200">Metric Data</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[0]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" pInputText  min="1" value="20"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        style="width: 60px;" [(ngModel)]="ndeForTime[0]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-200">Resource
+                                    Timing</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[1]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" pInputText min="1" value="20"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        style="width: 60px;" [(ngModel)]="ndeForTime[1]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-200">Page Dumps</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[2]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                    <!-- <div *ngFor="let le of ndeForDropDown">{{le}}</div> -->
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" min="1" pInputText
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        value="20" style="width: 60px;" [(ngModel)]="ndeForTime[2]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-200">Drill Down
+                                    Data</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[3]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" min="1" pInputText
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        value="20" style="width: 60px;" [(ngModel)]="ndeForTime[3]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-200">Aggregated Drill Down
+                                    Data</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[4]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" min="1"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        pInputText value="20" style="width: 60px;" [(ngModel)]="ndeForTime[4]">
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="isOcx" class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-200">User session Replay
+                                    Data</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[5]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" min="1"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        pInputText value="20" style="width: 60px;" [(ngModel)]="ndeForTime[5]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-200">Diagnostics
+                                    data</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[6]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" min="1"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        pInputText value="20" style="width: 60px;" [(ngModel)]="ndeForTime[6]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-200">Reports</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[7]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" min="1"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        pInputText value="20" style="width: 60px;" [(ngModel)]="ndeForTime[7]">
+                                </div>
+                            </div>
+                        </div>
+                    </p-accordionTab>
+                    <p-accordionTab header="Performance Test Runs">
+                        <!-- <div>
+      <label class="mr-10">Select Retention Time</label>
+      <p-dropdown class="my-select"  [style]="{'width':'120px'}" [options]="timeOptions" [(ngModel)]="ndeForDropDown[1]"></p-dropdown>
+      <input type="number" class="input-gui" value="20" style="width: 60px;" [(ngModel)]="ndeForTime[1]">
+    </div> -->
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-170">Debug Testrun</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[8]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" min="1"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        pInputText value="20" style="width: 60px;" [(ngModel)]="ndeForTime[8]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-170">Archive
+                                    Testrun</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[9]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" min="1" pInputText value="20"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        style="width: 60px;" [(ngModel)]="ndeForTime[9]">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="rowBlock p-justify-between">
+      <div  class="p-grid p-align-center">
+        <label class="cav-fnt-weight600 cav-fnt-13" style="width: 110px;">GEN TR</label>
+        <label class="mr-10">Select Retention Time</label>
+        <div class="mr-10">
+          <p-dropdown class="my-select"  [style]="{'width':'120px'}" [options]="timeOptions" [(ngModel)]="ndeForDropDown[i]"></p-dropdown>
+      </div>
+      <div class="customSpiner cav-mx-2">
+        <input type="number" class="input-gui" value="20" style="width: 60px;" [(ngModel)]="ndeForTime[i]">
+      </div>
+      </div>
+    </div> -->
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-170">Testrun</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[10]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" min="1" pInputText value="20"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        style="width: 60px;" [(ngModel)]="ndeForTime[10]">
+                                </div>
+                            </div>
+                        </div>
+                    </p-accordionTab>
+                    <p-accordionTab header="Advanced Settings">
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-170">Processed Data</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[11]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" pInputText min="1" value="20"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        style="width: 60px;" [(ngModel)]="ndeForTime[11]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-170">Cavisson Product
+                                    Logs</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[12]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" pInputText min="1" value="20"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        style="width: 60px;" [(ngModel)]="ndeForTime[12]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-170">Raw Data</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[13]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" pInputText min="1" value="20"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        style="width: 60px;" [(ngModel)]="ndeForTime[13]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rowBlock p-justify-between">
+                            <div class="p-grid p-align-center my-5">
+                                <label class="width-170">Configs</label>
+                                <label class="mr-10">Select Retention Time</label>
+                                <div class="mr-10">
+                                    <p-dropdown class="my-select" [style]="{'min-width':'120px'}" [options]="timeOptions"
+                                        [(ngModel)]="ndeForDropDown[14]" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                                <div class="customSpiner cav-mx-2">
+                                    <input type="number" pInputText min="1" value="20"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" step="1"
+                                        style="width: 60px;" [(ngModel)]="ndeForTime[14]">
+                                </div>
+                            </div>
+                        </div>
+                    </p-accordionTab>
+                </p-accordion>
+            </div>
+        </p-tabPanel>
+    </p-tabView>
+    <div class="p-grid p-justify-end m-10">
+        <button class="ui-button-primary mr-5" pButton type="button" label="Save"(click)="saveData()" title="Save Configuration"></button>
+        <button  class="ui-button-secondary" pButton type="button" label="Cancel" [disabled]="!enableDisableRetentionPolicy" title="Cancel" (click)="cancelConf()"></button>
+    </div>
+</div>
+<app-file-manager #fileManager (pathBind)="pathBind($event)"></app-file-manager>
+<!-- <p-growl [value]="msgs"></p-growl> -->
+<!-- <p-dialog class="profile-dialog browseTopCss headerCss" header="File Manager" *ngIf="openFileExplorerDialog" [(visible)]="openFileExplorerDialog" modal="modal" width="650" responsive="true" [resizable]="false">
+
+    This will look for this component in the ProductUI at this path -
+     ..\ProductUI\gui\src\app\modules\file-explorer\components\config-nd-file-explorer\-->
+
+<!-- <app-retention-policy-file-explorer></app-retention-policy-file-explorer> -->
+<!-- </p-dialog> -->

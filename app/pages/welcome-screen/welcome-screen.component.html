@@ -1,0 +1,50 @@
+<!-- login page -->
+<div class="h-100-vh page-container welcome-page">
+  <!-- logo -->
+  <img class="logo" alt="Cavisson Logo" src="assets/banners/cavisson-logo-blue.svg" />
+  <!-- logo -->
+  <div class="outer-container">
+    <div class="login-card text-center">
+      <div>
+        <h1>Hello!</h1>
+        <p>Welcome to the new</p>
+        <h2>INTEGRATED PERFORMANCE ENGINEERING PLATFORM</h2>
+      </div>
+
+      <h3 class="carousel-heading">Here is what’s new!</h3>
+      <div class="wrapper">
+        <p-carousel [value]="features" styleClass="welcome-carousel" [numVisible]="3" [numScroll]="3" [circular]="false"
+          [autoplayInterval]="3000">   <!-- [autoplayInterval]="false" replace "3000" to autoplay carousel -->          
+          <ng-template let-feature pTemplate="item">
+            <div class="welcome-details">
+              <div class="main">
+                <div class="p-col-12">
+                  <img class="welcome-img" alt="features" src="assets/banners/{{feature.image}}.svg" />  
+                </div>
+                <div class="p-col-12 car-data">
+                  <div class="welcome-subtitle">{{feature.label}}</div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </p-carousel>
+      </div>
+
+      <div class="p-grid">
+        <div class="p-col-12">
+          <p>We would love for you to try out the BETA Version of the platform and give us your feedback.</p>
+          <p>You can also continue to the older portal by clicking the Blue button.</p>
+        </div>
+      </div>
+      <div class="p-grid">
+        <div *ngIf="getLegacyUIURL()" class="p-col-6 text-right">
+          <a pButton label="VISIT THE EXISTING PLATFORM" href="{{getLegacyUIURL()}}" class="ui-button-secondary ui-button-rounded"></a>
+        </div>
+        <div [className]="getLegacyUIURL() ? 'p-col-6 text-left' : 'p-col-12 text-center'">
+          <a pButton label="TRY OUT THE NEW PLATFORM!" [routerLink]="['/login']" class="ui-button-rounded"></a>
+        </div>
+      </div>
+    </div>
+    <!-- login fields -->
+  </div>
+</div>

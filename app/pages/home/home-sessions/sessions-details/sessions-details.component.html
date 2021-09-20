@@ -1,0 +1,84 @@
+<div class="h-100-vh sessions-details-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/home-sessions">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">SESSIONS</div>
+        </div>
+    </p-toolbar>
+    <div class="content-body" id="reports" *ngIf="!loading">
+        <div class="p-grid">
+            <div class="p-col-12 no-padding">
+                <div class="breadcrumbs">
+                    <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+                </div>
+            </div>
+
+            <div class="sessionData-container">
+
+            <div class="sessiondata" *ngIf="!singleSessionMode">
+                <app-session-data [sessions]="sessions" [selectedSessionIdx]="selectedSessionIdx" ></app-session-data>
+            </div>
+
+            <div class="" [ngClass]="singleSessionMode?'session-details-full': 'session-details'">
+                <div class="p-grid px-10 p-justify-between p-align-center action-grid w-100-p">
+                    <div class="font-weight-600">Session Id: {{selectedSession.sid}}</div>
+                    <div class="icons-container p-justify-between p-align-center">
+                        <button pButton icon="las-play-circle" class="icon-button no-shadow"  title="Play Session" (click)="navigate_to_replay()"></button>
+                        <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                        <button pButton icon="icons8 icons8-export" (click)="exportSessiondetail()" class="icon-button no-shadow" title="Export Session Details"></button>
+                        <button pButton icon="icons8 icons8-installing-updates" (click)="openScript()" class="icon-button no-shadow"
+                            title="Export test cases"></button>
+                        <!-- <button pButton icon="icons8 icons8-futures" (click)="scatterMap.toggle()"
+                            class="icon-button no-shadow" title="Show chart"></button> --> 
+                        <button pButton icon="icons8 icons8-flow-chart" (click)="openNDSession()" title="View Flow Path Report"
+                            class="icon-button no-shadow" *ngIf="this.selectedSession.flowpathInstances !='-1' && this.selectedSession.flowpathInstances !=''"></button>
+                        <button pButton icon="icons8 icons8-search-property" title="View Logs" *ngIf="this.selectedSession.flowpathInstances !='-1' && this.selectedSession.flowpathInstances !=''"
+                            class="icon-button no-shadow" (click)="openNF()"></button>
+                    </div>
+                </div>
+                <p-tabMenu [model]="items" [activeItem]="activeItem"></p-tabMenu>
+                <!-- [ngClass]="isShow ?'height:100%':'height:(100%-500px)'" -->
+                    <div class="content-body h-100-p" #sessionContainer>
+                        <!--  (resized)="onResized($event)" -->
+                        <router-outlet></router-outlet>
+                        <app-scatter-map #scatterMap [container]="sessionContainer"></app-scatter-map>
+                    </div>
+                <!-- </div> -->
+            </div>
+            </div>
+        </div>
+    </div>
+</div> 
+<p-dialog [(visible)]="testcase" class="secondary-dialog foterDialog" header="Export As Test Case"
+    [baseZIndex]="10000100011" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false"
+    [style]="{width: '615px'}">
+    <div class="p-grid pl-77 p-align-center">
+        <div class="p-grid p-col-12 p-align-center">
+            <strong class="p-col-3">Test Case Name:</strong>
+            <div class="p-col-6">
+                <input style="width:184px" type="text" pInputText [(ngModel)]="testcasename" />
+            </div>
+        </div>
+
+        <div *ngIf="responseForScript" class="p-grid p-col-12 p-align-center">
+            <i class="pi pi-spinner" aria-hidden="true" style="margin-left: 32%;"></i><span [innerHTML]="data4"></span>
+
+        </div>
+        <div *ngIf="msg != null" class="p-grid p-col-12 p-align-center">
+            <span class="p-col-10" style="text-align: center;" [innerHTML]="msg"></span>
+
+        </div>
+    </div>
+    <p-footer>
+        <div style="text-align: center;">
+            <button pButton type="button" label="Create" (click)="createScript(false)"></button>
+            <button pButton type="button" label="Create & Execute" (click)='createAndExecute()'></button>
+        </div>
+    </p-footer>
+</p-dialog>

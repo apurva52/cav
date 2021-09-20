@@ -1,0 +1,38 @@
+<div>
+      <div class="widget-header" (click)="select()">
+            <ul class="widget-options">
+                  <li *ngIf="!loading">
+                        <i pTooltip="Edit Title" [tooltipPosition]="'top'" class="icons8 icons8-edit"
+                              (click)="imageOptions.editCaption = true; addFocus();"></i>
+                  </li>
+                  <li *ngIf="!loading">
+                        <label pTooltip="Upload Image. Supported image types are - .jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff" [tooltipPosition]="'top'">
+                              <i class="icons8 icons8-upload"></i>
+                              <input #Image type="file" class="upload-image-input" (change)="onSelectFile($event)" />
+                        </label>
+                  </li>
+                  <li *ngIf="loading"><i class="pi pi-spin pi-spinner"></i></li>
+                  <li *ngIf="dashboard.mode =='EDIT'" (click)='dashboard.copyWidget(widget);'>
+                        <i style="display: inline-block;" pTooltip= 'Clone Widget' class="icons8 icons8-copy clickable"></i>
+                    </li>
+                  <li [ngStyle]="{ display: !loading ? 'inline-block' : 'none' }">
+                        <!-- <app-widget-menu *ngIf="visiblityMenu == undefined && !visiblityMenu" [widget]="this"></app-widget-menu> -->
+                  </li>
+            </ul>
+            <div *ngIf="imageOptions" class="widget-title" (dblclick)="toggleFocus()">
+                  <span *ngIf="imageOptions.imageTitle && !imageOptions.editCaption"
+                        [pTooltip]="imageOptions.imageTitle" [tooltipPosition]="'top'">
+                        {{imageOptions.imageTitle}}</span>
+                  <input id="title" *ngIf="imageOptions.editCaption" (keydown.enter)="imageOptions.editCaption = false" type="text"
+                        pInputText [(ngModel)]="imageOptions.imageTitle" (blur)="onBlurMethod()"  />
+            </div>
+      </div>
+      <div class="widget-body" (dblclick)="toggleFocus()">
+            <div class="uploded-image" *ngIf="imageOptions && imageOptions.imgPath">
+                  <img [src]="imageOptions.imgPath" class="image">
+            </div>
+            <div class="empty-container" *ngIf="empty">
+                  Data Not Available
+            </div>
+      </div>
+</div>

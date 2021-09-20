@@ -1,0 +1,31 @@
+<form *ngIf="otherForm" (ngSubmit)="saveKeywordData()" #form="ngForm" ngNativeValidate>
+    <div class="tabsincontent">
+        <div class="p-grid p-justify-between">
+        <div class="header p-align-center mt-6">Settings</div>
+            <div class="pull-right pb-6">
+                <!-- <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i> -->
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordsDataToDefault()" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" label="Save"></button>
+            </div>
+            </div>
+        
+        <p-panel class="hideheader instrprofileheaderhght p-align-center">
+            <div class="p-grid p-align-center p-col-12">
+                <div class="ui-g-12">
+                    <div class="ui-g-1">
+                        <label>Logger Type</label>
+                    </div>
+                
+                    <div class="ui-g-2">
+                    
+                        <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" name="appLoggerType" [style]="{'min-width': '100%'}" [(ngModel)]="appLoggerType" [options]="appLoggerTypeList"></p-dropdown>
+                    </div>
+                </div>
+            </div>
+        </p-panel>
+    </div>
+</form>

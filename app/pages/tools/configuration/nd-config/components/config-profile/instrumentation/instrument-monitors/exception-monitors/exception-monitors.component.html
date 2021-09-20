@@ -1,0 +1,162 @@
+<p-header class="p-grid p-justify-between p-align-center">
+    <span class="configui-float-css px-6">
+             <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="isProfilePerm" [disabled]="isProfilePerm"></p-checkbox>
+             <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="!isProfilePerm" [disabled]="saveDisable"></p-checkbox>
+             Enable Exception Monitors
+    </span>
+     
+    <span class="configui-float">
+    <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+            <button pButton type="button" class="ui-button-sucess mr-6" title="Browse" *ngIf="!isProfilePerm" (click)="openFileManager()" [disabled]="saveDisable"  icon="icons8 icons8-opened-folder"></button>
+             <button pButton type="button" class="ui-button-sucess mr-6" title="Browse" *ngIf="isProfilePerm" (click)="openFileManager()" [disabled]="isProfilePerm"  icon="icons8 icons8-opened-folder"></button>
+             <button pButton type="button" class="ui-button-sucess mr-6" title="Add an exception monitor" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-plus-math"></button>
+             <button pButton type="button" class="ui-button-sucess mr-6" title="Add an exception monitor" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openAddExceptionMonitorDialog()" icon="icons8 icons8-plus-math"></button>
+             <button pButton type="button" class="ui-button-sucess mr-6" title="Edit an exception monitor" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  icon="icons8 icons8-edit"></button>
+             <button pButton type="button" class="ui-button-sucess mr-6" title="Edit an exception monitor" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openEditExceptionMonitorDialog()" icon="icons8 icons8-edit"></button>
+             <button pButton class="ui-button-sucess mr-6" type="button" title="Delete exception monitor(s)" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-trash"></button>
+             <button pButton class="ui-button-sucess mr-6" type="button" title="Delete exception monitor(s)" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteExceptionMonitor()" icon="icons8 icons8-trash"></button>
+             <button type="submit" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  label="Save"></button>
+             <button type="submit" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveExceptionMonitorOnFile()" label="Save"></button>
+    </span>
+</p-header>
+<p-table [columns]="cols" [style]="{'margin-top':'10px'}" class="nde-ui all-tables" [value]="exceptionMonitorData" [(selection)]="selectedExceptionMonitorData" [rows]="10" [paginator]="exceptionMonitorData?.length > 10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,50,100,200,400]" scrollable="true" scrollHeight="320px">
+    <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+            <col style="width:7%">
+            <col style="width:20%">
+            <col style="width:20%">
+            <col style="width:20%">
+           
+            
+        </colgroup>
+
+
+    </ng-template>
+    <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+        <tr>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                <span class="width-20" *ngIf="col.field =='checkbox'"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></span>
+                <span *ngIf="col.field !='checkbox'">
+                    {{col.header}}
+                    <p-sortIcon [field]="col.field"></p-sortIcon>
+                </span>
+            </th>
+        </tr>
+    </ng-template>
+    
+    <!-- <ng-template pTemplate="header">
+        <tr>
+            <th>
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th>Exception Name</th>
+            <th>Display Name</th>
+            <th>Description</th>
+        </tr>
+    </ng-template> -->
+    <ng-template pTemplate="body" let-ExceptionMonitor>
+        <tr>
+            <td class="text-center">
+                <p-tableCheckbox [value]="ExceptionMonitor"></p-tableCheckbox>
+            </td>
+            <td><span title="{{ExceptionMonitor.exceptionName}}">{{ExceptionMonitor.exceptionName}}</span></td>
+            <td><span title="{{ExceptionMonitor.exceptionDisplayName}}">{{ExceptionMonitor.exceptionDisplayName}}</span></td>
+            <td><span title="{{ExceptionMonitor.exceptionDesc}}">{{ExceptionMonitor.exceptionDesc}}</span></td>
+        </tr>
+    </ng-template>
+</p-table>
+<!--<p-dataTable class="nde-ui" [value]="exceptionMonitorData" [(selection)]="selectedExceptionMonitorData" [rows]="10" [paginator]="exceptionMonitorData?.length > 10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,50,100,200,400]" scrollable="true" scrollHeight="320px">
+    <p-header>
+        <span class="configui-float-css">
+                 <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="isProfilePerm" [disabled]="isProfilePerm"></p-checkbox>
+                 <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="!isProfilePerm" [disabled]="saveDisable"></p-checkbox>
+        </span>
+        <span class="configui-float-css"> Enable Exception Monitors </span>
+        <span class="configui-float">
+		<i class="fa fa-question-circle" title="Help" (click)="sendHelpNotification()"></i>
+                <button pButton type="button" title="Browse" *ngIf="!isProfilePerm"  [disabled]="saveDisable" (click)="openFileManager()" icon="fa fa-folder-open"></button>
+                 <button pButton type="button" title="Browse" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="openFileManager()" icon="fa fa-folder-open"></button>
+                 <button pButton type="button" title="Add an exception monitor" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-plus"></button>
+                 <button pButton type="button" title="Add an exception monitor" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openAddExceptionMonitorDialog()" icon="fa fa-plus"></button>
+                 <button pButton type="button" title="Edit an exception monitor" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  icon="fa fa-pencil"></button>
+                 <button pButton type="button" title="Edit an exception monitor" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openEditExceptionMonitorDialog()" icon="fa fa-pencil"></button>
+                 <button pButton class="ui-button-danger" type="button" title="Delete exception monitor(s)" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-trash"></button>
+                 <button pButton class="ui-button-danger" type="button" title="Delete exception monitor(s)" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteExceptionMonitor()" icon="fa fa-trash"></button>
+                 <button type="submit" pButton icon="fa fa-check" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  label="Save"></button>
+                 <button type="submit" pButton icon="fa fa-check" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveExceptionMonitorOnFile()" label="Save"></button>
+        </span>
+    </p-header>
+    <p-column [style]="{'width':'2%'}" selectionMode="multiple"></p-column>
+    <p-column class="tableCss" [style]="{'width':'35%'}" field="exceptionName" header="Exception Name" [sortable]="true">
+        <ng-template let-col let-ExceptionMonitor="rowData" pTemplate>
+            <span title="{{ExceptionMonitor[col.field]}}">{{ExceptionMonitor[col.field]}}</span>
+        </ng-template>
+    </p-column>
+    <p-column class="tableCss" [style]="{'width':'23%'}" field="exceptionDisplayName" header="Display Name" [sortable]="true">
+        <ng-template let-col let-ExceptionMonitor="rowData" pTemplate>
+            <span title="{{ExceptionMonitor[col.field]}}">{{ExceptionMonitor[col.field]}}</span>
+        </ng-template>
+    </p-column>
+    <p-column class="tableCss" [style]="{'width':'40%'}" field="exceptionDesc" header="Description" [sortable]="true">
+        <ng-template let-col let-ExceptionMonitor="rowData" pTemplate>
+            <span title="{{ExceptionMonitor[col.field]}}">{{ExceptionMonitor[col.field]}}</span>
+        </ng-template>
+    </p-column>
+
+</p-dataTable>-->
+<!-- Download reports as PDF,Excel and Word File  -->
+<div class="p-grid p-align-center">
+    <label class="mr-5">Download Reports as: </label>
+    <button pButton class="icon-button no-shadow" pTooltip="Download Word file" tooltipPosition="top" icon="icons8 icons8-doc" (click)='downloadReports("WordFile")'></button>
+    <button pButton class="icon-button no-shadow" pTooltip="Download Excel file" tooltipPosition="top" icon="icons8 icons8-spreadsheet-file"  (click)='downloadReports("ExcelFile")'></button>
+    <button pButton class="icon-button no-shadow" pTooltip="Download PDF file" tooltipPosition="top" icon="icons8 icons8-pdf-2" (click)='downloadReports("PDFFile")'></button>
+</div>
+
+<!--Dialog for exception monitor-->
+
+<p-dialog class="secondary-dialog" [style]="{width: '40vw'}" header="{{isNewExceptionMonitor ? 'Add Exception to Monitor' : 'Edit Exception to Monitor'}}" *ngIf="addEditExceptionMonitorDialog" [(visible)]="addEditExceptionMonitorDialog" modal="modal" width="500" responsive="true"
+    [resizable]="false">
+    <form (ngSubmit)="saveExceptionMonitor()" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g mt-15">
+            <div class="ui-g-3 mt-4">
+                <label>Exception Name</label>
+            </div>
+            <div class="ui-g-9">
+                <input name="exceptionName" pattern="[a-zA-Z\.]*" type="text" size="50" class="configUI-common-len" (keydown.space)="$event.preventDefault()" pInputText [(ngModel)]="exceptionMonitorDetail.exceptionName" required autofocus ngModel/>
+            </div>
+        </div>
+        <div class="ui-g">
+            <div class="ui-g-3 mt-4">
+                <label>Display Name</label>
+            </div>
+            <div class="ui-g-9">
+                <input name="exceptionDisplayName" class="configUI-common-len" pattern="[a-zA-Z0-9]+[_@.#%-]*[a-zA-Z0-9]*$" (keydown.space)="$event.preventDefault()" title="Please enter valid display name. &#013;Rule 1:Cannot include whitespaces & Can't start with special characters . &#013;Rule 2: In between alphanumeric character only this set of special character will be accepted [_-@#%.] ."
+                    type="text" size="50" pInputText [(ngModel)]="exceptionMonitorDetail.exceptionDisplayName" required ngModel/>
+            </div>
+        </div>
+        <div class="ui-g">
+            <div class="ui-g-3 mt-4">
+                <label>Description</label>
+            </div>
+            <div class="ui-g-9">
+                <textarea name="exceptionDesc" style="width:87%" class="w-100-p" pInputTextarea [(ngModel)]="exceptionMonitorDetail.exceptionDesc" ngModel></textarea>
+            </div>
+        </div>
+        <footer>
+            <div class="p-grid p-align-center p-justify-end py-5">
+                <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="addEditExceptionMonitorDialog=false" label="Cancel"></button>
+                <button type="submit"  pButton class="ui-button-rounded  px-10" label="Save"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>
+<!--Dialog to open file explorer dialog -->
+<!-- <p-dialog class="profile-dialog browseTopCss" [resizable]="false" header="File Manager" *ngIf="openFileExplorerDialog" [(visible)]="openFileExplorerDialog" modal="modal" width="650" responsive="true"> -->
+
+    <!-- This will look for this component in the ProductUI at this path -
+             ..\ProductUI\gui\src\app\modules\file-explorer\components\config-nd-file-explorer\-->
+
+    <!-- <app-config-nd-file-explorer></app-config-nd-file-explorer> -->
+<!-- </p-dialog> -->
+
+<app-file-manager #fileManager (eventBind)="getPath($event)"></app-file-manager>

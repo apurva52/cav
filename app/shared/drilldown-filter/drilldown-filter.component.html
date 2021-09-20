@@ -1,0 +1,76 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000" blockScroll="true" appendTo="body">
+    <div class="sidebar-header">
+        <div class="sidebar-title p-grid">
+            <i class="icons8 icons8-clock"></i>
+            <span class="sidebar-title">BT Stats</span>
+            <i class="icons8-delete icon-right right" (click)="closeClick()"></i>
+        </div>
+    </div>
+
+    <div class="ui-fluid p-formgrid p-grid ph-10 pv-15" *ngIf="data">
+        <label class="label-margin">Business Transaction:</label>
+        <div class="p-grid p-col-12 w-100-p">
+            <div class="p-col-12 ">
+                <input pInputText [(ngModel)]="bTransaction">
+            </div>
+        </div>
+
+
+        <label class="label-margin">Health:</label>
+        <div class="p-grid p-col-12 w-100-p">
+            <div class="p-col-12 ">
+                <p-dropdown [options]="data.health" dropdownIcon="icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+
+        </div>
+
+        <label class="label-margin">Response Time(ms):</label>
+        <div class="p-grid p-col-12 w-100-p">
+            <div class="p-col-5">
+                <p-dropdown [options]="data.errorsec" dropdownIcon="icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="p-col-7">
+                <input type="text" pInputText />
+            </div>
+        </div>
+
+        <label class="label-margin">TPS:</label>
+        <div class="p-grid p-col-12 w-100-p">
+            <div class="p-col-5">
+                <p-dropdown [options]="data.errorsec" dropdownIcon="icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="p-col-7">
+                <input type="text" pInputText />
+            </div>
+        </div>
+
+        <label class="label-margin">Error/Sec:</label>
+        <div class="p-grid p-col-12 w-100-p">
+            <div class="p-col-5">
+                <p-dropdown [options]="data.errorsec" dropdownIcon="icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="p-col-7">
+                <input type="text" pInputText />
+            </div>
+        </div>
+
+    </div>
+
+    <div class="sidepanel-footer p-grid w-100-p">
+        <div class="p-col-1"></div>
+        <div class="p-col-4">
+            <button pButton type="reset" (click)="drillDownFilterReset()" label="RESET" class="ui-outline-button ui-button-secondary"></button>
+        </div>
+        <div class="p-col-1"></div>
+        <div class="p-col-4">
+            <button pButton type="submit" (click)="drillDownFilterApply()" label="APPLY" class="ui-button-rounded"></button>
+        </div>
+        <div class="p-col-2"></div>
+    </div>
+
+
+</p-sidebar>

@@ -1,0 +1,421 @@
+<div class="h-100-vh wrapper">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-grid p-align-center">
+                <a *ngIf="!endtoendEditMode" routerLink="/home/system">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div *ngIf="!endtoendEditMode" class="p-col ui-toolbar-text">END TO END TIER</div>
+                <a *ngIf="endtoendEditMode" (click)="endtoendEditMode = false">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div *ngIf="endtoendEditMode" class="p-col ui-toolbar-text">EDIT FLOWMAP</div>
+            </div>
+            <div class="p-grid p-align-center">
+                <div class="p-col" *ngIf="EndToEndTimeFilter && EndToEndTimeFilter.timePeriod.selected && !endtoendEditMode">
+                    <div class="e2e-clock" (click)="EndToEndTimeFilter.openTimeFilter()">
+                        <i class="icons8 icons8-clock"></i>
+                        <span *ngIf="EndToEndTimeFilter.temporaryTimeFrame"> Last Sample Time:
+                            {{EndToEndTimeFilter.temporaryTimeFrame[2] | formatDateTime: 'default'}} </span>
+                        <span>({{EndToEndTimeFilter.timePeriod.selected.label}})</span>
+                    </div>
+                </div>
+                <div>
+                    <button *ngIf="data && !endtoendEditMode" pButton type="button" class="ui-button ui-button-rounded" label="Detailed" routerLink="{{endToEndURL}}"></button>
+
+                    <button *ngIf="endtoendEditMode" pButton type="button" class="ui-button ui-button-rounded mr-5" label="APPLY" (click)="ApplyEditChanges()"></button>
+                    <!-- <button *ngIf="endtoendEditMode" pButton type="button" class="ui-button ui-button-rounded ml-5"
+                        label="SAVE AS" (click)="op1.toggle($event)"></button> -->
+                    <!-- need to be test -->
+
+                    <p-overlayPanel *ngIf="endtoendEditMode" styleClass="overlay-container" [style]="{width: '20vw'}" #op1 appendTo="body" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'">
+                        <ng-template pTemplate>
+                            <div class="p-col-12">
+                                <input type="text" pInputText placeholder="Name" style="border:none;border-bottom:1px solid #686767" />
+                            </div>
+                            <div class="p-col-12">
+                                <p-checkbox name="running" label="Running" value="val1"></p-checkbox>
+                            </div>
+                            <div class="p-grid p-col-12">
+                                <div class="p-col-5"></div>
+                                <div class="p-col-3">
+                                    <button pButton type="button" class="ui-button-rounded m-r-10 button-class" label="SAVE"></button>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-overlayPanel>
+                </div>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs" *ngIf="breadcrumb && !endtoendEditMode">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+
+    <div class="action-container " *ngIf="data && !endtoendEditMode">
+        <div class="p-10-p p-grid p-justify-between p-align-center action-grid">
+            <div class="p-grid div-css">
+                <div class="p-grid p-align-center">
+                    <span class="labels">Node</span>
+                    <p-dropdown [options]="data.endToEndMenu.multiDcNodes" [(ngModel)]="selectedNodes" placeholder="Select a Node" optionLabel="label"></p-dropdown>
+                </div>
+
+                <div class="p-grid p-align-center">
+                    <span class="labels">Flowmap</span>
+                    <p-dropdown [options]="data.endToEndMenu.flowmaps" [(ngModel)]="selectedNodes" placeholder="Select a Flowmap" optionLabel="label"></p-dropdown>
+                </div>
+                <button pButton type="button" class="ui-button-secondary ui-button-rounded" label="EDIT" (click)="endtoendEditMode = true"></button>
+                <button pButton type="button" class="ui-button-secondary ui-button-rounded" label="MANAGE FLOWMAPS" [routerLink]="['/flowmaps']"></button>
+
+                <div class="p-grid p-align-center node-dropdown" *ngIf="data.endToEndMenu.nodes">
+                    <p-dropdown [options]="data.endToEndMenu.nodes" [(ngModel)]="selectedNodes" placeholder="Select Node" [filter]="true" filterBy="label" [group]="true">
+                        <ng-template let-group pTemplate="group">
+                            <span style="margin-left:.25em">{{group.label}}</span>
+                        </ng-template>
+                    </p-dropdown>
+                </div>
+            </div>
+            <div class="p-grid button-row-position">
+                <button pButton type="button" (click)="showLegends= true" class="ui-button-secondary ui-button-rounded" label="LEGENDS"></button>
+                <button pButton type="button" class="ui-button-secondary ui-button-rounded" label="DOWNLOAD"></button>
+                <i pTooltip="Settings" class="icons8 icons8-settings toolbar-icon-css" (click)="settingsOP.toggle($event)"></i>
+                <i pTooltip="Save" class="icons8 icons8-save toolbar-icon-css" (click)="menu.toggle($event)"></i>
+                <i pTooltip="{{playPauseTooltip}}" *ngIf="showPlayBtn" (click)="togglePlayPause()" [ngClass]="play ? 'icons8 icons8-pause toolbar-icon-css' : 'icons8 icons8-play toolbar-icon-css'"></i>
+            </div>
+        </div>
+        <div *ngIf="showLegends && data.endToEndLegend" class="legends-section">
+            <div class="p-grid p-align-center p-justify-end">
+                <button pButton class="icon-button no-shadow left" icon="icons8 icons8-delete" (click)="showLegends = false"></button>
+            </div>
+            <p-carousel [value]="data.endToEndLegend" [numVisible]="17">
+                <ng-template let-legend pTemplate="item" class="template">
+                    <div class="p-grid p-dir-col p-justify-center p-align-center">
+                        <i class="icons8 {{ legend.icon }} p-col legend-icon" [ngStyle]="{'color': legend.color}"></i>
+                        <div class="p-col text-center">{{ legend.label }}</div>
+                    </div>
+                </ng-template>
+            </p-carousel>
+        </div>
+
+        <p-menu appendTo="body" #menu [popup]="true" [model]="saveOptions"></p-menu>
+
+        <p-overlayPanel class="runningpanel" styleClass="overlay-container" [style]="{width: '20vw'}" #op1 appendTo="body" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'">
+            <ng-template pTemplate>
+                <div class="p-col-12">
+                    <input type="text" pInputText placeholder="Name" style="border:none;border-bottom:1px solid #686767" />
+                </div>
+                <div class="p-col-12">
+                    <p-checkbox name="running" label="Running" value="val1"></p-checkbox>
+                </div>
+                <div class="p-grid p-col-12">
+                    <div class="p-col-5"></div>
+                    <div class="p-col-3">
+                        <button pButton type="button" class="ui-button-rounded m-r-10 button-class" (click)="op1.hide()" label="SAVE"></button>
+                    </div>
+                </div>
+            </ng-template>
+        </p-overlayPanel>
+
+        <!-- Settings Overlay Panel-->
+        <p-overlayPanel #settingsOP styleClass="overlay-container" [style]="{width: '20vw'}" appendTo="body" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'">
+
+            <div class="p-grid p-10">
+
+                <div class="p-field p-grid">
+                    <label for="labels" class="p-col-12 p-md-2">Show Calls</label>
+                    <div class="p-col-12 p-md-10">
+                        <p-dropdown [options]="data.endToEndMenu.showCallsSettings" [(ngModel)]="showCallSetting" placeholder="Select a Node" dropdownIcon="icons8 icons8-expand-arrow" optionLabel="label">
+                        </p-dropdown>
+                    </div>
+                </div>
+                <div class="p-field p-grid w-100-p">
+                    <label for="labels" class="p-col-12 p-md-2">Value</label>
+                    <div class="p-col-12 p-md-10">
+                        <p-dropdown [options]="data.endToEndMenu.valuesSettings" [(ngModel)]="valueSetting" placeholder="Select a Node" dropdownIcon="icons8 icons8-expand-arrow" optionLabel="label">
+                        </p-dropdown>
+                    </div>
+                </div>
+                <div class="p-field -p-grid w-100-p apply-setting">
+                    <div class="p-col-12">
+                        <button pButton type="button" class="ui-button ui-button-rounded float-right" label="APPLY"></button>
+                    </div>
+                </div>
+
+            </div>
+        </p-overlayPanel>
+    </div>
+
+    <div class="p-grid graph-container h-100-p">
+        <div *ngIf="data" class="no-padding" [ngClass]="endtoendEditMode ? 'p-col-9' : 'p-col-12'">
+            <div class="h-100-p">
+                <jsplumb-surface [surfaceId]="surfaceId" [toolkitId]="toolkitId" [view]="view" [renderParams]="renderParams"></jsplumb-surface>
+                <div class="mini-view">
+                    <jsplumb-miniview [surfaceId]="surfaceId"></jsplumb-miniview>
+                    <div class="zoom-levels">
+                        <div [ngClass]="zoomLevel == '1' ? 'selected' : ''" class="1x" (click)="zoomToLevelOne()">1x</div>
+                        <div [ngClass]="zoomLevel == '2' ? 'selected' : ''" class="2x" (click)="zoomToLevelTwo()">2x</div>
+                        <div [ngClass]="zoomLevel == '3' ? 'selected' : ''" class="3x" (click)="zoomToLevelThree()">3x</div>
+                        <div [ngClass]="zoomLevel == '4' ? 'selected' : ''" class="4x" (click)="zoomToLevelFour()">4x</div>
+                    </div>
+                    <div class="zoom-range">
+                        <div>0</div>
+                        <div>
+                            <p-slider [(ngModel)]="zoomRange" [style]="{'width':'15em'}"></p-slider>
+                        </div>
+                        <div>
+                            100
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="p-col-3 edit-container zero-padding" *ngIf="endtoendEditMode">
+            <p-card *ngIf="editOptions">
+                <div class="p-col-12 card-container">
+                    <div class="p-col-12">
+                        <label class="label-css">Configure</label>
+                    </div>
+                    <div class="p-col-12">
+                        <p-checkbox label="Use Local Renaming of Integration" binary="true" [(ngModel)]="useLocalRenaming"></p-checkbox>
+                    </div>
+                    <div class="p-col-12">
+                        <p-checkbox label="Show Flowpath upto n level on double click" binary="true" [(ngModel)]="isFullFlowPath">
+                        </p-checkbox>
+                    </div>
+                    <div class="p-col-12">
+                        <p-checkbox label="Show Integration Point with 0 Calls" binary="true" [(ngModel)]="showIPwith0Calls">
+                        </p-checkbox>
+                    </div>
+                    <div class="divider">
+                    </div>
+                    <div class="p-col-12">
+                        <div class="p-col-12 zero-padding">
+                            <p-checkbox label="Transaction Per Second" binary="true" [(ngModel)]="enableTPS">
+                            </p-checkbox>
+                        </div>
+                        <div class="p-grid p-col-12 zero-padding">
+                            <div class="p-col-5 div-margin-left">
+                                <p-dropdown class="" [options]="editOptions.dropdownOptions.transactionPerSecond" placeholder=">=" [disabled]="!enableTPS" [(ngModel)]="tpsOperator" [showClear]="true">
+                                </p-dropdown>
+                            </div>
+                            <div class="p-col-1"></div>
+
+                            <div class="p-col-4">
+                                <input class="input-css" [(ngModel)]="configTps" [disabled]="!enableTPS" type="text" pInputText placeholder="23" label="23" />
+                            </div>
+                        </div>
+                        <div class="p-col-12 zero-padding">
+                            <p-checkbox label="Response Time" binary="true" [(ngModel)]="enableRES">
+                            </p-checkbox>
+                        </div>
+                        <div class="p-grid p-col-12 zero-padding">
+                            <div class="p-col-5 div-margin-left">
+                                <p-dropdown class="" [options]="editOptions.dropdownOptions.responseTime" placeholder=">=" [(ngModel)]="resOperator" [disabled]="!enableRES" [showClear]="true">
+                                </p-dropdown>
+                            </div>
+                            <div class="p-col-1"></div>
+
+                            <div class="p-col-4">
+                                <input pInputText [(ngModel)]="configRes" [disabled]="!enableRES" class="input-css" type="text" pInputText placeholder="23" />
+                            </div>
+                            <label class="label-margin">ms</label>
+                        </div>
+                        <div class="p-col-12 zero-padding">
+                            <p-checkbox label="CPU Utilization" binary="true" [(ngModel)]="enableCPU">
+                            </p-checkbox>
+                        </div>
+                        <div class="p-grid p-col-12 zero-padding">
+                            <div class="p-col-5 div-margin-left">
+                                <p-dropdown class="" [options]="editOptions.dropdownOptions.cpuUtilization" placeholder=">=" [(ngModel)]="cpuOperator" [disabled]="!enableCPU" [showClear]="true">
+                                </p-dropdown>
+                            </div>
+                            <div class="p-col-1"></div>
+                            <div class="p-col-4">
+                                <input class="input-css" [(ngModel)]="configCpu" [disabled]="!enableCPU" type="text" pInputText placeholder="23" />
+                            </div>
+                            <label class="label-margin">%</label>
+                        </div>
+                        <div class="p-col-12">
+                            <p-checkbox binary="true" label="Apply these settings on integration point also" [(ngModel)]="enableApplyToIPCheck">
+                            </p-checkbox>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="p-col-12 ">
+                            <label class="label-css">Show Call Details per</label>
+                        </div>
+                        <div class="p-grid p-col-12 zero-padding">
+                            <p-radioButton class="p-col-4" name="cps" value="seconds" label="Seconds" [(ngModel)]="callsUnit">
+                            </p-radioButton>
+                            <div class="p-col-2"></div>
+                            <p-radioButton class="p-col-4" name="cps" value="minutes" label="Minutes" [(ngModel)]="callsUnit">
+                            </p-radioButton>
+                        </div>
+                        <div class="divider"></div>
+
+                        <div class="p-col-12">
+                            <p-checkbox label="Show only specified tiers / integration points" value="showOrHideTiersCheck" [(ngModel)]="showOrHideTiersCheck" binary="showOrHideTiersCheck">
+                            </p-checkbox>
+                        </div>
+
+                        <p-card class="w-100-p" *ngIf="showOrHideTiersCheck">
+                            <div class="p-col-12 ">
+                                <label class="label-css">Search Tier</label>
+                            </div>
+                            <div class="p-grid p-col-12">
+                                <!-- need to be checked -->
+                                <!-- <i class="icons8 icons8-search custom-search"></i> -->
+                                <p-multiSelect class="tiernames p-col-12 multiselect-custom-virtual-scroll" [options]="editOptions.dropdownOptions.tierSearch" [showToggleAll]="false" [(ngModel)]="selectedColumns" optionLabel="label" [virtualScroll]="true" [filter]="true" [itemSize]="34">
+                                    <ng-template let-tier pTemplate="item">
+                                        <div class="tier-item">
+                                            <div>{{tier.label}}</div>
+                                        </div>
+                                    </ng-template>
+                                </p-multiSelect>
+                            </div>
+                        </p-card>
+                        <div class="bottom-div-height"></div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+    </div>
+
+</div>
+
+<p-overlayPanel #solarPerf class="solarPref" *ngIf="nodeOverlayData">
+    <ng-template pTemplate>
+        <div class="p-grid">
+            <div class="p-col-12 no-padding">
+
+                <header>
+                    <span>{{nodeOverlayData.nodeName}}</span>
+                    <app-node-action-menu [Graphical]="this" [solarNodeData]="solarNodeData"></app-node-action-menu>
+                </header>
+            </div>
+
+            <div class="p-col-12 info">
+                <div class="p-col-12">
+                    <i class="icons8 icons8-bar-chart-2"></i>
+                    <span class="title">TPS : {{nodeOverlayData.tps}}</span>
+                </div>
+                <div class="p-col-12">
+                    <i class="icons8 icons8-clock"></i>
+                    <span class="title">Average Response Time(ms): {{nodeOverlayData.avgResTime}}</span>
+                </div>
+                <div class="p-col-12">
+                    <i class="icons8 icons8-microchip"></i>
+                    <span class="title">CPU Utilization: {{nodeOverlayData.cpuUtilization}}%</span>
+                </div>
+                <div class="p-col-12">
+                    <div class="tier-detail" *ngFor="let tier of nodeOverlayData.nodeHealthInfo">
+                        <span class="tier-label">{{ tier.label }}</span>
+                        <div class="tier-bar-container">
+                            <div *ngFor="let tierBar of tier.nodeHealthData" class="tier-bar" [ngStyle]="{
+                                backgroundColor: tierBar.color,
+                                width: tierBar.percentage + '%' }">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tier-detail" *ngIf="nodeOverlayData.transactionScorecard">
+                        <span class="tier-label">{{ nodeOverlayData.transactionScorecard.label }}</span>
+                        <div class="tier-bar-container">
+                            <div *ngFor="let tierBar of nodeOverlayData.transactionScorecard.transScoreSeverity" class="tier-bar" [ngStyle]="{
+                                backgroundColor: tierBar.color,
+                                width: tierBar.percentage + '%' }">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+</p-overlayPanel>
+
+<p-overlayPanel #outputNode class="solarPref" *ngIf="outputNodeOverlayData">
+    <ng-template pTemplate>
+        <div class="p-grid">
+            <div class="p-col-12 no-padding">
+                <header>
+                    <span>{{outputNodeOverlayData.nodeName}}</span>
+                    <!-- <i pButton icon="icons8 icons8-menu-vertical right" class="icon-button no-shadow" pTooltip="Menu" (click)="menu.toggle($event)"></i> -->
+                    <button pButton icon="icons8 icons8-menu-vertical" class="ui-icon-button float-right" (click)="menu.toggle($event)"></button>
+                    <p-tieredMenu #menu [popup]="true" [style]="{width:'15vw'}" styleClass="widget-menu" [model]="outputNodeMenu" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" appendTo="body" baseZIndex="10000000">
+                    </p-tieredMenu>
+                    <!-- <app-node-action-menu [Graphical]="this"></app-node-action-menu> -->
+                </header>
+            </div>
+
+            <div class="p-col-12 info">
+                <div class="p-col-12">
+                    <span class="title">From : {{outputNodeOverlayData.from}}</span>
+                </div>
+                <div class="p-col-12">
+                    <span class="title">To : {{outputNodeOverlayData.to}}</span>
+                </div>
+                <div class="p-col-12">
+                    <span class="title">Response Time : {{outputNodeOverlayData.avgResTime}}</span>
+                </div>
+                <div class="p-col-12">
+                    <span class="title">Call/Sec : {{outputNodeOverlayData.callSec}}</span>
+                </div>
+                <div class="p-col-12">
+                    <span class="title">Count : {{outputNodeOverlayData.count}}</span>
+                </div>
+                <div class="p-col-12">
+                    <span class="title">Errors : {{outputNodeOverlayData.errorCount}}</span>
+                </div>
+                <div class="p-col-12">
+                    <span class="title">Error/Sec : {{outputNodeOverlayData.errorSec}}</span>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+</p-overlayPanel>
+
+
+<app-node-action-sidebar #tierInfo></app-node-action-sidebar>
+<app-end-to-end-new-group [Graphical]="this"></app-end-to-end-new-group>
+
+<app-search-sidebar #searchSidebar></app-search-sidebar>
+<!-- Time Filter -->
+
+<app-ete-time-filter #EndToEndTimeFilter></app-ete-time-filter>
+
+<app-call-details #callDetails></app-call-details>
+<app-reset-integration #resetIntegration></app-reset-integration>
+<app-rename-multiple-integration #renameMultipleIntegration></app-rename-multiple-integration>
+<app-rename-integration #renameIntegration></app-rename-integration>
+<app-map-integration #mapIntegration></app-map-integration>
+
+<!-- Node Info  -->
+<app-node-info #nodeInfo [Graphical]="this" [nodeData]="nodeData"></app-node-info>
+
+<!-- Node Representation -->
+<app-node-representation #nodeRepresentation></app-node-representation>
+
+<!-- show Dashboard -->
+<app-show-dashboard #showDashboard [Graphical]="this" [solarNodeData]="solarNodeData"></app-show-dashboard>
+
+<!-- Top Transaction -->
+<app-top-transaction #topTransaction></app-top-transaction>

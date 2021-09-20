@@ -1,0 +1,126 @@
+<div class="action-container">
+    <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+
+
+        <div #widgetHeight [ngStyle]="{
+                      height: isEnabledColumnFilter
+                        ? 'calc(100vh - 215px)'
+                        : 'calc(100vh - 172px)'
+                    }">
+            <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                Select column to show
+            </div>
+            <p-table #session [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true"
+                [rowHover]="true" [(selection)]="selectedRow" selectionMode="single"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true"
+                [totalRecords]="totalRecords" [responsive]="true"
+                [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [rows]="data.paginator.rows"
+                [scrollable]="true" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 91px)"
+                [resizableColumns]="true" class="all-tables">
+                <ng-template pTemplate="caption">
+                    <div style="text-align: left">
+                        <i class="pi pi-search" style="margin:4px 4px 0 0"></i>
+                        <input type="text" #searchInput pInputText placeholder="Search"
+                            (input)="session.filterGlobal($event.target.value, 'contains')">
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col *ngFor="let col of columns" [style.width]="col.width" />
+                    </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+
+                        <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.field">
+
+                            <div class="text-left">
+                                <!--{{ col.label }}-->
+                                <span title="{{ col.label }}">{{ col.label }}</span>
+                                <p-sortIcon *ngIf="col.isSort" [field]="col.field" class="right"
+                                    ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                    ariaLabelAsc="Activate to sort in ascending order">
+                                </p-sortIcon>
+                            </div>
+                        </th>
+
+
+                    </tr>
+                    <tr *ngFor="let headerRow of data.headers">
+                        <ng-container *ngIf="isEnabledColumnFilter">
+                            <th [ngStyle]="{ 'width': '3px', 'heigth':'15px', 'padding':'0px'}"></th>
+                            <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'custom'
+                        ">
+                                    <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                        pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                      session.filter(
+                              $event.target.value,
+                              col.field,
+                              'custom'
+                            )
+                          " />
+                                </div>
+                                <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'contains'
+                        ">
+                                    <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                        pTooltip="Will filter metric names which contains given text."
+                                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                      session.filter(
+                              $event.target.value,
+                              col.field,
+                              'contains'
+                            )
+                          " />
+                                </div>
+                            </th>
+                            <th></th>
+                        </ng-container>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns">
+                    <tr [pSelectableRow]="row">
+                        <td
+                            [ngStyle]="{'backgroundColor': row.severityColor, 'width': '3px', 'height':'15px', 'padding':'0px'}">
+                        </td>
+                        <td *ngFor="let col of columns" class="{{ col.classes }}">
+                            <div class="p-grid p-nogutter">
+                                <div class="p-col textElipse" title="{{ row[col.field] }}">
+                                    {{ ((row[col.field]) != null ? row[col.field] : '-') }}
+                                </div>
+                                <div class="p-col-1" *ngIf="col.field == 'value' || col.field == 'id'">
+                                    <i class="icons8 icons8-copy" title="Copy to Clipboard"
+                                        [cdkCopyToClipboard]="row[col.field]"
+                                        *ngIf="row[col.field] != null && row[col.field] != '-'"
+                                        style="cursor: pointer;"> </i>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                </ng-template>
+                <!-----------Empty table error handling--------------------->
+                <ng-template pTemplate="emptymessage" let-columns>
+                    <tr>
+                        <td [attr.colspan]="columns.length" style="text-align: center;">
+                            <ng-container *ngIf="loading"> <i class="pi pi-spin pi-spinner"></i>Loading...
+                            </ng-container>
+                            <ng-container *ngIf="error">Failed to get the data.</ng-container>
+                            <span *ngIf="!loading && !error && searchInput.nativeElement.value.length;else noRecords">
+                                Nothing found matching "{{searchInput.nativeElement.value}}"
+                            </span>
+                            <ng-template #noRecords>
+                                <span *ngIf="!loading && !error">No Records Found</span>
+                            </ng-template>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,259 @@
+<div class = 'maincontainer'> 
+    
+<p-toolbar class="ui-secondary-toolbar ">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+
+        <div class="p-col ui-toolbar-text">DASHBOARD</div>
+    </div>
+</p-toolbar>
+
+ <div class="p-grid" style="height: 200px;">
+    <div class="p-col">
+        <p-card>
+            <p-header> 
+                <div class ="title">
+                Total Servers 
+                </div>
+            </p-header>
+            <div style="height: 148px;"> 
+                <span>Total Servers {{totalServer}}</span>
+            </div>
+        </p-card>
+    </div>
+    <div class="p-col">
+        <p-card>
+            <p-header>
+                Load Generater
+            </p-header>
+            <div style="height: 148px;"> 
+            <span>Load Generators {{loadGenrators}}</span>
+            </div>
+        </p-card>
+    </div>
+    <div class="p-col">
+        <p-card>
+            <p-header>
+                Controllers
+            </p-header>
+            <div style="height: 148px;"> 
+            <span>Controllers: {{controllers}}</span>
+            </div>
+        </p-card>
+    </div>
+    <div class="p-col">
+        <p-card>
+            <p-header>
+                Sum of blades
+            </p-header>
+            <div style="height: 148px;"> 
+            <span>Sum of blades: {{totalServer}}</span>
+            </div>
+        </p-card>
+    </div>
+</div> 
+<!---donut chart-->
+<div class="p-grid" style="height: 250px;">
+    <div class="p-col">
+        <div class="chart-section" *ngIf= "chartb">
+            <app-chart [data]="chartb"></app-chart>
+        </div>
+    </div>
+    <div class="p-col">
+        <div class="chart-section" *ngIf="chartserver">
+            <app-chart [data]="chartserver"></app-chart>
+        </div>
+    </div>
+    <div class="p-col" >
+        <div class="chart-section" *ngIf="servercount" >
+            <app-chart [data]="servercount"></app-chart>
+        </div>
+    </div>
+
+</div>
+<div> 
+    <!--Controllers table-->
+    <p-card >
+    <p-header>  
+        <div>
+            Controllers
+        </div>
+    <div class="action-buttons p-align-right">
+        <div class="search-section">
+            <div class="pr-10">
+                <i class="dashboard icons8 icons8-search"></i>
+                <div class="p-align-center">
+                    <input type="text" [value]="" pInputText size="50" placeholder="Search"
+                        (input)="servers.filterGlobal($event.target.value,'contains')" class="search-box" />
+                </div>
+            </div>
+        </div>
+        <div class="icons-container"> 
+             <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label"
+                [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns"
+                [panelStyle]="{ minWidth: '200px' }" styleClass="dropdown-panel-left">
+            </p-multiSelect> 
+                <button pButton icon="icons8 icons8-search-property" class="btn-icon mx-3" (click)="toggleFilters()"
+                    pTooltip="Column Filter"></button>
+            <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                pTooltip="Download" (click)="menu.toggle($event)"></button>
+            <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'"
+                [hideTransitionOptions]="'0ms'" appendTo="body">
+            </p-menu>
+    
+        </div>
+    </div>
+    </p-header>
+        <p-table #servers [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true"
+            [totalRecords]="totalRecords" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+            [rows]="data.paginator.rows" [scrollable]="true"
+          
+            [responsive]="true" selectionMode="single" editMode="row"  class="all-tables" >
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width">
+                </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                        <div class="text-left">
+                            {{ col.label }}
+                             <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                ariaLabelAsc="Activate to sort in ascending order">
+                            </p-sortIcon> 
+                        </div>
+                    </th>
+
+                </tr>
+                 <tr *ngFor="let headerRow of data.headers">
+                    <ng-container *ngIf="isEnabledColumnFilter">
+
+                        <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                            <div *ngIf="
+                                          col.filter.isFilter === true &&
+                                          col.filter.type === 'custom'
+                                        ">
+                                <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label"
+                                    pInputText type="text" (input)="servers.filter($event.target.value,col.valueField,'custom' )" />
+                            </div>
+                             <div *ngIf=" col.filter.isFilter === true && col.filter.type === 'contains'
+                                        ">
+                                <input class="w-100-p" pTooltip="Enter text to search" *ngSwitchCase="col.label"
+                                    pInputText type="text" (input)="
+                                    servers.filter( $event.target.value,col.valueField,'contains' )" />
+                            </div> 
+                        </th>
+                    </ng-container>
+                </tr> 
+            </ng-template>
+            <ng-template pTemplate="body" let-row  let-columns="columns">
+                <tr>
+                    <td *ngFor="let col of columns let i = index" class="{{ col.classes }}">
+                        <span   title="{{ row[col.valueField] }}"  *ngIf="col.valueField !='ip' && col.valueField !='project'">
+                            {{ row[col.valueField] }}
+                        </span> 
+                        <span *ngIf="col.valueField =='ip'" (click)="gettingIpDetail()">{{row.ip}}</span>
+                        <span *ngIf="col.valueField =='project'" (click)="gettingProjectDetail()"> {{row.project}}</span> 
+                        
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.colspan]="columns.length + 1" class="text-center">
+                        <span *ngIf="error">{{error}}</span>
+                        <span *ngIf="empty">No records found</span>
+                        <span *ngIf="loading">Loading</span>
+                    </td>
+                </tr>
+            
+            
+            </ng-template>
+
+        </p-table>
+
+    </p-card>
+</div> 
+<br>  
+<div> 
+    <!--pvoit table-->
+    <p-card> 
+    <app-dash-pvoit-table></app-dash-pvoit-table>
+</p-card>
+    
+</div>
+<div class="p-grid" style="height: 250px;">
+    <div class="p-col">
+        <p-card>
+            <p-header>
+                
+                    Health Check
+                    <p-progressSpinner [style]="{width: '20px', height: '20px'}" styleClass="custom-spinner" strokeWidth="8" fill="#EEEEEE"
+                        animationDuration=".5s"></p-progressSpinner> 
+                        
+                
+            </p-header>
+            <div style="height: 148px;"> 
+            <br><br>
+            <span>{{healthCheck}}</span></div>
+        </p-card>
+    </div>
+    <div class="p-col">
+        <p-card>
+            <p-header>
+            Security Scan
+                <p-progressSpinner [style]="{width: '20px', height: '20px'}" styleClass="custom-spinner" strokeWidth="8" fill="#EEEEEE"
+                    animationDuration=".5s"></p-progressSpinner> 
+                   
+            </p-header>
+            <div style="height: 148px;"> 
+            <br><br>
+            <span>{{securityscan}}</span></div>
+        </p-card>
+    </div>
+    <div class="p-col">
+        <p-card>
+            <p-header>
+            VP/CC Up/Down status
+                <p-progressSpinner [style]="{width: '20px', height: '20px'}" styleClass="custom-spinner" strokeWidth="8" fill="#EEEEEE"
+                    animationDuration=".5s"></p-progressSpinner> 
+                   
+            </p-header>
+            <div style="height: 148px;"> 
+            <br><br>
+            <span>{{downstatus}}</span>
+        </div>
+        </p-card>
+    </div>
+    <div class="p-col">
+        <p-card>
+            <p-header>
+            Service mailer not running
+                <p-progressSpinner [style]="{width: '20px', height: '20px'}" styleClass="custom-spinner" strokeWidth="8" fill="#EEEEEE"
+                    animationDuration=".5s"></p-progressSpinner> 
+                   
+            </p-header>
+            <div style="height: 148px;"> 
+                <br><br>
+                <span>{{mailcheck}}</span>
+            </div>
+        </p-card>
+    </div>
+</div>  
+<!---locatin of servers-->
+<div class="p-grid" style="height: 500px;">  
+    <div  class="p-col">
+    <p-card>
+        <p-header>
+        Location Wise servers   <a href= "#"  style="color: rgb(0, 89, 255);display: block" >click to load map</a>
+        </p-header>
+        <div style="height: 400px;"></div> 
+        <!-- <agm-map [latitude]="lat" [longitude]="lng"  (mapClick)="location($event)">
+            <agm-marker [latitude]="lat" [longitude]="lng"></agm-marker>
+        </agm-map> -->
+    </p-card>
+</div>
+</div>
+
+</div>

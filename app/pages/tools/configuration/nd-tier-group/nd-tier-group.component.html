@@ -1,0 +1,231 @@
+<!-- <p-toast></p-toast> -->
+<div class="header">
+    <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a routerLink="/home/dashboard">
+            <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">TIER GROUP</div>
+    </div>
+</p-toolbar>
+<div class="configui-progressbar">
+    <!-- <mat-progress-bar *ngIf="isProgressBar" mode="indeterminate" [color]="color"></mat-progress-bar> -->
+    <p-progressBar *ngIf="isProgressBar" mode="indeterminate" [style]="{'height' : '5px'}"></p-progressBar>
+</div>
+<div class="ndegui-mainbox p-10">
+    <div class="configUI" >
+        <div class="p-grid p-align-center p-justify-between">
+            <div class="p-grid p-align-center">
+            <div class="mr-10">
+                Topology :
+            </div>
+            <div class="width-200">
+                <p-dropdown name="topologyList" dropdownIcon="icons8 icons8-expand-arrow" [options]="topologyList" placeholder="--Select Topology--" [style]="{'min-width':'10%'}" [(ngModel)]="selectedTopology" (onChange)="getTierGroupInfo()" appendTo="body" required ngModel></p-dropdown>
+            </div>
+            </div>
+
+            <div class="runningtestrun" *ngIf="displaySessionLabel">
+                <i class="icons8 icons8-loading"></i> Test Run No: {{ trNo == null ? 'NA' : trNo }}
+            </div>
+        </div>
+
+
+        <p-header class="p-grid p-align-center w-100-p p-justify-between">
+            <span class="configui-float-css ">  <b>Tier Group List </b></span>
+            <span class="configui-float my-6">
+                <button pButton icon="icons8 icons8-plus-math" title="Add Tier Group" (click)="openAddTierGroupDialog()" class="ui-button-secondary mr-5"></button>
+                <button pButton icon="icons8 icons8-edit" title="Edit Tier Group" (click)="openEditTierGroupDialog()" class="ui-button-secondary mr-5"></button>
+                <button pButton icon="icons8 icons8-delete-trash" title="Delete Tier Group(s)" (click)="deleteSelectedTierGroup()" class="ui-button-danger ui-button-secondary"></button>
+               
+            </span>
+        </p-header>
+
+    
+        <div class="config-ui-table-margin" style="padding: 0px">
+
+            <p-table [columns]="cols" [value]="tierGroupInfo" [rows]="15" [(selection)]="selectedTierGroup" [paginator]="tierGroupInfo?.length > 15" [pageLinks]="3" class="nde-ui removeHeaderCheckbox all-tables"
+                [pageLinks]="3">
+
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col style="width:8%">
+                        <col style="width:20%">
+                        <col style="width:20%">
+                        <col style="width:20%">
+                        <col style="width:20%">
+                        <col style="width:20%">
+                        <col style="width:20%">
+                    </colgroup>
+                </ng-template>
+                <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+                    <tr>
+                        <th class="columnwidth">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+			<th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                                {{col.header}}
+                                <span *ngIf="col.field !=''">
+                                <p-sortIcon [field]="col.field"></p-sortIcon>
+                                </span>
+                        </th>
+                       <!-- <th>Group Name</th>
+                        <th>Group Define For</th>
+                        <th>Type</th>
+                        <th>Definition</th>
+                        <th>User Name</th>
+                        <th>Last Modified</th>-->
+                         </tr>
+                </ng-template>
+                <ng-template class="tableCss config-ui" pTemplate="body" let-tierRow>
+                    <tr>
+                        <td class="text-center width-50">
+                            <p-tableCheckbox [value]="tierRow"></p-tableCheckbox>
+                        </td>
+                        <td class="tableCss" title="{{tierRow.groupName}}">{{tierRow.groupName}}</td>
+                        <td class="tableCss" title="{{tierRow.component}}">{{tierRow.component}}</td>
+                        <td class="tableCss" title="{{tierRow.type}}">{{tierRow.type}}</td>
+                        <td class="tableCss" title="{{tierRow.definition}}">{{tierRow.definition}}</td>
+                        <td class="tableCss" title="{{tierRow.userName}}">{{tierRow.userName}}</td>
+                        <td class="tableCss text-right" title="{{tierRow.lastModified}}">{{tierRow.lastModified}}</td>
+                       
+                     </tr>
+                </ng-template>
+		<ng-template pTemplate="emptymessage" let-columns>
+                    <tr>
+                        <td [attr.colspan]="7" style="text-align: center" >
+                            No records found
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <!-- <p-dataTable [value]="tierGroupInfo" [rows]="15" [(selection)]="selectedTierGroup" [paginator]="tierGroupInfo?.length > 15" [pageLinks]="3" class="nde-ui removeHeaderCheckbox"> -->
+                <!-- <p-column [style]="{'width':'2%'}" selectionMode="multiple"></p-column> -->
+                <!-- <p-column class="tableCss" field="groupName" header="Group Name" [sortable]="true" [style]="{'width':'17%'}">
+                    <ng-template let-col let-tierRow="rowData" pTemplate>
+                        <span title="{{tierRow[col.field]}}">{{tierRow[col.field]}}</span>
+                    </ng-template>
+                </p-column> -->
+                <!-- <p-column class="tableCss" field="component" header="Group Define For" [sortable]="true" [style]="{'width':'20%'}">
+                    <ng-template let-col let-tierRow="rowData" pTemplate>
+                        <span title="{{tierRow[col.field]}}" *ngIf="tierRow[col.field]">{{tierRow[col.field]}}</span>
+                    </ng-template>
+                </p-column> -->
+                <!-- <p-column class="tableCss" field="type" header="Type" [sortable]="true" [style]="{'width':'10%'}">
+                    <ng-template let-col let-tierRow="rowData" pTemplate>
+                        <span title="{{tierRow[col.field]}}">{{tierRow[col.field]}}</span>
+                    </ng-template>
+                </p-column> -->
+                <!-- <p-column class="tableCss" field="definition" header="Definition" [sortable]="true" [style]="{'width':'36%'}">
+                    <ng-template let-col let-tierRow="rowData" pTemplate>
+                        <span title="{{tierRow[col.field]}}">{{tierRow[col.field]}}</span>
+                    </ng-template>
+                </p-column> -->
+                <!-- <p-column class="tableCss" field="userName" header="User Name" [sortable]="true" [style]="{'width':'13%'}">
+                    <ng-template let-col let-tierRow="rowData" pTemplate>
+                        <span title="{{tierRow[col.field]}}">{{tierRow[col.field]}}</span>
+                    </ng-template>
+                </p-column> -->
+                <!-- <p-column class="tableCss" field="lastModified" header="Last Modified" [sortable]="true" [style]="{'width':'15%'}">
+                    <ng-template let-col let-tierRow="rowData" pTemplate>
+                        <span style="float:right" title="{{tierRow[col.field]}}">{{tierRow[col.field]}}</span>
+                    </ng-template>
+                </p-column> -->
+
+            <!-- </p-dataTable> -->
+        </div>
+    </div>
+</div>
+
+<!--Dialog for method monitor-->
+
+<p-dialog class="secondary-dialog foterDialog" [style]="{width: '30vw'}" header="{{isAddNewTierGroup ? 'Add Tier Group' : 'Edit Tier Group'}}" *ngIf="addEditTierGroupDialog" [(visible)]="addEditTierGroupDialog" modal="modal" width="450" responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveTierGroup()" #groupForm="ngForm" ngNativeValidate>
+        <div class="py-12">
+        <div class="ui-g p-align-center">
+            <div class="ui-g-4">
+                <label class="scen-content">Group Name</label>
+            </div>
+            <div class="ui-g-7">
+                <input class="scen-content w-100-p" name="tierGroupName" type="text" size="28" pInputText [(ngModel)]="objTierGroup.groupName" required ngModel/>
+            </div>
+        </div>
+        <div class="ui-g p-align-center">
+            <div class="ui-g-4">
+                <label class="scen-content">Group define for</label>
+            </div>
+            <div class="ui-g-7">
+                <input class="scen-content" name="selectedComponentList" type="text" class='hidden-validator' pInputText [(ngModel)]="objTierGroup.selectedComponentList" required ngModel/>
+                <p-multiSelect name="selectedComponentList"  dropdownIcon="icons8 icons8-expand-arrow" placeholder="--Select Component--" (onChange)="getComponentRelatedTierList()" [options]="componentList" [(ngModel)]="objTierGroup.selectedComponentList" appendTo="body" [style]="{ 'min-width': '100%'}" ngModel class="multiselectPanel multiTier w-100-p"></p-multiSelect>
+            </div>
+        </div>
+        <div class="ui-g p-align-center">
+            <div class="ui-g-4">
+                <label class="scen-content">Type</label>
+            </div>
+            <div class="ui-g-7">
+                <input class="scen-content" name="type" type="text" class='hidden-validator' pInputText [(ngModel)]="objTierGroup.type" required ngModel/>
+                <p-dropdown class="scen-content w-100-p"  name="type" dropdownIcon="icons8 icons8-expand-arrow" [options]="typeList" placeholder="--Select Type--" [style]="{'min-width':'100%'}" (onChange)="getListOfTier()" [(ngModel)]="objTierGroup.type" appendTo="body" required ngModel></p-dropdown>
+            </div>
+        </div>
+    
+        <div class="ui-g p-align-center" *ngIf="objTierGroup.type == 'Pattern'">
+            <div class="ui-g-4">
+                <label>Pattern</label>
+            </div>
+            <div class="ui-g-7">
+                <input name="selectedPatternList" type="text" class="w-100-p" size="28" pInputText [(ngModel)]="selectedPatternList" required ngModel/>
+                <!-- <p-chips name="tierPatternList" [(ngModel)]="objTierGroup.tierPatternList" [style]="{'width':'100%'}" ngModel required></p-chips> -->
+            </div>
+            <div class="ui-g-2">
+                <button pButton type="button" label="Test"  (click)="getListOfPatternTier()" class="ui-button-rounded ui-button-secondary mr-6"></button>
+        
+            </div>
+        </div>
+        <div class="ui-g p-align-center" *ngIf="isTierList">
+            <div class="ui-g-4" *ngIf="objTierGroup.type=='Pattern'">
+                <label>Tier List for pattern</label>
+            </div>
+            <div class="ui-g-4" *ngIf="objTierGroup.type == 'List'">
+                <label>Tier List</label>
+            </div>
+            <div class="ui-g-7">
+                <p-dropdown *ngIf="objTierGroup.type=='Pattern'" name="SelectedTierList" dropdownIcon="icons8 icons8-expand-arrow" [options]="tierList" [style]="{ 'width': '100%'}" appendTo="body" required ngModel class="multiselectPanel"></p-dropdown>
+                <input name="tierPatternList" *ngIf="objTierGroup.type == 'List'" type="text" class='hidden-validator' pInputText [(ngModel)]="objTierGroup.tierPatternList" required ngModel/>
+                <p-multiSelect name="selectedTierList" dropdownIcon="icons8 icons8-expand-arrow" *ngIf="objTierGroup.type == 'List'" defaultLabel="--Select Tier--" [options]="tierList" [(ngModel)]="objTierGroup.tierPatternList" appendTo="body" [style]="{ 'width': '100%'}" ngModel class="multiselectPanel"></p-multiSelect>
+            </div>
+        </div>
+    </div>
+
+        <p-footer>
+            <div class="p-grid p-align-center p-justify-end py-8">
+               <button pButton type="button" label="Cancel" class="ui-button-rounded ui-button-secondary px-10 mr-6" (click)="addEditTierGroupDialog=false"></button>
+                <button pButton type="submit" label="Save" class="ui-button-rounded  px-10 mr-6"></button>
+            </div>
+        </p-footer>
+    </form>
+</p-dialog>
+
+<p-dialog class="profile-dialog" header="{{errHeader}}" *ngIf="errDialog" [(visible)]="errDialog" modal="modal" width="500" responsive="true">
+    <div style="max-height: 500px; overflow-y: auto;">
+
+        {{headerMsg}}
+        <ul style="list-style-type:disc">
+            <li *ngFor="let e of errMsg">
+                <span>{{e}}</span>
+            </li>
+        </ul>
+    </div>
+    <footer>
+        <div class="p-grid p-align-center p-justify-end py-8">
+        <button type="button" pButton *ngIf="isProfAppliedTierGrp" (click)="errDialog=false" icon="icons8-delete"
+        class="ui-button-rounded ui-button-secondary px-10 mr-6" label="Cancel"></button>
+	    <button type="button" pButton *ngIf="isProfAppliedTierGrp" (click)="deleteTierGroup()" icon="icons8-checkmark"
+        class="ui-button-rounded px-10 mr-6" label="Ok"></button>
+	    <button type="button" pButton *ngIf="!isProfAppliedTierGrp" (click)="errDialog=false" icon="icons8-checkmark"
+        class="ui-button-rounded px-10 mr-6" label="Ok"></button>
+        </div>
+    </footer>
+</p-dialog> 

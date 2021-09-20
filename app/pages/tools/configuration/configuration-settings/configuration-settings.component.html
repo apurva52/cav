@@ -1,0 +1,316 @@
+<div class="h-100-vh configuration-container">
+    <div class="header">
+      <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+      <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a routerLink="/home">
+          <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">DASHBOARD CONFIGURATION</div>
+      </div>
+    </p-toolbar>
+    <div class="content-body" id="reports">
+      <div class="p-grid">
+        <div class="p-col-12 no-padding">
+          <div class="breadcrumbs relative">
+            <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+            <div class="absolute">
+            <div class="p-grid p-align-center p-justify-end">
+                <div class="">
+                    <p-checkbox name="groupname" value="saveConfigFile" class="mh-10" binary="true" label="Save In Config file" [(ngModel)]="isSaveConfig" ></p-checkbox>
+                </div>
+                <div class="">
+                    <!-- <button
+                    pButton
+                    type="button"
+                    class="ui-button-secondary ui-button-rounded mh-3"
+                    label="Cancel"
+                    (click)="resetConfigSettings()"
+                  ></button> -->
+                  <button
+                    pButton
+                    type="button"
+                    class="ui-button ui-button-rounded mh-3"
+                    label="Apply"
+                    (click)="saveConfigurationSettings()"
+                  ></button>
+                </div>
+            </div>
+            </div>
+          </div>
+        </div>
+        <div class="p-col-12 no-padding main-table">
+          <!-- <p-tabMenu [model]="items"></p-tabMenu>
+          <div class="content-body">
+            <router-outlet></router-outlet>
+          </div> -->
+        <p-tabView class="content-body" (onChange)="onTabChange($event)">
+           <p-tabPanel header="Logs">
+              <p-fieldset legend="Debug Level">
+                  <div class="p-grid p-col-4 p-align-center">
+                      <div class="p-col-3">
+                          <span class="label">Debug Level</span>
+                      </div>
+                      <div class="p-col-3">
+                          <p-dropdown [options]="debugValue" class="customInput" [(ngModel)]="selectedDebugValue" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                      </div>
+                  </div>
+              </p-fieldset>
+              <p-fieldset legend="Module Debug Level">
+                  <div class="p-grid p-col-12">
+                      <div class="p-grid p-col-4 p-align-center">
+                          <div class="p-col-3">
+                              <span class="label">Module Name</span>
+                          </div>
+                          <div class="p-col-3">
+                              <p-dropdown [options]="module" class="customInput" (onChange)="onChangeModuleDebugLevelName($event, selectedModuleName)" [(ngModel)]="selectedModuleName" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                          </div>
+                      </div>
+                      <div class="p-grid p-col-4 p-align-center">
+                          <div class="p-col-3">
+                              <span class="label">Debug Level</span>
+                          </div>
+                          <div class="p-col-3">
+                              <p-dropdown [options]="moduleDebugLevel" class="customInput" (onChange)="onChangeModuleDebugLevelValue($event, selectedModuleDebugVale)" [(ngModel)]="selectedModuleDebugVale" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                          </div>
+                      </div>
+                  </div>
+              </p-fieldset>
+           </p-tabPanel>
+           <p-tabPanel header="Percentile">
+                <p-fieldset legend="Percentile Settings">
+                    <div class="p-grid p-col-12 p-align-center">
+
+                        <label class="mr-10">Select Percentile To View</label>
+                        <p-multiSelect [options]="percentileOpt" [(ngModel)]="selectedPercentileValue" dropdownIcon="icons8 icons8-expand-arrow" class="mr-40" styleClass="width-150" ></p-multiSelect>
+
+                        <div>
+                          <p-checkbox name="groupname" binary="true" class="mr-40" label="Select All" (click)="fillAllPerctValue()" [(ngModel)]="chkSelectedAllPctValues"></p-checkbox>
+                        </div>
+
+                        <button pButton type="button" class="ui-button ui-button-rounded" label="Select Default Percentile"
+                        (click)="setDefaultPerctValue()"></button>
+                    </div>
+                </p-fieldset>
+             </p-tabPanel>
+             <p-tabPanel header="Transaction Details">
+                    <p-fieldset legend="Transaction Details">
+                        <div class="p-grid my-10">
+                            <p-checkbox name="groupname" binary="true" value="transaction" label="Allow Percentile Data Creation for Transaction" [(ngModel)]="chkAllowPectData"></p-checkbox>
+                        </div>
+                        <div class="p-grid p-align-center  my-10">
+                            <label class="mr-10 p-col-3">Select Percentile To View</label>
+
+                            <p-multiSelect [options]="percentileTxOpt"  [(ngModel)]="selectedTxnPerctValue" [disabled]="!chkAllowPectData"  dropdownIcon="icons8 icons8-expand-arrow" class="mr-10" styleClass="width-140"></p-multiSelect>
+
+                            <div class="mr-40">
+                                <p-checkbox name="groupname" binary="true" value="selectAll" class="mr-40" label="Select All" [disabled]="!chkAllowPectData" [(ngModel)]="chkSelectedAllTxnValue" (click)="fillAllTxnPctValue()"></p-checkbox>
+                            </div>
+
+                                <button pButton type="button" class="ui-button ui-button-rounded" [disabled]="!chkAllowPectData"
+                                    label="Select Default Percentile" (click)="setDefaultTxnPctValue()"></button>
+                        </div>
+
+                        <div class="p-grid p-align-center  my-10">
+                            <label class="mr-10  p-col-3">Refresh Time Interval For Transaction Percentile</label>
+
+                            <p-dropdown [options]="refreshTimeIntervalOpt" [(ngModel)]="selectedRefreshTime" dropdownIcon="icons8 icons8-expand-arrow" class="mr-8" [style]="{'min-width':'140px'}"></p-dropdown>
+                            <label>Minutes</label>
+                        </div>
+
+                        <div class="p-grid p-align-center my-10">
+                          <label class="mr-10 p-col-3">Threshold For Transaction Details Pagination</label>
+                          <input type="number" [(ngModel)]="txnDetailThresholdValue"  pInputText class="width-140" />
+
+                        </div>
+                    </p-fieldset>
+                 </p-tabPanel>
+           <p-tabPanel header="Favourite Settings">
+              <p-fieldset legend="Favorite Level">
+                  <div class="p-grid p-col-12 p-align-center">
+                      <div class="p-col-4">
+                          <p-checkbox name="groupname" binary="true" value="saveConfigFile" class="mh-10" label="Load Graph Time Settings From Favorite" [(ngModel)]="chkLoadGraphTimeFav"></p-checkbox>
+                      </div>
+                      <div class="p-col-4">
+                          <p-checkbox name="groupname" binary="true" value="saveConfigFile" class="mh-10" label="Load Favorite with Compare Settings    " [(ngModel)]="chkLoadFavCompSetting"></p-checkbox>
+                      </div>
+                  </div>
+                  <div class="p-grid p-col-12 p-align-center">
+                      <div class="p-col-4">
+                          <p-checkbox name="groupname" binary="true" value="saveConfigFile" class="mh-10" label="Enable Dynamic WebDashboard" [(ngModel)]="chkDynamicWebDashboard"></p-checkbox>
+                      </div>
+                      <div class="p-col-6">
+                          Refresh Interval For Dynamic WebDashboard <input  type="number" min="1" max="1000" class="customInput" [(ngModel)]="setDynamicDashboardIntrvl"  pInputText /> Minutes
+                      </div>
+                  </div>
+                  <div class="p-grid p-col-12 p-align-center">
+                      <div class="p-col-4">
+                          <p-checkbox name="groupname" binary="true" value="saveConfigFile" class="mh-10" label="Execute scroll event outside zone" [(ngModel)]="chkScrollEvntZone"></p-checkbox>
+                      </div>
+                  </div>
+              </p-fieldset>
+           </p-tabPanel>
+           <p-tabPanel header="Graph Settings">
+              <p-fieldset legend="Gradient Color Settings">
+                  <div class="p-grid p-col-12 p-align-center">
+                      <div class="p-col-3">
+                          <p-checkbox name="groupname" binary="true" label="Area Chart" [(ngModel)]="isAreaChartEnable">
+                          </p-checkbox>
+                      </div>
+                      <div class="p-col-3">
+                          <p-checkbox name="groupname" binary="true" value="saveConfigFile" label="Pie Chart"
+                              [(ngModel)]="isPieChartEnable"></p-checkbox>
+                      </div>
+                      <div class="p-col-3">
+                          <p-checkbox name="groupname" binary="true" value="saveConfigFile" label="Donut Chart"
+                              [(ngModel)]="isDonutChartEnable"></p-checkbox>
+                      </div>
+                      <div class="p-col-3">
+                          <p-checkbox name="groupname" binary="true" label="Bar Chart" [(ngModel)]="isBarChartEnable">
+                          </p-checkbox>
+                      </div>
+                  </div>
+                  <div class="p-grid p-col-12 p-align-center">
+                      <div class="p-col-3">
+                          <p-checkbox name="groupname" binary="true" value="saveConfigFile" label="Stacked Area Chart"
+                              [(ngModel)]="isStackedAreaEnable"></p-checkbox>
+                      </div>
+                      <div class="p-col-3">
+                          <p-checkbox name="groupname" binary="true" label="Stacked Bar Chart" [(ngModel)]="isStackedBarEnable">
+                          </p-checkbox>
+                      </div>
+                  </div>
+              </p-fieldset>
+              <p-fieldset legend="Y-Axis Settings" class="mb-15">
+                  <div class="p-grid p-align-center">
+                      <div class="p-col-2">
+                          Show Decimal Digits</div>
+                      <div class="p-col-2">
+                          <input type="number" class="customInput" value="3" [(ngModel)]="setDecimalValue" min="1" max="10" pInputText />
+                      </div>
+                      <div class="p-col-2">
+                          <p-checkbox name="groupname" value="saveConfigFile" class="mh-6" label="Show Crosshair"
+                              [(ngModel)]="isShowCrosshair"></p-checkbox>
+                      </div>
+                      <div class="p-col-2">
+                          <p-checkbox name="groupname" label="Enable GridLine" class="mh-6" [(ngModel)]="isGridLineEnable">
+                          </p-checkbox>
+                      </div>
+                  </div>
+              </p-fieldset>
+              <p-fieldset legend="Advanced Settings" class="mb-15">
+                    <div class="p-grid p-align-center">
+                            <div class="p-col-2">Shared Tooltip Threshold</div>
+                            <div class="p-col-2"><input type="number" class="w-100-p" [(ngModel)]="setTooltipThreshold" min="0" max="100" pInputText /></div>
+                            <div class="p-col-2">Series Boost Threshold</div>
+                            <div class="p-col-2"><input type="number" class="w-100-p" [(ngModel)]="setBoostThreshold" min="0" max="1000" pInputText /></div>
+                            <div class="p-col-2">Graph Scaling</div>
+                            <div class="p-col-2">
+                                <p-dropdown [options]="graphSclaingOpt" class="customDropdown" [(ngModel)]="selectedGraphScale"
+                                    dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width':'100%'}"></p-dropdown>
+                            </div>
+                          </div>
+                          <div class="p-grid p-align-center">
+                                <div class="p-col-4">
+                                    <p-checkbox name="groupname" binary="true" value="saveConfigFile" label="Lower Panel Pagination"
+                                        [(ngModel)]="isLowerPanelEnable"></p-checkbox>
+                                </div>
+                                <div class="p-col-2" *ngIf="isLowerPanelEnable">Lower Panel Pagination Threshold</div>
+                                <div class="p-col-2">
+                                    <input *ngIf="isLowerPanelEnable" type="number" class="w-100-p" [(ngModel)]="setPaginationThreshold"  min="1" max="5000" pInputText />
+                                  </div>
+                                  <div class="p-col-2">Scaling Threshold</div>
+                                  <div class="p-col-2">
+                                      <p-slider [disabled]="selectedGraphScale == 0" [(ngModel)]="setScalingThreshold"  (onChange)="formatThumbLabel($event)" title="{{setScalingThreshold}}" class="slider"></p-slider>
+                                  </div>
+
+
+
+
+
+                            </div>
+                            <div class="p-grid p-align-center">
+                                    <div class="p-col-2">Inter-widget Update Delay Time (ms)</div>
+                                    <div class="p-col-2">
+                                        <input type="number" class="w-100-p" [(ngModel)]="interWidgetUpdateDelayTime" min="0" max="1000" pInputText />
+                                    </div>
+                                    <div class="p-col-2">Maximum limit for time delay</div>
+                                    <div class="p-col-2">
+                                        <input type="number" class="w-100-p" [(ngModel)]="maxLimitForTimeDelay" pInputText />
+                                    </div>
+                                    <div class="p-col-3">
+                                        <p-checkbox name="groupname" label="Enable Monochromatic Color" [(ngModel)]="isMonochromaticColor">
+                                        </p-checkbox>
+                                    </div>
+                                  </div>
+                                  <div class="p-grid p-align-center">
+                                        <div class="p-col-2">Maximum limit for Multiple Dials/Meter</div>
+                                        <div class="p-col-2"><input type="number" class="w-100-p" [(ngModel)]="maxLimitForDial" min="1" max="50" pInputText /></div>
+                                        <div class="p-col-2">Area-Range Graph Threshold</div>
+                                        <div class="p-col-2"><input type="number" class="w-100-p" [(ngModel)]="areaGraphThreshold" min="-1" max="10000" pInputText /></div>
+                                        <div class="p-col-3">
+                                            <p-checkbox name="groupname" binary="true" label="Enable Global Background Color"
+                                                [(ngModel)]="isBackgroundColor" (change)="onBackgroundColor()"></p-checkbox>
+
+                                            <!-- <input type="color" [hidden]="isColorPicker" class= "circle-color-picker" name="color2"   [value]="color"
+                                              [style.background]="color" [(ngModel)]="color"/> -->
+                                              <p-colorPicker [hidden]="!isBackgroundColor" [(ngModel)]="color"></p-colorPicker>
+                                        </div>
+
+
+
+                                </div>
+              </p-fieldset>
+           </p-tabPanel>
+           <p-tabPanel header="Graph Tree Settings">
+              <p-fieldset legend="Graph Tree Settings">
+                  <div class="p-grid p-col-12 p-align-center">
+                      <div class="p-col-4">
+                          <p-checkbox name="groupname" binary="true" [(ngModel)]="isRefreshGraphChecked" value="saveConfigFile" class="mh-10" label="Refresh Graph Tree On Runtime Changes" [(ngModel)]="selectedValues"></p-checkbox>
+                      </div>
+                      <div class="p-col-6">
+                          Show Compare Group Member at Level * <input type="number" class="customInput" [(ngModel)]="compareGroupMemberValue" min="1" max="20" pInputText />
+                      </div>
+                  </div>
+              </p-fieldset>
+              <p-fieldset legend="Note:">
+                  <div class="p-grid p-col-12 p-align-center">
+                      <p>* This option allows user to set the maximum level in the tree hierarchy by which "Compare Group Member" related context menus are shown. This is required as there is an impact on the performance of Dashboard when "Compare Group Member" is shown in the tree and the hierarchy level is high (>5). Default value is -1, which means it is allowed at all the levels.</p>
+                  </div>
+              </p-fieldset>
+           </p-tabPanel>
+           <p-tabPanel header="DB Settings">
+              <p-fieldset legend="DB Settings">
+                  <div class="p-grid p-col-6 p-align-center">
+                      <div class="p-grid p-col-12 p-align-center">
+                          <!-- <div class="p-col-7"> -->
+                              Query Timeout <input type="number" class="customInput" [(ngModel)]="setQueryTimeoutValue" min="1" max="99999" pInputText /> Seconds
+                          <!-- </div> -->
+                      </div>
+                  </div>
+              </p-fieldset>
+           </p-tabPanel>
+           <p-tabPanel header="Query Settings">
+              <p-fieldset legend="Query Settings">
+                  <div class="p-grid p-col-6 p-align-center">
+                      <div class="p-grid p-col-12 p-align-center">
+                          <div class="p-col-4">
+                              <span class="label">Log Monitoring Server Base-Url</span>
+                          </div>
+                          <div class="p-col-8">
+                              <!-- <input type="text" class="customInput" [(ngModel)]="unifiedHostValue" pInputText/> -->
+                              <input type="text" class="customInput queryInput" [(ngModel)]="unifiedHostValue" placeholder="e.g:-http://0.0.0.0:5601" pInputText/>
+                          </div>
+                      </div>
+                  </div>
+              </p-fieldset>
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+</div>
+</div>
+                                  <div id="centerpoint">
+                                    <p-confirmDialog styleClass="centerpointAd" key="configSetting" header="Error" acceptLabel="Ok" rejectLabel="Cancel"  [(visible)]="dialogVisible"></p-confirmDialog>
+                                </div>
+  </div>

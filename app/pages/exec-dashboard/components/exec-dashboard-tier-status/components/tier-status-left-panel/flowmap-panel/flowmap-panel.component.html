@@ -1,0 +1,1213 @@
+<!-- <p-dropdown [options]="flow
+    mapList" (onChange)="openOnlineCopyFlowMap()" [(ngModel)]="selectedFlowMap"></p-dropdown> -->
+    <app-flowchart></app-flowchart>
+    <p-contextMenu appendTo="body" #ctrlMenu class="contextClass" [global]="false" (onContextMenuSelect)="randomVariable($event)" [model]="drillDownItems"></p-contextMenu>
+    <!-- Random variable -->
+    <!-- <button (click)="configFlowMap()">Configure Flowmap</button>
+    <button (click)="groupTier()">Group Tier</button>
+    <button (click)="fillUnGroupDialog()">UnGroup Tier</button> -->
+    
+    <!-- <button (click)="showOnlyTierFlowMap()">Show Flowmap for selected Tier</button> -->
+    <!-- <button (click)="showFullFlowmap()">Show Full Flowmap</button> -->
+    <!-- <button (click)="openTierInfo()">Show Tier Info</button> -->
+    <!-- <button (click)="saveAsFlowMap()">Save As Flowmap</button> -->
+    <!-- <button (click)="renameIP()">Rename IP </button> -->
+    <!-- <button (click)="drillDownIps()"> Drilldown (IP)</button> -->
+    
+    <p-dialog modal="modal" class="secondary-dialog" [style]="{'width':'800px'}" [header]="groupDialogHeader" [(visible)]="groupTierToggle">
+        <div class="p-colrid p-colrid-responsive p-colrid-pad ui-fluid">
+            <span *ngIf="groupDialogHeader === 'Add New Group'">
+                <div class="p-grid p-align-center" *ngIf="groupList.length != 0">
+                    <div class="p-col-3">
+                        Add Into Existing Group:
+                    </div>
+                    <div class="p-col-5">
+                        <p-dropdown [options]="groupList" appendTo="body" [(ngModel)]="selectedTierGroup" placeholder="Select a Group" [style]="{'min-width': '100%'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+                    <div class="p-col-4">
+                        <p-checkbox name="isCreateGrp" label="Create New Group" binary="true" [(ngModel)]="isCreateGrp"></p-checkbox>
+                    </div>
+
+                    <ng-container *ngIf="isCreateGrp">
+                    <div class="p-col-3">
+                        Group Name
+                    </div>
+
+                    <div class="p-col-5">
+                        <input pInputText type="text" placeholder="Enter Group Name" [(ngModel)]="newGrpName" />
+                    </div>
+                    </ng-container>
+                </div>
+            </span>
+
+            <span *ngIf="groupDialogHeader === 'UnGroup Tier(s)'">
+                <div class="p-colrid-row" *ngIf="groupList.length != 0">
+                    <div class="p-colrid-col-3">
+                        Group Name: {{_dataHandlerService.$selectedMenuNode}}
+                    </div>
+                </div>
+            </span>
+	    <br>
+            <p-pickList *ngIf="groupTierToggle && (isCreateGrp || groupDialogHeader === 'UnGroup Tier(s)')" [responsive]="true" [source]="tiersList"
+                [target]="unGroupTiersList" [sourceHeader]="sourceHeader" [targetHeader]="targetHeader"
+                [showSourceControls]="false" [showTargetControls]="false" filterBy="id">
+                <ng-template let-item pTemplate="item">
+                    <div class="ui-helper-clearfix">
+                        {{item.id}}
+                    </div>
+                </ng-template>
+            </p-pickList>
+        </div>
+        <p-footer>
+            <div class="p-grid p-align-center p-justify-end p-6">
+            <button type="button"  pButton class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="groupTierToggle=false" label="Cancel"></button>
+
+            <button type="button"  pButton class="ui-button-rounded px-15" *ngIf="groupDialogHeader === 'Add New Group'" (click)="createNewGroup()"
+                label="Save"></button>
+            <button type="button"  pButton class="ui-button-rounded px-15" *ngIf="groupDialogHeader === 'UnGroup Tier(s)'" (click)="unGroupTier()"
+                label="Save"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+    
+    
+                                        
+    
+        
+        
+    
+    
+    <p-dialog modal="modal" class="secondary-dialog foterDialog" [style]="{'width':'400px'}" header="Copy Flowmap" [(visible)]="_dataHandlerService.$saveAsFlowmap">
+            <form (ngSubmit)="saveFlowmap('saveAs');_dataHandlerService.$saveAsFlowmap=false" #groupForm="ngForm" ngNativeValidate>
+            <div class="p-grid p-align-center">
+                <div class="p-col-6">
+                    Enter Name for new Flowmap : 
+                </div>
+                <div class="p-col-6">
+                    <input pInputText type="text" name="newFlowmapName" [(ngModel)]="newFlowmapName" pattern="[_a-zA-Z0-9]+[a-zA-Z0-9_]*" class="w-100-p" (keydown.space)="$event.preventDefault()" required ngModel/>
+                </div>
+            </div>
+
+            <div class="p-grid p-align-center p-justify-end p-5 mt-15">
+                <button type="button" pButton class="ui-button-rounded px-15 mx-6 ui-button-secondary"(click)="_dataHandlerService.$saveAsFlowmap=false" label="Cancel"></button>
+                <button type="submit"  pButton class="ui-button-rounded px-15" label="Save"></button>
+                <!-- <button type="button"  pButton class="ui-button-rounded px-15" (click)="actionOnCommonDialog()" label="Save"></button> -->
+                </div>
+        <!-- <div class="p-col" style="float: right">
+            <button type="submit"  pButton class="ui-button-rounded px-15" label="Save"></button>
+            <button type="button" pButton icon="fa fa-times" (click)="_dataHandlerService.$saveAsFlowmap=false" label="Cancel"></button>
+        </div> -->
+        </form>
+    </p-dialog>
+   
+      <p-dialog modal="modal" class="secondary-dialog foterDialog" [style]="{'width':'400px'}" 
+      header="Search By Response Time"
+          [(visible)]="_dataHandlerService.$showResponseDialog" [responsive]='true' [resizable]='false'>        
+	<div class="p-grid p-align-center">
+                <div class="p-col-5">
+                    Response Time(ms) >=
+                </div>
+                <div class="p-col-7">
+                    <input pInputText id="input" (keypress)="validateQty($event)" type="text"
+                    placeholder="Response Time(ms)" class="w-100-p"
+                        [(ngModel)]="responseTime" maxlength="7"/>
+                </div>
+
+        </div>
+      
+         <div class="p-grid p-align-center p-justify-end p-6 mt-20">
+            <button type="button" pButton
+                (click)="_dataHandlerService.$showResponseDialog=false; responseTime=''" 
+                class="ui-button-rounded ui-button-secondary mx-6 px-15" label="Close"></button>
+
+                <button pButton type="button" pButton class="ui-button-rounded px-15" label="Apply"
+                (click)="openFlowpathIPByResp(responseTime)"></button>
+            </div>
+    </p-dialog>
+      
+    <p-dialog modal="modal" class="secondary-dialog foterDialog" [style]="{'width':'400px'}" header="Copy Flowmap" [(visible)]="copyFlowmapToggle" [width]="400">
+        <div class="p-colrid p-colrid-responsive p-colrid-pad ui-fluid">
+            <div class="p-colrid-row">
+                <div class="p-colrid-col-3">
+                    <p-checkbox name="isCreateGrp" binary="true" [(ngModel)]="isCreateGrp"></p-checkbox>
+                </div>
+                <div class="p-colrid-col-3">
+                    <p-checkbox name="isCreateGrp" binary="true" [(ngModel)]="isCreateGrp"></p-checkbox>
+                </div>
+            </div>
+        </div>
+        <p-footer>
+            <button type="button"  pButton class="ui-button-rounded px-15" (click)="copyFlowmap()" label="Save"></button>
+            <button type="button"  pButton class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="copyFlowmapToggle=false" label="Cancel"></button>
+        </p-footer>
+    </p-dialog>
+    
+<p-dialog modal="modal" class="secondary-dialog foterDialog" [style]="{'width':'700px'}" (onShow)="onConfigureFlowMapShow()" header="Configure Flow Map" [(visible)]="_dataHandlerService.$editFlowmapToggle">
+	<form (ngSubmit)="applyFilterOnFlowmap()" #groupForm="ngForm" ngNativeValidate>
+        <div class="dialog-scroll">
+        <div class="p-colrid p-colrid-responsive p-colrid-pad ui-fluid" *ngIf="_dataHandlerService.$editFlowmapToggle">
+            
+            <div class="p-grid p-align-center w-100-p border-1 radius3 mb-10">
+                    <div class="p-col-6">
+                        <span [ngClass]="{ 'disabledClass' : !_dataHandlerService.checkOwner(_dataHandlerService.$selectedFlowmap)}">
+                            <p-checkbox binary="useLocalRenaming" name="rename" value="useLocalRenaming" 
+                            label="Use Local Renaming of Integration Points" [(ngModel)]="useLocalRenaming">
+                            </p-checkbox>
+                        </span>
+                    </div>
+                    <div class="p-col-6">
+                        <span [ngClass]="{ 'disabledClass' : !_dataHandlerService.checkOwner(_dataHandlerService.$selectedFlowmap)}">
+                            <p-checkbox value="this._tsCommonHandler.$_isFullFlowPath" name="isFullFlowPath" label="Show Flowpath upto n level on double click"
+                                [(ngModel)]="this._tsCommonHandler.$_isFullFlowPath" binary="this._tsCommonHandler.$_isFullFlowPath">
+                            </p-checkbox>
+                        </span>
+                    </div>
+                <div class="p-col-12">
+                    <span [ngClass]="{ 'disabledClass' : !_dataHandlerService.checkOwner(_dataHandlerService.$selectedFlowmap)}">
+                        <p-checkbox binary="showIPwith0Calls" name="showIP" value="showIPwith0Calls" label="Show Integration Point with 0 Calls"
+                            [(ngModel)]="showIPwith0Calls">
+                        </p-checkbox>
+                    </span>
+                </div>
+            </div>
+
+
+            <div class="p-grid p-align-center w-100-p border-1 radius3" style="margin-bottom:10px">
+
+                    <div class="p-col-4">
+                        <p-checkbox binary="enableTPSCheck" value="enableTPSCheck" name="tpscheck"
+                            label="Transaction per Second" [(ngModel)]="enableTPSCheck"></p-checkbox>
+                    </div>
+                    <div class="p-col-3">
+                        <p-dropdown [disabled]="enableTPSCheck == false" [options]="symbolList" name="tps1"
+                            placeholder="Select" [(ngModel)]="drpTps" [style]="{'min-width': '100%'}"  dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+                    <div class="p-col-3">
+                        <input [disabled]="enableTPSCheck == false" pInputText type="text" name="tpsVal"
+                            validateFor="number" class="w-100-p" [(ngModel)]="configTps" />
+                    </div>
+
+
+                    <div class="p-col-4">
+                        <p-checkbox binary="enableResponseCheck" value="enableResponseCheck" name="enableresp"
+                            label="Response Time" [(ngModel)]="enableResponseCheck"></p-checkbox>
+                    </div>
+                    <div class="p-col-3">
+                        <p-dropdown [disabled]="enableResponseCheck == false" [options]="symbolList" name="enableResp"
+                            placeholder="Select" [(ngModel)]="drpRes" [style]="{'min-width': '100%'}"  dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+                    <div class="p-col-3">
+                        <input [disabled]="enableResponseCheck == false" pInputText type="text" name="enablerespval"
+                            validateFor="number" class="w-100-p" [(ngModel)]="configRes" />
+                    </div>
+                    <div class="p-col-2"> ms</div>
+
+                
+                    <div class="p-col-4">
+                        <p-checkbox value="enableCPUCheck" binary="enableCPUCheck" name="cpu"
+                            label="CPU Utilization" [(ngModel)]="enableCPUCheck"></p-checkbox>
+                    </div>
+                    <div class="p-col-3" >
+                        <p-dropdown [disabled]="enableCPUCheck == false" [options]="symbolList" name="cpu1"
+                            placeholder="Select" [(ngModel)]="drpCpu" [style]="{'min-width': '100%'}"  dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+                    <div class="p-col-3">
+                        <input [disabled]="enableCPUCheck ==false" pInputText type="text" name="cpuval"
+                            validateFor="number" [(ngModel)]="configCpu" class="w-100-p" />
+                    </div>
+                    <div class="p-col-2"> %</div>
+                
+                <div class="p-col-12">
+                    <p-checkbox binary="enableApplyToIPCheck" value="enableApplyToIPCheck" name="ipcheck"
+                        label="Apply these settings on Integration Point also" [(ngModel)]="enableApplyToIPCheck"></p-checkbox>
+                </div>
+            </div>
+        <div class="p-grid p-align-center w-100-p border-1 radius3" style="margin-bottom:10px">
+
+                <div class="p-col-4">Show Call Details per </div>
+                <div class="p-col-3">
+                    <p-radioButton name="cps" value="seconds" label="seconds" [(ngModel)]="this._tsCommonHandler.callsUnit" >
+                    </p-radioButton>
+                </div>
+                <div class="p-col-3">
+                    <p-radioButton name="cps" value="minutes" label="minutes" [(ngModel)]="this._tsCommonHandler.callsUnit">
+                    </p-radioButton>
+                </div>
+
+
+                <div class="p-col-7">
+                    Show Integration Point names in Flowmap upto
+                </div>
+                <div class="p-col-2">
+                    <input type="number" name="characters" min="15" max="100" (keypress)="rangeValidation($event)" class="w-100-p" [(ngModel)]="this._tsCommonHandler.labelCharacters" pInputText />
+                </div>
+                <div class="p-col-3">characters</div>
+            </div>
+
+            <div class="p-grid p-align-center">
+                <div class="p-col-12">
+                    <p-checkbox value="showOrHideTiersCheck" label="Show only specified Tiers / Integration Points" name="tiers"
+                        [(ngModel)]="showOrHideTiersCheck" binary="showOrHideTiersCheck"></p-checkbox>
+                </div>
+            </div>
+
+            <div *ngIf="showOrHideTiersCheck" class="p-grid">
+                <div class="p-col-12">
+		     <p-pickList [responsive]="true" [metaKeySelection]="false" [showTargetControls]="false"
+                        [showSourceControls]="false" [source]="this.hiddenTiers" [target]="this.visibleTiers" 
+                        sourceHeader="Hidden Tiers / Integration Points" targetHeader="Visible Tiers / Integration Points" 
+                        class="config-ts-picklist" filterBy="node.id">
+                        <ng-template let-item pTemplate="item">
+                            <div class="ui-helper-clearfix">
+                                {{item.node.id}}
+                            </div>
+                        </ng-template>
+                    </p-pickList>
+                </div>
+            </div>
+        </div>
+    </div>
+        <p-footer>
+            <div class="p-grid p-align-center p-justify-end p-5 mt-5">
+            <button type="button" pButton class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="_dataHandlerService.$editFlowmapToggle = false" label="Cancel"></button>
+            <button type="submit" pButton class="ui-button-rounded px-15" (click)="applyFilterOnFlowmap()" label="Apply"></button>
+        </div>
+        </p-footer>
+	</form>
+</p-dialog>
+
+
+   
+    <p-dialog modal="modal"class="secondary-dialog foterDialog" [style]="{'width':'450px'}" header="Rename Integration Point" (onShow)="newGrpName = ''" [(visible)]="renameIPToggle">
+
+            <div class="p-grid p-align-center">
+                <div class="p-col-3">
+                    Actual Name:
+                </div>
+                <div class="p-col-9" [style]="{'font-weight':'600'}">{{_dataHandlerService.$selectedMenuActualNameNode}}</div>
+                <div class="p-col-3">
+                    Old Name: 
+                </div>
+                <div class="p-col-9" [style]="{'font-weight':'600'}">{{_dataHandlerService.$selectedMenuNode}}</div>
+                    <div class="p-col-3">
+                        New Name:
+                    </div>
+                    <div class="p-col-9">
+                        <input pInputText type="text" class="w-100-p" [(ngModel)]="newGrpName" />
+                    </div>
+            </div>
+
+
+            <div class="p-grid p-align-center p-justify-end p-5 mt-20">
+            <button type="button" pButton class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="renameIPToggle=false" label="Cancel"></button>
+
+            <button type="button"  pButton class="ui-button-rounded px-15" (click)="renameIPoint(_dataHandlerService.$selectedMenuActualNameNode, newGrpName)" label="Save"></button>
+        </div>
+        
+</p-dialog>
+
+
+    <!-- Drill down options in Ips -->
+    <p-dialog modal="modal" class="secondary-dialog foterDialog" [style]="{'width':'900px'}" header="Call Details" [(visible)]="showIpDialog">
+            <div class="">
+                <p-table [value]="tableArr" class="all-tables" [responsive]="true" #dt>
+                    <!-- <p-header>Application stats</p-header>  -->
+                    <ng-template pTemplate="header">
+                            <tr>
+                                <th pSortableColumn="from">From <p-sortIcon field="from"></p-sortIcon></th>
+                                <th pSortableColumn="to">To <p-sortIcon field="to"></p-sortIcon></th>
+                                <th pSortableColumn="response">Response Time <p-sortIcon field="response"></p-sortIcon></th>
+                                <th pSortableColumn="cps">Calls/Sec(%) <p-sortIcon field="cps"></p-sortIcon></th>
+                                <th pSortableColumn="count">Count <p-sortIcon field="count"></p-sortIcon></th>
+                                <th pSortableColumn="error">Errors <p-sortIcon field="error"></p-sortIcon></th>
+                                <th pSortableColumn="eps">Errors/Sec <p-sortIcon field="eps"></p-sortIcon></th>
+                            </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-product let-row>
+                        <tr>
+                            <td>
+                                <span [title]="row['from']">{{row['from']}}</span>
+                            </td>
+                            <td>
+                                <span [title]="row['to']">{{row['to']}}</span>
+                            </td>
+                            <td>
+                                {{row['response'] < 0 ? '-' : row['response']}}
+                            </td>
+                            <td>
+                                {{row['cps'] < 0 ? '-' : row['cps'] < 1 ? (+row['cps']).toFixed(3): (row['cps'] | round) }}
+                            </td>
+                            <td>
+                                {{row['count'] < 0 ? '-' : row['count'] | round}}
+                            </td>
+                            <td>
+                                {{row['error'] < 0 ? '-' : row['error'] | round}}
+                            </td>
+                             <td>
+                                {{row['eps'] | number : '1.3-3'}}
+                            </td>
+                        </tr>
+                    </ng-template>
+                    
+                    <!-- <p-column field="from" header="From" [style]="{'width': '40%','white-space': 'nowrap','text-overflow':'ellipsis'}" [sortable]="true" [filter]="isfilter">
+                        <ng-template pTemplate="header">
+                            <span>
+                                <span class="">From</span>
+                            </span>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-col let-appInfo="rowData">
+                            <span [title]="appInfo[col.field]">
+                                {{appInfo[col.field]}}</span>
+                        </ng-template>
+                    </p-column>
+                    <p-column field="to" header="To" [style]="{'width': '40%', 'text-align': 'center','white-space': 'nowrap','text-overflow':'ellipsis'}" [sortable]="true" [filter]="isfilter">
+                        <ng-template pTemplate="header">
+                            <span>
+                                <span class="">To</span>
+                            </span>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-col let-appInfo="rowData">
+                            <span [title]="appInfo[col.field]">
+                                {{appInfo[col.field]}}</span>
+                        </ng-template>
+                    </p-column>
+                    <p-column field="response" header="Response Time" [style]="{'width': '35%', 'text-align': 'right'}" [sortable]="true" [filter]="isfilter">
+                        <ng-template pTemplate="header">
+                            <span>
+                                <span class="">Response Time (ms)</span>
+                            </span>
+    
+                        </ng-template>
+                        <ng-template pTemplate="body" let-col let-appInfo="rowData">
+                            {{appInfo[col.field] < 0 ? '-' : appInfo[col.field]}}
+                        </ng-template>
+                    </p-column>
+                    <p-column field="cps" header="Error(%)" [style]="{'width': '22%', 'text-align': 'right'}" sortable="custom" (sortFunction)="customSort($event, dt)" [filter]="isfilter" #clm>
+                        <ng-template pTemplate="header">
+                            <span>
+                                <span class="">{{cUnit}}</span>
+                            </span>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-col let-appInfo="rowData">
+                            {{appInfo[col.field] < 0 ? '-' : appInfo[col.field] < 1 ? (+appInfo[col.field]).toFixed(3): (appInfo[col.field] | round) }}
+                        </ng-template>
+                    </p-column>
+                    <p-column field="count" header="Count" [style]="{'width': '22%', 'text-align': 'right'}" [sortable]="true" [filter]="isfilter">
+                        <ng-template pTemplate="header">
+                            <span>
+                                <span class="">Count</span>
+                            </span>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-col let-appInfo="rowData">
+                            {{appInfo[col.field] < 0 ? '-' : appInfo[col.field] | round}}
+                        </ng-template>
+                    </p-column>
+                    <p-column field="error" header="Error(%)" [style]="{'width': '22%', 'text-align': 'right'}" [sortable]="true" [filter]="isfilter">
+                        <ng-template pTemplate="header">
+                            <span>
+                                <span class="">Errors</span>
+                            </span>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-col let-appInfo="rowData">
+                            {{appInfo[col.field] < 0 ? '-' : appInfo[col.field] | round}}
+                        </ng-template>
+                    </p-column>
+                    <p-column field="eps" header="Error(%)" [style]="{'width': '22%', 'text-align': 'right'}" [sortable]="true" [filter]="isfilter">
+                        <ng-template pTemplate="header">
+                            <span>
+                                <span class="">Errors/Sec</span>
+                            </span>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-col let-appInfo="rowData">
+				{{appInfo[col.field] | number : '1.3-3'}}
+                        </ng-template>
+                    </p-column> -->
+                </p-table>
+            <div class="p-grid p-align-center p-justify-end mt-10">
+                
+                <div class="font-weight-600 mr-15">Download As:</div>
+                <button pButton type="button" pTooltip="Click to download PDF Report" (click)="onDownload('pdf')"
+                    icon="icons8 icons8-pdf-2" class="mx-3"></button>
+
+                <button pButton type="button" pTooltip="Click to download Excel Report"
+                    (click)="onDownload('excel')" icon="icons8 icons8-spreadsheet-file" class="mx-3"></button>
+
+                <button pButton type="button" pTooltip="Click to download Word Report" (click)="onDownload('word')"
+                    icon="icons8 icons8-doc" class="mx-3"></button>
+            </div>
+            </div>
+    
+
+        <div class="p-grid p-align-center p-justify-end p-6 mt-15">
+            <!-- <button type="button"  pButton class="ui-button-rounded px-15" (click)="createNewGroup()" label="Save"></button> -->
+            <button type="button" class="ui-button-rounded ui-button-secondary px-15" pButton (click)="showIpDialog=false" label="Close"></button>
+        </div>
+    </p-dialog>
+    <!-- For save flowmap -->
+    <p-dialog modal="modal" class="secondary-dialog foterDialog" [style]="{'width':'300px'}" header="Save {{_dataHandlerService.$selectedFlowmap}} FlowMap?" [(visible)]="_dataHandlerService.$saveFlowmap">
+        <div class="p-grid p-align-center p-justify-end p-5">
+            <button type="button" pButton class="ui-button-rounded px-15 mx-6 ui-button-secondary" (click)="_dataHandlerService.$saveFlowmap=false" label="Cancel"></button>
+            <button type="button" pButton class="ui-button-rounded px-15" (click)="copyFlowmap('save');_dataHandlerService.$saveFlowmap=false"
+                label="Save"></button>
+        </div>
+    </p-dialog>
+    
+    <!-- // [style]="{'width':'18%'}" -->
+
+    <p-dialog [header]="resposnHeader" 
+    class="secondary-dialog foterDialog" [modal]="true" [(visible)]="tpsDdisplayModal" [style]="{width: '50vw'}" [baseZIndex]="1000">
+    <!-- <div>{{resposnHeader}}</div> -->
+    <p-table [value]="BTtableArr" class="all-tables" [scrollable]="true" scrollHeight="330px">
+        <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+              <col style="width:50%"> 
+              <col style="width:25%">
+              <col style="width:25%">
+            </colgroup>
+          </ng-template>
+        <ng-template pTemplate="header">
+                <tr>
+                    <th>
+                        <span>
+                            <!-- <img src="./images/icon.jpg" style="width:16px;"> -->
+                            <span>Top 10 {{typeStr}}</span>
+                        </span>
+                    </th>
+                    <th>
+                        <span>
+                            <img src="../../../../../../../../assets/images/page_legend.png" alt="apps">
+                            <!-- <span class="">TPS</span> -->
+                        </span>
+                    </th>
+                    <th>
+                        <span>
+                            <img src="assets/images/response_legend.png" alt="apps">
+                            <!-- <span class="">Avg Response Time (ms)</span> -->
+                        </span>
+                    </th>
+                </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row >
+                <tr>
+                    <td>
+                        <span style="cursor:pointer; color:#995088" (click)='showBTDialoge(row)'>
+                            {{row[objectKeys.btname]}}
+                        </span>
+                    </td>
+                    <td class="text-right">
+                        {{getCommaSeparatedString(row[objectKeys.tps])}}
+                    </td>
+                    <td class="text-right">
+                        {{getCommaSeparatedString(row[objectKeys.avg])}}
+                    </td>
+                </tr>
+            </ng-template>
+    </p-table>
+     </p-dialog>
+
+    <!-- <div #overlay class="top10Transactions">
+        <button type="button" class="closbtn ui-button-danger" pButton icon="icons8 icons8-delete" 
+         (click)="closeOverLay($event)"></button>
+    </div> -->
+   
+   <!-- for manage flowmaps -->
+<p-dialog modal="modal" class="secondary-dialog foterDialog" [style]="{'width':'600px'}"  header="Manage FlowMaps" [(visible)]="_dataHandlerService.$manageFlowMaps"
+     (onHide)="resetVariable()" (onShow)="setVariable()">
+
+     <label for="default-flowmap"><strong class="m-5">Set Default Flowmap</strong></label>
+    <div class="p-grid p-align-center p-justify-between px-6 my-15">
+        <div class="p-grid p-align-center">
+            <div class="user-def-label mr-10">
+                User Default 
+            </div>
+            <div class="width-130">
+            <!-- <p-dropdown [options]="frontEndTierList" [(ngModel)]="selectedFETier" [autoWidth]="false" [style]="{'width': '100%'}"></p-dropdown> -->
+                <p-dropdown [options]="_dataHandlerService.$flowmapList" class="dropDownFlowMap"
+                    [(ngModel)]="defaultFlowmap" placeholder="Select a Flowmap" [autoWidth]="false"
+                    [style]="{'min-width': '100%'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+
+            
+
+            <ng-container class="flowmaps" *ngIf = "isAdminUser == true">
+                <div class="ml-40 mr-10">
+                    System Default 
+                </div>
+                <div class="width-130">
+                    <p-dropdown [options]="_dataHandlerService.$flowmapList" class="dropDownFlowMap"
+                        [(ngModel)]="systemDefaultFlowmap" placeholder="Select a Flowmap" [autoWidth]="false"
+                        [style]="{'min-width': '100%'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </ng-container>
+
+        </div>
+
+        <div>
+            <button type="button" class="ui-button-rounded px-15" pButton (click)="setDefaultFlowMap()" label="Apply"></button>
+        </div>
+    </div>
+
+
+
+    <div class="flowmapDataTable p-col-12">
+        <p-table [value]="_dataHandlerService.$flowMapJsonArr" class="all-tables" [scrollable]="true" scrollHeight="400px">
+            
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                  <col style="width:15%"> 
+                  <col style="width:55%">
+                  <col style="width:15%">
+                  <col style="width:15%"> 
+                </colgroup>
+              </ng-template>
+            
+            
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>
+                        <p-checkbox (onChange)="selectAll($event,_dataHandlerService.$flowMapJsonArr)"
+                            [(ngModel)]="all_selected" binary="all_selected" value="all_selected">
+                        </p-checkbox>
+                    </th>
+                    <th>FlowMap</th>
+                    <th>Shared</th>
+                    <th>Owner</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-col let-size="rowData" let-rowIndex="rowIndex" let-modifiedDate="rowData">
+                <tr>
+                    <td style="text-align: center;">
+                        <span
+                            [ngClass]="_dataHandlerService.$flowMapJsonArr[rowIndex].owner ? 'normalClass':'disabledClass'">
+                            <p-checkbox
+                                (onChange)="rowSelection($event,_dataHandlerService.$flowMapJsonArr[rowIndex].name)"
+                                [(ngModel)]="_dataHandlerService.$flowMapJsonArr[rowIndex].check"
+                                binary="_dataHandlerService.$flowMapJsonArr[rowIndex]['check']"
+                                value="_dataHandlerService.$flowMapJsonArr[rowIndex].check">
+                            </p-checkbox>
+                        </span>
+                    </td>
+                    <td class="text-left">{{_dataHandlerService.$flowMapJsonArr[rowIndex].name}}</td>
+                    <td class="text-center">
+                        <span [ngClass]="[_dataHandlerService.$flowMapJsonArr[rowIndex].owner ? 'normalClass' : 'disabledClass' , 
+                        (_dataHandlerService.$systemFM == _dataHandlerService.$flowMapJsonArr[rowIndex].name) ? 'disabledClass' : 'normalClass' ]" >
+                            <p-checkbox binary="_dataHandlerService.$sharedFlowMapList[rowIndex]['shared']"
+                                (onChange)="getFlowmap($event,rowIndex)"
+                                value="_dataHandlerService.$sharedFlowMapList[rowIndex].shared"
+                                [(ngModel)]="_dataHandlerService.$sharedFlowMapList[rowIndex].shared">
+                            </p-checkbox>
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <span *ngIf="col.owner">
+                            <i class="icons8 icons8-checkmark" aria-hidden="true"></i>
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>  
+        </p-table>
+    </div>
+        <div class="p-grid p-align-center p-justify-end p-5 w-100-p mt-15">
+            <button type="button" pButton (click)="_dataHandlerService.$manageFlowMaps = false" label="Cancel" class="ui-button-rounded ui-button-secondary  px-15 mx-6"></button>
+            <button type="button" pButton (click)="removeFlowmap()" label="Remove" class="ui-button-rounded px-15"></button>
+        </div>	
+</p-dialog>
+    
+    <!-- mapIntegration point -->
+    <p-dialog modal="modal" class="secondary-dialog foterDialog" [style]="{'width':'450px'}"  header="Map Integration Point" [(visible)]="mapIntPointToggle" >
+            <div class="p-grid p-align-center w-100-p">
+                <div class="p-col-3">
+                    Actual Name:
+                </div>
+                <div class="p-col-9" [style]="{'font-weight':'600'}">{{_dataHandlerService.$selectedMenuActualNameNode}}</div>
+                <div class="p-col-3">
+                    Old Name: 
+                </div>
+                <div class="p-col-9" [style]="{'font-weight':'600'}">{{_dataHandlerService.$selectedMenuNode}}</div>
+                    
+                    <div class="p-col-3">
+                        New Name:
+                    </div>
+                    <div class="p-col-9">
+                        <p-dropdown [style]="{'min-width':'100%'}" [options]="mapIntPtTiers" appendTo="body" [(ngModel)]="selectedNewName" dropdownIcon="icons8 icons8-expand-arrow"
+                            placeholder="Select a Name" optionLabel="label" [showClear]="true"></p-dropdown>
+                    </div>
+                
+            </div>
+        <div class="p-grid p-align-center p-justify-end p-5 mt-20">
+            <button type="button" pButton class="ui-button-rounded ui-button-secondary  px-15 mx-6" (click)="mapIntPointToggle=false" label="Close"></button>
+
+            <button type="button"  pButton class="ui-button-rounded px-15" (click)="renameMapIntPoint(_dataHandlerService.$selectedMenuActualNameNode, selectedNewName)" label="Apply"></button>
+       </div>
+    </p-dialog>
+    
+    
+    <!-- Creating dialog for renaming flowMap -->
+    <p-dialog modal="modal" class="secondary-dialog foterDialog" [style]="{'width':'300px'}"  header="Rename FlowMap" [(visible)]="_dataHandlerService.$renameFlowMap" >
+        <div class="p-colrid p-colrid-responsive p-colrid-pad ui-fluid">
+            <div class="p-grid p-align-center w-100-p border-1 radius3" style="margin-bottom:10px">
+                <div class="p-col-12">
+                    <div class="p-col-4">
+                        Old Name:
+                    </div>
+                    <div class="p-col-8">
+                        {{_dataHandlerService.$oldFmap}}
+                    </div>
+                </div>
+                <div class="p-col-12">
+                    <div class="p-col-4">
+                        New Name:
+                    </div>
+                    <div class="p-col-8">
+                        <input pInputText type="text" [(ngModel)]="_dataHandlerService.$newFlowMapName" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p-footer>
+            <button type="button"  pButton class="ui-button-rounded px-15" (click)="renameFMap()" label="Save"></button>
+            <button type="button" pButton  class="ui-button-rounded ui-button-secondary px-15" (click)="_dataHandlerService.$renameFlowMap = false" label="Cancel"></button>
+        </p-footer>
+    </p-dialog>
+    
+    <!-- file upload feature -->
+    
+    <!-- Creating dialog for renaming flowMap -->
+    <p-dialog modal="modal"class="secondary-dialog foterDialog" [style]="{'width':'450px'}"  header="Change Icon" [(visible)]="_dataHandlerService.$changeIcon">
+        <p-fileUpload class="back-upload" name="file" [url]="uploadUrl" #uploader accept="image/*" maxFileSize="1000000" (onSelect)="onSelectImage($event.files)"
+            (onUpload)="onImageUpload($event)" (onError)="onError($event)">
+        </p-fileUpload>
+
+        <div class="p-grid p-align-center p-justify-end p-5 mt-20">
+            <button type="button" pButton  class="ui-button-rounded ui-button-secondary px-15 " (click)="_dataHandlerService.$changeIcon = false" label="Close"></button>
+       </div>
+    </p-dialog>
+    
+    <!-- Creating dialog for Business Transaction Details-->
+    <p-dialog modal="modal" class="secondary-dialog foterDialog" [style]="{'width':'50vw'}"  header="Business Transaction Detail" [baseZIndex]="10000" [(visible)]="_tsCommonHandler.$showBTDialog"
+        modal="modal" [resizable]='false'>
+        <p-dataTable [value]='btDetailArr' class="all-tables">
+            <p-column field="propertyName" header="To 10 Transactions" [style]=" {'width': '40%','font-weight':'bold','font-size':'11px'}">
+                <ng-template pTemplate="header">
+    
+                </ng-template>
+                <ng-template pTemplate="body" let-col let-appInfo="rowData">
+                    <span [title]="appInfo[col.field]">
+                        {{appInfo[col.field]}}</span>
+                </ng-template>
+            </p-column>
+            <p-column field="propertyValue" header="" [style]=" {'width': '60%','font-size':'11px'}">
+                <ng-template pTemplate="header">
+    
+                </ng-template>
+                <ng-template pTemplate="body" let-col let-appInfo="rowData">
+                {{getCommaSeparatedString(appInfo[col.field])}}
+		</ng-template>
+            </p-column>
+        </p-dataTable>
+    </p-dialog>
+    
+    <p-dialog modal="modal" [header]="dialogHeader" [(visible)]="showDialog" [model]="true" class="secondary-dialog foterDialog" [style]="{'width':'400px'}" >
+        <app-common-dialog [displayObject]="dialogPropertyObject">
+        </app-common-dialog>
+
+        <p-footer>
+            <div class="p-grid p-align-center p-justify-end p-5">
+            <button type="button" pButton class="ui-button-rounded px-15 mx-6 ui-button-secondary" (click)="closeCommonDialog()" label="Close"></button>
+
+            <button type="button"  pButton class="ui-button-rounded px-15" (click)="actionOnCommonDialog()" label="Save"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+    
+    <p-dialog modal="modal" header="Rename Group" class="secondary-dialog foterDialog" [style]="{'width':'400px'}"  [(visible)]="showRenameGroup" model="true">
+        <!-- <input type="text" pInputText [(ngModel)]="property"/> -->
+        <span>
+            New Group Name
+        </span>
+        <span>
+            <input type="text" pInputText [(ngModel)]="renamedGroupName" />
+        </span>
+        <p-footer>
+            <button type="button" pButton (click)="actionOnCommonDialog()" label="Save"></button>
+            <button type="button" pButton (click)="closeCommonDialog()" label="Close"></button>
+        </p-footer>
+    </p-dialog>
+    
+    <p-dialog modal="modal" header="Delete Group" [(visible)]="showDeleteGroup" model="true"
+    class="secondary-dialog foterDialog" [style]="{'width':'400px'}" >
+        <span>
+            Are you want to delete group {{_dataHandlerService.$selectedMenuNode}} ?
+        </span>
+        <p-footer>
+            <button type="button" pButton (click)="action2DeleteGroup()" label="Save"></button>
+            <button type="button" pButton (click)="closeDeleteDialog()" label="Close"></button>
+        </p-footer>
+    </p-dialog>
+    
+    
+    
+    <!-- Search By Code in HTML -->
+    
+    <p-dialog  header="Search FlowPath" *ngIf="searchByDialog" [(visible)]="searchByDialog" modal="modal"
+    class="secondary-dialog foterDialog" [style]="{'width':'600px'}"  onHide="closeDialog()">
+    <p-tabView>
+        <!-- For Standard -->
+       <p-tabPanel header="Standard" class="tabWauto">
+    <form (ngSubmit)="searchBy('standard')" #groupForm="ngForm" ngNativeValidate>
+        <div class="p-grid p-align-center">
+            <div class="p-col-2">Tier(s)</div>
+            <div class="p-col-4">
+                <p-multiSelect name="selectedtierList" [options]="tierListOption" [style]="{'min-width':'100%'}"  
+                [(ngModel)]="selectedtierList" appendTo='body' ngModel dropdownIcon="icons8 icons8-expand-arrow">
+            </p-multiSelect>
+            </div>
+            <div class="p-col-2">Correlation ID</div>
+            <div class="p-col-4">
+                <p-chips name="correlationID" [addOnTab]='true' [addOnBlur]='true' [(ngModel)]="correlationID" class="input-chips"></p-chips>
+            </div>
+            <div class="p-col-2">Mode</div>
+            <div class="p-col-4">
+                <input name="mode" *ngIf="flowpathID == ''" type="text" class='hidden-validator' pInputText
+                [(ngModel)]="mode" required ngModel />
+            <p-dropdown  name="type" [options]="modeList"  [(ngModel)]="mode" placeholder="--Select Mode--" appendTo='body' [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow"  ngModel></p-dropdown>
+        </div>
+        <div class="p-col-2">FlowPath ID</div>
+        <div class="p-col-4">
+            <input name="flowpathID" type="text" class="w-100-p" pInputText [(ngModel)]="flowpathID" ngModel />
+        </div>
+        </div>
+
+        <div class="p-grid p-align-center p-justify-end p-6 mt-10">
+            <button type="button" pButton class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="closeSearchByDialog()" label="Close"></button>
+            <button type="submit" pButton label="Search" class="ui-button-rounded px-15"></button>
+    </div>
+
+    </form>
+    </p-tabPanel>
+
+    <!-- For Custom -->
+    <p-tabPanel header="Custom">
+        <div class="p-grid p-align-center">
+                    <div class="p-col-2">Tier(s)</div>
+                    <div class="p-col-4">
+                        <p-multiSelect name="selectedtierList" [options]="tierListOption" [style]="{'min-width':'100%'}"  [(ngModel)]="selectedtierListForCustom" appendTo='body' ngModel dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                    </div>
+                    </div>
+
+                    <form (ngSubmit)="saveCustomRules()"  #groupForm="ngForm" ngNativeValidate>
+                    <div class="p-grid">
+                        <div class="p-col-4">
+                                <input name="name" type="text" class='hidden-validator' pInputText
+                                [(ngModel)]="customDetail.name" required ngModel />
+                            <p-dropdown name="name" [options]="customNameList"
+                                [(ngModel)]="customDetail.name" placeholder="--Select Name--" appendTo="body"
+                                [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                        </div>
+                        <div class="p-col-4">
+                            <input name="operationName" type="text" class='hidden-validator' pInputText
+                                [(ngModel)]="customDetail.operationName" required ngModel />
+                            <p-dropdown name="operationName" [options]="operationList"
+                                [(ngModel)]="customDetail.operationName" placeholder="--Select Operation--" appendTo="body" [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                        </div>
+                        <div class="p-col-3">
+                            <input name="value" type="text" placeholder="Value" pInputText
+                                [(ngModel)]="customDetail.value"
+                                (keydown.space)="$event.preventDefault()" class="w-100-p" required ngModel />
+                        </div>
+                        <div class="p-col-1">
+                            <button type="submit" pButton icon="icons8 icons8-plus-math"></button>
+                        </div>
+                    </div>
+                    </form>
+
+
+
+                    <!-- <p-table [value]="customRulesData" [(selection)]="selectedCustomRules" [rows]="4 " [paginator]="customRulesData?.length> 4" [pageLinks]="4">
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th *ngFor="let col of columns">
+                                    {{customRule[col.field]}}
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-rowData let-columns="columns">
+                            <tr>
+                                <td *ngFor="let col of columns">
+                                    >{{customRule[col.field]}}
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table> -->
+
+
+<!-- ===============upgraded p-dataTable into p-table=============== -->
+		<div class="p-col-12">
+                    <p-table class="all-tables" [value]="customRulesData"
+                        [(selection)]="selectedCustomRules" [rows]="4 " [paginator]="customRulesData?.length> 4"
+                        [pageLinks]="4">
+                        <ng-template pTemplate="caption">
+                            <div class="p-grid p-justify-between p-align-center my-5 w-100-p">
+                            <div class="font-weight-500"> Custom Rule(s)</div>
+                            <div>
+                            <button pButton type="button" 
+                            title="Delete selected rule(s)" (click)="deleteCustomRules()"
+                            icon="icons8 icons8-trash"></button>
+                            </div>
+                            </div>
+                            </ng-template>
+                        <ng-template pTemplate="header">
+                            <!-- <tr>
+                                <span style="float: left;"> Custom Rule(s) </span>
+                                <span style="float: right;margin-top:-3px">
+                                <button pButton type="button" class="ui-button-danger"
+                                    title="Delete selected rule(s)" (click)="deleteCustomRules()"
+                                    icon="icons8 icons8-trash"></button>
+                                </span>
+                            </tr> -->
+                            <tr>
+                                <th style="width: 3rem">
+                                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                </th>
+                                <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                                <th pSortableColumn="operationName">Operation <p-sortIcon field="operationName"></p-sortIcon></th>
+                                <th pSortableColumn="value">Value <p-sortIcon field="value"></p-sortIcon></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-rowData>
+                                <tr>
+                                    <td class="text-center">
+                                        <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                                    </td>
+                                    <td>  
+                                        <span title="{{rowData.name}}">{{rowData.name}}</span>
+                                    </td>
+                                    <td>
+                                        <span title="{{rowData.operationName}}">{{rowData.operationName}}</span>
+                                    </td>
+                                    <td>
+                                        <span title="{{rowData.value}}">{{rowData.value}}</span>
+                                    </td>
+                                </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td class="text-center" [attr.colspan]="4">
+                                        <span *ngIf="emptyTable">Empty Table</span>
+                                    </td>
+                                </tr>
+                        </ng-template>
+                    </p-table>
+            </div>
+
+    <div class="p-grid p-align-center p-justify-end p-6 mt-10">
+        <button type="button" pButton class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="closeSearchByDialog()" label="Close"></button>
+        <button type="button" pButton label="Search" (click)="searchBy('custom')" class="ui-button-rounded px-15"></button>
+</div>
+
+            <!-- <div class="p-col" style="float: right">           
+                    <button type="button" pButton (click)="searchBy('custom')" label="Search"></button>
+                    <button type="button" pButton (click)="closeSearchByDialog()" label="Close"></button>
+            </div> -->
+    </p-tabPanel>
+    <!-- For Logs -->
+    <p-tabPanel header="Logs">
+            <form (ngSubmit)="searchBy('logs')" #groupForm="ngForm" ngNativeValidate>
+            <div class="p-grid p-align-center">
+                            <div class="p-col-2">Tier(s)</div>
+                            <div class="p-col-4">
+                                <p-multiSelect name="selectedtierList" [options]="tierListOption" [style]="{'min-width':'100%'}"  [(ngModel)]="selectedtierListForLogs" appendTo='body' ngModel  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                            </div>
+
+                            <div class="p-col-2">Correlation ID</div>
+                            <div class="p-col-4">
+                                <input name="correlationIDForLogs" type="text" pInputText [(ngModel)]="correlationIDForLogs" required ngModel class="w-100-p" />
+                            </div>
+
+                            <div class="p-col-2">FlowPath ID</div>
+                            <div class="p-col-4">
+                                <input name="flowpathIDForLogs" type="number" pInputText min="0" [(ngModel)]="flowpathIDForLogs" required ngModel class="w-100-p" />
+                            </div>
+
+                            <div class="p-col-2">Pattern</div>
+                            <div class="p-col-4">
+                                <input name="pattern" type="text" class="w-100-p"  pInputText [(ngModel)]="pattern" required ngModel />
+                            </div>
+
+            </div> 
+ 
+
+    <div class="p-grid p-align-center p-justify-end p-6 mt-10">
+            <button type="button" pButton class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="closeSearchByDialog()" label="Close"></button>
+            <button type="submit" pButton label="Search" class="ui-button-rounded px-15"></button>
+    </div>
+
+
+        </form>
+    </p-tabPanel>
+    
+    </p-tabView>
+    </p-dialog>
+
+    <div class="confirm-dialog">
+   <p-confirmDialog class="secondary-dialog confirmdialog" 
+   [transitionOptions]="'0ms'"
+   acceptButtonStyleClass="ui-button-rounded mx-6 px-15" acceptIcon="none"
+   rejectButtonStyleClass="ui-button-rounded ui-button-secondary px-15"  rejectIcon="none">
+</p-confirmDialog>
+</div>
+<!-- Legend -->
+   <label type="text" label="Legend" (click)="clickEvent()" class = "legend_txt">Legend</label>
+   
+   <!-- <p-overlayPanel appendTo="body" #op2 class="overlayPanel-tierStatus" >
+        <span *ngFor="let val of _dataHandlerService.$legendMetrices; let i = index" 
+                        [className]="_dataHandlerService.$legendMetrices[i]['metrics']? 'ts-enabled-metrics' : 'ts-disabled-metrics'">
+                    <img [src]=val.src>
+                </span>
+    </p-overlayPanel> -->
+
+    <p-dialog header="Legend"  class="secondary-dialog foterDialog"
+    [(visible)]="isLegenddisplay" [style]="{width: '780px'}" [modal]="true" [baseZIndex]="10000">
+      
+    <span *ngFor="let val of _dataHandlerService.$legendMetrices; let i = index" 
+    [className]="_dataHandlerService.$legendMetrices[i]['metrics']? 'ts-enabled-metrics' : 'ts-disabled-metrics'">
+<img [src]=val.src>
+</span>
+    </p-dialog>
+
+
+<!-- Dialog to open Undo renaming -->
+<p-dialog modal="modal" header="Reset Integration Point Names" [(visible)]="isUndoRenamingDialog"
+class="secondary-dialog foterDialog" [style]="{'width':'600px'}" >
+    <form (ngSubmit)="saveUndoIPNames()" #groupForm="ngForm" ngNativeValidate>
+
+            <p class="mb-10">Select Integration Point Names to reset</p>
+            <p-table [value]='renamedIPArr' [(selection)]="selectedIP" class="all-tables">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th>Current Name</th>
+                        <th>Actual Name</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row>
+                    <tr>
+                        <td class="text-center">
+                            <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                        </td>
+                        <td style="text-align: left;">{{row.propertyValue}}</td>
+                        <td style="text-align: left;">{{row.propertyName}}</td>
+                    </tr>
+
+                </ng-template>
+
+            </p-table>
+
+        <div class="p-grid p-align-center p-justify-end p-6 mt-10">
+            <button type="button" pButton class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="isUndoRenamingDialog=false"
+            label="Cancel"></button>
+
+            <button type="submit"  pButton class="ui-button-rounded px-15" label="Reset"></button>
+           
+        </div>
+    </form>
+</p-dialog>
+
+    <!-- Template for Renaming of Multiple End Points-->
+    <p-dialog modal="modal" class="secondary-dialog foterDialog" [style]="{'width':'700px'}"  header="Rename multiple Integration Point(s)" [(visible)]="isRenameEndPoints">
+
+                    <p-pickList [responsive]="true" [metaKeySelection]="false" [showTargetControls]="false"
+                        [showSourceControls]="false" [source]="listOfEndPoints" [target]="listOfRenameEndPoints" 
+                        sourceHeader="Available Integration Points" targetHeader="Integration Points to be renamed" 
+                        class="config-ts-picklist">
+                        <ng-template let-item pTemplate="item">
+                            <div class="ui-helper-clearfix">
+                                {{item}}
+                            </div>
+                        </ng-template>
+                    </p-pickList>
+
+        <div class="p-grid p-align-center">
+            <div class="p-col-7">
+                    Rename above selected Integration Point(s) with new name
+            </div>
+            <div class="p-col-5">
+                    <input pInputText type="text" placeholder="Enter new name" pattern="^[a-zA-Z0-9_#@.-]{0,99}$" (keydown.space)="$event.preventDefault()" class="w-100-p" [(ngModel)]="commonEndPointName" />
+            </div>
+        </div>
+        <div class="p-grid p-align-center p-justify-end p-6 mt-10">
+                <button type="button" pButton class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="isRenameEndPoints = false" label="Cancel"></button>
+                <button type="button"  pButton class="ui-button-rounded px-15" (click)="applyRenameEndPoints()" label="Apply"></button>
+        </div>
+        </p-dialog>
+
+     <!-- Show Tier Info -->
+     <p-dialog modal="modal" class="secondary-dialog foterDialog" [style]="{'width':'820px'}"  [modal]="true" [responsive]="true" header="Tier Info" [(visible)]="tierInfoToggle" closeOnEscape="true" [positionTop]=60>
+
+
+
+        <p-tabView class="tabWauto">
+            <p-tabPanel header="Overview"> 
+                    <div class="p-grid p-nogutter" *ngFor="let chart of chartsData; let i = index;">
+                    <div class="p-col-4 border-right"> 
+                        <p class="font-weight-600 my-5 text-center font-13">Tier : {{tierName}}</p>
+                        <exec-dashboard-hchart [options]="chart[0]"></exec-dashboard-hchart>
+                    </div>
+                
+                    <div class="p-col-8">
+                    <div class="my-5"><exec-dashboard-hchart [options]="chart[1]"></exec-dashboard-hchart></div>
+                    <div class="my-5"><exec-dashboard-hchart [options]="chart[2]"></exec-dashboard-hchart></div>
+                    <div class="my-5"><exec-dashboard-hchart [options]="chart[3]"></exec-dashboard-hchart></div>
+                    </div>
+                </div>
+            </p-tabPanel>
+            <p-tabPanel header="Health"> 
+                <div class="tabbox"  [ngClass]="tabpanel ? 'tabbox-show' : 'tabbox'" style="height: 442px; overflow: auto;" >
+                    <div class="instanceName">
+                        <div class="border-1 px-15">
+                            <img src="../dashboard/images/tier.png" class="img-mx">Tier
+                            <img src="../dashboard/images/server.png" class="img-mx">Server
+                            <img src="../dashboard/images/Default__Image.png" class="img-mx">{{entityLevel}}
+                        </div>
+                        <div class="border-1 px-15">
+                            <ul class="p-grid p-0 m-0">
+                                <li class="list"><i class="icons8 icons8-filled-circle normal"></i> Normal</li>
+                                <li class="list"><i class="icons8 icons8-filled-circle majaor"></i> Major</li>
+                                <li class="list"><i class="icons8 icons8-filled-circle critcal"></i> Critical</li>
+                            </ul>
+                        
+                            
+        
+                        </div>
+                       
+                        </div>
+                <div>
+                    <div class="tier-info-health-tab cav-p-1">
+                        <!-- this div will be iterated multiple times -->
+                        <div *ngFor="let tierInfo of serverInfo" class="server-info p-10">
+                <p class="cav-text-center"><img alt="Tier" src="../dashboard/images/tier.png" class="img-mx">{{tierInfo.name}}</p>
+        
+                <div class="layoutmasonry">
+                            <div class="card" *ngFor="let server of tierInfo.servers">
+                                <div style="border-bottom: 1px solid #ccc;">
+                                    <div class="instance-name cav-mb-2" [tooltipDisabled]="disbleTooltip"  pTooltip="{{server.name}}" tooltipPosition="top" placeholder="Top">
+                                        <img alt="server" src="../dashboard/images/server.png" class="img-mx"> 
+                                     {{server.name}}
+                                    </div>
+                                    <!-- <image xlink:href="./images/page_legend.png" [attr.x]="90" [attr.y]="33" dominant-baseline="central" height="13px"
+                                        width="13px" /> -->
+                                    <div> 
+                                        
+                                        <div class="p-grid p-justify-center my-5">
+                                            <div class="mx-5">
+                                                <i class="icons8 icons8-filled-circle normal"></i> 100%
+                                        </div>
+                                        <div class="mx-5">
+                                                <i class="icons8 icons8-filled-circle majaor" ></i> 0%
+                                            </div>
+                                            <div class="mx-5">
+                                                <i class="icons8 icons8-filled-circle critcal"></i> 0%
+                                            </div>
+        
+                                        </div>
+                                    </div>
+        
+                                </div>
+                                <!-- {{server}} -->
+                                <div *ngFor="let instance of server.instances">
+                                    <a (click)="getInstanceFlowMap(tierInfo.name, server.name,instance, _selectedDC);"  class="p-grid p-justify-center p-align-center aHover" [tooltipDisabled]="disbleTooltip"  pTooltip="{{instance.name.split('_')[0]}}" tooltipPosition="top" placeholder="Top">
+                                        <div class="mx-5">
+                                            <img alt="instance" src="../dashboard/images/{{instance.icon}}" style="width:16px;height:16px">
+                                        </div>
+                                        <div class="mx-5 instance-name">
+                                        {{instance.name.split("$$")[0]}}
+                                        </div>
+                                    </a>
+                                    
+                                    <!-- <image xlink:href="./images/page_legend.png" [attr.x]="90" [attr.y]="33" dominant-baseline="central" height="13px"
+                                        width="13px" /> -->
+                                    <div >
+                                        
+                                        <div class="p-grid p-justify-center my-5">
+                                            <div class="mx-5">
+                                                <i class="icons8 icons8-filled-circle" style="color:#53d8ad"></i> 100%
+                                            </div>
+                                            <div class="mx-5">
+                                                <i class="icons8 icons8-filled-circle" style="color:#ffc247"></i> 0%
+                                            </div>
+                                             <div class="mx-5">
+                                                <i class="icons8 icons8-filled-circle" style="color:#f55e5e"></i> 0%
+                                            </div>
+        
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+        
+                        </div>
+                        <!-- End of div -->
+                    </div>
+                </div>
+                  </div>
+            </p-tabPanel>
+        </p-tabView> 
+
+
+
+        <!-- .side-bar-wrapper{
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+        
+            .sidebar-nav{
+              min-width: 250px;
+              max-width: 250px;
+              transition: all 0.3s;
+              border: solid 1px #ccc;
+              border-radius: 3px 0px 3px 3px;
+              padding: 6px;
+              position: relative;
+        
+              .sidebar-toggler{
+                background-color: #FFF;
+                border: solid 1px #ccc;
+                font-size: 14px;
+                width: 18px;
+                padding: 0px;
+                height: 30px;
+                position: absolute;
+                top: -1px;
+                right: -18px;
+                display: inline-flex;
+                align-items: center;
+                cursor: pointer;
+                
+              }
+              &.active {
+                margin-left: -260px;
+            }
+            }
+            .side-bar-content {
+              padding:0px 0px 0px 15px;
+              width: 100%;
+              min-height: calc(100vh - 125px);
+              max-height: calc(100vh - 125px);
+              transition: all 0.3s;
+              overflow: auto;
+              margin-top: -5px;
+          }
+        } -->
+
+
+
+
+
+          
+
+
+
+          
+    </p-dialog> 

@@ -1,0 +1,44 @@
+<div class="header">
+    <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+    <div class="ui-toolbar p-grid p-justify-between p-align-center pl-5 pr-5">
+        <div class="p-col-8">
+            <div class="p-grid p-align-center">
+                <a routerLink="/dumps/heap-dump">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">Heap Dump Analyzer</div>
+            </div>
+        </div>
+
+    </div>
+</p-toolbar>
+
+<div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+   </div>
+<div>
+    <!-- COMMON TOOLBAR -->
+    <div class="ddr-box">
+        <!-- <p-toolbar>
+   <div class="reportInfo">
+     <label class="headerInfo"><b>{{reportHeader}}</b></label>
+   </div>
+</p-toolbar> -->
+        <!--COMMON BOX SCROLLLBAR -->
+        <div style="overflow:auto;">
+            <p-tabView class="ddr-tabs" (onChange)="handleChange($event)">
+                <p-tabPanel header="System Overview" leftIcon="fa-map-o" [selected]="index == 0">
+                    <iframe width="100%" height="506px" frameborder="0" scrolling="yes" [attr.src]="fileName"></iframe>
+                </p-tabPanel>
+                <p-tabPanel header="Leak Suspects" leftIcon="fa-bookmark-o" [selected]="index == 1">
+                    <iframe width="100%" height="506px" frameborder="0" scrolling="yes" [attr.src]="fileName"></iframe>
+                </p-tabPanel>
+                <p-tabPanel header="Top Components" leftIcon="fa-crosshairs" [selected]="index == 2">
+                    <iframe width="100%" height="506px" frameborder="0" scrolling="yes" [attr.src]="fileName"></iframe>
+                </p-tabPanel>
+            </p-tabView>
+        </div>
+    </div>
+</div>

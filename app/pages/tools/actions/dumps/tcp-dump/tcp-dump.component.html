@@ -1,0 +1,214 @@
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+    <div class="p-col p-col-align-center text-center">
+    <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+    </div>
+    </div>
+    <div id="monitorUpDownInfoDialog" *ngIf="!isTCPDumpList && isTCPDumpSetting">
+      <!-- Header -->
+      <form #groupForm="ngForm" (ngSubmit)="getTakeTCPDump()" ngNativeValidate>
+        <h2 class="custom-color pl-15 font-weight-500">TCP Dump Settings 
+              <div style="float: right;">
+                  <!-- <mat-icon style="cursor: pointer;" fontSet='fa' fontIcon='fa-times' title="Close" (click)="closeTCPDumpWin()" class='dashboard-menu-nav-header-icon'></mat-icon> -->
+              </div>
+          </h2>
+          <div class="ui-g-12 p-grid p-align-center">
+              <div class="ui-g-3 p-grid p-align-center">
+                  <div class="ui-g-2">
+                      <span class="font-14 font-weight-500">Tier</span>
+                  </div>
+                  <div class="ui-g-9">
+                      <input name="selectedTierVal" type="text" size="10" class="hidden-validator" pInputText [(ngModel)]="selectedTierVal" required ngModel />
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" [options]="tiersList" name="selectedTierVal" [(ngModel)]="selectedTierVal" [style]="{'width':'100%'}" (onChange)="getServerValue(selectedTierVal)" [filter]=true placeholder="--Select--"></p-dropdown>
+                  </div>
+              </div>
+              <div class="ui-g-3 p-grid p-align-center">
+                  <div class="ui-g-2">
+                    <span class="font-14 font-weight-500">Server</span>
+                  </div>
+                  <div class="ui-g-9">
+                      <input name="selectedServerVal" type="text" size="10" class="hidden-validator" pInputText [(ngModel)]="selectedServerVal" required ngModel />
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" [options]="serverList" name="selectedServerVal" [(ngModel)]="selectedServerVal" (onChange)="getInterfaceValue(selectedServerVal)" [style]="{'width':'100%'}" [filter]=true placeholder="--Select--"></p-dropdown>
+                  </div>
+              </div>
+          </div>
+  
+          <p-dialog class="dialogBox" header="{{dialogBoxHeader}}" [(visible)]="isDialogBoxVisible" [modal]="true" appendTo="body" width="500" >
+             <label style="word-break: break-word;">{{dialogContent}}</label>
+          <p-footer>
+          <div>
+            <button mat-button (click)="dialogClose()" type="button" class="dialogBtn2 ui-button-secondary ui-button-rounded mx-10">Cancel</button>
+            <button mat-button type="button" (click)="dialogOkAction()" class="dialogBtn1 ui-button-rounded mx-10">ok</button>
+          </div>
+          </p-footer>
+          </p-dialog>
+  
+          <div class="ui-g-12 p-grid p-align-center">
+              <p-fieldset legend="TCP Dump Information" [style]="{'border': '1px solid'}" class="mx-10">
+                  <div class="ui-g-12 p-grid p-align-center">
+                      <div class="ui-g-2 pl-15">Interface</div>
+                      <div class="ui-g-3">
+                          <input name="selectedInterfacesVal" type="text" size="10" class="hidden-validator" pInputText [(ngModel)]="selectedInterfacesVal" required ngModel />
+                          <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" [options]="interfacesList" name="selectedInterfacesVal" [(ngModel)]="selectedInterfacesVal" [style]="{'width':'100%'}" scrollHeight="120px" [filter]=true placeholder="--Select--"></p-dropdown>
+                      </div>
+                  </div>
+  
+                  <div class="ui-g-12 p-grid p-align-center">
+                      <div class="ui-g-12 p-grid p-align-center">
+                          <div class="ui-g-2"><span style="color:red" title="required" >*</span>Max-Duration</div>
+                      <input name="maxDurationVal" type="text"  size="15"  pInputText [(ngModel)]="maxDurationVal" pattern="[0-9]*" oninvalid="setCustomValidity('Max-Duration must be a valid integer')" onchange="try{setCustomValidity('')}catch(e){}" required ngModel class="mx-6" /> Sec(s) 
+                      <div class='ml-30 p-align-center'><label class='mx-20'>Size</label>   
+                      <input name="sizeVal" [style]="{'width':'20%'}" type="text"  pInputText  [(ngModel)]="sizeVal" pattern="[0-9]*" oninvalid="setCustomValidity('Size can not be negative.')" onchange="try{setCustomValidity('')}catch(e){}" /> MB</div>
+                      <div class='p-align-center'><label class='mx-20'> Number of Packets</label> 
+                      <input name="packetsVal" type="text" [style]="{'width':'40%'}"  pInputText  [(ngModel)]="packetsVal" pattern="[0-9]*" oninvalid="setCustomValidity('Number of packets can not be negative.')" onchange="try{setCustomValidity('')}catch(e){}" /> </div>
+                      <div class='p-align-center'><label class='mx-20'> Port</label>
+                      <input name="portVal" type="text"[style]="{'width':'20%'}"   pInputText  [(ngModel)]="portVal" pattern="[0-9]*" oninvalid="setCustomValidity('Port can not be negative.')" onchange="try{setCustomValidity('')}catch(e){}" />
+                      </div>
+                </div>
+                  </div>
+                  <div class="ui-g-12 p-grid p-align-center">
+                        <div class="ui-g-2"><span style="color:red" title="required">*</span> <label>Destination Path </label></div>
+                        <div class="ui-g-10"><input name="destinationPathVal" style= "box-shadow:none" type="text" size="95" pInputText [(ngModel)]="destinationPathVal" required ngModel />
+                      </div>
+                  </div>
+                  <div class="ui-g-12 p-grid p-align-center">
+                    <div class="ui-g-2"><label>Additional Attributes </label></div>
+                    <div class="ui-g-10"><input name="additionalAttributesval" type="text" size="95" pInputText [(ngModel)]="additionalAttributesval" />
+                          <i class="icons8 icons8-menu ml-10" title="View TCP command" (click)="getTCPDumpCommand()"></i>
+                    </div>
+                  </div>
+              </p-fieldset>
+          </div>
+          <div class="ui-toolbar-group-right">
+              <!-- <button pButton type="button" (click)="closeTCPDumpWin()" icon="icons8 icons8-delete" label="Cancel" title="Cancel" class="ui-button-secondary ui-button-rounded mx-10"></button> -->
+              <button pButton type="submit" label="Take TCP Dump" title="Take TCP Dump" class="ui-button-rounded mx-10"></button>
+              <button pButton type="button" (click)="getTCPDumpList()" icon="fa fa-list" label="TCP Dump List" title="TCP Dump List" class="ui-button-rounded mx-10"></button>
+             
+          </div>
+      </form>
+  </div>
+  
+  <div *ngIf="isTCPDumpList">
+      <div id="monitorUpDownInfoDialog">
+          <h3 mat-dialog-title class="custom-color pl-10 font-weight-500">TCP Dump List
+              <div style="float: right;">
+                  <!-- <mat-icon style="cursor: pointer;" fontSet='fa' fontIcon='fa-times' title="Close" (click)="closeTCPDumpWin()" class='dashboard-menu-nav-header-icon'></mat-icon> -->
+              </div>
+          </h3>
+          <div class="ui-g-12">
+            
+            <p-table class="all-tables" [value]="tcpDumpInfo" scrollable="true" scrollHeight="400px" sortField="dateTime" sortOrder="-1" [(selection)]="selectedTCPDump" [rows]="15" [paginator]="tcpDumpInfo?.length > 15" [pageLinks]="3" [rowsPerPageOptions]= "[5,10,15]" (sortFunction)="Customsort($event)" [customSort]="true">
+                  <ng-template class="tableCss config-ui" pTemplate="header">
+                        <tr>
+                            <th>
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+                            <th pSortableColumn="tier">Tier<p-sortIcon field="tier"></p-sortIcon></th>
+                            <th pSortableColumn="server">Server<p-sortIcon field="server"></p-sortIcon></th>
+                            <th pSortableColumn="name" style="width: 125px;">TCP Dump Name<p-sortIcon field="name"></p-sortIcon></th>
+                            <th pSortableColumn="size">File size(KB)<p-sortIcon field="size"></p-sortIcon></th>
+                            <th pSortableColumn="duration_Tcp" style="width: 115px;">Duration(secs)<p-sortIcon field="duration_Tcp"></p-sortIcon></th>
+                            <th pSortableColumn="packets">Packets<p-sortIcon field="packets"></p-sortIcon></th>
+                            <th pSortableColumn="duration_User" style="width: 140px;">Max Duration(secs)<p-sortIcon field="duration_User"></p-sortIcon></th>
+                            <th pSortableColumn="size_User">Size(MB)<p-sortIcon field="size_User"></p-sortIcon></th>
+                            <th pSortableColumn="date">Date<p-sortIcon field="date"></p-sortIcon></th>
+                            <th pSortableColumn="time">Time<p-sortIcon field="time"></p-sortIcon></th>
+                            <th pSortableColumn="command">TCP command<p-sortIcon field="command"></p-sortIcon></th>
+                        </tr>
+                    </ng-template>
+                    <ng-template class="tableCss config-ui" pTemplate="body" let-application>
+                        <tr>
+                            <td class="text-center">
+                                <p-tableCheckbox [value]="application"></p-tableCheckbox>
+                            </td>
+                            <td title="{{application.tier}}" style="text-align: left;">
+                              <a [routerLink]="['/tree-main', application['dcId']]">{{application.tier}}</a>
+                            </td>
+                            <td title="{{application.server}}" style="text-align: left;">{{application.server}}</td>
+                            <td title="{{application.name}}" style="width: 125px; text-align: left;"><span class='elipseText'>{{application.name}}</span></td>
+                            <td title="{{application.size}}" style="text-align: right;">{{application.size}}</td>
+                            <td title="{{application.duration_Tcp}}" style="width: 115px; text-align: right;">{{application.duration_Tcp}}</td>
+                            <td title="{{application.packets}}" style="text-align: right;">{{application.packets}}</td>
+                            <td title="{{application.duration_User}}" style="width: 140px; text-align: right;">{{application.duration_User}}</td>
+                            <td title="{{application.size_User}}" style="text-align: right;">{{application.size_User}}</td>
+                            <td title="{{application.date}}" style="text-align: right;">{{application.date}}</td>
+                            <td title="{{application.time}}" style="text-align: right;">{{application.time}}</td>
+                            <td title="{{application.command}}" style="text-align: left;"><span class='elipseText'>{{application.command}}</span></td>
+                        </tr>
+                    </ng-template>
+            </p-table>
+
+
+
+              <!-- <p-dataTable class="nde-ui" [value]="tcpDumpInfo" scrollable="true" sortField="dateTime" sortOrder="-1" [(selection)]="selectedTCPDump" [rows]="15" [paginator]="tcpDumpInfo?.length > 15" [pageLinks]="3" [rowsPerPageOptions]= "[5,10,15]" >
+                  <p-column [style]="{'width':'3%'}" selectionMode="multiple"></p-column>
+                  <p-column class="col-overflow" field="tier" header="Tier" [sortable]="true" [style]="{'width':'15%'}">
+                      <ng-template let-col let-application="rowData" pTemplate type="body">
+                          <span title="{{application[col.field]}}">
+                              <a [routerLink]="['/tree-main', application['dcId']]">{{application[col.field]}}</a>
+                          </span>
+                      </ng-template>
+                  </p-column>
+                  <p-column class="col-overflow" field="server" header="Server" [sortable]="true" [style]="{'width':'10%'}">
+                      <ng-template let-col let-application="rowData" pTemplate type="body">
+                          <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                      </ng-template>
+                  </p-column>
+                  <p-column class="col-overflow" field="name" header="TCP Dump Name" [sortable]="true" [style]="{'width':'20%'}">
+                      <ng-template let-col let-application="rowData" pTemplate type="body">
+                          <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                      </ng-template>
+                  </p-column>
+                  <p-column class="col-overflow" field="size" header="File size(KB)" [sortable]="true" [style]="{'width':'10%'}">
+                      <ng-template let-col let-application="rowData" pTemplate type="body">
+                          <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                      </ng-template>
+                  </p-column>
+                  <p-column class="col-overflow" field="duration_Tcp" header="Duration(secs)" [sortable]="true" [style]="{'width':'11%'}">
+                      <ng-template let-col let-application="rowData" pTemplate type="body">
+                          <span title="{{application[col.field]}}" style="float:right">{{application[col.field]}}</span>
+                      </ng-template>
+                  </p-column>
+                  <p-column class="col-overflow" field="packets" header="Packets" [sortable]="true" [style]="{'width':'9%'}">
+                      <ng-template let-col let-application="rowData" pTemplate type="body">
+                          <span title="{{application[col.field]}}" style="float:right">{{application[col.field]}}</span>
+                      </ng-template>
+                  </p-column>
+                  <p-column class="col-overflow" field="duration_User" header="Max Duration(secs)" [sortable]="true" [style]="{'width':'15%'}">
+                      <ng-template let-col let-application="rowData" pTemplate type="body">
+                          <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                      </ng-template>
+                  </p-column>
+                  <p-column class="col-overflow" field="size_User" header="Size(MB)" [sortable]="true" [style]="{'width':'9%'}">
+                      <ng-template let-col let-application="rowData" pTemplate type="body">
+                          <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                      </ng-template>
+                  </p-column>
+                  <p-column class="col-overflow" field="date" header="Date" [sortable]="true" [style]="{'width':'9%'}">
+                      <ng-template let-col let-application="rowData" pTemplate type="body">
+                          <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                      </ng-template>
+                  </p-column>
+                  <p-column class="col-overflow" field="time" header="Time" [sortable]="true" [style]="{'width':'9%'}">
+                      <ng-template let-col let-application="rowData" pTemplate type="body">
+                          <span title="{{application[col.field]}}">{{application[col.field]}}</span>
+                      </ng-template>
+                  </p-column>
+                  <p-column class="col-overflow" field="command" header="TCP command" [sortable]="true" [style]="{'width':'11%'}">
+                      <ng-template let-col let-application="rowData" pTemplate type="body">
+                          <span title="{{application[col.field]}}" style="white-space:nowrap;">{{application[col.field]}}</span>
+                      </ng-template>
+                  </p-column>
+  
+              </p-dataTable> -->
+          </div>
+          <div class="ui-toolbar-group-right p-grid">
+              <button pButton type="button" (click)="cancelTCPListWin()" icon="icons8 icons8-delete" label="Cancel" title="Cancel" class='mh-10 ui-button-rounded'></button>
+              <button pButton type="button" (click)="deleteTCPDumpList()" icon="icons8 icons8-delete-trash" label="Delete" title="Delete" class='mh-10 ui-button-rounded'></button>
+              <button pButton type="button" (click)="downloadSelectedfile()" icon="icons8 icons8-download-2" label="Download" title="Download" class='mh-10 ui-button-rounded'></button>
+          </div>
+  
+      </div>
+  </div>
+
+ <p-confirmDialog header="Confirmation" class="confirmdialog" icon="las-question-circle" width="300" [baseZIndex]="100000000011"></p-confirmDialog>
+ 

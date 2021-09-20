@@ -1,0 +1,135 @@
+<div class="charts-wrapper">
+    <div class="p-grid">
+        <div class="dashboard-options">
+            <div class="p-col-fixed p-col-nogutter p-align-stretch">
+                <div class="box box box-stretched">
+                    <div class="vertical-menu" pTooltip="Metrics Tree" *ngIf="dashboard.layout">
+                        <button pButton class="icon-button no-shadow" (click)="dashboard.openShowGraphInTree()"
+                            icon="icons8 icons8-view-all"></button>
+                    </div>
+                    <div class="vertical-menu" pTooltip="Dashboard Favorites"
+                        *ngIf="dashboard.layout" >
+                        <button pButton class="icon-button no-shadow" icon="icons8 icons8-star-filled"
+                            (click)="dashboard.openFavList()">
+                        </button>
+                    </div>
+                    <div class="vertical-menu" pTooltip="Layout Manager" *ngIf="dashboard.layout">
+                        <button pButton class="icon-button no-shadow" icon="icons8 icons8-template"
+                            (click)="dashboard.openLayoutManager();">
+                        </button>
+                    </div>
+
+                    <div class="vertical-menu" pTooltip="Dashboard Lower Panel"
+                        *ngIf="dashboard.layout && dashboard.layout.mode == 'VIEW'">
+                        <button pButton class="icon-button no-shadow" (click)="lowerPanel.toggle()"
+                            icon="icons8 icons8-open-view"></button>
+                    </div>
+
+                    <div class="vertical-menu" pTooltip="Custom Metrics" *ngIf="dashboard.layout">
+                        <button pButton class="icon-button no-shadow" (click)="dashboard.openCustomMetrics()"
+                            icon="icons8 icons8-power-bi"></button>
+                    </div>
+
+                    <div class="vertical-menu" pTooltip="Compare Sessions"
+                        *ngIf="dashboard.layout && dashboard.layout.mode == 'VIEW'">
+                        <button pButton class="icon-button no-shadow" (click)="compareData.open()"
+                            icon="icons8 icons8-compare"></button>
+                    </div>
+                    <div class="vertical-menu" pTooltip="Favorite Operations"
+                        *ngIf="dashboard.layout && dashboard.layout.mode == 'VIEW'">
+                        <button pButton class="icon-button no-shadow" (click)="menu.toggle($event)"
+                            icon="icons8 icons8-mark-as-favorite"></button>
+                        <p-slideMenu #menu [popup]="true" styleClass="widget-menu" [model]="favMenuOptions"
+                            [viewportHeight]="150" appendTo="body" baseZIndex="10001">
+                        </p-slideMenu>
+                    </div>
+                    <!-- <div class="vertical-menu" pTooltip="Edit Widget" *ngIf="dashboard.layout">
+                        <button pButton class="icon-button no-shadow" (click)="dashboard.openEditWidget()"
+                            icon="icons8 icons8-paint-palette"></button>
+                    </div> -->
+
+                    <div class="vertical-menu" *ngIf="dashboard.layout && !disableOptions && !dashboard?.data?.favDetailCtx?.layout?.configGallery?.enable">
+                        <button pButton class="icon-button no-shadow" icon="icons8 icons8-save"
+                            (click)="dashboard.saveChanges();"  [pTooltip]="noPermission ?  'User can not update System Dashboard' : 'Save Dashboard changes'" [disabled]="disableOptions || noPermission">
+                        </button>
+                    </div>
+
+                    <div class="vertical-menu" *ngIf="!disableOptions  && !dashboard?.data?.favDetailCtx?.layout?.configGallery?.enable">
+                        <button pButton class="icon-button no-shadow" icon="icons8 icons8-save-as"
+                        pTooltip="Save Layout as Template" (click)="dashboard.openCustomTemplateLayoutDialog()" [disabled]="disableOptions">
+                        </button>
+                    </div>
+
+                    <!-- Canvas Mode -->
+
+                    <div *ngIf="dashboard.layout" class="vertical-menu-separator"
+                        pTooltip="Dashboard Layout Modifications"></div>
+                    <div class="vertical-menu" pTooltip="Edit Dashboard"
+                        *ngIf="dashboard.layout && dashboard.layout.mode == 'VIEW' && !dashboard?.data?.favDetailCtx?.layout?.configGallery?.enable">
+                        <button pButton class="icon-button no-shadow" icon="icons8 icons8-edit-2"
+                            (click)="dashboard.editMode(false,null);">
+                        </button>
+                    </div>
+                    <ng-container *ngIf="dashboard.layout && dashboard.layout.mode == 'EDIT'">
+
+                        <div class="vertical-menu" pTooltip="Add New Widget">
+                            <button pButton class="icon-button no-shadow" icon="icons8 icons8-add"
+                            (click)="addNewWidgetMenu.toggle($event)" >
+                            </button>
+                            <!-- <p-slideMenu #addNewWidgetMenu [popup]="true" styleClass="dashboard-menu" [model]="newWidgetMenuOptions"
+                            [viewportHeight]="'auto'" appendTo="body" baseZIndex="100001">
+                            </p-slideMenu> -->
+                        </div>
+
+                        <p-menu #addNewWidgetMenu appendTo="body" [popup]="true" [model]="newWidgetMenuOptions"></p-menu>
+
+                        <div class="vertical-menu" pTooltip="Remove Widget">
+                            <button pButton class="icon-button no-shadow" icon="icons8 icons8-trash"
+                                (click)="dashboard.removeWidgetConfirmation();" [disabled]="dashboard?.data?.favDetailCtx?.widgets?.length == 0 ? true : false">
+                            </button>
+                        </div>
+                        <div class="vertical-menu" pTooltip="Remove All Widgets">
+                            <button pButton class="icon-button no-shadow" icon="icons8 icons8-delete-trash"
+                                (click)="dashboard.removeAllWidgets(false);" [disabled]="dashboard?.data?.favDetailCtx?.widgets?.length == 0 ? true : false">
+                            </button>
+                        </div>
+                        <div class="vertical-menu" pTooltip="Switch To View Mode">
+                            <button pButton class="icon-button no-shadow" icon="icons8 icons8-no-edit"
+                                (click)="dashboard.switchEditMode(false);">
+                            </button>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+            <div *ngIf="dashboard" class="highlight-dashboard" pTooltip="{{dashboard.name}}" tooltipPosition="top">
+                <div>{{dashboard.name}}</div>
+                <small>DASHBOARD</small>
+            </div>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="p-grid p-col-12 h-100-p no-padding">
+                <div class="p-grid p-col-3 top-padding" *ngIf="!isShow">
+                    <app-edit-widget *ngIf="menuType === 'editWidget'" [dashboard]="dashboardC" [widgetC]="widget"></app-edit-widget>
+                    <app-show-graph-in-tree [dashboard]="dashboardC" *ngIf="menuType === 'showGraphInTree'">
+                    </app-show-graph-in-tree>
+                    <app-custom-metrics [dashboard]="dashboardC" *ngIf="menuType === 'customMetrics'">
+                    </app-custom-metrics>
+                </div>
+                <div [ngClass]="isShow ?'p-col-12':'p-col-9'" class="no-padding h-100-p">
+                    <div class="dashboard-lower-panel-container h-100-p" #dashboardContainer>
+                        <app-dashboard #dashboard (resized)="onResized($event)"></app-dashboard>
+                        <div class="relative">
+                        <app-lower-tabular-panel [dashboard]="dashboardC" #lowerPanel [container]="dashboardContainer" id="lowerSectionId">
+
+                        </app-lower-tabular-panel>
+                      </div>
+                    </div>
+                </div>
+                <!-- <app-lower-tabular-panel #lowerPanel [container]="dashboardContainer"></app-lower-tabular-panel> -->
+                <app-compare-data [dashboard]="dashboard" #compareData></app-compare-data>
+            </div>
+        </div>
+
+    </div>
+</div>

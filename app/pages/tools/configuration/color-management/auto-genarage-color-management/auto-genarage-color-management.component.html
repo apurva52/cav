@@ -1,0 +1,65 @@
+<div class="auto-genarage-color-management-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-grid p-align-center">
+                <a routerLink="/home/dashboard">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">COLOR MANAGEMENT</div>
+            </div>
+            <div class="p-col-4 text-right">
+                <button pButton type="button" class="ui-button-secondary ui-button-rounded btn-spacing mh-10"
+                    icon="icons8 icons8-reflector-bulb" label="AUTO GENERATE"></button>
+                <button pButton type="button" class="ui-button ui-button-rounded mh-10" label="SAVE"></button>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+    <div class="vertical-container">
+        <div class="p-grid">
+            <div class="p-col-2 left-panel-container">
+                <div class="p-grid p-col-12 p-justify-between">
+                    <div class="text-bold">LEVEL 1</div>
+                    <div class="heading">Tier</div>
+                </div>
+                <p-orderList [value]="data.orderList" filterBy="label" filterPlaceHolder="Search">
+                    <ng-template pTemplate="item" let-rowData>
+                        <div class="ui-helper-clearfix">
+                            <div class="list">
+                                <div class="color-box" [ngStyle]="{'background-color': rowData.color}"></div>
+                                <span class="list-name">{{rowData.label}}</span>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-orderList>
+            </div>
+            <div class="p-grid p-col-10">
+                <div class="p-col-3 color-checkbox-container">
+                    <div class="color-checkbox-block" *ngFor="let checkbox of data.checkBoxList"
+                        [ngClass]="{'active': selectedItem == checkbox}" (click)="listClick($event, checkbox)">
+                        <div class="color-box" [ngStyle]="{'background-color': checkbox.color}"></div>
+                        <span class="list-name">{{checkbox.label}}</span>
+                    </div>
+                </div>
+                <div class="p-col-9 pallet-container">
+                    <div class="p-grid p-col-12 p-align-center">
+                        <div *ngIf="selectedColorObj" class="color-pallet-container">
+                            <div class="color-checkbox-block p-grid" *ngFor="let color of selectedColorObj.pallets">
+                                <div class="color-label">
+                                    <label for="color-label">{{color.label}}</label>
+                                </div>
+                                <div *ngFor="let item of color.colorCode">
+                                    <div class="color-box" [ngStyle]="{'background-color': item}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,255 @@
+<div class="ui-g content-area">
+    <div class="ui-g-4">
+        <p-card class="AC-leftpane">
+            <div>
+                <div class="p-grid p-align-center p-justify-between mb-6">
+                    <div class="type-search">
+                        <input pInputText #searchValue placeholder="Search Capability" class="width-270 pl-20"
+                            (input)="tableSearch.filterGlobal($event.target.value, 'contains')">
+                        <i class="icons8 icons8 icons8-search btn-icon left-icon"></i>
+                    </div>
+                </div>
+                <span class="compotable">
+                    <p-table #tableSearch class="all-tables" [columns]="tableHeaderInfo" [value]="capabilities"
+                        selectionMode="single" scrollHeight="52vh" [globalFilterFields]="globalFilterFields"
+                        [(selection)]="highlightedCapability" [scrollable]="true" sortField="capabilityName"
+                        [sortOrder]="1">
+
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                                <col style="width:12%">
+                                <col style="width: 76%">
+                                <col style="width:12%">
+                            </colgroup>
+                        </ng-template>
+
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th>
+                                    <button [disabled]=aclPermissionfrdisable title="Add New Capability"
+                                        (click)=addNewCapabilty() type="button" class="btn-icon">
+                                        <i class="pi pi-plus"></i>
+                                    </button>
+                                </th>
+                                <th *ngFor="let col of columns" [pSortableColumn]="col.valueField"
+                                    title="{{col.header}}">
+                                    {{ col.header }}
+                                    <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                        ariaLabel="Activate to sort"
+                                        ariaLabelDesc="Activate to sort in descending order"
+                                        ariaLabelAsc="Activate to sort in ascending order">
+                                    </p-sortIcon>
+                                </th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-rowData let-index="rowIndex" let-columns="columns">
+                            <tr (click)="onSelectCapability(rowData ,true)" [pSelectableRow]="rowData">
+                                <td class="text-center"> <span *ngIf="rowData.capabilityName == 'Admin'">
+                                        <i class="pi pi-users"></i></span>
+                                    <span *ngIf="rowData.capabilityName == 'Business'"> <i
+                                            class="icons8 icons8-suitcase"></i></span>
+                                    <span *ngIf="rowData.capabilityName == 'ReadAll'"> <i
+                                            class="icons8 icons8-template"></i></span>
+                                    <span *ngIf="rowData.capabilityName == 'ReadWriteAll'"> <i
+                                            class="icons8 icons8-template"></i></span>
+                                    <span
+                                        *ngIf="rowData.capabilityName != 'Admin'&&rowData.capabilityName != 'Business'&&rowData.capabilityName != 'ReadAll'&&rowData.capabilityName != 'ReadWriteAll'"><i
+                                            class="icons8 icons8-browse-page"></i></span>
+                                </td>
+                                <td *ngFor="let col of columns" title="{{rowData[col.valueField]}}">
+                                    {{rowData[col.valueField]}}</td>
+                                <td><span *ngIf="rowData.capabilityType=='Custom' || deletecapabiltyFlag"> <button
+                                            [disabled]=aclPermissionfrdisable type='button' title='Delete Capability'
+                                            class="btn-icon mx-3" pButton (click)="deleteCapabiliity(rowData)"><i
+                                                class="icons8 icons8 icons8-trash"></i></button>
+                                    </span></td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage" let-columns>
+                            <tr>
+                                <td [attr.colspan]="3" class="text-center">
+                                    <span *ngIf="noRecordMsg">No records found</span>
+                                    <span *ngIf="capabilities  && capabilities.length == 0 && !noRecordMsg"><i class="pi pi-spin pi-spinner"></i>
+                                    </span>   
+                                    <span
+                                        *ngIf="capabilities && capabilities.length > 0 && searchValue.value.length">Nothing
+                                        found
+                                        matching "{{searchValue.value}}"</span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+
+                </span>
+            </div>
+
+        </p-card>
+    </div>
+    <div class="ui-g-8 AC-rightpane">
+
+        <p-card styleClass="mb-6">
+            <div class="p-grid p-align-center p-justify-between w-100-p mb-6">
+                <h3 class="mb-5 mt-0 font-weight-500">Capability Details</h3>
+            </div>
+            <div class="p-grid p-align-center w-100-p">
+                <label class="width-140 p-5">Capability Name</label>
+                <div class="ui-g-3">
+                    <input pInputText [(ngModel)]="capabilityName" maxlength="30" style="width:260px;"
+                        [disabled]=systemDefaultsenable||aclPermissionfrdisable > 
+                </div>
+            </div>
+
+            <div class="p-grid w-100-p">
+                <label class="width-140 p-5"> Description </label>
+
+                <div class="ui-g-10">
+                    <textarea pInputTextarea [disabled]=systemDefaultsenable||aclPermissionfrdisable style="resize:none;"
+                        [(ngModel)]="capabilityDesc" rows="3" maxlength="256" class="w-100-p"> </textarea>
+                </div>
+            </div>
+        </p-card>
+
+
+        <p-panel styleClass="mb-5" header="Permissions">
+            <span>
+                <p-radioButton [disabled]=systemDefaultsenable||aclPermissionfrdisable [(ngModel)]="permission"
+                    (onClick)="onPermissionTypeChange()" label="Read Only" value="ReadOnly" class="radioClass">Read Only
+                </p-radioButton>
+                <p-radioButton [disabled]=systemDefaultsenable||aclPermissionfrdisable [(ngModel)]="permission"
+                    (onClick)="onPermissionTypeChange()" label="Read Write" value="ReadWrite" class="radioClass">Read
+                    Write</p-radioButton>
+                <p-radioButton [disabled]=systemDefaultsenable||aclPermissionfrdisable [(ngModel)]="permission"
+                    (onClick)="onPermissionTypeChange()" label="Custom" value="Custom">Custom</p-radioButton>
+            </span>
+        </p-panel>
+
+        <div class="mb-6" *ngIf="permission == 'ReadOnly'">
+            <p-card class="permissionTree">
+                <span *ngIf="loadResTree" style="font-size: 15px;"><i class="pi pi-spin pi-spinner"></i>Loading...</span>
+                <p-tree [value]="resTreeData" selectionMode="checkbox" [(selection)]="selectednodesforRead"
+                    (onNodeSelect)="nodeSelect($event)" (onNodeUnselect)="nodeSelect($event)" (onNodeExpand)="nodeExpand()" scrollHeight="190px" [style]="{'overflow-y': 'auto' ,'width':'100%'}">
+                    <ng-template let-node pTemplate="default">
+                        <span [title]="node.toolTip" class="">{{node.label}}</span>
+                    </ng-template>
+                </p-tree>
+
+            </p-card> 
+        </div>
+        <div class="mb-6" *ngIf="permission == 'ReadWrite'">
+            <p-card class="permissionTree">
+                <span *ngIf="loadResTree" style="font-size: 15px;"><i class="pi pi-spin pi-spinner"></i>Loading...</span>
+                <p-tree [value]="resTreeData"  selectionMode="checkbox" [(selection)]="selectednodesForReadWrite"
+                    (onNodeSelect)="nodeSelect($event)" (onNodeUnselect)="nodeSelect($event)" (onNodeExpand)="nodeExpand()" scrollHeight="190px" [style]="{'overflow-y': 'auto' ,'width':'100%'}">
+                   
+                    <ng-template let-node pTemplate="default">
+                        <span [title]="node.toolTip" class="">{{node.label}}</span>
+                    </ng-template> 
+                </p-tree>
+
+            </p-card>
+        </div>
+        <div class="mb-6" *ngIf="permission == 'Custom'">
+            <p-card class="permissionTree">
+                <div class="p-grid p-align-center p-5">
+                    <div class="width-120 mx-6" *ngFor="let customdata of customComboBoxData; let i= index;">
+                        <span title="{{selectedComboBoxData[i]}}" class="capabilitydropdown"
+                            *ngIf=!enableMultipleselect[i]>
+                            <mat-select class="mat-dropdown" disableOptionCentering
+                                [disabled]=systemDefaultsenable||aclPermissionfrdisable placeholder="Select"
+                                [(ngModel)]="selectedComboBoxData[i]" floatPlaceholder="never"
+                                (selectionChange)=onSelectCustomlevel(i,selectedComboBoxData[i])>
+                                <mat-option *ngFor="let data of customdata" [value]="data">
+                                    {{data}}
+                                </mat-option>
+                            </mat-select>
+                        </span>
+                        <span title="{{selectedComboBoxData[i]}}" class="capabilitydropdown"
+                            *ngIf='enableMultipleselect[i]'>
+                            <mat-select disableOptionCentering class="mat-dropdown" #tableelmnt
+                                [disabled]=systemDefaultsenable||aclPermissionfrdisable placeholder="Select"
+                                [(ngModel)]="selectedComboBoxData[i]" floatPlaceholder="never"
+                                (openedChange)=onMultipleValueSelect(i,selectedComboBoxData[i]) multiple>
+                                <mat-option *ngFor="let data of customdata" [value]="data">
+                                    {{data}}
+                                </mat-option>
+                            </mat-select>
+                        </span>
+                    </div>
+
+                    <div class="width-120 mx-7">
+                        <button pButton [disabled]="systemDefaultsenable||aclPermissionfrdisable" type="button"
+                            class="ui-button ui-button-rounded" icon="icons8 icons8-plus-math"
+                            (click)="addCustomPermissioninTable()"></button>
+                    </div>
+                </div>
+
+                <p-fieldset legend="Added Permissions">
+                    <div class="permissions-height">
+                    <div class="p-grid p-align-center mb-10" *ngFor="let perm of permissionTable; let i =index;">
+                        <div class="p-grid p-align-center">
+                            <span class="p-grid p-align-center">
+                                <span class="width-120 mr-6" *ngFor="let customlist of perm.comboboxlist; let j= index">
+                                    <span [style]="{'min-width':'150px'}" title={{perm.selectedcomboboxlist[j].value}}
+                                        class="capabilitydropdown"
+                                        *ngIf="perm.selectedcomboboxlist[j].type != 'Tier'&& perm.selectedcomboboxlist[j].type!= 'SubProject'&& perm.selectedcomboboxlist[j].type != 'Feature'">
+                                        <mat-select disableOptionCentering class="mat-dropdown" placeholder='Select'
+                                            [(ngModel)]=perm.selectedcomboboxlist[j].value floatPlaceholder="never"
+                                            (selectionChange)="editComboboxTable(i,j ,false)">
+                                            <mat-option [disabled]=systemDefaultsenable||aclPermissionfrdisable
+                                                *ngFor="let item of customlist" [value]="item">
+                                                {{item}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </span>
+                                    <span title="{{perm.selectedcomboboxlist[j].value}}" class="capabilitydropdown"
+                                        *ngIf="perm.selectedcomboboxlist[j].type == 'Tier'|| perm.selectedcomboboxlist[j].type== 'SubProject'|| perm.selectedcomboboxlist[j].type == 'Feature'">
+                                        <mat-select disableOptionCentering class="mat-dropdown" #tableselect
+                                            placeholder='Select' [(ngModel)]=perm.selectedcomboboxlist[j].value multiple
+                                            floatPlaceholder="never" (openedChange)="editComboboxTable(i,j,true)"
+                                            (openedChange)="onopenCombobox(perm.selectedcomboboxlist[j])">
+                                            <mat-option [disabled]=systemDefaultsenable||aclPermissionfrdisable
+                                                *ngFor="let item of customlist" [value]="item">
+                                                {{item}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </span>
+                                </span>
+                                <span class="p-grid p-align-center">
+                                    <button [disabled]=systemDefaultsenable||aclPermissionfrdisable type="button"
+                                        (click)="deleteRowFromtable(i)" class="ui-button ui-button-rounded" de pButton
+                                        icon="icons8 icons8-minus"></button>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    </div>
+                </p-fieldset>
+            </p-card>
+        </div>
+    </div>
+    <div class="p-grid p-justify-center p-8 w-100-p my-6 footerButton">
+        <button [disabled]=aclPermissionfrdisable pButton label="Save" class="mx-3" (click)=saveCapabilities()></button>
+        <button [disabled]=aclPermissionfrdisable class="mx-3" pButton label="Reset All"
+            (click)=resetAllChanges()></button>
+    </div>
+
+    <div class="secondary-dialog" >
+        <!-- <p-confirmDialog #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+            <p-footer>
+                <button type="button" class="ui-button-rounded ui-button-secondary px-15 mx-6" pButton 
+                    label="Cancel" (click)="cd.reject()" *ngIf="rejectVisible" ></button>
+                <button type="button" class="ui-button-rounded px-15" pButton 
+                    label= {{acceptLable}} (click)="cd.accept()" ></button>
+            </p-footer>
+        </p-confirmDialog> -->
+        <p-confirmDialog class="confirmdialog" #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+            <p-footer>
+            <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton
+            icon="pi pi-check" label={{acceptLable}} (click)="cd.accept()"></button>
+            <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton
+            icon="pi pi-times" label="Cancel" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+            </p-footer>
+            </p-confirmDialog>
+    </div>
+</div>

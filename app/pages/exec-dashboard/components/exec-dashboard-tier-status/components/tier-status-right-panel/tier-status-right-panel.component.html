@@ -1,0 +1,26 @@
+<div class="ts-right-main">
+    <div class="panel-heading panel-rightClass">
+        <span *ngIf="isGrouped then grouped else tiers"></span> 
+        <ng-template #tiers> 
+            <div class="lblName" title="{{selectedTierName}}">Node : <span>{{selectedTierName}}</span></div>
+            <div *ngIf="lblTierServer.isServer" class="lblName" title="{{lblTierServer.server}}">Server : {{lblTierServer.server}}</div>
+            <div *ngIf="lblTierServer.isServer" class="lblName" title="{{lblTierServer.instance}}">Instance : {{lblTierServer.instance}}</div>
+        </ng-template>
+        <ng-template #grouped>
+            <div class="lblName" title="{{rightPanelData['groupNames']}}">Group: {{rightPanelData['groupNames']}}</div>
+            <div>Tier:
+                <p-dropdown [options]="groupedTierList" class="dropDownFlowMap" [(ngModel)]="selectedTier" [autoWidth]="false" [style]="{'width': '60%'}"
+                    (onChange)="onTierChange()"></p-dropdown>
+            </div>
+        </ng-template>
+	<div *ngIf="_dataHandlerService.$isStoreView">
+            <div class="lblName" title="{{_dataHandlerService.cavConfig.$eDParam.appName}}">App : <span>{{_dataHandlerService.cavConfig.$eDParam.appName}}</span></div>
+            <div class="lblName" title="{{_dataHandlerService.cavConfig.$eDParam.storeName}}">Store : <span>{{_dataHandlerService.cavConfig.$eDParam.storeName}}</span></div>
+        </div>
+    </div>
+    <div *ngIf="dataAvilable">
+        <app-tier-status-alert [alertObj]="alertObj"></app-tier-status-alert>
+        <app-tier-status-health [healthArr]="healthArr"></app-tier-status-health>
+        <app-transaction-score-card [transactionScoreCard]="transactionScoreCard"></app-transaction-score-card>
+    </div>
+</div>

@@ -1,0 +1,87 @@
+<!--component html goes here -->
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+<div class="ddr-box">
+    <p-toolbar>
+        <div class='ui-toolbar-group-left'>
+            <label class='headerInfo'>{{filterCriteria}}</label>
+        </div>
+    </p-toolbar>
+    <div style="overflow:auto;max-height:83vh">
+        <p-accordion class="ddr-accordion" [multiple]="true">
+            <div>
+                <!-- {{thinkData}} -->
+                <p-accordionTab header="Average Time" [selected]="true">
+                    <p-dataTable class="ddr-table" [value]="thinkData">
+                        <p-column field="avgHeader" header="Average Time">
+                            <ng-template let-col let-node="rowData" pTemplate type="body"><div style="text-align: left !important;">{{node[col.field]}}</div></ng-template>
+                        </p-column>
+                        <p-column field="average" header="{{average}}">
+                            <ng-template let-col let-node="rowData" pTemplate type="body"><div style="text-align: right !important;">{{node[col.field]}}</div></ng-template>
+                        </p-column>
+                        <p-column field="percent" header="100%" >
+                            <ng-template let-col let-node="rowData" pTemplate type="body">
+                                    <div style="text-align: right !important;">{{node[col.field]}}</div>
+                            </ng-template>
+                        </p-column>
+
+                    </p-dataTable>
+                </p-accordionTab>
+            </div>
+            <div class="ui-g-12">
+                <div class="ui-g-6">
+                    <p-accordionTab header="Average Time Stats" [selected]="true">
+                        <div style="overflow:auto;height:421px">
+                            <chart [options]="options"></chart>
+                        </div>
+                    </p-accordionTab>
+                </div>
+                <div class="ui-g-6">
+                    <p-accordionTab header="Split Time Stats" [selected]="true">
+                        <div style="overflow:auto;height:421px">
+                            <chart [options]="options1"></chart>
+                        </div>
+                    </p-accordionTab>
+                </div>
+            </div>
+            <div class="ui-g-12">
+                <p-accordionTab header="Page Detail" [selected]="true">
+                    <p-dataTable class="ddr-table" [value]="data" sortField="avgPageResp" [sortOrder]="-1" [rows]="10" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <p-column field="pageName" header="Page Name" [sortable]="true">
+                            <ng-template let-col let-node="rowData" pTemplate type="body">
+                                    <div style="text-align: left !important;">{{node[col.field]}}</div>
+                                </ng-template>
+                        </p-column>
+                        <p-column field="avgPageResp" header="Avg Page Response Time" sortable="custom" (sortFunction)="customsortOnColumns($event,data)">
+                            <ng-template let-col let-node="rowData" pTemplate type="body">
+                                <div *ngIf="node[col.field] != 0" class="ddr-table-right" (click)="openPageReport(node)">{{msToTimeFormate(node[col.field])}}</div>
+                                <div style="text-align: right !important;" *ngIf="node[col.field] == 0">{{node[col.field]}}</div>
+                            </ng-template>
+                        </p-column>
+                        <p-column field="avgPageResp" header="Page Weighted Time" sortable="custom" (sortFunction)="customsortOnColumns($event,data)">
+                            <ng-template let-col let-node="rowData" pTemplate type="body">
+                                    <div style="text-align: right !important;">{{msToTimeFormate(node[col.field])}}</div>
+                            </ng-template>
+                        </p-column>
+                        <p-column field="avgPageRespPercent" header="Page Weighted Time Percentage" [sortable]="true">
+                            <ng-template let-col let-node="rowData" pTemplate type="body">
+                                    <div style="text-align: right !important;">{{node[col.field]}}%</div>
+                            </ng-template>
+                        </p-column>
+                    </p-dataTable>
+                </p-accordionTab>
+            </div>
+        </p-accordion>
+    </div>
+</div>
+<p-dialog class="ddr-dialog"   appendTo="body" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true" [height]="120" [width]="600" > 
+    <p-header>
+        <i class="fa fa-info-circle" style="color:red"></i>
+        <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+    </p-header>  
+    <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+    <p-footer>
+    <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait" style="height: 25px;"></button>
+    <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" label="Cancel" style="height: 25px;"></button>
+    </p-footer>
+  </p-dialog>

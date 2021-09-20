@@ -1,0 +1,101 @@
+  <div class="p-grid p-align-center w-100-p">
+    <div class="p-col-1">Derived</div>
+    <div class="p-col-8">
+      <input style="width: 315px" type="text" [(ngModel)]= "item['dF']" name="dFormula" class="w-100-p">
+      <span><i class="material-icons" style="font-size:15px;cursor:pointer" title="For applying any formula on the metric value, provide formula as: <FORMULA>(Metric,<VALUE>)
+where FORMULA can be DIV,SUM,MUL,SUB
+Example: To divide the metric value by 60, provide formula as: DIV(Metric,60).
+You can also use nested formula.
+Example: To add 100 to the metric value and multiply the result by 60, provide formula as: MUL(SUM(Metric,100),60)."></i></span>
+    </div>
+  </div>
+
+  <div class="">
+    <p-table class="all-tables" [columns]="cols" [value]="item['advPattern']" [rows]="5"
+    [(selection)]="selectedPattern" [paginator]="advPatternVal?.length >5" [pageLinks]="3">
+    <ng-template pTemplate="caption">
+      <div class="p-grid p-align-center p-justify-end my-5">
+        <button pButton type="button" icon="icons8 icons8-plus-math" (click)="addPattern()"
+            style="cursor:pointer;margin-left: 15px" title="Add Pattern">
+          </button>
+          <button pButton type="button" class="ui-button-danger mx-3" style="background: #f12a2a;"  (click)="deleteAllPattern()"
+            icon="icons8 icons8-trash"></button>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th style="width:40px">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <th *ngFor="let col of columns" style="width: 100%;">
+          {{col.header}}
+        </th>
+        <th style="width: 80px;" pResizableColumn>
+          Actions
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+      <tr class="scen-ptable-tbody">
+        <td>
+          <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+        </td>
+        <td *ngFor="let col of columns">
+          {{rowData[col.field]}}
+        </td>
+        <td>
+            <span class="action-icon">
+              <span>
+                  <i   class="icons8-edit-2" (click)="editPattern(rowData)" title="Edit" ></i>
+                  <i class="icons8-delete-trash red-fg" style="color: #f12a2a;cursor:pointer; margin-left: 6px" (click)="deletePattern(rowData)"
+            title="Delete"></i>
+                  </span>
+          </span>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage" let-columns>
+      <tr>
+        <td [attr.colspan]="columns.length+3" class="noRecords text-center">No records found.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  </div>
+
+  <div class= "cav-d-flex cav-mb-2 cav-align-items-center cav-w-100 cav-fnt-12">
+    <label>
+        <b>Note:For all unmapped values, metric value will be shown as NaN in webdashboard.</b>
+    </label>
+  </div>  
+<p-dialog class="secondary-dialog foterDialog" header="{{dailogPatternHeader}}" [(visible)]="showPatternDailog"
+  width="800" modal="modal" appendTo="body" [resizable]="false">
+    
+  <div class="p-grid p-col-12">
+    <div class="p-col-6">
+    <div class="width-150 p-5">Value</div>
+    <div class="p-col-2">
+      <input type="text" title="Used to configure metric value replacement" [(ngModel)]="advpatt.pattern" class="input-gui bg-2" pInputText
+        name="pVal">
+    </div>
+  </div>
+    
+    <div class="p-col-6">
+    <div class="width-150 p-5">Mapped Value</div>
+    <div class="p-col-2">
+      <input type="number" class="input-gui bg-2" [(ngModel)]="advpatt.upVal" pInputText name="uVal">
+    </div>
+  </div>
+  </div>
+  
+
+  <div class="p-col-12 form-buttons" style="float: right">
+    <button pButton class="ui-button-rounded" type="button" title="Cancel" (click)="showPatternDailog = false" label="Cancel"></button>
+    <button pButton class="ui-outline-button mx-6" type="button" title="Save" (click)="savePattern()" label="OK"></button>
+  </div>
+</p-dialog>
+
+

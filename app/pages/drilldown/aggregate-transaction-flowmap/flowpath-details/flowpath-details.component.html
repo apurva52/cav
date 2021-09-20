@@ -1,0 +1,122 @@
+<p-dialog header="Flowpath Details" [(visible)]="showFlowpathDetailsModel" class="secondary-dialog details"
+    [style]="{width: '90vw'}" [modal]="true" [draggable]="false" [resizable]="false" appendTo="body"
+    closeIcon="icons8-delete">
+
+    <div class="dialog-content">
+        <div class="p-grid loader-container vertical-container" *ngIf="loading && !data">
+            <div class="p-col p-align-center text-center">
+                <div>
+                    <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+                </div>
+            </div>
+        </div>
+        <div class="p-grid vertical-container" *ngIf="error">
+            <div class="p-col p-align-center text-center">
+                <p-message severity="error" text="{{error.msg}}"></p-message>
+            </div>
+        </div>
+        <div class="p-grid vertical-container" *ngIf="empty">
+            <div class="p-col p-align-center text-center">
+                <p-message severity="normal" text="No Data"></p-message>
+            </div>
+        </div>
+
+        <div #widgetHeight *ngIf="data">
+            <div class="top-section">
+                <div class="p-grid">
+                    <div class="p-col-11">
+                        Flowpaths(Tier : name1, Server : server 1, Instance: 1
+                    </div>
+                    <div class="p-col-1 p-grid p-justify-end">
+                        <div class="icons-group">
+                            <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                                (click)="downloadmenu.toggle($event);" pTooltip="Download"></button>
+                            <p-menu #downloadmenu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                                [showTransitionOptions]="'0ms'" appendTo="body" [hideTransitionOptions]="'0ms'"
+                                [style]="{minWidth:'2em'}"></p-menu>
+
+                            <button pButton icon="icons8 icons8-menu-vertical" class="icon-button no-shadow"
+                                (click)="menu.toggle($event);" pTooltip="Menu"></button>
+                            <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="menuOptions"
+                                [showTransitionOptions]="'0ms'" appendTo="body" [hideTransitionOptions]="'0ms'"
+                                [style]="{minWidth:'24em'}"></p-menu>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p-card>
+
+                <ng-container>
+                    <div>
+                        <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                            Select column to show
+                        </div>
+                        <div class="p-grid">
+                            <div class="repeated-call-table">
+                                <div class="p-col-12 no-padding">
+                                    <p-table #repeatedCallData [columns]="selectedColumns" [value]="data.data"
+                                        [rowHover]="true" [responsive]="true" [scrollable]="true" [paginator]="true"
+                                        [rows]="data.paginator.rows"
+                                        [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" scrollHeight="240px"
+                                        selectionMode="single" [showCurrentPageReport]="true"
+                                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+                                        <ng-template pTemplate="header" let-columns>
+                                            <tr>
+                                                <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv"
+                                                    [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.valueField"
+                                                    class="text-left"
+                                                    [ngStyle]="{'width.px': col.label === '#' ? '30': col.label === 'URL'? '200' : '50'}">
+                                                    <div class="left">
+                                                        {{ col.label }}
+                                                    </div>
+                                                    <div *ngIf="col.isSort" class="right">
+                                                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField"
+                                                            class="text-right" ariaLabel="Activate to sort"
+                                                            ariaLabelDesc="Activate to sort in descending order"
+                                                            ariaLabelAsc="Activate to sort in ascending order">
+                                                        </p-sortIcon>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-row let-columns="columns"
+                                            let-rowIndex="rowIndex">
+                                            <tr [ngStyle]="{'backgroundColor': row.rowBgColor}" [pSelectableRow]="row">
+                                                <td [ngStyle]="{'width.px': col.label === '#' ? '30': col.label === 'URL'? '200' : '50'}"
+                                                    *ngFor="let col of columns" class="{{ col.classes }}">
+                                                    {{ row[col.valueField] }}
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                        <!-----------Empty table error handling--------------------->
+                                        <ng-template pTemplate="emptymessage" let-columns>
+                                            <tr>
+                                                <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                                    <span *ngIf="error">Error while loading data</span>
+                                                    <span *ngIf="empty">Empty Table</span>
+                                                    <span *ngIf="loading">Loading</span>
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- </p-card> -->
+                    </div>
+                </ng-container>
+            </p-card>
+            <br>
+            <textarea pInputTextarea [rows]="5" [cols]="110" autoResize="autoResize"></textarea>
+
+
+
+        </div>
+    </div>
+</p-dialog>
+<p-dialog [(visible)]="displayDetails" [resizable]="true" [modal]="true" class="secondary-dialog"
+    header="Dynamic Diagnostics Configuration" appendTo="body" [draggable]="false" closeIcon="icons8-delete"
+    [style]="{width: '50vw'}">
+    <app-diagnostics-configuration></app-diagnostics-configuration>
+</p-dialog>

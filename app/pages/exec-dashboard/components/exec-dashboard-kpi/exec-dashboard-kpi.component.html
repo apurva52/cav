@@ -1,0 +1,64 @@
+<div class="blockedUI" *ngIf="execDashboardKpiDataService.$blockUI">
+  <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw kpiloadingIcon"></i>
+</div>
+
+<p-toolbar class="ed-toolbar">
+  <div *ngIf = "isValidUser" class="ui-toolbar-group-right">
+    <span class="sampleTimeClass">Last Sample Time:</span> <span class="timeLabel sampleTimeLabel" title="{{execDashboardKpiDataService.$sampleTime}}">{{execDashboardKpiDataService.$sampleTime}}</span>
+
+    <!-- <i class="fa fa-bars marginRight"></i> -->
+
+    <!-- Refreshes KPI -->
+    <button class="marginRight" pButton type="button" pTooltip="Refresh View" icon="fa fa-refresh" (click)="execDashboardKpiDataService.getKPIDataFromServer(execDashboardKpiDataService.$dcList)"
+      tooltipPosition="left"></button>
+
+    <!-- Displaying Graph Time -->
+    <app-exec-dashboard-graph-time *ngIf="execDashboardConfigService.$CONFIG_ED == 0" class="marginRight"
+      tooltipPosition="bottom"></app-exec-dashboard-graph-time>
+  </div>
+</p-toolbar>
+<div class="ed-kpi">
+<div >
+
+  <!-- Creating Order Revenue Grid-->
+  <app-exec-dashboard-order-revenue *ngIf="execDashboardKpiDataService.$enableOrdRev"></app-exec-dashboard-order-revenue>
+  
+  <!-- Displaying KPI Data Tables -->
+<div *ngIf = "isValidUser">
+  <div *ngFor="let viewObj of tempJsonViewData" class="marginGridTopClass">
+
+    <!-- Grid having Multiple DC Data and Order Revenue -->
+    <div *ngIf="viewObj.type == 'multiDC'">
+      <div class="marginClassMultiDC"></div>
+      <app-exec-dashboard-multizoned [multiZoneView]='viewObj'></app-exec-dashboard-multizoned>
+    </div>
+
+    <!-- Grid having Multiple Zone Data for Same DC -->
+    <div *ngIf="viewObj.type == 'multiZone'" class="marginTopClass">
+      <app-exec-dashboard-multizoned [multiZoneView]='viewObj'></app-exec-dashboard-multizoned>
+    </div>
+
+    <!-- Grid having single DC Data -->
+    <div *ngIf="viewObj.type == 'singleDC'" class="marginTopClass">
+      <app-exec-dashboard-unzoned [singleDcView]='viewObj'></app-exec-dashboard-unzoned>
+    </div>
+
+    <!-- Grid having Stats Type Data -->
+    <div *ngIf="viewObj.type == 'Stats'" class="marginTopClass">
+      <app-exec-dashboard-statstype [statsTypeView]='viewObj'></app-exec-dashboard-statstype>
+    </div>
+
+  </div>
+</div>
+
+  <p-toolbar class="marginTopClass">
+  <div *ngIf = "isValidUser"  class="ui-toolbar-group-left">
+    <span><b>Download As: </b></span>
+    <button pButton type="button" pTooltip="Click to download PDF Report" (click)="_downloaddService.onDownload('pdf')" icon="fa fa-file-pdf-o" class="ui-button-success"></button>
+    <button pButton type="button" pTooltip="Click to download Excel Report" (click)="_downloaddService.onDownload('excel')" icon="fa fa-file-excel-o" class="ui-button-warning"></button>
+    <button pButton type="button" pTooltip="Click to download Word Report" (click)="_downloaddService.onDownload('word')" icon="fa fa-file-word-o" class="ui-button-info"></button>
+  </div>
+</p-toolbar>
+</div>
+<p-growl [(value)]="execDashboardKpiDataService.kpimsgs" [life]="9000"></p-growl>
+</div>

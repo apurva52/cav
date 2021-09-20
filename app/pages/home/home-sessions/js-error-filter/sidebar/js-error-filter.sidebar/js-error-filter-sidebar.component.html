@@ -1,0 +1,159 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+      blockScroll="true" appendTo="body"
+       styleClass="time-filter" [baseZIndex]="100">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+                  <div>
+                        <i class="icons8 icons8-star-filled"></i>
+                        <span>JS Error Filter</span>
+                  </div>
+                  <div class="action-icons">
+                        <i class="icons8-delete" (click)="hide()"></i>
+                  </div>
+            </div>
+      </div>
+
+         <!-- <p-toast></p-toast>  -->
+     <p-toast  key ="my key" position="top-left"></p-toast>
+
+      <form [formGroup]="pageForm" (ngSubmit)="onSubmit(pageForm.value)" *ngIf="!reloading">
+        <div class="sidebar-content">
+            <p-tabView>  
+                <p-tabPanel header="General">
+                    <div class="first-tab">
+
+                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                        <p-radioButton name="timefilter" formControlName="_timefilter"label="Last" value="last" (click)="triggerfilter()"></p-radioButton>
+                        <p-dropdown [options]="lasttimeoption"  class=""
+                            dropdownIcon="icons8 icons8-expand-arrow" formControlName="lastval"></p-dropdown>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                        <p-radioButton name="timefilter" formControlName="_timefilter" label="custom" (click)="triggerfilter()" value="Custom"></p-radioButton>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                        <label>Starts At</label>
+                        <div class="p-input-icon-left search-div-css">
+                            <i class="icons8 icons8-calendar"></i>
+                            <input pInputText class="customInput" readonly id="start-date-time"
+                                [owlDateTime]="customStartDateTime" 
+                                [owlDateTimeTrigger]="customStartDateTime"
+                                (dateTimeChange)="onTimeFilterCustomTimeChange('start')" [selectMode]="'rangeFrom'"
+                                [max]="customTimeFrameMax" [formControl]="pageForm.controls['customTime']">
+                            <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                            <p-message *ngIf="invalidDate" severity="error"
+                                text="Start date and End date should not be the same.">
+                            </p-message>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                        <label>Ends At</label>
+                        <div class="p-input-icon-left search-div-css">
+                            <i class="icons8 icons8-calendar"></i>
+                            <input pInputText  class="customInput" readonly id="start-date-time"
+                                [owlDateTime]="customEndDateTime" 
+                                [owlDateTimeTrigger]="customEndDateTime"
+                                (dateTimeChange)="onTimeFilterCustomTimeChange('end')" [selectMode]="'rangeTo'"
+                                [max]="customTimeFrameMax" [formControl]="pageForm.controls['customTime']">
+                            <owl-date-time #customEndDateTime tooltipZIndex="100001005"></owl-date-time>
+                            <p-message *ngIf="invalidDate" severity="error"
+                                text="Start date and End date should not be the same.">
+                            </p-message>
+                        </div>
+                    </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-dropdown [options]="buckets"  defaultLabel="bucket"  formControlName="bucket" class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="bucket" (onChange)="updateBucket($event)"></p-dropdown>
+                         </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect class="w-100-p"  dropdownIcon="icons8 icons8-expand-arrow" [options]="npage"  *ngIf="pageForm.controls['Includepage'].value  != null && pageForm.controls['Includepage'].value.length > 0"  [disabled]=true  defaultLabel='Select Page' formControlName="entryPage"></p-multiSelect>
+                            <p-multiSelect class="w-100-p"  dropdownIcon="icons8 icons8-expand-arrow" [options]="npage"  *ngIf="pageForm.controls['Includepage'].value  == null || pageForm.controls['Includepage'].value  == 'null'  || pageForm.controls['Includepage'].value.length == 0"  [disabled]=false  defaultLabel='Select Page' formControlName="entryPage"></p-multiSelect> 
+                        </div>
+                    
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect [options]="nchannel"  class="w-100-p"
+                            dropdownIcon="icons8 icons8-expand-arrow" defaultLabel='Select Channel' formControlName="channel"
+                            (onChange)='onSelectChannel($event)'></p-multiSelect>
+                        </div>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect class="w-100-p"  dropdownIcon="icons8 icons8-expand-arrow"
+                            [options]="usersegmentoption" defaultLabel='Select User Segment' formControlName="userSegment"></p-multiSelect>
+                        </div>
+                    
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect [options]="nGrouping"  class="w-100-p"
+                            dropdownIcon="icons8 icons8-expand-arrow" defaultLabel='Select Group By' formControlName="groups"
+                            ></p-multiSelect>
+                        </div>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <input type="text" formControlName="metric1" pInputText placeholder="Error Message" class="w-100-p" [style]="{'width':'300px'}">
+                        </div>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <input type="text" formControlName="granular1" pInputText placeholder="File Name" class="w-100-p" [style]="{'width':'300px'}">
+                        </div>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center w-100-p">
+                            <p-selectButton [options]="device"  [multiple]="true" formControlName="device"></p-selectButton>
+                        </div>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect class="w-100-p"  dropdownIcon="icons8 icons8-expand-arrow" [options]="newos"  *ngIf="pageForm.controls['IncludeOS'].value  != null && pageForm.controls['IncludeOS'].value.length > 0"  [disabled]=true  defaultLabel='Select OS' formControlName="platform"></p-multiSelect>
+                            <p-multiSelect class="w-100-p"  dropdownIcon="icons8 icons8-expand-arrow" [options]="newos"  *ngIf="pageForm.controls['IncludeOS'].value  == null || pageForm.controls['IncludeOS'].value  == 'null'  || pageForm.controls['IncludeOS'].value.length == 0"  [disabled]=false  defaultLabel='Select OS' formControlName="platform"></p-multiSelect> 
+                        </div>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect class="w-100-p"  dropdownIcon="icons8 icons8-expand-arrow" [options]="newbs"  *ngIf="pageForm.controls['IncludeBrowser'].value  != null && pageForm.controls['IncludeBrowser'].value.length > 0"  [disabled]=true  defaultLabel='Select Browser' formControlName="browser"></p-multiSelect>
+                            <p-multiSelect class="w-100-p"  dropdownIcon="icons8 icons8-expand-arrow" [options]="newbs"  *ngIf="pageForm.controls['IncludeBrowser'].value  == null || pageForm.controls['IncludeBrowser'].value  == 'null'  || pageForm.controls['IncludeBrowser'].value.length == 0"  [disabled]=false  defaultLabel='Select Browser' formControlName="browser"></p-multiSelect> 
+                        </div>
+
+
+                    </div>  
+                </p-tabPanel>
+                <p-tabPanel header="Advanced">
+                    <div class="second-class">
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <label> Include  </label>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect [options]="nlocation"  defaultLabel='Select Location' formControlName="IncludeLocation" class="w-100-p"></p-multiSelect>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect [options]="npage"    (onChange)="resetInfo()" defaultLabel='Select Page' formControlName="Includepage"  class="w-100-p"></p-multiSelect>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect [options]="newos"   defaultLabel='Select OS' (onChange)="onSelectOS($event)"  formControlName="IncludeOS" class="w-100-p"></p-multiSelect>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect   [options]="newbs"  defaultLabel='Select Browser' (onChange)="onSelectBrowser($event)"  formControlName="IncludeBrowser"  class="w-100-p"></p-multiSelect>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <label> Exclude  </label>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect  [options]="nlocation" defaultLabel='Select Location' formControlName="ExcludeLocation" class="w-100-p"></p-multiSelect>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect [options]="npage"   defaultLabel='Select Page' formControlName="ExcludePage" class="w-100-p" ></p-multiSelect>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect [options]="newos"   defaultLabel='Select OS'  formControlName="ExcludeOS" class="w-100-p"></p-multiSelect>  
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect [options]="newbs"  defaultLabel='Select Browser'  formControlName="ExcludeBrowser" class="w-100-p"></p-multiSelect>
+                        </div>
+                       
+                    </div>
+                </p-tabPanel>
+            </p-tabView>   
+            <div class="action-buttons">
+                <button pButton type="reset" label="Reset" class="ui-outline-button ui-button-secondary px-16 mx-3" (click)="resetForm()"></button>
+                <button pButton type="submit" label="Apply" class="ui-button-rounded px-16 mx-3" ></button>
+            </div>       
+        </div>
+
+    </form>
+    
+    
+</p-sidebar>
+

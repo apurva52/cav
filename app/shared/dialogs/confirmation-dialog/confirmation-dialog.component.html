@@ -1,0 +1,26 @@
+<p-dialog [(visible)]="visible" class="secondary-dialog" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true"  [draggable]="false" [style]="{width: '30vw'}">
+    <p-header>
+        <div class="compare-data-title">
+            <div>
+                Confirmation
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+
+    <div class="dialog-content">
+        <div class="p-col-12">
+            <label> {{!body? 'Are you Sure you want to delete this event ?':body}}</label>
+        </div>
+    </div>
+    <p-footer>
+        <div class="p-col-12 form-buttons">
+            <button *ngIf="ifConfirmationNeeded" pButton type="button" class="btnleft ui-button ui-button-rounded  px-20" label="Yes" (click)="saveDialog()">
+            </button>
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary ui-button-right px-20" label="{{!ifConfirmationNeeded?'Ok':'No'}}" (click)="closeDialog()">
+            </button>
+        </div>
+    </p-footer>
+</p-dialog>

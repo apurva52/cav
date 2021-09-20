@@ -1,0 +1,213 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000" [baseZIndex] ="100"
+    blockScroll="true" appenTo ="body">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <div>
+                <i class="icons8 icons8-star-filled"></i>
+                <span>Feedback Filter</span>
+            </div>
+            <div class="action-icons">
+                <i class="icons8-delete" (click)="hide()"></i>
+            </div>
+        </div>
+    </div> 
+    <!-- <p-toast></p-toast>  -->
+    <p-toast  key ="my key" position="top-left"></p-toast>
+
+    <form [formGroup]="feedbackForm">
+        <!-- form 1 -->
+        <div class="p-5" [hidden]="!showTimeFilter == true">
+            <div class="p-grid p-align-center"> 
+                <div class="p-col-4">
+                    <p-radioButton name="timefilter" label="Last" value="true" formControlName="timeFilter"
+                        (click)="changeRadio('Last')">
+                    </p-radioButton>
+                    
+                </div>
+                <div class="p-col-8">
+                    <p-dropdown [options]="lastTime" formControlName="lastTime"
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+
+                <div class="p-col-12">
+                    <p-radioButton name="timefilter" label="Custom" value="Custom" formControlName="timeFilter"
+                        (click)="changeRadio('Specified')">
+                    </p-radioButton>
+                </div>
+                <div>  
+                    <div class="p-grid p-justify-between p-align-center">
+                    
+                        <label class="p-col-4">Starts At</label>
+                        <div class="p-col-8">
+                
+                            <div class="type-search">
+                                <i class="icons8 icons8-calendar left-icon"></i>
+                                <input pInputText class="w-100-p" readonly id="start-date-time"
+                                    [owlDateTime]="customStartDateTime" placeholder=""
+                                    [owlDateTimeTrigger]="customStartDateTime"
+                                    (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'"
+                                    [max]='maxDate' formControlName="specifiedFrom" 
+                                    [disabled]="feedbackForm.controls['timeFilter'].value == 'true' ? true: null" >
+                                <owl-date-time #customStartDateTime tooltipZIndex="100001005" ></owl-date-time>
+                                <p-message *ngIf="invalidDate" severity="error"
+                                    text="Start date and End date should not be the same.">
+                                </p-message>
+                            </div>
+                        </div> 
+                    
+                    
+                    
+                        <label class="p-col-4">Ends At</label>
+                    
+                        <div class="p-col-8">
+                            <div class="type-search">
+                                <i class="icons8 icons8-calendar left-icon"></i>
+                                <input pInputText class="w-100-p" readonly id="start-date-time"
+                                    [owlDateTime]="customEndDateTime" placeholder=""
+                                    [owlDateTimeTrigger]="customEndDateTime"
+                                    (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeTo'"
+                                    [max]='maxDate' formControlName="specifiedTo"
+                                    [disabled]="feedbackForm.controls['timeFilter'].value == 'true' ? true: null">
+                                <owl-date-time #customEndDateTime tooltipZIndex="100001005"  >
+                                </owl-date-time>
+                                <p-message *ngIf="invalidDate" severity="error"
+                                    text="Start date and End date should not be the same.">
+                                </p-message>
+                            </div>
+                        </div> 
+                        
+                    
+                </div> 
+                </div>
+
+               
+                <div class="p-col-8 p-offset-4 my-5">
+                    <button pButton label="Advance Filter" (click)="showAdvanceFilter = !showAdvanceFilter"
+                        class="ui-button-rounded" icon="pi pi-filter"></button>
+                </div>
+
+
+
+
+            </div>
+
+
+
+
+            <!-- Advance filter -->
+
+            <div [hidden]="!showAdvanceFilter">
+
+                <div class="p-grid p-align-center">
+
+                    <div class="p-col-4">
+                        <p-checkbox formControlName="page" name="feedback" value="pages" label="Page"
+                            (onChange)="changeCheckBox('page')"></p-checkbox>
+                    </div>
+                    <div class="p-col-8">
+                        <p-dropdown placeholder="Please select page" [options]="pages" formControlName="pagecontrol"
+                            dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                        <span style="color: red;display: block"
+                            *ngIf="feedbackForm.controls.pagecontrol.status == 'INVALID'">Please
+                            Select Page Name</span>
+                    </div>
+
+
+                    <div class="p-col-4">
+                        <p-checkbox formControlName="name" name="feedback" value="name" label="Name"
+                            (onChange)="changeCheckBox('name')"></p-checkbox>
+                    </div>
+                    <div class="p-col-8">
+                        <div class="ui-inputgroup">
+                            <input type="text" formControlName="namecontrol" class="w-100-p" pInputText
+                                placeholder="Please Enter Name">
+                        </div>
+                        <span style="color: red;display: block;"
+                            *ngIf="feedbackForm.controls.namecontrol.status == 'INVALID'">
+                            please Enter Name</span>
+                    </div>
+
+
+                    <div class="p-col-4">
+                        <p-checkbox formControlName="email" name="feedback" value="email" label="Email"
+                            (onChange)="changeCheckBox('email')"></p-checkbox>
+                    </div>
+                    <div class="p-col-8">
+                        <div class="ui-inputgroup">
+                            <input type="email" formControlName="emailcontrol" pInputText
+                                placeholder="Please Enter EmailId" class="w-100-p">
+                        </div>
+                        <span style="color: red;display: block" *ngIf="feedbackForm.controls.emailcontrol.untouched && 
+                                feedbackForm.controls.emailcontrol.status == 'INVALID'">Please
+                            Enter your Email Id</span>
+                        <span style="color: red;display: block" *ngIf="feedbackForm.controls.emailcontrol.touched && 
+                                    feedbackForm.controls.emailcontrol.status == 'INVALID'"
+                            class="invalid-feedback">Please
+                            Enter vaild Email Id</span>
+                    </div>
+
+
+                    <div class="p-col-4" style="white-space: nowrap;">
+                        <p-checkbox formControlName="number" name="feedback" value="Phone" label="Phone Number"
+                            (onChange)="changeCheckBox('number')"></p-checkbox>
+                    </div>
+                    <div class="p-col-8">
+                        <div class="ui-inputgroup">
+                            <input name="number" class="w-100-p" formControlName="numbercontrol"
+                                (keypress)="numberOnly($event)" pInputText placeholder="Please Enter phone number">
+                        </div>
+                        <span style="color: red;display: block"
+                            *ngIf="feedbackForm.controls.numbercontrol.status == 'INVALID'">Please
+                            Enter Phone Number</span>
+                    </div>
+
+
+                    <div class="p-col-4">
+                        <p-checkbox formControlName="rating" name="feedback" value="rating" label="Rating"
+                            (onChange)="changeCheckBox('rating')"></p-checkbox>
+                    </div>
+                    <div class="p-col-8">
+                        <p-rating formControlName="ratingcontrol" [cancel]="false" star="5"></p-rating>
+                        <span style="color: red;display: block"
+                            *ngIf="feedbackForm.controls.ratingcontrol.status == 'INVALID'">
+                            Please Select Rating</span>
+                    </div>
+
+
+                    <div class="p-col-4">
+                        <p-checkbox formControlName="comment" name="feedback" value="comments" label="Comments"
+                            (onChange)="changeCheckBox('comment')"></p-checkbox>
+                    </div>
+                    <div class="p-col-8">
+                        <p-dropdown [options]="comments" formControlName="commentcontrol1" [filter]="" filterBy=""
+                            dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+
+
+                    <div class="p-col-8 p-offset-4">
+                        <textarea [rows]="3" class="w-100-p" formControlName="commentcontrol2"
+                            pInputTextarea></textarea>
+                        <span style="color: red;display: block"
+                            *ngIf="feedbackForm.controls.commentcontrol2.status == 'INVALID'">
+                            Please Write Some Comment</span>
+                    </div>
+
+                </div>
+
+
+            </div>
+            <hr>
+            <div class="p-grid p-align-center p-justify-center">
+                <button pButton label="Reset" 
+                    class="ui-outline-button ui-button-secondary px-15 mx-3" (click)="resetForm()"></button>
+                <button pButton label="Apply" class="ui-button-rounded px-15 mx-3"
+                    (click)="onSubmit(feedbackForm)">
+                </button>
+
+            </div>
+
+        </div>
+    </form>
+</p-sidebar>

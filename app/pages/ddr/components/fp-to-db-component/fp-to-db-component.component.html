@@ -1,0 +1,174 @@
+<!-- <p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" /> -->
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+  <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+  </div>
+</div>
+
+<div class="ddr-box">
+  <div class="ddr-toolbar">
+    <div class="p-grid p-justify-between p-align-center ui-table-header">
+      <div>
+        <span>{{filterInfo}}</span>
+      </div>
+      <div>
+
+        <button pButton icon="icons8 icons8-database" *ngIf="enableMsSql" class="btn-icon mx-3"   (click)="openMssqlPopUp()"
+        pTooltip="Open MS Sql Report"></button>
+        <button pButton icon="icons8 icons8-doc" *ngIf="showDownloadOption" class="btn-icon mx-3"  (click)='downloadReport("word")'
+        pTooltip="Download Word Report"></button>
+        <button pButton icon="icons8 icons8-spreadsheet-file" *ngIf="showDownloadOption" class="btn-icon mx-3"  (click)='downloadReport("excel")'
+        pTooltip="Download Excel Report"></button>
+        <button pButton icon="icons8 icons8-pdf-2" *ngIf="showDownloadOption" class="btn-icon mx-3"  (click)='downloadReport("pdf")'
+        pTooltip="Download PDF Report"></button>
+      </div>
+    </div>
+  </div>
+  <div class="ddruiscroll" [ngStyle]="{'height': 'calc(71vh - 40px)'}" style="overflow:auto;">
+    <p-accordion class="ddr-accordion" [multiple]="true">
+      <p-accordionTab header="DB Stats" [selected]="true">
+        <div class="ui-g">
+          <div class="ui-g-4">
+            <div *ngIf="showChart;else showMsg">
+              <highcharts-chart [Highcharts]="highcharts" style="width: 100%; display: block; overflow: hidden;" [options]="options" (click)="clickHandler($event)">
+              </highcharts-chart>
+            </div>
+            <ng-template #showMsg>{{pieChartMessage}}</ng-template>
+          </div>
+
+          <div class="ui-g-8" style="padding-left:90px;">
+           
+              <div class="p-grid p-align-center p-justify-end py-5">
+                <!-- <i class="fa fa-search" style="margin:0 0 0 0;"></i>
+                <input #gb type="text" pInputText size="50" style="width:30% !important;" placeholder="Search" icon="fa-search"> -->
+                <!-- <div class="dbQueries-search-box">
+                  <input #searchInput type="text" [value]="" class="w-100-p" pInputText size="50" placeholder="Search" *ngIf="isShowSearch" (input)="fptodb.filterGlobal($event.target.value, 'contains')" class="search-box" />
+                  <button pButton icon="icons8 icons8-search" (click)="isShowSearch = !isShowSearch" class="icon-button no-shadow"></button>
+              </div> -->
+                <span style="text-align: right">
+                  <button pButton icon="icons8 icons8-search" class="btn-icon mr-2"></button>
+                  <input type="text" pInputText placeholder="Global Filter"
+                    (input)="fptodb.filterGlobal($event.target.value, 'contains')">
+                </span>
+
+            <p-multiSelect title="Show/Hide columns" [options]="columnOptions" class="icon-button no-shadow" appendTo="body"
+            (onChange)="showHideColumn($event)" [(ngModel)]="visibleCols" dropdownIcon="icons8 icons8-columns" [panelStyle]="{ minWidth: '200px' }"></p-multiSelect>
+                
+               
+                <!-- <img src="./images/showall.png"  *ngIf="showAllOption" height="21px" width="21px" title="Show all data" style="float:right;cursor:pointer;" (click)="showAllData();"> -->
+                <button pButton icon="icons8 icons8-synchronize" *ngIf="showAllOption" class="btn-icon mx-3"  (click)="showAllData()"
+                pTooltip="Show all data"></button>
+                 
+              </div>
+           
+
+            <div>
+             
+              <p-table #fptodb [resizableColumns]="true" [reorderableColumns]="true" class="scen-table all-tables"
+                [value]="queryInfo" [(selection)]="selectedRowInfo" (onRowSelect)=getRowInfo($event) sortField="avg"
+                [sortOrder]="-1" selectionMode="single" resizableColumns="true" [scrollable]="true" scrollHeight="250px"
+                (sortFunction)="sortColumnsOnCustom($event)" [customSort]="true" [globalFilterFields]="visibleCols">
+                <ng-template pTemplate="colgroup" let-columns>
+                  <colgroup>
+                    <ng-container *ngFor="let col of cols">
+                      <col *ngIf="col.action" [style]="{'width': col.width+'px'}">
+                    </ng-container>
+                  </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header">
+                  <tr>
+                    <ng-container *ngFor="let col of cols">
+                      <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action" [pSortableColumn]="col.field" pResizableColumn pReorderableColumn>
+                        <span>{{col.header}}
+                          <p-sortIcon *ngIf="col.action" [field]="col.field" ariaLabel="Activate to sort"
+                            ariaLabelDesc="Activate to sort in descending order"
+                            ariaLabelAsc="Activate to sort in ascending order">
+                          </p-sortIcon>
+                        </span>
+                      </th>
+                    </ng-container>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-node>
+                  <tr>
+                    <ng-container *ngFor="let col of cols">
+                      <td *ngIf="col.action">
+                        <!-- <span *ngIf="col.field === 'sqlquery'" style="cursor:pointer;white-space:nowrap" (click)="showRowInfo(node)" pTooltip="View Query">{{node[col.field]}}</span> -->
+                        <span *ngIf="col.field === 'sqlquery'">
+                          <span style="cursor:pointer;white-space:nowrap"><a class="activeLink" (click)="showRowInfo(node)" pTooltip="View Query">{{node[col.field]}}</a></span>
+                        </span>
+                        <span *ngIf="col.field == 'sqlbegintimestamp' || col.field == 'sqlendtimestamp'">
+                          <span>{{(node[col.field])}}</span>
+                        </span>
+                        <span class="right" *ngIf="col.field == 'count' || col.field == 'failedcount' || col.field == 'mincumsqlexectime' || col.field == 'maxcumsqlexectime' || col.field == 'avg' || col.field == 'cumsqlexectime' || col.field == 'sqlindex'">
+                          <span>{{(node[col.field])}}</span>
+                        </span>
+                      </td>
+                    </ng-container>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage" let-columns>
+                  <tr>
+                      <td [attr.colspan]="cols.length + 1" class="text-center">
+                          <span *ngIf="empty">No Records Found</span>
+                      </td>
+                  </tr>
+              </ng-template>
+              </p-table>
+              
+
+
+              <!-- <p-dataTable  class="scen-table" [value]="queryInfo" [(selection)]="selectedRowInfo" (onRowSelect)= getRowInfo($event) sortField="avg" [sortOrder]="-1" selectionMode="single" resizableColumns="true" [globalFilter]="gb" [style]="{'height':'auto','max-height':'315px','oveflow-x':'hidden'}"
+               [scrollable]="true" scrollHeight="260px">
+                <div *ngFor="let col of cols">
+                  <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable" (sortFunction)= "sortColumnsOnCustom($event, queryInfo)" [style]="{'text-align':col.align,'width':col.width +'px','white-space':'normal'}">
+                    <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'sqlquery')">
+                      <span style="cursor:pointer;color:blue;white-space:nowrap" title="View Query" (click)="showRowInfo(node)">{{node[col.field]}}</span>
+                    </ng-template> 
+                  </p-column>
+                </div>
+              </p-dataTable> -->
+            </div>
+            <div *ngIf="!showAllOption"> {{offset+1}} - {{offset+limit}} of {{totalCount}} </div>
+            <div *ngIf="showAllOption"> 1 - 1 of 1</div>
+            <div *ngIf="showPagination">
+              <p-paginator rows="50" [totalRecords]="totalCount" [rowsPerPageOptions]="[50,100,200,400]"
+                pageLinkSize="3" (onPageChange)="paginate($event)"></p-paginator>
+            </div>
+          </div>
+        </div>
+      </p-accordionTab>
+      <p-dialog class="secondary-dialog foterDialog" [style]="{width: '50vw'}"  height="150" header='Host name of Backend' [(visible)]='display'>
+        <div style="margin-top :27px">
+          <label>Enter Index Number of host :
+            <input style="margin-left :15px" type='text' (keypress)="onlyNumberKey($event)" [(ngModel)]='hostIndex'
+              size='8' placeholder="2">
+          </label>
+          <button style="margin-left :25px" (click)="getMssqlData()">Apply </button>
+        </div>
+      </p-dialog>
+      <p-accordionTab header="Query" [selected]="true">
+        <div>
+          <textarea pInputTextarea rows="5" style="width:100%;resize:none;" readonly>{{fullQueryName}}</textarea>
+        </div>
+      </p-accordionTab>
+    </p-accordion>
+  </div>
+</div>
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'
+  [responsive]="true" height="120">
+  <p-header>
+    <i class="icons8 icons8-info" style="color:red"></i>
+    <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+  </p-header>
+  <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+  <p-footer>
+    <div class="p-grid p-justify-end sevbtn">
+
+      <button pButton type="button" label="Cancel" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" class="ui-button-rounded ui-button-secondary"></button>
+      <button pButton type="button" label="Wait" (click)="waitQuery();" class="ui-button-rounded"></button>
+    </div>
+  </p-footer>
+
+</p-dialog>

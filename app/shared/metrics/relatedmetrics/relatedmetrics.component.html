@@ -1,0 +1,272 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000" [resizable]="true" [modal]="true"
+    class="secondary-dialog" [draggable]="false" [style]="{width: '75vw'}">
+    <p-header>
+        <div class="compare-data-title">
+            <div>
+                Open Related Metrics
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-help clickable" (click)="helpMetrics.open()"></i>
+                <i class="icons8 icons8-delete clickable" (click)="hide()"></i>
+            </div>
+        </div>
+    </p-header>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+    <div class="content-body">
+        <p-accordion [multiple]="true" activeIndex="0,1">
+
+            <p-accordionTab header="Operations">
+                        <div *ngFor="let data of hierarchyobj; let i = index;">
+                            <div class="p-grid p-align-center">
+                                <div class="width-110">{{data.metadata}}</div>
+                                <div class="p-col-2">
+                                    <p-dropdown class="dropdown-css widt100 inputSelect" styleClass="widt100"
+                                        [options]="data.vectorList" [(ngModel)]="treeVectorSelectArr[i]"
+                                        (onChange)="OnHierarchyChange($event,i,data.metadata)"
+                                        placeholder="Select {{data.metadata}}" dropdownIcon="icons8-expand-arrow">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-col-2"
+                                *ngIf="(treeVectorSelectArr[i] != 'All' && treeVectorSelectArr[i] == 'Pattern')">
+                                <input class="widt100 inputbox" title={{treeSameVectComponent[i]}} type="text"
+                                    [(ngModel)]="treeSameVectComponent[i]" pInputText />
+                            </div>
+                            </div>
+                        </div>
+
+
+            </p-accordionTab>
+            <p-accordionTab header="Filters in Metrics">
+                <div class="p-grid p-align-center height-50">
+                    <div class="mr-20">
+                        <p-radioButton name="Metric" value="graph" [(ngModel)]="graphInformation"
+                            (click)="rightRadioClick()" label="Metric Group"></p-radioButton>
+                    </div>
+                    <div class="mr-20">
+                        <p-radioButton name="Metric" value="catalogue" [(ngModel)]="graphInformation"
+                            (click)="rightRadioClick()" label="Metric from Catalogue"></p-radioButton>
+                        </div>
+                        <div *ngIf="graphInformation == 'catalogue'">
+                            <p-dropdown [style]="{'width':'200px'}" dropdownIcon="icons8-expand-arrow"
+                                [options]="catalogueList" [(ngModel)]="selectedCatalogue" (onChange)="selecteCatalogue(selectedCatalogue)" 
+                                placeholder="--Select a Catalogue--" optionLabel="label"> 
+                            </p-dropdown>
+                        </div>
+                    
+                </div>
+
+                <div class="new-graph" *ngIf="(graphInformation == 'graph')">
+                    <div class="p-grid p-align-center p-nogutter">
+                        <div class="width-100">Metric Group</div>
+                        <div class="p-col-3">
+                            <p-dropdown dropdownIcon="icons8-expand-arrow" [(ngModel)]="selectedGroupName"
+                                [options]="groupList" (onChange)="getGraphsOnGroupSelection()"
+                                placeholder="--Select a Group--" optionLabel="label">
+                            </p-dropdown>
+                        </div>
+                        <div class="width-100 mr-10 ml-30 text-right">Metric Name</div>
+                        <div class="p-col-3">
+                            <p-multiSelect dropdownIcon="icons8-expand-arrow" [options]="graphList"
+                                [(ngModel)]="selectedGraphs" styleClass="widt100" placeholder="Choose"
+                                optionLabel="label">
+                            </p-multiSelect>
+                        </div>
+                    </div>
+
+                    <div class="mt-20">
+                        <div class="p-grid p-align-center p-nogutter">
+                            <div class="p-col-2">Select Indices</div> 
+
+                            <div class="p-col-1">
+                                <p-radioButton class="labels" [(ngModel)]=specifiedGraph name="Indices" value="All"
+                                    label="All">
+                                </p-radioButton>
+                            </div>
+
+                            <div class="p-col-9 p-align-center p-grid">
+                                <p-radioButton class="labels" name="Indices" [(ngModel)]=specifiedGraph
+                                    value="Specified" label="Specified" (click)="openDerivedIndecesWindow(dmIndices)">
+                                </p-radioButton>
+
+                                <input type="text" title={{dataFromSpecifed}} [(ngModel)]="dataFromSpecifed" pInputText class="input-field-border-none inputbox mx-15" />
+
+                                <button type="button" pButton class="ui-button-rounded"
+                                    (click)="addSelectedGraphInTable()" label="Add">
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="">
+                    <p-card class="my-card">
+                        <p-table #relatedMetrics [resizableColumns]="true" [columns]="metricData.headers" [value]="tabledata" 
+                            [paginator]="false" [responsive]="true" [scrollable]="true">
+
+                            <ng-template pTemplate="caption">
+                                <div class="icons-containe p-grid p-justify-end">
+                                    <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow"
+                                        (click)="deleteAllRowData()"  pTooltip="DeleteAll"></button>
+                                    <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow"
+                                        (click)="toggleFilters()"  pTooltip="Column Filter">
+                                    </button>
+
+                                    <!-- <button pButton icon="icons8 icons8-installing-updates"
+                                        class="icon-button no-shadow" (click)="menu.toggle($event);"
+                                        pTooltip="Download">
+                                    </button> -->
+                                    <!-- <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                                        appendTo="body" [baseZIndex]="100001"></p-menu> -->
+                                </div>
+                            </ng-template>
+
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup *ngFor="let headerRow of columns">
+                                    <col *ngFor="let col of headerRow.cols" [style.width]="col.width">
+                                </colgroup>
+                            </ng-template>
+                            <ng-template pTemplate="header" let-columns>
+                                <tr *ngFor="let headerRow of columns">
+                                    <th *ngFor="let col of headerRow.cols" [attr.colspan]="col.colspan"
+                                        [attr.rowspan]="col.rowspan" [pSortableColumn]="col.valueField"
+                                        pResizableColumn>
+                                        <div class="float-left">
+                                            {{ col.label }}
+                                        </div>
+
+                                        <div *ngIf="col.isSort" class="right">
+                                            <p-sortIcon *ngIf="col.isSort" field="col.isSort" class="text-right"
+                                                ariaLabel="Activate to sort"
+                                                ariaLabelDesc="Activate to sort in descending order"
+                                                ariaLabelAsc="Activate to sort in ascending order">
+                                            </p-sortIcon>
+                                        </div>
+                                    </th>
+                                </tr>
+
+                                <tr *ngFor="let headerRow of columns">
+                                    <ng-container *ngIf="isEnabledColumnFilter">
+                                        <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                            <div *ngIf= "col.label !='Action' && col.filter.isFilter === true && col.filter.type === 'custom'">
+                                                <input class="w-100-p"
+                                                    pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                    *ngSwitchCase="col.label" pInputText type="text"
+                                                    (input)="relatedMetrics.filter($event.target.value,col.valueField,'custom')" />
+                                            </div>
+                                            <div *ngIf=" col.label !='Action'&& col.filter.isFilter === true && col.filter.type === 'contains'">
+                                                <input class="w-100-p"
+                                                    pTooltip="Will filter metric names which contains given text."
+                                                    *ngSwitchCase="col.label" pInputText type="text"
+                                                    (input)="relatedMetrics.filter($event.target.value,col.valueField,'contains')" />
+                                            </div>
+                                        </th>
+                                    </ng-container>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="body" let-row let-columns="columns">
+                                <tr *ngFor="let headerRow of columns" class="pointer">
+                                    <td *ngFor="let col of headerRow.cols; let i = index">
+                                        <i class="columnwidth" *ngIf="col.iconField && row.icon"
+                                            [ngClass]="row.icon" (click)= "deleteRowData(row)"></i> {{ row[col.valueField] }}
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </p-card>
+                </div>
+            </p-accordionTab>
+
+            <p-accordionTab header="Advanced Settings">
+                <div class="p-grid p-align-center mb-10">
+                    <div class="mh-5">Show Metric Data</div>
+                    <p-dropdown class="mh-5" [options]="filterby" [(ngModel)]="By"
+                    dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'100px'}"></p-dropdown> 
+                    
+                    <div class="mh-5">for</div> 
+                    <p-dropdown class="mh-5" [options]="advancevalue" [(ngModel)]="showSelectedOperationType"
+                    dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'100px'}"></p-dropdown>
+
+                    <div class="p-grid p-align-center" *ngIf="showSelectedOperationType === 'advanced_Op'">
+                    <div class="mh-5">value</div>
+                    <p-dropdown class="mh-5" dropdownIcon="icons8-expand-arrow" [options]="operaters"
+                    [(ngModel)]="Value" [virtualScroll]="true" [itemSize]="31" [filter]="false"
+                    [style]="{'min-width':'100px'}"></p-dropdown>
+                    
+                    <span class="mh-5">
+                    <input pInputText [(ngModel)]="Val1" appOnlyNumber="true" type="text" style="width: 60px;" />
+                    </span>
+
+                    <div class="p-grid p-align-center mh-5" *ngIf="Value==='In-Between'">
+                        <span class="mh-5">And</span>
+                        <span class="mh-5">
+                        <input pInputText appOnlyNumber="true" [(ngModel)]="Val1" type="text" style="width: 60px;">
+                        </span>
+                    </div>
+                </div>
+                <p-dropdown class="mx5em" [options]="criteria" [(ngModel)]="selectedcriteria"
+                                dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'100px'}"></p-dropdown>
+                                   <p-dropdown class="mx5em" [options]="values" [(ngModel)]="valueType"
+                                        dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'100px'}"></p-dropdown>
+                </div>
+
+        <div class="mt-20">
+                <div class="p-grid my-grid p-align-center">
+                    <div class="width-245">
+                        <p-checkbox name="groupname" [binary]="true"
+                        [(ngModel)]="autoSuggestColors" label="Apply operation based metric color" inputId="binary">
+                    </p-checkbox>
+                    </div>
+
+                    <div class="mh-5">For Matching </div>
+                     <p-dropdown class="mh-5" [options]="matchValues" [(ngModel)]="patternMatch"
+                       dropdownIcon="icons8-expand-arrow" [style]="{'min-width':'100px'}"></p-dropdown>
+
+                    <div class="mh-5">
+                        <p-checkbox name="groupname" [binary]="true"
+                        [(ngModel)]="openWithNewLayout" label="Open with New Layout(s)"
+                        inputId="binary"></p-checkbox>
+                    </div>
+
+                    <div class="mh-5">
+                        <p-dropdown [(ngModel)]="layoutType" [options]="openWith"
+                            dropdownIcon="icons8-expand-arrow" [virtualScroll]="true" [itemSize]="15"
+                            [filter]="false" [style]="{'min-width':'100px'}">
+                        </p-dropdown>
+                    </div>
+
+                    
+                </div>
+                </div>
+        </p-accordionTab>
+    
+        </p-accordion>
+    </div>
+    <p-footer>
+        <div class="p-col-12 p-grid p-align-center p-justify-between footer-buttons">
+            <span>  
+            <button pButton type="button" label="Close" class="ui-outline-button ui-button-secondary"
+                (click)="hide()"></button>
+            </span>  
+
+            <span>
+            <button pButton type="submit" label="Open" class="ui-button-rounded mh-10" pButton
+                (click)="openRelatedMembers()"></button>
+                <button pButton type="button" label="Save In Catalogue" class="ui-button-rounded" pButton
+                (click)="SaveCatalogue(saveCatalogue)"></button>
+            </span>    
+        </div>
+    </p-footer>
+    <div id="centerpoint">
+        <p-confirmDialog styleClass="centerpointAd" key="openRelatedMetric" header="Error" acceptLabel="Ok" rejectLabel="Cancel"  [(visible)]="dialogVisible"></p-confirmDialog>
+        </div>
+</p-dialog>
+<app-helprelatedmetrics #helpMetrics></app-helprelatedmetrics>
+<app-derived-metric-indices #dmIndices [relatedmetricsComponent]=this></app-derived-metric-indices>
+<!-- <app-confirmation-dialog  #catalouge [relatedmetricsComponent]=this ></app-confirmation-dialog> -->
+<app-save-catalogue #saveCatalogue [relatedmetricsComponent]=this></app-save-catalogue>

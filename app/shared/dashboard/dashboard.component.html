@@ -1,0 +1,144 @@
+<div class="p-grid vertical-container" *ngIf="error">
+  <div class="p-col p-col-align-center text-center">
+    <div>
+      <p-message severity="error" text="Error while loading dashboard."></p-message>
+    </div>
+  </div>
+</div>
+
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+  <div class="p-col p-col-align-center text-center">
+    <div><i class="pi pi-spin pi-spinner"></i> <span>{{layout?.mode == "EDIT" ? 'Loading Canvas Mode' : 'Loading'}}</span></div>
+  </div>
+</div>
+
+  <div class="loading-indicator" *ngIf="loading && data">
+      <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4"  animationDuration=".5s"></p-progressSpinner>
+    <!-- <span style="color:black">Saving Dashboard</span>   -->
+    </div>
+
+<ng-template #layoutContainer></ng-template>
+
+<!-- Advance Open Merge -->
+<app-advance-open-merge #advanceOpenMerge></app-advance-open-merge>
+
+<!-- Show Graph In Tree -->
+<!-- <app-show-graph-in-tree #showGraphInTree [dashboard]="this"></app-show-graph-in-tree> -->
+
+<!-- Layout Manager  -->
+<app-sidebar-layout-manager #layoutManager [dashboard]="this"></app-sidebar-layout-manager>
+
+<!-- Widget Setting Form  -->
+<app-widget-setting #widgetSettings></app-widget-setting>
+
+<!-- Graph Data -->
+<app-graph-data #graphData></app-graph-data>
+
+<!-- Pattern Matching -->
+<app-pattern-matching #patternMatching></app-pattern-matching>
+
+<!-- Custom Metrices -->
+<app-add-custom-metrices #addCustomMetrices></app-add-custom-metrices>
+
+<!-- Time Period -->
+<!-- <app-time-bar #timePeriod></app-time-bar> -->
+
+<!-- Reports -->
+<app-reports #reports></app-reports>
+
+<!-- dashboard fav list -->
+<app-dashboard-fav-list #dashboardFavList [dashboard]="this"></app-dashboard-fav-list>
+
+<!-- Add Derived Metric -->
+<app-derived-metric #derivedMetric [dashboardComponent]="this"></app-derived-metric>
+
+<app-derived-view-exp #derivedViewExp [dashboardComponent]="this"></app-derived-view-exp>
+
+<!-- Custom Metrics -->
+<!-- <app-custom-metrics #customMetrics [dashboard]="this"></app-custom-metrics> -->
+
+<!-- Metrics Settings-->
+<app-metrics-settings #metricSettings></app-metrics-settings>
+
+<!-- Aggregated custom metrices -->
+<app-aggregated-virtual-metrices #aggregatedDerivedMetric></app-aggregated-virtual-metrices>
+
+<!-- grouped derived metrices -->
+<app-grouped-derived-metrices #groupedDerivedMetrices></app-grouped-derived-metrices>
+
+
+<!-- Widget Wise Time Period -->
+<app-time-period #WidgetWiseTimePeriod></app-time-period>
+<!-- Metrics description -->
+<app-metric-description #metricDesc></app-metric-description>
+
+<!-- Open Related Metrics -->
+<app-relatedmetrics #relatedMetrics></app-relatedmetrics>
+
+<!-- Monitor Dialog -->
+<app-monitor-dialog #monitorDialog></app-monitor-dialog>
+
+<!-- Open Filter By Favorite -->
+<app-filter-parameter-box #filterByParam > </app-filter-parameter-box>
+
+<!-- Open Copy Link  -->
+<!-- <app-copy-favorite-link-box #copyLink [dashboard]="getTime()"></app-copy-favorite-link-box> -->
+<app-copy-favorite-link-box #copyLink [dashboard]="this"></app-copy-favorite-link-box>
+
+<!-- Open Filter by Param -->
+<app-parameters #parameters [dashboard]="this"></app-parameters>
+
+<!-- Compare Data -->
+<app-compare-data #compareData></app-compare-data>
+
+<!-- File Manager  -->
+<app-file-manager #fileManager></app-file-manager>
+
+<!-- Edit Widget -->
+<!-- <app-edit-widget #editWidget></app-edit-widget> -->
+
+<app-add-dashboard #addDashboard [dashboard]="this"></app-add-dashboard>
+
+<!-- Filter By Favorite -->
+<app-filter-by-favorite #filterByFavorite [dashboard]="this"></app-filter-by-favorite>
+
+<!-- Custom Template -->
+<app-custom-template-dialog #customTemplate [dashboard]="this"></app-custom-template-dialog>
+
+<div class="confirm-dialog" >
+
+  <p-confirmDialog class="secondary-dialog" #cd [style]="{width: '500px'}" [baseZIndex]="100000000011">
+   
+    <p-footer *ngIf="isOldDashboard">
+      <div class="p-grid p-justify-end sevbtn">
+        <button type="button" class="ui-button ui-button-rounded ui-button-secondary mx-6 px-15" pButton 
+        label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+        <button type="button" class="ui-button ui-button-rounded ui-button-right px-15" pButton label={{acceptLable}}
+        (click)="cd.accept()"></button>
+      </div>
+
+      <div class="p-grid p-align-center w-100-p py-5 p-justify-between">
+        <div class="notes">
+          <i class="icons8 icons8-info mr-3 mt-2"></i>
+          <span>
+          <b>Note: </b>This dashboard is migrated to the new format and now available with in the 'dashboards' folder.
+        </span>
+        </div>
+      </div>
+    </p-footer>
+
+    <p-footer *ngIf="!isOldDashboard">
+  <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton icon="pi pi-check" label={{acceptLable}}
+  (click)="cd.accept()"></button>
+  <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton icon="pi pi-times"
+  label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+    </p-footer>
+  </p-confirmDialog>
+
+</div>
+
+<!-- Open Get File Data Dialog -->
+
+<app-get-file-data #getFileData></app-get-file-data>
+<app-catalogue-management [dashboard]="this"></app-catalogue-management>
+<app-run-command #getRunCommand></app-run-command>

@@ -1,0 +1,325 @@
+<p-blockUI [blocked]="blockuiForAuditLog">
+  <div class="loader-container spinner" *ngIf="loading">
+    <i class="pi pi-spin pi-spinner"></i> 
+  </div>
+</p-blockUI>
+<div class="h-100-vh audit-logs-container">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <div class="p-grid p-align-center">
+        <a routerLink="/home/dashboard">
+          <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">AUDIT LOGS</div>
+      </div>
+      <div class="p-grid p-align-center p-justify-end">
+          <div #activeSession class="user-panel">
+            <!-- <button pButton type="button" class="ui-button-secondary" label="Active Sessions [{{activeSessions}}]" (click)="sessionMenu.toggle($event)">
+              <i class="icons8 icons8-clock"></i>
+              <i class="icons8 icons8-filled-circle signal-icon"></i>
+              <i class="icons8-expand-arrow"></i>
+          </button> -->
+            <button pButton type="button" class="ui-button-secondary" pTooltip="Active Sessions" tooltipPosition="top" label="Active Sessions [{{activeSessions}}]"
+              (click)="sessionMenu.toggle($event)">
+              <i class="icons8 icons8-clock"></i>
+              <i class="icons8 icons8-filled-circle signal-icon"></i>
+              <i class="icons8-expand-arrow"></i>
+            </button>
+            <!-- <button label="Active Sessions" icon="icons8 icons8-cursor" styleClass="ui-button-secondary" (click)="sessionMenu.toggle($event)">
+                      <div class="badge">{{session.length}}</div>
+                  </button> -->
+            <p-overlayPanel class="session-panel" #sessionMenu [showTransitionOptions]="'0ms'"
+              [hideTransitionOptions]="'0ms'" [dismissable]="true">
+              <div class="overlay-menu events">
+                <div class="overlay-menu-header">
+                  <span style="font-size: 13px; color:black;"> Session Started By </span>
+                  <span style="font-size: 13px;  color:black;" class="right"> Session Started At </span>
+                </div>
+                <div class="overlay-menu-body">
+                  <div class="loader-container spinner small" *ngIf="loading">
+                    <i class="pi pi-spin pi-spinner"></i>
+                  </div>
+                  <div class="empty-container" *ngIf="empty">
+                    No data.
+                  </div>
+                  <div class="session">
+                    <div *ngFor="let sessionGroup of session;" class="event-group">
+                      <div class="event-group-title">
+                        <span pTooltip="{{sessionGroup.label}}">{{sessionGroup.label | ellipsis: 23 }}</span>
+                        <span class="date" pTooltip="{{sessionGroup.time}}">{{sessionGroup.time}}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </p-overlayPanel>
+          </div>
+          <div #activeUsers class="user-panel">
+            <button pButton type="button" class="ui-button-secondary" pTooltip="Active Users" tooltipPosition="top" label="Active Users [{{activeUsersNo}}]"
+              (click)="userMenu.toggle($event)">
+              <i class="icons8 icons8-user"></i>
+              <i class="icons8 icons8-filled-circle signal-icon"></i>
+              <i class="icons8-expand-arrow"></i>
+            </button>
+            <!-- <button label="Active Users" icon="icons8 icons8-user" styleClass="ui-button-secondary" (click)="userMenu.toggle($event)" >
+                      <div class="badge">{{session.length}}</div>
+                  </button> -->
+            <p-overlayPanel #userMenu [showTransitionOptions]="'0ms'" class="session-overlay"
+              [hideTransitionOptions]="'0ms'" [dismissable]="true">
+              <div class="overlay-menu events">
+                <div class="overlay-menu-header">
+                  <span style="font-size: 13px;  color:black;"> User Name </span>
+                  <span style="font-size: 13px;  color:black;" class="right"> Last Login Time </span>
+                </div>
+                <div class="overlay-menu-body">
+                  <div class="loader-container spinner small" *ngIf="loading">
+                    <i class="pi pi-spin pi-spinner"></i>
+                  </div>
+                  <div class="empty-container" *ngIf="empty">
+                    No data.
+                  </div>
+                  <div class="session">
+                    <div *ngFor="let usersGroup of users;" class="event-group">
+                      <div class="event-group-title">
+                        <span class="icon"><i class={{usersGroup.icon}}></i></span>
+                        <span pTooltip="{{usersGroup.label}}">{{usersGroup.label | ellipsis: 28}}</span>
+                        <span class="date" pTooltip="{{usersGroup.time}}">{{usersGroup.time}}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </p-overlayPanel>
+          </div>
+        </div>
+        
+      </div>
+  </p-toolbar>
+  <div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+  </div>
+  <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data || !data && selectedColumns.length === 0">
+    <div class="p-col p-col-align-center text-center">
+      <div class="loading">
+        <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+      </div>
+    </div>
+  </div>
+  <div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="error" text="{{error.msg}}"></p-message>
+    </div>
+  </div>
+  <div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="normal" text="No Data"></p-message>
+    </div>
+  </div>
+  <ng-container>
+    <div #widgetHeight class="mh-10" *ngIf="data"
+      [ngStyle]="{'height': data.tableFilter ? 'calc(100vh - 200px)' : 'calc(100vh - 155px)'}">
+
+      <div class="action-container">
+        <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+          <div class="p-col-5 p-grid">
+            <span *ngIf="data && data.extraLogsInfo" style="font-size: 13px;"> <b> Showing Logs from {{startDate}} to {{endDate}} </b> </span>
+            <!-- <span style="font-size: 13px;"> <b> Showing Logs Of {{selectedPresetLabel}} </b> -->
+              <!-- <input type="text" pInputText placeholder="Preset" style="width: 50%;" [ngModel] = "selectedPresetLabel" class="input-field-search" disabled = "true"/> -->
+            <!-- </span> --> 
+          </div>
+
+          <div class="p-grid p-col-2">
+            <!-- <div class="filter-icon-css">
+                  <i class="icons8 icons8-filter left filter-icon" (click)="openFilter()"></i>
+              </div> -->
+            <div class="p-input-icon-left search-div-css">
+              <i class="icons8 icons8-search"></i>
+              <!-- <input type="text" pInputText #searchInput placeholder="Search" class="input-field-search"
+                (input)="auditLog.filterGlobal($event.target.value, 'contains')"/> -->
+                <input type="text" pInputText #searchInput placeholder="Search" class="input-field-search" [value]="dd2" [(ngModel)]="dd2" (input)="searchGlobally(dd2)" />
+            </div>
+          </div>
+          <div class="p-col-3 p-grid p-justify-space-around p-align-center">
+            <!-- <span class="labels">All User</span>
+              <p-dropdown [options]="allUser" [(ngModel)]="allSelectedUser" optionLabel="label"> </p-dropdown>
+              <span class="labels">Applications</span>
+              <p-dropdown [options]="allUser" [(ngModel)]="allSelectedUser" optionLabel="label"></p-dropdown> -->
+            <span class="labels"> <b> Group By </b></span>
+            <p-dropdown [options]="groupBy" [(ngModel)]="selectedGroupBy" (onChange)="onChangeGroupBy();"
+              optionLabel="label"></p-dropdown>
+          </div>
+
+          <div class="p-col-2 icons-container p-justify-end p-align-center">
+            <i style="width: auto;" pButton class="icons8 icons8-synchronize icon-button no-shadow"
+              (click)="refreshData()" pTooltip="Refresh"></i>
+            <i style="width: auto;" pButton class="icons8 icons8-installing-updates icon-button no-shadow"
+              (click)="downloadMenu.toggle($event);" pTooltip="Download"></i>
+            <p-menu #downloadMenu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+              [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" appendTo="body"></p-menu>
+            <i pButton *ngIf="data && data.tableFilter" class="icons8 icons8-search-property icon-button no-shadow"
+              pTooltip="Toggle Filter" [tooltipZIndex]="100000" (click)="isShowColumnFilter = !isShowColumnFilter"></i>
+            <p-multiSelect style="width: auto;" class="icon-button no-shadow " [options]="cols"
+              [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false"
+              dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+            </p-multiSelect>
+            <div class="filter-icon-css">
+              <i class="icons8 icons8-filter left filter-icon" pTooltip="Advanced Filters" (click)="openFilter()"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+              Loading
+          </div> -->
+      <div class="audit-logs-table">
+        <p-card>
+          <p-table #auditLog [columns]="selectedColumns" [value]="data.data" [rowHover]="true" [paginator]="showPaginator"
+            [totalRecords]="rowGroupMetadata.length" [rows]="data.paginator.rows"
+            [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [(first)]="data.paginator.first" [showCurrentPageReport]="true"
+            [resizableColumns]="true" [scrollable]="true" (onPage)="onPageChange($event)"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} logs" [responsive]="true"
+            [globalFilterFields]="globalFilterFields" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 100px)"
+            selectionMode="single" rowExpandMode="multiple" sortField="groupData.name" sortOrder="-1" sortMode="single"
+            dataKey="groupData.name" (onSort)="onSort()" tableStyleClass="table-main" [pageLinks]="2" [expandedRowKeys]="expandedRows">
+
+
+
+            <ng-template pTemplate="colgroup" let-columns>
+              <colgroup>
+                <col *ngFor="let col of columns" [style.width]="col.width">
+              </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <!-- <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" pResizableColumn
+                  [pSortableColumn]="col.valueField" [pSortableColumnDisabled]="col.valueField === 'no'" class="text-left" title={{col.label}}>
+                  <div class="left">
+                    {{ col.label }}
+                  </div>
+                  <div *ngIf="col.isSort" class="float-right">
+                    <p-sortIcon *ngIf="col.isSort && col.valueField != 'no'" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort"
+                      ariaLabelDesc="Activate to sort in descending order"
+                      ariaLabelAsc="Activate to sort in ascending order">
+                    </p-sortIcon>
+                  </div>
+
+                </th> -->
+                <th *ngFor="let col of columns" [pSortableColumn]="col.valueField" title="{{col.label}}">
+                  {{col.label}}
+                  <p-sortIcon *ngIf="col.isSort && col.valueField != 'no'" [field]="col.valueField" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                  </th>
+              </tr>
+              <tr *ngFor="let headerRow of data.headers">
+                <ng-container *ngIf="isShowColumnFilter">
+                  <th *ngIf="isCheckbox" class="columnwidth"></th>
+                  <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                    <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'custom'
+                      ">
+                      <input class="w-100-p"
+                        pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                          auditLog.filter(
+                              $event.target.value,
+                              col.value,
+                              'custom'
+                          )
+                          " />
+                    </div>
+                    <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'contains'
+                      ">
+                      <input class="w-100-p" pTooltip="Will filter data which contains given text."
+                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                          auditLog.filter(
+                              $event.target.value,
+                              col.valueField,
+                              'contains'
+                          )
+                          " />
+                    </div>
+                  </th>
+                </ng-container>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex" let-expanded="expanded">
+              <tr [ngStyle]="{'backgroundColor': row.rowBgColor}" [pRowToggler]="row" [pSelectableRow]="row"
+                *ngIf="rowGroupMetadata[row.groupData.name] && rowGroupMetadata[row.groupData.name].index === rowIndex">
+                <!-- <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}" pTooltip={{row[col.valueField]}}> -->
+                <!-- <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon" class="column-icon"></i>
+                                  {{ row[col.valueField] | ellipsis: 28}}  -->
+                <!-- <span >{{row.groupData.name}}</span>
+                                  <a href="#" [pRowToggler]="row" *ngIf="i === columns.length - 1 && row === selectedRow"   class="row-action-btn-next">
+                                      <i [ngClass]="expanded ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-forward'"  style="vertical-align: middle;padding-bottom: .1em;"></i>
+
+                                  </a>-->
+                <!-- </td> -->
+                <!-- <td colspan="10"> -->
+                <td [attr.colspan]="columns.length + 0">
+                  <!-- <span class="p-text-bold">{{row.groupData.name}}</span> -->
+                  <a href="#" [pRowToggler]="row" class="row-action-btn-next1">
+                    <i [pRowToggler]="row" [ngClass]="expanded ? 'pi pi-fw pi-chevron-circle-down' : 'pi pi-fw pi-chevron-circle-right'"
+                      style="vertical-align: middle;padding-bottom: .1em;"></i>
+                    <span [pRowToggler]="row" class="p-text-bold" title="{{row.groupData.name}}">{{row.groupData.name}}</span>
+                  </a>
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="rowexpansion" let-row let-columns="columns" let-rowIndex="rowIndex">
+              <tr>
+                <td *ngFor="let col of columns" class="{{ col.classes }}">
+                  <div style="text-align :left;"
+                    *ngIf="(col.label != 'Rs Time(ms)') && (col.label != 'S No.') && (col.label != 'IP Address')">
+                    <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon" class="column-icon"></i>
+                    <span *ngIf="col.valueField === 'no'" title="{{rowIndex+1}}">{{ rowIndex + 1 }}</span>
+                    <span *ngIf="col.valueField == 'sessionID'" title={{row[col.valueField]}}>{{ row[col.valueField] | ellipsis: 33}}</span>  
+                    <span *ngIf="col.valueField == 'description'" title={{row[col.valueField]}}>{{ row[col.valueField] | ellipsis: 44}}</span>  
+                    <span *ngIf="col.valueField !== 'no' && col.valueField !== 'sessionID' && col.valueField !== 'description'" title={{row[col.valueField]}}>{{ row[col.valueField] | ellipsis: 6}}</span>
+                    <span *ngIf="col.label === 'Description'"></span>
+                  </div>
+                  <div style="text-align :right;"
+                    *ngIf="col.label == 'Rs Time(ms)' || (col.label == 'S No.') || (col.label == 'IP Address')">
+                    <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon" class="column-icon"></i>
+                    <span *ngIf="col.valueField === 'no'" title="{{rowIndex+1}}">{{ rowIndex + 1 }}</span>
+                    <span *ngIf="col.valueField == 'sessionID'" title={{row[col.valueField]}}>{{ row[col.valueField] | ellipsis: 33}}</span>  
+                    <span *ngIf="col.valueField == 'description'" title={{row[col.valueField]}}>{{ row[col.valueField] | ellipsis: 44}}</span>  
+                    <span *ngIf="col.valueField !== 'no' && col.valueField !== 'sessionID' && col.valueField !== 'description'" title={{row[col.valueField]}}>{{ row[col.valueField] | ellipsis: 20}}</span>
+                    <span *ngIf="col.label === 'Description'"></span>
+                  </div>
+                </td>
+              </tr>
+
+            </ng-template>
+            <!-----------Empty table error handling--------------------->
+            <ng-template pTemplate="emptymessage" let-columns>
+              <tr>
+                <td colspan="10" class="text-center">
+                  <b>
+                    <span *ngIf="error">Error while loading data</span>
+                    <span *ngIf="emptyTable">Empty Table</span>
+                    <!-- <span class="empty-table-message" *ngIf="selectedColumns.length === 0">Loading</span> -->
+                    <span *ngIf="data.data && data.data.length == 0">{{errorMessage}}</span>
+                    <!-- <span *ngIf="data.data && data.data.length > 0 && !empty && !loading && !error && searchInput.value.length"></span> -->
+                      <span *ngIf="flagForFilter == true">
+                      No records found.
+                      </span>
+                  </b>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      </div>
+
+    </div>
+  </ng-container>
+</div>
+
+<app-audit-log-filters *ngIf="data" #auditLogFilter [auditLogsData]="this"></app-audit-log-filters>

@@ -1,0 +1,163 @@
+<div class="page-table-container">
+    <p-dialog [(visible)]="visible" [resizable]="true"  [modal]="true" class="secondary-dialog" [draggable]="false" [closable]="false" [style]="{ width: '95vw' }">
+        <p-header>
+            <div class="selected-indices-title">
+                <div>
+                    Alert Action History
+                </div>
+                <div class="action-buttons">
+                    <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+                </div>
+            </div>
+        </p-header>
+        <div class="dialog-content">
+          <div class="p-grid p-col-12 ">
+                <div class="ui-fluid p-col-3 left">
+                  <div class="p-field p-grid">
+                    <label for="firstname" class="p-md-3">Preset</label>
+                    <div class="p-md-8">
+                      <p-dropdown [options]="presets" style="margin-left: -20px;" [(ngModel)]="selectedPreset" placeholder="select time" class="customInput"
+                        dropdownIcon="icons8 icons8-expand-arrow" (onChange)="onPresetChange()"></p-dropdown>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="selectedPreset == 'custom'" class="p-field p-grid">
+                
+                  <label for="start-date-time" class="p-col-12 p-md-3">From:</label>
+                  <div class="p-input-icon-left search-div-css p-col-12 p-md-8">
+                    <span class="p-input-icon-left">
+                       <!--               <i class="icons8 icons8-calendar"></i>
+                                           --> <input pInputText class="customInput p-inputtext" readonly id="start-date-time"
+                        [owlDateTime]="customStartDateTime" [owlDateTimeTrigger]="customStartDateTime" placeholder="Start Date Time"
+                        (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'" [(ngModel)]="customTimeFrame" />
+                    </span>
+                    <owl-date-time #customStartDateTime></owl-date-time>
+                  </div>
+                </div>
+                
+                <div *ngIf="selectedPreset == 'custom'" class="p-field p-grid ml-5">
+                
+                  <label for="end-date-time" class="p-col-12 p-md-2">To:</label>
+                  <div class="p-input-icon-left search-div-css  p-col-12 p-md-8">
+                    <span class="p-input-icon-left">
+                      <!--- <i class="icons8 icons8-calendar"></i> -->
+                      <input pInputText class="customInput p-inputtext" readonly id="end-date-time" [owlDateTime]="customEndDateTime"
+                        [owlDateTimeTrigger]="customEndDateTime" placeholder="End Date Time"
+                        (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeTo'" [(ngModel)]="customTimeFrame" />
+                    </span>
+                    <owl-date-time #customEndDateTime></owl-date-time>
+                  </div>
+                </div>
+                <div class="slide text-right mt-6">
+                  <!-- <button pButton type="button" label="Cancel" pTooltip="Cancel" class="ui-button-rounded ui-button-secondary"
+                    (click)="closeDialog()"></button> -->
+                  <button pButton label="APPLY" pTooltip="Apply" class="ui-button ui-button-rounded ui-button-right" (click)="onApply(false)"></button>
+                </div>
+          </div>
+          <div *ngIf="data" class="action-container">
+              <div class=" Align p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p" >
+                  <div class="global-search-block">
+                    <div class="p-input-icon-left search-div-css">
+                      <i class="icons8 icons8-search"></i>
+                      <input #searchInput pInputText type="text" class="input-field-search"  placeholder="Search" [(ngModel)]="globalFilterVla" (input)="filter($event.target.value,'-1', 'contains')"/>
+                    </div>
+                  </div>
+                  <div class="icons-container p-justify-between p-align-center">
+<!--                     <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow" pTooltip="Delete" (click)="deleteHistoryAction()"></button>
+ -->                    <p-menu #menu [popup]="true" styleClass="widget-menu" tooltipZIndex="1000010056" baseZIndex="10000" appendTo="body" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                    <p-multiSelect class="icon-button no-shadow " tooltipZIndex="1000010056" baseZIndex="10000" [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false" (onChange)="onChangeToggleColumn($event)" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns" appendTo="body" [panelStyle]="{ minWidth: '200px' }">
+                    </p-multiSelect>
+                    <i pButton class="icons8 icons8-search-property icon-button no-shadow column-filter" (click)="toggleFilters()" pTooltip="{{filterTitle}}"></i>
+                    <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                  </div>
+              </div>
+              <ng-container>
+                <div #widgetHeight [ngStyle]="{height: isEnabledColumnFilter ? 'calc(100vh - 235px)' : 'calc(100vh - 245px)'}">
+                  <p-card class="content-body">
+                    <p-table #events [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true"
+                      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true"
+                      [totalRecords]="totalRecords" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                      [rows]="data.paginator.rows" [scrollable]="true" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 85px)"
+                      [globalFilterFields]="globalFilterFields" [responsive]="true" selectionMode="single" editMode="row"
+                      [resizableColumns]="true" [(selection)]="selectedHistoryActionData" class="all-tables">
+                      <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                          <col *ngFor="let col of columns" [style.width]="col.width">
+                        </colgroup>
+                      </ng-template>
+                      <ng-template pTemplate="header" let-columns>
+                        <tr>
+                          <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField" [style.width]="col.width">
+                            <div *ngIf="col.valueField == 'selected'">
+                              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </div>
+                            <div class="text-left" *ngIf="col.valueField != 'selected' && col.valueField != 'enableDisable'">
+                              {{ col.label }}
+                              <p-sortIcon *ngIf="col.sort" [field]="col.valueField" class="right" ariaLabel="Activate to sort"
+                                ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                              </p-sortIcon>
+                            </div>
+                          </th>
+                        </tr>
+                        <tr *ngFor="let headerRow of data.headers">
+                          <ng-container *ngIf="isEnabledColumnFilter">
+                            <th *ngFor="let col of columns " [ngSwitch]="col.label">
+                              <div *ngIf="col.filters.filter === true && col.filters.type === 'custom'">
+                                <input class="w-100-p" tooltipPosition="bottom" pTooltip="Enter number to search" *ngSwitchCase="col.label" pInputText
+                                  type="text" (input)="filter($event.target.value,col.label,'custom')" />
+                              </div>
+                              <div *ngIf="col.filters.filter === true && col.filters.type === 'contains'">
+                                <input class="w-100-p" tooltipPosition="bottom" pTooltip="Enter text to search" *ngSwitchCase="col.label" pInputText type="text"
+                                  (input)="filter($event.target.value,col.label,'contains')" />
+                              </div>
+                            </th>
+                          </ng-container>
+                        </tr>
+                      </ng-template>
+                      <ng-template pTemplate="body" let-row let-columns="columns">
+                        <tr>
+                          <td *ngFor="let col of columns" class="{{ col.classes }}" [style.width]="col.width">
+                            <div *ngIf="col.valueField == 'selected'">
+                              <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                            </div>
+                            <div *ngIf="col.valueField == 'severity'" class="severity-condition-badge"
+                              [ngStyle]="{'border': '2px solid', 'border-color': row[col.valueField] | colorCrossSeverity: 'sevborder' }"
+                              pTooltip="{{ row[col.valueField] | colorCrossSeverity: 'sevname'}}">
+                              {{ row[col.valueField] | colorCrossSeverity: 'sevname'}}
+                            </div>
+                            <div *ngIf="col.valueField == 'ruleName'">
+                              <span pTooltip="{{row[col.valueField]}}">{{row[col.valueField]}}</span>
+                            </div>
+                            <div *ngIf="col.valueField == 'actionTime'">
+                              <span pTooltip="{{row[col.valueField] | formatDateTime: 'default' }}">{{row[col.valueField] | formatDateTime: 'default' }}</span>
+                            </div>
+                            <div *ngIf="col.valueField == 'type'">
+                              <span pTooltip="{{row[col.valueField]}}" >{{row[col.valueField]}}</span>
+                            </div>
+                            <div *ngIf="col.valueField == 'msg'">
+                              <span pTooltip="{{row[col.valueField]}}">{{row[col.valueField]}}</span>
+                            </div>
+                          </td>
+                        </tr>
+                      </ng-template>
+                      <!-----------Empty table error handling--------------------->
+                      <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                          <td [attr.colspan]="columns.length + 1" class="text-center">
+                            <span *ngIf="error">Error while loading data</span>
+                            <span *ngIf="emptyTable && !loading && !error">No records found</span>
+                            <span *ngIf="loading">Loading</span>
+                            <span *ngIf="!emptyTable && !loading && !error "> No records found </span>    <!--"{{searchInput.value}}" -->
+                          </td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+                
+                  </p-card>
+                </div>  
+              </ng-container>
+          </div>            
+        </div>
+    </p-dialog>
+</div>
+<app-confirmation-dialog #appConfirmationDialog (command)="executeCommand($event)"></app-confirmation-dialog>

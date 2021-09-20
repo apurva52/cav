@@ -1,0 +1,134 @@
+<div class="h-100-vh events-container" #widget>
+
+    <p-toast key="nv-events-config"></p-toast>
+    <div class="action-container">
+        <div class="p-grid px-10 py-5 p-justify-between p-align-center action-grid w-100-p">
+            <div class="w-25-p">
+                <div class="type-search">
+                    <i class="icons8 icons8-search btn-icon left-icon"></i>
+                    <input pInputText type="text" #searchInput class="pl-20 w-100-p"
+                        (input)="events.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                </div>
+            </div>
+            <div class="icons-container p-justify-between p-align-center">
+                <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow"
+                    (click)="toggleFilters()" pTooltip="Column Filter"></button>
+                <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                    [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" appendTo="body"></p-menu>
+                <button pButton *ngIf="buttonflag" type="button" class="ui-button ui-button-secondary ui-button-rounded"
+                    label="ADD NEW" (click)="eventsCrud.showDialog(null, false)"></button>
+            </div>
+
+        </div>
+    </div>
+
+    <div #widgetHeight [ngStyle]="{
+        height: isEnabledColumnFilter
+          ? 'calc(100vh - 215px)'
+          : 'calc(100vh - 172px)'
+      }">
+
+        <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+            Select column to show
+        </div>
+        <div class="content-body px-10">
+
+            <p-table #events [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true"
+                [totalRecords]="totalRecords" class="all-tables"
+                [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [rows]="data.paginator.rows"
+                [scrollable]="true" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 120px)"
+                [globalFilterFields]="globalFilterFields" [responsive]="true" selectionMode="single" editMode="row"
+                [resizableColumns]="true" (onRowSelect)="onRowSelectEditTable($event)">
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col *ngFor="let col of columns" [style.width]="col.width">
+                    </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                            <div class="text-left">
+                                {{ col.label }}
+                                 <span *ngIf="col.label =='Goal'" style="padding:2px;vertical-align: middle;">
+                                    <i class="pi pi-info-circle" aria-hidden="true" title="Minimum iteration of an event in the session required to mark that session as struggling"></i>
+                                 </span>
+                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                    ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                    ariaLabelAsc="Activate to sort in ascending order">
+                                </p-sortIcon>
+                            </div>
+                        </th>
+                        <th [style]="{ width: '5%' }" *ngIf="buttonflag"></th>
+                    </tr>
+                    <tr *ngFor="let headerRow of data.headers">
+                        <ng-container *ngIf="isEnabledColumnFilter">
+
+                            <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                <div *ngIf="col.filter.isFilter === true && col.filter.type === 'custom'">
+                                    <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label"
+                                        pInputText type="text" (input)="
+                                        events.filter($event.target.value,col.valueField,'custom')" />
+                                </div>
+                                <div *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+                                    <input class="w-100-p" pTooltip="Enter text to search" *ngSwitchCase="col.label"
+                                        pInputText type="text"
+                                        (input)="events.filter($event.target.value,col.valueField,'contains' )" />
+                                </div>
+                            </th>
+                        </ng-container>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns">
+                    <tr [pSelectableRow]="row">
+                        <td *ngFor="let col of columns" class="{{ col.classes }}">
+                            <!-- <span *ngIf="!col.iconField">
+                                     {{ row[col.valueField] }} 
+                                </span> [src]='srcpath'-->
+                            <span *ngIf='col.valueField == "icons"'>
+                                <img src="{{ srcpath}}{{row.icons}}" title="{{ row.icons }}" style="width: 16px;" />
+                            </span>
+                            <span title={{col.name}} *ngIf='col.valueField == "name"'>{{row.name}}</span>
+                            <span title={{col.eventDescription}}
+                                *ngIf='col.valueField == "eventDescription"'>{{row.eventDescription}}</span>
+                            <span title={{col.goal}} *ngIf='col.valueField == "goal"'>{{row.goal}}</span>
+                            <span *ngIf='col.valueField == "strugglingEvent"'>
+                                <span *ngIf="row.strugglingEvent == '1'" class="pi pi-check" style="color :green;"
+                                    title="StrugglingEvent"></span>
+                                <span *ngIf="row.strugglingEvent == '0'" class="pi pi-times" style="color:red;"
+                                    title="Non-StrugglingEvent"></span>
+                            </span>
+                            <span *ngIf="col.iconField && row[col.valueField]">
+                                <i [ngClass]="row[col.valueField]" class="icon-color"></i>
+                            </span>
+                        </td>
+                        <td [style]="{ width: '5%' }" *ngIf="buttonflag">
+                            <div class="p-grid p-justify-center">
+                                <i class="icons8 icons8-edit-2 edit-icon" (click)="eventsCrud.showDialog(row,true)"
+                                    pTooltip="Edit"></i>
+                                <i class="icons8 icons8-delete-trash" (click)="DeleteEvent(row)" pTooltip="Delete"></i>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage" let-columns>
+                    <tr>
+                        <td [attr.colspan]="columns.length + 1" class="text-center">
+                            <span *ngIf="error">Error while loading data</span>
+                            <span *ngIf="emptyTable">Empty Table</span>
+                            <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i>Loading</span>
+                            <span *ngIf="!empty && !loading && !error && searchInput.value.length">Nothing found
+                                matching"{{searchInput.value}}"</span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+        </div>
+    </div>
+</div>
+
+<app-events-crud #eventsCrud (popupData)=Applyedite($event) (adddata)=AppLyeadd($event)></app-events-crud>
+<app-delete-entry #deleteEntry></app-delete-entry>
+<p-confirmDialog appendTo="body" header="Confirmation" icon="las-question-circle" width="425"
+maskStyleClass="ui-dialog-mask ui-widget-overlay ui-dialog-visible ui-dialog-mask-scrollblocker"></p-confirmDialog>

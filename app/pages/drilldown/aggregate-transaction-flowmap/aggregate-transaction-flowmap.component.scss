@@ -1,0 +1,282 @@
+app-aggregate-transaction-flowmap {
+  .bread-crum {
+    color: #1d5290;
+    padding-left: 25px;
+  }
+  .aggregate-transaction-group {
+    .no-padding {
+      padding: 0;
+    }
+    .loader-container {
+      .pi-spinner.pi {
+        font-size: 24px;
+        vertical-align: middle;
+        margin-right: 10px;
+      }
+      span {
+        font-size: 24px;
+        vertical-align: middle;
+      }
+    }
+    //.icons-group{margin-right: 15px;float: right;}
+    .aggregate-transaction-flowmap-table {
+      background: #fff;
+      border: 1px solid #cecece;
+      height: 90vh;
+    }
+    .startTime {
+      float: right;
+    }
+    .businessTran {
+      margin: 2px 5px;
+    }
+    .box-stretched,
+    body {
+      height: 90vh;
+      font-size: 16px;
+      border: 1px solid #cecece;
+      background: #fff;
+
+      .img-svg {
+        padding: 7%;
+      }
+      .ui-orderlist-list {
+        height: 26em;
+      }
+      .list span {
+        font-size: 12px;
+      }
+      .ui-orderlist .ui-orderlist-caption {
+        color: #393737;
+        box-shadow: none;
+        text-align: left;
+      }
+    }
+    .diagram-body {
+      height: calc(100% - 60px);
+      overflow: auto;
+
+      jsplumb-surface {
+        height: 100%;
+      }
+
+      .jtk-surface {
+        height: 100%;
+        background-color: #ffffff;
+      }
+
+      .jtk-overlay {
+        background-color: white;
+        padding: 7px;
+      }
+      .edge-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 2px solid #e6e6e6;
+        padding: 3px 10px;
+        width: max-content;
+        border-radius: 20px;
+        .edge-index {
+          border: none;
+          border-radius: 50%;
+          display: flex;
+          height: 33px;
+          width: 33px;
+          align-items: center;
+          position: absolute;
+          left: 0px;
+          top: 0px;
+          justify-content: center;
+          background-color: #e6e6e6;
+        }
+        .edge-name {
+          padding-left: 30px;
+        }
+      }
+
+      .connectingConnectorLabel {
+        height: 23px;
+        width: 110px;
+        border-radius: 13px;
+        color: #1d5290;
+        text-align: center;
+        z-index: 1 !important;
+        left: 50% !important;
+        background-color: #1d5290;
+      }
+      .parent-cluster {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 50px;
+        height: 50px;
+        background-color: #e3d627;
+        border-radius: 50%;
+        color: #1d5290;
+      }
+      .child-node {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 2px solid #e6e6e6;
+        padding: 3px 10px;
+        width: max-content;
+        border-radius: 20px;
+        .node-index {
+          border: none;
+          border-radius: 50%;
+          display: flex;
+          height: 32px;
+          width: 32px;
+          align-items: center;
+          position: absolute;
+          left: 1px;
+          top: 2px;
+          justify-content: center;
+          background-color: #e6e6e6;
+        }
+        .node-name {
+          padding-left: 30px;
+        }
+      }
+      .child-indices {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid #1d5290;
+        padding: 0 10px 0 0;
+        //width: 200px;
+        width: max-content;
+        border-radius: 30px;
+        .node-name {
+          padding: 0 10px;
+        }
+        .menuicon {
+          font-size: 10px;
+          margin-left: 10px;
+        }
+        .indices-index {
+          circle {
+            stroke-width: 4;
+            stroke-opacity: 1;
+            fill: none;
+          }
+          circle.stroke-normal {
+            stroke: #707070;
+            stroke-width: 0.3em;
+          }
+          circle.stroke-major {
+            stroke: #f6b4b4;
+            stroke-width: 0.3em;
+          }
+          circle.stroke-critical {
+            stroke: #f04943;
+            stroke-width: 0.3em;
+          }
+          circle.icon-circle {
+            stroke: #1d5290;
+            stroke-width: 0.15em;
+            fill: #fff;
+          }
+        }
+      }
+
+      .mini-view {
+        opacity: 0.3;
+        background-color: #fff;
+        .jtk-miniview {
+          position: absolute;
+          bottom: 30px;
+          left: 28%;
+          z-index: 103;
+          width: 235px;
+          border: 1px solid #ccc;
+          border-radius: 0;
+        }
+
+        .zoom-levels {
+          position: absolute;
+          left: 20%;
+          bottom: 3%;
+          div {
+            border: 1px solid;
+            padding: 6px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            color: #57b771;
+            margin: 8px;
+            cursor: pointer;
+            font-weight: 600;
+
+            &.selected {
+              background-color: #53b771;
+              color: #fff;
+            }
+          }
+        }
+        .zoom-range {
+          width: 19em;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: absolute;
+          bottom: 10px;
+          left: 28%;
+          .ui-slider {
+            background-color: #c8c8c800;
+            border: 1px solid;
+            .ui-slider-range {
+              background-color: black;
+            }
+            .ui-slider-handle {
+              border: 1px solid #707070;
+              cursor: pointer;
+            }
+            &:not(.ui-state-disabled) .ui-slider-handle:hover {
+              background-color: #fff;
+              border: 1px solid #707070;
+            }
+          }
+        }
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+  .solarPref {
+    .float-right {
+      float: right;
+    }
+    .no-padding {
+      padding: 0;
+    }
+    header {
+      background: #f7f7ff;
+      line-height: 30px;
+      border-bottom: 1px solid #cecece;
+      font-weight: bold;
+      padding: 0 15px;
+      .icons8 {
+        line-height: 30px;
+      }
+    }
+    .ui-overlaypanel .ui-overlaypanel-content {
+      padding: 0;
+      width: 14vw;
+      box-shadow: 0px 14px 25px #00000033;
+      border-radius: 10px;
+    }
+    .info {
+      padding: 5px 10px;
+      i {
+        font-size: 15px;
+      }
+      .title {
+        margin-left: 10px;
+      }
+    }
+  }
+}

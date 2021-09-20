@@ -1,0 +1,1032 @@
+<div class="h-100-vh add-test-case-container">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <div class="p-col-8">
+            <div class="p-grid p-align-center">
+                <a routerLink="/test-case">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">Test Case</div>
+            </div>
+        </div>
+        <div class="p-col-4 text-right">
+            <button pButton type="button" class="ui-button ui-button-rounded" label="SAVE CONFIGURATION"></button>
+            <button pButton type="button" class="ui-button ui-button-rounded" label="APPLY"></button>
+        </div>
+    </div>
+  </p-toolbar>
+  <div class="vertical-container"> 
+      <div class="p-grid p-col-12">
+          <div class="p-col-3">
+            <div class="p-grid p-align-center">
+                <label  class="p-col-12 p-md-3 ">Project</label>
+                <div class="p-col-12 p-md-7">
+                    <p-dropdown [options]="options" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+          </div>
+          <div class="p-col-3">
+            <div class="p-grid p-align-center">
+                <label  class="p-col-12 p-md-3">Sub Project</label>
+                <div class="p-col-12 p-md-7">
+                    <p-dropdown [options]="options" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+          </div>
+          <div class="p-col-3">
+            <div class="p-grid p-align-center">
+                <label  class="p-col-12 p-md-4">Test Case Name</label>
+                <div class="p-col-12 p-md-8">
+                    <input  type="text" pInputText> 
+                </div>
+            </div>
+          </div>
+          <div class="p-col-3">
+            <div class="p-grid p-align-center">
+                <label  class="p-col-12 p-md-3">Description</label>
+                <div class="p-col-12 p-md-9">
+                    <input  type="text" class="w-100-p" pInputText> 
+                </div>
+            </div>
+          </div>
+      </div>
+      <div class="p-grid p-col-12 panel-card">
+        <p-panel #pnl1 class="w-100-p" expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl1.toggle($event)">
+                        <a>
+                            <span [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span>
+                        </a>
+                        Scenario
+                    </div>                   
+                </div>
+            </p-header>
+            <div class="content p-grid p-col-12">
+                <div class="p-grid p-col-12">
+                    <div class="p-col-6">
+                      <div class="p-grid p-align-center">
+                          <label  class="p-col-12 p-md-2">Select Scenario</label>
+                          <div class="p-col-12 p-md-4">
+                              <p-dropdown [options]="options" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                          </div>
+                      </div>
+                    </div>
+                  
+                    <div class="p-col-6 p-grid p-align-center p-justify-end">
+                        <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary ml-10" label="EDIT IN SCENARIO GUI"></button>
+                        <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary" label="EDIT SCRIPT"></button>
+                    </div>
+                </div>
+                <div class="p-col-12">
+                    <textarea [rows]="5" class="w-100-p" pInputTextarea autoResize="autoResize" [(ngModel)]="value" disabled="true"></textarea>
+                </div>
+            </div>
+        </p-panel>
+        <p-panel #pnl2 class="w-100-p" expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl2.toggle($event)">
+                        <a>
+                            <span [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span>
+                        </a>
+                        Check Profile
+                    </div>                   
+                </div>
+            </p-header>
+            <div class="content p-grid p-col-12">
+                <div class="p-grid vertical-container" *ngIf="error">
+                    <div class="p-col p-col-align-center text-center">
+                      <p-message severity="error" text="{{ error.msg }}"></p-message>
+                    </div>
+              </div>
+              <div class="p-grid vertical-container" *ngIf="empty">
+                    <div class="p-col p-col-align-center text-center">
+                      <p-message severity="normal" text="No Data"></p-message>
+                    </div>
+              </div>
+                
+              <div *ngIf="data">
+                    <div class="action-container">
+                      <div
+                        class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p"
+                      >             
+                        <div class="p-grid p-col-3">
+                          <div class="p-input-icon-left search-div-css">
+                            <i class="icons8 icons8-search"></i>
+                            <input
+                              #searchInputTemplate
+                              type="text"
+                              pInputText
+                              placeholder="Search"
+                              (input)="checkProfileTable.filterGlobal($event.target.value, 'contains')"
+                              class="input-field-search"
+                            />
+                          </div>
+                        </div>
+                        <div
+                          class="p-col-6 icons-container p-justify-between p-align-center ip-alert-group"
+                        >
+                          <button
+                            pButton
+                            type="button"
+                            class="ui-button-secondary ui-button-rounded"
+                            label="ADD IN TABLE"
+                          ></button>
+                          <button
+                          pButton
+                          type="button"
+                          class="ui-button-secondary ui-button-rounded"
+                          label="ADD PROFILE"                                       
+                        ></button>
+                          <button
+                            pButton
+                            icon="icons8 icons8-delete-trash"
+                            class="icon-button no-shadow"
+                            pTooltip="Delete"
+                          ></button>
+                          <button
+                            pButton
+                            icon="icons8 icons8-installing-updates"
+                            class="icon-button no-shadow"
+                            (click)="downloadMenu.toggle($event)"
+                            pTooltip="Download"
+                          ></button>
+                          <p-menu
+                            #downloadMenu
+                            [popup]="true"
+                            styleClass="widget-menu"
+                            [model]="downloadOptions"
+                            [showTransitionOptions]="'0ms'"
+                            [hideTransitionOptions]="'0ms'"
+                          ></p-menu>
+                          <button
+                            *ngIf="data.tableFilter"
+                            pButton
+                            icon="icons8 icons8-search-property"
+                            class="icon-button no-shadow"
+                            pTooltip="Toggle Filter"
+                            [tooltipZIndex]="100000"
+                            (click)="isShowColumnFilter = !isShowColumnFilter"
+                          ></button>
+                          <p-multiSelect
+                            class="icon-button no-shadow mr-10"
+                            [options]="cols"
+                            [(ngModel)]="selectedColumns"
+                            optionLabel="label"
+                            [displaySelectedLabel]="false"
+                            dropdownIcon="icons8 icons8-columns"
+                            pTooltip="Toggle Columns"
+                            [panelStyle]="{ minWidth: '200px' }"
+                          >
+                          </p-multiSelect>
+                        
+                        </div>
+                      </div>
+                    </div>
+                    <ng-container>                       
+                        <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                          Select column to show
+                        </div>
+                        <div class="check-profile-table">
+                          <p-card>
+                            <p-table
+                              #checkProfileTable
+                              [columns]="selectedColumns"
+                              [value]="data.checkProfileTable.data"
+                              [paginator]="true"
+                              [totalRecords]="data.checkProfileTable.data.length"
+                              [rows]="data.checkProfileTable.paginator.rows"
+                              [rowsPerPageOptions]="data.checkProfileTable.paginator.rowsPerPageOptions"
+                              [resizableColumns]="true"
+                              [showCurrentPageReport]="true"
+                              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                              [responsive]="true"
+                              [scrollable]="true"
+                              [globalFilterFields]="globalFilterFields"
+                              scrollHeight="350px" 
+                              selectionMode="multiple"
+                              class="all-tables"
+                            >
+                              <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                  <col *ngFor="let col of columns" [style.width]="col.width" />
+                                </colgroup>
+                              </ng-template>
+                              <ng-template pTemplate="header" let-columns>
+                                <tr>                                    
+                                  <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                                    {{ col.label }}
+                                    <p-sortIcon [field]="col.valueField"></p-sortIcon>
+                                </th>                                 
+                                  <!-- <th
+                                    *ngFor="let col of columns"
+                                    [attr.coldiv]="col.coldiv"
+                                    [attr.rowdiv]="col.rowdiv"
+                                    pResizableColumn
+                                    [pSortableColumn]="col.valueField"
+                                    class="text-left"
+                                  >
+                                    <div class="left">
+                                      {{ col.label }}
+                                    </div>
+                                    <div *ngIf="col.isSort" class="float-right">
+                                      <p-sortIcon
+                                        *ngIf="col.isSort"
+                                        [field]="col.valueField"
+                                        class="text-right"
+                                        ariaLabel="Activate to sort"
+                                        ariaLabelDesc="Activate to sort in descending order"
+                                        ariaLabelAsc="Activate to sort in ascending order"
+                                      >
+                                      </p-sortIcon>
+                                    </div>
+                                  </th> -->
+                               
+                                </tr>
+                                <tr *ngFor="let headerRow of data.headers">
+                                  <ng-container *ngIf="isShowColumnFilter">
+                                   
+                                    <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                      <div
+                                        *ngIf="
+                                          col.filter.isFilter === true &&
+                                          col.filter.type === 'custom'
+                                        "
+                                      >
+                                        <input
+                                          class="w-100-p"
+                                          pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                          *ngSwitchCase="col.label"
+                                          pInputText
+                                          type="text"
+                                          (input)="
+                                          checkProfileTable.filter(
+                                              $event.target.value,
+                                              col.value,
+                                              'custom'
+                                            )
+                                          "
+                                        />
+                                      </div>
+                                      <div
+                                        *ngIf="
+                                          col.filter.isFilter === true &&
+                                          col.filter.type === 'contains'
+                                        "
+                                      >
+                                        <input
+                                          class="w-100-p"
+                                          pTooltip="Will filter metric names which contains given text."
+                                          *ngSwitchCase="col.label"
+                                          pInputText
+                                          type="text"
+                                          (input)="
+                                          checkProfileTable.filter(
+                                              $event.target.value,
+                                              col.valueField,
+                                              'contains'
+                                            )
+                                          "
+                                        />
+                                      </div>
+                                    </th>
+                                    
+                                  </ng-container>
+                                </tr>
+                              </ng-template>
+                              <ng-template
+                                pTemplate="body"
+                                let-row
+                                let-columns="columns"
+                                let-rowIndex="rowIndex"
+                              >
+                                <tr [ngStyle]="{ backgroundColor: row.rowBgColor }">
+                                  
+                                  <td
+                                    *ngFor="let col of columns"
+                                    class="{{ col.classes }}"
+                                    pTooltip="{{ row[col.valueField] }}"
+                                  >
+                                    <i
+                                      *ngIf="col.iconField && row.icon"
+                                      [ngClass]="row.icon"
+                                      class="column-icon"
+                                    ></i>
+                                    {{ row[col.valueField] | ellipsis: 35 }}
+                                  </td>                                 
+                                </tr>
+                              </ng-template>
+                
+                              <!-----------Empty table error handling--------------------->
+                              <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                  <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                    <span *ngIf="error">Error while loading data</span>
+                                    <span *ngIf="emptyTable">Empty Table</span>
+                                    <span *ngIf="loading">Loading</span>
+                                    <span
+                                      *ngIf="
+                                        !emptyTable &&
+                                        !loading &&
+                                        !error &&
+                                        searchInputTemplate.value.length
+                                      "
+                                      >Nothing found matching "{{
+                                        searchInputTemplate.value
+                                      }}"</span
+                                    >
+                                  </td>
+                                </tr>
+                              </ng-template>
+                            </p-table>
+                          </p-card>
+                        </div>
+                    
+                    </ng-container>
+              </div> 
+            </div>
+        </p-panel>
+        <p-panel #pnl3 class="w-100-p" expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl3.toggle($event)">
+                        <a>
+                            <span [class]="pnl3.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span>
+                        </a>
+                        Check Script
+                    </div>                   
+                </div>
+            </p-header>
+            <div class="content p-grid p-col-12">              
+                <p-panel #pnl31 class="w-100-p" expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                    <p-header class="cav-panel-header pt-5">
+                        <div class="cav-panel-content p-grid p-align-center">
+                            <div class="panel-title" (click)="pnl31.toggle($event)">
+                                <a>
+                                    <span [class]="pnl31.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span>
+                                </a>
+                                Compare Test Run
+                            </div>                   
+                        </div>
+                    </p-header>
+                    <div class="content p-grid p-col-12">
+                       <div class="p-grid p-col-12 ">
+                           <div class="p-grid p-col-1 p-align-center">
+                            <p-checkbox name="baseline" value="baseline1" label="BaseLine1"></p-checkbox>
+                           </div>
+                           <div class="p-col-1">
+                            <input  type="text" class="customInput"  pInputText> 
+                           </div>
+                           <div class="p-col-1">
+                            <p-dropdown [options]="options" class="customInput" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                           </div>
+                           <div class="p-col-1">
+                            <p-dropdown [options]="options" class="customInput" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                           </div>
+                       </div>
+                       <div class="p-grid p-col-12 ">
+                            <div class="p-grid p-col-1 p-align-center">
+                            <p-checkbox name="baseline" value="baseline2" label="BaseLine2"></p-checkbox>
+                            </div>
+                            <div class="p-col-1">
+                            <input  type="text" class="customInput"  pInputText> 
+                            </div>
+                            <div class="p-col-1">
+                            <p-dropdown [options]="options" class="customInput" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                            </div>
+                            <div class="p-col-1">
+                            <p-dropdown [options]="options" class="customInput" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                            </div>
+                        </div>
+                        <div class="p-grid p-col-12">
+                            <div class="p-grid p-col-1 p-align-center">
+                            <p-checkbox name="baseline" value="baseline3" label="BaseLine3"></p-checkbox>
+                            </div>
+                            <div class="p-col-1">
+                            <input  type="text" class="customInput"  pInputText> 
+                            </div>
+                            <div class="p-col-1">
+                            <p-dropdown [options]="options" class="customInput" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                            </div>
+                            <div class="p-col-1">
+                            <p-dropdown [options]="options" class="customInput" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                            </div>
+                        </div>
+                        <div class="p-grid p-col-12 ">
+                            <div class="p-grid p-col-2 p-align-center">
+                            <p-checkbox name="checkprofile" value="checkprofile" label="Override check profile SLA with"></p-checkbox>
+                            </div>                               
+                            <div class="p-col-1">
+                            <p-dropdown [options]="options" class="customInput" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                            </div>
+                        </div>
+                       
+                    </div>
+                </p-panel>    
+                <p-panel #pnl32 class="w-100-p" expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                    <p-header class="cav-panel-header pt-5">
+                        <div class="cav-panel-content p-grid p-align-center">
+                            <div class="panel-title" (click)="pnl32.toggle($event)">
+                                <a>
+                                    <span [class]="pnl32.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span>
+                                </a>
+                                Pass / Fail Criteria
+                            </div>                   
+                        </div>
+                    </p-header>
+                    <div class="content p-grid p-col-12 p-align-center">
+                       Metric is green if variation is upto 
+                       <div class="ui-inputgroup">                        
+                        <input type="text" class="custom-input-group" pInputText value="20">   
+                        <span class="ui-inputgroup-addon">%</span>      
+                       </div>. 
+                        Metric is yellow if variation is upto
+                        <div class="ui-inputgroup">                        
+                        <input type="text" class="custom-input-group" pInputText value="50">   
+                        <span class="ui-inputgroup-addon">%</span>      
+                       </div>
+                        Metric is red if variation id more than
+                        <div class="ui-inputgroup">                        
+                            <input type="text" class="custom-input-group" pInputText value="50">   
+                            <span class="ui-inputgroup-addon">%</span>      
+                           </div>
+                    </div>
+                    <div class="content p-grid p-col-12 p-align-center">
+                        Overall test fails if  
+                        <div class="ui-inputgroup">                        
+                         <input type="text" class="custom-input-group" pInputText value="10">   
+                         <span class="ui-inputgroup-addon">%</span>      
+                        </div> or more metrics are red.
+                     </div>
+                     <div class="p-col-12">
+                         <span class="text-bold">Note:</span> Variation is checked based on the operator used in rule. For less than higher side, for greater than it is lower side and 
+                         for equal to operator its in both sides.
+                     </div>
+                </p-panel>  
+                <p-panel #pnl33 class="w-100-p" expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                    <p-header class="cav-panel-header pt-5">
+                        <div class="cav-panel-content p-grid p-align-center">
+                            <div class="panel-title" (click)="pnl33.toggle($event)">
+                                <a>
+                                    <span [class]="pnl33.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span>
+                                </a>
+                                Advanced Settings
+                            </div>                   
+                        </div>
+                    </p-header>
+                    <div class="content p-grid p-col-12">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-2">                            
+                                    <p-checkbox name="baseline" value="run-post" label="Run 'Post Check Script' on failure"></p-checkbox>                                
+                            </div>
+                            <div class="p-col-2">                             
+                                    <p-checkbox name="baseline" value="baseline1" label="Show Transaction Count"></p-checkbox>                                 
+                            </div>
+                            <div class="p-col-2">
+                                <p-checkbox name="baseline" value="baseline1" label="Include Unexecuted Transaction"></p-checkbox>
+                            </div>
+                            <div class="p-col-3">
+                              <div class="p-grid p-align-center">
+                                  <label  class="p-col-12 p-md-3">Apply rules on</label>
+                                  <div class="p-col-12 p-md-9">
+                                    <p-dropdown [options]="options" class="customInput" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                  </div>
+                              </div>
+                            </div>
+                            <div class="p-col-2">
+                                <p-checkbox name="baseline" value="baseline1" label="Report Generation of Duration Phase"></p-checkbox>
+                            </div>
+                        </div>
+                    </div>
+                </p-panel>          
+            </div>
+        </p-panel>
+        <p-panel #pnl4 class="w-100-p" expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl4.toggle($event)">
+                        <a>
+                            <span [class]="pnl4.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span>
+                        </a>
+                        Iteration
+                    </div>                   
+                </div>
+            </p-header>
+            <div class="content p-grid p-col-12">
+                <div class="content p-grid p-col-12">
+                    <div class="p-grid vertical-container" *ngIf="error">
+                        <div class="p-col p-col-align-center text-center">
+                          <p-message severity="error" text="{{ error.msg }}"></p-message>
+                        </div>
+                  </div>
+                  <div class="p-grid vertical-container" *ngIf="empty">
+                        <div class="p-col p-col-align-center text-center">
+                          <p-message severity="normal" text="No Data"></p-message>
+                        </div>
+                  </div>
+                    
+                  <div *ngIf="data">
+                        <div class="action-container">
+                          <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">             
+                            <div class="p-grid p-col-3">
+                              <div class="p-input-icon-left search-div-css">
+                                <i class="icons8 icons8-search"></i>
+                                <input
+                                  #searchInputTemplate
+                                  type="text"
+                                  pInputText
+                                  placeholder="Search"
+                                  (input)="iterationTable.filterGlobal($event.target.value, 'contains')"
+                                  class="input-field-search"
+                                />
+                              </div>
+                            </div>
+                            <div class="p-col-6 icons-container p-justify-between p-align-center ip-alert-group">
+                              <button
+                                pButton
+                                type="button"
+                                class="ui-button-secondary ui-button-rounded"
+                                label="ADD ROW"
+                              ></button>
+                              <button
+                              pButton
+                              type="button"
+                              class="ui-button-secondary ui-button-rounded"
+                              label="ADD PARAMETER"
+                              (click)="addParameterDialog.open()"                                       
+                            ></button>
+                              <button
+                                pButton
+                                icon="icons8 icons8-delete-trash"
+                                class="icon-button no-shadow"
+                                pTooltip="Delete"
+                              ></button>
+                              <button
+                                pButton
+                                icon="icons8 icons8-installing-updates"
+                                class="icon-button no-shadow"
+                                (click)="downloadMenu.toggle($event)"
+                                pTooltip="Download"
+                              ></button>
+                              <p-menu
+                                #downloadMenu
+                                [popup]="true"
+                                styleClass="widget-menu"
+                                [model]="downloadOptions"
+                                [showTransitionOptions]="'0ms'"
+                                [hideTransitionOptions]="'0ms'"
+                              ></p-menu>
+                              <button
+                                *ngIf="data.tableFilter"
+                                pButton
+                                icon="icons8 icons8-search-property"
+                                class="icon-button no-shadow"
+                                pTooltip="Toggle Filter"
+                                [tooltipZIndex]="100000"
+                                (click)="isShowColumnFilter = !isShowColumnFilter"
+                              ></button>
+                              <p-multiSelect
+                                class="icon-button no-shadow mr-10"
+                                [options]="cols"
+                                [(ngModel)]="selectedColumns"
+                                optionLabel="label"
+                                [displaySelectedLabel]="false"
+                                dropdownIcon="icons8 icons8-columns"
+                                pTooltip="Toggle Columns"
+                                [panelStyle]="{ minWidth: '200px' }"
+                              >
+                              </p-multiSelect>
+                            
+                            </div>
+                          </div>
+                        </div>
+                        <ng-container>                       
+                            <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                              Select column to show
+                            </div>
+                            <div class="iteration-table">
+                              <p-card>
+                                <p-table
+                                  #iterationTable
+                                  [columns]="selectedStatColumns"
+                                  [value]="data.iteration.data"
+                                  [paginator]="true"
+                                  [totalRecords]="data.iteration.data.length"
+                                  [rows]="data.iteration.paginator.rows"
+                                  [rowsPerPageOptions]="data.iteration.paginator.rowsPerPageOptions"
+                                  [resizableColumns]="true"
+                                  [showCurrentPageReport]="true"
+                                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                                  [responsive]="true"
+                                  [scrollable]="true"
+                                  [globalFilterFields]="globalFilterFields"
+                                  scrollHeight="350px"
+                                  selectionMode="multiple"
+                                >
+                                  <ng-template pTemplate="colgroup" let-columns>
+                                    <colgroup>
+                                      <col *ngFor="let col of columns" [style.width]="col.width" />
+                                    </colgroup>
+                                  </ng-template>
+                                  <ng-template pTemplate="header" let-columns>
+                                    <tr>  
+                                        <th class="columnwidth"></th>                                  
+                                      <th
+                                        *ngFor="let col of columns"
+                                        [attr.coldiv]="col.coldiv"
+                                        [attr.rowdiv]="col.rowdiv"
+                                        pResizableColumn
+                                        [pSortableColumn]="col.valueField"
+                                        class="text-left"
+                                      >
+                                        <div class="left">
+                                          {{ col.label }}
+                                           <span>
+                                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                           </span>
+                                        </div>
+                                        <div *ngIf="col.isSort" class="float-right">
+                                          <p-sortIcon
+                                            *ngIf="col.isSort"
+                                            [field]="col.valueField"
+                                            class="text-right"
+                                            ariaLabel="Activate to sort"
+                                            ariaLabelDesc="Activate to sort in descending order"
+                                            ariaLabelAsc="Activate to sort in ascending order"
+                                          >
+                                          </p-sortIcon>
+                                        </div>
+                                      </th>
+                                      <th class="switch-column"></th>
+                                    </tr>
+                                    <tr *ngFor="let headerRow of data.headers">
+                                      <ng-container *ngIf="isShowColumnFilter">
+                                       <th class="columnwidth"></th>
+                                        <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                          <div
+                                            *ngIf="
+                                              col.filter.isFilter === true &&
+                                              col.filter.type === 'custom'
+                                            "
+                                          >
+                                            <input
+                                              class="w-100-p"
+                                              pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                              *ngSwitchCase="col.label"
+                                              pInputText
+                                              type="text"
+                                              (input)="
+                                              iterationTable.filter(
+                                                  $event.target.value,
+                                                  col.value,
+                                                  'custom'
+                                                )
+                                              "
+                                            />
+                                          </div>
+                                          <div
+                                            *ngIf="
+                                              col.filter.isFilter === true &&
+                                              col.filter.type === 'contains'
+                                            "
+                                          >
+                                            <input
+                                              class="w-100-p"
+                                              pTooltip="Will filter metric names which contains given text."
+                                              *ngSwitchCase="col.label"
+                                              pInputText
+                                              type="text"
+                                              (input)="
+                                              iterationTable.filter(
+                                                  $event.target.value,
+                                                  col.valueField,
+                                                  'contains'
+                                                )
+                                              "
+                                            />
+                                          </div>
+                                        </th>
+                                        <th class="switch-column"></th>
+                                      </ng-container>
+                                    </tr>
+                                  </ng-template>
+                                  <ng-template
+                                    pTemplate="body"
+                                    let-row
+                                    let-columns="columns"
+                                    let-rowIndex="rowIndex"
+                                  >
+                                    <tr [ngStyle]="{ backgroundColor: row.rowBgColor }">
+                                        <td class="columnwidth">
+                                            <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                                        </td>
+                                      <td
+                                        *ngFor="let col of columns"
+                                        class="{{ col.classes }}"
+                                        pTooltip="{{ row[col.valueField] }}"
+                                      >
+                                        <i
+                                          *ngIf="col.iconField && row.icon"
+                                          [ngClass]="row.icon"
+                                          class="column-icon"
+                                        ></i>
+                                        {{ row[col.valueField] | ellipsis: 35 }}
+                                      </td>  
+                                      <td  class="text-center switch-column">
+                                        <p-inputSwitch [(ngModel)]="checked" ></p-inputSwitch>
+                                      </td>                               
+                                    </tr>
+                                  </ng-template>
+                    
+                                  <!-----------Empty table error handling--------------------->
+                                  <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                      <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                        <span *ngIf="error">Error while loading data</span>
+                                        <span *ngIf="emptyTable">Empty Table</span>
+                                        <span *ngIf="loading">Loading</span>
+                                        <span
+                                          *ngIf="
+                                            !emptyTable &&
+                                            !loading &&
+                                            !error &&
+                                            searchInputTemplate.value.length
+                                          "
+                                          >Nothing found matching "{{
+                                            searchInputTemplate.value
+                                          }}"</span
+                                        >
+                                      </td>
+                                    </tr>
+                                  </ng-template>
+                                </p-table>
+                              </p-card>
+                            </div>
+                        
+                        </ng-container>
+                  </div> 
+                </div>
+            </div>
+        </p-panel>
+        <p-panel #pnl5 class="w-100-p" expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl5.toggle($event)">
+                        <a>
+                            <span [class]="pnl5.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span>
+                        </a>
+                        Pre Test Script
+                    </div>                   
+                </div>
+            </p-header>
+            <div class="content p-grid p-col-12">
+                <div class="p-grid p-col-12">
+                    <div class="p-col-3">
+                      <div class="p-grid p-align-center">
+                          <label  class="p-col-12 p-md-3 ">Action</label>
+                          <div class="p-col-12 p-md-7">
+                              <p-dropdown [options]="options" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="p-col-3">
+                      <div class="p-grid p-align-center">
+                          <label  class="p-col-12 p-md-3">Server Name</label>
+                          <div class="p-col-12 p-md-7">
+                              <p-dropdown [options]="options" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="p-col-3">
+                      <div class="p-grid p-align-center">
+                          <label  class="p-col-12 p-md-4">Service String</label>
+                          <div class="p-col-12 p-md-8">
+                              <input  type="text" pInputText> 
+                          </div>
+                      </div>
+                    </div>
+                    <div class="p-col-3 p-justify-end">
+                        <button
+                        pButton
+                        type="button"
+                        class="ui-button-secondary ui-button-rounded"
+                        label="VIEW IN TEXT MODE"
+                      ></button>
+                      <button
+                      pButton
+                      type="button"
+                      class="ui-button-secondary ui-button-rounded"
+                      label="ADD ACTION"                                       
+                    ></button>
+                    </div>
+                </div>
+                <div class="p-col-12">
+                    <p class="text-bold">Command Description:</p>
+                    <p class="text-bold">START_COMMAND is a utility to start service on selected server, a 'start' signal is appended to service
+                        before executing the command on the server. The command is executed via Cavisson agent id available on the server otherwise
+                        is is executing using ssh. Authentication information is taken from the Netstorm server database.
+                    </p>
+                </div>
+                <div class="p-col-12">
+                  <p-card>
+                    <p-table #preTestScript [value]="data.testScriptTable.data" [resizableColumns]="true" [columns]="data.testScriptTable.headers[0].cols" [scrollable]="true" scrollHeight="200px">
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                                <col *ngFor="let col of columns" [style.width]="col.width">
+                            </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th *ngFor="let col of columns;let i = index" pResizableColumn [pSortableColumn]="col.valueField">
+                                    <div class="left">
+                                        {{ col.label }}
+                                    </div>
+                                    <div *ngIf="col.isSort" class="float-right">
+                                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                        </p-sortIcon>
+                                    </div>
+                                </th>
+                                <th class="action-olumnwidth"></th>
+                            </tr>                            
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns">
+                            <tr>
+                                <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                    {{ row[col.valueField] }}
+                                </td>                              
+                                  <td class="action-olumnwidth text-center">                                  
+                                      <button
+                                        pButton
+                                        icon="icons8 icons8-edit-2 "                                
+                                        class="ui-icon-button no-shadow mh-10"
+                                        pTooltip="Edit"
+                                      ></button>
+                                      <button
+                                      pButton
+                                      icon="icons8 icons8-delete-trash "                                
+                                      class="ui-icon-button no-shadow mh-10"
+                                      pTooltip="Delete"
+                                    ></button>  
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </p-card>
+                </div>
+            </div>
+        </p-panel>
+        <p-panel #pnl6 class="w-100-p" expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl6.toggle($event)">
+                        <a>
+                            <span [class]="pnl6.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span>
+                        </a>
+                        Post Test Script
+                    </div>                   
+                </div>
+            </p-header>
+            <div class="content p-grid p-col-12">
+                <div class="p-grid p-col-12">
+                    <div class="p-col-3">
+                      <div class="p-grid p-align-center">
+                          <label  class="p-col-12 p-md-3 ">Action</label>
+                          <div class="p-col-12 p-md-7">
+                              <p-dropdown [options]="options" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="p-col-3">
+                      <div class="p-grid p-align-center">
+                          <label  class="p-col-12 p-md-3">Server Name</label>
+                          <div class="p-col-12 p-md-7">
+                              <p-dropdown [options]="options" [(ngModel)]="selectedOptions" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="p-col-3">
+                      <div class="p-grid p-align-center">
+                          <label  class="p-col-12 p-md-4">Service String</label>
+                          <div class="p-col-12 p-md-8">
+                              <input  type="text" pInputText> 
+                          </div>
+                      </div>
+                    </div>
+                    <div class="p-col-3 p-justify-end">
+                        <button
+                        pButton
+                        type="button"
+                        class="ui-button-secondary ui-button-rounded"
+                        label="VIEW IN TEXT MODE"
+                      ></button>
+                      <button
+                      pButton
+                      type="button"
+                      class="ui-button-secondary ui-button-rounded"
+                      label="ADD ACTION"                                       
+                    ></button>
+                    </div>
+                </div>
+                <div class="p-col-12">
+                    <p class="text-bold">Command Description:</p>
+                    <p class="text-bold">START_COMMAND is a utility to start service on selected server, a 'start' signal is appended to service
+                        before executing the command on the server. The command is executed via Cavisson agent id available on the server otherwise
+                        is is executing using ssh. Authentication information is taken from the Netstorm server database.
+                    </p>
+                </div>
+                <div class="p-col-12">
+                  <p-card>
+                    <p-table #preTestScript [value]="data.testScriptTable.data" [resizableColumns]="true" [columns]="data.testScriptTable.headers[0].cols" [scrollable]="true" scrollHeight="200px">
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                                <col *ngFor="let col of columns" [style.width]="col.width">
+                            </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th *ngFor="let col of columns;let i = index" pResizableColumn [pSortableColumn]="col.valueField">
+                                    <div class="left">
+                                        {{ col.label }}
+                                    </div>
+                                    <div *ngIf="col.isSort" class="float-right">
+                                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                        </p-sortIcon>
+                                    </div>
+                                </th>
+                                <th class="action-olumnwidth"></th>
+                            </tr>                            
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns">
+                            <tr>
+                                <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                    {{ row[col.valueField] }}
+                                </td>                              
+                                  <td class="action-olumnwidth text-center">                                  
+                                      <button
+                                        pButton
+                                        icon="icons8 icons8-edit-2 "                                
+                                        class="ui-icon-button no-shadow mh-10"
+                                        pTooltip="Edit"
+                                      ></button>
+                                      <button
+                                      pButton
+                                      icon="icons8 icons8-delete-trash "                                
+                                      class="ui-icon-button no-shadow mh-10"
+                                      pTooltip="Delete"
+                                    ></button>  
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </p-card>
+                </div>
+            </div>
+        </p-panel>
+        <p-panel #pnl7 class="w-100-p" expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl7.toggle($event)">
+                        <a>
+                            <span [class]="pnl7.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span>
+                        </a>
+                        Mail Configuration
+                    </div>                   
+                </div>
+            </p-header>
+            <div class="content p-grid">
+                <div class="p-grid p-col-12">  
+                    <div class="p-col-12">
+                      <div class="p-grid p-align-center">
+                          <label  class="p-col-12 p-md-1">TO:</label>
+                          <div class="p-col-12 p-md-5">
+                              <input  type="text" class="customInput" pInputText> 
+                          </div>
+                      </div>
+                    </div>
+                    <div class="p-col-12">
+                      <div class="p-grid p-align-center">
+                          <label  class="p-col-12 p-md-1">CC:</label>
+                          <div class="p-col-12 p-md-5">
+                              <input  type="text" class="customInput" pInputText> 
+                          </div>
+                      </div>
+                    </div>
+                    <div class="p-col-12">
+                        <div class="p-grid p-align-center">
+                            <label  class="p-col-12 p-md-1">BCC:</label>
+                            <div class="p-col-12 p-md-5">
+                                <input  type="text" class="customInput" pInputText> 
+                            </div>
+                        </div>
+                      </div>
+                </div>
+            </div>
+        </p-panel>
+      </div>
+  </div>
+</div>
+<app-add-parameter #addParameterDialog></app-add-parameter>

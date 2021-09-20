@@ -1,0 +1,189 @@
+<!-- <p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" /> -->
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+    <div class="p-col p-col-align-center text-center">
+        <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+    </div>
+</div>
+
+<div class="ddr-box">
+    <div class="ddr-toolbar" *ngIf="showFilter">
+        <div class="p-grid p-align-center p-justify-start ui-table-header">
+            <span id="filterId" [innerHTML]="filterCriteria"></span>
+        </div>
+    </div>
+    <div class="ddruiscroll" [ngStyle]="{'height': '510px'}" style="overflow:auto;">
+        <p-accordion class="ddr-accordion"  [multiple]="true">
+            <p-accordionTab header=" Sequence Diagram {{seqDFilter}}" [selected]="true" *ngFor="let key of keysArr; let j = index">
+              
+                    <div class="p-grid p-align-center p-justify-end py-5">
+                        <i class="icons8 icons8-resize font-18 mr-3" style="color: #154771;" *ngIf="showImage == true" (click)="openSeqDiagInNewTab()" title="View Image In New Tab"></i>
+                        <button pButton type="button" (click)="openDialogforfilter()" label="Filters" class="ui-button-secondary mr-5"></button>
+                        
+			           <i class="icons8 icons8-zoom-in  font-18" (click)="openAutoInstDialog()"title="Click to Start Auto Instrumentation" style="color: #154771;"></i>
+           
+                    </div>
+            
+                    <div class="ui-panel-contents">
+                <div class="seq-dig-div" *ngIf="showImage == true">                 
+                    <img src="{{imagePathObj[key]}}" id="imgNDSeqId" usemap="#seqImgMap"> 
+                        <map name="seqImgMap" id='seqImgMapId'>
+                            <div *ngFor="let data of corrInfo; let i = index;">
+                                <div *ngIf="data.pcm.indexOf('%%%') != -1;else custom">    
+                                    <div class="container" *ngIf="data.pcm.startsWith('DB Error')">
+                                        <area class="dropbtn" shape="rect" coords="{{data.corrdinates}}" areaDirective="data.pcm" agent="queryParams && queryParams.Instance_Type" id="area{{i}}" (contextmenu)="onRightClick($event)">
+                                        <div class="context-menu">
+                                            <ul>
+                                                <li><a (click)="openDBReport(data.pcm, j)">DB Request</a></li>
+                                                <li><a (click)="openExceptionReport(data.pcm,j,'callOut')">Exception</a></li>
+                                            </ul>                   
+                                        </div>
+                                    </div>  
+                                   
+                                    <area *ngIf="data.pcm.startsWith('Exception')" shape="rect" coords="{{data.corrdinates}}" areaDirective="data.pcm" agent="queryParams && queryParams.Instance_Type" id="area{{i}}"  (click)="openExceptionReport(data.pcm,j,'exception')">  
+                                
+           
+                                    <area *ngIf="data.pcm.startsWith('DB')" shape="rect" coords="{{data.corrdinates}}" (click)="openDBReport(data.pcm,j)" areaDirective="data.pcm" agent="queryParams && queryParams.Instance_Type" id="area{{i}}">
+                                    
+                                    <div class="container" *ngIf="data.pcm.startsWith('Error')">
+                                        <area shape="rect" coords="{{data.corrdinates}}" areaDirective="data.pcm" agent="queryParams && queryParams.Instance_Type" id="area{{i}}" (contextmenu)="onRightClick($event)">
+                                            <div class="context-menu">
+                                                <ul>
+                                                    <li><a (click)="openCallOutFlowpathInstance(data.pcm, j)">Child Sequence Diag</a></li>
+                                                    <li><a (click)="openExceptionReport(data.pcm, j,'callOut')">Exception</a></li>
+                                                </ul>                   
+                                            </div>
+                                    </div>
+           
+                                    <area *ngIf="data.pcm.startsWith('JMS')" shape="rect" coords="{{data.corrdinates}}" areaDirective="data.pcm" agent="queryParams && queryParams.Instance_Type" id="area{{i}}">
+                                    <area *ngIf="data.pcm.startsWith('Tier') || data.pcm.startsWith('Thread')" shape="rect" coords="{{data.corrdinates}}" (click)="openCallOutFlowpathInstance(data.pcm, j)" areaDirective="data.pcm" agent="queryParams && queryParams.Instance_Type" id="area{{i}}">
+                                     <area shape="rect" coords="{{data.corrdinates}}" areaDirective="data.pcm" agent="queryParams && queryParams.Instance_Type" id="area{{i}}">
+                                </div>
+                                <ng-template #custom>
+                                    <area shape="rect" coords="{{data.corrdinates}}" areaDirective="data.pcm" agent="queryParams && queryParams.Instance_Type" id="area{{i}}">
+                                </ng-template>
+                            </div>
+                        </map>
+                   </div>
+                </div>
+                </p-accordionTab>
+                <p-accordionTab header=" Sequence Diagram" [selected]="true" *ngIf="!showImage">
+                <div> {{errorMsg}} </div>
+                </p-accordionTab>
+        </p-accordion>
+
+        <p-dialog class="secondary-dialog" header="Sequence Diagram Filter Settings" [style]="{width: '50vw'}" [(visible)]="filterDialog" [resizable]=false [modal]="true" autoAlign="true">
+         
+                <div class='ui-g'>
+                    <div class='ui-g-6'>
+                        <span style='margin-right:13px'>Class Name Width(in px)</span>
+                    </div>
+                    <div class='ui-g-6'>
+                        <input type="number" min=0 style='width:45%' (keypress)="validateQty($event)" pInputText [(ngModel)]="txtClassWidth" />
+                    </div>
+                </div>
+                <div class='ui-g'>
+                    <div class='ui-g-6'>
+                        <span style='margin-right:13px'>Top Methods</span>
+                    </div>
+                    <div class='ui-g-6'>
+                        <input type="number" min=0 style='width:45%' (keypress)="validateQty($event)" pInputText [(ngModel)]="txtFlterMethodLevel" />
+                    </div>
+                </div>
+                <div class='ui-g'>
+                    <div class='ui-g-6'>
+                        <span style='margin-right:13px'>Show Methods (walltime in ms) >=</span>
+                    </div>
+                    <div class='ui-g-6'>
+                        <input type="number" min=0  style='width:45%' (keypress)="validateQty($event)" pInputText [(ngModel)]="txtFilterWallTime" />
+                    </div>
+                </div>
+                <div class='ui-g'>
+                    <div class='ui-g-6'>
+                        <span style='margin-right:13px'>Highlight Methods(walltime in ms) > </span>
+                    </div>
+                    <div class='ui-g-6'>
+                      <input type="number" min=0 style='width:45%' (keypress)="validateQty($event)" pInputText [(ngModel)]="txtThresholdWallTime" />
+                    </div>
+                </div>
+                <p-accordion class="ddr-accordion" [multiple]="true">
+                    <p-accordionTab header="Positive Filters" [selected]="true">
+                        <div class='ui-g'>
+                            <div class='ui-g-6'>
+                                <span style='margin-right:13px'>Packages </span>
+                            </div>
+                            <div class='ui-g-6'>
+                                <p-multiSelect class="mutilSelectDropDown" dropdownIcon="icons8 icons8-expand-arrow" [options]="packageList" [(ngModel)]="selectedPackageList" (onChange)="getClassList()" [maxSelectedLabels]=2 [overlayVisible]=true [style]="{'width':'230px','display':'block'}"></p-multiSelect>
+                            </div>
+                        </div>
+                        <div class='ui-g'>
+                            <div class='ui-g-6'>
+                                <span style='margin-right:13px'>Classes </span>
+                            </div>
+                            <div class='ui-g-6'>
+                                <p-multiSelect class="mutilSelectDropDown" dropdownIcon="icons8 icons8-expand-arrow" [options]="classList" [(ngModel)]="selectedClassList" (onChange)="getMethodList()"  [maxSelectedLabels]=2 [overlayVisible]=true [style]="{'width':'230px','display':'block'}"></p-multiSelect>
+                            </div>
+                        </div>
+                        <div class='ui-g'>
+                            <div class='ui-g-6'>
+                                <span style='margin-right:13px'>Methods </span>
+                            </div>
+                            <div class='ui-g-6'>
+                                <p-multiSelect class="mutilSelectDropDown mctdropbox" dropdownIcon="icons8 icons8-expand-arrow" [options]="methodList" [(ngModel)]="selectedMethodList" [maxSelectedLabels]=2 [overlayVisible]=true (onChange)=getActualMethodList() [style]="{'width':'230px','display':'block'}"></p-multiSelect>
+                            </div>
+                        </div>
+                    </p-accordionTab>
+                    <p-accordionTab header="Negative Filters" [selected]="true">
+                        <div class='ui-g'>
+                            <div class='ui-g-6'>
+                                <span style='margin-right:13px'>Do not show methods </span>
+                            </div>
+                            <div class='ui-g-6'>
+                                <span class="ui-fluid">
+                                    <p-autoComplete [(ngModel)]="selectedNegativeMethod" [size]="30" styleClass="ddr-autocomplete" [suggestions]="negativeMethodArr"
+                                    (completeMethod)="searchMethodName($event)" [multiple]="true" appendTo="body"></p-autoComplete>
+                                </span>
+                            </div>
+                        </div>
+                      </p-accordionTab>
+                    <p-accordionTab header="Advanced Settings" [selected]="true">
+                        <span>Do not filter CallOuts</span>
+                        <div class="ui-g" style="border:1px solid black;">
+                            <table >
+                                <tr class="p-grid p-align-center p-justify-between">
+                                    <td><p-checkbox name="groupname" label="HTTP CallOuts" value="T" [(ngModel)]="ignoreFilterCallOutsforSD"></p-checkbox></td>
+                                    <td><p-checkbox name="groupname" label="DB CallOuts" value="D" [(ngModel)]="ignoreFilterCallOutsforSD"></p-checkbox></td>
+                                </tr>
+                                <tr> 
+                                    <td><p-checkbox name="groupname" label="JMS CallOuts" value="J" [(ngModel)]="ignoreFilterCallOutsforSD"></p-checkbox></td>
+                                    <td><p-checkbox name="groupname" label="Error CallOuts" value="E" [(ngModel)]="ignoreFilterCallOutsforSD"></p-checkbox></td>
+                                </tr>
+                                <tr> 
+                                    <td><p-checkbox name="groupname" label="Thread CallOuts" value="t" [(ngModel)]="ignoreFilterCallOutsforSD"></p-checkbox></td>
+                                    <td><p-checkbox name="groupname" label="DBError CallOuts" value="d" [(ngModel)]="ignoreFilterCallOutsforSD"></p-checkbox></td>
+                                </tr>
+                                <tr> 
+                                    <td><p-checkbox name="groupname" label="Async callouts" value="A" [(ngModel)]="ignoreFilterCallOutsforSD"></p-checkbox></td>
+                                    <td><p-checkbox name="groupname" label="Exception" value="e" [(ngModel)]="ignoreFilterCallOutsforSD"></p-checkbox></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </p-accordionTab>
+                </p-accordion>
+            
+            <p-footer>
+                <div style="text-align: center">
+                    <button pButton type="button" label="Apply"  (click)="applyThresholdFilter()" class="ui-button-rounded"></button>
+                    <button pButton type="button" label="Show All" (click)="showAllData()" class="ui-button-rounded ui-button-secondary"></button>
+                    <button pButton type="button" label="Reset" (click)="applyDefaultValue()" class="ui-button-rounded ui-button-secondary"></button>
+                    <button pButton type="button" label="Cancel" (click)="filterDialog =false" class="ui-button-rounded ui-button-secondary"></button>
+                
+                </div>      
+            </p-footer>
+        </p-dialog>
+    </div>
+</div>
+
+<p-dialog class="secondary-dialog foterDialog" [style]="{width: '60vw'}" header="Dynamic Diagnostics Configuration" [resizable]="false" *ngIf="showAutoInstrPopUp" [(visible)]="showAutoInstrPopUp" modal="modal" [contentStyle]="{'max-height':'500px'}" responsive="true">
+        <app-dynamic-diagnostics (resultAfterStart)="startInstrumentation($event)" (closeAIDDGui)="closeAIDDDialog($event)" [passAIDDSettings]="argsForAIDDSetting"></app-dynamic-diagnostics>
+</p-dialog>

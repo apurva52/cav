@@ -1,0 +1,234 @@
+<div class="h-100-vh marketing-analytics-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/home-sessions">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                MARKETING ANALYTICS
+            </div>
+        <div class="p-col text-right elipseText" *ngIf="filterLabel != ''">
+            <i class="icons8 icons8-clock ph-5" title="View Applied Filters" (click)="filterComp.open()"></i>
+            <span [attr.title]="filterLabel">{{filterLabel}}</span>
+        </div>
+        </div>
+    </p-toolbar>
+
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+    <div class="p-grid loader-container vertical-container" *ngIf="loading">
+    <div class="p-col p-col-align-center text-center">
+    <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+    </div>
+    </div>
+    <div class="vertical-container" *ngIf="!loading"> 
+        <div class="action-container">
+            <div class="p-grid p-justify-between p-align-center action-grid w-100-p">
+                <div class="global-search-block">
+                    <div>
+                        <i class="icons8 icons8-filter left filter-icon" (click)="filterComp.show()"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true" styleClass="mb-10" 
+                [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title" (click)="pnl1.toggle($event)">
+                            <a>
+                                <span
+                                    [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                </span>
+                            </a>
+                            CAMPAIGN OVERVIEW GRAPH
+                        </div>
+                        <!--
+                        <div>
+                            <button pButton icon="icons8 icons8-export" class="icon-button no-shadow"></button>
+                            <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                                [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                            <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                                (click)="menu.toggle($event)" pTooltip="Download"></button>
+                        </div>
+                        -->
+                    </div>
+                </p-header>
+                    <div class="p-col-12 no-padding" *ngFor="let chart of visualChart.charts">
+                        <app-chart [data]="chart"></app-chart>
+                    </div>
+            </p-panel>
+            <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true" styleClass="mb-10" 
+                [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title" (click)="pnl2.toggle($event)">
+                            <a>
+                                <span
+                                    [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                </span>
+                            </a>
+                            CAMPAIGN DATA
+                        </div>
+                    </div>
+                </p-header>
+                <div *ngIf="data">
+                    <div class="action-container">
+                        <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                            <div class="global-search-block">
+                                <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-search"></i>
+                                    <input #searchInput pInputText type="text" class="input-field-search"
+                                        (input)="marketingAnalytics.filterGlobal($event.target.value, 'contains')"
+                                        placeholder="Search" />
+                                </div>
+                            </div>
+
+                            <div class="icons-container p-justify-between p-align-center">
+                                <button pButton icon="icons8 icons8-search-property" class="btn-icon mx-3"
+                                    (click)="toggleFilters()" pTooltip="Column Filter"></button>
+                                <p-multiSelect class="icon-button no-shadow" [options]="cols" styleClass="dropdown-panel-left"
+                                    [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false"
+                                    dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns"
+                                    [panelStyle]="{ minWidth: '200px' }">
+                                </p-multiSelect>
+                                <!--<p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                                    [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>-->
+                                <button pButton icon="icons8 icons8-installing-updates" class="btn-icon mx-3"
+                                    (click)="marketingAnalytics.exportCSV()" pTooltip="Download"></button>
+                            </div>
+                        </div>
+
+                        <ng-container>
+                            <!-- #widgetHeight [ngStyle]="{
+                                height: isEnabledColumnFilter
+                                  ? 'calc(100vh - 168px)'
+                                  : 'calc(100vh - 130px)'
+                              }"  -->
+                            <div class="content-body">
+                                <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                                    Select column to show
+                                </div>
+                                <p-table #marketingAnalytics [value]="data.data" [columns]="selectedColumns"
+                                    [showCurrentPageReport]="true" [rowHover]="true" [(selection)]="selectedRow"
+                                    selectionMode="single"
+                                    class="all-tables"
+                                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                                    [responsive]="true" [paginator]="true" [totalRecords]="totalRecords"
+                                    [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                                    [rows]="data.paginator.rows" [scrollable]="true"
+                                    [globalFilterFields]="globalFilterFields"
+                                    [resizableColumns]="true" exportFilename="marketingAnalyticsOverview"> 
+                                    <ng-template pTemplate="colgroup" let-columns>
+                                        <colgroup>
+                                            <col *ngFor="let col of columns" [style.width]="col.width" />
+                                        </colgroup>
+                                    </ng-template>
+                                    <ng-template pTemplate="header" let-columns>
+                                        <tr>
+                                            <th [ngStyle]="{ 'width': '5px', 'heigth':'3px', 'padding':'0px'}" pResizableColumn>
+                                            </th>
+                                            <th *ngFor="let col of columns; let i = index" pResizableColumn
+                                                [pSortableColumn]="col.field">
+                                                 <div class="text-left"> 
+                                                     <!-- {{ col.label }}   -->
+                                                     <!-- {{col.header}} --> 
+                                                    <span title="{{col.label}}">{{col.label}}</span>
+                                                    <p-sortIcon *ngIf="col.isSort" [field]="col.field" class="right"
+                                                        ariaLabel="Activate to sort"
+                                                        ariaLabelDesc="Activate to sort in descending order"
+                                                        ariaLabelAsc="Activate to sort in ascending order">
+                                                    </p-sortIcon>
+                                                 </div> 
+                                            </th>
+                                        </tr>
+                                        <tr *ngFor="let headerRow of data.headers">
+                                            <ng-container *ngIf="isEnabledColumnFilter">
+                                                <th [ngStyle]="{ 'width': '5px', 'heigth':'15px', 'padding':'0px'}">
+                                                </th>
+                                                <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                    <div *ngIf="
+                                    col.filter.isFilter === true &&
+                                    col.filter.type === 'custom'
+                                  ">
+                                                        <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                            pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                            *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                            marketingAnalytics.filter(
+                                        $event.target.value,
+                                        col.field,
+                                        'custom'
+                                      )
+                                    " />
+                                                    </div>
+                                                    <div *ngIf="
+                                    col.filter.isFilter === true &&
+                                    col.filter.type === 'contains'
+                                  ">
+                                                        <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                            pTooltip="Will filter metric names which contains given text."
+                                                            *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                            marketingAnalytics.filter(
+                                        $event.target.value,
+                                        col.field,
+                                        'contains'
+                                      )
+                                    " />
+                                                    </div>
+                                                </th>
+                                            </ng-container>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-row let-columns="columns">
+                                        <tr [pSelectableRow]="row">
+                                            <td
+                                                [ngStyle]="{'backgroundColor': 'rgb(137 176 211)', 'width': '5px', 'height':'15px', 'padding':'0px'}">
+                                            </td>
+                                            <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                                <ng-template [ngIf]="col.field != 'utm_campaign'"
+                                                    [ngIfElse]="elseBlock">
+                                                    {{ row[col.field] }}
+                                                </ng-template>
+                                                <ng-template #elseBlock>
+                                                    <span>
+                                                        <a (click)="openDetail(row[col.field])"
+                                                            style="text-decoration: underline;">
+                                                            {{row[col.field]}}
+                                                        </a>
+                                                    </span>
+                                                </ng-template>
+
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                    <!-----------Empty table error handling--------------------->
+                                    <ng-template pTemplate="emptymessage" let-columns>
+                                        <tr>
+                                            <td [attr.colspan]="columns.length + 1" class="text-center">
+                                                <span *ngIf="error">Error while loading data</span>
+                                                <span *ngIf="emptyTable">Empty Table</span>
+                                                <span *ngIf="loading">Loading</span>
+                                                <span
+                                                    *ngIf="!empty && !loading && !error && searchInput.value.length">Nothing
+                                                    found
+                                                    matching
+                                                    "{{searchInput.value}}"</span>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </p-panel>
+    </div>
+</div>
+ 
+<app-marketing-analytics-filter #filterComp (filterChange)="applyFilter($event)"></app-marketing-analytics-filter>

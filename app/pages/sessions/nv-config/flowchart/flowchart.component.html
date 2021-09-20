@@ -1,0 +1,57 @@
+<div id="bpDig" style="position: relative;height: 300px;width: 1400px;">
+    <div class="window ui-draggable" id="start" style="left: 10px;top: 18px;">
+        <div id='addDiv' class="addDiv" style="display:block;position:absolute;left:5.2em;top:-0.9em">
+            <a (click)="doadd('start','','')"><img src="/netvision/images/plus.png" alt="Add" width="14px" height="14px"
+                    title="Add a node" id="addbtn"></a>
+        </div>
+        <div class="button_container">Start</div>
+    </div>
+
+    <div class="window ui-draggable finish" id="finish">
+        <div class="button_container finish-text">
+            Finish</div>
+    </div>
+</div>
+<!-- Primary window - used as html templated for descendants -->
+<div class="window ui-draggable" style="display:none;position:fixed" id="container0">
+    <div style="display:block;position:absolute;left:5.2em;top:-1em;">
+        <a id="addDiv"><img src="/netvision/images/plus.png" alt="Add" width="14px" height="14px" title="Add a node"
+                id="addbtn"></a>
+    </div>
+    <div class="button_container" title=""
+        style="overflow :hidden;color:black; font-weight:bold;font-size:11px; text-align: center; display:block;position:absolute;left:1em;top:0.2em; width:7em;">
+        <a>Assign</a>
+    </div>
+    <div class="button_container" style="display:none;position:absolute;left:0.3em;top:2em;width:9.7em">Mandatory</div>
+    <div style="display:block;position:absolute;left:5.2em;top:3.1em">
+        <a id="delete" title="Delete a node"><img src="/netvision/images/trash_empty.png" alt="Delete"
+                (click)="showdelete('replaceWithId')" width="16px" height="16px"></a>
+    </div>
+</div>
+
+<p-dialog header="Add Node" [(visible)]="nodeFlag" [modal]="true" [style]="{width: '30vw'}" class="secondary-dialog">
+    <div class="p-grid p-justify-between p-align-center ui-fluid">
+        <div class="p-col-4">Checkout BP</div>
+        <div class="p-col">
+            <p-dropdown placeholder="Select Page" [options]="pageName2" [(ngModel)]="nameSelect"
+                dropdownIcon="icons8 icons8-expand-arrow">
+            </p-dropdown>
+        </div>
+    </div>
+    <div class="p-grid p-justify-between p-align-center ui-fluid">
+        <div class="p-col-4">Page Type</div>
+        <div class="p-col">
+            <p-dropdown id="typeselect" [options]="pageType" [(ngModel)]="typeSelect"
+                dropdownIcon="icons8 icons8-expand-arrow">
+            </p-dropdown>
+        </div>
+    </div>
+    <p-footer>
+        <div class="p-grid p-justify-center">
+            <button pButton type="button" id="toggler" class="ui-button-rounded" label="Save"
+                (click)="assign()"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+<p-toast key="bp-flowchart"></p-toast>

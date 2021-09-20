@@ -1,0 +1,277 @@
+<p-dialog [(visible)]="jmxConnDialog" header="JMX Monitor"  class="secondary-dialog foterDialog" [resizable]="false" modal="modal"  [style]="{width: '650px'}" [baseZIndex]="999"  (onHide)="onClose()">
+
+  <div>  
+  <p class="my-6 font-13" >Select an Application Instance to get MBeans</p>
+  <form class="monitor-ui-form" (ngSubmit)="getMbeans()" ngNativeValidate>
+<div class="p-grid p-align-center">
+  <div class="p-col-4 required-mark">Tier</div>
+  <div class="p-col-8">
+    <p-dropdown name="tierList" required appendTo="body" [baseZIndex]="9991" (onChange)="onTierChange(jmxMonData.tier)" filter="true"
+    [options]="tierList"  placeholder="--Select Tier--" [(ngModel)]="jmxMonData.tier" [disabled]="disableFields" 
+    [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow">
+  </p-dropdown>
+  </div>
+  <div class="p-col-4 required-mark">Server</div>
+  <div class="p-col-8">
+    <p-dropdown name="serverList" appendTo="body" [baseZIndex]="9991" required filter="true" (onChange)="onServerChange()"
+    placeholder="-- Select Server--" [options]="serverList" [(ngModel)]="jmxMonData.server"
+    [disabled]="jmxMonData.tier == '' || disableFields" [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow">
+  </p-dropdown>
+  </div> 
+  <div class="p-col-4 required-mark">Instance</div>
+  <div class="p-col-8">
+    <p-dropdown name="instLists" appendTo="body" [baseZIndex]="9991" required filter="true" placeholder="-- Select Instance--" [options]="instanceList" [disabled]="jmxMonData.tier == '' || jmxMonData.server == '' || disableFields"
+    [(ngModel)]="jmxMonData.instance" (onChange)="onInstanceChange()" [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow">
+  </p-dropdown>
+  </div>
+  <div class="p-col-8 p-offset-4">
+    <input *ngIf="jmxMonData.instance == 'Other'" [disabled]="jmxMonData.tier == undefined || jmxMonData.server == undefined 
+    || disableFields" pInputText class="w-100-p" type="text" [(ngModel)]="jmxMonData.custInstance" name="inst" required
+    placeholder="Enter Instance Name">
+  </div>
+</div>
+
+  
+    <div class="jmxConnFieldset" *ngIf="jmxMonData.instance == 'Other'" >
+      <p-fieldset legend="JMX Connection" (onAfterToggle)="afterToggle($event)" (onBeforeToggle)="beforeToggle($event)"  [toggleable]="true" [collapsed]="false">
+        <div *ngIf = "!toggleFieldset">
+        <div class="p-grid p-align-center my-5">
+            <p-radioButton name="JMX" value="setting" [(ngModel)]="jmxConn" label="Connect using Host/Port" [disabled]="disableFields"
+              (onClick)="jmxConnPID = ''"></p-radioButton>
+        </div>
+
+        <div class="p-grid p-align-center">
+          <div class="p-col-3 p-grid p-dir-col">
+          <div class="my-3 required-mark">Host</div>
+          <input type="text" [disabled]="jmxConn != 'setting' || disableFields" class="w-100-p"
+          [(ngModel)]="jmxMonData.host" name="host" pInputText required>
+        </div>
+
+          <div class="p-col-3 p-grid p-dir-col">
+          <div class="my-3 required-mark">Port</div>
+          <input type="number" min="1" max="65535" class="w-100-p" pInputText name="port"
+          [disabled]="jmxConn != 'setting' || disableFields" [(ngModel)]="jmxMonData.port" required>
+        </div>
+
+          <div class="p-col-3 p-grid p-dir-col">
+          <div class="my-3">Username</div>
+          <input type="text"  class="w-100-p" pInputText name="user" [(ngModel)]="jmxMonData.user"
+          [disabled]="jmxConn != 'setting' || disableFields" maxlength="64">
+        </div>
+
+          <div class="p-col-3 p-grid p-dir-col">
+          <div class="my-3">Password</div>
+          <input name="Pwd" class="w-100-p" pInputText [(ngModel)]="jmxMonData.pwd" [disabled]="jmxConn != 'setting' 
+          || disableFields" type="password" autocomplete="new-password" />
+        </div>
+        
+         
+
+
+
+          </div>
+
+         
+       
+
+        <!-- JMX Remote Settings -->
+      
+
+        <div class="cav-ml-3">
+         
+          <div class="p-grid p-align-center">
+          <div class="p-col-12 p-grid p-dir-col">
+            <div class="my-3">JMX Connection URL</div>
+              <p-dropdown name="list" appendTo="body" [baseZIndex]="9991" required filter="true" placeholder="-- Select JMX URL--" [options]="jmxUrl"
+                [(ngModel)]="jmxMonData.connURL" [disabled]="jmxConn != 'setting' ||  disableFields" [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow">
+              </p-dropdown>
+
+              <input type="text" pInputText class="w-100-p" name="otherConn" [(ngModel)]="jmxMonData.otherConn"
+                *ngIf="jmxMonData.connURL == 'Other' && jmxConn == 'setting'" required>
+            
+          </div>
+          </div>
+
+          <p-fieldset legend="SSL Configuration" styleClass="mb-15" class="custom-fieldset1" [toggleable]="true" [collapsed]="true">
+
+            <div class="p-grid p-align-center">
+              <div class="p-col-4 p-grid p-dir-col">
+                <div class="my-3">Trust Store Filepath</div>
+                <input type="text" pInputText name="tsf" [disabled]="jmxConn != 'setting' 
+                || disableFields" pInputText class="w-100-p" [(ngModel)]="jmxMonData.tsf" ngModel>
+              </div>
+
+              <div class="p-col-4 p-grid p-dir-col">
+                <div class="my-3">Trust Store Password</div>
+                <input type="password" pInputText class="w-100-p" name="tsp" ngModel
+                [(ngModel)]="jmxMonData.tsp" [disabled]="jmxConn != 'setting' || disableFields" 
+                autocomplete="new-password">
+              </div>
+
+              <div class="p-col-4 p-grid p-dir-col">
+                <div class="my-3">Trust Store Type</div>
+                <input type="text" pInputText class="w-100-p" name="tst" [disabled]="jmxConn != 'setting' 
+                || disableFields" [(ngModel)]="jmxMonData.tst" ngModel>
+              </div>
+
+              <div class="p-col-4 p-grid p-dir-col">
+                <div class="my-3">Key Store Filepath</div>
+                <input type="text" name="ksf" [disabled]="jmxConn != 'setting' || disableFields"
+                pInputText class="w-100-p" ngModel [(ngModel)]="jmxMonData.ksf" autocomplete="new-password">
+              </div>
+
+              <div class="p-col-4 p-grid p-dir-col">
+                <div class="my-3">Key Store Password</div>
+                <input type="password" pInputText class="w-100-p" name="ksp" [disabled]="jmxConn != 'setting'
+                  || disableFields" [(ngModel)]="jmxMonData.ksp" ngModel>
+              </div>
+
+              <div class="p-col-4 p-grid p-dir-col">
+                <p-checkbox binary="true" label="Two Way SSL Enable" name="chk" [disabled]="jmxConn != 'setting'
+                || disableFields" [(ngModel)]="jmxMonData.sslEnable" class="mt-15"></p-checkbox>
+              </div>
+
+            </div>
+
+
+           
+           
+          
+          </p-fieldset>
+        </div>
+
+        <div class="p-grid p-5">
+            <p-radioButton name="pid" value="pid" [(ngModel)]="jmxConn" class="required-mark"
+              label="Connect using Process Id" [disabled]="disableFields"></p-radioButton>
+        </div>
+
+        <!-- JMX Connector using Process Id -->
+        <div class="p-grid p-align-center my-10 ml-30">
+          <div class="width-120">
+            <p-radioButton class="required-mark" name="procId" value="procId" [(ngModel)]="jmxConnPID"
+              label="Process Id" [disabled]="disableFields || jmxConn != 'pid'"></p-radioButton>
+          </div>
+
+          <input [disabled]="jmxConnPID != 'procId' || disableFields" class="w-50-p" pInputText type="number" min="1" max="214748347"
+            [(ngModel)]="jmxMonData.pid" name="JMXpid" required>
+        </div>
+
+        <!-- JMX Connector using Process Id File -->
+        <div class="p-grid p-align-center my-10 ml-30">
+          <div class="width-120">
+            <p-radioButton name="pidFile" value="pidFile" [(ngModel)]="jmxConnPID" class="required-mark"
+              label="Process Id File" [disabled]="disableFields || jmxConn != 'pid'"></p-radioButton>
+          </div>
+          
+            <input [disabled]="jmxConnPID != 'pidFile' || disableFields" class="w-50-p" pInputText type="text" 
+              [(ngModel)]="jmxMonData.pidFile" name="pF" required title="Provide absolute file path">
+          
+        </div>
+
+        <!-- JMX Connector using Search Pattern -->
+        <div class="p-grid p-align-center my-10 ml-30">
+          <div>
+            <p-radioButton name="sp" value="searchPattern" [(ngModel)]="jmxConnPID" class="required-mark"
+              label="Search Pattern (Not applicable for windows)" [disabled]="disableFields || jmxConn != 'pid'"></p-radioButton>
+          </div>
+        </div>
+
+       
+          <p-table class="all-tables" [columns]="cols" [value]="patternTableData" [rows]="5"
+            [(selection)]="selectedSrchPattern" [paginator]="patternTableData?.length >5" [pageLinks]="3">
+            <ng-template pTemplate="caption">
+              <div class="p-grid p-align-center p-justify-end my-5">
+                <button class="mx-3" pButton type="button" title="Add " (click)="addSearchPattern()" icon="icons8 icons8-plus-math"
+                  [disabled]="jmxConnPID != 'searchPattern' || disableFields"></button>
+                <button class="mx-3" pButton type="button" title="Edit " (click)="editSearchPattern()" icon="icons8 icons8-edit"
+                  [disabled]="jmxConnPID != 'searchPattern' || disableFields"></button>
+                <button class="ml-3" pButton type="button" class="ui-button-danger" title="Delete"  (click)="deleteSrchPatData()"
+                  icon="icons8 icons8-trash" [disabled]="jmxConnPID != 'searchPattern' || disableFields"></button>
+              </div>
+            </ng-template>
+
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th style="width:40px">
+                  <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th *ngFor="let col of columns" style="width: 100%;">
+                  {{col.header}}
+                </th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+              <tr class="scen-ptable-tbody">
+                <td>
+                  <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                </td>
+                <td *ngFor="let col of columns">
+                  {{rowData[col.field]}}
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage" let-columns>
+              <tr>
+                <td [attr.colspan]="columns.length+3" class="noRecords text-center">No records found.
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+       
+
+        <div class="p-grid p-align-center my-5">
+          <div class="mr-5 required-mark">Occurrence count</div>
+         
+            <input type="number" min="1"class="width-60" pInputText name="oCount" [disabled]="jmxConnPID != 'searchPattern'
+              || disableFields" [(ngModel)]="jmxMonData.occCount" required>
+         
+        </div>
+      </div>
+      </p-fieldset>
+    </div>
+    
+
+    <p-footer>
+      <div class="p-grid p-align-center p-justify-end my-5">
+          <button [disabled]="jmxMonData.tier == '' || jmxMonData.server == '' || jmxMonData.instance == undefined || disableFields" type="submit" pButton label="Get Mbeans" title="Make JMX Connection and fetch MBeans"></button>
+      </div>
+  </p-footer>
+  
+  </form>
+
+</div>
+</p-dialog>
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+  </p-progressSpinner>
+</div>  
+<p-dialog class = "secondary-dialog foterDialog" header={{dialogHeader}} *ngIf="showSrchDialog" [(visible)]="showSrchDialog" [baseZIndex]="100000000011"
+  height="auto" [resizable]="false" [responsive]="true" modal="modal"  [style]="{width: '500px'}" class="secondary-dialog foterDialog">
+  <form (ngSubmit)="saveSrchPattData()" #groupForm="ngForm" ngNativeValidate>
+    <div class="p-grid  mt-15 p-align-center p-5">
+      <div class="mr-5 required-mark">Search Pattern</div>
+      
+        <input type="text" pInputText name="searchPattern" class="w-50-p"
+          [(ngModel)]="jmxSp.pattern" ngModel required>
+      
+    </div>
+
+      <div class="p-grid p-justify-end mt-20">
+      <button type="button" pButton class="ui-button-rounded ui-button-secondary px-15 mx-6"  (click)="showSrchDialog = false;" label="Cancel"></button>
+      <button type="submit" pButton class = "ui-button-rounded px-15"  label="Save"></button>
+      </div>
+  </form>
+</p-dialog>
+<div class="confirm-dialog">
+  <p-confirmDialog class="confirmdialog" #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+  <p-footer>
+  <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton
+  icon="pi pi-check" label={{acceptLable}} (click)="cd.accept()"></button>
+  <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton
+  icon="pi pi-times" label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+  </p-footer>
+  </p-confirmDialog>
+  </div>
+  

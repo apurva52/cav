@@ -1,0 +1,102 @@
+<div class="rest-api-wrapper h-100-vh">
+  <div class="p-grid" style="height: calc(100% - 172px);">
+    <div class="p-col-4 h-100-p">
+      <div class="rest-api-ui h-100-p">          
+          <div class="title">Rest API UI</div>
+          <div class="inner-content" style=" height: calc(100% - 100px);">
+            <div class="p-grid">
+              <div class="p-col-12">
+                  <p-panel #editorPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="editorPnl.collapsed" [ngClass]="editorPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                      <p-header class="cav-panel-header pt-5">
+                          <div class="panel-title" (click)="editorPnl.toggle($event)">
+                              <span [class]="editorPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                              </span> Editor
+                          </div>
+                      </p-header>
+                      <div class="editor">
+                        <ul>
+                          <li><i class="icons8 icons8-forward"></i> JSON Editor</li>
+                        </ul>  
+                      </div>
+                  </p-panel>
+                  <p-panel #ClusterPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="ClusterPnl.collapsed" [ngClass]="ClusterPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                    <p-header class="cav-panel-header pt-5">
+                        <div class="panel-title" (click)="ClusterPnl.toggle($event)">
+                            <span [class]="ClusterPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                            </span> Cluster
+                        </div>
+                    </p-header>
+                    <div class="list">
+                      <ul>
+                        <li *ngFor="let cl of cluster"><i class="icons8 icons8-forward"></i> {{cl.label}}</li>
+                      </ul>  
+                    </div>
+                    </p-panel>
+                    <p-panel #NodesPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="NodesPnl.collapsed" [ngClass]="NodesPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                      <p-header class="cav-panel-header pt-5">
+                          <div class="panel-title" (click)="NodesPnl.toggle($event)">
+                              <span [class]="NodesPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                              </span> Nodes
+                          </div>
+                      </p-header>
+                      <div class="list">
+                        <ul>
+                          <li *ngFor="let nd of nodes"><i class="icons8 icons8-forward"></i> {{nd.label}}</li>
+                        </ul>  
+                      </div>
+                    </p-panel>
+                    <p-panel #IndicesPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="IndicesPnl.collapsed" [ngClass]="IndicesPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                      <p-header class="cav-panel-header pt-5">
+                          <div class="panel-title" (click)="IndicesPnl.toggle($event)">
+                              <span [class]="IndicesPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                              </span> Indices
+                          </div>
+                      </p-header>
+                      <div class="list">
+                        <ul>
+                          <li *ngFor="let ind of indices"><i class="icons8 icons8-forward"></i> {{ind.label}}</li>
+                        </ul>  
+                      </div>
+                    </p-panel>
+                    <p-panel #TogglePnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="TogglePnl.collapsed" [ngClass]="TogglePnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                        <p-header class="cav-panel-header pt-5">
+                            <div class="panel-title" (click)="TogglePnl.toggle($event)">
+                                <span [class]="TogglePnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                </span> Toggle
+                            </div>
+                        </p-header>
+                        <div class="list">
+                          <ul>
+                            <li><i class="icons8 icons8-forward"></i> JSON Editor</li>
+                          </ul>  
+                        </div>
+                    </p-panel>
+              </div>
+            </div> 
+          </div>
+          <div class="action-buttons">
+            <button
+                  pButton
+                  label="Cancel"
+                  class="ui-outline-button ui-button-secondary"
+            ></button>
+            <button
+                  pButton
+                  label="Search"
+                  class="ui-outline-button ui-button-primary"
+            ></button>
+          </div>
+      </div>
+    </div>
+    <div class="p-col-8">
+      <div class="intro">
+        <div class="intro-title">REST API UI</div>
+        <p> Use the options on the left-hand menu to make REST API requests to your cluster. This screen will then display the JSON response.</p>
+        <p>
+          All commands are issued in <b>'_all'</b> scope; meaning that the request will <b>affect all of your nodes, indices, or mappings.</b>
+        </p>
+        <p>'' denote requests for information. <b><i class="icons8 icons8-settings"></i></b> denote commands and actions.</p>
+      </div>
+    </div>
+  </div>
+</div>

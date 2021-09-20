@@ -1,0 +1,76 @@
+app-group {
+  .mouse-hover {
+    padding: 3px 10px;
+    min-height: 25px;
+    button {
+      float: right;
+      opacity: 0;
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+  .widget-body {
+    width: 100%;
+    height: 100%;
+
+    gridster {
+      background-color: transparent;
+
+      .gridster-row {
+        border: none;
+      }
+
+      .gridster-row,
+      .gridster-column {
+        border: none;
+        background: rgba(209, 209, 209, 0.116);
+      }
+
+      gridster-item {
+        background: transparent;
+        box-shadow: 0 0 9px -4px rgba(0, 0, 0, 0.2);
+        transition: none;
+
+        &.gridster-item-resizing,
+        &.gridster-item-moving {
+          box-shadow: 0 0 23px -4px rgba(0, 0, 0, 0.2);
+        }
+
+        &:hover .gridster-item-resizable-handler.handle-se {
+          border-color: transparent transparent #999;
+        }
+
+        // Important is required to override CSS applied by JavaScript
+        &[focus] {
+          width: calc(100% - 10px) !important;
+          height: calc(100% - 10px) !important;
+          z-index: 2; // removed important from here because column popup od lower panel hide behind focus container
+          margin: 0 5px 5px 0px !important;
+          transform: none !important;
+        }
+      }
+
+      gridster-preview {
+        border-radius: 3px;
+        background: #ddd;
+      }
+    }
+
+    &[focus-mode] {
+      gridster-item {
+        display: none !important;
+
+        &[focus] {
+          display: block !important;
+        }
+      }
+    }
+  }
+  div.empty-container-data {
+    text-align: center;
+    vertical-align: middle;
+    padding-top: 150px;
+    margin-top: 250px;
+  }
+}

@@ -1,0 +1,270 @@
+<p-header class="p-grid p-justify-between p-align-center">
+    <span class="configui-float-css px-6">
+        <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="isProfilePerm" [disabled]="isProfilePerm"></p-checkbox>
+        <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="!isProfilePerm" [disabled]="saveDisable"></p-checkbox>
+
+        Enable Method Monitors 
+    </span>
+    <span class="configui-float">
+        <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+        <button pButton type="button" class="ui-button-sucess mr-6" title="Browse" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openFileManager()" icon="icons8 icons8-opened-folder"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6" title="Browse" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="openFileManager()" icon="icons8 icons8-opened-folder"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6" title="Add a method monitor" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-plus-math"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6"title="Add a method monitor" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openAddMethodMonitorDialog()" icon="icons8 icons8-plus-math"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6" title="Edit a method monitor" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-edit"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6" title="Edit a method monitor" *ngIf="!isProfilePerm" [disabled]="saveDisable"  (click)="openEditMethodMonitorDialog()" icon="icons8 icons8-edit"></button>
+        <button pButton class="ui-button-sucess mr-6" type="button" title="Delete method monitor(s)" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-trash"></button>
+        <button pButton class="ui-button-sucess mr-6" type="button" title="Delete method monitor(s)"  *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteMethodMonitor()" icon="icons8 icons8-trash"></button>
+        <button type="submit" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+        <button type="submit" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveMethodMonitorOnFile()" label="Save"></button>
+    </span>
+</p-header>
+<p-table  [columns]="cols" [style]="{'margin-top':'10px'}" *ngIf="agentType == 'Java' || agentType == 'NodeJS'" class="nde-ui all-tables" [value]="methodMonitorData" [(selection)]="selectedMethodMonitorData" [rows]="10" [paginator]="methodMonitorData?.length > 10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,50,100,200,400]"
+    scrollable="true" scrollHeight="300px">
+
+    
+<ng-template pTemplate="colgroup" let-columns>
+    <colgroup>
+        <col style="width:5%">
+        <col style="width:40%">
+        <col style="width:20%">
+        <col style="width:20%">
+        
+    </colgroup>
+
+
+</ng-template>
+
+
+    <!-- <ng-template pTemplate="header">
+        <tr>
+            <th>
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th>Fully Qualified Method Name</th>
+            <th>Display Name in Monitor</th>
+            <th>Description</th>
+        </tr>
+    </ng-template> -->
+    <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+        <tr>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                <span class="width-20" *ngIf="col.field =='checkbox'"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></span>
+                <span *ngIf="col.field !='checkbox'">
+                    {{col.header}}
+                    <p-sortIcon [field]="col.field"></p-sortIcon>
+                </span>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-MethodMonitor>
+        <tr>
+            <td class=text-center>
+                <p-tableCheckbox [value]="MethodMonitor"></p-tableCheckbox>
+            </td>
+            <td><span title="{{MethodMonitor.methodName}}">{{MethodMonitor.methodName}}</span></td>
+            <td><span title="{{MethodMonitor.methodDisplayName}}">{{MethodMonitor.methodDisplayName}}</span></td>
+            <td><span title="{{MethodMonitor.methodDesc}}">{{MethodMonitor.methodDesc}}</span></td>
+        </tr>
+    </ng-template>
+</p-table>
+<p-table [style]="{'margin-top':'20px'}" *ngIf="agentType == 'Dot Net' || agentType == 'Python' || agentType == 'Php'" class="nde-ui all-tables" [value]="methodMonitorData" [(selection)]="selectedMethodMonitorData" [rows]="10" [paginator]="methodMonitorData?.length > 10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,50,100,200,400]">
+    
+    <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+            <col style="width:6%">
+            
+           
+            
+            
+        </colgroup>
+    
+    
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th>
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th *ngIf="agentType == 'Dot Net' || agentType == 'Python'">Module</th>
+            <th>Fully Qualified Method Name</th>
+            <th>Display Name in Monitor</th>
+            <th>Description</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-MethodMonitor>
+        <tr>
+            <td class="text-center">
+                <p-tableCheckbox [value]="MethodMonitor"></p-tableCheckbox>
+            </td>
+            <td *ngIf="agentType == 'Dot Net' || agentType == 'Python'"><span title="{{MethodMonitor.module}}">{{MethodMonitor.module}}</span></td>
+            <td><span title="{{MethodMonitor.methodName}}">{{MethodMonitor.methodName}}</span></td>
+            <td><span title="{{MethodMonitor.methodDisplayName}}">{{MethodMonitor.methodDisplayName}}</span></td>
+            <td><span title="{{MethodMonitor.methodDesc}}">{{MethodMonitor.methodDesc}}</span></td>
+        </tr>
+    </ng-template>
+</p-table>
+<!--<p-dataTable *ngIf="agentType == 'Java' || agentType == 'NodeJS'" class="nde-ui" [value]="methodMonitorData"
+    [(selection)]="selectedMethodMonitorData" [rows]="10" [paginator]="methodMonitorData?.length > 10" [pageLinks]="3" [rowsPerPageOptions]="[10,20,50,100,200,400]" scrollable="true" scrollHeight="300px">
+    <p-header>
+        <span class="configui-float-css">
+            <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="isProfilePerm" [disabled]="isProfilePerm"></p-checkbox>
+            <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="!isProfilePerm" [disabled]="saveDisable"></p-checkbox>
+        </span>
+        <span class="configui-float-css"> Enable Method Monitors </span>
+        <span class="configui-float">
+            <i class="fa fa-question-circle" title="Help" (click)="sendHelpNotification()"></i>
+            <button pButton type="button" title="Browse" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openFileManager()" icon="fa fa-folder-open"></button>
+            <button pButton type="button" title="Browse" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="openFileManager()" icon="fa fa-folder-open"></button>
+            <button pButton type="button" title="Add a method monitor" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-plus"></button>
+            <button pButton type="button" title="Add a method monitor" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openAddMethodMonitorDialog()" icon="fa fa-plus"></button>
+            <button pButton type="button" title="Edit a method monitor" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-pencil"></button>
+            <button pButton type="button" title="Edit a method monitor" *ngIf="!isProfilePerm" [disabled]="saveDisable"  (click)="openEditMethodMonitorDialog()" icon="fa fa-pencil"></button>
+            <button pButton class="ui-button-danger" type="button" title="Delete method monitor(s)" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-trash"></button>
+            <button pButton class="ui-button-danger" type="button" title="Delete method monitor(s)"  *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteMethodMonitor()" icon="fa fa-trash"></button>
+            <button type="submit" pButton icon="fa fa-check" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+            <button type="submit" pButton icon="fa fa-check" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveMethodMonitorOnFile()" label="Save"></button>
+        </span>
+    </p-header>
+    <p-column [style]="{'width':'2%'}" selectionMode="multiple"></p-column>
+    <p-column [style]="{'width':'53%'}" class="tableCss" field="methodName" header="Fully Qualified Method Name" [sortable]="true">
+        <ng-template let-col let-MethodMonitor="rowData" pTemplate>
+            <span title="{{MethodMonitor[col.field]}}">{{MethodMonitor[col.field]}}</span>
+        </ng-template>
+    </p-column>
+    <p-column [style]="{'width':'20%'}" class="tableCss" field="methodDisplayName" header="Display Name in Monitor" [sortable]="true">
+        <ng-template let-col let-MethodMonitor="rowData" pTemplate>
+            <span title="{{MethodMonitor[col.field]}}">{{MethodMonitor[col.field]}}</span>
+        </ng-template>
+    </p-column>
+    <p-column [style]="{'width':'25%'}" class="tableCss" field="methodDesc" header="Description" [sortable]="true">
+        <ng-template let-col let-MethodMonitor="rowData" pTemplate>
+            <span title="{{MethodMonitor[col.field]}}">{{MethodMonitor[col.field]}}</span>
+        </ng-template>
+    </p-column>
+
+</p-dataTable>
+<p-dataTable *ngIf="agentType == 'Dot Net' || agentType == 'Python' || agentType == 'Php'" class="nde-ui" [value]="methodMonitorData" [(selection)]="selectedMethodMonitorData" [rows]="10" [paginator]="methodMonitorData?.length > 10" [pageLinks]="3"
+    [rowsPerPageOptions]="[10,20,50,100,200,400]" (onHeaderCheckboxToggle)="onTableHeaderCheckboxToggle($event)">
+    <p-header>
+        <span class="configui-float-css">
+            <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="isProfilePerm" [disabled]="isProfilePerm"></p-checkbox>
+            <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="!isProfilePerm" [disabled]="saveDisable"></p-checkbox>
+        </span>
+        <span class="configui-float-css"> Enable Method Monitors </span>
+        <span class="configui-float">
+            <i class="fa fa-question-circle" title="Help" (click)="sendHelpNotification()"></i>
+            <button pButton type="button" title="Browse" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openFileManager()" icon="fa fa-folder-open"></button>
+            <button pButton type="button" title="Browse" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="openFileManager()" icon="fa fa-folder-open"></button>
+            <button pButton type="button" title="Add a method monitor" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-plus"></button>
+            <button pButton type="button" title="Add a method monitor" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openAddMethodMonitorDialog()" icon="fa fa-plus"></button>
+            <button pButton type="button" title="Edit a method monitor" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-pencil"></button>
+            <button pButton type="button" title="Edit a method monitor" *ngIf="!isProfilePerm" [disabled]="saveDisable"  (click)="openEditMethodMonitorDialog()" icon="fa fa-pencil"></button>
+            <button pButton class="ui-button-danger" type="button" title="Delete method monitor(s)" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-trash"></button>
+            <button pButton class="ui-button-danger" type="button" title="Delete method monitor(s)"  *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteMethodMonitor()" icon="fa fa-trash"></button>
+            <button type="submit" pButton icon="fa fa-check" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+            <button type="submit" pButton icon="fa fa-check" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveMethodMonitorOnFile()" label="Save"></button>
+        </span>
+    </p-header>
+    <p-column [style]="{'width':'2%'}" selectionMode="multiple"></p-column>
+    <p-column *ngIf = "agentType == 'Dot Net' || agentType == 'Python'" class="tableCss" field="module" header="Module" [sortable]="true" [style]="{'width':'18%'}">
+        <ng-template let-col let-MethodMonitor="rowData" pTemplate>
+            <span title="{{MethodMonitor[col.field]}}">{{MethodMonitor[col.field]}}</span>
+        </ng-template>
+    </p-column>
+    <p-column [style]="{'width':'40%'}" class="tableCss" field="methodName" header="Fully Qualified Method Name" [sortable]="true">
+        <ng-template let-col let-MethodMonitor="rowData" pTemplate>
+            <span title="{{MethodMonitor[col.field]}}">{{MethodMonitor[col.field]}}</span>
+        </ng-template>
+    </p-column>
+    <p-column [style]="{'width':'18%'}" class="tableCss" field="methodDisplayName" header="Display Name in Monitor" [sortable]="true">
+        <ng-template let-col let-MethodMonitor="rowData" pTemplate>
+            <span title="{{MethodMonitor[col.field]}}">{{MethodMonitor[col.field]}}</span>
+        </ng-template>
+    </p-column>
+    <p-column [style]="{'width':'22%'}" class="tableCss" field="methodDesc" header="Description" [sortable]="true">
+        <ng-template let-col let-MethodMonitor="rowData" pTemplate>
+            <span title="{{MethodMonitor[col.field]}}">{{MethodMonitor[col.field]}}</span>
+        </ng-template>
+    </p-column>
+
+</p-dataTable>
+-->
+<!-- Download reports as PDF,Excel and Word File  -->
+<div class="p-grid p-align-center">
+    <label class="mr-5">Download Reports as: </label>
+    <button pButton class="icon-button no-shadow" pTooltip="Download Word file" tooltipPosition="top" icon="icons8 icons8-doc" (click)='downloadReports("WordFile")'></button>
+    <button pButton class="icon-button no-shadow" pTooltip="Download Excel file" tooltipPosition="top" icon="icons8 icons8-spreadsheet-file"  (click)='downloadReports("ExcelFile")'></button>
+    <button pButton class="icon-button no-shadow" pTooltip="Download PDF file" tooltipPosition="top" icon="icons8 icons8-pdf-2" (click)='downloadReports("PDFFile")'></button>
+</div>
+
+<!--Dialog for method monitor-->
+
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" header="{{isNewMethodMonitor ? 'Add Method to Monitor' : 'Edit Method to Monitor'}}"
+    *ngIf="addEditMethodMonitorDialog" [(visible)]="addEditMethodMonitorDialog" modal="modal"
+    responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveMethodMonitor()" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g" *ngIf="agentType == 'Dot Net' || agentType == 'Python'">
+            <div class="ui-g-4">
+                <label>Module</label>
+            </div>
+            <div class="ui-g-8">
+                <input name="module" type="text" size="50" class="configUI-common-len" pInputText [(ngModel)]="methodMonitorDetail.module" required (keydown.space)="$event.preventDefault()" required autofocus ngModel />
+            </div>
+        </div>
+        <div class="ui-g mt-15">
+            <div class="ui-g-4">
+                <label>Fully Qualified Method Name</label>
+            </div>
+            <div class="ui-g-7" *ngIf="!(agentType == 'Dot Net' || agentType == 'Php' || agentType == 'Python')">
+                <input name="methodName" type="text" size="50" class="configUI-common-len" (keydown.space)="$event.preventDefault()" pInputText [(ngModel)]="methodMonitorDetail.methodName"
+                    title="Please enter valid method name. &#013;Rule 1: Method name can include package,class and method name separated by dot(.) . &#013;Rule 2: Method name cannot include whitespaces."
+                    required pattern="[a-zA-Z]+[a-zA-Z0-9_$.]+(\((.*)\))+.*" autofocus ngModel />
+            </div>
+            <div class="ui-g-7" *ngIf="agentType == 'Dot Net' || agentType == 'Php' || agentType == 'Python'">
+                <input name="methodName" type="text" size="50" class="configUI-common-len"
+                    (keydown.space)="$event.preventDefault()" pInputText [(ngModel)]="methodMonitorDetail.methodName" title="Please enter valid method name. &#013;Rule 1: Method name can include package,class and method name separated by dot(.) . &#013;Rule 2: Method name cannot include whitespaces."
+                    required pattern="[.a-zA-Z]+[a-zA-Z0-9_$.]+((.*))+.*" ngModel />
+            </div>
+        </div>
+        <div class="ui-g">
+            <div class="ui-g-4">
+                <label>Display Name in Monitor</label>
+                <i class="icons8-icons8-info" aria-hidden="true" title="User specified alias name for Method Monitor"></i>
+            </div>
+            <div class="ui-g-7">
+                <input name="methodDisplayName" class="configUI-common-len" (keydown.space)="$event.preventDefault()" type="text" size="50" pInputText [(ngModel)]="methodMonitorDetail.methodDisplayName" ngModel />
+            </div>
+        </div>
+        <div class="ui-g">
+            <div class="ui-g-4">
+                <label>Description</label>
+            </div>
+            <div class="ui-g-7">
+                <textarea name="methodDesc" class="w-90-p" pInputTextarea [(ngModel)]="methodMonitorDetail.methodDesc" ngModel></textarea>
+            </div>
+        </div>
+        <footer>
+            <div class="p-grid p-align-center p-justify-end py-5">
+                <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" label="Cancel" (click)="addEditMethodMonitorDialog=false"  class="ui-button-rounded ui-button-secondary mr-6"></button>
+                <button type="submit"  pButton class="ui-button-rounded  px-10" label="Save"></button>
+
+            
+            </div>
+            
+        </footer>
+    </form>
+</p-dialog>
+
+<!--Dialog to open file explorer dialog -->
+<!--<p-dialog class="profile-dialog browseTopCss headerCss" header="File Manager" *ngIf="openFileExplorerDialog"
+    [(visible)]="openFileExplorerDialog" modal="modal" width="650" responsive="true" [resizable]="false">-->
+
+    <!-- This will look for this component in the ProductUI at this path -
+     ..\ProductUI\gui\src\app\modules\file-explorer\components\config-nd-file-explorer\-->
+
+    <!-- <app-config-nd-file-explorer></app-config-nd-file-explorer>  -->
+<!--</p-dialog>-->
+
+<app-file-manager #fileManager (eventBind)="getPath($event)"></app-file-manager>

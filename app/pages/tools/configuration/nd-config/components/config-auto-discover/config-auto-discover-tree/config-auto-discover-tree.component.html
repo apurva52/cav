@@ -1,0 +1,122 @@
+<div>
+    <!-- <app-method-bt-configuration></app-method-bt-configuration> -->
+    <app-http-bt-configuration></app-http-bt-configuration> 
+</div>
+<div class="ui-g configUI">
+    <p-fieldset legend="Auto Discover" class="w-100-p">
+        <div class="ui-g-12 mtn-20">
+            <div class="ui-g-5">
+                <div class="p-grid p-align-center height-40">
+                    <div class="ui-g-5">Auto Discovered data by Agent</div>
+                    <div class="ui-g-1">
+                        <span title="{{agentType}}" *ngIf="agentType == 'DotNet'"><i class="icons8 icons8-database" style="color: #007ad9;"></i></span>
+                        <span title="{{agentType}}" *ngIf="agentType == 'NodeJS'"><i class="icons8 icons8-node-js" style="color: mediumseagreen;"></i></span>
+                        <span title="{{agentType}}" *ngIf="agentType == 'Java'"><i class="icons8 icons8-java" style="color: #e91224;"></i></span>
+                    </div>
+                    <div class="ui-g-6">
+                        <input type="text" [disabled]="true" [(ngModel)]="instanceFileName" required class="w-100-p" title="{{instanceFileName}}" pInputText>
+                    </div>
+                </div>
+                <div class="ui-g-12">
+                    <div class="bdr-gray w-100-p">
+                        <div class="ui-panel-contents">
+                    <p-tree class="nde-ui" [value]="leftSideTreeData" (onNodeExpand)="nodeExpand($event)" (onNodeSelect)="onNodeSelect()" selectionMode="checkbox" [style]="{'height':'400px','width':'100%','overflow':'auto'}" [(selection)]="instrFromLeftSideTree">
+                        <ng-template let-col let-node="rowData" pTemplate>
+                            <span title="{{node[col.field]}}" class="node.icon">{{node[col.field]}}</span>
+                        </ng-template>
+                    </p-tree>
+                </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui-g-2 config-ui-auto">
+                <div  class="m-2" *ngIf="agentType != 'NodeJS'">
+                    <button type="button" (click)="reset()" pButton label=' Reset ' class="w-100-p"> </button>
+                </div>
+                <div class="m-2">
+                    <button type="button" [disabled]="isAutoPerm" (click)="getValuesForSelectedList()" pButton label=' Instrument  >> ' class="w-100-p"> </button>
+                </div>
+                <div class="m-2">
+                    <button class="unInstrumentation-css w-100-p" type="button" [disabled]="isAutoPerm" (click)="removeValuesFromSelectedList()" pButton label='<< Uninstrument'></button>
+                </div>
+                <div class="m-2" *ngIf="agentType != 'NodeJS'">
+                    <button type="button" (click)="createMethodAndValidateFQM()" pButton label=' Method Monitor ' title="This feature is applicable only for the FQM(s) present in LHS Tree" class="w-100-p"> </button>
+                </div>
+                <div class="m-2" *ngIf="agentType != 'NodeJS'">
+                    <button type="button" (click)="createMethodBTRule()" pButton label=' Method BT ' title="This feature is applicable only for the FQM(s) present in LHS Tree" class="w-100-p"> </button>
+                </div>
+            </div>
+            <div class="ui-g-5">
+                <div class="ui-g-12 p-grid p-align-center height-40">
+                    <div>Instrumented List</div>
+                </div>
+                <div class="ui-g-12">
+                    <div class="bdr-gray w-100-p">
+                    <p-tree class="nde-ui" [value]="rightSideTreeData" selectionMode="checkbox" [style]="{'height':'400px','width':'100%','overflow':'auto'}" [(selection)]="instrFromRightSideTree"></p-tree>
+                </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="ui-g-12" >
+            <div class="right mr-5">
+                <span>Save instrumentation profile as</span>
+                <span><input type="text" onkeypress="return String.fromCharCode(event.charCode).match(/[_\-a-zA-Z0-9 ]/g) != null" [(ngModel)]="instrfileName" size=25  class="mx-5" pInputText (keydown.space)="$event.preventDefault()"></span>
+                <span><button type="button" [disabled] = "isAutoPerm" (click)="saveInstrumentationFile()" pButton label="Save " icon="icons8 icons8-save"></button></span>
+            </div>
+        </div>
+    </p-fieldset>
+</div>
+
+<!--Dialog to open select profile dialog -->
+<p-dialog class="secondary-dialog" [style]="{width: '550px'}" header="Select Profile" *ngIf="selectProfileDialog" [(visible)]="selectProfileDialog" modal="modal" width="500" responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveMethodMonitorForSelectedProfile(calledFor)" #groupForm="ngForm" ngNativeValidate>
+        <div class="p-grid p-align-center">
+            <div class="ui-g-3">Profile Name </div>
+            <div class="ui-g-5" *ngIf="calledFor == 'methodMonitor'">
+                <input name="profileIdList" type="text" size="25" [style]="{'width':'248px'}" class='hidden-validator configinput' pInputText [(ngModel)]="profileIdList" required ngModel/>
+                <p-multiSelect [options]="profileListItem" dropdownIcon="icons8 icons8-expand-arrow" name="profileIdList" [style]="{'min-width':'100%'}" required [(ngModel)]="profileIdList" placeholder="Select Profile(s)" appendTo="body"></p-multiSelect>
+            </div>
+            <div class="ui-g-5" *ngIf="calledFor == 'methodBT'">
+                <input name="dropdown1" type="text" size="25" class='hidden-validator configinput w-100-p' pInputText [(ngModel)]="profileId" required ngModel/>
+                <p-dropdown [options]="profileListItem" dropdownIcon="icons8 icons8-expand-arrow" name="dropdown1" [style]="{'min-width':'100%'}" required [(ngModel)]="profileId" placeholder="Select a Profile" appendTo="body"></p-dropdown>
+            </div>
+        </div>
+        <div class="ui-g">
+
+        </div>
+        <footer>
+            <div class="p-grid p-align-center p-justify-end my-10 p-5">
+                <button type="button" class="ui-button-rounded ui-button-secondary mx-6 px-15" pButton (click)="selectProfileDialog=false" label="Cancel"></button>
+                <button type="submit" class="ui-button-rounded px-15" pButton label="Save"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>
+
+<!-- Dialog if file already exist -->
+<p-dialog class="secondary-dialog" [style]="{width: '500px'}" header="Confirmation" *ngIf="isShowFileExistDialog" [(visible)]="isShowFileExistDialog" responsive="true" modal=true width="394" [resizable]="true">
+    <div>
+        <label>Provided file name already exist.
+            Do you want to override the existing file?</label>
+    </div>
+    <footer>
+        <div class="p-grid p-align-center p-justify-end my-10 p-5">
+            <button type="button" class="ui-button-rounded ui-button-secondary mx-6 px-15" pButton  (click)="selectProfileDialog=false" label="Cancel"></button>
+            <button type="submit" class="ui-button-rounded px-15" pButton  label="Save"></button>
+        </div>
+    </footer>
+</p-dialog>
+
+<!-- Dialog if instrumented node count exceeds -->
+<p-dialog class="secondary-dialog" [style]="{width: '500px'}" header="Warning" *ngIf="isShowWarningDialog" [(visible)]="isShowWarningDialog" responsive="true" modal=true width="406" [resizable]="true">
+    <div>
+        <label>Higher nodes count in Instrumented List section might impact performance.</label>
+    </div>
+    <footer>
+        <div class="p-grid p-align-center p-justify-end my-10 p-5">
+            <button type="button" class="ui-button-rounded ui-button-secondary mx-6 px-15" pButton (click)="selectProfileDialog=false" label="Cancel"></button>
+            <button type="submit" class="ui-button-rounded px-15" pButton label="Save"></button>
+        </div>
+    </footer>
+</p-dialog>

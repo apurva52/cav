@@ -1,0 +1,165 @@
+<div (contextmenu)="onRightClick(obj, $event)" style="border-radius: 50%; height: 76px; width: 76px ; z-index: 100">
+    <div class="flowchart-object" style="width:100%;">
+                 <svg id="svg" [attr.width]="obj.entity === 1 ? 75 : 80" [attr.height]="obj.entity === 1 ? 75 : 80">    
+	<!-- Non ND-->
+            <!-- <circle id="greenNonND" *ngIf="obj.entity === 1" [attr.r]="30" cx="38" cy="38" stroke-dasharray="176" [style.strokeDashoffset]="greenNonNDOffset" stroke="green"
+                fill="#F8F8FF" /> -->
+
+
+            <circle id="greenNonND" (mousemove)="showToolTip($event,'Server',obj.tooltip)"
+                (mouseleave)="hideToolTip($event)" *ngIf="obj.entity === 1" [attr.r]="28" cx="38" cy="38" fill="#F8F8FF"
+                stroke-dasharray="176" [style.strokeDashoffset]="dashoffsetSN"></circle>
+            <circle id="majorNonND" (mousemove)="showToolTip($event,'Server',obj.tooltip)"
+                (mouseleave)="hideToolTip($event)" *ngIf="obj.entity === 1" [attr.r]="28" cx="38" cy="38"
+                fill="transparent" stroke-dasharray="176" [style.strokeDashoffset]="dashoffsetSM"></circle>
+            <circle id="criticalNonND" (mousemove)="showToolTip($event,'Server',obj.tooltip)"
+                (mouseleave)="hideToolTip($event)" *ngIf="obj.entity === 1" [attr.r]="28" cx="38" cy="38"
+                stroke-dasharray="176" fill="transparent" [style.strokeDashoffset]="dashoffsetSC" />
+
+
+            <!-- ND Outer circle for business health -->
+
+            <circle id="normal" (mousemove)="showToolTip($event,'Business',obj.tooltip)"
+                (mouseleave)="hideToolTip($event)" *ngIf="obj.tooltip.TransactionScorecard && obj.instance || obj.entity === 0 " [attr.r]="36" cx="38" cy="38" fill="#F8F8FF"
+                stroke-dasharray="226.28" [style.strokeDashoffset]="dashoffsetNormal"></circle>
+            <circle id="major" (mousemove)="showToolTip($event,'Business',obj.tooltip)"
+                (mouseleave)="hideToolTip($event)" *ngIf="obj.tooltip.TransactionScorecard && obj.instance || obj.entity === 0 " [attr.r]="36" cx="38" cy="38"
+                fill="transparent" stroke-dasharray="226.28" [style.strokeDashoffset]="dashoffsetMajor"></circle>
+
+            <circle id="critical" (mousemove)="showToolTip($event,'Business',obj.tooltip)"
+                (mouseleave)="hideToolTip($event)" *ngIf="obj.tooltip.TransactionScorecard && obj.instance || obj.entity === 0 " [attr.r]="36" cx="38" cy="38"
+                stroke-dasharray="226.28" fill="transparent" [style.strokeDashoffset]="dashoffsetCritical" />
+
+            <!-- ND Inner circle for Server Health -->
+            <circle id="normalInner" (mousemove)=" flowMapMode =='2' ? showToolTip($event,'Instance',obj.tooltip):showToolTip($event,'Server',obj.tooltip)"
+                (mouseleave)="hideToolTip($event)" *ngIf="obj.instance || obj.entity === 0 " [attr.r]="28" cx="38" cy="38" fill="#F8F8FF"
+                stroke-dasharray="176" [style.strokeDashoffset]="dashoffsetSN"></circle>
+            <circle id="majorInner" (mousemove)="flowMapMode =='2' ? showToolTip($event,'Instance',obj.tooltip):showToolTip($event,'Server',obj.tooltip)"
+                (mouseleave)="hideToolTip($event)" *ngIf="obj.instance || obj.entity === 0 " [attr.r]="28" cx="38" cy="38"
+                fill="transparent" stroke-dasharray="176" [style.strokeDashoffset]="dashoffsetSM"></circle>
+            <circle id="criticalInner" (mousemove)="flowMapMode =='2' ? showToolTip($event,'Instance',obj.tooltip):showToolTip($event,'Server',obj.tooltip)"
+                (mouseleave)="hideToolTip($event)" *ngIf="obj.instance || obj.entity === 0 " [attr.r]="28" cx="38" cy="38"
+                stroke-dasharray="176" fill="transparent" [style.strokeDashoffset]="dashoffsetSC" />
+
+            <!-- <rect *ngIf="obj.entity === 1" [attr.x]="0" [attr.y]="0" [attr.width]="obj.w" [attr.height]="obj.h" class="outer"
+                 [attr.rx]="25" [attr.ry]="25" />
+            <rect (mousemove)="showToolTip($event,'Tier',obj.tooltip)" (mouseleave)="hideToolTip($event)" *ngIf="obj.entity === 0"
+                 [attr.x]="0" [attr.y]="0" [attr.width]="obj.w" [attr.height]="obj.h" class="outer">
+             </rect>
+           <rect *ngIf="obj.entity === 1" [attr.x]="5" [attr.y]="5" [attr.width]="obj.w-10" [attr.height]="obj.h-10"
+                class="middle" [attr.rx]="25" [attr.ry]="25">
+            </rect>
+            <rect (mousemove)="showToolTip($event,'Server',obj.tooltip)" (mouseleave)="hideToolTip($event)" *ngIf="obj.entity === 0"
+                [attr.x]="5" [attr.y]="5" [attr.width]="obj.w-10" [attr.height]="obj.h-10" class="middle">
+            </rect>
+            <rect *ngIf="obj.entity === 1" [attr.x]="10" [attr.y]="10" [attr.width]="obj.w-20" [attr.height]="obj.h-20"
+                class="tierbox" [attr.rx]="25" [attr.ry]="25">
+            </rect>
+            <rect (mousemove)="showToolTip($event,'Instance',obj.tooltip)" (mouseleave)="hideToolTip($event)" *ngIf="obj.entity === 0"
+                [attr.x]="10" [attr.y]="10" [attr.width]="obj.w-20" [attr.height]="obj.h-20" class="tierbox">
+            </rect>
+            <rect *ngIf="obj.entity === 1" [attr.x]="15" [attr.y]="15" [attr.width]="obj.w-30" [attr.height]="obj.h-30"
+                class="inner" [attr.rx]="25" [attr.ry]="25">
+            </rect>
+            <rect *ngIf="obj.entity === 0" [attr.x]="15" [attr.y]="15" [attr.width]="obj.w-30" [attr.height]="obj.h-30"
+                class="inner">
+            </rect> 
+            <text text-anchor="middle" [attr.x]="obj.w/2" [attr.y]="obj.h/2-10" dominant-baseline="central">
+                {{obj.trimText}}
+                <title>{{obj.text}}</title>
+            </text> -->
+            <image style="cursor: pointer;" [attr.xlink:href]="obj.icon" [attr.x]="4" [attr.y]="55"
+                dominant-baseline="central" height="20px" width="20px" (click)="openTopTransaction(obj, $event)"
+                class="iconClass" />
+
+            <image *ngIf="obj.pvs >=0" xlink:href="./assets/images/page_legend.png" [attr.x]="23" [attr.y]="circleAttrY.pvs_image_y"
+                dominant-baseline="central" height="10px" width="10px">
+                <title>{{generateTitle(obj)}}</title>
+            </image>
+            <text *ngIf="obj.pvs >=0" class="textClass" text-anchor="middle" [attr.x]="48" [attr.y]="circleAttrY.pvs_text_y"
+                dominant-baseline="central">
+                {{convertRomanFormat(obj.pvs)}}
+                <title>{{generateTitle(obj)}}</title>
+            </text>
+            <image *ngIf="obj.res >=0" xlink:href="./assets/images/response_legend.png" [attr.x]="23" [attr.y]="circleAttrY.res_image_y"
+                dominant-baseline="central" height="10px" width="10px">
+                <title>
+                    Average Response Time (ms) = {{obj.res}}
+                </title>
+            </image>
+            <text *ngIf="obj.res >=0" class="textClass" text-anchor="middle" [attr.x]="48" [attr.y]="circleAttrY.res_text_y"
+                dominant-baseline="central">
+                {{convertRomanFormat(obj.res)}}
+                <title>
+                    Average Response Time (ms) = {{obj.res}}
+                </title>
+            </text>
+            <image *ngIf="obj.cpu >=0 && !obj.instance" xlink:href="./assets/images/cpu_legend.png" [attr.x]="23" [attr.y]="circleAttrY.cpu_image_y"
+                dominant-baseline="central" height="10px" width="10px">
+                <title>
+                    CPU Utilization (%) = {{obj.cpu}}
+                </title>
+            </image>
+            <text *ngIf="obj.cpu >=0 && !obj.instance" class="textClass" text-anchor="middle" [attr.x]="48" [attr.y]="circleAttrY.cpu_text_y"
+                dominant-baseline="central">
+                {{obj.cpu}}
+                <title>
+                    CPU Utilization (%) = {{obj.cpu}}
+                </title>
+            </text>
+        </svg>
+	<label  class="ND-node-text" title ={{obj.text}} style="white-space: nowrap;">
+                {{ (obj.trimText.length>13)? (obj.trimText | slice:0:13)+'..':(obj.trimText) }}
+        </label>
+    </div>
+    <jtk-target port-type="target"></jtk-target>
+    <jtk-source port-type="source" filter=".outer"></jtk-source>
+</div>
+
+
+
+<!-- <p-contextMenu #ctrlMenu class="contextClass" [global]="false" (onContextMenuSelect)="randomVariable($event)" [model]="items2"></p-contextMenu> -->
+<p-contextMenu #ctrlMenu class="contextClass" [global]="false" [model]="items2"></p-contextMenu>
+<!-- div for tooltip on hover on tiers -->
+<div class="tooltip-alert-main" #tooltip>
+    <div *ngIf="tooltipObj.divType == 'Business' ">
+        {{tooltipObj.divType}} Health
+    </div>
+    <div *ngIf="tooltipObj.divType == 'Server' ">
+        {{tooltipObj.divType}} Health ( Total = {{tooltipObj.total}} )
+    </div>
+    <div *ngIf="tooltipObj.divType == 'Instance' ">
+        {{tooltipObj.divType}} Health ( Total = {{tooltipObj.total}} )
+    </div>
+    <div *ngIf="tooltipObj.divType == 'Alerts' ">
+        {{tooltipObj.divType}}
+    </div>
+    <div>
+        <div class="tooltip-alert-div">
+            <span>
+                <i class="fa fa-square" style="color:red"></i>
+            </span>
+            <label *ngIf="tooltipObj.divType != 'Alerts' " class="label-tooltip-val"> {{tooltipObj.critical}}%</label>
+            <label *ngIf="tooltipObj.divType == 'Alerts' " class="label-tooltip-val"> {{tooltipObj.critical}}</label>
+            <label class="label-tooltip">Critical</label>
+        </div>
+        <div class="tooltip-alert-div">
+            <span>
+                <i class="fa fa-square" style="color:orange"></i>
+            </span>
+            <label *ngIf="tooltipObj.divType != 'Alerts' " class="label-tooltip-val"> {{tooltipObj.major}}%</label>
+            <label *ngIf="tooltipObj.divType == 'Alerts' " class="label-tooltip-val"> {{tooltipObj.major}}</label>
+            <label class="label-tooltip">Warning</label>
+        </div>
+        <div class="tooltip-alert-div">
+            <span>
+                <i *ngIf="tooltipObj.divType != 'Alerts' " class="fa fa-square" style="color:#9ADE32"></i>
+                <i *ngIf="tooltipObj.divType == 'Alerts' " class="fa fa-square" style="color:yellow"></i>
+            </span>
+            <label *ngIf="tooltipObj.divType != 'Alerts' " class="label-tooltip-val"> {{tooltipObj.normal}}%</label>
+            <label *ngIf="tooltipObj.divType != 'Alerts' " class="label-tooltip">Normal</label>
+            <label *ngIf="tooltipObj.divType == 'Alerts' " class="label-tooltip-val"> {{tooltipObj.minor}}</label>
+            <label *ngIf="tooltipObj.divType == 'Alerts' " class="label-tooltip">Minor</label>
+        </div>
+    </div>
+</div>

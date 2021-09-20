@@ -1,0 +1,19 @@
+<div class="navigation-timing-container">
+    <div class="p-grid p-align-stretch p-justify-center chart-container ">
+        <div class="p-col-12" *ngFor="let chart of visualChart.charts">
+            <app-chart [data]="chart"></app-chart>
+        </div>
+    </div>
+    <div class="p-grid p-col-12">
+        <p-orderList [value]="orderList">
+            <ng-template pTemplate="item" let-rowData>
+                <div class="ui-helper-clearfix">
+                    <div class="list">                       
+                        <span class="list-name">{{rowData.label}}</span> 
+                        <span class="list-time" >{{ rowData.title + ' sec'}}</span>                                   
+                    </div>
+                </div>
+            </ng-template>
+        </p-orderList>
+    </div>
+</div>

@@ -1,0 +1,177 @@
+
+ <div class="derived-metric-indices-container ">
+  <p-dialog #dialog
+    [(visible)]="visible"
+    [modal]="true"
+    class="secondary-dialog"
+    [baseZIndex]="10000100011"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="false"
+    [style]="{width: '40vw'}"
+  >
+    <p-header>
+      <div class="p-grid">
+        <div class="dialog-title">
+          <div class="title">{{title}}</div>
+          <div class="action-buttons">
+            <i class="icons8 icons8-delete" (click)="hide()"></i>
+          </div>
+        </div>
+      </div>  
+    </p-header>
+    <div class="content-body h-100-p">
+      <div class="p-grid">
+
+    <div class="p-col-12">
+      <div class="type-search">
+      <input id="dashboardName" placeholder="Enter Dashboard Name"  type="text" [(ngModel)]="dashboardName" maxLength = "64" pInputText class="w-100 pl-6"/>
+    <p-message
+      *ngIf="nameError && dashboardName ==undefined"
+      severity="error" text="Dashboard Name is required."></p-message>			
+      <p-message
+      *ngIf="existError"
+      severity="error" text="Dashboard Name is already taken."></p-message>		
+      <button type="button" class="btn-icon right-icon" (click)="informativeDialog.show()" pTooltip="Help"><i class="icons8 icons8 icons8-help"></i></button>
+    </div>													  
+    </div>
+
+<!-- 
+<div class="p-col-1">
+<button pButton icon="icons8 icons8-help" class="icon-button no-shadow" style="margin-left: 14px; height: 20px;" (click)="informativeDialog.show()" pTooltip="Help"></button>
+</div> -->
+<div class="p-col-12">
+  <input id="dashboardDescription" placeholder="Dashboard Description" type="text" [(ngModel)]="dashboardDescription" maxLength = "256" pInputText class="w-100"/>
+</div>
+
+<div class="p-col-9">
+<input id="defaultDashboardPath" placeholder="Path Selection" type="text" [(ngModel)]="defaultDashboardPath" [disabled]="true" pInputText class="w-100"/>
+</div>
+<div class="p-col-3">
+  <button pButton type="button" class="w-100 ui-button-secondary" label="Browse" (click)="fileManager.open(false)"></button>
+</div>
+
+<!-- <div class="p-col-12 mt-10">
+  <label for="permissions">Request Access</label>
+<div class="p-formgroup-inline pt-5">
+  <div class="p-field-checkbox"  style="width: 93px;">
+    <p-radioButton
+      name="public"
+      value="public"
+      inputId="public"
+      [(ngModel)]="selectedAccessMode"
+      (onClick)="onAccessChange()"
+    ></p-radioButton>
+    <label for="public" class="pl-5 pr-5">Public</label>
+  </div>
+  <div class="p-field-checkbox">
+    <p-radioButton
+      name="private"
+      value="private"
+      inputId="private"
+      [(ngModel)]="selectedAccessMode"
+      (onClick)="onAccessChange()"
+    ></p-radioButton>
+    <label for="private" class="pl-5 pr-5">Private</label>
+  </div>	
+</div>
+</div> -->
+
+<div class="p-col-12 mt-10">
+  <label for="permissions"> Shared Permissions</label>
+<div class="p-formgroup-inline pt-5">
+  <div class="p-field-checkbox pr-10 p-grid p-align-center">
+    <p-radioButton
+      name="readWrite"
+      value="readWrite"
+      inputId="readWrite"
+      [(ngModel)]="selectedReadOperation"
+    ></p-radioButton>
+    <label for="readWrite" class="pl-5 pr-5">Read / Write</label>
+  </div>
+  <div class="p-field-checkbox p-grid p-align-center">
+    <p-radioButton
+      name="read"
+      value="read"
+      inputId="read"
+      [(ngModel)]="selectedReadOperation"
+   
+    ></p-radioButton>
+    <label for="readOnly" class="pl-5 pr-5">Read Only</label>
+  </div>
+
+  <div class="p-field-checkbox p-grid p-align-center">
+    <p-radioButton
+      name="noAccess"
+      value="noAccess"
+      inputId="noAccess"
+      [(ngModel)]="selectedReadOperation"
+    ></p-radioButton>
+    <label for="noAccess" class="pl-5 pr-5">Private Only</label>
+  </div>
+</div>
+<p-message
+*ngIf="permission && !selectedReadOperation"
+severity="error" text="Permission is required."></p-message>	
+</div>
+
+      </div>
+    </div>
+    <p-footer>
+      <div class="action-buttons">
+        <button *ngIf = "title !== 'Add New Dashboard'"
+          pButton
+          label="CANCEL"
+          class="ui-outline-button ui-button-secondary"
+          (click)="hide()"
+        ></button>
+        <button *ngIf ="title=='Add New Dashboard'"
+        pButton
+        label="Create New Dashboard"
+        class="ui-outline-button ui-button-secondary"
+        (click)="switchToEdit()"
+      ></button>
+      <button
+      pButton
+      label="SAVE"
+      class="ui-outline-button ui-button-primary"
+      (click)="saveChanges()"
+    ></button>
+
+        <!-- <button
+        pButton
+        label="Take me to Dashboard"
+        class="ui-outline-button ui-button-primary"
+        (click)="switchToEdit()"
+      ></button> -->
+      </div>
+    </p-footer>
+    <div class="loading-indicator" *ngIf="loading">
+      <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4"  animationDuration=".5s"></p-progressSpinner>
+    <!-- <span style="color:black">Saving Dashboard</span>   -->
+    </div>
+  </p-dialog>
+
+
+</div>
+ 
+<div id="centerpoint">
+
+  <p-confirmDialog #cd1 [transitionOptions]="'0ms'"  [style]="{width: '40vw', top: '50%',left: '50%',position: 'absolute',transform: 'translateX(-50%) translateY(-50%)'}" [baseZIndex]="100000000011" [appendTo]="dialog" >
+    <p-footer>
+      <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton icon="pi pi-check" label={{acceptLable}}
+        (click)="cd1.accept()"></button>
+        <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton icon="pi pi-times"
+        label="No" (click)="cd1.reject()" *ngIf="rejectVisible"></button>
+    </p-footer>
+  </p-confirmDialog>
+
+</div>
+
+
+
+
+<p-toast position="top-right" [style]="{width: '20vw'}" [baseZIndex]="10000100011"></p-toast>
+<!-- File Manager  -->
+<app-file-manager #fileManager (eventBind)="eventBind($event)"></app-file-manager>
+<app-informative-dialog #informativeDialog [data]="content"></app-informative-dialog>

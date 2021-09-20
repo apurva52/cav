@@ -1,0 +1,21 @@
+<script>
+
+//handling for Copy Link
+/* converting url params*/
+
+var regex = /[?&]([^=#]+)=([^&#]*)/g,
+        url = window.location.href,
+        params = {},
+        match;
+    while(match = regex.exec(url)) {
+        params[match[1]] = match[2];
+    }
+
+console.log("copylinkparams is",params);
+sessionStorage.setItem('copyLinkParams' , JSON.stringify(params))
+
+window.location.href = './#/loading';
+//window.open('./#/loading');
+
+
+</script>

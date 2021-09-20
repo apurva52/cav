@@ -1,0 +1,211 @@
+<div class="ndegui-mainbox">
+    <div class="accordian-css">
+        <p-accordion class="ndagent">
+            <p-accordionTab header="Add NDE Server">
+                <p-header class="p-grid p-align-center p-justify-between ml-22 mtn-22">
+             <span class="configui-float-css"> NDE Server List </span>
+              <span class="configui-float p-align-center">
+                 <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotificationForNDEServer()"></i>
+                 <button pButton type="button" title="Add NDE" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-plus-math"></button>
+                 <button pButton type="button" title="Add NDE" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openNDEDialog()" icon="icons8 icons8-plus-math"></button>
+                 <button pButton type="button" title="Edit an NDE" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-edit"></button>
+                 <button pButton type="button" title="Edit an NDE" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openEditNDEDialog()"
+                 icon="icons8 icons8-edit"></button>
+                 <button pButton type="button" class="ui-button-sucess mb-6" title="Delete NDE" *ngIf="isProfilePerm" [disabled]="isProfilePerm"
+                 icon="icons8 icons8-trash"></button>
+                 <button pButton type="button" class="ui-button-sucess mb-6" title="Delete NDE" *ngIf="!isProfilePerm" [disabled]="saveDisable"
+                (click)="deleteNDE()" icon="icons8 icons8-trash"></button>
+              </span>
+                </p-header>
+                <p-table [columns]="cols" class="nde-ui all-tables removeHeaderCheckbox" [value]="ndeInfo" [(selection)]="selectedNDEData" [rows]="12" [paginator]="ndeInfo?.length > 12" [pageLinks]="3">
+                    <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                    <col style="width:8%">
+                    <col style="width:20%">
+                    <col style="width:20%">
+                    <col style="width:20%">
+                    <col style="width:20%">
+                    <col style="width:20%">
+                    </colgroup>
+                    </ng-template>
+                    <!-- <ng-template pTemplate="header">
+                    <tr>
+                    <th>
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th>NDE Server</th>
+                    <th>IP</th>
+                    <th>Port</th>
+                    <th>WS Port</th>
+                    <th>WSS Port</th>
+                    </tr>
+                    </ng-template> -->
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                                <span class="width-20" *ngIf="col.field =='checkbox'"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></span>
+                                <span *ngIf="col.field !='checkbox'">
+                                    {{col.header}}
+                                <p-sortIcon [field]="col.field"></p-sortIcon>
+                                </span>
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template class="tableCss config-ui" pTemplate="body" let-nde>
+                    <tr>
+                    <td class="text-center">
+                    <p-tableCheckbox [value]="nde"></p-tableCheckbox>
+                    </td>
+                    <td class="tableCss" title="{{nde.name}}">{{nde.name}}</td>
+                    <td class="tableCss" title="{{nde.ip}}">{{nde.ip}}</td>
+                    <td class="tableCss" title="{{nde.port}}">{{nde.port}}</td>
+                    <td class="tableCss" title="{{nde.wsPort}}">{{nde.wsPort}}</td>
+                    <td class="tableCss" title="{{nde.wssPort}}">{{nde.wssPort}}</td>
+                    </tr>
+                    </ng-template>
+                </p-table>
+    </p-accordionTab>
+    <p-accordionTab header="NDE Routing Rules" [selected]="true">
+        <p-header class="p-grid p-align-center p-justify-between ml-22 mtn-22">
+            <span class="configui-float-css p-align-center"> NDE Routing Rule List </span>
+            <span class="configui-float">
+<i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotificationForNDERouting()"></i>
+<button pButton type="button" title="Add NDE Routing Rules" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-plus-math"></button>
+<button pButton type="button" title="Add NDE Routing Rules" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openNDERoutingRules()"
+  icon="icons8 icons8-plus-math"></button>
+<button pButton type="button" title="Edit an NDE Routing Rules" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-edit"></button>
+<button pButton type="button" title="Edit an NDE Routing Rules" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openEditNDERoutingDialog()"
+  icon="icons8 icons8-edit"></button>
+<button pButton type="button" class="ui-button-sucess" title="Delete NDE Routing Rules" *ngIf="isProfilePerm" [disabled]="isProfilePerm"
+  icon="icons8 icons8-trash"></button>
+<button pButton type="button" class="ui-button-sucess" title="Delete NDE Routing Rules" *ngIf="!isProfilePerm" [disabled]="saveDisable"
+  (click)="deleteNDERoutingRules()" icon="icons8 icons8-trash"></button>
+<!-- <button type="submit" pButton icon="fa fa-check" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  label="Save"></button> -->
+<!-- <button type="submit" pButton icon="fa fa-check" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="savendeOnFile()" label="Save"></button> -->
+</span>
+        </p-header>
+        <p-table [columns]="column" class="nde-ui  all-tables removeHeaderCheckbox" [value]="ndeRoutingRulesInfo" [(selection)]="selectedNDEData" [rows]="12" [paginator]="ndeInfo?.length > 12" [pageLinks]="3">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col style="width:15%">
+                    <col style="width:50%">
+                </colgroup>
+            </ng-template>
+            <!-- <ng-template pTemplate="header">
+                <tr>
+                    <th>NDE Server</th>
+                    <th>Tier Group(s)</th>
+                </tr>
+            </ng-template> -->
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                        <span class="width-20" *ngIf="col.field =='checkbox'"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></span>
+                        <span *ngIf="col.field !='checkbox'">
+                            {{col.header}}
+                        <p-sortIcon [field]="col.field"></p-sortIcon>
+                        </span>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template class="tableCss config-ui" pTemplate="body" let-nde>
+                <tr>
+                    <td class="tableCss" title="{{nde.nde}}">{{nde.nde}}</td>
+                    <td class="tableCss" title="{{nde.tierGroup}}">{{nde.tierGroup}}</td>
+                    
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-accordionTab>
+        </p-accordion>
+    </div>
+</div>
+
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" header="{{isNDE ? 'Add NDE Server' : 'Edit NDE Server'}}" *ngIf="addEditNDE" [(visible)]="addEditNDE" modal="modal" width="500" responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveEditNDE()" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g">
+            <div class="ui-g-2">
+                <label>Server Name</label>
+            </div>
+            <div class="ui-g-4">
+                <input name="name" type="text" pInputText [(ngModel)]="ndeData.name" autofocus pattern="^[a-zA-Z][a-zA-Z0-9_-]{0,31}$" required ngModel />
+            </div>
+            <div class="ui-g-2"></div>
+            <div class="ui-g-2">
+                <p-checkbox name="isMaster" [(ngModel)]="isMasterChk" [disabled]="disableMaster" binary="true" ngModel label="Master"></p-checkbox>
+            </div>
+        </div>
+        <div class="ui-g">
+        </div>
+        <div class="ui-g">
+            <div class="ui-g-2">
+                <label>IP</label>
+            </div>
+            <div class="ui-g-4">
+                <input name="ip" type="text" pInputText [(ngModel)]="ndeData.ip" autofocus required ngModel />
+            </div>
+            <div class="ui-g-1"></div>
+            <div class="ui-g-1">
+                <label>Port</label>
+            </div>
+            <div class="ui-g-4">
+                <input name="port" type="text" pInputText pattern="[0-9]*" [(ngModel)]="ndeData.port" autofocus required ngModel />
+            </div>
+
+        </div>
+        <div class="ui-g">
+            <p-fieldset legend="Advance Settings" [toggleable]="true" [collapsed]="true" [style]="{'width':'110%'}">
+                <div class="ui-g-12">
+                    <div class="ui-g-2">
+                        <label>WS Port</label>
+                    </div>
+                    <div class="ui-g-4">
+                        <input name="wsPort" size=16 type="text" pattern="[0-9]*" pInputText [(ngModel)]="ndeData.wsPort" ngModel />
+                    </div>
+                    <div class="ui-g-2">
+                        <label>WSS Port</label>
+                    </div>
+                    <div class="ui-g-4">
+                        <input name="wssPort" size=16 type="text" pattern="[0-9]*" pInputText [(ngModel)]="ndeData.wssPort" ngModel />
+                    </div>
+                </div>
+
+            </p-fieldset>
+        </div>
+        <footer>
+            <div class="p-grid p-align-center p-justify-end py-5">
+                    <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="addEditNDE=false" label="Cancel"></button>
+                    <button type="submit"  pButton class="ui-button-rounded  px-10" label="Save"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>
+
+<p-dialog class="secondary-dialog" [style]="{width: '40vw'}" header="{{isNDERule ? 'Add NDE Routing Rule' : 'Edit NDE Routing Rule'}}" *ngIf="addEditNDERules" [(visible)]="addEditNDERules" modal="modal" width="340" responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveEditNDERoutingRules()" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g">
+            <div class="ui-g-4">
+                <label>NDE Server</label>
+            </div>
+            <div class="ui-g-8">
+                <input name="nde" type="text" class='hidden-validator' pInputText [(ngModel)]="ndeRoutingRulesData.nde.name" required ngModel/>
+                <p-dropdown class="nde-ui" dropdownIcon="icons8 icons8-expand-arrow" name="nde" (click)="loadNDEList()" appendTo="body" placeholder="--Select--" [(ngModel)]="ndeRoutingRulesData.nde.name" [options]="ndeListItem" [style]="{'width':'100%'}" required ngModel></p-dropdown>
+            </div>
+        </div>
+        <div class="ui-g">
+            <div class="ui-g-4">
+                <label>Tier Group(s)</label>
+            </div>
+            <div class="ui-g-8">
+                <input name="tierGroup" type="text" class='hidden-validator' [(ngModel)]="tierGroupList" pInputText required ngModel/>
+                <p-multiSelect name="tierGroup" class="multiselectdropReqResp headerhttpres nde-ui" appendTo="body" [options]="tierGrpList" [(ngModel)]="tierGroupList" [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+            </div>
+        </div>
+        <footer>
+            <div class="p-grid p-align-center p-justify-end py-5">
+                    <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="addEditNDERules=false" label="Cancel"></button>
+                    <button type="submit"  pButton class="ui-button-rounded  px-10" label="Save"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>

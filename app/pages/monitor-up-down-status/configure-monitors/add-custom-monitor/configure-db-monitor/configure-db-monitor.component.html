@@ -1,0 +1,129 @@
+<div class="header">
+  <app-header></app-header>
+</div>
+
+<p-toolbar class="ui-secondary-toolbar">
+  <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+    <a routerLink="/custom-monitors/availCustMon/db">
+      <span class="icons8 icons8-left toolbar-icon-color"></span>
+    </a>
+    <div class="p-col ui-toolbar-text">Configure DB Monitors</div>
+    <div>
+      <button pButton class="ui-button ui-button-rounded ui-button-right" form="ngForm" label="Save"></button>
+    </div>
+  </div>
+</p-toolbar>
+
+<div class="content-body">
+  <form class="monitor-ui-form" (ngSubmit)="saveDBMonConf()" id="ngForm" ngNativeValidate>
+    <app-metric-group-info [item]="dbMonData"></app-metric-group-info>
+    <div class="p-grid p-align-center w-100-p">
+      <div class="width-122 required-mark">Driver Class</div>
+
+      <p-dropdown name="driverClass" [options]="driverClassList" [(ngModel)]="dbMonData.dC" filter="true"
+        placeholder="--Select Driver Class--" class="my-select" [style]="{'width': '200px'}"
+        (onChange)="onDbChange(dbMonData.dC)" dropdownIcon="icons8 icons8-expand-arrow">
+      </p-dropdown>
+
+    </div>
+
+    <div class="p-grid p-align-center w-100-p">
+      <div class="width-117 required-mark">Query</div>
+      <div class="p-col-8">
+        <textarea id="foo" name="query" [rows]="4" [(ngModel)]="dbMonData.query" required placeholder="Enter Query"
+          class="w-100-p"></textarea>
+      </div>
+      <div class="p-col-2">
+        <button pButton type="button" (click)="openRunDialog()" label="Run" icon="icons8 icons8-circled-play"
+          title="Run Query"></button>
+      </div>
+    </div>
+
+    <p-table class="all-tables" [columns]="cols" [value]="queryOpTable" [rows]="4" [paginator]="queryOpTable?.length >5"
+      [pageLinks]="3">
+      <ng-template pTemplate="caption">
+        <div style="text-align: left">
+          Query Result
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns">
+            {{col.header}}
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+        <tr>
+          <td *ngFor="let col of columns">
+            {{rowData[col.field]}}
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="1" class="noRecords" style="text-align: center">No records found.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <app-metric-hierarchy [showMetHierCols]="arrMetricHier" [item]="dbMonData">
+    </app-metric-hierarchy>
+
+    <app-metric-configuration [showMetConfCols]="arrMetricConf" [item]="dbMonData"></app-metric-configuration>
+
+    <p-dialog class="secondary-dialog foterDialog" header="Run Query" (onShow)="collapsed = true"
+      (onHide)="collapsed = false" [(visible)]="showRundialog" modal="modal" height="auto" [resizable]="false"
+      [style]="{'width' : '1000px'}">
+      <form class="monitor-ui-form" (ngSubmit)="runQuery()" ngNativeValidate>
+        <div class="py-10">
+          <div class="p-grid p-align-center w-100-p">
+            <div class="required-mark width-150 p-5">Tier</div>
+            <div class="p-col-2">
+              <p-dropdown name="tlist" required filter="true" [options]="tierList" placeholder="--Select Tier--"
+                [(ngModel)]="dbMonData.qryTier" [style]="{'min-width': '100%'}"
+                dropdownIcon="icons8 icons8-expand-arrow" (onChange)="onTierChange(dbMonData.qryTier)">
+              </p-dropdown>
+            </div>
+
+            <div class="required-mark p-col-1">Server</div>
+            <div class="p-col-2">
+              <p-dropdown name="slists" required filter="true" placeholder="-- Select Server--" [options]="serverList"
+                [(ngModel)]="dbMonData.qryServer" [style]="{'min-width': '100%'}"
+                dropdownIcon="icons8 icons8-expand-arrow">
+              </p-dropdown>
+            </div>
+
+            <div class="p-col-2">
+              <p-checkbox binary="true" [(ngModel)]="dbMonData.dbServer" label="Remote DB Host" name="chk">
+              </p-checkbox>
+            </div>
+
+            <div class="p-col-2">
+              <input name="rs1" type="text" [disabled]="!dbMonData.dbServer" [(ngModel)]="rs" autofocus ngModel
+                class="w-100-p" pInputText />
+            </div>
+          </div>
+
+          <app-db-connection [item]="dbMonData"></app-db-connection>
+
+        </div>
+
+        <footer class="p-grid p-align-center p-justify-end">
+          <button type="submit" class="ui-button-rounded" pButton icon="icons8 icons8-circled-play" label="Run"
+            title="Run query"></button>
+          <button type="button" class="ui-button-rounded mx-6" pButton icon="icons8 icons8-delete" label="Cancel"
+            (click)="showRundialog = false"></button>
+        </footer>
+      </form>
+    </p-dialog>
+  </form>
+
+
+  <div class="loading-indicator" *ngIf="loading">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+    </p-progressSpinner>
+  </div>
+</div>

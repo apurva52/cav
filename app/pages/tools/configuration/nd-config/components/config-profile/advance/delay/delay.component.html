@@ -1,0 +1,88 @@
+<form *ngIf="delayData" (ngSubmit)="saveKeywordData(form)" #form="ngForm" ngNativeValidate>
+    <div class="tabsincontent">
+        <div class="header p-grid p-justify-between p-align-center">Settings
+            <div class="pull-right my-6">
+        <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordsDataToDefault()" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" label="Save"></button>
+            </div>
+        </div>
+        <p-panel class="hideheader">
+            <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader">
+                <div class="ui-g">
+
+                    <div class="ui-g-12">
+                        <!-- <div class="ui-g-1"></div> -->
+                        <div class="ui-g-2">
+                            <label>Fully Qualified Method Name</label>
+                        </div>
+                        <div class="ui-g-4" *ngIf="!isResetToDefault">
+                            <input name="fullyQualifiedName" type="text" size="30" [(ngModel)]="delayData.fullyQualifiedName" pInputText title="Please enter valid method name. &#013;Rule 1: Method name can include package,class and method name separated by dot(.) . &#013;Rule 2: Method name cannot include whitespaces."
+                                required pattern="[a-zA-Z]+[a-zA-Z0-9_$.]+(\(([;_$\/\[a-zA-Z0-9]*)\))+[;_$\/\[a-zA-Z0-9]*" (keydown.space)="$event.preventDefault()" ngModel/>
+                        </div>
+                        <div class="ui-g-4" *ngIf="isResetToDefault">
+                            <input name="fullyQualifiedName" type="text" size="30" [(ngModel)]="delayData.fullyQualifiedName" pInputText title="Please enter valid method name. &#013;Rule 1: Method name can include package,class and method name separated by dot(.) . &#013;Rule 2: Method name cannot include whitespaces."
+                                 pattern="[a-zA-Z]+[a-zA-Z0-9_$.]+(\(([;_$\/\[a-zA-Z0-9]*)\))+[;_$\/\[a-zA-Z0-9]*" (keydown.space)="$event.preventDefault()" ngModel/>
+                        </div>
+                    </div>
+
+                    <div class="ui-g-12">
+                        <!-- <div class="ui-g-1"></div> -->
+
+                        <div class="ui-g-2">
+                            <label>Delay In Method</label>
+                        </div>
+
+                       <!-- <div class="ui-g-1" style="width:3%;margin-top:3px">
+                            <label>from:</label>
+                        </div> -->
+                        <div class="ui-g-1" style="width:12%">
+                      <!--     <input name="from" type="number" min="0" max="99999999" #from (input)="checkFrom(from,to)" class="configui-delay-css-2" [(ngModel)]="delayData.from" pInputText required ngModel/> -->
+				<input name="from" type="number" min="0" max="99999999" class="configui-delay-css-2" [(ngModel)]="delayData.from" pInputText required ngModel/>	
+                        </div>
+                        <div class="ui-g-1" style="width:2%;padding-left:0px;margin-top:3px">
+                            <label>(ms)</label>
+                        </div>
+                        
+                     <!--   <div class="ui-g-1" style="width:4%;padding-left:30px;margin-top:3px">
+                            <label>to:</label>
+                        </div>
+                        <div class="ui-g-1" style="width:12%">
+                            <input name="to" type="number" min="1" max="99999999" #to (input)="checkTo(from,to)" class="configui-delay-css-3" [(ngModel)]="delayData.to" pInputText required ngModel/>
+                        </div>
+                        <div class="ui-g-1" style="width:2%;padding-left:0px;margin-top:3px">
+                            <label>(ms)</label>
+                        </div> -->
+                    </div>
+                   <!-- <div class="ui-g-12">
+                        <div class="ui-g-2">
+                            <p-checkbox name="cpuHogg" label="CPU Hogg" [(ngModel)]="delayData.cpuHoggChk" binary="true"></p-checkbox>
+                        </div>
+
+                        <div class="ui-g-4">
+                            <i>(Forcefully consume CPU in delaying methods)</i>
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-2">
+                            <p-checkbox name="autoInstrument" label="Is Auto Instrument" [(ngModel)]="delayData.autoInstrumentChk" binary="true"></p-checkbox>
+                        </div>
+
+                        <div class="ui-g-6">
+                            <i>(Forcefully delaying by auto-instrumenting the method if not mentioned in instrumentation profiles)</i>
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-2">
+                            <p-checkbox name="stackTrace" label="Dump Stack Trace" [(ngModel)]="delayData.stackTraceChk" binary="true"></p-checkbox>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+        </p-panel>
+    </div>
+</form>

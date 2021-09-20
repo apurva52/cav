@@ -1,0 +1,30 @@
+<form (ngSubmit)="saveKeywordData()" #form="ngForm" ngNativeValidate>
+    <div class="tabsincontent">
+        <div class="header p-grid p-justify-between">
+            <p-checkbox name="captureCustomData" label="Method Based Custom Header Rule(s)" [(ngModel)]="captureCustomData" binary="true">
+            </p-checkbox>
+
+            <div class="pull-right">
+		<i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+                <button type="submit" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+                <button type="submit" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" label="Save"></button>
+
+            </div>
+        </div>
+
+        <p-tabView class="sessionTab">
+            <p-tabPanel header="Method">
+                <app-java-method [saveDisable]="saveDisable"></app-java-method>
+            </p-tabPanel>
+            <p-tabPanel header="Session Attribute">
+                <app-session-attribute [saveDisable]="saveDisable"></app-session-attribute>
+            </p-tabPanel>
+            <p-tabPanel header="HTTP Request Header">
+                <app-http-request [saveDisable]="saveDisable"></app-http-request>
+            </p-tabPanel>
+            <p-tabPanel header="HTTP Response Header">
+                <app-http-response [saveDisable]="saveDisable"></app-http-response>
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+</form>

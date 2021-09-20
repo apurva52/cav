@@ -1,0 +1,53 @@
+<p-card #revenueCard  [style.width]="getCustomWidth()">
+    <div class="table-caption">
+        <div class="selected-label">
+            {{durationLabel}}
+        </div>
+        <button type="button" pButton icon="icons8 icons8-delete" class="ui-icon-button cross-button"
+            (click)="removeMe()">
+        </button>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="Error while loading data."></p-message>
+        </div>
+    </div>
+    <div class="empty-container" *ngIf="empty">
+        No data.
+    </div>
+    <div class="p-grid loader-container vertical-container" *ngIf="loading">
+        <div class="p-col p-col-align-center text-center">
+            <div>
+                <i class="pi pi-spin pi-spinner"></i>
+            </div>
+        </div>
+    </div>
+    <div class="kpi-revenue-table " *ngIf="data  && data.headers && data.data">
+        <p-table [columns]="data.headers" [value]="data.data">
+            <ng-template pTemplate="header" let-dataHeaders>
+                <tr *ngFor="let headerRow of data.headers">
+                    <th class="{{col.classes}}" *ngFor="let col of headerRow.cols" [attr.colspan]="col.colspan"
+                        [attr.rowspan]="col.rowspan">
+                        {{col.label}}
+                    </th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-row>
+                <tr>
+                    <td *ngFor="let col of data.headers[data.headers.length-1].cols" [attr.colspan]="row.colspan"
+                        [attr.rowspan]="row.rowspan" class="{{col.dataClasses}}">
+                        {{row[col.value]}}
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td class="text-center">
+                        <span *ngIf="loading">Loading...</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</p-card>

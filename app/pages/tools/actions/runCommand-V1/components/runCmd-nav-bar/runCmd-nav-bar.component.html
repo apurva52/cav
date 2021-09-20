@@ -1,0 +1,41 @@
+
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center px-5">
+      <div class="p-grid p-align-center">
+        <a routerLink="/home"><i class="icons8 icons8-left toolbar-icon-color"></i></a>
+        <div class="p-col ui-toolbar-text">Run Command</div>
+      </div>
+
+      <div class="p-grid p-align-center">
+        <p-button type="button" class="mr-3" *ngFor="let tabLink of tabLinks; let i = index" label="{{tabLink.label}}"
+        active="activeLinkIndex === i" (click)="setActiveTab(i)"></p-button>
+      </div>
+     
+    </div>
+  </p-toolbar>
+  <!-- <div class="content-body" id="reports"> -->
+ 
+
+      <div class="breadcrumbs w-100-p">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+      </div>
+
+  
+  <!-- <span class="app-toolbar-filler"></span> -->
+  <!-- <nav mat-tab-nav-bar aria-label="weather navigation links">
+        <a class="rcnavbar-a" mat-tab-link *ngFor="let tabLink of tabLinks; let i = index" [routerLink]="tabLink.link" [active]="activeLinkIndex === i" (click)="setActiveTab(i)"
+        [ngClass]="{focusRCNavBar: isSelected(tabLink)}">
+      {{tabLink.label}}
+    </a>
+    </nav> -->
+ 
+  <!-- <div class="m-10">
+    <p-button type="button" class="mr-3" *ngFor="let tabLink of tabLinks; let i = index" label="{{tabLink.label}}"
+      active="activeLinkIndex === i" (click)="setActiveTab(i)"></p-button>
+  </div> -->
+  <span class="login-settings">
+    {{displayDate}} 
+  </span>

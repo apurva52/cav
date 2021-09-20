@@ -1,0 +1,26 @@
+<div class="device-preference-container">
+
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+
+    <div class="p-grid" *ngIf="showData">
+    <div class="p-grid p-col-12 p-justify-end p-align-center">
+    <strong>Chart Type:</strong>&nbsp;
+      <p-dropdown [style]="{'width':'184px'}" (onChange) ="changechartoption($event)"  [options]="chartoption"
+          [(ngModel)]="chartvalue">
+        </p-dropdown>
+    </div>
+        <div class="p-col-4" *ngFor="let chart of devicePrefChart.charts">
+            <app-chart [data]="chart"></app-chart>
+        </div>
+    </div>
+</div>
+

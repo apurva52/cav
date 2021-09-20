@@ -1,0 +1,146 @@
+<div class="net-havoc-container">
+    <div class="action-container">
+        <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+            <div class="global-search-block">
+                <div class="p-input-icon-left search-div-css">
+                    <i class="icons8 icons8-search"></i>
+                    <input #searchInputTemplate pInputText type="text" class="input-field-search"
+                        placeholder="Search" />
+                </div>
+            </div>
+
+            <div class="icons-container p-justify-between p-align-center">
+                <button pButton type="button" icon="icons8 icons8-expand-arrow" iconPos="right"
+                    class="ui-button-secondary ui-button-rounded btn-margin" label="Active Users(24)"></button>
+                <button pButton type="button" class="ui-button-secondary ui-button-rounded btn-margin"
+                    label="Configure"></button>
+            </div>
+        </div>
+
+        <ng-container *ngIf="data">
+            <div class="p-grid first-section">
+                <div class="p-col-6">
+                    <p-card>
+                        <p-header>
+                            <div class="buttons-container p-justify-between p-align-center">
+                                <div class="title">
+                                    Havoc State
+                                </div>
+                                <div class="p-align-center">
+                                    <span class="mh-10">Halt All</span>
+                                    <p-inputSwitch></p-inputSwitch>
+                                </div>
+                                <div class="icons-container p-justify-between p-align-center">
+                                    <button pButton type="button" class="ui-button-secondary ui-button-rounded"
+                                        label="Re-Apply"></button>
+                                    <button pButton type="button" class="ui-button-secondary ui-button-rounded"
+                                        label="Update"></button>
+                                    <button pButton type="button" class="ui-button-secondary ui-button-rounded"
+                                        label="Apply"></button>
+                                    <button pButton type="button"
+                                        class="ui-button-secondary ui-button-rounded btn-success"
+                                        label="CREATE" [routerLink]="['/create-havoc']"
+                                        ></button>
+                                    <button pButton type="button" class="ui-button-rounded" label="REPORT" [routerLink]="['/net-havoc-report']"></button>
+                                </div>
+                            </div>
+                        </p-header>
+                        <div class="p-grid p-col-12 ">
+                            <div class="p-grid p-align-center info-block" *ngFor="let havocState of data.havocStates"
+                                [ngStyle]="{'border': '2px solid', 'border-color': havocState.borderColor }">
+                                <div class="p-grid p-justify-between">
+                                    <p class="count p-col-12 p-0 text-center">{{havocState.count}}</p>
+                                    <p class="p-col-12 p-0 text-center">{{havocState.status}}</p>
+                                    <p class="p-col-12 p-0 text-center">{{havocState.label}}</p>
+                                    <div *ngIf="havocState.toggleField" class="p-grid p-col-12 p-align-center">
+                                        <span class="mh-10">Halt All</span>
+                                        <p-inputSwitch></p-inputSwitch>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </p-card>
+                </div>
+                <div class="p-col-6">
+                    <p-card>
+                        <p-header>
+                            <div class="buttons-container p-justify-between p-align-center">
+                                <div class="title">
+                                    Scenario State
+                                </div>
+                                <div class="p-align-center">
+                                    <span class="mh-10">Halt All</span>
+                                    <p-inputSwitch></p-inputSwitch>
+                                </div>
+                                <div class="icons-container p-justify-between p-align-center">
+                                    <button pButton type="button" class="ui-button-secondary ui-button-rounded"
+                                        label="Re-Apply"></button>
+                                    <button pButton type="button" class="ui-button-secondary ui-button-rounded"
+                                        label="Update"></button>
+                                    <button pButton type="button" class="ui-button-secondary ui-button-rounded"
+                                        label="Apply"></button>
+                                    <button pButton type="button"
+                                        class="ui-button-secondary ui-button-rounded btn-success"
+                                        label="CREATE" [routerLink]="['/create-havoc']"></button>
+                                    <button pButton type="button" class="ui-button-rounded" label="REPORT" [routerLink]="['/net-havoc-report']"></button>
+                                </div>
+                            </div>
+                        </p-header>
+                        <div class="p-grid p-col-12 ">
+                            <div class="p-grid p-align-center info-block" *ngFor="let havocState of data.scnarioStates"
+                                [ngStyle]="{'border': '2px solid', 'border-color': havocState.borderColor }">
+                                <div class="p-grid p-justify-between">
+                                    <p class="count p-col-12 p-0 text-center">{{havocState.count}}</p>
+                                    <p class="p-col-12 p-0 text-center">{{havocState.status}}</p>
+                                    <p class="p-col-12 p-0 text-center">{{havocState.label}}</p>
+                                    <div *ngIf="havocState.toggleField" class="p-grid p-col-12 p-align-center">
+                                        <span class="mh-10">Halt All</span>
+                                        <p-inputSwitch></p-inputSwitch>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </p-card>
+                </div>
+                <div class="p-col-7">
+                    <div class="chart-section" *ngFor="let chart of data.charts">
+                        <app-chart [data]="chart"></app-chart>
+                    </div>
+                </div>
+                <div class="p-col-5">
+                    <p-card>
+                        <p-header>
+                            <div class="buttons-container p-justify-between p-align-center">
+                                <div class="title">
+                                    Target
+                                </div>
+                                <div class="icons-container p-justify-between p-align-center">
+                                    <button pButton type="button" class="ui-button-secondary ui-button-rounded"
+                                        label="View All"></button>
+                                </div>
+                            </div>
+                        </p-header>
+                        <p-table [value]="data.targetDetails.data" [columns]="selectedColumns"
+                            [columns]="data.targetDetails.headers[0].cols" [paginator]="true"
+                            [rows]="data.targetDetails.paginator.rows" [totalRecords]="data.targetDetails.data.length"
+                            [showCurrentPageReport]="true" [scrollable]="true" scrollHeight="150px">
+                            <ng-template pTemplate="body" let-row let-columns="columns">
+                                <tr>
+                                    <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                        <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon"></i> 
+                                        {{ row[col.valueField] }}
+                                    </td>
+                                    <td class="text-right">
+                                        <button pButton type="button" class="ui-button-secondary ui-button-rounded"
+                                            label="Attack"></button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </p-card>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+
+</div>

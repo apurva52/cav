@@ -1,0 +1,305 @@
+<div class="p-grid page-filter-container" id="nothing">
+    <div class="sectionwidth">
+        <div class="header ">
+            <app-header></app-header>
+        </div>
+        <p-toolbar class="ui-secondary-toolbar ">
+            <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+                <a routerLink="/home/home-sessions">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">Page Filter</div>
+            </div>
+        </p-toolbar>
+        <div class="p-col-12 p-col-nogutter">
+            <div class="breadcrumbs">
+                <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async"
+                    (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p p-col-nogutter" *ngIf="data">
+        <div class="global-search-block">
+            <div>
+                <i class="icons8 icons8-filter left filter-icon clickable" (click)="pageFilter.open()"></i>
+            </div>
+            <div class="p-input-icon-left search-div-css" *ngIf="!pageFilterMode">
+                <i class="icons8 icons8-search" (click)="applySmartSearchFilter($event)"></i>
+                <p-autoComplete class="input-field-search" [(ngModel)]="smartSearchInput" [suggestions]="suggestions"
+                (completeMethod)="findSuggestions($event)" field="value" [size]="30" placeholder="smart search filter"
+                [minLength]="1"  dropdownIcon="icons8 icons8-expand-arrow"
+                [multiple]="true" (onSelect)="smartSearchItemAdded($event)"
+                (onUnselect)="smartSearchItemRemoved($event)" (onKeyUp)="handleKeyUpInSmartSearch($event)">
+                <ng-template let-suggestion pTemplate="item">
+                    <ng-template [ngIf]="suggestion.filterName != 'Header'" [ngIfElse]="headerBlock">
+                        <b>{{suggestion.value}}</b>
+                        {{suggestion.separator}}
+                        <b class="text-info">{{suggestion.filterName}}
+                        </b>
+                    </ng-template>
+                    <ng-template #headerBlock>
+                        <!--TODO: proper css.-->
+                        <b>{{suggestion.value}}</b>
+                    </ng-template>
+                </ng-template>
+            </p-autoComplete>
+	    </div>
+        </div>
+
+        <div class="icons-container p-justify-between p-align-center pr-10">
+            <button pButton type="button" class="ui-button-secondary ui-button-rounded btn-margin"
+                (click)="analyticsMenu.toggle($event)" label="ANALYTICS" *ngIf="!pageFilterMode"></button>
+            <p-menu #analyticsMenu [popup]="true" styleClass="widget-menu" [model]="analyticsOptions"
+                [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+            <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" (click)="toggleFilters()"
+                pTooltip="Column Filter" *ngIf="!pageFilterMode"></button>
+            <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns"
+                optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }" *ngIf="!pageFilterMode">
+            </p-multiSelect>
+            <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+            <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                (click)="menu.toggle($event)" pTooltip="Export Page Filter" *ngIf="!pageFilterMode"> </button>
+            <button pButton icon="icons8 icons8-futures" class="icon-button no-shadow" pTooltip="Scatter Map"
+                (click)="handleDataRequest(true)" *ngIf="!pageFilterMode"></button>
+            <button pButton class="ui-button-rounded ui-button-secondary" label="TABULAR" pTooltip="Tabular View"
+                (click)="handleDataRequest(false)" *ngIf="pageFilterMode"></button>
+
+
+        </div>
+    </div>
+
+    <div class="filterDiv" [innerHTML]="filterLabel" *ngIf="filterLabel"></div>
+
+    <div #widgetHeight [ngStyle]="{
+                    height: isEnabledColumnFilter
+                      ? 'calc(100vh - 215px)'
+                      : 'calc(100vh - 172px)'
+                  }" class="p-grid p-col-12 p-nogutter">
+        <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+            Select column to show
+        </div>
+
+        <p-table #session [value]="tableData" [columns]="selectedColumns"
+            [showCurrentPageReport]="!countLoading && totalRecords && !loading" [loading]="loading" [rowHover]="true"
+            [(selection)]="selectedRow" selectionMode="single" (onRowSelect)="handleRowSelection($event)"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} rows" [paginator]="true"
+            [totalRecords]="totalRecords" [first]="first" [lazy]="true" (onLazyLoad)="loadPagination($event)"
+            [responsive]="true" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [rows]="rows"
+            [scrollable]="true" [globalFilterFields]="globalFilterFields"
+            scrollHeight="calc({{widgetHeight.offsetHeight}}px - 91px)" [lazyLoadOnInit]="false"
+            [resizableColumns]="true" columnResizeMode="expand" class="all-tables" *ngIf="!pageFilterMode"
+            [style]="{width:'99vw'}">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col>
+                    <col *ngFor="let col of columns" [style.width]="col.width ? col.width : '120px'" />
+                </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th [ngStyle]="{ 'width': '3px', 'heigth':'15px', 'padding':'0px'}" pResizableColumn></th>
+                    <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField" pResizableColumn>
+                        <div class="text-center">
+                            <!--{{ col.label }}-->
+                            <span title="{{ col.tooltip }}">{{ col.label }}</span>
+                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                ariaLabelAsc="Activate to sort in ascending order">
+                            </p-sortIcon>
+                        </div>
+                    </th>
+                    <!-- <th>Events</th>-->
+                </tr>
+                <tr *ngFor="let headerRow of data.headers">
+                    <ng-container *ngIf="isEnabledColumnFilter">
+                        <th [ngStyle]="{ 'width': '3px', 'heigth':'15px', 'padding':'0px'}"></th>
+                        <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                            <div *ngIf="
+                                col.filter.isFilter === true &&
+                                col.filter.type === 'custom'
+                              ">
+                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                    pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                    *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                            session.filter(
+                                    $event.target.value,
+                                    col.valueField,
+                                    'custom'
+                                  )
+                                " />
+                            </div>
+                            <div *ngIf="
+                                col.filter.isFilter === true &&
+                                col.filter.type === 'contains'
+                              ">
+                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                    pTooltip="Will filter metric names which contains given text."
+                                    *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                            session.filter(
+                                    $event.target.value,
+                                    col.valueField,
+                                    'contains'
+                                  )
+                                " />
+                            </div>
+                        </th>
+
+                    </ng-container>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row let-columns="columns">
+                <tr [pSelectableRow]="row" (click)="toggleMenuOptions($event, menuOptions)">
+                    <p-menu class="menu-item" #menuOptions [popup]="true" [model]="linkOptions" appendTo="body">
+                    </p-menu>
+                    <td class="ui-resizable-column"
+                        [ngStyle]="{'backgroundColor': row.severityColor, 'width': '3px', 'height':'15px', 'padding':'0px'}">
+                    </td>
+                    <td *ngFor="let col of columns" class="{{ col.classes }} ui-resizable-column">
+                        <!--{{ row[col.valueField] }}-->
+                        <span *ngIf=" col.valueField == 'action'">
+                            <i class='icons8 icons8-flow-chart btn-icon mx-3'
+                                *ngIf="row['flowpathInstance'] != null && row['flowpathInstance'] != '-1'"
+                                aria-hidden='true' title="View Flow Path Report" id='SequenceDiagram'
+                                (click)="openNDSession($event, row)"></i>
+                            <i class='icons-8 icons8-search-property btn-icon mx-3'
+                                *ngIf="row['flowpathInstance'] != null && row['flowpathInstance'] != '-1'"
+                                aria-hidden='true' id='SequenceDiagram' title="View Logs"
+                                (click)="openNF($event, row)"></i>
+                        </span>
+                        <!-- <span title="{{ row[col.valueField] }}"
+                            *ngIf="col.valueField != 'events' && col.valueField != 'action'">{{
+                            ((row[col.valueField]) !=
+                            null ? row[col.valueField] : '-') }}</span>  -->
+                        <span title="{{ row[col.valueField] }}"
+                            *ngIf=" col.valueField !='url' && col.valueField !='referralUrl' && col.valueField !='referrerUrl' && col.valueField != 'events' && col.valueField != 'action' && col.valueField != 'location' && col.valueField != 'os' && col.valueField != 'browser' && col.valueField != 'device' && col.valueField != 'pageName' && col.valueField  != 'channel'">{{
+                            ((row[col.valueField]) !=
+                            null ? row[col.valueField] : '-') }}</span>
+                        <div class="p-grid p-nogutter"
+                            *ngIf="col.valueField =='url' || col.valueField =='referralUrl' || col.valueField =='referrerUrl' ">
+                            <div class="p-col" style="overflow: hidden;text-overflow: ellipsis;">
+                                {{((row[col.valueField]) != null ? row[col.valueField] : '-') }}
+                            </div>
+                            <div class="p-col-1" *ngIf="row[col.valueField] != '-'">
+                                <i class="icons8 icons8-copy" [attr.title]="'Copy ' + col.valueField"
+                                    style="cursor:pointer" [cdkCopyToClipboard]="row[col.valueField]"></i>
+                            </div>
+                        </div>
+
+                        <!-- </td>
+                                <td class="icons-col">
+                                    <i class="icons8 icons8-shopping-cart" pTooltip=""></i>
+                                    <i class="icons8 icons8-error" pTooltip=""></i>
+                                    <i class="icons8 icons8-shopping-cart" pTooltip=""></i>
+                                    <i class="icons8 icons8-error" pTooltip=""></i>-->
+
+
+                        <!-- event template -->
+                        <span *ngIf='col.valueField == "events"'>
+                            <span *ngFor="let event of row.events">
+
+                                <p-menu class="menu-item" #pageMenu [popup]="true" [model]="eventOptions"
+                                    appendTo="body">
+                                </p-menu>
+                                <img *ngIf="event.iconCls == null" title="{{event.name}}"
+                                    (click)="onClickMenu(row,event.name,$event, pageMenu)"
+                                    style='width:12px;height:12px;' [src]="event.icon">
+                                <i *ngIf="event.iconCls != null" title="{{event.name}}"
+                                    (click)="onClickMenu(row,event.name,$event, pageMenu)"
+                                    class="{{event.iconCls}} btn-icon"></i>
+
+
+                            </span>
+                        </span>
+                        <!-- location template -->
+                        <span *ngIf='col.valueField == "location"'>
+                            <!-- <img title="{{(row.location.state ? (row.location.state + ','): '')}} {{row.location.country}}"
+                                [src]="row.location.icon" style='height:14px;width:14px;'> -->
+                            {{(row.location.state ?(row.location.state + ','):'')}} {{row.location.country}}
+                        </span>
+
+
+                        <!-- os template -->
+                        <span *ngIf='col.valueField == "os"'>
+                            <span
+                                *ngIf="row.mobileOSVersion != '' && row.mobileOSVersion != null && row.mobileOSVersion != 'null'"
+                                title="{{row.os.name}}({{row.mobileOSVersion}})"><img [src]="row.os.icon"
+                                    style='height:14px;width:14px;'>{{row.os.name}} {{ ("("+row.mobileOSVersion+ ")")
+                                }}</span>
+                            <span
+                                *ngIf="row.mobileOSVersion == '' ||  row.mobileOSVersion == null ||  row.mobileOSVersion == 'null'"
+                                title="{{row.os.name}}"><img [src]="row.os.icon"
+                                    style='height:14px;width:14px;'>{{row.os.name}}</span>
+                        </span>
+
+                        <!-- browser template -->
+                        <span *ngIf='col.valueField == "browser"'>
+                            <img title="{{row.browser.name}}" [src]="row.browser.icon" style='height:14px;width:14px;'>
+                            {{row.browser.name}}
+                            {{(row.browserVersion != "" && row.browserVersion != null && row.browserVersion != "null" &&
+                            row.browserVersion !=
+                            undefined ) ?
+                            ("("+row.browserVersion+ ")") : "" }}
+                        </span>
+                        <!-- device template -->
+                        <span *ngIf='col.valueField == "device"' title="{{row.device.name}}">
+                            <i [class]='row.device.font'></i>&nbsp;{{row.device.name}}
+                        </span>
+                        <!-- pageName template -->
+                        <div class="p-grid p-nogutter" *ngIf='col.valueField == "pageName"'>
+                            <div class="p-col" style="text-overflow: ellipsis;overflow: hidden;">
+                                {{row[col.valueField]}}
+                            </div>
+                            <i title='Resource Timing' class="cav run-time mx-3" *ngIf="row['resourceTimingFlag']"></i>
+                            <i title='Page Dump' class="cav pages mx-3" *ngIf="row['replayFlag']"></i>
+                            <i [class]='row["navigationType"].class' [title]='row["navigationType"].title'></i>
+                        </div>
+                        <!----channel-->
+                        <span *ngIf='col.valueField  == "channel"' title="{{row.channel.name}}">
+                            {{row.channel.name}}
+                        </span>
+
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.colspan]="columns.length + 1" class="text-center">
+                        <span *ngIf="error">Error: DB Query Timeout. Try for smaller duration.</span>
+                        <span *ngIf="empty">No records found</span>
+                        <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i>Loading</span>
+                        <span *ngIf="!loading && !error">Error: DB Query Timeout. Try for smaller duration.</span>
+
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="paginatorright" let-state>
+                <p-progressSpinner *ngIf="loading || countLoading"
+                    [style]="{width: '20px', height: '20px', paddingLeft: '50px'}"></p-progressSpinner>
+            </ng-template>
+        </p-table>
+
+        <p-card class="p-grid p-col-12 p-dir-col" *ngIf="pageFilterMode">
+            <app-page-scatter-map [pages]="pages" [metadata]="metadata" [offsetWindow]="offsetWindow" [metric]="metric"
+                [startTime]="startTime" [endTime]="endTime" (openPageEvent)="getPageDetails($event)"
+                (bucketChangeEvent)="updateBucket($event)" (offsetChangedEvent)="updateOffset($event)"
+                [loading]="chartLoading">
+            </app-page-scatter-map>
+        </p-card>
+
+
+    </div>
+
+</div>
+
+<!--Event Impact -->
+<div id='event-revenue' *ngIf="this.impactFlag == true">
+    <app-event-revenue [impdata]="impactData" [cardData]="cardData" (changeFlagValue)='changeFlagValue($event)'
+        [loader]='appFlag'></app-event-revenue>
+</div>
+
+<app-page-filter-sidebar #pageFilter (pageDetail)="handleDataRequest($event)" (filterCriteria)="filterLabel = $event">
+</app-page-filter-sidebar>

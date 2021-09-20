@@ -1,0 +1,490 @@
+<!-- <div style="text-align: center">
+        <span>
+                <p-fileUpload mode="advanced" [url]="uploadUrl" accept=".log" auto="true"
+                        chooseLabel="Analyze GC Log From Local" (onUpload)="onUpload($event)"
+                        class="ddrfileupload ddr-button-bar ddrfile-content ddrupload-ui"> </p-fileUpload>
+        </span>
+
+</div> -->    
+
+<div class="header">
+        <app-header></app-header>
+      </div>
+      <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-col-8">
+                <div class="p-grid p-align-center">
+                    <a routerLink="/dumps/heap-dump">
+                        <i class="icons8 icons8-left toolbar-icon-color"></i>
+                    </a>
+                    <div class="p-col ui-toolbar-text">GC Viewer</div>
+                </div>
+            </div>
+      
+        </div>
+      </p-toolbar>  
+<div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+</div>
+<div class="p-grid p-align-center mx-10 mt-10" style="max-height:565px;overflow:auto;" *ngIf="comeOn">
+        <p-accordion>
+                <!-- <p-accordionTab   header="JVM Memory Size" selected='true'> -->
+                <p-accordionTab header="Command Line Flags" [selected]='true'>
+                        <div class="ui-g p-grid p-align-center">
+                                <span> {{commandLineFlagData}} </span>
+                        </div>
+
+                </p-accordionTab>
+
+
+                <p-accordionTab [selected]="true">
+                        <p-header class="cav-d-flex cav-align-items-center accord-arrow-align">
+                                <span><i class="icons8 icons8-new-resume-template"></i> JVM Memory Size</span>
+                        </p-header>
+                        <div class="ui-g p-grid p-align-center">
+                                <div class="ui-g-6 p-grid p-justify-center">
+
+                                        <p-table class="all-tables" [value]="jvmMemoryData">
+                                                <ng-template pTemplate="header" let-columns>
+                                                        <tr>
+                                                                <th>Generation</th>
+                                                                <th>Allocated (mb)
+                                                                        <i class="icons8 icons8-help" style="color: #318d31;"
+                                                                        pTooltip={{tooltipAllocated}}
+                                                                        tooltipPosition="right" tooltipEvent="hover">
+                                                                        </i>
+                                                                </th>
+                                                                <th>
+                                                                        Peak (mb)
+                                                                        <i class="icons8 icons8-help" style="color: #318d31;"
+                                                                        pTooltip={{tooltipPeak}} tooltipPosition="right"
+                                                                        tooltipEvent="hover"> </i>
+                                                                </th>
+                                                        </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="body" let-rowdata>
+                                                        <tr>
+                                                                <td [style]="{'text-align':'left'}" >
+                                                                        {{rowdata.msg}}
+                                                                </td>
+                                                                <td [style]="{'text-align':'right'}">
+                                                                        {{formatter(rowdata.value)}}
+                                                                </td>
+                                                                <td [style]="{'text-align':'right'}">
+                                                                        {{formatter(rowdata.peak)}}
+                                                                </td>
+                                                        </tr>
+                                                </ng-template>
+                                                
+                                        </p-table>
+
+                                        <!-- <p-dataTable class="scen-table" [value]="jvmMemoryData">
+                                                <p-column field='msg' header="Generation"
+                                                        [style]="{'text-align':'left'}"> </p-column>
+                                                <p-column field='value' [style]="{'text-align':'right'}">
+                                                        <ng-template pTemplate="header">
+                                                                {{"Allocated (mb)"}}
+                                                                <i class="fa fa-question-circle" style="color: #318d31;"
+                                                                        pTooltip={{tooltipAllocated}}
+                                                                        tooltipPosition="right" tooltipEvent="hover">
+                                                                </i>
+                                                        </ng-template>
+                                                        <ng-template let-rowdata="rowData" pTemplate="body">
+                                                                {{formatter(rowdata.value)}}</ng-template>
+                                                </p-column>
+                                                <p-column field='peak' [style]="{'text-align':'right'}">
+                                                        <ng-template pTemplate="header">
+                                                                {{"Peak (mb)"}}
+                                                                <i class="fa fa-question-circle" style="color: #318d31;"
+                                                                        pTooltip={{tooltipPeak}} tooltipPosition="right"
+                                                                        tooltipEvent="hover"> </i>
+                                                        </ng-template>
+                                                        <ng-template let-rowdata="rowData" pTemplate="body">
+                                                                {{formatter(rowdata.peak)}} </ng-template>
+                                                </p-column>
+                                        </p-dataTable> -->
+                                        <!-- <p-dataTable class="scen-table" [value]="jvmMemoryData">
+                                        <div *ngFor="let col of colsJVM">
+                                                <p-column [field]="col.field" [header]="col.header">
+                                                <ng-template let-col let-node="rowData" pTemplate type="body">
+                                                <div style="text-align: left " *ngIf = "(col.field == 'msg')">{{node[col.field]}}</div>
+                                                <div style="text-align: right "*ngIf = "!(col.field == 'msg')">{{formatter(node[col.field])}}</div>
+                                                </ng-template>
+                                                </p-column>
+                                        </div>
+                        </p-dataTable> -->
+                                </div>
+                                <div class="ui-g-6  p-grid p-justify-center">
+                                        <div *ngIf="showChart == true">
+          <highcharts-chart [Highcharts] = "highcharts" [options] = "optionsJVM"></highcharts-chart>
+                                                <!-- <chart [options]="optionsJVM"></chart> -->
+                                        </div>
+                                        <div *ngIf="showChart == false" style="text-align:center;">No Chart found based
+                                                on current Filter Settings.</div>
+                                </div>
+                        </div>
+                </p-accordionTab>
+
+                <p-accordionTab header="Key Performance Indicator" [selected]='true'>
+                        <div class="ui-g  p-grid p-align-center">
+                                <div class="ui-g-6 p-justify-center">
+                                        <div class="main-block">
+                                                <div class="child-block">
+                                                        <h1>Troughtput <i class="icons8 icons8-help"
+                                                                        style="color:white;"
+                                                                        pTooltip="Percentage of time spent in processing real transactions vs time spent in GC activity. Higher percentage is a good indication that GC overhead is low. One should aim for high throughput."
+                                                                        tooltipPosition="right"
+                                                                        tooltipEvent="hover"></i><small>{{avgThroughPut}}%</small>
+                                                        </h1>
+                                                </div>
+                                                <div class="child-block">
+                                                        <h1>Latency <i class="icons8 icons8-help"
+                                                                        style="color: white;"
+                                                                        pTooltip="This is the amount of time taken by one Stop the World GC."
+                                                                        tooltipPosition="right" tooltipEvent="hover">
+                                                                </i> </h1>
+                                                        <h2>Avg Pause GC Time <i class="icons8 icons8-help"
+                                                                        style="color: #318d31;"
+                                                                        pTooltip="This is the average amount of time taken by one Stop the World GC."
+                                                                        tooltipPosition="right" tooltipEvent="hover">
+                                                                </i><small>{{avgPauseTime}} ms</small></h2>
+                                                        <h2>Max Pause GC Time <i class="icons8 icons8-help"
+                                                                        style="color: #318d31;"
+                                                                        pTooltip="This is the maximum amount of time taken by one Stop the World GC to run."
+                                                                        tooltipPosition="right" tooltipEvent="hover">
+                                                                </i><small>{{maxPauseTime}} ms</small></h2>
+
+                                                </div>
+
+
+                                        </div>
+                                </div>
+                                <div class="ui-g-6  p-grid p-justify-center">
+
+                                </div>
+
+
+                        </div>
+
+                </p-accordionTab>
+
+                <!--</p-accordion>
+
+
+<p-accordion>-->
+                <!--      <p-accordionTab header="GC Stats" selected='true'>
+        <div>
+                <p-dataTable   [value]="gcStatsData">
+                        <p-column field='name' header=''> </p-column>
+                        <p-column field='value' header=''> </p-column>
+                </p-dataTable> &nbsp;
+		<div>
+
+                	<chart id="container" class="container1" [options]="options1"></chart>
+
+			<chart id="container2" class="container2" [options]="options2"></chart>
+		</div>
+	</div>
+
+
+        </p-accordionTab> -->
+                <!--</p-accordion>
+
+<p-accordion>-->
+                <p-accordionTab header="GC Time">
+                        <div class="ui-g p-grid p-align-center">
+                                <div class="ui-g-6 p-grid p-align-center">
+                                        <div class='font-16 font-weight-500'>
+                                                     Pause Time
+                                                     </div>
+
+                                        <div>
+                                                <p-table class="all-tables" [value]="pauseData">
+                                                        <ng-template pTemplate="header">
+                                                                <tr >
+                                                                        <!-- <div *ngFor="let col of colsTime"> -->
+                                                                                <th *ngFor="let col of colsTime">
+                                                                                        {{col.header}}
+                                                                                </th>
+                                                                        <!-- </div> -->
+                                                                </tr>
+                                                        </ng-template>
+                                                        <ng-template pTemplate="body" let-node pTemplate ="body">
+                                                                <tr>
+                                                                                <td *ngFor="let col of colsTime">
+                                                                                <span *ngIf="(node[col.field] == 'count')">{{node[col.field]}}</span>
+                                                                                <span *ngIf="!(node[col.field] == 'count')">{{valueFormatter(node[col.field])}}</span>
+                                                                                </td >
+                                                                </tr>
+                                                        </ng-template>
+                                                </p-table>
+<!-- 
+                                                <p-dataTable class="scen-table" [value]="pauseData">
+                                                        <div *ngFor="let col of colsTime">
+                                                                <p-column [field]="col.field" [header]="col.header">
+                                                                        <ng-template let-col let-node="rowData"
+                                                                                pTemplate type="body">
+                                                                                <div style="text-align: right "
+                                                                                        *ngIf="(col.field == 'count')">
+                                                                                        {{node[col.field]}}</div>
+                                                                                <div style="text-align: right "
+                                                                                        *ngIf="!(col.field == 'count')">
+                                                                                        {{valueFormatter(node[col.field])}}
+                                                                                </div>
+                                                                        </ng-template>
+                                                                </p-column>
+                                                        </div>
+                                                </p-dataTable> -->
+                                        </div>
+                                </div>
+                                <div class="ui-g-6 p-grid p-align-center">
+                                        <div class='font-16 font-weight-500'>
+                                              Concurrent Time
+                                        </div>
+                                        <div>
+
+                                                <p-table class="all-tables" [value]="concurrentData">
+                                                        <ng-template pTemplate = "header">
+                                                                <tr>
+                                                                        <th *ngFor="let col of colsTime">
+                                                                                {{col.header}}
+                                                                        </th>
+                                                                </tr>
+                                                        </ng-template>
+                                                        <ng-template pTemplate = "body" let-node>
+                                                        <tr>
+                                                                        <td *ngFor="let col of colsTime">
+                                                                                        <span style="text-align: right "
+                                                                                                *ngIf="(col.field == 'count')">
+                                                                                                {{node[col.field]}}</span>
+                                                                                        <span style="text-align: right "
+                                                                                                *ngIf="!(col.field == 'count')">
+                                                                                                {{valueFormatter(node[col.field])}}
+                                                                                        </span>
+                                                                        </td>
+                                                        </tr>
+                                                </ng-template>                        
+                                                </p-table>
+
+                                                <!-- <p-dataTable class="scen-table" [value]="concurrentData">
+                                                        <div *ngFor="let col of colsTime">
+                                                                <p-column [field]="col.field" [header]="col.header">
+                                                                        <ng-template let-col let-node="rowData"
+                                                                                pTemplate type="body">
+                                                                                <div style="text-align: right "
+                                                                                        *ngIf="(col.field == 'count')">
+                                                                                        {{node[col.field]}}</div>
+                                                                                <div style="text-align: right "
+                                                                                        *ngIf="!(col.field == 'count')">
+                                                                                        {{valueFormatter(node[col.field])}}
+                                                                                </div>
+                                                                        </ng-template>
+                                                                </p-column>
+                                                        </div>
+                                                </p-dataTable> -->
+                                        </div>
+
+                                </div>
+                        </div>
+                        <div class="ui-g p-grid p-align-center">
+                                <div class="ui-g-6 p-grid p-justify-center">
+                                        <highcharts-chart [Highcharts] = "highcharts" id="container5" class="container5" [options]="options5"></highcharts-chart>
+                                        <!-- <chart id="container5" class="container5" [options]="options5"></chart> -->
+                                </div>
+
+                                <div class="ui-g-6 p-grid p-justify-center">
+                                        <highcharts-chart [Highcharts] = "highcharts" id="container6" class="container6" [options]="options6"></highcharts-chart>
+                                        <!-- <chart id="container6" class="container6" [options]="options6"></chart> -->
+                                </div>
+                        </div>
+
+                </p-accordionTab>
+
+                <p-accordionTab header="GC Causes">
+
+
+                        <div class="ui-g p-grid p-align-center">
+                                <div class="ui-g-6 p-grid p-justify-center">
+
+
+                                        <p-table class="all-tables" [value]="calculateDataSplitted">
+                                                <ng-template pTemplate="header">
+                                                        <tr>
+                                                                <th>
+                                                                        Cause
+                                                                </th>
+                                                                <th>
+                                                                        Time(sec)
+                                                                </th>
+                                                        </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="body" let-rowdata>
+                                                        <tr>
+                                                                <td> 
+                                                                        {{rowdata.name}}
+                                                                </td>
+                                                                <td class="text-right">
+                                                                        {{rowdata.y}}
+                                                                </td>
+                                                        </tr>
+                                                </ng-template>
+                                        </p-table>
+
+                                        <!-- <p-dataTable class="scen-table" [value]="calculateDataSplitted">
+
+                                                <p-column field='name' header="Cause" [style]="{'text-align':'left'}"
+                                                        [sortable]="true"> </p-column>
+                                                <p-column field='y' header="Time(sec)" [style]="{'text-align':'right'}"
+                                                        sortable="custom"
+                                                        (sortFunction)="custCausesSort($event,calculateDataSplitted)">
+                                                </p-column>
+
+                                        </p-dataTable> -->
+                                </div>
+                                <div class="ui-g-6 p-grid p-justify-center">
+                                        <highcharts-chart [Highcharts] = "highcharts" class="container4" [options]="options4"></highcharts-chart>
+                                        <!-- <chart class="container4" [options]="options4"></chart> -->
+
+                                </div>
+                        </div>
+
+                </p-accordionTab>
+
+                <p-accordionTab header="Collection Phases Statistics">
+                        <div class="p-grid p-justify-center">
+                                <p-table class="all-tables" [value]="decimalFormattedCauseWiseData"
+                                        sortField="count" [sortOrder]="1">
+                                        <ng-template pTemplate="header" let-columns>
+                                                <tr>
+                                                        <th *ngFor="let col of cols2">
+                                                                {{col.header}}
+                                                        </th>
+                                                </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-node let-columns="columns">
+                                                <tr>
+                                                        <!-- <div > -->
+                                                                <!-- <p-column [field]="col.field" [header]="col.header" [sortable]="true" [style]="{'text-align':'right'}"> -->
+                                                                <td *ngFor="let col of cols2">
+                                                                                <div style="text-align: left ;"
+                                                                                        *ngIf="(col.field == 'msg')">{{node[col.field]}}
+                                                                                </div>
+                                                                                <div style="text-align: right ;"
+                                                                                        *ngIf="!(col.field == 'msg')">
+                                                                                        {{node[col.field]}}</div>
+                                                                </td>
+                                                        <!-- </div> -->
+                                                </tr>
+                                        </ng-template>
+                                </p-table>
+
+                                <!-- <p-dataTable class="scen-table" [value]="decimalFormattedCauseWiseData"
+                                        sortField="count" [sortOrder]="1">
+                                        <div *ngFor="let col of cols2">
+                                                <p-column [field]="col.field" [header]="col.header"
+                                                        [sortable]="col.sortable"
+                                                        (sortFunction)="Customsort($event,decimalFormattedCauseWiseData)">
+                                                        <ng-template let-col let-node="rowData" pTemplate type="body">
+                                                                <div style="text-align: left ;"
+                                                                        *ngIf="(col.field == 'msg')">{{node[col.field]}}
+                                                                </div>
+                                                                <div style="text-align: right ;"
+                                                                        *ngIf="!(col.field == 'msg')">
+                                                                        {{node[col.field]}}</div>
+                                                        </ng-template>
+                                                </p-column>
+                                        </div>
+                                </p-dataTable> -->
+                        </div>
+                        <div class="ui-g p-grid p-justify-center">
+                                <div class="ui-g-6">
+                                        <highcharts-chart [Highcharts] = "highcharts" class="container3" [options]="options3"></highcharts-chart>
+                                        <!-- <chart class="container3" [options]="options3"></chart> -->
+                                </div>
+
+                                <div class="ui-g-6">
+                                        <highcharts-chart [Highcharts] = "highcharts" class="container7" [options]="options7"></highcharts-chart>
+                                        <!-- <chart class="container7" [options]="options7"></chart> -->
+
+                                </div>
+                        </div>
+
+
+                </p-accordionTab>
+                <p-accordionTab header="Object Stats">
+                        <div class="p-grid p-justify-center">
+                                <p-table class="all-tables" [value]="objectStates">
+                                        <ng-template pTemplate="header" let-columns>
+                                                <tr>
+                                                        <th>
+                                                        </th>
+                                                </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-rowdata let-columns="columns">
+                                                <tr>
+                                                        <td>
+                                                                {{rowdata.msg}}
+                                                                <i class="icons8 icons8-help" style="color: #318d31;"
+                                                                pTooltip={{rowdata.tooltip}} tooltipPosition="right"
+                                                                tooltipEvent="hover"> </i>
+                                                        </td>
+                                                        <td class="text-right"> {{rowdata.value}} </td>
+                                                </tr>
+                                        </ng-template>
+                                </p-table>
+
+                                <!-- <p-dataTable class="scen-table" [value]="objectStates">
+                                        <p-column field='msg' [style]="{'text-align':'left'}">
+                                                <ng-template let-rowdata="rowData" pTemplate="body">
+                                                        {{rowdata.msg}}
+                                                        <i class="fa fa-question-circle" style="color: #318d31;"
+                                                                pTooltip={{rowdata.tooltip}} tooltipPosition="right"
+                                                                tooltipEvent="hover"> </i>
+                                                </ng-template>
+                                        </p-column>
+                                        <p-column field='value' [style]="{'text-align':'right'}"> </p-column>
+                                </p-dataTable> -->
+                        </div>
+
+
+                        <div>
+                                <!--<chart [options]="options"></chart>-->
+                        </div>
+                </p-accordionTab>
+
+                <p-accordionTab header="Specified GC Graphs" [selected]="false">
+                        <div style="overflow:auto;">
+
+                                <div class="ui-g p-grid p-justify-center">
+                                        <div *ngIf="showChart == true">
+                                                <highcharts-chart [Highcharts] = "highcharts" [options]="optionsScat"></highcharts-chart>
+                                                <!-- <chart [options]="optionsScat"></chart> -->
+                                        </div>
+                                        <div *ngIf="showChart == false" style="text-align:center;">No Chart found based
+                                                on current Filter Settings.</div>
+                                </div>
+                                <hr>
+                                <div class="ui-g p-grid p-justify-center">
+                                        <div *ngIf="showChart == true">
+                                                <highcharts-chart [Highcharts] = "highcharts" [options]="reclaimedByteoptions"></highcharts-chart>
+                                                <!-- <chart [options]="reclaimedByteoptions"></chart> -->
+                                        </div>
+                                        <div *ngIf="showChart == false" style="text-align:center;">No Graph found based
+                                                on current Filter Settings.</div>
+                                </div>
+                                <hr>
+                                <div class="ui-g p-grid p-justify-center">
+                                        <div *ngIf="showChart == true">
+                                                <highcharts-chart [Highcharts] = "highcharts" [options]="heapGCoptions"></highcharts-chart>
+                                                <!-- <chart [options]="heapGCoptions"></chart> -->
+                                        </div>
+                                        <div *ngIf="showChart == false" style="text-align:center;">No Graph found based
+                                                on current Filter Settings.</div>
+                                </div>
+
+                        </div>
+                </p-accordionTab>
+
+
+        </p-accordion>
+</div>

@@ -1,0 +1,263 @@
+<div class="js-plumb">
+        <div class="flowmapPanelHeader">
+            <div class="ui-toolbar-group-left ts-left-menu">
+                <label class="lblCommonClass" *ngIf="_dataHandlerService.$dcList.length > 0 && !_dataHandlerService.$isStoreView" style="padding-left: 3%;">Node:</label>
+                <p-multiSelect *ngIf="isMultiDCEnable && !_dataHandlerService.$isStoreView" [options]="_dataHandlerService.$dcList"
+                    class="tierStatusDCs" [displaySelectedLabel]='true' [(ngModel)]="_dataHandlerService.$MultiDCsArr" (onChange)="onDCSelection()"></p-multiSelect>
+                <!-- <label class="lblCommonClass">Flow map: {{_dataHandlerService.$selectedFlowmap}}</label> -->
+                <label class="lblCommonClass">View:
+                    <label class="lblCommonClass" [style]="{'font-weight':'600'}">
+                    {{_dataHandlerService.$selectedFlowmap}}</label>
+                    </label>
+            </div>
+             <div class="ts-mid-menu">
+                </div>
+ 
+            <div class="ui-toolbar-group-right ui-group-right-font mr-30">
+                <i class="icons8 icons8-spinner spin" *ngIf="isProgressBar"></i>
+
+                 
+                    <div *ngIf="!isGridView" class="mx-3">
+                        <p-dropdown [style]="{'width':'150px'}" [placeholder]="searchNodePlaceholder" (onShow)="unselectNodeOnDropdownShow(_nodeSearchDropdown)" (onChange)="bounceUpNode($event.value, _nodeSearchDropdown)" dropdownIcon="icons8 icons8-expand-arrow" [options]="nodes" [group]="true" [filter]="true" filterBy="label" 
+                         #nodeSearchDropdown *ngIf="toggle"></p-dropdown>
+                    </div>
+               
+
+                <button type="button" class="btn-icon mx-3" pTooltip="Search node" 
+                (click)="toggle=!toggle;showSearchNodes($event,_nodeSearchDropdown)">
+                    <i class="icons8 icons8-search"></i></button>
+                <span class="dropdown" (mouseover)="getFlowMapList($event)">
+                    
+                    <button type="button" class="btn-icon mx-3"  pTooltip="Edit View">
+                        <i class="icons8 icons8-menu"></i>
+                    </button>
+                   
+                    <div class="dropdown-content">
+                        <div (click)="_dataHandlerService.$editFlowmapToggle = true; _dataHandlerService.editFlowMapWindow()" class="edit-current-flowmap">
+		               <label>Edit Current View</label></div>
+                        <div (click)="_dataHandlerService.manageFlowMapWindow()" class="edit-current-flowmap">
+					<label>Manage Views</label></div>
+                        <span *ngIf="_dataHandlerService.$flowmapList.length > 0">
+                            <div *ngFor="let maps of _dataHandlerService.$flowmapList;let i = index" class="edit-current-flowmap">
+                                <div *ngIf="i==0" (click)="_dataHandlerService.onClickOfFlowmap(maps.value); _dataHandlerService.onSelectFlowmap(maps.value)">
+				     <label>{{maps.label}}</label>
+					<i *ngIf="maps.selected == true" class="pi pi-check"
+                                        style="font-size:16px;color:green" aria-hidden="true"></i>
+                                </div>
+                                <div *ngIf="i > 0 && maps.value != ''" (click)="_dataHandlerService.onClickOfFlowmap(maps.value); _dataHandlerService.onSelectFlowmap(maps.value)">
+                                    <label>{{maps.label}} </label>
+                                    <span style="float:right">
+                                        <i class="pi pi-check" *ngIf="maps.selected == true" style="font-size:16px;color:green"
+                                            aria-hidden="true"></i> <i class="pi pi-pencil" (click)="editFlowMap($event,maps.value)" *ngIf="_dataHandlerService.checkOwner(maps.value) == true"
+                                            style="font-size:16px;color:orangered"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </span>
+                    </div>
+                </span>
+                 <!--
+                <i class="material-icons ts-icons ui-group-right-font" title="Save As flowmap" *ngIf="!isGridView" (click)="saveAsFlowMap()">library_add
+                </i>
+				-->
+            <span *ngIf="this._dataHandlerService.continuousMode">
+            <button type="button" class="btn-icon mx-3" pTooltip="Pause request" (click)="refresMode(false)" *ngIf=" isContinuousMode && _dataHandlerService.isRefreshMode; else play">
+             <i class="icons8 icons8-pause"></i>
+            </button>
+                <ng-template #play>
+
+                    <button type="button" class="btn-icon mx-3" pTooltip="Start request" (click)="refresMode(true)"  *ngIf="isContinuousMode">
+                    <i class="icons8 icons8-circled-play"></i>
+                    </button>
+
+                </ng-template>
+              </span>
+                <span class="dropdown">
+                    <button type="button" class="btn-icon mx-3" pTooltip="Save" *ngIf="!isGridView">
+                        <i class="icons8 icons8-save"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <div class="ui-g">
+                            <div class="ui-g-12 edit-current-flowmap ts-settings" (click)="saveFlowMap()" pTooltip="Save View">
+                                    <!-- <i class="icons8 icons8-save" *ngIf="!isGridView"></i> -->
+                                 <a *ngIf="!isGridView"><label>  Save View</label></a>
+                            </div>
+                                <div class="ui-g-12 edit-current-flowmap ts-settings" (click)="saveAsFlowMap()"  pTooltip="Save As New View">
+                                     <!-- <i class="icons8 icons8-open-view" *ngIf="!isGridView"></i> -->
+                                     <a *ngIf="!isGridView"><label>  Save As New View</label></a>
+                            </div>
+                        </div>         
+                    </div>        
+                </span>
+				<!--
+                <i class="material-icons ts-icons ui-group-right-font" title="Save" (click)="saveFlowMap()" *ngIf="!isGridView">save</i>
+				-->
+                <span class="dropdown">
+                   <button type="button" class="btn-icon mx-3" pTooltip="Layout(s)" *ngIf="!isGridView">
+                    <i class="icons8 icons8-view"></i>
+                    </button>
+
+                    <div class="dropdown-content">
+                        <div class="ui-g">
+                                <div class="ui-g-12 edit-current-flowmap ts-settings" (click)="autoLayout()">
+                                <!-- <i class="material-icons ts-icons ui-group-right-font" pTooltip="Auto Layout" *ngIf="!isGridView">casino</i> -->
+                                <a><label>Auto Layout</label></a>
+                            </div>
+                                 <div class="ui-g-12 edit-current-flowmap ts-settings" (click)="circularLayout()">
+					<!-- <i class="material-icons ts-icons ui-group-right-font" pTooltip="Circular Layout" *ngIf="!isGridView" title="Circular Layout">filter_tilt_shift</i> -->
+    					<a><label>Circular Layout</label></a>
+ 				</div>
+ 				 <div class="ui-g-12 edit-current-flowmap ts-settings" (click)="autoFitLayout()">
+   				 <!-- <i class="material-icons ts-icons ui-group-right-font" pTooltip="Auto Fit Layout" *ngIf="!isGridView" title="Auto Fit Layout">autorenew</i> -->
+    				<a><label>Auto Fit</label></a>
+				 </div>   
+					<!-- <div class="ui-g-12 edit-current-flowmap ts-settings">    
+                                <i class="material-icons ts-icons ui-group-right-font" title="Grid View" *ngIf="!isGridView" (click)="initializeGridView();changeView()">grid_on</i>
+                                <a (click)="initializeGridView();changeView()"><label>  Grid View</label></a>
+                            </div> -->
+                                <div class="ui-g-12 edit-current-flowmap ts-settings">
+                                    <!-- <button type="button" pTooltip="FlowMap view" *ngIf="isGridView" (click)="changeView()" class="btn-icon mx-3">   
+                                    <i class="icons8 icons8-filled-circle"></i>
+                                    </button>    -->
+                                    <a><label>Flow Map view</label></a>
+                            </div> 
+                        </div>         
+                    </div>        
+                </span>
+				<!--
+                <i class="material-icons ts-icons ui-group-right-font" title="Auto Layout" *ngIf="!isGridView" title="Auto Layout" (click)="autoLayout()">casino</i>
+                <i class="material-icons ts-icons ui-group-right-font" title="Auto Fit Layout" *ngIf="!isGridView" title="Auto Fit Layout"
+                    (click)="autoFitLayout()">autorenew</i>
+                <i class="material-icons ts-icons ui-group-right-font" title="Circular Layout" *ngIf="!isGridView" title="Circular Layout"
+                    (click)="circularLayout()">filter_tilt_shift</i>
+					-->
+                    <button type="button" pTooltip="FlowMap view" *ngIf="isGridView" (click)="changeView()"  class="btn-icon mx-3">
+                        <i class="icons8 icons8-filled-circle" ></i>
+                    </button>    
+				
+                <button type="button" pTooltip="Grid View"  class="btn-icon mx-3" (click)="initializeGridView();changeView()">
+                    <i class="icons8 icons8-table" ></i>
+                </button>
+               
+                <span class="dropdown">
+                    <button type="button" pTooltip="FlowMap call settings" class="btn-icon mx-3" *ngIf="!isGridView">
+                        <i class="icons8 icons8-settings"></i>
+                    </button>
+                  
+                   
+                    <div class="dropdown-content">
+                        <div class="ui-g">
+                            <div class="ui-g-12 edit-current-flowmap ts-settings">
+                                <p-radioButton (click)="onConnectionClick()" value="noConnectionCall" label="No Connection Call"
+                                    [(ngModel)]="connectionCall" inputId="opt1"></p-radioButton>
+                            </div>
+                            <div class="ui-g-12 edit-current-flowmap ts-settings">
+                                <p-radioButton (click)="onConnectionClick()" value="allConnectionCall" label="All Connection Calls"
+                                    [(ngModel)]="connectionCall" inputId="opt2"></p-radioButton>
+                            </div>
+                            <div class="ui-g-12 edit-current-flowmap ts-settings">
+                                <p-radioButton (click)="onConnectionClick()" value="slideShowCall" label="Connection Calls in Slide Show"
+                                    [(ngModel)]="connectionCall" inputId="opt3"></p-radioButton>
+                            </div>
+                        </div>
+                        <hr>
+                        <div>
+                            <div class="ui-g-12 edit-current-flowmap ts-settings">
+                                <p-radioButton (click)="onValueTypeChange()" value="current" label="Current Value"
+                                    [(ngModel)]="valueType" inputId="opt1"></p-radioButton>
+                            </div>
+                            <div class="ui-g-12 edit-current-flowmap ts-settings">
+                                <p-radioButton (click)="onValueTypeChange()" value="average" label="Time Period Value"
+                                    [(ngModel)]="valueType" inputId="opt2"></p-radioButton>
+                            </div>
+                        </div>
+                    </div>
+                </span>
+                <!-- <i class="material-icons ts-icons ui-group-right-font" pTooltip="Maximize view" (click)="minMax()" *ngIf="_dataHandlerService.$isMinMax">fullscreen</i>
+                <i class="material-icons ts-icons ui-group-right-font" pTooltip="Minimize" (click)="minMax()" *ngIf="!_dataHandlerService.$isMinMax">fullscreen_exit</i> -->
+
+                <!-- <i class="material-icons ts-icons" *ngIf="!isGridView" >grid_on</i>
+                <i class="material-icons ts-icons" *ngIf="isGridView" >blur_circular</i>
+                <i class="material-icons ts-icons" *ngIf="!isGridView">settings_applications</i>
+                <i class="material-icons ts-icons" (click)="minMax()" *ngIf="_dataHandlerService.$isMinMax">fullscreen</i>
+                <i class="material-icons ts-icons" (click)="minMax()" *ngIf="!_dataHandlerService.$isMinMax">fullscreen_exit</i> -->
+            </div>
+        </div>
+        
+        <h1 *ngIf="_dataHandlerService.$noLoadDetected" style='padding-top: 18%; padding-left: 37%;'>No Load Detected during current period</h1>
+        <div *ngIf="!isGridView" class="ts-flowmapdiv">
+            <app-flowmap-panel></app-flowmap-panel>
+        </div>
+        <div *ngIf="isGridView" class="p-5">
+            <p-table [value]="gridData" dataKey="index" class="all-tables" [expandedRowKeys]="expandedRows">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 15px">
+                            <div (click)="expandAllRows()">
+                                <img class="toggle-icon"
+                                    src="../dashboard/images/{{isAllExpanded ? 'details_close.png' : 'details_open.png'}}" alt="">
+                            </div>
+                        </th>
+                        <th *ngFor="let col of columns; let i = index;" [ngStyle]="col.style"
+                            (click)="updateSortedIcons(i)">
+                            <img class="header-icon" src="../dashboard/images/{{col.icon}}.png" alt="">
+                            {{col.header}}
+                            <img class="header-sorting-icon" *ngIf="col.field != 'to'"
+                                src="../dashboard/images/{{sortedRow == null ? 'sort_both':sortedRow.index == i?sortedRow.sortState == true?'sort_asc':'sort_desc':'sort_both'}}.png"
+                                alt="">
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-expanded="expanded" let-columns="columns">
+                    <tr>
+                        <td class="text-center">
+                            <div [pRowToggler]="rowData" (click)="updateExpandedRows()">
+                                <img class="toggle-icon"
+                                    src="../dashboard/images/{{expanded ? 'details_close.png' : 'details_open.png'}}" alt="">
+                            </div>
+                        </td>
+                        <td colspan="2">
+                            <img class="tier-icon" src="./images/{{rowData.data.icon}}" alt=""
+                                style="width:16px;height:16px">
+                            <span pTooltip="{{rowData.data.from}}" showDelay="500"
+                                hideDelay="200" (click)="updateRightPanelTier(rowData.data)" style="cursor:pointer;">{{rowData.data.from}}</span>
+                        </td>
+                       <!-- <td align="right">{{rowData.data.tps}}</td>
+                        <td align="right">{{rowData.data.res}}</td>
+                        <td align="right">{{rowData.data.cpu}}</td>
+                        <td align="right">{{rowData.data.count}}</td>
+			-->
+                        <td class="text-right">{{rowData.data.tps != -1 ? rowData.data.tps : '-'}}</td>
+                        <td class="text-right">{{rowData.data.res != -1 ? rowData.data.res : '-'}}</td>
+                        <td class="text-right">{{rowData.data.cpu != -1 ? rowData.data.cpu : '-'}}</td>
+                        <td class="text-right">{{rowData.data.count != -1 ? rowData.data.count : '-'}}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-rowData let-columns="columns">
+                    <tr *ngFor="let row of rowData.children">
+                        <td colspan="3">
+                            <div class="ui-g">
+                                <div class="ui-g-12 ui-md-4 ui-md-offset-6">
+                                    <span pTooltip="{{row.data.to}}" tooltipPosition="bottom" showDelay="500"
+                                        hideDelay="200">
+                                        <img class="ip-icon" src="./images/{{row.data.icon}}" alt=""
+                                            style="width:16px;height:16px">
+                                        {{row.data.to.length > 40 ? row.data.to.substring(0,40)+"..." : row.data.to}}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-right">{{row.data.tps}}</td>
+                        <td class="text-right">{{row.data.res}}</td>
+                        <td class="text-right">{{row.data.cpu}}</td>
+                        <td class="text-right">{{row.data.count}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+</div>
+<!-- Drop downs menu -->
+<!-- <div class="dropdown">
+    <button class="dropbtn">Dropdown</button>
+
+    </div> -->

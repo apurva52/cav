@@ -1,0 +1,233 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+    blockScroll="true" appendTo="body" styleClass="time-filter" [baseZIndex]="100">
+    <div class="sidebar-header">
+        <div class="sidebar-title p-grid p-justify-between">
+            <div>
+                <i class="icons8 icons8-clock"></i>
+                <span>Page Performance Filter</span>
+            </div>
+            <i class="icons8-delete icons8 clickable" (click)="closeClick()"></i>
+        </div>
+    </div> 
+    <p-toast key="my key" position="top-left"></p-toast>
+    
+    <div class="sidebar-content">
+        <form [formGroup]="pageForm">
+          <p-tabView>
+            <p-tabPanel header="General">
+                <div class="first-tab">
+                    <div class="p-grid p-align-center">
+                        <div class="p-col-4">
+                            <p-radioButton name="timefilter" formControlName="_timefilter"label="Last" value="last" (click)="triggerfilter()"></p-radioButton>
+                        </div>
+                        <div class="p-col-8">
+                            <p-dropdown [options]="lasttimeoption" class="w-100-p"
+                            dropdownIcon="icons8 icons8-expand-arrow" formControlName="lastval"></p-dropdown>
+                        </div>
+
+                        <div class="p-col-12">
+                            <p-radioButton name="timefilter" formControlName="_timefilter" label="custom" (click)="triggerfilter()" value="Custom"></p-radioButton>
+                        </div>
+                       
+                      
+                    </div>
+                   
+                    <div class="p-grid p-align-center">
+                        <label class="p-col-4">Starts At</label>
+                        <div class="p-col-8">
+                        <div class="type-search">
+                            <i class="icons8 icons8-calendar left-icon btn-icon"></i>
+                            <input pInputText class="w-100-p" readonly id="start-date-time"
+                                [owlDateTime]="customStartDateTime" 
+                                [owlDateTimeTrigger]="customStartDateTime" 
+                                (dateTimeChange)="onTimeFilterCustomTimeChange('start')" [selectMode]="'rangeFrom'"
+                                [max]='maxDate'[formControl]="pageForm.controls['customTime']">
+                            <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                            <p-message *ngIf="invalidDate" severity="error"
+                                text="Start date and End date should not be the same.">
+                            </p-message>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="p-grid p-align-center">
+                        <label class="p-col-4">Ends At</label>
+                        <div class="p-col-8">
+                            <div class="type-search">
+                                <i class="icons8 icons8-calendar left-icon btn-icon"></i>
+                            <input pInputText  class="w-100-p" readonly id="end-date-time"
+                                [owlDateTime]="customEndDateTime" 
+                                [owlDateTimeTrigger]="customEndDateTime" 
+                                (dateTimeChange)="onTimeFilterCustomTimeChange('end')" [selectMode]="'rangeTo'"
+                                [max]='maxDate' [formControl]="pageForm.controls['customTime']">
+                            <owl-date-time #customEndDateTime tooltipZIndex="100001005"></owl-date-time>
+                            <p-message *ngIf="invalidDate" severity="error"
+                                text="Start date and End date should not be the same.">
+                            </p-message>
+                            </div>
+                        </div>
+
+
+                        <div class="p-col-8 p-offset-4  text-right"
+                        *ngIf="conpareflag != false && filtermode != 'OverView' && filtermode != 'revenue' && filtermode != 'jsError' && filtermode != 'jsErrorDetail'">
+                            <button pButton type="button" label="On Compare Mode" (click)='oncomparemode(false)' ></button>
+                        </div>
+                    </div>
+
+
+                   
+                    
+                    <div *ngIf="conpareflag == false">
+                        <div class="p-grid  p-align-center">
+                            <div class="p-col-4">
+                            <p-radioButton name="timefiltercmp" formControlName="_timefiltercmp" (click)="triggerfiltercmp()" label="Last" value="last"></p-radioButton>
+                        </div>
+                        <div class="p-col-8">
+                            <p-dropdown [options]="lasttimeoptioncmp" class="w-100-p"
+                                dropdownIcon="icons8 icons8-expand-arrow" formControlName="lastvalcmp" ></p-dropdown>
+                                </div>
+                       
+                        <div class="p-col-12">
+                            <p-radioButton name="timefiltercmp" formControlName="_timefiltercmp" label="custom" (click)="triggerfiltercmp()"value="Custom"></p-radioButton>
+                        </div>
+                       
+                            <label class="p-col-4">Starts At</label>
+                            <div class="p-col-8">
+                                <div class="type-search">
+                                    <i class="icons8 icons8-calendar left-icon btn-icon"></i>
+                                <input pInputText  class="w-100-p" readonly id="start-date-time"
+                                    [owlDateTime]="customStartDateTime" 
+                                    [owlDateTimeTrigger]="customStartDateTime" placeholder="{{startT}}"
+                                    (dateTimeChange)="onTimeFilterCustomTimeChangecmp('start')" [selectMode]="'rangeFrom'"
+                                    [max]="customTimeFrameMax" [formControl]="pageForm.controls['customTimecmp']" >
+                                <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                                <p-message *ngIf="invalidDate" severity="error"
+                                    text="Start date and End date should not be the same.">
+                                </p-message>
+                            </div>
+                            </div>
+                       
+                      
+                            <label class="p-col-4">Ends At</label>
+                            <div class="p-col-8">
+                                <div class="type-search">
+                                    <i class="icons8 icons8-calendar left-icon btn-icon"></i>
+                                <input pInputText class="w-100-p" readonly id="start-date-time"
+                                    [owlDateTime]="customEndDateTime" 
+                                    [owlDateTimeTrigger]="customEndDateTime" placeholder="{{endT}}"
+                                    (dateTimeChange)="onTimeFilterCustomTimeChangecmp('end')" [selectMode]="'rangeTo'"
+                                    [max]="customTimeFrameMax" [formControl]="pageForm.controls['customTimecmp']">
+                                <owl-date-time #customEndDateTime tooltipZIndex="100001005"></owl-date-time>
+                                <p-message *ngIf="invalidDate" severity="error"
+                                    text="Start date and End date should not be the same.">
+                                </p-message>
+                            </div>
+                        </div>
+
+                        <div *ngIf="conpareflag == false" class="p-col-8 p-offset-4 text-right">
+                            <button pButton type="button" label="Off Compare Mode" (click)='offcomparemode(true)' ></button>
+                        </div>
+                        </div>
+
+                    </div>
+                    
+
+                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" [options]="npage"  *ngIf="pageForm.controls['Includepage'].value  != null && pageForm.controls['Includepage'].value.length > 0"  [disabled]=true  defaultLabel='Select Page' formControlName="entryPage"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                            <p-multiSelect class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" [options]="npage"  *ngIf="pageForm.controls['Includepage'].value  == null || pageForm.controls['Includepage'].value  == 'null'  || pageForm.controls['Includepage'].value.length == 0"  [disabled]=false  defaultLabel='Select Page' formControlName="entryPage"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>   
+                    </div>
+
+                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect [options]="nchannel" class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" defaultLabel='Select Channel' formControlName="channel" *ngIf="filtermode !== 'revenue'"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                            <p-multiSelect [options]="nchannel" class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" defaultLabel='Select Channel' formControlName="channel" *ngIf="filtermode === 'revenue'" (onChange)='onSelectChannel($event)'  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>   
+                    </div>
+
+                    <div *ngIf="filtermode !== 'revenue'" class="p-grid p-col-12 p-justify-between p-align-center">
+                      <p-multiSelect [options]="usersegmentoption" class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow"  defaultLabel='Select User Segment' formControlName="userSegment"></p-multiSelect>   
+                    </div>
+
+                    <div *ngIf="filtermode !== 'revenue'"  class="p-grid p-col-12 p-justify-between p-align-center">
+                       <p-multiSelect [options]="osopson" defaultLabel='Select OS' class="w-100-p"
+                        dropdownIcon="icons8 icons8-expand-arrow" formControlName="platform"class="w-100-p" ></p-multiSelect>
+                     </div>
+                     <div *ngIf="filtermode !== 'revenue'"  class="p-grid p-col-12 p-justify-between p-align-center">
+                    <p-multiSelect [options]="browser_opts" defaultLabel='Select Browser'class="w-100-p"
+                        dropdownIcon="icons8 icons8-expand-arrow" formControlName="browser"></p-multiSelect>
+                </div>
+
+
+
+                    <div *ngIf="filtermode !== 'revenue'" class="p-grid p-col-12 p-justify-between p-align-center">
+                        <p-selectButton [options]="device" [multiple]= true  (onChange)='selectDevice($event)' formControlName="device">
+                        </p-selectButton>
+                    </div>
+
+                    
+                </div>
+            </p-tabPanel>
+            <p-tabPanel *ngIf="filtermode !== 'revenue'" header="Advanced">
+                <div class="second-class">
+                    <div class="p-grid p-justify-between p-align-center">
+                        <label class="p-col-12 font-weight-700">Include </label>
+                   
+                
+                        <label class="p-col-4"> Location  </label>  
+                        <div class="p-col-8">
+                        <p-multiSelect [options]="nlocation" class="w-100-p"defaultLabel='Select Location' formControlName="IncludeLocation" panelStyle="{'width':'200px'}"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                    </div>
+             
+                        <label class="p-col-4"> Page  </label>
+                        <div class="p-col-8">
+                        <p-multiSelect [options]="npage"   class="w-100-p" (onChange)="resetInfo()" defaultLabel='Select Page' formControlName="Includepage"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                    </div>
+                  
+                        <label class="p-col-4"> OS  </label>
+                        <div class="p-col-8">
+                        <p-multiSelect [options]="newos"  class="w-100-p" defaultLabel='Select OS' (onChange)="onSelectOS($event)"  formControlName="IncludeOS"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+
+                    </div>
+                 
+                    
+                        <label class="p-col-4"> Browser  </label> 
+                        <div class="p-col-8">
+                            <p-multiSelect  class="w-100-p" [options]="browser_opts"  defaultLabel='Select Browser'  formControlName="IncludeBrowser"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                    </div>
+                  
+                        <label class="p-col-12 font-weight-700"> Exclude  </label>
+                   
+                     
+                        <label class="p-col-4"> Location  </label>   
+                        <div class="p-col-8">
+                            <p-multiSelect  class="w-100-p" [options]="nlocation" defaultLabel='Select Location' formControlName="ExcludeLocation"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                    </div>
+                  
+                        <label class="p-col-4"> Page  </label> 
+                        <div class="p-col-8">
+                        <p-multiSelect [options]="npage" class="w-100-p"  defaultLabel='Select Page' formControlName="ExcludePage"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                    </div>
+                 
+                        <label class="p-col-4"> OS  </label> 
+                        <div class="p-col-8">
+                        <p-multiSelect [options]="newos"  class="w-100-p" defaultLabel='Select OS'  formControlName="ExcludeOS"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+
+                    </div>
+
+                 
+                        <label class="p-col-4">Browser  </label> 
+                        <div class="p-col-8">
+                        <p-multiSelect [options]="browser_opts"  class="w-100-p"defaultLabel='Select Browser'  formControlName="ExcludeBrowser"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                    </div>
+                    </div>
+                </div>
+            </p-tabPanel>
+            <div class="p-grid p-align-center p-justify-end mt-10">
+                        <button pButton label="Reset"
+                            class="ui-outline-button ui-button-secondary mx-6" (click)='setForm(true)' ></button>
+                        <button pButton  label="Apply" class="ui-button-rounded ui-button-right" (click)='submitRecord()'></button>
+            </div>
+          </p-tabView>
+
+          
+        </form>
+    </div>
+    
+</p-sidebar>

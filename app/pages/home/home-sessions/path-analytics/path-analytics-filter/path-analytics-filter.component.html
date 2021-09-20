@@ -1,0 +1,93 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+
+  blockScroll="true" appendTo="body" styleClass="time-filter" [baseZIndex]="100">
+  <div class="sidebar-header">
+    <div class="sidebar-title p-grid p-justify-between">
+      <div>
+        <i class="icons8 icons8-clock"></i>
+        <span>Path Analytics Filter</span>
+      </div>
+      <i class="icons8-delete icons8 clickable" (click)="closeClick()"></i>
+    </div>
+  </div>
+   <!-- <p-toast></p-toast>  -->
+   <p-toast  key ="my key" position="top-left"></p-toast>
+  <div class="sidebar-content">
+    
+    <form [formGroup]="analysisForm" *ngIf="!reloading">
+
+      <app-time-filter formControlName="timeFilter" [pickerType]="'both'"></app-time-filter>
+
+      <div class="p-grid p-col-12 p-justify-between p-align-center">
+        <!--<p-multiSelect class="w-100-p" [style]="{'width':'300px'}" dropdownIcon="icons8 icons8-expand-arrow"
+          [options]="npage" defaultLabel='Select Page' formControlName="entryPage"></p-multiSelect> -->
+          <p-multiSelect [options]="nchannel" defaultLabel='Select Channel'
+          [style]="{'width':'300px'}" class="w-100-p"
+          dropdownIcon="icons8 icons8-expand-arrow" formControlName="channel">
+                  </p-multiSelect>
+      </div>
+
+      <div class="p-grid p-col-12 p-justify-between p-align-center">
+       <!-- <p-multiSelect [options]="nchannel" [style]="{'width':'300px'}" class="w-100-p"
+          dropdownIcon="icons8 icons8-expand-arrow" defaultLabel='Select Channel' formControlName="channels"
+          (onChange)='onSelectChannel($event)'></p-multiSelect> -->
+          <p-multiSelect [options]="usersegmentoption" defaultLabel='Select User Segment'
+          [style]="{'width':'300px'}" class="w-100-p"
+          dropdownIcon="icons8 icons8-expand-arrow" formControlName="userSegment">
+                  </p-multiSelect>
+
+      </div>
+
+      <div class="p-grid p-col-12 p-justify-between p-align-center">
+        <!--<p-dropdown [options]="metricOptions" class="w-100-p" formControlName="metric"
+          dropdownIcon="icons8 icons8-expand-arrow" tooltip="Select Metric Name"></p-dropdown> -->
+
+          <p-dropdown [options]="dimensions" formControlName="dimType" (onChange)="selectDimension($event)"
+          [style]="{'width':'300px'}" class="w-100-p"
+          dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                  <span id="dim1" style="float:right;margin-right:8%;display:none">
+                     <p-dropdown [options]="newbs" [style]="{'width':'150px'}" formControlName="browser">
+                     </p-dropdown>
+                  </span>
+                  <span id="dim2" style="float:right;margin-right:8%;display:none">
+                     <p-dropdown [options]="newos" [style]="{'width':'150px'}" formControlName="platform">
+                     </p-dropdown>
+                  </span>
+                  <span id="dim3" style="float:right;margin-right:8%;display:none">
+                     <p-dropdown [options]="nlocation" [style]="{'width':'150px'}" formControlName="location">
+                     </p-dropdown>
+                  </span>
+                  <span id="dim4" style="float:right;margin-right:8%;display:none">
+                     <p-dropdown [options]="device" [style]="{'width':'150px'}" formControlName="device">
+                     </p-dropdown>
+                  </span>
+
+      </div>
+
+      <div class="p-grid p-col-12 p-justify-between p-align-center">
+        <!--<p-dropdown [options]="rollingWindowOptions" class="w-100-p" formControlName="rollingwindow"
+          dropdownIcon="icons8 icons8-expand-arrow" tooltip="Select Rolling Window"></p-dropdown> -->
+
+          <p-dropdown [options]="npage" [style]="{'width':'300px'}" class="w-100-p"
+          dropdownIcon="icons8 icons8-expand-arrow" formControlName="page">
+          </p-dropdown>
+      </div>
+
+      
+
+      <div class="action-buttons">
+        <button pButton type="reset" label="RESET" class="ui-outline-button ui-button-secondary"
+          (click)='resetForm()'></button>
+        <button pButton type="submit" label="APPLY" (click)="onSubmit()" class="ui-button-rounded ui-button-right"
+          ></button>
+        
+      <!-- <button class="ui-button ui-widget ui-state-default ui-corner-all" style="padding: 2px 5px;"
+          [disabled]="!analysisForm.valid">Done</button> 
+       <button type="button" pButton (click)='setForm()' label="Reset"></button> -->
+
+      </div>
+
+    </form>
+  </div>
+
+</p-sidebar>

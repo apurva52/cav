@@ -1,0 +1,247 @@
+<div class="log-pattern-monitor">
+  <form (ngSubmit)="saveLogData()" #form="ngForm" ngNativeValidate>
+    <p-panel>
+      <p-header>
+        <p-checkbox [binary]="true" name="isChk" [(ngModel)] = "enabled"
+        ngDefaultControl></p-checkbox>
+        <span class="checkbox-label">Log Pattern Monitors</span>
+        </p-header>
+      <div class="p-grid p-align-center w-100-p">
+        <div class="width-160 required-mark">File Name Selection</div>
+        <div class="p-col-2">
+          <p-dropdown name="logFileName" [options]="logFileSelectionList"
+            [(ngModel)]="logPatternData.fileNameSelection" defaultLabel="Choose Server list"
+            [style]="{'min-width': '100%'}" ngModel dropdownIcon="icons8 icons8-expand-arrow">
+          </p-dropdown>
+        </div>
+
+        <div class="p-col-2" *ngIf="logPatternData.fileNameSelection != '-f __journald'">
+          <input class="w-100-p" name="FileName" type="text" required="true" [(ngModel)]="logPatternData.fileName"
+            pInputText />
+        </div>
+
+        <div class="p-col-2" *ngIf="logPatternData.fileNameSelection == '-f __journald'">
+          <span>
+            <p-radioButton value="all" name="all" label="All logs" [(ngModel)]="logPatternData.journalType"></p-radioButton>
+          </span>
+
+          <span class="p-col-2">
+            <p-radioButton value="-u" name="Specified" label="Specified" [(ngModel)]="logPatternData.journalType"></p-radioButton>
+          </span>
+        </div>
+
+        <div class="p-col-2" *ngIf="logPatternData.fileNameSelection == '-f __journald'">
+          <input class="w-100-p" [disabled]="logPatternData.journalType != '-u'" [(ngModel)]="logPatternData.fileName"
+            name="specificJournalType" type="text" required="true" pInputText ngModel />
+        </div>
+
+        <div class="p-col-2">Number of instances</div>
+        <div class="p-col-2">
+          <input name="excludeInput" class="w-100-p" type="number" pInputText [(ngModel)]="logPatternData.instCount"
+            placeholder="Enter Pattern" [disabled]="logPatternData.fileNameSelection != '-f'" ngModel />
+        </div>
+      </div>
+
+      <div class="p-grid p-align-center w-100-p">
+        <div class="width-160 required-mark">Instance Name </div>
+        <div class="p-col-2">
+          <input name="instanceName" type="text" pInputText class="w-100-p"
+            [(ngModel)]="logPatternData.instance" placeholder="Enter Instance" ngModel required/>
+        </div>
+
+        <div class="p-col-2 required-mark">Metric Group Name </div>
+        <div class="p-col-2">
+          <input name="metricGrpName" type="text" pInputText  class="w-100-p"
+            [(ngModel)]="logPatternData.gdfName" placeholder="Enter Metric Group Name" ngModel required/>
+        </div>
+      </div>
+
+      <div class="p-grid p-align-center w-100-p">
+        <div class="p-col-2">
+          <p-checkbox label="Read multiple log files" [disabled]="logPatternData.fileNameSelection != '-f'"
+            binary="true" title="For reading multiple log file(s) use regex * ? [ ] { } ( ) + in file path"
+            tooltipPosition="bottom" name="readMulFile" [(ngModel)]="logPatternData.readMulFile"></p-checkbox>
+
+        </div>
+      </div>
+
+      <div class="listText">
+<p class="font-weight-600">Note(s):-</p>
+<ol>
+  <li>If file name has regular expression, it will only use the last modified file</li>
+  <li>If you want all files matching regular expression to be used then use the read multiple log file checkbox.
+    <ol>
+      <li>{{noteLabel1}}</li>
+      <li>Use $Instance in file path, if file path has instance name.</li>
+      <li>$Instance cannot be used more than once.</li>
+      <li>Regex cannot be used with $Instance.</li>
+    </ol>
+  </li>
+</ol>
+      </div>
+      <p-accordion [multiple]="true">
+        <p-accordionTab [selected]="false" header="Patterns">
+          <div class="p-col-12">
+            <p-table class="all-tables" [columns]="tablePatternCols" [resizableColumns]="true"
+              [value]="logPatternData.gdfDetails" [totalRecords]="logPatternData.gdfDetails.length"
+              [(selection)]="selectedGDFdetails"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+              [scrollable]="true" [rows]="5" [paginator]="true" [pageLinks]="3">
+              <ng-template pTemplate="caption">
+                <div style="text-align: right">
+                  <button pButton type="button" class="mx-3" icon="icons8 icons8-plus-math" (click)="openDialog()"
+                    style="cursor:pointer;" title="Add Metric Hierarchy">
+                  </button>
+                  <button pButton type="button" class="mx-3" icon="icons8 icons8-edit" (click)="editDialog()"
+                    style="cursor:pointer;" title="Edit ">
+                  </button>
+                  <button pButton type="button" class="ui-button-danger ml-3"
+                    title="Delete"
+                    (click)="deleteGDFDetails()" icon="icons8 icons8-trash">
+                  </button>
+
+                </div>
+              </ng-template>
+              <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns">
+                </colgroup>
+            </ng-template>
+              <ng-template pTemplate="header" let-columns>
+                <tr class="scen-ptable-thead">
+                  <th style="width:40px" pResizableColumn>
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                  </th>
+                  <!-- <th style="width:34px"  pResizableColumn>
+                    <p-checkbox (click)="selectAllRow(e.checked)" #e></p-checkbox>
+                  </th> -->
+                  <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" pResizableColumn
+                    [pSortableColumn]="col.field">
+                    <div class="center">
+                      {{ col.header }}
+                      <!-- </div>
+                      <div class="float-right"> -->
+                      <p-sortIcon [field]="col.field" class="text-right" ariaLabel="Activate to sort"
+                        ariaLabelDesc="Activate to sort in descending order"
+                        ariaLabelAsc="Activate to sort in ascending order">
+                      </p-sortIcon>
+                    </div>
+                  </th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+                <tr [pSelectableRow]="rowData">
+                  <td style="width:40px">
+                    <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                  </td>
+                  <td *ngFor="let col of columns" title="{{ rowData[col.field] }}">
+                    {{ rowData[col.field]}}
+                  </td>
+
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                  <td [attr.colspan]="columns.length + 1" class="text-center">
+                    <span>Empty Table</span>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </p-accordionTab>
+        <p-accordionTab [selected]="false" header="Advanced Settings">
+          <div class="ui-g-3">
+            <label>Metric</label>
+          </div>
+
+          <span style="margin-left: -236px">
+            <p-dropdown [style]="{'width':'180px'}" name="Metriclist" [(ngModel)]="logPatternData.metric" required
+              [options]="metricList" dropdownIcon="icons8 icons8-expand-arrow">
+            </p-dropdown>
+            <input *ngIf="logPatternData.metric == 'Custom Metrics'" style="width:225px;margin-left: 33px"
+              placeholder="Enter custom metric" name="FileName" type="text" required="true"
+              [(ngModel)]="logPatternData.customMetricName" pInputText />
+          </span>
+
+          <span style="margin-left: 40px;">
+            <p-checkbox label="Dump Server Logs inside the Test Run" binary="true" name="dumpServer"
+              pTooltip="Dump Server Logs inside the Test Run" tooltipPosition="bottom"
+              [(ngModel)]="logPatternData.dumpServer">
+            </p-checkbox>
+          </span>
+
+        </p-accordionTab>
+      </p-accordion>
+    </p-panel>
+
+
+    <app-tier-server></app-tier-server>
+
+    <div class="action-container">
+      <div class="p-col-12 p-grid p-justify-end p-align-end">
+        <!-- <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow"
+            (click)="toggleFilters()" title="Column Filter"></button> -->
+        <p-button type="submit" label="{{AddEditLabel}}" title="{{AddEditLabel}} Configuration"
+          class="ui-button ui-button-rounded ui-button-right">
+        </p-button>
+        <p-button type="button" *ngIf="AddEditLabel === 'Update'" title="Cancel Update" label="Cancel"
+          class="ui-button ui-button-rounded ui-button-right" (click)="resetUI()">
+        </p-button>
+      </div>
+    </div>
+
+    <app-configured-monitor-info [techName]="'logPattern'" [showCols]="tableInfo" (logMonData)="editData($event)"></app-configured-monitor-info>
+  </form>
+
+  <p-dialog class="secondary-dialog foterDialog" header="{{dialogHeaderForTable}}" [(visible)]="showSrchDialog"
+    modal="modal" responsive="true" [style]="{'width':'350px'}">
+    <form (ngSubmit)="saveSrchPattData()" #groupForm="ngForm" ngNativeValidate>
+      <div class="p-grid p-align-center w-100-p">
+        <div class="p-col-5 required-mark">Search Pattern</div>
+        <div class="p-col-7">
+          <input type="text" pInputText name="pattern" class="w-100-p" [(ngModel)]="gdfData.searchPattern" ngModel
+          required>
+        </div>
+
+        <div class="p-col-5 required-mark">Graph Name</div>
+        <div class="p-col-7">
+        <input type="text" pInputText name="graphName" class="w-100-p" [(ngModel)]="gdfData.graphName" ngModel required>
+        </div>
+
+        <div class="p-col-5 ">Unit</div>
+        <div class="p-col-7">
+        <p-dropdown name="unit" required [options]="unitList" [(ngModel)]="gdfData.unit"
+          [style]="{'min-width': '100%'}" dropdownIcon="icons8 icons8-expand-arrow">
+        </p-dropdown>
+        </div>
+      </div>
+
+
+      <footer>
+        <div class="p-grid p-justify-end my-10">
+          <button type="button" pButton class="mx-6 ui-button-rounded ui-button-secondary"
+            (click)="showSrchDialog = false;" label="Cancel"></button>
+          <button type="submit" pButton class="ui-button-rounded" label="Save"></button>
+        </div>
+      </footer>
+    </form>
+  </p-dialog>
+  <div class="loading-indicator" *ngIf="loading">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+    </p-progressSpinner>
+  </div>
+</div>
+ <div class="confirm-dialog">
+      <p-confirmDialog #cd [style]="{width: '500px'}" [baseZIndex]="100000000011" class="secondary-dialog confirmdialog">
+        <p-footer>
+          <button type="button" class=" ui-button-rounded ui-button-secondary px-20 mx-6" pButton
+            label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+          <button type="button" class="ui-button-rounded" pButton label={{acceptLable}} (click)="cd.accept()"></button>
+        </p-footer>
+      </p-confirmDialog>
+    </div>
+
+<!-- </div> -->

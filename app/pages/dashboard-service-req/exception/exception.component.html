@@ -1,0 +1,511 @@
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !dataAggregate && !dataException">
+    <div class="p-col p-col-align-center text-center">
+        <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+    </div>
+</div>
+
+<div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+        <p-message severity="error" text="{{ error.msg }}"></p-message>
+    </div>
+</div>
+
+<!-- <div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+        <p-message severity="normal" text="No Data"></p-message>
+    </div>
+</div> -->
+<div class="p-grid p-justify-end p-align-center menu-button">
+    <!-- <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'"
+        [hideTransitionOptions]="'0ms'"></p-menu>
+    <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event)"
+        pTooltip="Download"></button> -->
+</div>
+
+<div class="h-100-vh vertical-container">
+    <div>
+        <div class="p-grid p-justify-start p-align-center">
+            <div *ngFor="let panel of dataAggregate.panels; let i = index" class="w-100-p">
+                <div>
+                    <div id="panel-{{ i + 1 }}" class="exception-panel">
+                        <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="panel.collapsed"
+                            [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                            <p-header class="cav-panel-header pt-5">
+                                <div class="cav-panel-content p-grid p-align-center">
+                                    <div class="panel-title" (click)="pnl.toggle($event)">
+                                        <a tabindex="{{ i }}">
+                                            <span [class]="
+                                                pnl.collapsed
+                                                    ? 'icons8 icons8-expand-arrow'
+                                                    : 'icons8 icons8-collapse-arrow'
+                                                ">
+                                            </span>
+                                        </a>
+                                        {{ panel.label }}
+                                    </div>
+                                    <div class="p-grid p-justify-center p-align-center">
+                                        <div class="ui-inputgroup-addon-flow">
+                                            <div class="methodTiming-search-box">
+                                                <input #searchInput type="text" [value]="" class="w-100-p" pInputText
+                                                    size="50" placeholder="Search" *ngIf="isShowSearch"
+                                                    (input)="aggregateException.filterGlobal($event.target.value, 'contains')"
+                                                    class="search-box" />
+                                                <!-- <button pButton type="button" *ngIf="isShowSearch"
+                                                    class="ui-icon-button ui-button-rounded clear-button"
+                                                    pTooltip="Clear filter" tooltipZIndex="100001005"
+                                                    icon="icons8 icons8-delete" (click)="clearFilters()"></button> -->
+                                                <button pButton icon="icons8 icons8-search"
+                                                    (click)="isShowSearch = !isShowSearch"
+                                                    class="icon-button no-shadow"></button>
+                                            </div>
+                                        </div>
+                                        <p-menu #menu [popup]="true" styleClass="widget-menu"
+                                            [model]="downloadOptionsAggException" [showTransitionOptions]="'0ms'"
+                                            [hideTransitionOptions]="'0ms'"></p-menu>
+                                        <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button"
+                                            (click)="menu.toggle($event)" pTooltip="Download"></button>
+                                        <button pButton icon="icons8 icons8-search-property" class="ui-icon-button"
+                                            pTooltip="Toggle Filter" [tooltipZIndex]="100000"
+                                            (click)="panel.tableFilter = !panel.tableFilter"></button>
+                                        <p-multiSelect class='ml-20' [options]="colsAgg" name="multiSelect"
+                                            [(ngModel)]="selectedAggCols" optionLabel="label"
+                                            [displaySelectedLabel]="false" dropdownIcon='icons8 icons8-columns'
+                                            pTooltip="Toggle Columns" [panelStyle]="{minWidth: '200px'}">
+                                        </p-multiSelect>
+                                    </div>
+                                </div>
+                            </p-header>
+                            <p-table #aggregateException class="all-tables" [columns]="selectedAggCols"
+                                [resizableColumns]="true" [rowsPerPageOptions]="panel.paginator.rowsPerPageOptions"
+                                [value]="panel.data" [globalFilterFields]="globalFilterFields" [scrollable]="false">
+                                <ng-template pTemplate="colgroup" let-columns>
+                                    <colgroup>
+                                        <col *ngFor="let col of columns">
+                                    </colgroup>
+                                </ng-template>
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                        <th *ngFor="let col of columns" [attr.colspan]="col.colspan"
+                                            [attr.rowspan]="col.rowspan" pResizableColumn
+                                            [pSortableColumn]="col.valueField">
+                                            <div class="elipseText"> {{ col.label }} </div>
+                                            <p-sortIcon [field]="col.valueField"></p-sortIcon>
+                                        </th>
+                                    </tr>
+                                    <tr *ngFor="let headerRow of panel.headers">
+                                        <ng-container *ngIf="panel.tableFilter">
+                                            <th *ngIf="isCheckbox" class="columnwidth"></th>
+                                            <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                                <div *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'custom'
+                          ">
+                                                    <input class="w-100-p"
+                                                        pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                              aggregateException.filter(
+                                $event.target.value,
+                                col.value,
+                                'custom'
+                              )
+                            " />
+                                                </div>
+                                                <div *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'contain'
+                          ">
+                                                    <input class="w-100-p"
+                                                        pTooltip="Will filter metric names which contains given text."
+                                                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                              aggregateException.filter(
+                                $event.target.value,
+                                col.valueField,
+                                'contains'
+                              )
+                            " />
+                                                </div>
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row let-columns="columns">
+                                    <tr>
+                                        <td *ngFor="let col of columns; let i = index"
+                                            (click)="getColumnData(row, col.label)" pTooltip={{row[col.valueField]}}>
+                                            <span>
+                                                <a [ngClass]="{
+                            activeLink: col.label == 'Exception Count'
+                          }" (click)="getColumnData(col.label, row)">
+                                                    {{ row[col.valueField] }}
+                                                </a>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                            <span *ngIf="error">Error while loading data</span>
+                                            <span *ngIf="empty">Empty Table</span>
+                                            <span *ngIf="loading">Loading</span>
+                                            <span
+                                                *ngIf="!empty && !loading && !error && searchInput && searchInput.nativeElement.value.length  ">Nothing
+                                                found matching
+                                                "{{searchInput.nativeElement.value}}"</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </p-panel>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="dataException">
+        <div class="p-grid p-justify-start p-align-center">
+            <div *ngFor="let panel of dataException.panels; let i = index" class="w-100-p">
+                <div [class]="(i == 1) ? 'my-flex' : 'flex-none'">
+                    <div id="panel-{{ i + 1 }}" class="exception-panel">
+                        <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="panel.collapsed"
+                            [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                            <p-header class="cav-panel-header pt-5">
+                                <div class="cav-panel-content p-grid p-align-center">
+                                    <div class="panel-title" (click)="pnl1.toggle($event)">
+                                        <a tabindex="{{ i }}">
+                                            <span [class]="
+                          pnl1.collapsed
+                            ? 'icons8 icons8-expand-arrow'
+                            : 'icons8 icons8-collapse-arrow'
+                        ">
+                                            </span>
+                                        </a>
+                                        {{ panel.label }}
+                                        <span *ngIf ="panel.label == 'Exception'">
+                                           (s) {{tableHeader}}
+                                        </span>
+                                        <span *ngIf ="panel.label == 'Stack Trace'">
+                                           [{{stackTraceHeader}}]
+                                        </span>
+                                    </div>
+                                    <div class="p-grid p-justify-center p-align-center">
+                                        <div class="ui-inputgroup-addon-flow" *ngIf="panel.label === 'Exception'">
+                                            <div class="methodTiming-search-box">
+                                                <input #searchInput type="text" [value]="" class="w-100-p" pInputText
+                                                    size="50" placeholder="Search" *ngIf="isShowSearchException"
+                                                    (input)="exception.filterGlobal($event.target.value, 'contains')"
+                                                    class="search-box" />
+                                                <!-- <button pButton type="button" *ngIf="isShowSearchException"
+                                                    class="ui-icon-button ui-button-rounded clear-button"
+                                                    pTooltip="Clear filter" tooltipZIndex="100001005"
+                                                    icon="icons8 icons8-delete" (click)="clearFilters()"></button> -->
+                                                <button pButton icon="icons8 icons8-search"
+                                                    (click)="isShowSearchException = !isShowSearchException"
+                                                    class="icon-button no-shadow"></button>
+                                            </div>
+                                        </div>
+                                        <p-menu #menu [popup]="true" styleClass="widget-menu"
+                                            [model]="downloadOptionsException" [showTransitionOptions]="'0ms'"
+                                            [hideTransitionOptions]="'0ms'"></p-menu>
+                                        <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button"
+                                            (click)="menu.toggle($event)" pTooltip="Download"></button>
+                                            <div *ngIf="panel.label === 'Exception'">
+                                        <button pButton icon="icons8 icons8-search-property" class="ui-icon-button"
+                                            pTooltip="Toggle Filter" [tooltipZIndex]="100000"
+                                            (click)="panel.tableFilter = !panel.tableFilter"></button>
+                                        <p-multiSelect class = 'ml-20' [options]="colsExc" name="multiSelect" [(ngModel)]="selectedColumns"
+                                            optionLabel="label" [displaySelectedLabel]="false"
+                                            dropdownIcon='icons8 icons8-columns' pTooltip="Toggle Columns"
+                                            [panelStyle]="{minWidth: '200px'}">
+                                        </p-multiSelect>
+
+                                            </div>
+                                    </div>
+                                </div>
+                                <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                                    Select column to show
+                                </div>
+
+                            </p-header>
+                            <p-table #exception class="all-tables" [columns]="selectedColumns"
+                                [rowsPerPageOptions]="panel.paginator.rowsPerPageOptions" [resizableColumns]="true"
+                                [value]="panel.data" [scrollable]="false" [globalFilterFields]="globalFilterFieldsForExc">
+                                <ng-template pTemplate="colgroup" let-columns>
+                                    <colgroup>
+                                        <col *ngFor="let col of columns">
+                                    </colgroup>
+                                </ng-template>
+                                <ng-template *ngFor="let headerRow of panel.headers" pTemplate="header" let-columns>
+                                    <tr *ngIf="panel.label=='Exception'">
+                                        <th *ngFor="let col of columns" [attr.colspan]="col.colspan"
+                                            [attr.rowspan]="col.rowspan" pResizableColumn
+                                            [pSortableColumn]="col.valueField" pTooltip={{col.label}}>
+                                            <div class="elipseText"> {{ col.label }} </div>
+
+                                            <p-sortIcon *ngIf="(i==0)" [field]="col.valueField"></p-sortIcon>
+                                        </th>
+
+                                    </tr>
+
+                                    <tr *ngIf="panel.label=='Stack Trace'">
+                                        <th *ngFor="let col of headerRow.cols; let i = index" pTooltip={{col.label}} style="width: 100%;">
+                                            <span *ngIf="col.label=='Stack trace'" class="elipseText"> {{ col.label }} </span>
+                                        </th>
+                                    </tr>
+
+                                    <tr *ngFor="let headerRow of panel.headers">
+                                        <ng-container *ngIf="panel.tableFilter">
+                                            <th *ngIf="isCheckbox" class="columnwidth"></th>
+                                            <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                <div *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'custom'
+                          ">
+                                                    <input class="w-100-p"
+                                                        pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                              exception.filter(
+                                $event.target.value,
+                                col.value,
+                                'custom'
+                              )
+                            " />
+                                                </div>
+                                                <div *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'contain'
+                          ">
+                                                    <input class="w-100-p"
+                                                        pTooltip="Will filter metric names which contains given text."
+                                                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                              exception.filter(
+                                $event.target.value,
+                                col.valueField,
+                                'contains'
+                              )
+                            " />
+                                                </div>
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template *ngFor="let headerRow of panel.headers" pTemplate="body" let-row let-columns="columns" let-index="rowIndex">
+                                    <tr [pReorderableRow]="index" *ngIf="panel.label=='Exception'">
+                                        <td *ngFor="let col of columns; let i = index"
+                                            pTooltip={{row[col.valueField]|f_ddr:col.format}}>
+                                            <span>
+                                                <a [ngClass]="{
+                                                    activeLink:
+                                                      (col.label == 'Throwing Method')||
+                                                      (col.label == 'Exception Class')
+						    }" (click)="getColumnData(row, col.label)">
+                                                    {{ row[col.valueField] | f_ddr: col.format }}
+                                                </a>
+                                            </span>
+                                        </td>
+                                    </tr>
+
+                                    <tr [pReorderableRow]="index" *ngIf="panel.label=='Stack Trace'">
+                                        <td *ngFor="let col of headerRow.cols; let i = index"
+                                            pTooltip={{row[col.valueField]|f_ddr:col.format}}>
+                                            <span *ngIf="col.label=='Stack trace'">
+                                                <a [ngClass]="{
+                                                    activeLink:
+                                                      (col.label == 'Stack trace')
+						    }" (click)="getColumnData(row, col.label)">
+                                                    {{row[col.valueField] | f_ddr: col.format}}
+                                                </a>
+                                            </span>
+                                        </td>
+                                    </tr>
+
+                                </ng-template>
+
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                            <span *ngIf="error">Error while loading data</span>
+                                            <span *ngIf="panel.data.length == 0">Empty Table</span>
+                                            <span *ngIf="loading">Loading</span>
+                                            <span
+                                                *ngIf="!empty && !loading && !error && searchInput && searchInput.nativeElement.value.length  ">Nothing
+                                                found matching
+                                                "{{searchInput.nativeElement.value}}"</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </p-panel>
+                    </div>
+                    <!-- -------------dataSourceCode---------------- -->
+                    <div class="source-code-half" *ngIf="dataSourceCode && (i == 1)"
+                        [class]="(i == 1) ? 'max-50-p' : 'ss'">
+                        <div class="source-code">
+                            <div class="p-grid p-justify-start p-align-center">
+                                <div class="w-100-p">
+                                    <div>
+                                        <div class="exception-panel">
+                                            <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true">
+                                                <p-header class="cav-panel-header pt-5">
+                                                    <div class="cav-panel-content p-grid p-align-center">
+                                                        <div class="panel-title" (click)="pnl.toggle($event)">
+                                                            <a>
+                                                                <span [class]="
+                                              pnl.collapsed
+                                                ? 'icons8 icons8-expand-arrow'
+                                                : 'icons8 icons8-collapse-arrow'
+                                            ">
+                                                                </span>
+                                                            </a>
+                                                            Source Code{{stackTraceHeaderInfo}}
+                                                        </div>
+                                                        <div class="p-grid p-justify-center p-align-center">
+                                                            <button pButton icon="icons8 icons8-menu-vertical"
+                                                                class="icon-button no-shadow"
+                                                                (click)="menuicon.toggle($event)"
+                                                                pTooltip="Menu"></button>
+                                                            <p-menu #menuicon [popup]="true" styleClass="widget-menu"
+                                                                [model]="menuOptions" [showTransitionOptions]="'0ms'"
+                                                                [hideTransitionOptions]="'0ms'"></p-menu>
+                                                        </div>
+                                                    </div>
+                                                </p-header>
+                                                <!-- <ace-editor [(text)]="dataSourceCode" [mode]="'object'" [readOnly]="true"
+                                                    style="min-height: 250px; width: 100%; overflow: auto"></ace-editor> -->
+
+                                                <div [innerHtml]=dataSourceCode class="pre-height"></div>
+                                            </p-panel>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="dataSourceCode && (i == 1)" class="source-code">
+                            <div class="p-grid p-justify-start p-align-center">
+                                <div class="w-100-p">
+                                    <div>
+                                        <div class="exception-panel">
+                                            <p-tabView>
+                                                <p-tabPanel header="View Recorded Variables">
+                                                    <p-accordion>
+                                                        <p-accordionTab header="Class Variables (Total: {{toalClassVars}})">
+                                                            <div *ngIf="toalClassVars>0; else elseBlockClass"
+                                                                style="white-space: pre-line" [innerHtml]=classVarArgs>
+                                                            </div>
+                                                            <ng-template #elseBlockClass>
+                                                                Class variable is not
+                                                                present
+                                                            </ng-template>
+                                                        </p-accordionTab>
+                                                        <p-accordionTab
+                                                            header="Method Arguments (Total: {{totalMethodVars}})">
+                                                            <div *ngIf="totalMethodVars>0; else elseBlockMethod"
+                                                                style="white-space: pre-line" [innerHtml]=methodVarArgs>
+                                                            </div>
+                                                            <ng-template #elseBlockMethod>
+                                                                Method argument is not
+                                                                present
+                                                            </ng-template>
+                                                        </p-accordionTab>
+                                                        <p-accordionTab
+                                                            header="Local Variables (Total: {{totalLocalVars}})">
+                                                            <div *ngIf="totalLocalVars>0; else elseBlockLocal"
+                                                                style="white-space: pre-line" [innerHtml]=localVarArgs>
+                                                            </div>
+                                                            <ng-template #elseBlockLocal>
+                                                                Local variable is not
+                                                                present
+                                                            </ng-template>
+                                                        </p-accordionTab>
+                                                        <p-accordionTab
+                                                            header="Thread Local Variables (Total: {{totalThreadVars}})">
+                                                            <div *ngIf="totalThreadVars>0; else elseBlockThread"
+                                                                style="white-space: pre-line"
+                                                                [innerHtml]=ThreadLocalVarArgs>
+                                                            </div>
+                                                            <ng-template #elseBlockThread>
+                                                                Thread Local variable is not
+                                                                present
+                                                            </ng-template>
+                                                        </p-accordionTab>
+                                                    </p-accordion>
+                                                </p-tabPanel>
+                                                <p-tabPanel header="Logs({{totalLogs}})">
+                                                    <div
+                                                        style="white-space: pre-line"
+                                                        [innerHtml]=lastNLogs>
+                                                    </div>
+                                                </p-tabPanel>
+                                            </p-tabView>
+                                            <!-- <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true">
+                                                <p-header class="cav-panel-header pt-5">
+                                                    <div class="cav-panel-content p-grid p-align-center">
+                                                        <div class="panel-title" (click)="pnl.toggle($event)">
+                                                            <a>
+                                                                <span [class]="
+                                                pnl.collapsed
+                                                    ? 'icons8 icons8-expand-arrow'
+                                                    : 'icons8 icons8-collapse-arrow'
+                                                ">
+                                                                </span>
+                                                            </a>
+                                                            View Recorded Variables
+                                                        </div>
+                                                    </div>
+                                                </p-header>
+                                                <p-accordion>
+                                                    <p-accordionTab header="Class Variables (Total: {{toalClassVars}})">
+                                                        <div *ngIf="toalClassVars>0; else elseBlockClass"
+                                                            style="white-space: pre-line" [innerHtml]=classVarArgs>
+                                                        </div>
+                                                        <ng-template #elseBlockClass>
+                                                            Class variable is not
+                                                            present
+                                                        </ng-template>
+                                                    </p-accordionTab>
+                                                    <p-accordionTab
+                                                        header="Method Arguments (Total: {{totalMethodVars}})">
+                                                        <div *ngIf="totalMethodVars>0; else elseBlockMethod"
+                                                            style="white-space: pre-line" [innerHtml]=methodVarArgs>
+                                                        </div>
+                                                        <ng-template #elseBlockMethod>
+                                                            Method argument is not
+                                                            present
+                                                        </ng-template>
+                                                    </p-accordionTab>
+                                                    <p-accordionTab
+                                                        header="Local Variables (Total: {{totalLocalVars}})">
+                                                        <div *ngIf="totalLocalVars>0; else elseBlockLocal"
+                                                            style="white-space: pre-line" [innerHtml]=localVarArgs>
+                                                        </div>
+                                                        <ng-template #elseBlockLocal>
+                                                            Local variable is not
+                                                            present
+                                                        </ng-template>
+                                                    </p-accordionTab>
+                                                    <p-accordionTab
+                                                        header="Thread Local Variables (Total: {{totalThreadVars}})">
+                                                        <div *ngIf="totalThreadVars>0; else elseBlockThread"
+                                                            style="white-space: pre-line"
+                                                            [innerHtml]=ThreadLocalVarArgs>
+                                                        </div>
+                                                        <ng-template #elseBlockThread>
+                                                            Thread Local variable is not
+                                                            present
+                                                        </ng-template>
+                                                    </p-accordionTab>
+                                                </p-accordion>
+                                            </p-panel> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- -------------end dataSourceCode---------------- -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

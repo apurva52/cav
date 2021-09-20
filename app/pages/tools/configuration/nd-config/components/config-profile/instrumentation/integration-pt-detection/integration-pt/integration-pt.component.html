@@ -1,0 +1,406 @@
+<p-header>
+   <!-- <span class="configui-float-css">
+    <p-checkbox binary="true" name="groupname" class="px-6" value="val1" [(ngModel)]="checkboxtrue" binary="true" [disabled]="true"></p-checkbox>
+    </span>
+    <span style="float: left; margin-top: 5px;">Enable Integration Points</span>
+    <span style="float :right; margin-top:-3px;"> -->
+ <div class="p-grid p-align-center p-justify-end py-5">
+    <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+    <button pButton type="button" class="mx-3" title="{{isIntPntFilters ? 'Show Filters' : 'Hide Filters'}}" icon="icons8 icons8-menu" (click)="showHideColumnFilter()"></button>
+    <button pButton type="button" class="ui-button-sucess mr-6" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-plus-math" title="Add Integration Point Detection" ></button>
+    <button pButton type="button" class="ui-button-sucess mr-6" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="onAddIntegrationPTDetection()" icon="icons8 icons8-plus-math" title="Add Integration Point Detection" ></button>
+    <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  label="Save"></button>
+    <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveIntegrationPointOnFile()" label="Save"></button>
+   <!-- </span> -->
+ </div>
+</p-header>
+
+<p-table #tt [columns]="cols" class="nde-ui config-ui all-tables" [style]="{'margin-top':'10px'}" [scrollable]="true" scrollHeight="285px" selectionMode="single" [value]="ipDetectionData" [rows]="12" [paginator]="ipDetectionData?.length > 12" [pageLinks]="3" [(selection)]="selectedIpDetectionData">
+    <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+        <col style="width:5%">
+        </colgroup>
+    </ng-template>
+    <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+        <tr>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                <span class="width-50" *ngIf="col.field =='checkbox'"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></span>
+                <span *ngIf="col.field !='checkbox'">
+                    {{col.header}}
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+                </span>
+            </th>
+        </tr>
+        <tr *ngIf="isEnableColumnFilter">
+            <th *ngFor="let col of columns">
+            <span *ngIf="col.field !='checkbox'"><input pInputText type="text" (input)="tt.filter($event.target.value, col.field, 'contains')"></span>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template class="tableCss config-ui" pTemplate="body" let-integrationPTDetection>
+        <tr>
+            <td class="text-center width-50">
+                <p-tableCheckbox [value]="integrationPTDetection"></p-tableCheckbox>
+            </td>
+            <td class="tableCss"><span class="hyperlink" (click)="openDialiogForEntry(integrationPTDetection)" title=" Click to Open {{integrationPTDetection.type}} details">{{integrationPTDetection.type}}</span></td>
+            <td class="tableCss">{{integrationPTDetection.detail}}</td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<!--<p-dataTable [globalFilter]="gb" #dt class="nde-ui" [value]="ipDetectionData" selectionMode="single" [(selection)]="selectedIpDetectionData"  [rows]="12" [paginator]="ipDetectionData?.length > 12" [pageLinks]="3">
+    <p-header>
+        <span class="configui-float-css">
+                    <p-checkbox binary="true" name="groupname" value="val1" [(ngModel)]="checkboxtrue" binary="true" [disabled]="true"></p-checkbox>
+                </span>
+        <span style="float: left">Enable Integration Points</span>
+        <span style="float :right; margin-top:-3px">
+	      <p-checkbox binary="true" name="enableIPForNodeJS" *ngIf="agentType =='NodeJS'" [(ngModel)]="enableIPForNodeJS" binary="true" ngModel label=" Apply "></p-checkbox> 
+	      <i class="fa fa-question-circle" title="Help" (click)="sendHelpNotification()"></i>
+	      <button pButton type="button" title="{{isIntPntFilters ? 'Show Filters' : 'Hide Filters'}}" icon="fa fa-bars" (click)="showHideColumnFilter()"></button> 
+              <button pButton type="button" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-plus" title="Add Integration Point Detection" ></button>
+              <button pButton type="button" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="onAddIntegrationPTDetection()" icon="fa fa-plus" title="Add Integration Point Detection" ></button>
+              <button type="submit" pButton icon="fa fa-check" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  label="Save"></button>
+              <button type="submit" pButton icon="fa fa-check" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveIntegrationPointOnFile()" label="Save"></button>
+        </span>
+    </p-header>-->
+    <!--<p-column [style]="{'width':'38px'}" selectionMode="multiple"></p-column>-->
+<!--    <p-column class="tableCss" field="type" header="Integration Point Type" [sortable]="true" #gb [filter]="isEnableColumnFilter" filterMatchMode="contains">
+        <ng-template let-col let-integrationPTDetection="rowData" pTemplate>
+            <span class="hyperlink" (click)="openDialiogForEntry(integrationPTDetection)" title=" Click to Open {{integrationPTDetection[col.field]}} details">{{integrationPTDetection[col.field]}}</span>
+        </ng-template>
+    </p-column>
+    <p-column class="tableCss" field="detail" header="Description" [sortable]="true" #gb [filter]="isEnableColumnFilter" filterMatchMode="contains">
+        <ng-template let-col let-integrationPTDetection="rowData" pTemplate>
+            <span title="{{integrationPTDetection[col.field]}}">{{integrationPTDetection[col.field]}}</span>
+        </ng-template>
+    </p-column>
+</p-dataTable>
+-->
+
+<!--Dialog for Adding New Integration PT Detection-->
+
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" header="New Integration Point Detection" *ngIf="displayNewIPDetection" [(visible)]="displayNewIPDetection" modal="modal" width="700" responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveAddIntegrationPTDetection()" #groupForm="ngForm" ngNativeValidate>
+        <div class="p-grid p-align-center p-col-12">
+            <div class="ui-g-4">
+                <label>Integration Point Type</label>
+            </div>
+            
+            <div class="ui-g-5">
+                
+                <p-dropdown dropdownIcon="icons8 icons8-expand-arrow"
+                 [options]="backendTypeSelecetItem" [style]="{'min-width':'100px'}" name="backendTypeId" [(ngModel)]="addIPDetectionDetail.backendTypeId" placeholder="-- Select --" required ngModel ></p-dropdown>
+            </div>
+        </div>
+        <div class="p-grid p-align-center p-col-12">
+            <div class="ui-g-4">
+                <label>Name</label>
+            </div>
+            <div class="ui-g-5">
+                <input name="name" pattern="[a-zA-Z]+[a-zA-Z0-9_#@./&-]{0,99}$" class="w-100-p" (keydown.space)="$event.preventDefault()" title="Please enter valid name. &#013;Rule 1: It will accept alphanumeric characters.  &#013;Rule 2: It will not accept special charcters other then (. @ # & - _ /) in between the character. &#013;Rule 3: It will not accept whitespaces. &#013;Rule 4:Name is of maximum 100 characters."
+                    type="text" size="60" pInputText [(ngModel)]="addIPDetectionDetail.name" required ngModel/>
+            </div>
+        </div>
+        <div class="p-grid p-align-center p-col-12" *ngIf="agentType =='Dot Net'">
+            <div class="ui-g-4">
+                <label>Module</label>
+            </div>
+            <div class="ui-g-5">
+                <input name="module" type="text" size="60" class="w-100-p" pInputText [(ngModel)]="addIPDetectionDetail.module" required (keydown.space)="$event.preventDefault()" required ngModel/>
+            </div>
+        </div>
+        <div class="p-grid p-align-center p-col-12">
+            <div class="ui-g-4">
+                <label>Fully Qualified Method Name</label>
+            </div>
+            <div class="ui-g-5">
+                <ng-container *ngIf="(addIPDetectionDetail.backendTypeId === 3 || addIPDetectionDetail.backendTypeId === 10 || addIPDetectionDetail.backendTypeId === 11 || addIPDetectionDetail.backendTypeId === 12 || addIPDetectionDetail.backendTypeId === 21 || addIPDetectionDetail.backendTypeId === 24 || agentType =='Dot Net' || agentType =='NodeJS' || agentType =='Php'); then first else second">
+                </ng-container>
+                <ng-template #first>
+                    <input name="fqm" type="text" size="60" class="w-100-p" title="Please enter valid FQM" pattern="[.a-zA-Z]+[a-zA-Z0-9_$.]+(([;_$\/\[a-zA-Z0-9]*))+[;_$\/\[a-zA-Z0-9].*" (keydown.space)="$event.preventDefault()" pInputText [(ngModel)]="addIPDetectionDetail.fqm" required
+                        ngModel />
+                </ng-template>
+                <ng-template #second>
+                    <input name="fqm" type="text" size="60" class="w-100-p" title="Please enter valid FQM" pattern="[a-zA-Z]+[a-zA-Z0-9_$.]+(\(([;_$\/\[a-zA-Z0-9]*)\))+[;_$\/\[a-zA-Z0-9]*" (keydown.space)="$event.preventDefault()" pInputText [(ngModel)]="addIPDetectionDetail.fqm" required
+                        ngModel />
+                </ng-template>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center p-col-12" *ngIf="addIPDetectionDetail.backendTypeId == 46">
+            <div class="ui-g-4">
+                <label>Operations</label>
+            </div>
+            <div class="ui-g-4">
+                <input name="operations" type="text" class='hidden-validator' pInputText [(ngModel)]="selectedAdvCustomOperation" required ngModel/>
+                <p-dropdown [options]="advCustomOperationsList" [style]="{'width':'171px'}" name="operations" [(ngModel)]="selectedAdvCustomOperation" placeholder="-- Select --" required ngModel></p-dropdown>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center p-col-12" *ngIf="selectedAdvCustomOperation == 'ARG' || selectedAdvCustomOperation == 'ALL' || addIPDetectionDetail.backendTypeId === 13 || addIPDetectionDetail.backendTypeId === 14 || addIPDetectionDetail.backendTypeId === 51">
+            <div class="ui-g-4">
+                <label>Argument Index</label>
+            </div>
+            <div class="ui-g-4">
+                <input name="dropdown" type="text" class='hidden-validator' pInputText [(ngModel)]="addIPDetectionDetail.argumentIndex" required ngModel/>
+                <p-dropdown [options]="argumentIndexSelecetItem" [style]="{'width':'171px'}" name="argumentIndex" [(ngModel)]="addIPDetectionDetail.argumentIndex" (click)="validateArgAndGetArgumentsNumberList(addIPDetectionDetail.fqm,addIPDetectionDetail.backendTypeId)"
+                    placeholder="-- Select --" required ngModel></p-dropdown>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center p-col-12" *ngIf="addIPDetectionDetail.backendTypeId == 46">
+            <div class="ui-g-4">
+                <label>Value Type</label>
+            </div>
+            <div class="ui-g-2 toggleChk">
+                <p-inputSwitch [(ngModel)]="selectedValueType" name="valueType" style="margin:0px 0px;"></p-inputSwitch>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center p-col-12">
+            <div class="ui-g-4">
+                <label>Enabled</label>
+            </div>
+            <div class="ui-g-2 toggleChk">
+                <p-inputSwitch [(ngModel)]="addIPDetectionDetail.enabled" name="enabled" style="margin:0px 0px;"></p-inputSwitch>
+            </div>
+        </div>
+        <div class="p-grid p-align-center p-col-12">
+            <div class="ui-g-4">
+                <label>Description</label>
+            </div>
+            <div class="ui-g-6">
+                <textarea name="desc" [style]="{'width':'120%'}" pInputTextarea [(ngModel)]="addIPDetectionDetail.desc" pattern="[^|]*" ngModel></textarea>
+            </div>
+        </div>
+        <footer>
+            <div class="p-grid p-align-center p-justify-end py-5">
+                <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="displayNewIPDetection=false" label="Cancel"></button>
+                <button type="submit"  pButton class="ui-button-rounded  px-10" label="Save"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>
+
+<!--This dialog showing the 'Integration Point Naming Rules' & 'Exit Points' values for particular service entry point-->
+<p-dialog class="secondary-dialog" [style]="{width: '40vw'}" *ngIf="detailDialog" header="Manage {{integrationDetail.type}} Integration Point" [(visible)]="detailDialog" modal="modal" width="500" responsive="true" [resizable]="false">
+    <div style="max-height: 500px; overflow-y: auto;">
+        <!--Integration Point Naming Rules are not showing for these Integration Points COHERENCE, MEM_CACHE, CLOUDANT, CUSTOM -->
+        <div *ngIf="agentType =='Java'">
+            <div class="ui-g config-ui my-24" *ngIf="integrationDetail.type ==  IP.WS || integrationDetail.type ==  IP.RMI || integrationDetail.type ==  IP.HTTP || integrationDetail.type ==  IP.JDBC  || integrationDetail.type ==  IP.REDIS  || integrationDetail.type ==  IP.MONGO || integrationDetail.type ==  IP.Cloudant_NoSQL  || integrationDetail.type ==IP.NEO4J || integrationDetail.type == IP.JMS|| integrationDetail.type == IP.FTP || integrationDetail.type == IP.SPANNER || integrationDetail.type == IP.LDAP || integrationDetail.type == IP.CASSANDRA || integrationDetail.type == IP.KAFKA || integrationDetail.type == IP.SocketCallout">
+                <label style="font-weight: bolder;font-size: larger">Integration Point Naming Rule(s)</label>
+            </div>
+        </div> 
+        <div *ngIf="agentType =='Java'" class="ui-g config-ui" [ngSwitch]="integrationDetail.type">
+            <div class="ui-g" *ngSwitchCase="IP.WS">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.url" label=" Query String "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.serviceName" label=" Service Name "></p-checkbox>
+            </div>
+            <div class="ui-g config-ui" *ngSwitchCase="IP.RMI">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "> Host </p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port " label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.serviceName" label=" Service name "></p-checkbox>
+            </div>
+            <!-- <div *ngIf="agentType =='Java'"> -->
+            <div class="ui-g config-ui" *ngSwitchCase="IP.HTTP">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.url" label=" Query String "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.query" label=" Query "></p-checkbox>
+            </div>
+            <!-- </div> -->
+            <div class="ui-g" *ngSwitchCase="IP.JDBC">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.url" label=" Query String "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.databaseProductName" label=" Database Product Name "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.databaseProductVersion" label=" Database Product Version "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.driverName" label=" Driver Name "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.driverVersion" label=" Driver Version "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.userName" label=" User Name "></p-checkbox>
+
+                <!--Host Port Query String, Database Product Name, Database Product Version, Driver Name, Driver Version, UserName-->
+            </div>
+            <div class="ui-g" *ngSwitchCase="IP.REDIS">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host"label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port"label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.url" label=" Query String "></p-checkbox>
+            </div>
+            <div class="ui-g" *ngSwitchCase="IP.MONGO">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+            </div>
+            <div class="ui-g" *ngSwitchCase="IP.CASSANDRA">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+            </div>
+            <div class="ui-g" *ngSwitchCase="IP.Cloudant_NoSQL">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.url" label=" Query String "></p-checkbox>
+            </div>
+            <div class="ui-g" *ngSwitchCase="IP.NEO4J">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port"label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.url" label=" Query String "> </p-checkbox>
+            </div>
+            <div class="ui-g" *ngSwitchCase="IP.JMS">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.query" label=" Query "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.vendorName" label=" VendorName "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.brokerId" label=" BrokerId "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.subId" label=" SubId "></p-checkbox>
+            </div>
+            <div class="ui-g" *ngSwitchCase="IP.FTP">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.url" label=" Query String "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.query" label=" Query "></p-checkbox>
+            </div>
+            <div class="ui-g" *ngSwitchCase="IP.SPANNER">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.projectId" label=" ProjectId "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.instanceId" label=" InstanceId "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.databaseId" label=" DatabaseId "></p-checkbox>
+            </div>
+            <div class="ui-g" *ngSwitchCase="IP.LDAP">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.operation" label=" Operation "></p-checkbox>
+            </div>
+            <div class="ui-g" *ngSwitchCase="IP.KAFKA">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.topicName" labe=" Topic "></p-checkbox>
+            </div>
+	        <div class="ui-g" *ngSwitchCase="IP.SocketCallout">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label="Host"></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+            </div>
+            <div class="ui-g" *ngSwitchDefault>
+            </div>
+        </div>
+        <div *ngIf="agentType =='Dot Net'">
+            <div class="ui-g config-ui" *ngIf="integrationDetail.type ==  IP.HTTP || integrationDetail.type == IP.SQL">
+                <label style="font-weight: bolder;font-size: larger;margin-top: -20px">Integration Point Naming Rule(s)</label>
+            </div>
+        </div>
+        <div class="ui-g config-ui" [ngSwitch]="integrationDetail.type">
+            <div style="margin-bottom: 19px" *ngIf="agentType =='Dot Net'">
+                <div class="ui-g config-ui" *ngSwitchCase="IP.HTTP">
+                    <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                    <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                    <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.url" label=" Query String "></p-checkbox>
+                </div> 
+                <div class="ui-g config-ui" *ngSwitchCase="IP.SQL">
+                    <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                    <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                    <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.databaseProductName" label=" Database Product Name "></p-checkbox>
+                    <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.userName" label=" User Name "></p-checkbox>
+                    <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.serviceName" label=" Service Name "></p-checkbox>
+                    <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.url" label=" Query String  "></p-checkbox>
+                    <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.databaseProductVersion" label=" Database Product Version "></p-checkbox>
+                    <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.driverName" label=" Driver Name "></p-checkbox>
+                    <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.driverVersion" label=" Driver Version "></p-checkbox>
+                </div>
+            </div>
+            <div class="ui-g" *ngSwitchDefault>
+            </div>
+        </div>
+        <div *ngIf="agentType =='NodeJS'">
+            <div class="ui-g config-ui" *ngIf="integrationDetail.type ==  IP.POSTGRESQL || integrationDetail.type ==  IP.ZOOKEEPER || integrationDetail.type ==  IP.HTTP || integrationDetail.type ==  IP.MEMCACHE || integrationDetail.type ==  IP.REDIS || integrationDetail.type ==  IP.MONGO">
+                <label style="font-weight: bolder;font-size: larger">Integration Point Naming Rule(s)</label>
+            </div>
+        </div>
+        <div *ngIf="agentType =='NodeJS'" class="ui-g config-ui" [ngSwitch]="integrationDetail.type">
+            <div class="ui-g config-ui" *ngSwitchCase="IP.HTTP">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.url" label=" Query String "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.query" label=" Query "></p-checkbox>
+            </div>
+            <div class="ui-g config-ui" *ngSwitchCase="IP.REDIS">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+            </div>
+            <div class="ui-g config-ui" *ngSwitchCase="IP.MONGO">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+            </div>
+            <div class="ui-g config-ui" *ngSwitchCase="IP.POSTGRESQL">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+            </div>
+            <div class="ui-g config-ui" *ngSwitchCase="IP.ZOOKEEPER">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+            </div>
+            <div class="ui-g config-ui" *ngSwitchCase="IP.MEMCACHE">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+            </div>
+            <div class="ui-g" *ngSwitchDefault>
+            </div>
+        </div>
+   
+	<div *ngIf="agentType =='Php'">
+            <div class="ui-g config-ui" *ngIf="integrationDetail.type ==  IP.HTTP_CALLOUT">
+                <label style="font-weight: bolder;font-size: larger">Integration Point Naming Rule(s)</label>
+            </div>
+    </div>
+        <div *ngIf="agentType =='Php'" class="ui-g config-ui" [ngSwitch]="integrationDetail.type">
+            <div class="ui-g config-ui" *ngSwitchCase="IP.HTTP_CALLOUT">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.query" label=" Query "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.queryParameter" label=" Query Parameter "></p-checkbox>
+            </div>
+            <div class="ui-g config-ui" *ngSwitchCase="IP.SQL_CALLOUT">
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.databaseName" label=" Database Name "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.host" label=" Host "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.port" label=" Port "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.url" label=" Url "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.protocol" label=" Protocol "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.databaseProductName" label=" Database Product Name "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.databaseProductVersion" label=" Database Product Version "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.driverName" label=" Driver Name "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.driverVersion" label=" Driver Version "></p-checkbox>
+                <p-checkbox binary="true" class="config-margin" [(ngModel)]="integrationDetail.namingRule.userName" label=" User Name "></p-checkbox>
+            </div>
+            <div class="ui-g" *ngSwitchDefault>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center p-col-12 mt-24">
+            <div class="ui-g-12">
+                <label style="font-weight: bolder;font-size: larger">Integration Exit Point(s)</label>
+                <div class="ui-g" style="padding: 0px" *ngFor="let endPoints of integrationDetail.lstEndPoints">
+                    <div class="ui-g-8" style="overflow : hidden;text-overflow : ellipsis">
+                        <label *ngIf="endPoints.labelOfAdvCustom == '' || endPoints.labelOfAdvCustom == null">{{endPoints.name}}</label><i *ngIf="endPoints.labelOfAdvCustom == '' || endPoints.labelOfAdvCustom == null" class= "icons8 icons8-info" aria-hidden="true " title={{endPoints.fqm}}></i>
+                        <label *ngIf="endPoints.labelOfAdvCustom !=''">{{endPoints.labelOfAdvCustom}}</label><i *ngIf="endPoints.labelOfAdvCustom !=''" class="icons8 icons8-info" aria-hidden="true" title={{endPoints.fqm}}></i>
+                    </div>
+                    <div class="ui-g-2">
+                        <div>
+                            <p-inputSwitch class="config-toggle" [(ngModel)]="endPoints.enabled"></p-inputSwitch>
+                        </div>
+                    </div>
+                    <div class="ui-g-2">
+                        <div>
+                            <button *ngIf="endPoints['customEntry'] == true || endPoints.isCustomEntry == true" pButton class="ui-button-danger" type="button" (click)="deleteIP(endPoints)" title="Delete custom integration point" icon="icons8 icons8-trash"></button>
+                            <button *ngIf="endPoints['customEntry'] == false" pButton type="button" style="background:gray;border:gray" title="Pre-Defined Custom Integration Point" icon="icons8 icons8-trash"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <div class="p-grid p-align-center p-justify-end py-5">
+            <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="detailDialog=false" label="Cancel"></button>
+            <button type="button" pButton class="ui-button-rounded  px-10" [disabled]="saveDisable" (click)="saveIntegrationDetail()" label="Save"></button>
+        </div>
+    </footer>
+</p-dialog>

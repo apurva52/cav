@@ -1,0 +1,205 @@
+<div class="addbaseline">
+    <p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false" [style]="{width: '80vw'}">
+        <p-header>
+            <div class="compare-data-title">
+                <div>
+                    Alert Baseline Configration
+                </div>
+                <div class="action-buttons">
+                    <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+                </div>
+            </div>
+        </p-header>
+
+        <div class="dialog-content">
+            <div class="config-display">
+                <div class="p-col-11">
+                    <p>Create Baseline
+                        <input class="w-50-p box" type="text" placeholder="Enter BaseLine Name" pInputText /> using
+                        <p-dropdown class="box" [options]="allScope" [style]="{'width':'50px'}" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown> for
+                        <p-dropdown class="box" [options]="allScope" [style]="{'width':'50px'}" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                    </p>
+                </div>
+
+                <div class="p-col-1">
+                    <button pButton icon="icons8 icons8-help" class="icon-button no-shadow" pTooltip="help"></button>
+                </div>
+            </div>
+            <div class="p-col-12 mv-7">
+                <p>including fast <input type="text" size="1" placeholder="days" pInputText /> data ,Allowed range is 7 to 365 days</p>
+            </div>
+            <p-fieldset legend="configure override days">
+                <div class="configure-days">
+
+
+                    <div class="event-day">
+                        <div class="p-col-5">
+                            <p-dropdown [options]="allScope" class="ui-dropdown-label" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+
+                        </div>
+                        <p-button label="Add" class="mt-5" icon="icons8 icons8-plus-math" iconPos="left"></p-button>
+
+                    </div>
+
+                    <!-- table -->
+                    <div *ngIf="data">
+                        <div class="action-container">
+
+                            <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                                <div class="global-search-block">
+                                    <div>
+
+                                    </div>
+                                    <div class="p-input-icon-left search-div-css">
+                                        <i class="icons8 icons8-search"></i>
+                                        <input pInputText type="text" #searchInput class="input-field-search" (input)="events.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                                    </div>
+                                </div>
+
+                                <div class="icons-container p-justify-between p-align-center">
+
+                                    <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow" pTooltip="Delete"></button>
+                                    <p-menu #menu [popup]="true" styleClass="widget-menu" tooltipZIndex="1000010056" baseZIndex="100001000111" appendTo="body" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+
+                                    <p-multiSelect class="icon-button no-shadow " tooltipZIndex="1000010056" baseZIndex="100001000111" [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns"
+                                        appendTo="body" [panelStyle]="{ minWidth: '200px' }">
+                                    </p-multiSelect>
+
+                                    <i pButton class="icons8 icons8-search-property icon-button no-shadow column-filter" (click)="toggleFilters()" pTooltip="Column Filter"></i>
+
+
+                                    <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow" (click)="menu.toggle($event);" pTooltip="Download"></button>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <ng-container>
+                            <div #widgetHeight [ngStyle]="{
+                    height: !isEnabledColumnFilter
+                      ? 'calc(100vh - 490px)'
+                      : 'calc(100vh - 490px)'
+                  }">
+
+                                <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                                    Select column to show
+                                </div>
+                                <p-card class="content-body">
+
+                                    <p-table #events [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true" [totalRecords]="totalRecords" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                                        [rows]="data.paginator.rows" [scrollable]="true" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 90px)" [globalFilterFields]="globalFilterFields" [responsive]="true" selectionMode="single" editMode="row" [resizableColumns]="true">
+                                        <ng-template pTemplate="colgroup" let-columns>
+                                            <colgroup>
+                                                <col *ngFor="let col of columns" [style.width]="col.width">
+                                            </colgroup>
+                                        </ng-template>
+                                        <ng-template pTemplate="header" let-columns>
+                                            <tr>
+                                                <th class="columnwidth">
+                                                    #
+                                                </th>
+                                                <th class="columnwidth">
+                                                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                                </th>
+
+                                                <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                                                    <div class="text-left">
+                                                        {{ col.label }}
+                                                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                        </p-sortIcon>
+                                                    </div>
+                                                </th>
+
+                                            </tr>
+                                            <tr *ngFor="let headerRow of data.headers">
+                                                <ng-container *ngIf="isEnabledColumnFilter">
+                                                    <th> </th>
+                                                    <th> </th>
+
+                                                    <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                                        <div *ngIf="
+                                                  col.filter.isFilter === true &&
+                                                  col.filter.type === 'custom'
+                                                ">
+                                                            <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                    events.filter(
+                                                      $event.target.value,
+                                                      col.valueField,
+                                                      'custom'
+                                                    )
+                                                  " />
+                                                        </div>
+                                                        <div *ngIf="
+                                                  col.filter.isFilter === true &&
+                                                  col.filter.type === 'contains'
+                                                ">
+                                                            <input class="w-100-p" pTooltip="Enter text to search" *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                    events.filter(
+                                                      $event.target.value,
+                                                      col.valueField,
+                                                      'contains'
+                                                    )
+                                                  " />
+                                                        </div>
+                                                    </th>
+                                                </ng-container>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-row let-columns="columns">
+                                            <tr>
+                                                <td class="columnwidth">
+
+                                                </td>
+                                                <td class="columnwidth">
+                                                    <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                                                </td>
+                                                <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                                    <span *ngIf="!col.iconField">
+                                                        {{ row[col.valueField] }}
+                                                    </span>
+                                                    <span *ngIf="col.iconField && row[col.valueField]">
+                                                        <i [ngClass]="row[col.valueField]" class="icon-color"></i>
+                                                    </span>
+
+                                                </td>
+
+                                            </tr>
+                                        </ng-template>
+                                        <!-----------Empty table error handling--------------------->
+                                        <ng-template pTemplate="emptymessage" let-columns>
+                                            <tr>
+                                                <td [attr.colspan]="columns.length + 1" class="text-center">
+                                                    <span *ngIf="error">Error while loading data</span>
+                                                    <span *ngIf="emptyTable">Empty Table</span>
+                                                    <span *ngIf="loading">Loading</span>
+                                                    <span *ngIf="!empty && !loading && !error && searchInput.value.length">Nothing
+                                                        found
+                                                        matching
+                                                        "{{searchInput.value}}"</span>
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
+
+                                </p-card>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <!-- table end -->
+                </div>
+
+            </p-fieldset>
+        </div>
+        <p-footer>
+            <div class="p-col-12 form-buttons right">
+                <button pButton type="submit" label="Close" (click)="closeDialog()" class="ui-outline-button ui-button-secondary"></button>
+                <button pButton type="submit" label="Save" class="ui-button-rounded"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+</div>

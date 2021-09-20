@@ -1,0 +1,430 @@
+<div class="page-details-wrapper" *ngIf="data">
+      <div class="p-grid p-justify-end bdrbtm" *ngIf="!funnelDetails.compareMode">
+            <div class="p-col">
+                  <button pButton class="btn-icon m-3 right" icon="icons8 icons8-edit" *ngIf="!editMode"
+                        (click)="editDetails(true)" pTooltip="View Edit Mode"></button>
+                  <button pButton class="ui-button-primary ui-button-rounded right" label="EXIT"
+                        pTooltip="Close Edit Mode" *ngIf="editMode" (click)="editDetails(false)"></button>
+            </div>
+      </div>
+      <!-- Revenue table -->
+      <div class="p-grid p-justify-between" *ngIf="editMode">
+            <!-- Conversion Rate -->
+            <div class="p-col">
+                  <p-card header="Conversion Rate">
+                        <div class="p-grid p-justify-between">
+                              <div class="p-col">
+                                    <h3 style="margin: 0;">{{conversionRate?.oldValue + '%'}}</h3>
+                              </div>
+                              <div class="p-col text-right" *ngIf="conversionRate?.newValue">
+
+                                    <h3 style="margin: 0;">
+                                          {{conversionRate?.newValue + '%'}}
+                                    </h3>
+                                    <span [style]="{color:conversionRate.color}">
+                                          <i [class]="conversionRate.icon"></i>
+                                          {{conversionRate.percent|percent:'1.0-2' }}
+                                    </span>
+                              </div>
+                        </div>
+                  </p-card>
+            </div>
+            <!-- Completed Users -->
+            <div class="p-col">
+                  <p-card header="Converted Sessions">
+                        <div class="p-grid p-justify-between">
+                              <div class="p-col">
+                                    <h3 style="margin: 0;">{{completedUser?.oldValue| number:'1.0-0'}}</h3>
+                              </div>
+                              <div class="p-col text-right" *ngIf="completedUser?.newValue">
+
+                                    <h3 style="margin: 0;">{{completedUser?.newValue|number:'1.0-0'}}</h3>
+                                    <span [style]="{color:completedUser.color}">
+                                          <i [class]="completedUser.icon"></i>
+                                          {{completedUser.percent | percent:'1.0-2'}}
+                                    </span>
+                              </div>
+                        </div>
+                  </p-card>
+            </div>
+            <!-- Total Revenue -->
+            <div class="p-col">
+                  <p-card header="Revenue Value">
+                        <div class="p-grid p-justify-between">
+                              <div class="p-col">
+                                    <h3 style="margin: 0;">
+                                          <div class="loader-container" *ngIf="loading;else order">
+                                                <i class="pi pi-spin pi-spinner"></i>
+                                          </div>
+                                    </h3>
+                                    <ng-template #order>
+                                          {{revenueValue?.oldValue |currency}}
+                                    </ng-template>
+                              </div>
+                              <div class="p-col text-right" *ngIf="revenueValue?.newValue">
+
+                                    <h3 style="margin: 0;">{{revenueValue?.newValue|currency }}</h3>
+                                    <span [style]="{color:revenueValue.color}">
+                                          <i [class]="revenueValue.icon"></i>
+                                          {{revenueValue.percent |percent:'1.0-2'}}
+                                    </span>
+                              </div>
+                        </div>
+                  </p-card>
+            </div>
+      </div>
+
+
+      <div class="p-grid" *ngIf="!funnelDetails.compareMode">
+            <div class="p-grid p-col-12 title">
+                  <label for="title">{{data.PageName}}</label>
+            </div>
+      </div>
+
+
+      <div class="page-entry-container" *ngIf="data.TotalCount">
+            <div class="p-grid pt-20 ph-10">
+                  <div #topEntries class="p-grid p-col-2 t-ec p-0">
+                        <!--<div class="empty-div mr-5"></div>-->
+                        <div class="entry-count">
+                              {{(data.TotalCount)|number}}
+                        </div>
+                        <div class="info-label mtn-5">
+                              ENTRIES
+                        </div>
+                  </div>
+
+                  <div class="p-grid p-col-8 user-action-pct p-0">
+                        <div #forwardsEntries class="t-ep"
+                              [ngStyle]="{width:data.EntryPage.entryCountPct === 100 ? 'calc(' + data.EntryPage.entryCountPct + '% - 15px)': data.EntryPage.entryCountPct +'%', 
+                                                                        'min-width':data.EntryPage.entryCountPct > 0 && data.EntryPage.entryCountPct < 100 ? '10%' : null, 
+                                                                  'max-width':data.EntryPage.entryCountPct > 0 && data.EntryPage.entryCountPct < 100 ? '90%':null}"
+                              pTooltip="{{data.EntryPage.entryCountPct + '%'}}">
+                              <!--Need to remove this.
+                              <div class="lateral-entries"
+                                    [style.visibility]="'hidden'">
+                                    {{data.TotalCount}}
+                              </div>-->
+                              <div class="forwards-pct">
+                                    {{data.EntryPage.entryCountPct + '%'}}
+                              </div>
+                              <div class="info-label mr-2">
+                                    FORWARDS
+                              </div>
+                        </div>
+
+                        <div #dropOffs class="t-exp"
+                              [ngStyle]="{width: data.ExitPage.exitCountPct + '%', 'min-width':data.EntryPage.entryCountPct > 0 && data.EntryPage.entryCountPct < 100 ? '10%' : null, 
+                                                                  'max-width':data.EntryPage.entryCountPct > 0 && data.EntryPage.entryCountPct < 100 ? '90%':null}">
+                              <!-- Moving bp exit event to table. 
+                              <div class="empty-div" style="display: flex;">
+                                    <ng-container *ngFor="let bpExit of data.ExitPage?.BPExitPageEvents">
+                                          <span class="ui-button" style="background: unset;border:unset">
+                                                <img *ngIf="bpExit.iconCls == null" [src]="bpExit.icon" [title]="bpExit.eventName" width="16px"
+                                                      (click)="editMode ? op.toggle($event):''">
+                                                <i *ngIf="bpExit.iconCls != null" [title]="bpExit.eventName"
+                                                      class="{{bpExit.iconCls}} btn-icon font-18 "></i>
+                                                <div class="badge"
+                                                      [pTooltip]="'Sessions with BP Exit Page '+data.PageName + ' and BP Exit Page Event '+bpExit.eventName"
+                                                      (click)="bpBPExitPageEventDDR(data.PageName,bpExit.eventName, bpExit.count )">
+                                                      {{bpExit.count}}</div>
+                                          </span>
+
+                                          <p-overlayPanel #op appendTo="body">
+                                                <ng-template pTemplate>
+                                                      <p-slider [(ngModel)]="bpExit.count" [min]="0" [max]="bpExit.maxEventCount" [style]="{width:'100px'}"
+                                                            (onSlideEnd)="calculateNewEntry()"></p-slider>
+                                                </ng-template>
+                                          </p-overlayPanel>
+                                    </ng-container>
+                              </div>-->
+                              <ng-container *ngIf="data.ExitPage.exitCountPct">
+                                    <div class="drop-off-pct" pTooltip="{{data.ExitPage.exitCountPct+'%'}}">
+                                          {{data.ExitPage.exitCountPct+'%'}}
+                                    </div>
+                                    <div class="info-label">
+
+                                    </div>
+                              </ng-container>
+                        </div>
+                        <!-- Edit Mode Entry  Slider -->
+                        <div class="p-col-12" style="margin-top:-24px;padding: 0;"
+                              *ngIf="editMode && lastPage?.PageName !== data.PageName">
+                              <p-slider [(ngModel)]="data.EntryPage.entryCountPct" [min]="0" [max]="100" [step]="1"
+                                    [animate]="true" (onChange)="entryCountChange($event.value, data)"
+                                    (onSlideEnd)="calculateNewEntry()" #slider>
+                              </p-slider>
+                        </div>
+                  </div>
+                  <div #outgoing class="p-grid p-col-2 t-exc p-0">
+                        <!--<div class="empty-div ml-5"></div>-->
+                        <div class="exit-count ml-5">
+                              <span *ngIf="lastPage?.PageName === data.PageName" [class.sessions-link]="data.TotalCount"
+                                    pTooltip="Sessions with Completed Business Process"
+                                    (click)="data.TotalCount?bpBPCompleteDDR(data.TotalCount):''">
+                                    {{data.TotalCount}}
+                              </span>
+                              <span *ngIf="lastPage?.PageName !== data.PageName"
+                                    [pTooltip]="'Sessions with BP Exit Page ' + data.PageName"
+                                    [class.sessions-link]="data.ExitPage.TotalExitCount"
+                                    (click)="data.ExitPage.TotalExitCount?bpBPExitPageDDR(data.PageName, data.ExitPage.TotalExitCount):''">
+                                    {{data.ExitPage.TotalExitCount | number}}
+                              </span>
+
+                        </div>
+                        <div class="info-label mtn-5">
+                              OUTGOING
+                        </div>
+                  </div>
+
+                  <div class="funnleBox-main">
+                        <div class="funnel-label">
+                              <label class="procededText">Total Proceeded:
+                                    <span style="font-weight: 600;">
+                                          {{(data.TotalCount - data.ExitPage.TotalExitCount) |number}}
+                                    </span>
+                              </label>
+                              <ul class="left-label proceed-to-node-level">
+                                    <li *ngFor="let node of data.BPProcessedProceedTo">{{node.node}}</li>
+                              </ul>
+
+                              <ul class="right-label proceed-to-node-count">
+                                    <li *ngFor="let node of data.BPProcessedProceedTo">{{node.count | number}}</li>
+                              </ul>
+                        </div>
+
+                        <div class="funnel-Container">
+                              <div class="shadowboard"></div>
+                              <div class="clipboard" [style.background]="data.shadowBoxBackground"></div>
+                        </div>
+                  </div>
+            </div>
+            <div class="p-grid pb-20 ph-10" *ngIf="lastPage?.PageName !== data.PageName">
+
+                  <div class="entry-details-table"
+                        [ngStyle]="{ width: (topEntries.offsetWidth + forwardsEntries.offsetWidth - 2) +'px'}">
+                        <div class="entry-page-divider"></div>
+
+                  </div>
+                  <div class="exit-details-table"
+                        [ngStyle]="{ width: dropOffs.offsetWidth+outgoing.offsetWidth +'px' }">
+                        <div class="exit-page-divider"></div>
+
+                  </div>
+                  <!-- vertical divider -->
+                  <div class="p-col-12 p-col-nogutter">
+                        <div class="p-grid p-justify-between">
+                              <div class="p-col-2 p-col-nogutter">
+                                    <div class="entry-page-vertical-divider"></div>
+                              </div>
+                              <div class="p-col-2 p-col-nogutter">
+                                    <div class="exit-page-vertical-divider"></div>
+                              </div>
+                        </div>
+                  </div>
+                  <!-- table -->
+                  <div class="p-col-12 p-col-nogutter">
+                        <div class="p-grid p-nogutter">
+                              <div class="p-col-4">
+                                    <div class="entry-table-section">
+                                          <p-table [columns]="entryPageCols" [value]="data.EntryPage.EntryDetail"
+                                                [rowHover]="true" [responsive]="true" [scrollable]="true"
+                                                scrollHeight="185px" [resizableColumns]="true">
+
+                                                <ng-template pTemplate="colgroup" let-columns>
+                                                      <colgroup>
+                                                            <col *ngFor="let col of columns"
+                                                                  [style.width]="col.width" />
+                                                      </colgroup>
+                                                </ng-template>
+                                                <ng-template pTemplate="header" let-columns>
+                                                      <tr>
+                                                            <th [pSortableColumn]="col.field" pResizableColumn
+                                                                  *ngFor="let col of columns">
+
+                                                                  <div class="text-center">
+                                                                        <span>{{col.header}}</span>
+                                                                        <p-sortIcon [field]="col.field"
+                                                                              ariaLabel="Activate to sort"
+                                                                              ariaLabelDesc="Activate to sort in descending order"
+                                                                              ariaLabelAsc="Activate to sort in ascending order">
+                                                                        </p-sortIcon>
+                                                                  </div>
+                                                            </th>
+                                                      </tr>
+                                                </ng-template>
+
+                                                <ng-template pTemplate="body" let-row let-columns="columns"
+                                                      let-rowIndex="rowIndex">
+                                                      <tr>
+                                                            <td *ngFor="let col of columns" [class]="col.classes">
+                                                                  {{row[col.field]}}
+                                                            </td>
+                                                      </tr>
+                                                </ng-template>
+
+                                                <ng-template pTemplate="emptymessage" let-columns>
+                                                      <tr>
+                                                            <td [attr.colspan]="columns.length + 1" class="text-center">
+                                                                  <b>Data Not Available</b>
+                                                            </td>
+                                                      </tr>
+                                                </ng-template>
+                                          </p-table>
+                                    </div>
+                              </div>
+                              <div class="p-col-8">
+                                    <div class="exit-table-section pl-5">
+                                          <p-table [columns]="exitPageCols" [value]="data.ExitPage.ExitDetails"
+                                                [rowHover]="true" [responsive]="true" [scrollable]="true"
+                                                scrollHeight="185px" [resizableColumns]="true"
+                                                columnResizeMode="expand">
+
+                                                <ng-template pTemplate="colgroup" let-columns>
+                                                      <colgroup>
+                                                            <col *ngFor="let col of columns"
+                                                                  [style.width]="col.width" />
+                                                      </colgroup>
+                                                </ng-template>
+                                                <ng-template pTemplate="header" let-columns>
+                                                      <tr>
+                                                            <th *ngFor="let col of columns"
+                                                                  [pSortableColumn]="col.field" pResizableColumn>
+
+                                                                  <div class="text-center">
+                                                                        <span>{{ col.header }}</span>
+                                                                        <p-sortIcon *ngIf="col.sort" [field]="col.field"
+                                                                              class="text-right"
+                                                                              ariaLabel="Activate to sort"
+                                                                              ariaLabelDesc="Activate to sort in descending order"
+                                                                              ariaLabelAsc="Activate to sort in ascending order">
+                                                                        </p-sortIcon>
+                                                                  </div>
+                                                            </th>
+                                                      </tr>
+                                                </ng-template>
+
+                                                <ng-template pTemplate="body" let-row let-columns="columns"
+                                                      let-rowIndex="rowIndex">
+                                                      <tr>
+                                                            <td *ngFor="let col of columns" [class]="col.classes">
+                                                                  <ng-container [ngSwitch]="col.field">
+                                                                        <ng-container *ngSwitchCase="'ExitPageEvents'">
+                                                                              <ng-template
+                                                                                    [ngIf]="row['pageName'] != '(exit)'"
+                                                                                    [ngIfElse]="elseBlock">
+                                                                                    <span *ngFor="let exitPage of row['ExitPageEvents']"
+                                                                                          class="ui-button"
+                                                                                          style="background: unset;border:unset">
+                                                                                          <img *ngIf="exitPage.iconCls == null"
+                                                                                                [src]="exitPage.icon"
+                                                                                                [title]="exitPage.eventName"
+                                                                                                width="16px">
+                                                                                          <i *ngIf="exitPage.iconCls != null"
+                                                                                                [title]="exitPage.eventName"
+                                                                                                class="{{exitPage.iconCls}} btn-icon font-18 "></i>
+                                                                                          <div class="badge"
+                                                                                                [pTooltip]="'Sessions with BP Exit Page '+ data.PageName + ' and Session Exit Page Event '+exitPage.eventName"
+                                                                                                (click)="bpSessionExitPageEventDDR(data.PageName,row['pageName'], exitPage.eventName,exitPage.count)">
+                                                                                                {{exitPage.count}}</div>
+                                                                                    </span>
+                                                                              </ng-template>
+                                                                              <ng-template #elseBlock>
+                                                                                    <div style="display: flex;">
+                                                                                          <ng-container
+                                                                                                *ngFor="let bpExit of data.ExitPage?.BPExitPageEvents">
+                                                                                                <span class="ui-button"
+                                                                                                      style="background: unset;border:unset">
+                                                                                                      <img *ngIf="bpExit.iconCls == null"
+                                                                                                            [src]="bpExit.icon"
+                                                                                                            [title]="bpExit.eventName"
+                                                                                                            width="16px"
+                                                                                                            (click)="editMode ? op.toggle($event):''">
+                                                                                                      <i *ngIf="bpExit.iconCls != null"
+                                                                                                            [title]="bpExit.eventName"
+                                                                                                            class="{{bpExit.iconCls}} btn-icon font-18 "
+                                                                                                            (click)="editMode ? op.toggle($event):''"></i>
+                                                                                                      <div class="badge"
+                                                                                                            [pTooltip]="'Sessions with BP Exit Page ' + data.PageName + ' and BP Exit Page Event ' + bpExit.eventName"
+                                                                                                            (click)="bpBPExitPageEventDDR(data.PageName,bpExit.eventName, bpExit.count )">
+                                                                                                            {{bpExit.count}}
+                                                                                                      </div>
+                                                                                                </span>
+
+                                                                                                <p-overlayPanel #op
+                                                                                                      appendTo="body">
+                                                                                                      <ng-template
+                                                                                                            pTemplate>
+                                                                                                            <p-slider
+                                                                                                                  [(ngModel)]="bpExit.count"
+                                                                                                                  [min]="0"
+                                                                                                                  [max]="bpExit.maxEventCount"
+                                                                                                                  [style]="{width:'100px'}"
+                                                                                                                  (onSlideEnd)="calculateNewEntry()">
+                                                                                                            </p-slider>
+                                                                                                      </ng-template>
+                                                                                                </p-overlayPanel>
+                                                                                          </ng-container>
+                                                                                    </div>
+                                                                              </ng-template>
+                                                                        </ng-container>
+                                                                        <ng-container
+                                                                              *ngSwitchCase="'TransitPageEvents'">
+                                                                              <span *ngFor="let transitPage of row['TransitPageEvents']"
+                                                                                    class="ui-button"
+                                                                                    style="background: unset;border:unset">
+                                                                                    <img *ngIf="transitPage.iconCls == null"
+                                                                                          [src]="transitPage.icon"
+                                                                                          [title]="transitPage.eventName"
+                                                                                          width="16px">
+                                                                                    <i *ngIf="transitPage.iconCls != null"
+                                                                                          [title]="transitPage.eventName"
+                                                                                          class="{{transitPage.iconCls}} btn-icon font-18 "></i>
+                                                                                    <div class="badge"
+                                                                                          [pTooltip]="'Sessions with BP Exit Page '+ data.PageName + ' and Session Exit Page Event '+transitPage.eventName"
+                                                                                          (click)="bptransitPageEventDDR(data.PageName, row['pageName'], transitPage.eventName,transitPage.count )">
+                                                                                          {{transitPage.count}}</div>
+                                                                              </span>
+                                                                        </ng-container>
+                                                                        <ng-container *ngSwitchCase="'counts'">
+                                                                              <div class="right"
+                                                                                    [pTooltip]="'Sessions with BP Exit Page ' + data.PageName + ' and Session Exit Page ' + row['pageName'] "
+                                                                                    (click)="row['counts'] ? sessionExitPageDDR(data.PageName,row['pageName'], row['counts']):''">
+                                                                                    <span
+                                                                                          [class.sessions-link]="row['counts']">
+                                                                                          {{row[col.field]}}
+                                                                                    </span>
+                                                                              </div>
+                                                                        </ng-container>
+                                                                        <ng-container *ngSwitchDefault>
+                                                                              {{row[col.field]}}
+                                                                        </ng-container>
+                                                                  </ng-container>
+                                                            </td>
+                                                      </tr>
+                                                </ng-template>
+
+                                                <ng-template pTemplate="emptymessage" let-columns>
+                                                      <tr>
+                                                            <td [attr.colspan]="columns.length + 1" class="text-center">
+                                                                  <b>Data Not Available</b>
+                                                            </td>
+                                                      </tr>
+                                                </ng-template>
+                                          </p-table>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+      </div>
+      <div *ngIf="!data.TotalCount" class="page-entry-container">
+            <div class="p-grid" style="justify-content: center;">
+                  <div class="p-grid p-col-8 no-record">
+                        <span>0%</span>
+                  </div>
+            </div>
+      </div>
+</div>
+
+<p-toast></p-toast>

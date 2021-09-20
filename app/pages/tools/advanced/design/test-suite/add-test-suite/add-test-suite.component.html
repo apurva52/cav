@@ -1,0 +1,65 @@
+<div class="add-test-suite-dialog">
+    <p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true"
+        class="secondary-dialog" [draggable]="false" [style]="{width: '50vw'}">
+        <p-header>
+            <div class="add-test-suite-title">
+                <div>
+                    Add Test Suite
+                </div>
+                <div class="action-buttons">
+                    <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+                </div>
+            </div>
+        </p-header>
+
+        <div class="dialog-content">
+            <div class="ui-fluid">
+                <div class="p-field p-grid">
+                    <div class="p-col-12 p-md-4">
+                        <label class="label-margin">Project</label>
+                        <p-dropdown class="ui-dropdown-label" [options]="project"
+                            dropdownIcon="icons8-expand-arrow" placeholder="All">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-col-12 p-md-4">
+                        <label class="label-margin">Sub-Project</label>
+                        <p-dropdown class="ui-dropdown-label" [options]="subProject"
+                            dropdownIcon="icons8-expand-arrow" placeholder="All">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-col-12 p-md-3">
+                        <label class="label-margin">Test Suite Name</label>
+                        <input type="text" placeholder="Test Suite Name" class="w-100-p" pInputText />
+                    </div>
+                </div>
+                <div class="p-field p-grid">
+                    <div class="p-col-12 p-md-4">
+                        <label class="label-margin">Action on Failure</label>
+                        <p-dropdown class="ui-dropdown-label" [options]="actionOnFailure"
+                            dropdownIcon="icons8-expand-arrow" placeholder="3months">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-col-12 p-md-4">
+                        <label class="label-margin">Parameterization Mode</label>
+                        <p-dropdown class="ui-dropdown-label" [options]="parameterizationMode"
+                            dropdownIcon="icons8-expand-arrow" placeholder="3months">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-col-12 p-md-3">
+                        <label class="label-margin">Execution Count</label>
+                        <input type="text" placeholder="Execution Count" class="w-100-p" pInputText />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <p-footer>
+            <div class="p-col-12 form-buttons right">
+                <button pButton type="submit" label="Cancel" class="ui-button-rounded ui-button-secondary" (click)="closeDialog()"></button>
+                <button pButton type="submit" label="Save" class="ui-button-rounded"></button>
+            </div>
+        </p-footer>
+
+    </p-dialog>
+</div>

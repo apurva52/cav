@@ -1,0 +1,274 @@
+<div class="h-100-vh callback-designer-container">
+    <div class="loading-indicator" *ngIf="loading">
+        <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4">
+        </p-progressSpinner>
+    </div>
+
+
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center ph-5">
+            <div class="p-col-8">
+                <div class="p-grid p-align-center">
+                    <a routerLink="/home/dashboard">
+                        <i class="icons8 icons8-left toolbar-icon-color"></i>
+                    </a>
+                    <div class="p-col ui-toolbar-text">CALLBACK DESIGNER</div>
+                </div>
+            </div>
+            <div class="p-col-4">
+                <div class="p-grid p-justify-end">
+                    <button pButton type="button" class="ui-button ui-button-rounded mr-5" label="SAVE"
+                        pTooltip="Save Callback" (click)="saveCallback()"></button>
+                    <button pButton type="button" class="ui-button ui-button-rounded mr-5" label="APPLY"
+                        pTooltip="Apply Callback" (click)="applyCallback()"></button>
+                    <button pButton type="button" class="ui-button ui-button-rounded mr-5" label="HISTORY"
+                        pTooltip="View Callback Version History" (click)="showHistory()"></button>
+                </div>
+            </div>
+        </div>
+    </p-toolbar>
+
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+
+    <p-card>
+        <div class="vertical-container">
+            <div class="p-grid p-col-12 p-justify-between w-100-p no-padding">
+                <div class="p-col-3 left-tabs">
+                    <div class="align-items ui-fluid p-nogutter">
+                        <button pButton type="button" class="ui-button ui-button-secondary ui-button-rounded"
+                            label="ADD CALLBACK" (click)="openCallbackDialog()"></button>
+                        <button pButton icon="icons8 icons8-synchronize" class="icon-button no-shadow"
+                            pTooltip="Refresh" (click)="menu.toggle($event)"></button>
+                    </div>
+
+                    <div>
+                        <p-orderList [value]="callbackList" filter="filter" filterBy="label" filterPlaceholder="Search"
+                            [(selection)]="selectedCallbackTab" (onSelectionChange)="onCallbackChange($event.value)">
+                            <ng-template let-data pTemplate="item">
+                                <div class="ui-helper-clearfix">
+                                    <span class="align-items p-justify-between p-nogutter">
+                                        <div [pTooltip]="data.title" class="p-col"
+                                            style="text-overflow: ellipsis;overflow: hidden;">{{data.label}}</div>
+                                        <div class="p-grid p-justify-end">
+                                            <button pButton icon="icons8 icons8-edit"
+                                                class="mh-0 icon-button no-shadow p-align-end" pTooltip="Edit Callback"
+                                                (click)="openCallbackDialog(data.value)"></button>
+                                            <button pButton icon="icons8 icons8-delete-trash"
+                                                class="mh-0 icon-button no-shadow p-align-end"
+                                                pTooltip="Delete Callback"
+                                                (click)="deleteCallback(data.value)"></button>
+                                            <button pButton icon="icons8 icons8-forward"
+                                                class="mh-0 icon-button no-shadow p-align-end"></button>
+                                        </div>
+                                    </span>
+                                </div>
+                            </ng-template>
+                        </p-orderList>
+
+                    </div>
+                </div>
+                <div class="p-col-9 panel-card">
+                    <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="collapsed">
+                        <p-header class="cav-panel-header pt-5">
+                            <div class="cav-panel-content p-grid p-align-center">
+                                <div class="panel-title" (click)="collapsed = !collapsed">
+                                    <a>
+                                        <span
+                                            [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                        </span>
+                                    </a>
+                                    STATE DIAGRAM
+                                </div>
+                                <div class="p-grid p-justify-between p-align-center" *ngIf="currentCallback">
+                                    <button pButton icon="icons8 icons8-incoming-call" class="icon-button no-shadow"
+                                        pTooltip="Callback"></button>{{getCallbackName()}}
+                                    <button pButton icon="icons8 icons8-user" class="icon-button no-shadow"
+                                        pTooltip="Profile"></button>{{getProfileName()}}
+                                    <button pButton icon="icons8 icons8-computer" class="icon-button no-shadow"
+                                        pTooltip="Channel"></button>{{getChannel()}}
+                                    <button pButton icon="icons8 icons8-run-command" class="icon-button no-shadow"
+                                        pTooltip="Run At/Execute On"></button>{{getTriggerType()}}
+                                    <button pButton icon="icons8 icons8-document" class="icon-button no-shadow"
+                                        pTooltip="Pages"></button>{{getPages()}}
+                                </div>
+                            </div>
+                        </p-header>
+                        <div class="p-grid p-col-12 p-justify-between w-100-p p-nogutter p-col-nogutter">
+                            <div class="p-col-9">
+                                <div class="content">
+                                    <div class="p-col-12 diagram-body">
+                                        <div class="diagram-height">
+                                            <app-callback-state-diagram [callback]="currentCallback"
+                                                (currentState)="setCurrentState($event)"
+                                                (openFlowchart)="openFlowChart($event)">
+                                            </app-callback-state-diagram>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-col-3">
+                                <app-callback-trigger-action [state]="currentState" [callback]="currentCallback"
+                                    (currentAction)="setCurrentAction($event)"></app-callback-trigger-action>
+                            </div>
+                        </div>
+                    </p-panel>
+                    <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="!collapsed">
+                        <p-header class="cav-panel-header pt-5">
+                            <div class="cav-panel-content p-grid p-align-center">
+                                <div class="panel-title" (click)="collapsed = !collapsed">
+                                    <a>
+                                        <span
+                                            [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                        </span>
+                                    </a>
+                                    FLOW CHART DIAGRAM
+                                </div>
+                                <div class="p-grid p-justify-end p-align-center" *ngIf="currentAction">
+                                    <i class="cav navigation-path mr-3 btn-icon" *ngIf="currentState"
+                                        pTooltip="State"></i>
+                                    {{currentState?.text |titlecase}}
+                                    <i class="icons8 icons8-natural-user-interface-2 btn-icon ml-10"
+                                        pTooltip="Action"></i>
+                                    {{currentAction?.name |titlecase}}
+                                    <i class="las-bolt-solid ml-10 btn-icon" pTooltip="Trigger"></i>
+                                    {{currentAction?.triggerId |titlecase}}
+                                    <button type="button" pButton [label]="'Show ' + (overflow ? 'Less':'More')"
+                                        style="background: transparent;color: black;" class="ui-button-rounded ml-5"
+                                        [icon]="
+                                        (overflow ? 'pi pi-chevron-circle-up' : 'pi pi-chevron-circle-down' )
+                                        + ' btn-icon'" (click)=" toggleOverflow()"></button>
+                                </div>
+                            </div>
+                        </p-header>
+                        <div class="p-grid p-justify-between p-nogutter w-100-p">
+                            <div class="p-col-2" style="z-index: 2;">
+                                <app-callback-flowchart-sidebar [action]="currentAction" [callback]="currentCallback">
+                                </app-callback-flowchart-sidebar>
+                            </div>
+                            <div class="p-col">
+                                <div class="content">
+                                    <div class="p-col-12 diagram-body">
+                                        <app-callback-flowchart [action]="currentAction" [callback]="currentCallback">
+                                        </app-callback-flowchart>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </p-panel>
+                </div>
+            </div>
+        </div>
+    </p-card>
+
+    <!-- Add/EDit Callback Dialog -->
+    <p-dialog [header]="(edit_callback ? 'Edit' : 'Add')  + ' Callback'" appendTo="body" [(visible)]="callbackDialog"
+        [modal]="true" [contentStyle]="{width:'30vw', overflow:'visible'}" (onHide)="onDialogHide()">
+        <form [formGroup]="callbackForm">
+            <div class="p-grid ui-fluid p-align-center">
+                <div class="p-col-4">Name</div>
+                <div class="p-col">
+                    <input type="text" pInputText formControlName="name" />
+
+                    <p-message severity="error" text="Name is required"
+                        *ngIf="submitted && !callbackForm.controls['name'].valid">
+                    </p-message>
+                </div>
+            </div>
+
+
+            <div class="p-grid ui-fluid p-align-center">
+                <div class="p-col-4">Description</div>
+                <div class="p-col">
+                    <textarea [rows]="1" [cols]="30" pInputTextarea autoResize="autoResize"
+                        formControlName="description"></textarea>
+
+                    <p-message severity="error" text="Description is required"
+                        *ngIf="submitted && !callbackForm.controls['description'].valid">
+                    </p-message>
+                </div>
+            </div>
+
+
+            <div class="p-grid  ui-fluid p-align-center">
+                <div class="p-col-4">Execute On</div>
+                <div class="p-col">
+                    <p-dropdown [options]="onTriggerEvents" dropdownIcon="icons8 icons8-expand-arrow"
+                        placeholder="Select" formControlName="type" appendTo="body"></p-dropdown>
+
+                    <p-message severity="error" text="Trigger is required"
+                        *ngIf="submitted && !callbackForm.controls['type'].valid">
+                    </p-message>
+                </div>
+            </div>
+
+
+            <div class="p-grid ui-fluid p-align-center">
+                <div class="p-col-4">Pages</div>
+                <div class="p-col">
+                    <p-multiSelect [options]="pages" dropdownIcon="icons8 icons8-expand-arrow" formControlName="pageid"
+                        appendTo="body">
+                    </p-multiSelect>
+
+                    <p-message severity="error" text="Page is required"
+                        *ngIf="submitted && !callbackForm.controls['pageid'].valid">
+                    </p-message>
+                </div>
+            </div>
+
+
+            <div class="p-grid ui-fluid p-align-center">
+                <div class="p-col-4">Channel</div>
+                <div class="p-col">
+                    <p-dropdown [options]="channels" dropdownIcon="icons8 icons8-expand-arrow" placeholder="Select"
+                        formControlName="channel" (onChange)="channelChanged($event.value)" appendTo="body">
+                    </p-dropdown>
+
+                    <p-message severity="error" text="Channel is required"
+                        *ngIf="submitted && !callbackForm.controls['channel'].valid">
+                    </p-message>
+                </div>
+            </div>
+
+
+            <div class="p-grid ui-fluid p-align-center">
+                <div class="p-col-4">Profile</div>
+                <div class="p-col">
+                    <p-dropdown [options]="profiles" dropdownIcon="icons8 icons8-expand-arrow" placeholder="Select"
+                        formControlName="profilename" appendTo="body"></p-dropdown>
+
+                    <p-message severity="error" text="Profile is required"
+                        *ngIf="submitted && !callbackForm.controls['profilename'].valid">
+                    </p-message>
+                </div>
+            </div>
+
+
+            <p-footer>
+                <div class="p-grid p-justify-center">
+                    <button pButton type="button" [label]="edit_callback ? 'Update' : 'Save'"
+                        (click)=" edit_callback ? editCallback(): addCallback()"></button>
+                </div>
+            </p-footer>
+        </form>
+    </p-dialog>
+
+    <p-menu #menu [popup]="true" [model]="refreshItems" appendTo="body"></p-menu>
+
+    <p-toast key="callback"></p-toast>
+    <p-confirmDialog appendTo="body" key="callback"
+        maskStyleClass="ui-dialog-mask ui-widget-overlay ui-dialog-visible ui-dialog-mask-scrollblocker">
+    </p-confirmDialog>
+
+    <!-- history sidebar -->
+    <app-callback-history (saveNewCopy)="saveNewCopy($event)">
+    </app-callback-history>
+
+</div>

@@ -1,0 +1,122 @@
+<div>
+  File: {{fileName}}
+</div>
+
+<div class="ui-g">
+  <div class="ui-g-6">
+
+    <p-tabView class="ddr-tabs" (onChange)="handleChange($event)">
+      <p-tabPanel header="Thread State">
+        <div *ngIf="showChart == true">
+          <chart [options]="options"></chart>
+        </div>
+        <div *ngIf="showChart == false" class="ddr-custom-tab">No Thread State found for Thread Dump.</div>
+      </p-tabPanel>
+      <p-tabPanel header="Thread Category">
+        <div *ngIf="showChart == true">
+          <chart [options]="options1"></chart>
+        </div>
+        <div *ngIf="showChart == false" class="ddr-custom-tab">No Thread Category found for Thread Dump.</div>
+      </p-tabPanel>
+      <p-tabPanel header="Common Methods">
+        <div *ngIf="showBarChart == true">
+          <chart [options]="options2"></chart>
+        </div>
+        <div *ngIf="showBarChart == false" class="ddr-custom-tab">No Common Methods found for Thread Dump.</div>
+      </p-tabPanel>
+      <p-tabPanel header="Most Used Methods">
+        <div *ngIf="showUsedMethodChart == true">
+          <chart [options]="options3"></chart>
+        </div>
+        <div *ngIf="showUsedMethodChart == false" class="ddr-custom-tab">No Top Methods found for Thread Dump.</div>
+      </p-tabPanel>
+      <p-tabPanel header="Thread Group">
+        <div *ngIf="showThreadGroup == true">
+          <chart [options]="options4"></chart>
+        </div>
+        <div *ngIf="showThreadGroup == false" class="ddr-custom-tab">No Thread group found for Thread Dump.</div>
+      </p-tabPanel>
+      <p-tabPanel header="Deadlock">
+        <div class="ddr-custom-tab">{{deadlockMsg}}<a *ngIf="isDeadlock== true" style="color: #8484f0;cursor:pointer" (click)="showDeadlockThreads()">Click here</a>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel header="Hotstacks">
+        <div *ngIf="showHotstack == true">
+          <chart [options]="options5"></chart>
+        </div>
+        <div *ngIf="showHotstack == false" class="ddr-custom-tab">No Hotstacks found for Thread Dump.</div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+  <div class="ui-g-6">
+      <div *ngIf="showThreadTable==2">
+    <div class="ddr-custom-div">
+     HotStack [count: {{hotstackCount}}] w.r.t Top <input type="text" pInputText [(ngModel)]="hotstackCompareCount" style="width:50px;"/>
+    frames <button pButton type="button" title="Apply Top frames" icon="fa fa-check" (click)="getTopFramedHotstack()"></button></div>
+    <div id="stack_text">
+      <pre>{{hotstack}}</pre>
+    </div>
+    </div>
+      <div  *ngIf="showThreadTable==1">
+    <div class="ddr-custom-div">
+      Common Methods
+    </div>
+    <div id="stack_text">
+      <pre>{{commonMethods}}</pre>
+    </div>
+    </div>
+    <div *ngIf="showThreadTable==0">
+    <div style="float:right;">
+      <img src="./images/showall.png" *ngIf="showAllOption" height="21px" width="21px" title="Show all data" style="float:right;cursor:pointer;"
+        (click)="showAllThreadData();">
+    </div>
+    <div style="height:210px;">
+      <p-dataTable class="scen-table scrollable-div2 scrollableSchedule" [value]="threadDumpInfo" selectionMode="single"  scrollwidth="40px"
+        scrollHeight="240px" [style]="{'font-size':'12px','height':'210px'}" resizableColumns="true" reorderableColumns="true"
+        [rows]="5" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[5,10,20,30,40,50]">
+        <p-header>
+          <div class="ddr-header" style="text-align: left">Thread(s) Details {{threadTableHeader}}</div>
+        </p-header>
+        <p-column field="threadName" header="Thread Name" [sortable]="true" [style]="{'width':'60px','text-align':'left'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a style="color: #8484f0;cursor:pointer;" (click)="showStackTrace(node)"><span>{{node[col.field]}}</span></a>
+          </ng-template>
+        </p-column>
+        <p-column field="priority" header="Thread Priority" sortable="custom" (sortFunction)= "SortOnCustom($event, threadDumpInfo)" [style]="{'width':'40px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+        <p-column field="threadState" header="State" [sortable]="true" [style]="{'width':'50px','text-align':'left'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+        <p-column field="threadId" header="Thread ID" sortable="custom" (sortFunction)= "SortOnCustom($event, threadDumpInfo)" [style]="{'width':'60px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+        <p-column field="nativeId" header="Native ID" sortable="custom" (sortFunction)= "SortOnCustom($event, threadDumpInfo)" [style]="{'width':'40px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+                    </p-column>
+                </p-dataTable>
+            </div>
+            <p-toolbar>
+                <div class="ui-toolbar-group-right" *ngIf="showDownLoadReportIcon">
+                        <span title="Download Word Report"><i class = 'icon ddrui-icon-word'  style=' cursor:pointer' (click)='downloadReport("word")' ></i></span>
+                        <span title="Download Excel Report"><i class = 'icon ddrui-icon-excel'  style=' cursor:pointer' (click)='downloadReport("excel")' ></i></span>
+                        <span title="Download PDF Report"><i class = 'icon ddrui-icon-pdf'  style=' cursor:pointer' (click)='downloadReport("pdf")' ></i></span>  
+              </div>
+            </p-toolbar>
+            <div class="ddr-custom-div">
+                Stack Trace {{indiThreadInfo}}
+            </div>
+            <div id="stack_text">
+                <pre style="outline: none;">{{stacktrace}}</pre>
+            </div>
+        </div>
+    </div>
+</div>

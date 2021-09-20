@@ -1,0 +1,204 @@
+<!-- <div class="accessControl-box"> -->
+    <!-- <div class="accontmanaghead">
+        <div class="cav-d-flex cav-justify-content-between tabheader" style="height:22px">
+
+            
+            <div class="cav-mx-1">Audit Log</div>
+
+            
+            <div class="cav-d-flex"> 
+            <div class="cav-mx-1 cav-fnt-14"><i class="fa fa-file-text-o" (click)="generateReportAudit()" style="cursor: pointer" matTooltip="Generate Report"></i></div>
+            <div class="cav-mx-1">
+                <i class="fa fa-search" (click)=enable_disableFilter() style="cursor: pointer"
+                            matTooltip="Filter/Search"></i>
+            </div>
+            <div class="cav-mx-1 cav-fnt-14">
+                <i class="fa fa-refresh" (click)="refreshData() ; p.changePageToFirst($event)" style="cursor: pointer"
+                    matTooltip="ReFresh"></i>
+            </div>
+            <div  class="cav-mx-1 cav-fnt-12">
+                <i class="fa fa-circle" style="color: greenyellow ;" aria-hidden="true"></i> 
+                Active Sessions : {{activeSessions}}
+            </div>
+
+            <div  class="cav-mx-1 cav-fnt-12">
+                <i class="fa fa-circle" style="color: greenyellow ;" aria-hidden="true"></i> 
+                Active Users : {{activeUsers}}
+            </div> -->
+                    <!-- <div class="tabheader" style="padding: 0px;"> -->                            
+<!-- </div>    -->
+ <!-- </div> -->
+
+    <!-- </div> -->
+
+
+    <!-- <div class="cav-mr-2">
+        <div *ngIf="enableFilter" class="cav-d-flex cav-p-2">
+            <label style="padding-top: inherit;"> Time Period : </label>
+            <label style="padding-top: inherit;"> Start Date/Time:</label>
+            <span class="calender px-15" pTooltip="MM/DD/YYYY" tooltipPosition="bottom">          
+                  <p-calendar [(ngModel)]="defaultstartDate" [(ngModel)]="startDate" name="startDate" (onSelect)="checkdata()" [showIcon]="true" ></p-calendar>
+            </span>
+            <input pTooltip="HH:mm" tooltipPosition="bottom" placeholder="hh:mm" required pattern="^(0[0-9]|1[0-9]|2[0-3]|[0-9]):[0-5][0-9]$" [(ngModel)]="defaultstartTime" [(ngModel)]="startTime" (change)="checkdata()" pInputText class="textbox graph-time-window" />
+            <label class ="px-15" style="padding-top: inherit;">End Date/Time</label>
+            <span class="calender  px-15" pTooltip="MM/DD/YYYY" tooltipPosition="bottom">           
+                  <p-calendar [(ngModel)]="defaultendDate" [(ngModel)]="endDate" name="endDate" (onSelect)="checkdata()" [showIcon]="true"></p-calendar>
+                </span>
+            <input  pTooltip="HH:mm" tooltipPosition="bottom" placeholder="hh:mm"  required pattern="^(0[0-9]|1[0-9]|2[0-3]|[0-9]):[0-5][0-9]$" [(ngModel)]="defaultendTime" [(ngModel)]="endTime" (change)="checkdata()" pInputText class="textbox graph-time-window" />
+      </div> 
+   </div> -->
+    <!-- <div *ngIf="enableFilter" class="cav-d-flex cav-p-2">
+        <div class="cav-mr-2">
+            <label style=" display: block;margin-top: 13px;">Search:</label>
+        </div>
+        <div *ngFor="let filter of filterObj" class="cav-mr-2" style="width: 128px;">
+            <span *ngIf="filter.label !=Session Id">
+      <label>{{filter.label}} </label>
+      <input type="text" [(ngModel)]="filter.value" pInputText class="textbox graph-time-window" pTooltip="{{filter.hoverName}}" tooltipPosition="top" />
+     </span>
+        </div>
+        <div class="cav-mr-2">
+            <button pButton icon="fa fa-search"  (click)=searchdata() style="margin-top: 11px;" class="capabilityButton btn-line-height" label="Apply" aria-hidden="false"></button>
+        </div>
+            <div class="cav-mr-2">
+            <button pButton icon="fa fa-refresh" (click)= "resetData(); p.changePageToFirst($event)" class="capabilityButton btn-line-height" label="Reset" aria-hidden="false"  style="margin-top: 11px;"></button>
+        </div>
+    </div> -->
+    <!-- <div *ngIf="groupBy == 'sessionId'" class="compotable"> -->
+
+
+        <!-- <p-dataTable  class="auditLogTable auto-table-layout col-width1" #dt responsive=true [value]="LogsDataToPopulate"
+         rowGroupMode="subheader" [groupField]="groupBy" [sortableRowGroup]="false"  scrollable="true" expandableRowGroups="false" [resizableColumns]="false" [ngClass]="tableHeight ? 'collapse-height' : 'expand-height'">
+            <p-header>
+<div class="cav-d-flex cav-justify-content-between cav-align-items-center cav-p-1" >
+<div class="cav-d-flex">
+<div class="cav-mr-2" style="font-size: small;">Time Period from {{sDate}} to {{eDate}}</div>
+</div>
+
+<div class="cav-d-flex">
+    <div class="cav-mr-2">
+        <mat-checkbox id="chckbx" [checked]="ischecked" label="Include Inactive Sessions"  (change)="checkValue($event)" style="font-size: small;">Include Inactive Sessions</mat-checkbox>
+    </div>
+    <div class="cav-mr-2">
+        <label style="line-height: 23px;font-size: small;"> Column:</label></div>
+    <div class="cav-mr-2">
+                        <p-multiSelect [options]="columnOptions" [(ngModel)]="cols" (onChange)=onChngeColumn(); [style]="{'width':'120px'}"></p-multiSelect>
+                        </div>
+
+                        <div class="cav-mr-2"><label style="line-height: 23px; font-size: small;"> Group By:  </label></div>
+                        <div class="cav-mr-2">
+                            <p-dropdown [options]="groupOptions" [(ngModel)]="groupBy"  (onChange)=onChngeColumn() [style]="{'width':'120px'}"></p-dropdown>
+                        </div>
+
+                        <div class="cav-mr-1 cav-mt-1">
+                            <i class="fa fa-file-pdf-o fa-lg" (click)="downloadLogReports('pdf')" style=" font-size: 20px;color: red; cursor: pointer;" pTooltip="Download as PDF" tooltipPosition="left" placeholder="Left"></i>
+                            <i class="fa fa-file-excel-o cav-mx-1 fa-lg" (click)="downloadLogReports('excel')"  style=" font-size: 20px;color: green; cursor: pointer;" pTooltip="Download as Excel" tooltipPosition="left" placeholder="Left"></i>
+                            <i class="fa fa-file-word-o fa-lg" (click)="downloadLogReports('worddoc')" style="font-size: 20px;color: blue; cursor: pointer;" pTooltip="Download as Word" tooltipPosition="left" placeholder="Left"></i>
+                        </div>
+</div>
+</div>
+            </p-header>
+            <ng-template pTemplate="rowgroupheader" let-rowData>{{rowData[groupBy]}}</ng-template>
+            <p-column field="" header="#">
+                <ng-template let-SNO="rowIndex" pTemplate="body" >
+                   {{ROWINDEX[SNO]}}
+                </ng-template>
+            </p-column> -->
+            <!-- <p-column *ngFor="let col of cols" [field]="col.field" [header]="col.header" (sortFunction)="sortfunction($event)" [sortable]="col.sortable" [title]="col.header" >   
+        
+<p-column field="timeSlotName" header="Time Slot Name">
+    <ng-template let-col let-data="rowData" pTemplate="body">
+      <span title="{{data[col.field]}}">{{data[col.field]}}</span>
+    </ng-template>
+  </p-column>
+                <ng-template let-column let-row="rowData" pTemplate="body">
+
+                    <div style="float :right; white-space: initial" *ngIf=" col.field == 'activityTime'||col.field == 'ip'  || col.field == 'responseTime' ">
+                        <span title={{row[column.field]}}>{{row[column.field]}}</span>
+                    </div>
+                    <div style="white-space:initial" *ngIf=" col.field != 'activityTime' && col.field != 'ip' &&  col.field != 'responseTime' ">
+                        <span title={{row[column.field]}}>{{row[column.field]}}</span>
+                    </div>
+                </ng-template> -->
+                <!-- Column Header -->
+                <!-- <ng-template pTemplate="header">
+                    <span *ngIf="col.header == 'Activity Time'" title="MM-DD-YYYY HH:mm:ss:SSS" >{{col.header}}</span>
+                    <span *ngIf="col.header == 'Session Id'" title="UserName:Ip:ActivityTime" >{{col.header}}</span>
+                    <span *ngIf="col.header != 'Activity Time' && col.header != 'Session Id'" title={{col.header}} >{{col.header}}</span>
+                </ng-template>
+
+            </p-column>
+        </p-dataTable>
+    </div> -->
+    <!-- <div class="compotable">
+        <p-dataTable class="auditLogTable auto-table-layout col-width2" *ngIf="groupBy != 'sessionId'" #dt responsive=true [value]="LogsDataToPopulate"
+         [sortField]="groupBy" rowGroupMode="subheader" [groupField]="groupBy" [sortableRowGroup]="false" scrollable="true" expandableRowGroups="false"
+         [resizableColumns]="false" [ngClass]="tableHeight ? 'collapse-height' : 'expand-height'">
+            <p-header>
+
+              <div class="cav-d-flex cav-justify-content-between cav-align-items-center cav-p-1">
+                <div class="cav-mr-2"><span title="Format : startDate- MM-DD-YYYY HH:mm & endDate- MM-DD-YYYY HH:mm">Time Period from {{sDate}} to {{eDate}}</span></div>
+
+                <div class="cav-d-flex">
+                    <div class="cav-mr-2" >
+                            <mat-checkbox  id="chckbx" [checked]="ischecked" label="Include Inactive Sessions" (change)="checkValue($event)" >Include Inactive Sessions</mat-checkbox>
+                    </div>
+                    <div class="cav-mr-2"><label style="line-height: 23px;"> Column:</label></div>
+                    <div class="cav-mr-2">
+                        <p-multiSelect [options]="columnOptions" [(ngModel)]="cols" (onChange)=onChngeColumn(); [style]="{'width':'120px'}"></p-multiSelect>
+                    </div>
+                    <div class="cav-mr-2"><label style="line-height: 23px;">Group By:</label></div>
+                    <div class="cav-mr-2">
+                        <p-dropdown [options]="groupOptions" [(ngModel)]="groupBy"  (onChange)=onChngeColumn() [style]="{'width':'120px'}" ></p-dropdown>
+                    </div>
+                    <div class="cav-mr-1 cav-mt-1"> 
+                        <i class="fa fa-file-pdf-o fa-lg" (click)="downloadLogReports('pdf')" style="font-size: 20px;color: red; cursor: pointer;" pTooltip="Download as PDF" tooltipPosition="left" placeholder="Left"></i>
+                        <i class="fa fa-file-excel-o cav-mx-1 fa-lg" (click)="downloadLogReports('excel')"  style="font-size: 20px;color: green; cursor: pointer;" pTooltip="Download as Excel" tooltipPosition="left" placeholder="Left"></i>
+                        <i class="fa fa-file-word-o fa-lg" (click)="downloadLogReports('worddoc')" style="font-size: 20px;color: blue; cursor: pointer;" pTooltip="Download as Word" tooltipPosition="left" placeholder="Left"></i>
+                    </div>
+                </div>
+                </div>
+
+
+            </p-header> -->
+            <!-- <ng-template pTemplate="rowgroupheader" let-rowData><span title={{rowData[groupBy]}}>{{rowData[groupBy]}}</span></ng-template>
+            <p-column field="" header="#"  [style.width]="width">
+                <ng-template let-SNO="rowIndex" pTemplate="body">
+                    {{ROWINDEX[SNO]}}
+                </ng-template>
+            </p-column>
+            <p-column *ngFor="let col of cols" [field]="col.field" [header]="col.header"    (sortFunction)="sortfunction($event)" [sortable]="col.sortable">
+
+                <ng-template let-column let-row="rowData" pTemplate="body">
+
+                    <div style="float :right; white-space: initial;" *ngIf=" col.field == 'activityTime'||col.field == 'ip' || col.field == 'responseTime'">
+                        <span title={{row[column.field]}}>{{row[column.field]}}</span>
+                    </div>
+                    <div style="white-space: initial" *ngIf=" col.field != 'activityTime' && col.field != 'ip' && col.field != 'responseTime' ">
+                        <span title={{row[column.field]}}>{{row[column.field]}}</span>
+                    </div>
+                </ng-template>
+                 Column Header -->
+                <!-- <ng-template pTemplate="header">
+                    <span *ngIf="col.header == 'Activity Time'" title="MM-DD-YYYY HH:mm:ss:SSS" >{{col.header}}</span>
+                    <span *ngIf="col.header == 'Session Id'" title="UserName:Ip:ActivityTime" >{{col.header}}</span>
+                    <span *ngIf="col.header != 'Activity Time' && col.header != 'Session Id'" title={{col.header}} >{{col.header}}</span>
+                </ng-template>
+
+            </p-column>
+        </p-dataTable>
+    </div>
+     <div> 
+    <p-paginator #p [rows]="40" [totalRecords]="totalRecords" [rowsPerPageOptions]="[40,50,100]" pageLinkSize="3" (onPageChange)="loadLogDataLazy($event)"></p-paginator> 
+    </div> -->
+
+    <!-- <div *ngIf=false class="ui-g" style="font-size : 30px">
+
+        <mat-icon fontSet='fa' fontIcon='fa-file-pdf-o' style="color:red ;    padding: 5px"></mat-icon>
+        <mat-icon fontSet='fa' fontIcon='fa-file-excel-o' style="color:green;     padding: 5px"></mat-icon>
+        <mat-icon fontSet='fa' fontIcon='fa-file-word-o' style="color:blue;    padding: 5px"></mat-icon>
+
+    </div> -->
+
+    <!-- <p-growl [(value)]="errorMessage"></p-growl>
+</div> -->

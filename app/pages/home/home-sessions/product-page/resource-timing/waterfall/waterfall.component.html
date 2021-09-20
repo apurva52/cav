@@ -1,0 +1,455 @@
+<div class="waterfall-container p-5">
+
+  <!-- waterfall timeline table -->
+  <p-table #wg [columns]="waterfallTimelineCols" [value]="waterfallData" [scrollable]="true" scrollHeight="350px"
+    [resizableColumns]="true" selectionMode="single" [(selection)]="selectedRow" *ngIf=" timelineView"
+    class="all-tables">
+    <ng-template pTemplate="caption">
+      <div class="p-grid p-nogutter">
+        <div class="p-col-2">
+          <div class="type-search">
+            <i class="left-icon icons8 icons8-search"></i>
+            <input type="text" class="w-100-p pl-20" pInputText placeholder="Filter"
+              (input)="wg.filterGlobal($event.target.value, 'contains')">
+          </div>
+        </div>
+        <div class="p-col" style="text-align: left;">
+          <button pButton [class]="ctype === 'all' ?'ui-button-success':'p-button-text'" label="All"
+            (click)="ctype = 'all'"></button>|
+          <button pButton [class]="ctype === 'XHR' ?'ui-button-success':'p-button-text'" label="XHR"
+            (click)="ctype = 'XHR'"></button>
+          <button pButton [class]="ctype === 'Scripts' ?'ui-button-success':'p-button-text'" label="Script"
+            (click)="ctype = 'Scripts'"></button>
+          <button pButton [class]="ctype === 'Images' ?'ui-button-success':'p-button-text'" label="Images"
+            (click)="ctype = 'Images'"></button>
+          <button pButton [class]="ctype === 'Stylesheets' ?'ui-button-success':'p-button-text'" label="Stylesheets"
+            (click)="ctype = 'Stylesheets'"></button>
+          <button pButton [class]="ctype === 'Documents' ?'ui-button-success':'p-button-text'" label="Document"
+            (click)="ctype = 'Documents'"></button>
+          <button pButton [class]="ctype === 'Media' ?'ui-button-success':'p-button-text'" label="Media"
+            (click)="ctype = 'Media'"></button>
+          <button pButton [class]="ctype === 'Others' ?'ui-button-success':'p-button-text'" label="Other"
+            (click)="ctype = 'Others'"></button>
+          <button pButton [class]="ctype === 'failed' ?'ui-button-success':'p-button-text'" label="Failed Request"
+            (click)="ctype = 'failed'"></button>
+        </div>
+        <div class="p-col-1">
+          <button pButton class="ui-button-rounded ui-button-secondary" label="TABULAR" pTooltip="Tabular View"
+            (click)="timelineView = false"></button>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="colgroup" let-columns>
+      <colgroup>
+        <col *ngFor="let col of columns" [style.width]="col.width">
+      </colgroup>
+    </ng-template>
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+          <!--{{col.header}}-->
+          <div class="left" [pTooltip]="col.header">{{col.header}}</div>
+          <div class="right">
+            <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+              ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+            </p-sortIcon>
+          </div>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-data let-columns="columns" let-index="rowIndex">
+      <tr *ngIf="ctype === 'all' || data.contentType === ctype">
+        <td *ngFor="let col of columns" class="ui-resizable-column {{col.classes}}">
+          <span [class]="data.isCache ? 'waterfall-cache':''"
+            [pTooltip]="col.field !== 'timeline' ? (col.field === 'filename' ? data['url']: data[col.field]): null">
+            {{data[col.field]}}
+          </span>
+
+          <!-- TimeLine graph -->
+          <div class="netTimelineBar" *ngIf="col.field === 'timeline'"
+            (mouseenter)="showHandler($event, resourceTimingData.entries[index], 'resourceTimingDialog')"
+            (mouseleave)="hideHandler( 'resourceTimingDialog')">&nbsp;
+
+            <ng-container *ngIf="data.differentOriginFlag; else else2">
+              <div class="netOriginBar"
+                [style.left.%]=" ((data.startTime - resourceTimingData.starttime) * 100 / (resourceTimingData.duration + resourceTimingData.starttime))"
+                [style.width.%]=" ((data.duration * 100) / (resourceTimingData.duration + resourceTimingData.starttime)) ">
+                <span [class]="'netTimeLabel ' + (data.isCache ? 'waterfall-cache':'')">{{(data.dur)}}</span>
+              </div>
+
+            </ng-container>
+
+            <ng-template #else2>
+              <div class="netBlockingBar"
+                [style.left.%]="((data.RedirectStart - resourceTimingData.starttime) * 100 / (resourceTimingData.duration + resourceTimingData.starttime))"
+                [style.width.%]=" ((data.timingRedirect * 100) / (resourceTimingData.duration + resourceTimingData.starttime))">
+              </div>
+              <div class="netOriginBar"
+                [style.left.%]="((data.timingPhaseGap1start - resourceTimingData.starttime)*100/(resourceTimingData.duration+resourceTimingData.starttime))"
+                [style.width.%]=" ((data.timingPhaseGap1 * 100) / (resourceTimingData.duration + resourceTimingData.starttime))">
+              </div>
+              <div class="netResolvingBar"
+                [style.left.%]="((data.timingCacheStart - resourceTimingData.starttime) * 100 / (resourceTimingData.duration + resourceTimingData.starttime))"
+                [style.width.%]=" ((data.timingCache * 100) / (resourceTimingData.duration + resourceTimingData.starttime))">
+              </div>
+              <div class="netConnectingBar"
+                [style.left.%]=" ((data.timingDNSStart - resourceTimingData.starttime) * 100 / (resourceTimingData.duration + resourceTimingData.starttime))"
+                [style.width.%]=" ((data.timingDNS * 100) / (resourceTimingData.duration + resourceTimingData.starttime)) ">
+              </div>
+              <div class="netOriginBar"
+                [style.left.%]=" ((data.timingPhaseGap2start - resourceTimingData.starttime) * 100 / (resourceTimingData.duration + resourceTimingData.starttime))"
+                [style.width.%]=" ((data.timingPhaseGap2 * 100) / (resourceTimingData.duration + resourceTimingData.starttime)) ">
+              </div>
+              <div class="netSendingBar"
+                [style.left.%]="((data.timingTCPStart - resourceTimingData.starttime) * 100 / (resourceTimingData.duration + resourceTimingData.starttime))"
+                [style.width.%]=" ((data.timingTCP * 100) / (resourceTimingData.duration + resourceTimingData.starttime)) ">
+              </div>
+              <div class="netOriginBar"
+                [style.left.%]="((data.timingPhaseGap3start - resourceTimingData.starttime) * 100 / (resourceTimingData.duration + resourceTimingData.starttime))"
+                [style.width.%]=" ((data.timingPhaseGap3 * 100)/(resourceTimingData.duration + resourceTimingData.starttime))">
+              </div>
+              <div class="netWaitingBar"
+                [style.left.%]="((data.timingRequestStart - resourceTimingData.starttime) * 100 / (resourceTimingData.duration + resourceTimingData.starttime))"
+                [style.width.%]="  ((data.timingRequest * 100) / (resourceTimingData.duration + resourceTimingData.starttime))">
+              </div>
+              <div class="netReceivingBar"
+                [style.left.%]="((data.timingResponseStart - resourceTimingData.starttime) * 100 / (resourceTimingData.duration + resourceTimingData.starttime))"
+                [style.width.%]=" ((data.timingResponse * 100) / (resourceTimingData.duration + resourceTimingData.starttime))">
+                <span [class]="'netTimeLabel ' + (data.isCache ? 'waterfall-cache':'')">
+                  {{data.dur}}</span>
+              </div>
+            </ng-template>
+
+            <div class=" netContentLoadBar  netPageTimingBar"
+              [style.left.%]="((page.timeToDOMComplete * 1000) * 100 / (resourceTimingData.duration + resourceTimingData.starttime))"
+              style="display: block; border: 0 none;"></div>
+            <div class=" netWindowLoadBar  netPageTimingBar"
+              [style.left.%]="((page.timeToLoad * 1000) * 100 / (resourceTimingData.duration+resourceTimingData.starttime))"
+              style="display: block; border: 0 none;"></div>
+            <div class=" netPerceivedRenderLoadBar  netPageTimingBar"
+              [style.left.%]="((page.percievedRenderTime * 1000) * 100 / (resourceTimingData.duration+resourceTimingData.starttime))"
+              style="display: block; border: 0 none;"></div>
+
+            <!--- mark & measrue -->
+            <!-- only for first entry need to make triangle -->
+            <span *ngFor="let r of userTimingData;index as in;"
+              (mouseenter)="showHandler($event,userTimingData[in], 'userTimingDialog')"
+              (mouseleave)="hideHandler('userTimingDialog')">
+
+              <!-- black triangle -->
+              <span *ngIf="index === 0" [attr.markId]="in" [title]="r.actionName" [class]="r.actionName"
+                style="top:0px;z-index:101; height:100%;width:0%;overflow:hidden;position:absolute;border-left: 5px solid transparent;border-right: 5px solid transparent;border-top: 7px solid black;margin-left:-5px;"
+                [style.left.%]=" ((r.timestamp - (page.navigationStartTimeStamp * 1000))* 100 / resourceTimingData.duration).toFixed()"></span>
+
+              <!-- line -->
+              <span [attr.markId]="in" [class]="r.actionName"
+                style="z-index:100;height:100%;width:0%;background-color:orange;padding-bottom:0; border-left: 1px solid orange;overflow:hidden;position:absolute;"
+                [style.left.%]=" ((r.timestamp - (page.navigationStartTimeStamp * 1000))* 100 /resourceTimingData.duration).toFixed()"></span>
+            </span>
+
+          </div>
+        </td>
+
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="summary" *ngIf="resourceTimingData">
+      <div class="p-grid p-nogutter">
+        <div class="p-col-1" *ngIf="resourceTimingData.entries">
+          {{resourceTimingData.entries.length}} Requests
+        </div>
+        <div class="p-col-2" *ngIf="resourceTimingData.totalbytes !== '_'">
+          Bytes In : {{resourceTimingData.totalbytes}}
+        </div>
+        <div class="p-col-2" *ngIf="resourceTimingData.bandwidth !=null && resourceTimingData.bandwidth != '-'">
+          BandWidth :{{resourceTimingData.bandwidth}}
+        </div>
+        <div class="p-col-2">
+          {{resourceTimingData.total}} (onload: {{(page.timeToLoad)}} s)
+        </div>
+      </div>
+    </ng-template>
+  </p-table>
+
+  <!-- Waterfall Table -->
+  <p-table #wt [columns]="waterfallTableCols" [value]="waterfallData" [resizableColumns]="true"
+    columnResizeMode="expand" [scrollable]="true" scrollHeight="350px" *ngIf="!timelineView" class="all-tables">
+    <!-- table caption -->
+    <ng-template pTemplate="caption">
+      <div class="p-grid p-justify-between p-nogutter p-align-center">
+        <div class="p-col">
+          <div class="p-grid p-justify-left p-align-center">
+            <i class="pi pi-search mr-5"></i>
+            <input #searchInput type="text" pInputText placeholder="Global Filter"
+              (input)="wt.filterGlobal($event.target.value, 'contains' )">
+          </div>
+        </div>
+        <div class="p-col">
+          <div class="p-grid p-justify-end p-align-center">
+            <!-- export button -->
+            <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+              pTooltip="Export Table" (click)="menu.toggle($event)"></button>
+            <!-- view timeline mode button -->
+            <button pButton class="ui-button-rounded ui-button-secondary" label="TIMELINE" pTooltip="Timeline View"
+              (click)="timelineView = true"></button>
+          </div>
+        </div>
+      </div>
+
+    </ng-template>
+    <!-- table header -->
+    <ng-template pTemplate="colgroup" let-columns>
+      <colgroup>
+        <col *ngFor="let col of columns" [style.width]="col.width">
+      </colgroup>
+    </ng-template>
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th> </th>
+        <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+          <!--{{col.header}}-->
+          <span title="{{col.header}}">{{col.header}}</span>
+          <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+            ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+          </p-sortIcon>
+        </th>
+      </tr>
+    </ng-template>
+    <!-- table body -->
+    <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <tr>
+        <td class="p-grid p-nogutter">
+          <i class="p-col icons8 icons8-combo-chart" pTooltip="Resource Trend"
+            (click)="getTrendData(rowData, 'resource')" style="color: blue;"></i>
+          <i class="p-col icons8 icons8-combo-chart" pTooltip="Domain Trend" (click)="getTrendData(rowData, 'domain')"
+            style="color: green;"></i>
+        </td>
+        <!--<td *ngFor="let col of columns" class="ui-resizable-column">-->
+        <td *ngFor="let col of columns" class="ui-resizable-column {{col.classes}}">
+          <ng-container *ngIf="col.field === 'filename';else else1">
+
+            <!-- TODO -->
+            <!-- <span ngxClipboard [cbContent]="rowData['url']" [pTooltip]="rowData['url']"> -->
+            <span [pTooltip]="rowData['url']">
+              {{rowData[col.field]}}
+            </span>
+          </ng-container>
+          <ng-template #else1>
+            <span [pTooltip]="rowData[col.field]">{{rowData[col.field]}}</span>
+          </ng-template>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage" let-columns>
+      <tr>
+        <td [attr.colspan]="columns.length" style="text-align: center;">
+          <ng-container *ngIf="loading"> <i class="pi pi-spin pi-spinner"></i>Loading...</ng-container>
+          <ng-container *ngIf="error">Failed to get the data.</ng-container>
+          <span *ngIf="!loading && !error && searchInput.nativeElement.value.length;else filterMessage">
+            Nothing found matching "{{searchInput.nativeElement.value}}"
+          </span>
+          <ng-template #filterMessage>
+            <span *ngIf="!loading && !error">No Records Found</span>
+          </ng-template>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <dialog id="resourceTimingDialog">
+    <div class="p-grid" *ngIf="resourceTimingDialogData">
+      <div class="p-col-12">
+        {{resourceTimingDialogData.filename}}
+      </div>
+      <div class="p-col-12" style="color: #6c757d;">
+        Request start time since the beginning
+      </div>
+      <div class="p-col-12">
+        {{resourceTimingDialogData.start}}
+      </div>
+      <div class="p-grid p-justify-between p-col-12 p-nogutter">
+        <div class="p-col">
+          <input type="checkbox" checked disabled *ngIf="resourceTimingDialogData.isCache"
+            style="vertical-align: middle;">
+          <input type="checkbox" disabled *ngIf="!resourceTimingDialogData.isCache"
+            style="vertical-align: middle;">Cache
+        </div>
+        <div class="p-col">
+          <input type="checkbox" checked disabled *ngIf="resourceTimingDialogData.isCompressed"
+            style="vertical-align: middle;">
+          <input type="checkbox" disabled *ngIf="!resourceTimingDialogData.isCompressed"
+            style="vertical-align: middle;">Compressed
+        </div>
+      </div>
+
+      <div class="p-col-12" style="color: #6c757d;">
+        Request phases start and elapsed time relative to the request
+        start:
+      </div>
+
+      <ng-container *ngIf="!resourceTimingDialogData.differentOriginFlag">
+        <div class="p-grid p-col-12 p-nogutter ">
+          <div class="netBlockingBar" style="position: relative;width: 5px;top: -3px;"></div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.redirectStart}}</div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.redirect}}</div>
+          <div class="p-col">Redirect</div>
+        </div>
+        <div class="p-grid p-col-12 p-nogutter">
+          <div class="netResolvingBar" style="position: relative;width: 5px;top: -3px;"></div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.cacheStart}}</div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.cache}}</div>
+          <div class="p-col">App Cache</div>
+        </div>
+        <div class="p-grid p-col-12 p-nogutter">
+          <div class="netConnectingBar" style="position: relative;width: 5px;top: -3px;"></div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.dnsStart}}</div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.dns}}</div>
+          <div class="p-col">DNS Lookup</div>
+        </div>
+        <div class="p-grid p-col-12 p-nogutter">
+          <div class="netSendingBar" style="position: relative;width: 5px;top: -3px;"></div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.tcpStart}}</div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.tcp}}</div>
+          <div class="p-col">TCP</div>
+        </div>
+        <div class="p-grid p-col-12 p-nogutter">
+          <div class="netWaitingBar" style="position: relative;width: 5px;top: -3px;"></div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.requestStart}}</div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.request}}</div>
+          <div class="p-col">Request</div>
+        </div>
+        <div class="p-grid p-col-12 p-nogutter">
+          <div class="netReceivingBar" style="position: relative;width: 5px;top: -3px;"></div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.responseStart}}</div>&nbsp;&nbsp;
+          <div class="p-col-2">{{resourceTimingDialogData.tt.response}}</div>
+          <div class="p-col">Response</div>
+        </div>
+
+        <div class="p-col-12" style="color: #6c757d;">
+          Event timing relative to the request start:
+        </div>
+
+        <div class="p-grid p-justify-between p-col-12 p-nogutter">
+          <div class="netTimeStampBar" style="position: relative;width: 3px;"></div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.contentLoad}}</div>
+          <div class="p-col">'DOMContentLoaded' (event)</div>
+        </div>
+        <div class="p-grid p-justify-between p-col-12 p-nogutter">
+          <div class="netContentLoadBar" style="position: relative;width: 3px;"></div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.onload}}</div>
+          <div class="p-col">DOM Loaded</div>
+        </div>
+        <div class="p-grid p-justify-between p-col-12 p-nogutter">
+          <div class="netPerceivedRenderLoadBar" style="position: relative;width: 3px;"></div>
+          <div class="p-col-2">{{resourceTimingDialogData.tt.prt}}</div>
+          <div class="p-col">PerceivedRenderTime</div>
+        </div>
+
+        <div class="p-grid p-col-12 p-nogutter"
+          *ngIf="(resourceTimingDialogData.transferSize != '0 KB') && (resourceTimingDialogData.transferSize != '-')">
+          <div class="p-col-6">Transfer Size</div>
+          <div class="p-col">{{resourceTimingDialogData.transferSize}}</div>
+        </div>
+        <div class="p-grid p-col-12 p-nogutter"
+          *ngIf="(resourceTimingDialogData.encodedBodySize != '0 KB') && (resourceTimingDialogData.encodedBodySize != '-')">
+          <div class="p-col-6">Encoded Body Size</div>
+          <div class="p-col">{{resourceTimingDialogData.encodedBodySize}}</div>
+        </div>
+        <div class="p-grid p-col-12 p-nogutter"
+          *ngIf="(resourceTimingDialogData.decodedBodySize != '0 KB')  && (resourceTimingDialogData.decodedBodySize != '-')">
+          <div class="p-col-6">Decoded Body Size</div>
+          <div class="p-col">{{resourceTimingDialogData.decodedBodySize}}</div>
+        </div>
+        <div class="p-grid p-col-12 p-nogutter"
+          *ngIf="(resourceTimingDialogData.nextHopProtocol != '')  && (resourceTimingDialogData.nextHopProtocol != '-')">
+          <div class="p-col-6">Protocol</div>
+          <div class="p-col">{{resourceTimingDialogData.nextHopProtocol}}</div>
+        </div>
+        <div class="p-grid p-col-12 p-nogutter"
+          *ngIf="(resourceTimingDialogData.serverTimings != '')  && (resourceTimingDialogData.serverTimings != '-')">
+          <div class="p-col-6">Server Timings</div>
+        </div>
+        <div class="p-grid p-col-12 p-nogutter" *ngFor="let st of resourceTimingDialogData.servertimearr">
+          <div class="p-col-3">{{st.name}}</div>
+          <div class="p-col-2">{{st.value}}</div>
+          <div class="p-col-2">{{st.desc}}</div>
+        </div>
+
+      </ng-container>
+
+
+    </div>
+  </dialog>
+
+  <dialog id="userTimingDialog">
+    <div class="p-grid" *ngIf="userTimingDialogData">
+      <div class="p-col-12">{{userTimingDialogData.actionName}}</div>
+      <div class="p-col-12">Action start time since the beginning</div>
+      <div class="p-col-12">{{ttgetduration((userTimingDialogData.timestamp - (page.navigationStartTimeStamp *
+        1000)))}}</div>
+      <div class="p-col-12">Event timing relative to the action start:</div>
+      <div class="p-col-12" *ngFor="let yy of lap;index as ii;">
+        <div class="p-col-6">
+          {{ttgetduration(yy.startTime - userTimingDialogData.timestamp)}}</div>
+        <div class="p-col">{{yy.name}}</div>
+      </div>
+
+    </div>
+  </dialog>
+
+  <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
+
+  <p-dialog
+    [header]="'Duration: ' + (filter?.timeFilter?.startTime | date:'medium') + ' - ' + (filter?.timeFilter?.endTime | date:'medium')"
+    [(visible)]="visible" class="secondary-dialog" (onHide)="resetCustomTime($event)">
+
+    <div class="p-grid">
+      <div class="p-col">
+        <div class="p-input-icon-left search-div-css">
+          <i class="icons8 icons8-calendar"></i>
+          <input pInputText class="customInput" readonly id="start-date-time" [owlDateTime]="customStartDateTime"
+            [owlDateTimeTrigger]="customStartDateTime" placeholder="04:30 PM 23/04/2020" [selectMode]="'rangeFrom'"
+            [max]="maxDate" [(ngModel)]="customTime">
+          <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+        </div>
+      </div>
+      <div class="p-col">
+        <div class="p-input-icon-left search-div-css">
+          <i class="icons8 icons8-calendar"></i>
+          <input pInputText class="customInput" readonly id="end-date-time" [owlDateTime]="customEndDateTime"
+            [owlDateTimeTrigger]="customEndDateTime" placeholder="04:30 PM 23/04/2020" [selectMode]="'rangeTo'"
+            [max]="maxDate" [(ngModel)]="customTime">
+          <owl-date-time #customEndDateTime tooltipZIndex=" 100001005"></owl-date-time>
+        </div>
+      </div>
+
+      <div class="p-col">
+        <button pButton label="Go" (click)="submit()"></button>
+      </div>
+
+      <div class="p-col-12" *ngIf="customTimeError !== ''" style="color: red;">
+        {{customTimeError}}
+      </div>
+    </div>
+
+    <!--no data/ loader/ error message -->
+    <div class="p-grid">
+      <div class="p-col-12" style="text-align: center;" *ngIf="!loading && trendData && !trendData.length && !error">
+        <i class="icons8 icons8-error" style="font-size: 40px;color: orange;"></i>
+        <h5 style="margin: 0;font-size: 13.28px;">No Data Found</h5>
+      </div>
+      <div class="p-col-12" style="text-align: center;" *ngIf="loading">
+        <h5 style="font-size: 13.28px;"><i class="pi pi-spin pi-spinner"></i>Loading</h5>
+      </div>
+      <div class="p-col-12" style="text-align: center;" *ngIf="error">
+        <i class="icons8 icons8-error" style="font-size: 40px;color: red;"></i>
+        <h5 style="margin: 0;font-size: 13.28px;">Failed to get data</h5>
+      </div>
+    </div>
+
+    <div class="p-grid" *ngIf="!loading && trendData.length">
+      <div class="p-col">
+        <app-chart [data]="trendChartData"></app-chart>
+      </div>
+    </div>
+  </p-dialog>
+</div>

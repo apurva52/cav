@@ -1,0 +1,164 @@
+<p-sidebar #sidebar [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000" blockScroll="true" appendTo="body"
+    [styleClass]="classes">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <i class="icons8 icons8-template"></i>
+            <span>Advance Open/Merge</span>
+            <i class="icons8-delete" (click)="closeClick()"></i>
+        </div>
+    </div>
+
+    <div class="sidebar-content ui-fluid">
+        <!-- <form [formGroup]="advanceOpenMerge" (ngSubmit)="saveData()"> -->
+        <p-accordion [multiple]="true" expandIcon="icons8-forward" collapseIcon="icons8-collapse-arrow">
+            <p-accordionTab header="Opration Type" [selected]="true" >
+                <div class="ui-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-12">
+                        <label for="Graph Opration">Graph Opration</label>
+                        <p-dropdown [options]="graphOprationData" [(ngModel)]="operationType"
+                            (onChange)="openOprations(operationType)" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                </div>
+            </p-accordionTab>
+            <p-accordionTab header="Oprations" [selected]="showOperations">
+                <div class="ui-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-12">
+                        <label for="Tire">Tire</label>
+                        <p-dropdown [options]="tireData" [(ngModel)]="tireSelect" (onChange)="makeTireSameValue()"
+                            (onChange)="setAdvanceSetting()" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-field p-col-12 p-md-12" *ngIf="(tireSelect != 'All' && tireSelect == 'Same' )">
+                        <input type="text" pInputText [(ngModel)]="tireInputComponent" />
+                    </div>
+                    <div class="p-field-checkbox p-col-12 p-md-12">
+                        <p-checkbox binary="true" value="Show Together" label="Show Together"
+                            (onChange)="setAdvanceSetting()" [(ngModel)]="showTogetherSwitch"></p-checkbox>
+                    </div>
+                    <div class="p-field p-col-12 p-md-12">
+                        <label for="Server">Server</label>
+                        <p-dropdown [options]="serverData" [(ngModel)]="serverSelect" (onChange)="makeServerSameValue()"
+                            (onChange)="setAdvanceSetting()" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-field p-col-12 p-md-12" *ngIf="(serverSelect != 'All' && serverSelect == 'Pattern')">
+                        <input type="text" pInputText [(ngModel)]="serverInputComponent" />
+                    </div>
+                    <div class="p-field-checkbox p-col-12 p-md-12">
+                        <p-checkbox binary="true" value="Show Together" label="Show Together"
+                            (onChange)="setAdvanceSetting()" [(ngModel)]="showTogetherSwitch"></p-checkbox>
+                    </div>
+                    <div class="p-field p-col-12 p-md-12">
+                        <label for="Instence">Instence</label>
+                        <p-dropdown [options]="InstanceData" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-field-checkbox p-col-12 p-md-12">
+                        <p-checkbox binary="true" value="Show Together" label="Show Together"></p-checkbox>
+                    </div>
+                    <div class="p-field p-col-12 p-md-12">
+                        <label for="Business Transactions">Business Transactions</label>
+                        <p-dropdown [options]="businessTransactionsData" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-field-checkbox p-col-12 p-md-12">
+                        <p-checkbox binary="true" value="Show Together" label="Show Together"></p-checkbox>
+                    </div>
+                </div>
+            </p-accordionTab>
+            <p-accordionTab header="Advance Setting">
+                <div class="ui-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-12">
+                        <label for="Values">Values</label>
+                        <p-dropdown [options]="valuesData" [(ngModel)]="valueType" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-field p-col-12 p-md-12">
+                        <label for="Open with Widget(s)">Open with Widget(s)</label>
+                        <p-dropdown [options]="openWithWigetsData" [(ngModel)]="layoutType"
+                            [disabled]="isLayoutTypeEbable" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-field-checkbox p-col-12 p-md-12">
+                        <p-checkbox binary="true" label="Open with New Layouts" [(ngModel)]="newLayoutSwitch"
+                            (onChange)="changeDefaultLayoutName()">
+                        </p-checkbox>
+                    </div>
+                    <div class="p-field-checkbox p-col-12 p-md-12">
+                        <p-checkbox binary="true" label="Suggest Metric Colors" [(ngModel)]="autoSuggestColors">
+                        </p-checkbox>
+                    </div>
+                    <div class="p-field-checkbox p-col-12 p-md-12">
+                        <p-checkbox binary="true" label="Exclude Overall Metrix" [(ngModel)]="excOverallMetric">
+                        </p-checkbox>
+                    </div>
+                </div>
+            </p-accordionTab>
+            <p-accordionTab header="Filter By Value">
+                <div class="ui-fluid p-formgrid p-grid">
+                    <div class="p-field-checkbox p-col-12 p-md-12">
+                        <p-checkbox binary="true" label="Enable Filter" [(ngModel)]="enableFilter">
+                        </p-checkbox>
+                    </div>
+                    <div class="caption p-col-12 p-md-12">
+                        <label for="show-values">Show Values </label>
+                    </div>
+                    <div class="p-field-checkbox p-col-12 p-md-12">
+                        <p-radioButton value="Non-Zero" [(ngModel)]="selectedFilter" label="All Non Zero"
+                            [disabled]=!enableFilter>
+                        </p-radioButton>
+                    </div>
+                    <div class="p-field-checkbox p-col-12 p-md-12">
+                        <p-radioButton value="Zero" [(ngModel)]="selectedFilter" label="All Zero"
+                            [disabled]=!enableFilter></p-radioButton>
+                    </div>
+                    <div class="p-field-checkbox p-col-12 p-md-12">
+                        <p-radioButton value="Advanced" [(ngModel)]="selectedFilter" label="Advanced"
+                            [disabled]=!enableFilter></p-radioButton>
+                    </div>
+
+                </div>
+                <div class="ui-fluid p-formgrid" *ngIf="selectedFilter == 'Advanced' ">
+                    <div class="p-field p-grid">
+                        <div class="p-col-12 p-md-12">
+                            <label for="Value">Value </label>
+                            <p-dropdown [options]="operatersData" [(ngModel)]="operater" [disabled]="!enableFilter"
+                                dropdownIcon="icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                        <div class="p-col-12 p-md-5">
+                            <input type="text" pInputText [(ngModel)]="operaterValue1" [disabled]="!enableFilter" />
+                        </div>
+                        <div class="p-col-12 p-md-2" [hidden]="!(operater == 'In-Between')">
+                            <label for="and">AND</label>
+                        </div>
+                        <div class="p-col-12 p-md-5" [hidden]="!(operater == 'In-Between')">
+                            <input type="text" pInputText [(ngModel)]="operaterValue2" [disabled]="!enableFilter" />
+                        </div>
+                    </div>
+                    <div class="p-grid">
+                        <div class="caption p-col-12 p-md-12">
+                            <label for="By">By </label>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <p-dropdown [options]="filterByData" [(ngModel)]="filterBy" [disabled]="!enableFilter"
+                                dropdownIcon="icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6" [hidden]=" operater == 'Top' || operater == 'Bottom'">
+                            <label for=""></label>
+                            <p-dropdown [options]="criteriaData" [(ngModel)]="selectedcriteria"
+                                [disabled]="!enableFilter" dropdownIcon="icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                </div>
+            </p-accordionTab>
+        </p-accordion>
+        <!-- </form> -->
+    </div>
+    <div class="sidebar-footer">
+        <button pButton type="submit" label="Save" class="w-100-p"></button>
+    </div>
+</p-sidebar>

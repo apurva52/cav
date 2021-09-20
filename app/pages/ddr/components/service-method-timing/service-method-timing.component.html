@@ -1,0 +1,192 @@
+<!-- <p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" /> -->
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+  <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+  </div>
+</div>
+
+<div class= "ddr-box">
+  <!-- COMMON TOOLBAR -->
+
+     <!--<p-toolbar>
+    <div class="reportInfo">
+       <label class="headerInfo"><b>{{reportHeader}}</b></label>
+    </div>
+  </p-toolbar>-->
+  <div class="p-grid p-align-center p-justify-between ui-table-header">
+    <div>
+           <!--<label  class="headerInfo"><b>Filter criteria : </b></label>-->
+           <span title="{{completeTier}}">{{filterTierName}}</span>
+           <span>{{filterCriteria}}</span>
+    </div>
+    <div>
+        <!-- <button pButton type="button" title="Time Filter" (click)="showDialog()" icon="fa fa-cog"></button> -->
+     
+
+      <button pButton icon="icons8 icons8-doc" *ngIf="showDownLoadReportIcon" class="btn-icon mx-3"  (click)='downloadReports("word")'
+        pTooltip="Download Word Report"></button>
+        <button pButton icon="icons8 icons8-spreadsheet-file" *ngIf="showDownLoadReportIcon" class="btn-icon mx-3"  (click)='downloadReports("excel")'
+        pTooltip="Download Excel Report"></button>
+        <button pButton icon="icons8 icons8-pdf-2" *ngIf="showDownLoadReportIcon" class="btn-icon mx-3"  (click)='downloadReports("pdf")'
+        pTooltip="Download PDF Report"></button>
+    </div>
+
+</div>
+
+<!-- COMMON BOX SCROLLLBAR -->
+<div class="ddruiscroll" [ngStyle]="{'height': 'calc(90vh - 15px)'}" style="overflow:auto;">
+<p-dialog class="secondary-dialog foterDialog" [style]="{width: '50vw'}" [(visible)]="loader"   height="75" [closable]="false" [resizable]="false" modal="modal" [responsive]="true">
+  <div *ngIf="loader">
+    <p-progressBar [value]="value"></p-progressBar>
+  </div>
+</p-dialog>
+
+
+<!-- <p-dialog class="ddr-dialog" header="Time Filter" [(visible)]="display" [closable]="false" [width]="500" height="200" [resizable]="false" modal="modal" appendTo ="body"
+  [responsive]="true">
+  <div *ngIf="display">
+    <div class="ui-g-12">
+      <div class="ui-g-4">
+        <p-radioButton name="group2" value="custom" (click)="standFunction()" label="Custom Time" [(ngModel)]="custom"></p-radioButton>
+      </div>
+    </div>
+    <div *ngIf="custselect">
+      <div class="ui-g-12">
+        <div class="ui-g-6">
+          From :
+          <p-calendar [showIcon]="true" readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" (onSelect)="onStrDate($event)"
+            [monthNavigator]="true" [yearNavigator]="true" yearRange="1970:2030" [showTime]="true" [(ngModel)]="strDate"></p-calendar>
+        </div>
+        <div class="ui-g-6">
+          To :
+          <p-calendar [showIcon]="true" readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" (onSelect)="onEndDate($event)"
+            [monthNavigator]="true" [yearNavigator]="true" yearRange="1970:2030" [showTime]="true" [(ngModel)]="endDate"></p-calendar>
+        </div>
+      </div>
+    </div>
+
+    <div class="ui-g-12">
+      <div class="ui-g-4">
+        <p-radioButton name="group2" (click)="custFunction()" value="standard" label="Standard Time" [(ngModel)]="standard"></p-radioButton>
+      </div>
+      <div class="ui-g-6" *ngIf="standselect">
+        <p-dropdown [options]="standardTime" scrollHeight="100px" [(ngModel)]="selectedTime" [style]="{'width':'150px', 'position':'fixed'}"
+          placeholder="Select Time"></p-dropdown>
+      </div>
+    </div>
+  </div>
+  <p-footer>
+    <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+      <p style="color : red;text-align:left">{{msg}}</p>
+      <button type="button" pButton icon="fa-check" (click)="applyFilter()" label="Apply"></button>
+      <button type="button" pButton icon="fa-close" (click)="close()" label="Cancel"></button>
+    </div>
+  </p-footer>
+</p-dialog> -->
+
+
+<div class="ui-g-12">
+	
+
+        <div class="p-grid p-align-center p-justify-end py-5">
+            <p-multiSelect title="Show/Hide columns" [options]="columnOptions" class="icon-button no-shadow" 
+            (onChange)="showHideColumn($event)" [(ngModel)]="visibleCols" dropdownIcon="icons8 icons8-columns"></p-multiSelect>
+            <!-- <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o fa"></button> -->
+            <button pButton icon="icons8 icons8-search"  class="btn-icon mx-3"></button>
+            <input pInputText type="text" placeholder="Search keyword" (input)="smt.filterGlobal($event.target.value, 'contains')" />
+        </div>
+    
+
+  <p-table #smt class="scen-table all-tables" [scrollable]="true" scrollHeight="400px" [value]="data" sortField="avgSelfTime" [sortOrder]="-1" [style] = "{'height':'auto','max-height':'68vh'}" 
+   [resizableColumns]="true" [globalFilterFields]="visibleCols">
+    <ng-template pTemplate="colgroup">
+      <colgroup>
+        <col>
+        <col>
+        <col>
+        <col>
+    </colgroup>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <ng-container *ngFor = "let col of cols">
+          <th *ngIf = "col.action" pResizableColumn [pSortableColumn]="col.field">
+            {{col.header}}
+            <p-sortIcon [field]="col.field"></p-sortIcon>
+          </th>
+        </ng-container>
+        <!-- <ng-container *ngFor="let col of cols">
+          <th *ngIf="col.action">
+              <input pInputText type="text"
+                  (input)="smt.filter($event.target.value, col.field, 'contains')">
+          </th>
+      </ng-container> -->
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-node>
+      <tr>
+        <ng-container *ngFor = "let col of cols">
+        <td *ngIf = "col.action">
+          <div style="text-align: left  !important;" *ngIf = "(col.field == 'JSPName')">{{formatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'cumSelfTime')" pTooltip={{formatter(node[col.field])}}(ms) tooltipPosition="right">{{secFormatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'avgSelfTime')" pTooltip={{formatter(node[col.field])}}(ms) tooltipPosition="right">{{secFormatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'cumCPUTime')" pTooltip={{formatter(node[col.field])}}(ns) tooltipPosition="right">{{nanoFormatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'avgCPUTime')" pTooltip={{formatter(node[col.field])}}(ns) tooltipPosition="right">{{milliFormatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'executionTime')">{{formatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'waitTime')">{{formatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'syncTime')">{{formatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'iotime')">{{formatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'suspensiontime')">{{formatter(node[col.field])}}</div>
+       <div *ngIf = "!(col.field == 'JSPName') && !(col.field == 'cumSelfTime') && !(col.field == 'avgSelfTime') && !(col.field == 'cumCPUTime') && !(col.field == 'avgCPUTime') && !(col.field == 'executionTime')&& !(col.field == 'waitTime')&& !(col.field == 'syncTime')&& !(col.field == 'iotime')&& !(col.field == 'suspensiontime')">{{node[col.field]}}</div>
+        </td>
+      </ng-container>
+      </tr>
+    </ng-template>
+  </p-table>
+<!-- <p-dataTable class="scen-table" [value]="data" sortField="avgSelfTime" [sortOrder]="-1" [globalFilter]="gb" [style] = "{'height':'auto','max-height':'68vh'}" scrollHeight="200px" resizableColumns="true">
+    	<div *ngFor="let col of cols">
+      	<p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable" (sortFunction)="sortColumnsOnCustom($event,data)" [filter]="col.filter" [filterMatchMode]='contains' [style]="{'width':'100px'}">
+      <ng-template let-col let-node="rowData" pTemplate type="body">
+       <div style="text-align: left  !important;" *ngIf = "(col.field == 'JSPName')">{{formatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'cumSelfTime')" pTooltip={{formatter(node[col.field])}}(ms) tooltipPosition="right">{{secFormatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'avgSelfTime')" pTooltip={{formatter(node[col.field])}}(ms) tooltipPosition="right">{{secFormatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'cumCPUTime')" pTooltip={{formatter(node[col.field])}}(ns) tooltipPosition="right">{{nanoFormatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'avgCPUTime')" pTooltip={{formatter(node[col.field])}}(ns) tooltipPosition="right">{{milliFormatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'executionTime')">{{formatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'waitTime')">{{formatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'syncTime')">{{formatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'iotime')">{{formatter(node[col.field])}}</div>
+        <div style="text-align: right !important;" *ngIf = "(col.field == 'suspensiontime')">{{formatter(node[col.field])}}</div>
+       <div *ngIf = "!(col.field == 'JSPName') && !(col.field == 'cumSelfTime') && !(col.field == 'avgSelfTime') && !(col.field == 'cumCPUTime') && !(col.field == 'avgCPUTime') && !(col.field == 'executionTime')&& !(col.field == 'waitTime')&& !(col.field == 'syncTime')&& !(col.field == 'iotime')&& !(col.field == 'suspensiontime')">{{node[col.field]}}</div>
+    </ng-template>
+  </p-column>
+	</div>
+</p-dataTable> -->
+
+<div class="py-12">{{offset+1}} - {{offset+limit}}  of {{totalCount}}</div>
+<div *ngIf="showPagination">
+<p-paginator rows="50" [totalRecords]="totalCount"  [rowsPerPageOptions]="[50,100,200,300,400]" pageLinkSize="3" (onPageChange)="paginate($event)"></p-paginator>
+</div>
+</div>
+<!-- <p-growl life=50000 [value]="msgs" [sticky]="true"></p-growl> -->
+<!-- <div class="section" *ngIf ="showDownLoadReportIcon">
+<label style="font-size: 12px;padding-left: 6px;" >Download Reports as: </label>
+    <span title="PDF Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")' src='./images/iconPDF.gif'></span>
+    <span title="Word Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")' src='./images/iconWord.gif'></span>
+    <span title="Excel Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")' src='./images/iconExcel.gif'></span> 
+</div> -->
+</div>
+  <p-dialog class="secondary-dialog" [style]="{width: '50vw'}"  [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true" height="120" width="600" > 
+  <p-header>
+      <i class="icons8 icons8-info" style="color:red"></i>
+      <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+  </p-header>  
+  <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+  <p-footer>
+    <div class="p-grid p-justify-end sevbtn py-12">
+      <button pButton type="button" label="Cancel"  (click)="onCancelQuery();" [disabled]="isCancelQuerydata" class="ui-button-rounded ui-button-secondary"></button>
+      <button pButton type="button" label="Wait" (click)="waitQuery();" class="ui-button-rounded"></button>
+</div>
+  </p-footer>
+</p-dialog>

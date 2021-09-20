@@ -1,0 +1,244 @@
+<!-- <p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" /> -->
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+    <div class="p-col p-col-align-center text-center">
+        <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+    </div>
+</div>
+
+<div class="ddr-box">
+
+    <!-- COMMON TOOLBAR -->
+    <div class="ddr-toolbar">
+        <div class="p-grid p-justify-between p-align-center ui-table-header">
+            <div>
+                <!--<label class='headerInfo'><b>Filter Criteria : </b></label>-->
+                <span title="{{completeTier}}">{{tierName}}</span>
+                <span title="{{completeServer}}">{{serverName}}</span>
+                <span title="{{completeInstance}}">{{instanceName}}</span>
+                <span>{{headerInfo}}</span>
+                <span title="{{CompleteURL}}">{{URLstr}}</span>
+            </div>
+            <div>
+                <span *ngIf="showDCMenu">
+                    <label>Data Center : </label>
+                    <p-dropdown [options]="dcList" (onChange)="getSelectedDC($event)" [(ngModel)]="selectedDC"
+                        [style]="{'width':'75px'}"></p-dropdown>
+                </span>
+                <button pButton icon="icons8 icons8-doc" *ngIf="showDownloadOption" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReport("word")'
+                pTooltip="Download as Word Report"></button>
+                <button pButton icon="icons8 icons8-spreadsheet-file" *ngIf="showDownloadOption"tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReport("excel")'
+                pTooltip="Download as Excel Report"></button>
+                <button pButton icon="icons8 icons8-pdf-2" *ngIf="showDownloadOption" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReport("pdf")'
+                pTooltip="Download as PDF Report"></button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- COMMON BOX SCROLLLBAR -->
+    <div class="ddruiscroll" style="overflow-y:auto; height: 450px; overflow-x:hidden">
+        <!-- <p-growl life=5000 [(value)]="msgs"></p-growl> -->
+        <p-accordion class="ddr-accordion" [multiple]="true">
+            <p-accordionTab header="{{tableHeader}}" [selected]="true">
+                <div class='ui-g'>
+                    <div class='ui-g-4'>
+                        <div class="ddr-graphpanel" *ngIf="showChart == true">
+                            <!-- <chart [options]="options" (click)="clickHandler($event)"></chart> -->
+                            <highcharts-chart [options]="options" (click)="clickHandler($event)"
+                                [Highcharts]="highcharts">
+                            </highcharts-chart>
+                        </div>
+                        <div *ngIf="showChart == false" style="text-align:center;margin-top: 35px">No Pie Chart found
+                            based on current Filter Settings.</div>
+                    </div>
+                    <div class='ui-g-8'>
+                        <div class="p-grid p-justify-end p-align-center my-6 mx-6">
+
+                            <!-- <p-multiSelect class="icon-button no-shadow"  [options]="columnOptions" [(ngModel)]="visibleCols"
+                  optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                  pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+              </p-multiSelect> -->
+                            <p-multiSelect class="icon-button no-shadow" [options]="columnOptions"
+                                (onChange)="showHideColumn($event)" [(ngModel)]="visibleCols"
+                                dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns"
+                                [panelStyle]="{ minWidth: '200px' }">
+                            </p-multiSelect>
+
+                            <button pButton icon="icons8 icons8-search" class="btn-icon mr-2"></button>
+
+                            <input type="text" pInputText size="50" style="width: 18% !important;" placeholder="Search"
+                                (input)="db.filterGlobal($event.target.value, 'contains')">
+                                <button pButton icon="icons8 icons8-synchronize" (click)="showAllData()" *ngIf="showAllOption" title="Show all data" class="btn-icon mr-2"></button>
+                            <!-- <i class="icons8 icons8-synchronize font-18 mx-5" style="color: #154771;" *ngIf="showAllOption" title="Show all data"
+                                style="float:right;cursor:pointer;font-size: 2rem" (click)="showAllData()"></i> -->
+                        </div>
+
+                        <p-table #db class="all-tables" [resizableColumns]="true" [reorderableColumns]="true"
+                            [value]="queryInfo" sortField={{sortOn}} [sortOrder]="-1"
+                            selectionMode="single" resizableColumns="true" [scrollable]="true" scrollHeight="346px"
+                            [ngStyle]="{'height':'auto','oveflow-x':'hidden'}" [globalFilterFields]="visibleCols">
+
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                  <ng-container *ngFor="let col of cols">
+                                    <col  *ngIf = "col.action" [style]="{'width': col.width+'px'}" >
+                                  </ng-container>
+                                </colgroup>
+                              </ng-template>
+
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <ng-container *ngFor="let col of cols">
+                                        <th *ngIf="col.action" [pSortableColumn]="col.field" pResizableColumn
+                                            pReorderableColumn>
+                                            <span>{{col.header}}
+                                                <p-sortIcon *ngIf="col.action" [field]="col.field"
+                                                    ariaLabel="Activate to sort"
+                                                    ariaLabelDesc="Activate to sort in descending order"
+                                                    ariaLabelAsc="Activate to sort in ascending order">
+                                                </p-sortIcon>
+                                            </span>
+                                        </th>
+                                    </ng-container>
+                                </tr>
+                            </ng-template>
+
+
+                            <ng-template pTemplate="body" let-node>
+                                <tr>
+                                    <!-- <ng-template *ngFor="let col of cols">
+                                        <td *ngIf="col.field == 'sqlQuery'">
+                                            <div class="ddr-table-left" (click)="showRowInfo(node)">
+                                                {{node[col.field]}}
+                                            </div>
+                                        </td>
+                                        <td *ngIf="col.field == 'count'">
+                                            <span style="cursor: pointer" *ngIf="node[col.field] != 0" class="ddr-table-right" title='View Flowpath Report' (click)="getDbFlowpathData(node)">
+                                                {{node[col.field]}} </span>
+                                            <span *ngIf="node[col.field] == 0">
+                                                <span>{{node[col.field]}}</span>
+                                            </span>
+                                        </td>
+                                        <td *ngIf="col.field == 'failedcount'">
+                                            <div class="ddr-table-right" *ngIf="node[col.field] != 0" (click)="openErrorCount(node)">
+                                                {{node[col.field]}}
+                                            </div>
+                                            <div *ngIf="node[col.field] == 0">
+                                                {{node[col.field]}}
+                                            </div>
+                                        </td>
+                                    </ng-template> -->
+                                    <ng-container *ngFor="let col of cols">
+                                        <td *ngIf="col.action">
+                                            <span *ngIf="col.field == 'sqlQuery'">
+                                                <a class="ddr-table-left activeLink" title='View Query' 
+                                                    (click)="showRowInfo(node)">
+                                                    {{node[col.field]}}
+                                                </a>
+                                            </span>
+
+                                            <span *ngIf="col.field == 'count'">
+                                                <span style="cursor: pointer" *ngIf="node[col.field] != 0"> <a
+                                                        class="right activeLink " title='View Flowpath Report'
+                                                        (click)="getDbFlowpathData(node)">
+                                                        {{node[col.field]}}
+                                                    </a>
+                                                </span>
+
+                                                <span *ngIf="node[col.field] == 0">
+                                                    <span>{{node[col.field]}}</span>
+                                                </span>
+                                            </span>
+                                            <span *ngIf="col.field == 'failedcount'">
+                                                <a class="right activeLink" *ngIf="node[col.field] != 0"
+                                                    (click)="openErrorCount(node)">
+                                                    {{node[col.field]}}
+                                                </a>
+                                                <div class="right" *ngIf="node[col.field] == 0">
+                                                    {{node[col.field]}}
+                                                </div>
+                                            </span>
+                                            <span class="right"
+                                                *ngIf="col.field != 'count' && col.field != 'sqlQuery'&& col.field != 'failedcount'">
+                                                {{node[col.field]}}
+                                            </span>
+                                        </td>
+                                    </ng-container>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td [attr.colspan]="cols.length + 1" class="text-center">
+                                        <span *ngIf="empty">No Records Found</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                        <!-- <p-dataTable class="scen-table"  [value]="queryInfo" sortField={{sortOn}} [sortOrder]="-1" selectionMode="single" resizableColumns="true" 
+                        [scrollable]="true" scrollHeight="346px"   [globalFilter]="gb" [ngStyle]="{'height':'auto','oveflow-x':'hidden'}">
+                            <div *ngFor="let col of cols">
+                                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable" (sortFunction)="sortColumnsOnCustom($event, queryInfo)"
+                                    [filterMatchMode]='contains' [style]="{'width': col.width +'px','text-align':col.align}"
+                                    [filter]="col.filter">
+                                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'sqlQuery'" pTemplate="body">
+                                        <div class="ddr-table-left" (click)="showRowInfo(node)">
+                                            {{node[col.field]}}
+                                        </div>
+                                    </ng-template>
+                                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'count'" pTemplate="body">
+                                        <span style="cursor: pointer" *ngIf="node[col.field] != 0" class="ddr-table-right" title='View Flowpath Report' (click)="getDbFlowpathData(node)">
+                                            {{node[col.field]}} </span>
+                                        <span *ngIf="node[col.field] == 0">
+                                            <span>{{node[col.field]}}</span>
+                                        </span>
+                                    </ng-template>
+                                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'failedcount'" pTemplate="body">
+                                        <div class="ddr-table-right" *ngIf="node[col.field] != 0" (click)="openErrorCount(node)">
+                                            {{node[col.field]}}
+                                        </div>
+                                        <div *ngIf="node[col.field] == 0">
+                                            {{node[col.field]}}
+                                        </div>
+                                    </ng-template>
+                                </p-column>
+                            </div>
+                        </p-dataTable> -->
+                        <div *ngIf="!showAllOption"> {{offset+1}} - {{offset+limit}} of {{totalCount}} </div>
+                        <div *ngIf="showAllOption"> 1 - {{numberOfRows}} of {{numberOfRows}} </div>
+                        <div *ngIf="showPagination">
+                            <p-paginator rows="50" [totalRecords]="totalCount" [rowsPerPageOptions]="[50,100,200,400]"
+                                pageLinkSize="3" (onPageChange)="paginate($event)"></p-paginator>
+                        </div>
+                    </div>
+
+                </div>
+            </p-accordionTab>
+
+
+        </p-accordion>
+        <p-accordion class="ddr-accordion" [multiple]="true">
+            <p-accordionTab header="Query" [selected]="true">
+                <div>
+                    <textarea pInputTextarea rows="5" style="width:100%;resize:none;"
+                        readonly>{{fullQueryName}}</textarea>
+                </div>
+            </p-accordionTab>
+        </p-accordion>
+    </div>
+</div>
+<p-dialog class="secondary-dialog" [style]="{width: '45vw'}" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'
+    [responsive]="true">
+    <p-header>
+        <i class="icons8 icons8-info" style="color:red"></i>
+        <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+    </p-header>
+    <span style="font-size:14px;">{{this.commonService.cancelationMessage}} </span>
+    <p-footer>
+        <div class="p-grid p-justify-end sevbtn py-12">
+            <button pButton type="button" label="Cancel"(click)="onCancelQuery();" [disabled]="isCancelQuerydata"  class="ui-button-rounded ui-button-secondary"></button>
+            <button pButton type="button" label="Wait" (click)="waitQuery();" class="ui-button-rounded"></button>
+
+        </div>
+    </p-footer>
+</p-dialog>

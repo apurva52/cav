@@ -1,0 +1,169 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+    blockScroll="true" appendTo="body">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <div>
+                <i class="icons8 icons8-template font-14"></i>
+            <span>DASHBOARD LAYOUT</span>
+            </div>
+            <div class="action-icons">
+                <i class="icons8-delete  font-14" (click)="closeClick()"></i>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar-content ui-fluid">
+
+        <p-tabView (onChange)="handleChange($event)" [(activeIndex)]="index">
+            <p-tabPanel header="Default">
+
+                <div class="type-search">
+                        <i class="icons8 icons8-search left-icon btn-icon"></i>
+                        <input type="text" pInputText placeholder="Search Layout" [(ngModel)]="searchDefaultLayout">
+                    <button type="button" class="btn-icon right-icon" (click)="clearFilters()">
+                        <i class="icons8 icons8-delete"></i>
+                    </button>
+                </div>
+                <div class="mln-5 mrn-5">
+                <div class="p-grid dashboard-layout-grid" style="height: calc(100% - 35px); overflow: auto;">
+                    <div class="loader-container spinner" *ngIf="loading">
+                        <!-- loader to be change -->
+                        <i class="pi pi-spin pi-spinner"></i>
+                    </div>
+                    <ng-container *ngIf="data && (data['DEFAULT'] | filter : searchDefaultLayout).length > 0 else noDefaultResults" >
+                        <a (click)="changeLayout(layout ,0)" class="p-col-6 layout-tile"
+                            *ngFor="let layout of data['DEFAULT'] | filter: searchDefaultLayout, let i = index ">
+                            <div class="layout-icon m-5">
+                                <img src="{{layout.icon}}" />
+                            </div>
+                            <div class="my-10 text-center">{{layout.name}}</div>
+                        </a>
+                    </ng-container>
+
+                    <ng-template #noDefaultResults>
+                        <p *ngIf="!loading" class="empty-message">Data Not Available</p>
+                    </ng-template>
+                </div>
+            </div>
+
+            </p-tabPanel>
+            <p-tabPanel header="Custom">
+                        <div class="type-search">
+                            <i class="icons8 icons8-search left-icon btn-icon"></i>
+                            <input type="text" pInputText placeholder="Search Layout" [(ngModel)]="searchCustomLayout">
+                        <button type="button" class="btn-icon right-icon" (click)="clearFilters()">
+                            <i class="icons8 icons8-delete"></i>
+                        </button>
+                    </div>
+                <div class="p-grid dashboard-layout-grid" style="height: calc(100vh - 280px); overflow: auto;"> 
+                    <div class="loader-container spinner" *ngIf="loading">
+                        <!-- loader to be change -->
+                        <i class="pi pi-spin pi-spinner"></i>
+                    </div>
+                    <ng-container #layout *ngIf="data && (data['CUSTOM'] |filter : searchCustomLayout).length > 0 else noCustomResults">
+                    <div class="p-col-6 relativeClass"  *ngFor="let layout of data['CUSTOM'] | filter: searchCustomLayout, let i = index">
+                        <a (click)="changeLayout(layout , i)" class="layout-tile">
+                            <div class="layout-icon" [ngClass]="{'highlight': selectedIndex === i}">
+                                <img src="{{layout.icon}}" />
+                                
+                            </div>
+                           <i class="ui-icon-button p-col-1 right-align"></i>
+                           <div class="pv-10 text-center">{{layout.name}}</div>
+                        </a>
+                        <i class="icons8 icons8-delete deleteIcon" (click)="dashboard.deleteSelectedLayout(layout)"></i>
+                    </div>
+                    </ng-container>
+                    <ng-template #noCustomResults>
+                        <p class="empty-message p-justify-center">Custom Layouts are Not Available</p>
+                    </ng-template>
+                </div>
+                <div class="horizontal-separator"></div>
+                <div class="create-new-layout">
+                    <!-- <div>Create New Grid Layout</div> -->
+
+                    <div class="ui-fluid p-formgrid ">
+
+                        <div class="p-col p-col-align-center text-center" *ngIf="newLayoutForm.error">
+                            <p-message severity="error" text="{{newLayoutForm.error.message}}"></p-message>
+                        </div>
+                        <!-- TODO: Don't Delete -->
+                        <!-- <div class="p-field p-col-12">
+                            <label class="field-label" for="data-name">Display Name</label>
+                            <input type="text" id="data-name" pInputText [(ngModel)]="newLayoutForm.model.name" />
+                        </div> -->
+
+                        <!-- <div class="p-field p-col-12">
+                             <p-checkbox [binary]="true" label="Continue to existing Layout"
+                            [(ngModel)]="newLayoutForm.model.applyToExistingDashboard">
+                            </p-checkbox> -->
+                            <!-- <p-radioButton
+                            name="existingDashboard"
+                            value="existingDashboard"
+                            inputId="existingDashboard"
+                            [(ngModel)]="selectedMode"
+                            (onClick)="onLayoutChange()"
+                          ></p-radioButton>
+                          <label for="existingDashboard" class="pl-5 pr-5">Continue to existing Layout</label>
+                        </div>  -->
+
+                        <div class="p-field p-col-12">
+                            <p-checkbox [binary]="true" label="Create New Layout"
+                                [(ngModel)]="newLayoutForm.model.applyToCurrentDashboard" (onChange)="onLayoutChange()">
+                            </p-checkbox>
+                            <!-- <p-radioButton
+                            name="currentDashboard"
+                            value="currentDashboard"
+                            inputId="currentDashboard"
+                            [(ngModel)]="selectedMode"
+                            (onClick)="onLayoutChange()"
+                          ></p-radioButton> -->
+                          <!-- <label for="currentDashboard" class="pl-5 pr-5">Apply to current dashboard?</label> -->
+
+                        </div>
+
+                        <div class="p-field p-grid" [attr.disabled] = "newLayoutForm.model.applyToCurrentDashboard  ? null : 'disabled'">
+                            <label for="firstname" class="p-col-12 p-md-6">Select Rows</label>
+                            <div class="p-col-12 p-md-6 posrelative">
+                                <p-dropdown inputId="rows" [options]="newLayoutForm.options.rows"
+                                [(ngModel)]="newLayoutForm.model.rows" dropdownIcon="icons8 icons8-expand-arrow" [disabled] = "newLayoutForm.model.applyToCurrentDashboard  ? null : 'disabled'">
+                            </p-dropdown>
+                            <!-- <p-message *ngIf="rowError && newLayoutForm.model.rows == null"
+                            severity="error" text="Rows are required."></p-message> -->
+
+                            <div class="errorTooltip" *ngIf="rowError && newLayoutForm.model.rows == null">
+                                Rows are required.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-field p-grid" [attr.disabled] = "newLayoutForm.model.applyToCurrentDashboard  ? null : 'disabled'">
+                            <label for="firstname" class="p-col-12 p-md-6">Select Columns</label>
+                            <div class="p-col-12 p-md-6 posrelative">
+                                <p-dropdown inputId="columns" [options]="newLayoutForm.options.columns"
+                                [(ngModel)]="newLayoutForm.model.columns" dropdownIcon="icons8 icons8-expand-arrow" [disabled] = "newLayoutForm.model.applyToCurrentDashboard  ? null : 'disabled'">
+                                </p-dropdown>
+                                <!-- <p-message *ngIf="columnError && newLayoutForm.model.columns == null"
+                                severity="error" text="Columns are required."></p-message>	 -->
+                                <div class="errorTooltip" *ngIf="columnError && newLayoutForm.model.columns == null">
+                                    Columns are required.
+                                    </div>
+                            </div>
+                        </div>
+                        <!-- <div class="p-grid"> -->
+                            <!-- <div class="p-col-6"> -->
+                        <button type="button" pButton class="ui-button ui-button-rounded w-50-p topAlign"
+                            (click)="createNewCustomLayout()" label="LOAD"></button>
+                        <!-- </div> -->
+                        <!-- <div class="p-col-6">
+                            <button type="button" pButton class="ui-button ui-button-rounded w-50-p"
+                                (click)="saveChanges()" label="SAVE" [disabled]="noPermission" [title]="noPermission ? 'No permission to save layout' : 'Save Layout'"></button>
+                            </div>
+                        </div> -->
+                    </div>
+
+
+                </div>
+
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+</p-sidebar>
+

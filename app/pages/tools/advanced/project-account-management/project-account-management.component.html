@@ -1,0 +1,701 @@
+<div class="header">
+  <app-header></app-header>
+</div>
+
+<p-toolbar class="ui-secondary-toolbar">
+  <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+    <div class="p-grid p-align-center">
+      <a routerLink="/home">
+          <i class="icons8 icons8-left toolbar-icon-color"></i>
+      </a>
+      <div class="p-col ui-toolbar-text">
+        Project Key Management
+      </div>
+  </div>
+
+  <!-- <p-splitButton label="Create New" [model]="items"></p-splitButton> -->
+  <p-menu #menu [popup]="true" [model]="items"></p-menu>
+  <button type="button" pButton icon="icons8 icons8-expand-arrow" iconPos="right" label="Create New" (click)="menu.toggle($event)"></button>
+
+</div>
+</p-toolbar>
+
+
+
+
+<div class="main-container bg-1">
+    <!-- <div class="header2 cav-d-flex cav-justify-content-between cav-p-1 cav-align-items-center">
+      <div class="cav-fnt-14 cav-pl-2"><i class="icons8 fa-key"></i> Project Key Management</div>
+  
+  
+  
+      <div class="drop-menu cav-relative">
+     - <p-growl [value]="msgs"></p-growl> -
+  
+        <button type="button" class="button-all" (click)="clickEvent()">
+          <span>Create New</span> <i class="icons8 fa-caret-down"></i>
+        </button>
+        <ul class="menu-items bg-1">
+          <li *ngIf="!isEnterpriseUser" class="menu-items-ForPA" (click)="clickEvent()"  (click)="accountDialog()">Account</li>
+          <li class="menu-items-ForPA" (click)="clickEvent()" (click)="projectDialog()">Project</li>
+        </ul>
+      </div>
+    </div>
+   -->
+  
+    <div class="p-10">
+      <div class="cav-d-flex cav-justify-content-end">
+        <div class="cav-mb-2 cav-relative">
+          <input type="text" pInputText class="width-200 mb-5" pInputText #searchbar (keyup)="fetchAccounts($event)" [(ngModel)]="searchInput"
+            placeholder="Search Account Name" />
+  
+        </div>
+      </div>
+  
+      <div class="mb-10" *ngIf="searchInput">
+        <p-table class="all-tables" #dtObjAccountSearch [columns]="cols" [value]="searchResultForAccount"
+          selectionMode="single" [(selection)]="machinelistToView" [paginator]="true" [rows]="5"
+          [rowsPerPageOptions]="[5,10,15]" (onRowSelect)="forGettingProjects($event)"
+          (onRowUnselect)="disableAccountProjectMode($event)" [loading]="loading" (onLazyLoad)="loadCarsLazy($event)" [(first)]="accountSearch"
+          [totalRecords]="totalRecords" [scrollable]="true" scrollHeight="170px" [resizableColumns]="true"  (sortFunction)="customSort($event,'accountSearch')" [customSort]="true" (onPage)="paginate($event , 'accountSearch')">
+                  
+          <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col style="width: 4em;">
+            <col style="width: 15%;">
+            <col style="width: 25%;">
+            <col style="width: 30%;">
+            <col style="width: 20%;">
+            <col style="width: 10%;">
+          </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th style="width: 4em" pResizableColumn>
+                S.NO
+              </th>
+              <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngStyle]="{'width': col.width}" pResizableColumn>
+                {{col.header}}
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+              </th>
+              <th style="width: 7em" pResizableColumn>
+                Action
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr class="" [pSelectableRow]="rowData">
+              <td style="width: 4em" >
+                <span class="forTdlookUp" pTooltip="{{searchResultForAccount.indexOf(rowData)+1}}"
+                tooltipPosition="top">{{searchResultForAccount.indexOf(rowData)+1}}</span>
+              </td>
+              <td *ngFor="let col of columns">
+                <span class="forTdlookUp" pTooltip="{{rowData[col.field]}}"
+                  tooltipPosition="top">{{rowData[col.field]}} </span>
+              </td>
+              <td class="text-center">
+                <button pTooltip="Edit Account" tooltipPosition="top" type="button" (click)="forAccountUpdate(rowData)"
+                  class="btn-icon mx-3"><i class="icons8 icons8-edit"></i></button>
+                <button *ngIf="rowData['statusFlag'] == 1" class="btn-icon mx-3"
+                  type="button" (click)="enableDisableAccount(rowData)" tooltipPosition="top" pTooltip="Deactivate Account"><i
+                  class="pi pi-eye"></i></button>
+                <button *ngIf="rowData['statusFlag'] == 0"
+                  class="btn-icon mx-3" type="button"
+                  (click)="enableDisableAccount(rowData)" tooltipPosition="top" pTooltip="Activate Account">
+                  <i class="pi pi-eye-slash"></i></button>
+                  <button pTooltip="Delete Account" tooltipPosition="top" type="button" (click)="deleteAccount(rowData)"
+                  class="btn-icon mx-3"><i class="icons8 icons8-trash"></i></button>
+                </td>
+            </tr>
+          </ng-template>  
+        </p-table>
+      </div>
+  
+      <div class="mb-10" *ngIf="!searchInput">
+        <p-table #dtObjAccount [columns]="cols" [value]="machinelist" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,15]"
+          class="all-tables" selectionMode="single" [(selection)]="machinelistToView"
+          (onRowSelect)="forGettingProjects($event)" (onRowUnselect)="disableAccountProjectMode($event)"
+          [loading]="loading" (onLazyLoad)="loadCarsLazy($event)" [totalRecords]="totalRecords" [scrollable]="true" [(first)]="account"
+          scrollHeight="161px" [resizableColumns]="true"   (sortFunction)="customSort($event,'account')" [customSort]="true" (onPage)="paginate($event , 'account')">
+          <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col style="width: 4em;">
+            <col style="width: 15%;">
+            <col style="width: 25%;">
+            <col style="width: 30%;">
+            <col style="width: 20%;">
+            <col style="width: 10%;">
+          </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th style="width: 4em" pResizableColumn>
+                S.NO
+              </th>
+              <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngStyle]="{'width': col.width}" pResizableColumn>
+                {{col.header}}
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+              </th>
+              <th style="width: 7em" pResizableColumn>
+                Action
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr class="" [pSelectableRow]="rowData">
+              <td style="width: 4em" >
+                <span class="forTdlookUp" pTooltip="{{machinelist.indexOf(rowData)+1}}"
+                tooltipPosition="top">{{machinelist.indexOf(rowData)+1}}</span>
+              </td>
+              <td *ngFor="let col of columns" class="ui-resizable-column">
+                <span class="forTdlookUp" pTooltip="{{rowData[col.field]}}" tooltipPosition="top">{{rowData[col.field]}}
+                </span>
+              </td>
+              <td class="text-center">
+                <button pTooltip="Edit Account" tooltipPosition="top" type="button" (click)="forAccountUpdate(rowData)"
+                  class="btn-icon mx-3"><i class="icons8 icons8-edit"></i></button>
+                <button *ngIf="rowData['statusFlag'] == 1" class="btn-icon mx-3"
+                  type="button" (click)="enableDisableAccount(rowData)" tooltipPosition="top" pTooltip="Deactivate Account"><i
+                  class="pi pi-eye"></i></button>
+                <button *ngIf="rowData['statusFlag'] == 0"
+                  class="btn-icon mx-3" type="button"
+                  (click)="enableDisableAccount(rowData)" tooltipPosition="top" pTooltip="Activate Account">
+                  <i class="pi pi-eye-slash"></i></button>
+                  <button pTooltip="Delete Account" tooltipPosition="top" type="button" (click)="deleteAccount(rowData)"
+                  class="btn-icon mx-3"><i class="icons8 icons8-trash"></i></button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+  
+       <!-- <div class="cav-d-flex cav-justify-content-end">
+        <div class="cav-p-2">
+          <input type="text" class="width-200 mb-5" pInputText #searchbar (keyup)="fetchProjects($event)"
+            [(ngModel)]="searchInputForProject" placeholder="Search Project Name" />
+        </div>
+      </div>  -->
+      <div class="clearfix cav-mt-1"></div>      
+            <div style="text-align: left;">        
+                <input type="text"  pInputText size="50" placeholder="Search Project Name" (input)="dtObjProject.filterGlobal($event.target.value, 'contains')" style="width:auto">
+            </div>
+      <div class="mb-10" *ngIf="!accountProjectMode&&projectAvailable&&!searchInputForProject">
+        <p-table  class="all-tables"  #dtObjProject [columns]="cols1" [value]="machinelist1" [rows]="5" [rowsPerPageOptions]="[5,10,15]" [paginator]="true"
+           (onRowSelect)="addProjects($event)"
+          (onRowUnselect)="unselectedproject($event)" [(selection)]="projectlistToView" [loading]="loadingforTable" [(first)]="project"
+          (onLazyLoad)="loadProjectsLazy($event)" [totalRecords]="totalProjects" [scrollable]="true" scrollHeight="160px" [resizableColumns]="true"  (sortFunction)="customSort($event,'project')" [customSort]="true" (onPage)="paginate($event , 'project')" [globalFilterFields]="['col1']">
+        
+          <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col style="width: 4em;">
+            <col style="width: 4em;">
+            <col style="width: 15%;">
+            <col style="width: 17%;">
+            <col style="width: 38%;">
+            <col style="width: 8%;">
+            <col style="width: 10%;">
+            <col style="width: 12%;">
+          </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+            
+              <!-- <th style="width: 4em" pResizableColumn>
+                <p-checkbox [value]="machinelist1" (click)="selectedAllProject(machinelist1)">
+                </p-checkbox>
+              </th> -->
+              <th style="width: 4em">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+              </th>
+              <th style="width: 4em" pResizableColumn>
+                S.NO
+               </th>
+              <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+                {{col.header}}
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+              </th>
+              <th style="width: 7em" pResizableColumn>
+                Action
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns"  let-rowIndex="rowIndex">
+            <tr class="" [pSelectableRow]="rowData">
+              
+              <th style="width: 4em">
+                <p-tableCheckbox [value]="rowData" [index]="rowIndex"></p-tableCheckbox>
+              </th>
+              <td style="width: 4em" >
+                <span class="forTdlookUp" pTooltip="{{rowIndex+1}}"
+                tooltipPosition="top">{{rowIndex+1}}</span>
+              </td>
+              <td *ngFor="let col of columns"  class="ui-resizable-column">
+                <span class="forTdlookUp" pTooltip="{{rowData[col.field]}}"
+                  tooltipPosition="top">{{rowData[col.field]}}</span>
+              </td>
+              <td class="text-center">
+                <button pTooltip="Edit Project" tooltipPosition="top" type="button" (click)="editProjectDialog(rowData)"
+                  class="btn-icon mx-3"><i class="icons8 icons8-edit"></i></button>
+                <button pTooltip="Generate License" tooltipPosition="left" type="button" (click)="getLicense(rowData)"
+                  class="btn-icon mx-3"><i class="pi pi-key"></i></button>
+                  <button *ngIf="rowData['statusFlag'] == 1" class="btn-icon mx-3"
+                  type="button" (click)="enableDisableProject(rowData)" tooltipPosition="top" pTooltip="DeActivate Project"><i
+                    class="pi pi-eye"></i></button>
+                <button *ngIf="rowData['statusFlag'] == 0"
+                  class="btn-icon mx-3" type="button"
+                  (click)="enableDisableProject(rowData)" tooltipPosition="top" pTooltip="Activate Project">
+                  <i class="pi pi-eye-slash"></i></button>
+                  <button pTooltip="Delete Project" tooltipPosition="top" type="button" (click)="deleteProject(rowData)"
+                  class="btn-icon mx-3"><i class="icons8 icons8-trash"></i></button>
+              </td>
+            </tr>
+          </ng-template>
+      
+        </p-table>
+      </div>
+  
+      <div class="clearfix cav-mt-1"></div>
+      <div class="mb-10" *ngIf="accountProjectMode&&projectAvailable&&!searchInputForProject">
+        <p-table class="all-tables" [columns]="cols1" [value]="toShowProject" [rows]="5" [rowsPerPageOptions]="[5,10,15]" [paginator]="true"
+           (onRowSelect)="addProjects($event)"
+          (onRowUnselect)="unselectedproject($event)" [(selection)]="projectlistToView" [scrollable]="true"
+          scrollHeight="160px" [resizableColumns]="true" >
+          <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col style="width: 4em;">
+            <col style="width: 4em;">
+            <col style="width: 15%;">
+            <col style="width: 17%;">
+            <col style="width: 38%;">
+            <col style="width: 8%;">
+            <col style="width: 10%;">
+            <col style="width: 12%;">
+          </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th style="width: 4em" pResizableColumn>
+                <p-checkbox [value]="toShowProject" (click)="selectedAllProject(toShowProject)">
+                </p-checkbox>
+              </th>
+              <th style="width: 4em" pResizableColumn>
+                S.NO
+              </th>
+              <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+                {{col.header}}
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+              </th>
+              <th style="width: 7em" pResizableColumn>
+                Action
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+            <tr class="" [pSelectableRow]="rowData">
+              <th style="width: 4em">
+                <p-tableCheckbox [value]="rowData" [index]="rowIndex"></p-tableCheckbox>
+              </th>
+              <td style="width: 4em" >
+                <span class="forTdlookUp" pTooltip="{{toShowProject.indexOf(rowData)+1}}"
+                tooltipPosition="top">{{toShowProject.indexOf(rowData)+1}}</span>
+              </td>
+              <td *ngFor="let col of columns" class="ui-resizable-column">
+                <span class="forTdlookUp" pTooltip="{{rowData[col.field]}}"
+                  tooltipPosition="top">{{rowData[col.field]}}</span>
+              </td>
+              <td class="text-center">
+                <button pTooltip="Edit Project" tooltipPosition="top" type="button" (click)="editProjectDialog(rowData)"
+                  class="btn-icon mx-3 "><i class="icons8 icons8-edit"></i></button>
+                <button pTooltip="Generate License" tooltipPosition="left" type="button" (click)="getLicense(rowData)"
+                  class="btn-icon mx-3"><i class="pi pi-key"></i></button>
+                  <button *ngIf="rowData['statusFlag'] == 1" class="btn-icon mx-3"
+                  type="button" (click)="enableDisableProject(rowData)" tooltipPosition="top" pTooltip="DeActivate Project"><i
+                    class="pi pi-eye"></i></button>
+                <button *ngIf="rowData['statusFlag'] == 0"
+                  class="btn-icon mx-3" type="button"
+                  (click)="enableDisableProject(rowData)" tooltipPosition="top" pTooltip="Activate Project">
+                  <i class="pi pi-eye-slash"></i></button>
+                  <button pTooltip="Delete Project" tooltipPosition="top" type="button" (click)="deleteProject(rowData)"
+                  class="btn-icon mx-3"><i class="icons8 icons8-trash"></i></button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+  
+      <div class="clearfix mt-1"></div>
+      <div class="mb-10"  *ngIf="searchInputForProject&&projectAvailable">
+        <p-table class="all-tables" #dtObjProjectSearch [columns]="cols1" [value]="searchResultForProject" [rows]="5" [rowsPerPageOptions]="[5,10,15]"
+          [paginator]="true" (onRowSelect)="addProjects($event)"
+          (onRowUnselect)="unselectedproject($event)" [(selection)]="projectlistToView" [scrollable]="true" [(first)]="projectSearch"
+          scrollHeight="160px" [resizableColumns]="true"    (sortFunction)="customSort($event,'projectSearch')" [customSort]="true" (onPage)="paginate($event , 'projectSearch')">
+          <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+              <col style="width: 4em;">
+              <col style="width: 4em;">
+              <col style="width: 15%;">
+              <col style="width: 17%;">
+              <col style="width: 38%;">
+              <col style="width: 8%;">
+              <col style="width: 10%;">
+              <col style="width: 12%;">
+          </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th style="width: 4em" pResizableColumn>
+                <p-checkbox [value]="searchResultForProject"
+                (click)="selectedAllProject(searchResultForProject)"></p-checkbox>
+              </th>
+              <th style="width: 4em" pResizableColumn>
+                S.NO
+              </th>
+              <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+                {{col.header}}
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+              </th>
+              <th style="width: 7em" pResizableColumn>
+                Action
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+            <tr class="" [pSelectableRow]="rowData">
+              <th style="width: 4em"></th>
+                <p-tableCheckbox [value]="rowData" [index]="rowIndex"></p-tableCheckbox>
+              <td style="width: 4em" >
+                <span class="forTdlookUp" pTooltip="{{searchResultForProject.indexOf(rowData)+1}}"
+                tooltipPosition="top">{{searchResultForProject.indexOf(rowData)+1}}</span>
+              </td>
+              <td *ngFor="let col of columns" class="ui-resizable-column">
+                <span class="forTdlookUp" pTooltip="{{rowData[col.field]}}"
+                  tooltipPosition="top">{{rowData[col.field]}}</span>
+              </td>
+              <td class="text-center">
+                <button pTooltip="Edit Project" tooltipPosition="top" type="button" (click)="editProjectDialog(rowData)"
+                  class="btn-icon mx-3"><i class="icons8 icons8-edit"></i></button>
+                <button pTooltip="Generate License" tooltipPosition="left" type="button" (click)="getLicense(rowData)"
+                  class="btn-icon mx-3"><i class="pi pi-key"></i></button>
+                  <button *ngIf="rowData['statusFlag'] == 1" class="btn-icon mx-3"
+                  type="button" (click)="enableDisableProject(rowData)" tooltipPosition="top" pTooltip="DeActivate Project"><i
+                    class="pi pi-eye"></i></button>
+                <button *ngIf="rowData['statusFlag'] == 0"
+                  class="btn-icon mx-3" type="button"
+                  (click)="enableDisableProject(rowData)" tooltipPosition="top" pTooltip="Activate Project">
+                  <i class="pi pi-eye-slash"></i></button>
+                  <button pTooltip="Delete Project" tooltipPosition="top" type="button" (click)="deleteProject(rowData)"
+                  class="btn-icon mx-3"><i class="icons8 icons8-trash"></i></button>
+                </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+  
+      <div class="mb-10" *ngIf="!projectAvailable">
+        <p-table class="all-tables" [columns]="cols1" [value]="searchResultForProject" class="table-gui table-gui2 table-gui-paginator"
+          [(selection)]="machinelistToView">
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th style="width: 4em">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+              </th>
+              <th *ngFor="let col of columns">
+                {{col.header}}
+              </th>
+              <th style="width: 7em">
+                Action
+              </th>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+  
+  
+  
+      <div class="p-grid p-justify-center">
+        <button type="button" pButton  class="ui-button-rounded" label="Generate Project Key" (click)="generateProjectKeyList(dtObjProject)"></button>
+      </div>
+  
+  
+    </div>
+  </div>
+  
+  <p-dialog class="secondary-dialog" header="Create New Account"  [(visible)]="accountModal" [modal]="true" [baseZIndex]="10000" [positionTop]="100"
+    [draggable]="true" [resizable]="false">
+    <div class="errorMsg my-5" *ngIf="!accountNameExist">
+      *Account Name is mandatory field
+    </div>
+    <div class="errorMsg my-5" *ngIf="!accountDomainExist">
+      *Account Domain is mandatory field
+    </div>
+    <div class="errorMsg my-5" *ngIf="isAccountDomainValid">
+      *Please enter the valid Account Domain.
+    </div>
+    <div class="errorMsg my-5" *ngIf="isAccountDomainDuplicate">
+      *This account Domain is Taken. Please specify different account Domain
+    </div>
+    <div class="errorMsg my-5" *ngIf="!urlPatterInvalid">
+      *URL Pattern is Invalid
+    </div>
+    <div class="errorMsg my-5" *ngIf="entityIdFromXmlAbsent">
+      *Entity Id is required Please check the entityId checkbox
+    </div>
+    <div class="errorMsg my-5" *ngIf="!ssoUrlExist">
+      *sso field is enabled but ssoUrl is not given
+    </div>
+    <div class="errorMsg my-5" *ngIf="ssoKeyAbsent">
+      *SSO Key is required
+    </div>
+    <div class="innerWidth">
+      <div class="p-grid p-align-center w-100-p">
+        <div class="p-col-4">Account Name</div>
+  
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]="accountName">
+        </div>
+        <div class="p-col-4">Account Description </div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]="accountDescription">
+        </div>
+        <div class="p-col-4">Account Domain </div> 
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]="accountDomain">
+        </div>
+       
+        <div class="p-col-8 p-offset-4">
+          <p-checkbox name="group1" value="ssoEnabled" binary=true label="ssoEnabled" [(ngModel)]="ssoEnabled" 
+          (onChange)="toggleVisibilityAccount($event)"></p-checkbox>
+
+          <!-- <input type="checkbox" [(ngModel)]="ssoEnabled" data-md-icheck
+            (change)="toggleVisibilityAccount($event)" />ssoEnabled -->
+
+          </div>
+      </div>
+  
+      <div class="p-grid p-align-center" *ngIf="ssoEnabled">
+                <div class="p-col-8 p-offset-4">
+                  <label *ngFor="let radiobutton of radioItems">
+
+                    <!-- <p-radioButton name="options"  label="{{radiobutton.name}}" 
+                    (click)="SpIdpModeSelection(radiobutton)"  [checked]="radiobutton.value == spInitiated"></p-radioButton> -->
+
+                    <input type="radio" name="options" (click)="SpIdpModeSelection(radiobutton)"
+                    [checked]="radiobutton.value == spInitiated">{{radiobutton.name}}
+
+                  </label>
+                  </div>
+        <div class="p-col-4">SSO URL</div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]="ssoUrl">
+        </div>
+        <div class="p-col-4">SSO Key</div>
+        <div class="p-col-8">
+          <textarea class="w-100-p" pInputTextarea rows="4" pInputTextarea [(ngModel)]="ssoKey"></textarea>
+        </div>
+  
+        <div class="p-col-8 p-offset-4">
+          <button type="button" pButton label="Get Entity ID"  (click)="toggleForXmlVerify()"></button>
+          
+        </div>
+  
+            <div class="p-col-4">Entity Id from Xml</div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText  [(ngModel)]="entityIdFromXml" [readonly]="true">
+        </div>
+      </div>
+    
+    </div>
+
+<p-footer>
+  <button type="button" pButton label="Save" (click)="saveDataForAccount()"></button>
+  <button type="button" pButton label="Cancel" class="ml-3 ui-button-secondary" (click)="accountModal=false"></button>
+</p-footer>
+
+
+  </p-dialog>
+  
+  
+  <p-dialog class="secondary-dialog" header="Edit Account" [(visible)]="editAccountModal" [modal]="true" [resizable]="false"
+    [baseZIndex]="10000" [draggable]="true" [resizable]="false">
+    <div class="errorMsg my-5" *ngIf="!accountNameExist">
+      *Account Name is mandatory field
+    </div>
+    <div class="errorMsg my-5" *ngIf="!accountDomainExist">
+      *Account Domain is mandatory field
+    </div>
+    <div class="errorMsg my-5" *ngIf="isAccountDomainValid">
+      *Please enter the valid Account Domain.
+    </div>
+    <div class="errorMsg my-5" *ngIf="isAccountDomainDuplicate">
+      *This account Domain is Taken. Please specify different account Domain
+    </div>
+    <div class="errorMsg my-5" *ngIf="!urlPatterInvalid">
+      *URL Pattern is Invalid
+    </div>
+    <div class="errorMsg my-5" *ngIf="!ssoUrlExist">
+      *sso field is enabled but ssoUrl is not given
+    </div>
+    <div class="errorMsg my-5" *ngIf="entityIdFromXmlAbsent">
+      *Entity Id is required Please check the enrityId checkbox
+    </div>
+    <div class="errorMsg my-5" *ngIf="ssoKeyAbsent">
+      *SSO Key is required
+    </div>
+    
+    <div class="innerWidth">
+      <div class="p-grid p-align-center w-100-p">
+        <div class="p-col-4">Account Name</div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]="accountName" [readonly]="true">
+        </div>
+        <div class="p-col-4">Account Description</div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]="accountDescription" >
+        </div>
+        <div class="p-col-4">Account Domain</div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]="accountDomain" [readonly]="false">
+        </div>
+        <div class="p-col-8 p-offset-4">
+          <p-checkbox name="group1" value="ssoEnabled" label="ssoEnabled" [(ngModel)]="ssoEnabled" 
+          (change)="toggleVisibilityAccount($event)"></p-checkbox>
+          <!-- <input type="checkbox" [(ngModel)]="ssoEnabled" data-md-icheck
+            (change)="toggleVisibilityAccount($event)" />ssoEnabled -->
+          </div>
+      </div>
+  
+      <div class="ui-g p-align-center" *ngIf="ssoEnabled">
+        <div class="p-col-8 p-offset-4">
+
+          <label *ngFor="let radiobutton of radioItems">
+
+            <!-- <p-radioButton name="options" value="Option 1" label="{{radiobutton.name}}" 
+            (click)="SpIdpModeSelection(radiobutton)"  [checked]="radiobutton.value == spInitiated"></p-radioButton> -->
+
+            <input type="radio" name="options" (click)="SpIdpModeSelection(radiobutton)"
+            [checked]="radiobutton.value == spInitiated">{{radiobutton.name}}
+          </label>
+          </div>
+        <div class="p-col-4">SSO URL</div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]="ssoUrl">
+        </div>
+        <div class="p-col-4">SSO Key</div>
+        <div class="p-col-8">
+          <textarea class="w-100-p" pInputTextarea rows="4" [(ngModel)]="ssoKey"></textarea>
+        </div>
+        <div class="p-col-8 p-offset-4">
+          <button type="button" pButton label="Get Entity ID" (click)="toggleForXmlVerify()"></button>
+          
+            </div>
+  
+            <div class="p-col-4">Entity Id from Xml</div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText  [(ngModel)]="entityIdFromXml" [readonly]="true">
+        </div>
+      </div>
+   
+    </div>
+
+    <p-footer>
+      <button type="button" pButton label="Save" (click)="saveDataForAccount()"></button>
+      <button type="button" pButton label="Cancel" class="ml-3 ui-button-secondary" (click)="editAccountModal=false"></button>
+    </p-footer>
+
+  </p-dialog>
+  
+  
+  <p-dialog class="secondary-dialog" header="Create New Project"  [(visible)]="projectModal" [modal]="true" [resizable]="false"
+    [baseZIndex]="10000" [draggable]="true" [resizable]="false">
+    <div class="errorMsg my-5" *ngIf="!projectNameExist">
+      *Project Name is mandatory field
+    </div>
+    <div class="errorMsg my-5" *ngIf="projectNameValid">
+      *Please use only letters (a-z), numbers, and special character (periods ,!,-,_,@,#,&) for project name.
+    </div>
+    <div class="errorMsg my-5" *ngIf="!AccountSelectedForProject">
+      *No Account Selected
+    </div>
+    <div class="innerWidth">
+      <div class="p-grid p-align-center w-100-p">
+        <div class="p-col-4">Account Name</div>
+        <div class="p-col-8">
+          <p-dropdown   [options]="listOfAccounts" [(ngModel)]="selectedAccount"  scrollHeight="140px"
+            [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow" appendTo="body" [baseZIndex]="10009"></p-dropdown>
+        </div>
+        <div class="p-col-4">Project Name</div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]="projectName" >
+        </div>
+        <div class="p-col-4">Project Description</div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]='projectDescription'>
+        </div>
+        <div class="p-col-4">Project Type</div>
+        <div class="p-col-8">
+          <p-dropdown  [options]="projectTypeList" [(ngModel)]="selectedTypeOfProject" scrollHeight="140px"
+            [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow" appendTo="body" [baseZIndex]="10009"></p-dropdown>
+        </div>
+  
+      
+      </div>
+  
+    </div>
+
+    <p-footer>
+      <button type="button" pButton label="Save" (click)="saveProjectInfo()"></button>
+      <button type="button" pButton label="Cancel" class="ml-3 ui-button-secondary" (click)="projectModal=false"></button>
+    </p-footer>
+
+  </p-dialog>
+  
+  <p-dialog class="secondary-dialog" header="Edit Project" [(visible)]="editProjectModal" [modal]="true" [resizable]="false"
+    [baseZIndex]="10000" [draggable]="true" [resizable]="false">
+    <div class="errorMsg my-5" *ngIf="!projectNameExist">
+      *Project Name is mandatory field
+    </div>
+    <div class="errorMsg my-5" *ngIf="projectNameValid">
+      *Please use only letters (a-z), numbers, and special character (periods ,!,-,_,@,#,&) for project name.
+    </div>
+    <div class="errorMsg my-5" *ngIf="!AccountSelectedForProject">
+      *No Account Selected
+    </div>
+    <div class="innerWidth">
+      <div class="p-grid p-align-center w-100-p">
+        <div class="p-col-4">Account Name</div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]="accountName" [readonly]="true">
+        </div>
+        <div class="p-col-4">Project Name</div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]="projectName" [readonly]="true">
+        </div>
+        <div class="p-col-4">Project Description</div>
+        <div class="p-col-8">
+          <input type="text" class="w-100-p" pInputText [(ngModel)]="projectDescription">
+        </div>
+        <div class="p-col-4">Project Type</div>
+        <div class="p-col-8">
+          <p-dropdown  [options]="projectTypeList" [(ngModel)]="selectedTypeOfProject" scrollHeight="140px"
+            [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow" appendTo="body" [baseZIndex]="10009"></p-dropdown>
+        </div>
+  
+       
+      </div>
+    </div>
+      <p-footer>
+        <button type="button" pButton label="Save" (click)="saveProjectInfo()"></button>
+        <button type="button" pButton label="Cancel" class="ml-3 ui-button-secondary" (click)="editProjectModal=false"></button>
+      </p-footer>
+  </p-dialog>
+  
+  <p-dialog class="secondary-dialog" header="License Form" [modal]="true" [(visible)]="licenseModal" [resizable]="false"
+    [draggable]="true">
+    <div class="innerWidthForm">
+      <div class="p-grid p-align-center w-100-p">
+      <app-dynamic-form (result)="saveLicense($event)" [jsonData]="jsonFile">
+              </app-dynamic-form> 
+      </div>
+    </div>
+  </p-dialog>
+  

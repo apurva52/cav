@@ -1,0 +1,196 @@
+<p-sidebar
+  #sidebar
+  [styleClass]="classes"
+  [(visible)]="visible"
+  [showCloseIcon]="false"
+  baseZIndex="10000"
+  blockScroll="true"
+  appendTo="body"
+  styleClass="time-filter"
+  [baseZIndex]="100"
+>
+  <div class="sidebar-header">
+    <div class="sidebar-title p-grid p-justify-between">
+      <div>
+        <i class="icons8 icons8-clock"></i>
+        <span>Alert Filter</span>
+      </div>
+      <i
+        class="icons8-delete icons8"
+        style="cursor: pointer"
+        (click)="closeClick()"
+      ></i>
+    </div>
+  </div>
+
+  <div class="sidebar-content">
+    <div class="form-content">
+      <p-accordion
+        #pnl1
+        expandIcon="icons8 icons8-expand-arrow"
+        collapseIcon="icons8 icons8-collapse-arrow" [multiple]="true"
+      >
+          <p-accordionTab [selected]="true">
+            <p-header class="w-10-p">
+              <span>Time Filter</span>
+                          <i class="icons8 icons8-help right pr-5" tooltipZIndex="20000" pTooltip="Help" placeholder="Right"></i>
+              </p-header>
+          <div class="ui-fluid">
+            <div class="p-field p-grid">
+                <label for="firstname" class="p-col-12 p-md-2">Preset</label>
+                <div class="p-col-12 p-md-8">
+                  <p-dropdown
+                  [options]="preset"
+                  [(ngModel)]="selectedPreset"
+                  placeholder="select time"
+                  class="customInput"
+                  dropdownIcon="icons8 icons8-expand-arrow" (onChange)="onPresetChange()"
+                ></p-dropdown>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="selectedPreset == 'custom'" class="p-field p-grid">
+            
+          <label for="start-date-time" class="p-col-12 p-md-2">From:</label>
+          <div class="p-input-icon-left search-div-css p-col-12 p-md-8">
+            <span class="p-input-icon-left">
+              <i class="icons8 icons8-calendar"></i>
+              <input autocomplete="off" readonly pInputText class="customInput p-inputtext" id="start-date-time" 
+                [owlDateTime]="customStartDateTime" [max]="max" 
+                [owlDateTimeTrigger]="customStartDateTime" placeholder="Start Date Time"
+                (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'" [(ngModel)]="customTimeFrame" />
+            </span>
+          <owl-date-time #customStartDateTime [showSecondsTimer]="true"></owl-date-time>
+           </div>
+        </div>
+
+        <div *ngIf="selectedPreset == 'custom'" class="p-field p-grid">
+
+          <label for ="end-date-time" class="p-col-12 p-md-2">To:</label>
+          <div class="p-input-icon-left search-div-css  p-col-12 p-md-8">
+            <span class="p-input-icon-left">
+           <i class="icons8 icons8-calendar"></i>
+          <input autocomplete="off" readonly pInputText class="customInput p-inputtext" id="end-date-time" 
+          [owlDateTime]="customEndDateTime" [max]="max" 
+            [owlDateTimeTrigger]="customEndDateTime" placeholder="End Date Time"
+            (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeTo'" [(ngModel)]="customTimeFrame" />
+            </span>
+          <owl-date-time #customEndDateTime [showSecondsTimer]="true"></owl-date-time>
+          </div>
+        </div>
+        </p-accordionTab>
+          <p-accordionTab [selected]="false">
+            <p-header class="w-10-p">
+              <span>Alert Severity</span>
+                          <i class="icons8 icons8-help right pr-5" tooltipZIndex="20000" pTooltip="Help" placeholder="Right"></i>
+              </p-header> 
+          <p-fieldset legend="New Alerts({{_alertEventService.stateCount['Started']}})">
+            <p-selectButton [options]="allSeverity" [(ngModel)]="newAlert" multiple="multiple"></p-selectButton>
+          </p-fieldset>  
+          <p-fieldset legend="Continuous Alerts({{_alertEventService.stateCount['Continuous']}})">
+            <p-selectButton [options]="mmcSeverity" [(ngModel)]="continuousAlert" multiple="multiple"></p-selectButton>
+          </p-fieldset>
+          <p-fieldset legend="Ended Alerts({{_alertEventService.stateCount['Ended']}})">
+            <p-selectButton [options]="endedSeverity" [(ngModel)]="endedAlert" multiple="multiple"></p-selectButton>
+          </p-fieldset>
+          <p-fieldset legend="Upgraded Alerts({{_alertEventService.stateCount['Upgraded']}})">
+            <p-selectButton [options]="upgradedOption" [(ngModel)]="upgrAlert" multiple="multiple" class="resize"></p-selectButton>
+          </p-fieldset>
+          <p-fieldset legend="Downgraded Alerts({{_alertEventService.stateCount['Downgraded']}})">
+            <p-selectButton [options]="downgradedOption" [(ngModel)]="dwngAlert" multiple="multiple"  class="resize"></p-selectButton>
+          </p-fieldset>
+          <!-- <p-fieldset legend="Cleared Alerts(0)">
+            <p-selectButton [options]="clearedAlerts" [(ngModel)]="clrAlert" multiple="multiple"></p-selectButton>
+          </p-fieldset> -->
+        </p-accordionTab>
+        <!-- <p-accordionTab header="Alert Type">
+          <p-selectButton [options]="alertTypes" [(ngModel)]="aType" multiple="multiple"></p-selectButton>
+        </p-accordionTab> -->
+
+          <p-accordionTab [selected]="false">
+            <p-header class="w-10-p">
+              <span>Alert Rules</span>
+                          <i class="icons8 icons8-help right pr-5" tooltipZIndex="20000" pTooltip="Help" placeholder="Right"></i>
+              </p-header>
+          <div class="ui-fluid">
+            <div class="p-field p-grid">
+                <label for="firstname" class="p-col-12 p-md-2">Rules</label>
+                <div class="p-col-12 p-md-8">
+                  <!-- <p-dropdown
+                  [options]="ruleList"
+                  placeholder="Select Rule"
+                  optionLabel="label"
+                  [(ngModel)]="selectedRules"
+                  dropdownIcon="icons8 icons8-expand-arrow"
+                ></p-dropdown> -->
+                <p-multiSelect #multiSelect [options]="ruleList" defaultLabel="Select Rule" [(ngModel)]="selectedRules"
+                [maxSelectedLabels]="3" pTooltip="{{ selectedRules }}" tooltipZIndex="20000" [panelStyle]="{minWidth: '200px',maxWidth: '260px'}"></p-multiSelect>
+        
+                </div>
+            </div>
+            </div>
+        </p-accordionTab>
+        <!--p-accordionTab header="String Filter">
+          <div class="ui-fluid">
+            <div class="p-field p-grid">
+                <label for="firstname" class="p-col-12 p-md-2">Field</label>
+                <div class="p-col-12 p-md-8">
+                  <p-dropdown
+                  [options]="options" 
+                  placeholder="Select Field"
+                  optionLabel="label"
+                  class="customInput"
+                  dropdownIcon="icons8 icons8-expand-arrow"
+                ></p-dropdown>
+                </div>
+            </div>
+          </div>
+        </p-accordionTab-->
+        
+          <p-accordionTab [selected]="false">
+            <p-header class="w-10-p">
+              <span>Topology Filter</span>
+                          <i class="icons8 icons8-help right pr-5" tooltipZIndex="20000" pTooltip="Help" placeholder="Right"></i>
+              </p-header>
+          <div class="ui-fluid">
+            <div class="p-field p-grid">
+                <label for="" class="p-col-12 p-md-2" pTooltip="Tier" tooltipZIndex="20000">Tier</label>
+                <div class="p-col-12 p-md-8">
+                  <input type="text" class="w-100-p" pInputText value="" [(ngModel)]="tier"/>
+                </div>
+            </div>
+            <div class="p-field p-grid">
+              <label for="" class="p-col-12 p-md-2"  pTooltip="Server" tooltipZIndex="20000">Server</label>
+              <div class="p-col-12 p-md-8">
+                <input type="text" class="w-100-p" pInputText value="" [(ngModel)]="server"/>
+              </div>
+          </div>
+          <div class="p-field p-grid">
+            <label for="" class="p-col-12 p-md-2" pTooltip="Instance" tooltipZIndex="20000">Instance</label>
+            <div class="p-col-12 p-md-8">
+              <input type="text" class="w-100-p" pInputText value="" [(ngModel)]="instance"/>
+            </div>
+        </div>
+          </div>
+        </p-accordionTab>
+    
+          <p-accordionTab [selected]="false">
+            <p-header class="w-10-p">
+              <span>Other</span>
+                          <i class="icons8 icons8-help right pr-5" tooltipZIndex="20000" pTooltip="Help" placeholder="Right"></i>
+              </p-header>
+          <p-selectButton [options]="other" [(ngModel)]="selectedOthers" multiple="multiple"></p-selectButton>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+    <div>
+      <!-- style="margin-right: 0.5em; margin-top: 0.6em;" -->
+      <div class="p-col-12 text-right" >
+        <button pButton type="button" label="RESET" pTooltip="Reset Filters" tooltipZIndex="20000" class="ui-outline-button ui-button-secondary" (click)="setDefaultFilters()"></button>  
+        <button pButton type="button" label="SELECT ALL" pTooltip="Select All Filters" tooltipZIndex="20000" class="ui-outline-button ui-button-secondary" (click)="selectAllFilters()"></button>
+        <button pButton type="remove" label="CLEAR ALL" pTooltip="Clear All Filters" tooltipZIndex="20000" class="ui-outline-button ui-button-secondary" (click)="clearFilters()"></button> 
+        <button pButton type="submit" (click)="applyFilter()" label="APPLY" pTooltip="Apply" tooltipZIndex="20000" class="ui-button-rounded ui-button-right"></button>
+      </div>
+    </div>
+  </div>
+</p-sidebar>

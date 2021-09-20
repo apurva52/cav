@@ -1,0 +1,100 @@
+<button type="button" (click)="_dialogVisibility = true" title="Apply Time Period" 
+class="ui-button-rounded ui-button-secondary"
+pButton icon="icons8 icons8-clock"
+    label="Time Period: {{_appliedTimePeriod}}"></button>
+<!-- <button icon="fa-clock-o" pbutton title="Apply Time Period" type="button" (click)="_dialogVisibility = true"><span class="ui-button-icon-left ui-clickable fa fa-fw fa-clock-o"></span><span class="ui-button-text ui-clickable">Time Period: </span></button> -->
+<p-dialog [(visible)]="_dialogVisibility" (onShow)="initializeDateTime()" (onHide)="resetFields(timePeriod)" modal="modal" class="secondary-dialog" [style]="{'width':'480px'}" [resizable]="false" blockScroll="false"
+    closeOnEscape="true" dismissableMask="true">
+        <p-header style="cursor: grab;">
+            Apply Time Period
+        </p-header>
+        <!-- <div class="overlayPanel">
+            <p-progressSpinner class="spinner"></p-progressSpinner>
+        </div> -->
+
+        <div class="p-grid p-align-center">
+            <div class="p-col-3">
+                Time Period:
+            </div>
+            <div class="p-col-9"> 
+                <p-dropdown #timePeriod class="timePeriodDrpClass" [options]="_timePeriodList" appendTo="body"
+                    [autoWidth]="false" [showTransitionOptions]="'250ms'" [(ngModel)]="_selectedTimePeriod"
+                    [hideTransitionOptions]="'250ms'" (onChange)="changeTimePeriod(_selectedTimePeriod)"
+                    [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <!-- For Event Day -->
+            <ng-container *ngIf="_selectedTimePeriod === 'Event Day'">
+                
+                    <div class="p-col-3"> 
+                        Select Day:
+                    </div>
+                    <div class="p-col-9 p-0">
+                        <div class="p-grid">
+                    <div class="p-col-6">
+                        <p-dropdown #eventDay class="timePeriodDrpClass" [options]="_eventDaysList" appendTo="body"
+                            [(ngModel)]="_selectedEventDay" [autoWidth]="false" [style]="{'min-width':'100%'}" 
+                            dropdownIcon="icons8 icons8-expand-arrow"
+                            (onChange)="eventDateHandler(eventDay.selectedOption.value, eventYear.selectedOption.value)">
+                        </p-dropdown>
+                    </div>
+
+                    <div class="p-col-6">
+                        <p-dropdown #eventYear class="timePeriodDrpClass" [options]="_yearList" appendTo="body"
+                            [(ngModel)]="_selectedEventDayYear" [autoWidth]="false" [style]="{'min-width':'100%'}"
+                            dropdownIcon="icons8 icons8-expand-arrow"
+                            (onChange)="eventDateHandler(eventDay.selectedOption.value, eventYear.selectedOption.value)">
+                        </p-dropdown>
+                    </div>
+                    </div>
+                    </div>
+               
+
+            </ng-container>
+
+            <ng-container *ngIf="timePeriod.selectedOption.custom">
+                
+                    <div class="p-col-3">
+                        Select Start Time:
+                    </div>
+                    <div class="p-col-9">
+                        <p-calendar #startCal class="graphtimeClass" placeholder="MM/DD/YYYY hh/mm/ss" showTime="true"
+                            showSeconds="true" tooltipPosition="bottom" hideOnDateTimeSelect="true"
+                            [monthNavigator]="_showMonthsYears" [yearNavigator]="_showMonthsYears" [minDate]="_minDate"
+                            [maxDate]="_maxDate" [(ngModel)]="_startTime" dateFormat="mm/dd/yy" [yearRange]="_yearRange"
+                            appendTo="body" (onSelect)="show(startCal)" [defaultDate]="_startTime" 
+                            inputStyleClass="w-100-p" [style]="{'min-width':'100%'}">
+                        </p-calendar>
+                    </div>
+                
+
+              
+                    <div class="p-col-3">
+                        Select End Time:
+                    </div>
+                    <div class="p-col-9">
+                        <p-calendar #endCal [value] = '' class="graphtimeClass" placeholder="MM/DD/YYYY hh/mm/ss" showTime="true"
+                            showSeconds="true" tooltipPosition="bottom" hideOnDateTimeSelect="true"
+                            [monthNavigator]="_showMonthsYears" [yearNavigator]="_showMonthsYears" [minDate]="_minDate"
+                            [maxDate]="_maxDate" [(ngModel)]="_endTime" dateFormat="mm/dd/yy" [yearRange]="_yearRange"
+                            appendTo="body" (onSelect)="show(endCal)" [defaultDate]="_endTime"
+                            inputStyleClass="w-100-p" [style]="{'min-width':'100%'}">
+                        </p-calendar>
+                    </div>
+               
+
+                <!--Added include discontinuous in template-->
+                <!-- <div class="p-col-9 p-offset-3">
+                    <p-checkbox #discontGraph name="discontGraphChk" binary="true" [(ngModel)]="_discGraphChecked">
+                    </p-checkbox> Show Discontinued Matrices
+                </div> -->
+            </ng-container>
+        </div>
+
+        <p-footer>
+            <button type="button" pButton class="ui-button-rounded ui-button-secondary px-15" (click)="resetFields(timePeriod);_dialogVisibility = false"
+                label="Cancel"></button>
+
+            <button type="button" pButton class="ui-button-rounded px-15" label="Apply" (click)="applyTimePeriod()"></button>
+        </p-footer>
+</p-dialog>

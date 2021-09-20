@@ -1,0 +1,222 @@
+<div class="header">
+   <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+   <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <a class = "clickable" (click) = "navToPreviousPage()">
+         <span class="icons8 icons8-left toolbar-icon-color"></span>
+      </a>
+      <div class="p-col ui-toolbar-text">Configure AZURE Monitors</div>
+   </div>
+</p-toolbar>
+<div class="viewportHeight">
+   <p-tabView class="tabWauto">
+      <p-tabPanel header="Configuration">
+         <div class="hlthChkSettingsTab">
+            <form (ngSubmit)="addData()" #form="ngForm" ngNativeValidate>
+               <div class="p-grid p-align-center">
+                  <div class="ui-g-2 labelCss required-mark">Account Name</div>
+                  <div class="ui-g-4">
+                     <input name="sankey" type="text" pInputText [(ngModel)]="formData.aNKey" class="w-100-p" required
+                        placeholder="Account Name" ngModel />
+                  </div>
+                  <div class="ui-g-2 pl-40 required-mark">Client ID</div>
+                  <div class="ui-g-4">
+                     <input name="cId" type="text" pInputText [(ngModel)]="formData.cId" class="w-100-p" required
+                        placeholder="Client ID" ngModel />
+                  </div>
+                  <div class="ui-g-2 labelCss required-mark">
+                     <label>Tenant ID</label>
+                  </div>
+                  <div class="ui-g-4">
+                     <input name="tId" type="text" pInputText [(ngModel)]="formData.tId" class="w-100-p" required
+                        placeholder="Tenant ID" ngModel />
+                  </div>
+                  <div class="ui-g-2 pl-40 required-mark">
+                     <label>Client Secret</label>
+                  </div>
+                  <div class="ui-g-4">
+                     <input name="cSec" type="password" pInputText [(ngModel)]="formData.cS" class="w-100-p" required
+                        ngModel autocomplete="new-password" />
+                  </div>
+                  <div class="ui-g-12">
+                     <p-accordion class="monitor-ui-accordion">
+                        <p-accordionTab header="Advanced Settings">
+                           <div class="p-grid p-align-center">
+                              <div class="ui-g-2 labelCss">Exclude Namespace</div>
+                              <div class="ui-g-3">
+                                 <p-multiSelect name="ns" [options]="monNameList" defaultLabel="Choose Monitor list"
+                                    dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="excludeMon"
+                                    [style]="{'width': '188px','display': 'inline-flex'}" ngModel>
+                                 </p-multiSelect>
+                              </div>
+                           </div>
+                        </p-accordionTab>
+                     </p-accordion>
+                  </div>
+               </div>
+               <div class="buttonCont mb-10">
+                  <button type="submit" pButton  class="ui-button ui-button-rounded ui-button-right" *ngIf="!isFromEdit"
+                     label="Add"></button>
+                  <button type="submit" pButton  class="ui-button ui-button-rounded ui-button-right" *ngIf="isFromEdit"
+                     label="Update"></button>
+                  <button type="button" pButton  class="ui-button ui-button-rounded ui-button-right" (click)="closeConfiguration()"
+                     *ngIf="isFromEdit" label="Cancel"></button>
+               </div>
+               <div>
+                  <!-- <p-dataTable [value]="azureConfigDTO" class="monitor-ui-table" [rows]="10" [paginator]="azureConfigDTO?.length >10" [pageLinks]="3">
+               <p-column [style]="{'width':'21px'}" header="#">
+                  <ng-template pTemplate let-data="rowData" type="body" let-rowIndex="rowIndex">
+                     <span style="float:right">{{rowIndex+1}}
+                     </span>
+                  </ng-template>
+               </p-column>
+               <p-column field="aNKey" header="Account Name"></p-column>
+               <p-column field="cId" header="Client ID"></p-column>
+               <p-column field="tId" header="Tenant ID"></p-column>
+               <p-column [style]="{'width':'100px'}" class="col-overflow" header="Actions">
+                  <ng-template pTemplate let-data="rowData" let-rowIndex="rowIndex" type="body">
+                     <span>
+                     <i class="fa fa-trash-o disabled" (click)="deleteSpecificConfig(data,rowIndex)"
+                     style="color: #f12a2a;cursor:pointer; margin-left: 30px" title="Delete Configured Profile"></i>
+                     <i class="fa fa-pencil" (click)="editData(data,rowIndex)"
+                     style="color: #2572b5;cursor:pointer; margin-left: 10px"></i>
+                     </span>
+                  </ng-template>
+               </p-column>
+               </p-dataTable> -->
+                  <p-table [columns]="cols" [value]="azureConfigDTO" class="all-tables" [rows]="10"
+                     [paginator]="azureConfigDTO?.length >10" [pageLinks]="3">
+                     <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                           <col style="width:30px">
+                           <col style="width:30%">
+                           <col style="width:30%">
+                           <col style="width:30%">
+                           <col style="width:10%">
+                        </colgroup>
+                     </ng-template>
+                     <ng-template pTemplate="header" let-columns>
+                        <tr>
+                           <th style="width:25px">
+                              #
+                           </th>
+                           <th *ngFor="let col of columns">
+                              {{col.header}}
+                           </th>
+                           <th>Actions</th>
+                        </tr>
+                     </ng-template>
+                     <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+                        <tr>
+                           <td class="text-center columnwidth">
+                              <span style="float:right">{{rowIndex+1}}
+                              </span>
+                           </td>
+                           <td *ngFor="let col of columns">
+                              {{rowData[col.field]}}
+                           </td>
+                           <!-- <td>{{product.met}}</td>
+                     <td>{{product.cKey}}</td> -->
+                           <td class="text-center">
+                              <button type="button" class="btn-icon m-2" title="Delete Configured Profile"
+                                 (click)="deleteSpecificConfig(rowData)">
+                                 <i class="icons8 icons8-trash red-fg disabled"></i>
+                              </button>
+                              <button type="button" class="btn-icon m-2" title="Edit Configured Profile" (click)="editData(rowData)">
+                                 <i class="icons8 icons8-edit"></i>
+                              </button>
+                           </td>
+                        </tr>
+                     </ng-template>
+                     <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                           <td [attr.colspan]="columns.length + 2" class="noRecords" style="text-align: center">No records
+                              found.</td>
+                        </tr>
+                     </ng-template>
+                  </p-table>
+               </div>
+            </form>
+         </div>
+      </p-tabPanel>
+      <p-tabPanel header="Monitor(s)">
+         <div class="hlthChkSettingsTab">
+            <div class="buttonCont my-10">
+               <button pButton class="toolbarIcon" *ngIf="!isShowFilter" type="button" icon="icons8 icons8-search"
+                  (click)="showFilter()" title="Show Filter" class="mx-3"></button>
+               <button pButton class="toolbarIcon" *ngIf="isShowFilter" type="button" icon="icons8 icons8-search"
+                  (click)="showFilter()" title="Hide Filter" class="mx-3"></button>
+            </div>
+            <div class="ui-g mt-20">
+               <p-table #searchable [value]="cloudMonitorData" class="all-tables"
+                  [paginator]="cloudMonitorData?.length > 20" [rows]="20" [pageLinks]="3">
+                  <ng-template pTemplate="colgroup" let-columns>
+                     <col style="width: 40px;">
+                     <col style="width: auto;">
+                  </ng-template>
+                  <ng-template pTemplate="header">
+                     <tr class="scen-ptable-thead">
+                        <th rowspan="2"></th>
+                        <th>
+                           Monitor Name
+                        </th>
+                     </tr>
+                     <tr *ngIf="isShowFilter">
+                        <th [ngSwitch]="'monName'">
+                           <input class="w-100-p" pInputText type="text"
+                              (input)="searchable.filter($event.target.value, 'monName', 'contains')">
+                        </th>
+                     </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
+                     <tr class="scen-ptable-tbody">
+                        <td>
+                           <span>
+                              <p-checkbox name="chk" binary=true [(ngModel)]="rowData.enabled">
+                              </p-checkbox>
+                           </span>
+                        </td>
+                        <td>
+                           <span title="Click to view Metric Information"> 
+                              <a class="clickable"
+                              (click)="advanceSettings(rowData)">{{rowData.monName}}</a></span>
+                        </td>
+                     </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage" let-columns>
+                     <tr>
+                        <td [attr.colspan]="2" class="noRecords" style="text-align: center">No records found.</td>
+                     </tr>
+                  </ng-template>
+               </p-table>
+            </div>
+         </div>
+         <div class="buttonCont my-10">
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-right" *ngIf="runTimeMode != 3"
+               [disabled]="modeStatus || azureConfigDTO.length == 0 || userRole == 'guest'" (click)="saveData()"
+               label="Save"></button>
+            <button pButton type="button" *ngIf="runTimeMode == 3" class="ui-button ui-button-rounded ui-button-right" (click)="saveData()"
+               [disabled]="modeStatus || azureConfigDTO.length == 0 || userRole == 'guest'"
+               title="Saves the Configuration(s) at runtime" label="Save & Apply"></button>
+         </div>
+      </p-tabPanel>
+      <div class="confirm-dialog">
+      <p-confirmDialog #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+         <p-footer>
+            <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton icon="pi pi-check"
+               label={{acceptLable}} (click)="cd.accept()"></button>
+            <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton icon="pi pi-times"
+               label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+         </p-footer>
+      </p-confirmDialog>
+   </div>
+      <div class="loading-indicator" *ngIf="loading">
+         <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+         </p-progressSpinner>
+      </div>
+   </p-tabView>
+</div>
+<div *ngIf = "display">
+   <app-mon-stats [display] = "display" [item]="gdfDetail" (displayChange)="onDialogClose($event)"></app-mon-stats>
+ </div>

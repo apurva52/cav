@@ -1,0 +1,30 @@
+<p-dialog #dialog [(visible)]="isVisible"  styleClass="Custom-Metrices-dialog"
+    class="success-dialog custom-dialog" [resizable]="false" [draggable]="false" [modal]="true" [closable]="false"
+    [baseZIndex]="10000">  
+    <p-header>
+        <div class="dialog-title p-grid p-justify-between p-align-center">
+            <div>
+                Add to Custom Metrics
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-help"></i>
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+    <div class="p-grid">
+        <div class="p-col-12">
+            <div class="p-grid">
+                <div class="p-grid p-col-12 p-md-12">
+                    <label for="group-name" class="p-col-5">Enter Group Name</label>
+                    <input id="group-name" class="p-col-7" type="text" pInputText>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p-footer>
+        <button type="button" pButton (click)="isVisible=false" label="CLOSE"
+            class="ui-button-secondary ui-button-rounded"></button>
+        <button type="button" class="ui-button ui-button-rounded" pButton (click)="apply()" label="APPLY"></button>
+    </p-footer>
+</p-dialog>

@@ -1,0 +1,87 @@
+<div class="header">
+    <app-header></app-header>  
+</div> 
+<p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a routerLink="/home/home-sessions">
+            <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">
+           Form Analytics
+        </div>
+        <div class="p-col text-right elipseText" *ngIf="filterLabel != ''">
+                <i class="icons8 icons8-filter ph-5" style="cursor: pointer;" title="View Applied Filters"
+                    (click)="formfiltercriteria.show()"></i>
+                <span [attr.title]="filterLabel">{{filterLabel}}</span>
+            </div>
+    </div>
+</p-toolbar>
+<div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+ </div>
+<div class="overview">
+ <!-- <div class="p-col-12">
+    <div class="heapsize">
+       <div class="icon-display">
+           <i class="icons8 icons8-filter" title="Select FilterCriteria" (click)="formfiltercriteria.show()"></i>
+       </div>
+    </div>
+</div>
+-->
+<div class="p-grid loader-container vertical-container" *ngIf="loading && data.formdataa == null">
+           <div class="p-col p-col-align-center text-center">
+           <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+           </div>
+         </div>
+<div class="p-grid vertical-container" *ngIf="data.formdataa != null && pageNameflag == true">
+  <div class="p-col p-col-align-center text-center">
+    <p-message severity="normal" text="No Pages were found based on current Filter Settings"></p-message>
+  </div>
+</div>
+
+<div *ngIf="data.formdataa != null">
+<div *ngFor="let formdatacomplete of data.formdataa.pages">
+<div class="border-3 form-analytics" *ngIf="!(formdatacomplete.forms.length == 0 || formdatacomplete.name == null || formdatacomplete.view == 0 || formdatacomplete.name == 'Others' || formdatacomplete.forms[0].interaction == 0)">
+    <div class="snapShot border-5">
+        <div class="tittle">
+            <div class="font-weight-700 elipseText width-120" title="Page Name : {{formdatacomplete.name}}">{{formdatacomplete.name}}</div>
+            <div title="Total Views : {{formdatacomplete.view}}" >Total Views :  <strong>{{formdatacomplete.view}}</strong></div>
+        </div>
+        <img src="/netvision/websnapshot/{{formdatacomplete.name}}.jpeg" alt="No image Found">
+    </div>
+
+    <div class="pageCorusel">
+        <p-carousel styleClass="custom-carousel" [value]="formdatacomplete.forms" [numVisible]="5" [numScroll]="5" [circular]="false" >
+            <ng-template let-formAnalytic pTemplate="item"  >
+                <div class="form-card border-5" style="width:190px;cursor:pointer;" (click)="openFormReportDetail(formAnalytic,formdatacomplete.name)">
+                    <div class="title border-5" title="Form Name : {{formAnalytic.name}} ,Click to open detail reports" >
+                        {{formAnalytic.name}}
+                    </div>
+                    <div class="badges">
+                        <div class="badgBlock">
+                            <i class="las-edit btn-icon" title='Total succesful interaction : {{formAnalytic.interaction.toFixed(0)}}'></i>
+                            <div class="car-title" title='Total succesful interaction : {{formAnalytic.interaction.toFixed(0)}}'>{{formAnalytic.interaction.toFixed(0)}}</div>
+                        </div>
+                        <div class="badgBlock">
+                            <i class="las-check-square btn-icon" title='Total succesful submit : {{formAnalytic.submit.toFixed(0)}}'></i>
+                            <div class="car-title" title='Total succesful submit : {{formAnalytic.submit.toFixed(0)}}'>{{formAnalytic.submit.toFixed(0)}}</div>
+                        </div>
+                        <div class="badgBlock">
+                            <i class="las-user-times-solid btn-icon" title='Total failed submit : {{formAnalytic.failed.toFixed(0)}}'></i>
+                            <div class="car-title" title='Total failed submit : {{formAnalytic.failed.toFixed(0)}}'>{{formAnalytic.failed.toFixed(0)}}</div>
+                        </div>
+                        <div class="badgBlock">
+                            <i class="las-exchange-alt-solid btn-icon" title='Conversion rate : {{(formAnalytic.submit == 0 || data.formdataa.pages[0].view ==0) ? 0 : (((formAnalytic.submit-formAnalytic.failed)/data.formdataa.pages[0].view)*100).toFixed(2)}} %'></i>
+                            <div class="car-title" title='Conversion rate : {{(formAnalytic.submit == 0 || data.formdataa.pages[0].view ==0) ? 0 : (((formAnalytic.submit-formAnalytic.failed)/data.formdataa.pages[0].view)*100).toFixed(2)}} %'>{{(formAnalytic.submit == 0 || data.formdataa.pages[0].view ==0) ? 0 : (((formAnalytic.submit-formAnalytic.failed)/data.formdataa.pages[0].view)*100).toFixed(2)}} %</div>
+                        </div>
+                    </div>
+
+                </div>
+            </ng-template>
+        </p-carousel>
+    </div>
+</div>
+</div>
+</div>
+</div>
+<app-form-analytics-filter #formfiltercriteria (filterChange)="applyFilter($event)"></app-form-analytics-filter>

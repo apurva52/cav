@@ -1,0 +1,222 @@
+<div class="cpu-burst-container">
+
+    <div class="p-grid">
+        <div class="p-col-5">
+            <div class="p-col">
+                <p-card>
+                    <div class="card-header p-grid p-justify-between p-align-center">
+                        <div>Injection Time</div>
+                        <i class="icons8-help"></i>
+                    </div>
+                    <div>
+                        <div class="p-grid p-col-9 p-justify-between p-align-center">
+                            <p-radioButton class="p-col" [(ngModel)]="selectedTime" name="groupname" value="current" label="Current"></p-radioButton>
+                            <p-radioButton class="p-col" [(ngModel)]="selectedTime" name="groupname" value="custom" label="Custom"></p-radioButton>
+                            <p-radioButton class="p-col" [(ngModel)]="selectedTime" name="groupname" value="iteration" label="Set Iteration"></p-radioButton>
+                        </div>
+
+
+                        <div class="p-col" *ngIf="selectedTime !== 'iteration'">
+                            <div class="p-grid p-col p-justify-start p-align-center">
+                                <label class="input-label">From :</label>
+                                <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-calendar"></i>
+                                    <input pInputText class="customInput" readonly id="end-date-time" [owlDateTime]="customFromDateTime" placeholder="04:30 PM 13/06/2020" [owlDateTimeTrigger]="customFromDateTime" (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'"
+                                        [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame" />
+                                    <owl-date-time #customFromDateTime tooltipZIndex="100001005"></owl-date-time>
+                                    <p-message *ngIf="invalidDate" severity="error" text="Start date and End date should not be the same.">
+                                    </p-message>
+                                </div>
+                            </div>
+                            <div class="p-grid p-col p-justify-start p-align-center">
+                                <label class="input-label">To :</label>
+                                <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-calendar"></i>
+                                    <input pInputText class="customInput" readonly id="end-date-time" [owlDateTime]="customToDateTime" placeholder="04:30 PM 13/06/2020" [owlDateTimeTrigger]="customToDateTime" (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'" [max]="customTimeFrameMax"
+                                        [(ngModel)]="customTimeFrame" />
+                                    <owl-date-time #customToDateTime tooltipZIndex="100001005"></owl-date-time>
+                                    <p-message *ngIf="invalidDate" severity="error" text="Start date and End date should not be the same.">
+                                    </p-message>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- <p-chips [(ngModel)]="values" [disabled]="true"></p-chips> -->
+                        <div *ngIf="selectedTime === 'iteration'">
+                            <div class="p-grid">
+                                <div class="p-grid p-col p-justify-start p-align-center">
+                                    <label class="input-label">From :</label>
+                                    <div class="p-input-icon-left search-div-css">
+                                        <i class="icons8 icons8-calendar"></i>
+
+                                        <input class="customInput" readonly id="end-date-time" placeholder="04:30 PM" [owlDateTimeTrigger]="dt1" [owlDateTime]="dt1" />
+
+                                        <owl-date-time #dt1 [pickerType]="'timer'" tooltipZIndex="100001005"></owl-date-time>
+                                        <p-message *ngIf="invalidDate" severity="error" text="Start date and End date should not be the same.">
+                                        </p-message>
+                                    </div>
+                                </div>
+
+                                <div class="p-grid p-col p-justify-start p-align-center">
+                                    <label class="input-label">To :</label>
+                                    <div class="p-input-icon-left search-div-css">
+                                        <i class="icons8 icons8-calendar"></i>
+                                        <input pInputText class="customInput" readonly id="end-date-time" placeholder="04:30 PM" [owlDateTimeTrigger]="dt2" [owlDateTime]="dt2" />
+                                        <owl-date-time #dt2 [pickerType]="'timer'" tooltipZIndex="100001005"></owl-date-time>
+                                        <p-message *ngIf="invalidDate" severity="error" text="Start date and End date should not be the same.">
+                                        </p-message>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-6 p-justify-start p-align-center">
+                                <div class="input-label p-col-4">Iteration : </div>
+
+                                <div class="p-col-6">
+                                    <input type="text" pInputText />
+                                </div>
+                            </div>
+                            <div class="p-grid p-justify-center p-align-center">
+                                <div *ngFor="let data of values" class="custom-chip" [ngClass]="data.selected ? 'selected': 'non-selected'" (click)="data.selected = !data.selected">{{data.day}}</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </p-card>
+            </div>
+            <div class="p-col">
+                <p-card>
+                    <div class="card-header p-grid p-justify-between p-align-center">
+                        <div>Injection Time</div>
+                        <i class="icons8-help"></i>
+                    </div>
+                    <div>
+
+                        <div class="p-grid p-col p-justify-start p-align-center">
+                            <div class="input-label">Tier</div>
+
+                            <p-dropdown class="" [options]="tierItems" placeholder="Select Tier" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+
+                        <div class="p-grid p-col p-justify-start p-align-center">
+                            <div class="input-label">Server</div>
+
+                            <p-dropdown class="" [options]="serverItems" placeholder="Select Server" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+
+                        <div class="p-grid p-col p-justify-start p-align-center">
+                            <div class="input-label">Server Selection Mode</div>
+
+                            <p-dropdown class="" [options]="serverSelectionItems" placeholder="Server selection mode" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+
+                        <div class="p-grid p-col p-justify-start p-align-center">
+                            <div class="input-label">Connection Type</div>
+
+                            <p-dropdown class="" [options]="connectionTypeItems" placeholder="Select Connection" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+
+
+
+
+                    </div>
+                </p-card>
+            </div>
+        </div>
+
+        <div class="p-col-7">
+            <div class="p-col">
+                <p-card class="duration-card">
+                    <div class="card-header p-grid p-justify-between p-align-center">
+                        <div>Duration (1m)</div>
+                        <i class="icons8-help"></i>
+                    </div>
+                    <div class="p-grid">
+                        <div class="p-grid p-col-6 p-justify-start p-align-center">
+                            <div class="input-label p-col-2">Shoot Up</div>
+                            <div class="p-col-1"><i class="icons8-clock"></i></div>
+                            <p-dropdown class="p-col-3 dropdown" [options]="durationItem" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                            <p-dropdown class="p-col-3 dropdown" [options]="durationItem" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                            <p-dropdown class="p-col-3 dropdown" [options]="durationItem" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                        <div class="p-grid p-col-6 p-justify-start p-align-center">
+                            <div class="input-label p-col-2">Stable</div>
+                            <div class="p-col-1"><i class="icons8-clock"></i></div>
+                            <p-dropdown class="p-col-3 dropdown" [options]="durationItem" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                            <p-dropdown class="p-col-3 dropdown" [options]="durationItem" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                            <p-dropdown class="p-col-3 dropdown" [options]="durationItem" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                        <div class="p-grid p-col-6 p-justify-start p-align-center">
+                            <div class="input-label p-col-2">Tumble</div>
+                            <div class="p-col-1"><i class="icons8-clock"></i></div>
+                            <p-dropdown class="p-col-3 dropdown" [options]="durationItem" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                            <p-dropdown class="p-col-3 dropdown" [options]="durationItem" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                            <p-dropdown class="p-col-3 dropdown" [options]="durationItem" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <div>
+                        <app-chart [data]="chart"></app-chart>
+                    </div>
+                </p-card>
+            </div>
+            <div class="p-col">
+                <p-card>
+                    <div class="p-grid p-justify-between p-align-center target-header">
+                        <div class="target-label">Targets</div>
+                        <i class="icons8-help"></i>
+                    </div>
+                    <div class="p-grid">
+                        <div class="p-grid p-col-6 p-justify-start p-align-center">
+                            <div class="input-label p-col-4">Network Interface</div>
+
+                            <div class="p-col-6">
+                                <input type="text" pInputText />
+                            </div>
+                        </div>
+                        <div class="p-grid p-col-6 p-justify-start p-align-center">
+                            <div class="input-label p-col-4">Server Mode</div>
+
+                            <p-dropdown class="p-col-6" [options]="tierItems" placeholder="Select Host" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                        <div class="p-grid p-col-6 p-justify-start p-align-center">
+                            <div class="input-label p-col-4">Protocol</div>
+
+                            <p-dropdown class="p-col-6" [options]="tierItems" placeholder="Select Protocol" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                        <div class="p-grid p-col-6 p-justify-start p-align-center">
+                            <div class="input-label p-col-4">Traffic</div>
+
+                            <p-dropdown class="p-col-6" [options]="tierItems" placeholder="Select Traffic" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                        <div class="p-grid p-col-6 p-justify-start p-align-center">
+                            <div class="input-label p-col-4">Port</div>
+
+                            <div class="p-col-6">
+                                <input type="text" pInputText placeholder="Enter Port" />
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                </p-card>
+            </div>
+        </div>
+    </div>
+
+</div>

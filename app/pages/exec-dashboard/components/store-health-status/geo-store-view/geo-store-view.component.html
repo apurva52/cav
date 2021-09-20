@@ -1,0 +1,141 @@
+
+<div class="geo-row">
+<div class="geo-store-view">
+  <div class="map">
+      <div [className]="hiderightPanel?'divMap-new':'divMap-new'">
+          <exec-dashboard-hchart [options]="options" type='Map'></exec-dashboard-hchart>
+        </div>
+
+  </div>
+  <div class="map-table">
+
+      <div [class]="hiderightPanel?'divTable-hide':'divTable-new'">
+        <div class="gio-storeBox">
+          <p-dataTable [value]="tableArr" class="gio-store-view-table" [scrollable]="true" scrollHeight="100px"   [responsive]="true">
+            <p-header><div class="cav-py-1 cav-fnt-weight500 cav-fnt-14">Application stats</div></p-header>
+            <p-column field="appName" header="AppName" [sortable]="true" [style]="{'width': '26%', 'text-align': 'left','padding-left': '5px','padding-right': '5px'}">
+              <ng-template  pTemplate="header">
+                <span>
+                  <img src="./images/icon.jpg" style="width:10px;" title="Application Name"> 
+                   <span class="cav-p-1">AppName</span>
+                </span>
+              </ng-template>
+              <ng-template pTemplate="body" let-col let-appInfo="rowData">
+               <span  [title]="appInfo[col.field]"><i class="fa fa-mobile" aria-hidden="true"> </i>  {{appInfo[col.field]}}</span> 
+              </ng-template>
+            </p-column>
+            <p-column field="tps" header="TPS" [sortable]="true" [style]="{'width': '18%', 'text-align': 'center','padding-left': '4px','padding-right': '4px'}">
+              <ng-template pTemplate="header">
+                <span>
+                  <img src="./images/page_legend.png" alt="apps" title="TPS"  style="width:10px;">
+                  <span class="cav-p-1">TPS</span>
+                </span>
+              </ng-template>
+              <ng-template pTemplate="body" let-col let-appInfo="rowData">
+                {{appInfo[col.field]| round}}
+              </ng-template>
+            </p-column>
+            <p-column field="res" header="Response Time" [styleClass]="response" [sortable]="true" [style]="{'width': '28%', 'text-align': 'center'}">
+              <ng-template pTemplate="header">
+                <span>
+                  <img src="./images/response_legend.png" style="width:11px;" alt="apps" title="Response Time (ms)">
+                  <span class="cav-p-1">Res(ms)</span>
+                </span>
+          
+              </ng-template>
+              <ng-template pTemplate="body" let-col let-appInfo="rowData">
+                {{appInfo[col.field]| round}}
+              </ng-template>
+            </p-column>
+            <p-column field="eps" header="Error(%)" [sortable]="true" [style]="{'width': '28%', 'text-align': 'center','padding-left': '5px','padding-right': '2px'}">
+              <ng-template pTemplate="header">
+                <span>
+                  <img src="./images/error.png" style="width:11px;" alt="apps" title="Error (%)">
+                  <span class="cav-p-1">Error (%)</span>
+                </span>
+          
+              </ng-template>
+              <ng-template pTemplate="body" let-col let-appInfo="rowData">
+                {{appInfo[col.field]| round}}
+              </ng-template>
+            </p-column>
+        
+          </p-dataTable>
+        </div>
+          <!-- data table 2 -->
+          <div class="gio-storeBox">
+          <p-dataTable [value]="table2Arr" [scrollable]="true" scrollHeight="150px" class="gio-store-view-table view-table2 cav-fnt-13" [responsive]="true">
+            <p-header><div class="cav-py-1 cav-fnt-weight500 cav-fnt-14">{{datacontainer.$selectedGeoApp}} (Business Health)</div></p-header>
+            <p-column field="operationName">
+              <ng-template pTemplate="body" let-col let-operationName="rowData">
+                <span [title]="operationName[col.field]" style="font-weight: 500">
+                  {{operationName[col.field]}}</span>
+              </ng-template>
+            </p-column>
+            <p-column field="operationValue" [style]="{'text-align': 'right'}">
+              <ng-template pTemplate="body" let-col let-operationValue="rowData">
+                <span *ngIf="operationValue.operationName == 'Total Alerts'">
+                  <label class = "poc-values" title="click to open with alert severity Critical: {{operationValue[col.field][0]}}" (click) = "_transHandler.getAlertDataBasedOnSeverity('CRITICAL',operationValue,0)">
+                    Critical: {{operationValue[col.field][0]}}</label>
+                  <label class = "poc-values" title="click to open with alert severity Major: {{operationValue[col.field][1]}}" (click) = "_transHandler.getAlertDataBasedOnSeverity('MAJOR',operationValue,1)">
+                    Major: {{operationValue[col.field][1]}}</label>
+                </span>
+                <span *ngIf = "operationValue.operationName != 'Total Alerts'" class = "poc-values" (click) = "onclickOperation($event,operationValue,op1)">
+                  <!-- TODO: handling data alert seperation -->
+                  {{operationValue[col.field]}} 
+                </span>
+                
+              </ng-template>
+            </p-column>
+          </p-dataTable>
+        </div>
+
+        <div class="gio-storeBox">
+          <div class = "storeView-pieChartDiv">
+            <exec-dashboard-hchart [options] = "piechartData"></exec-dashboard-hchart>
+          </div>
+        </div>
+        </div>
+
+  </div>
+</div>
+</div>
+
+
+
+
+
+<!-- overlay panel fot top 10 transactions -->
+<p-overlayPanel class = "overlay-metrices" #op1 [showCloseIcon]="true" [dismissable] = "false">
+  <p-dataTable [value]="topTransactionData" [scrollable]="true" scrollHeight="140px" class="geoMapDivClass overlayTable">
+    <p-column sortable="true" field="btName" [style]="{'width': '54%','text-align': 'left'}">
+      <ng-template pTemplate="header">
+        Top 10 Transactions
+      </ng-template>
+      <ng-template pTemplate="body" let-col let-btName="rowData">
+        <span [title]="btName[col.field]" style="font-weight: 500">
+          {{btName[col.field]}}</span>
+      </ng-template>
+    </p-column>
+    <p-column sortable="true" field="tps" [style]="{'text-align': 'right'}" [style]="{'width': '23%', 'text-align': 'left'}">
+      <ng-template pTemplate="header">
+        <img src="./images/page_legend.png" title = 'Transaction Per Second'  alt="apps">
+      </ng-template>
+      <ng-template pTemplate="body" let-col let-tps="rowData">
+        <span class="topTransac-values" title = "{{tps[col.field]}}">
+         {{tps[col.field]| round}}
+        </span>
+      </ng-template>
+    </p-column>
+    <p-column sortable="true" field="avgResponse" [style]="{'width': '23%','text-align': 'left'}">
+      <ng-template pTemplate="header">
+        <img src="./images/response_legend.png" title = 'Average Response Time(ms)'  alt="apps">
+      </ng-template>
+      <ng-template pTemplate="body" let-col let-avgResponse="rowData">
+        <span class="topTransac-values" title = "{{avgResponse[col.field]}}">
+          {{avgResponse[col.field]| round}}
+        </span>
+      </ng-template>
+    </p-column>
+  </p-dataTable>
+</p-overlayPanel>

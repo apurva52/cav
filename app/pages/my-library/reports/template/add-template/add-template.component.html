@@ -1,0 +1,106 @@
+<p-blockUI [blocked]="blockuiForSaveTemplate">
+    <div class="loader-container spinner" *ngIf="timebarService.loading1">
+      <i class="pi pi-spin pi-spinner"></i>
+    </div>
+  </p-blockUI>
+<p-confirmDialog class="confirmdialog" key="PerformanceDialog" header="Info" acceptLabel="Ok"
+          rejectLabel="Cancel" [(visible)]="dialogVisible"></p-confirmDialog>
+<div class="h-100-vh add-template-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-col-10">
+                <div class="p-grid p-align-center">
+                    <a routerLink="/template">
+                        <i class="icons8 icons8-left toolbar-icon-color"></i>
+                    </a>
+                    <div class="p-col ui-toolbar-text">ADD TEMPLATES</div>
+                </div>
+            </div>
+            <div class="p-col-2 topbtn">
+                <button pButton type="button" class="ui-button ui-button-rounded" 
+                label="SAVE" (click)="saveTemplates()" ></button>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+
+    <div class="accord-container p-12" *ngIf="data">
+        <div class="p-grid p-align-center">
+            <span class="p-col-1 line-height text-right">Name</span>
+            <div class="p-col-3">
+                <input type="text" pInputText placeholder="Template Name" 
+                class="input-field-search w-100-p" [(ngModel)]="templateName" maxlength="64"/>
+            </div>
+            <div class="p-col-1"></div>
+            <span class="p-col-1 line-height text-right">Description</span>
+            <div class="p-col-3">
+                <input type="text" pInputText placeholder="Description of Template"
+                    class="input-field-search w-100-p" [(ngModel)]="templateDes"/>
+            </div>
+        </div>
+        <div class="p-grid">
+        <app-add-report-settings class="block100"></app-add-report-settings>
+        </div>
+        <p-accordion class="mh-10" [multiple]="true">
+            <!-- <p-accordionTab header="Metric Selection" [selected]="true">
+               
+            </p-accordionTab> -->
+            <p-accordionTab header="Filter By Value Options" [selected]="isEnableFilter">
+                <div class="mv-5">
+                    <div class="p-grid p-align-center height-32">
+                        <div class="mr-25">
+                <p-checkbox name="enablefilter" binary="true" value="val" label="Enable Filter"
+                             [(ngModel)]="isEnableFilter" (click)="onChangeFilterOption()"></p-checkbox>
+                    </div>
+                    <div *ngIf="isEnableFilter == true" class="p-grid p-align-center mr-25">
+                        <div *ngFor="let category of categories" class="p-grid p-align-center">
+                            <p-radioButton name="category" [value]="category.key" [(ngModel)]="selectedCategory">
+                            </p-radioButton>
+                            <label [for]="category.key" class="ml-3 mr-15">{{category.name}}</label>
+                </div>
+            </div>
+        
+            <div class="p-grid p-align-center" *ngIf="selectedCategory == 'Advance' && isEnableFilter">
+            
+                <label class="mh-5">Value</label>
+                <p-dropdown [options]="data.addTemplateMenuOptions.dropDownValue" placeholder="" optionLabel="label"
+                    class="mh-5" [(ngModel)]="selectedOperator" (click)=selectOperator()
+                    [style]="{'min-width' : '100px'}"></p-dropdown>
+
+
+                <input type="text" pInputText class=" width-100 mh-5" [(ngModel)]="filterFirstValue" />
+
+                <div *ngIf="(selectedOperator.value == 7)" class="p-grid p-align-center">
+                    <label class="mh-5">And</label>
+                    <input type="text" class="mh-5 width-100" pInputText [(ngModel)]="filterSecondValue" />
+                </div>
+
+                <label class="mh-5">By :</label>
+
+                <p-dropdown [options]="data.addTemplateMenuOptions.dropDownFilterValue"
+                    [(ngModel)]="selectedfilterValue" [style]="{'min-width' : '100px'}" class="mh-5"></p-dropdown>
+
+                <div *ngIf="!(selectedOperator.value == 5 || selectedOperator.value == 6)" class="p-grid p-align-center">
+                    <p-dropdown [options]="data.addTemplateMenuOptions.dropDownInclude"
+                        [(ngModel)]="selectedfilterInclude" [style]="{'min-width' : '100px'}" class="mh-5"></p-dropdown>
+                    </div>
+                    <!-- <div class="p-col-1">
+                        <p-dropdown [options]="data.value" placeholder="" optionLabel="label"></p-dropdown>
+                    </div> -->
+                </div>
+             </div>
+          </div>
+       </p-accordionTab>
+    </p-accordion>
+
+  </div>
+
+
+
+
+</div>

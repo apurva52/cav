@@ -1,0 +1,250 @@
+<div id="pop-record-command" class="poprecordcommand" style="visibility:hidden;font-size:150%;position:absolute;top:20px;right:50%;;z-index: 999999;background: black;color: white;padding: 10px;"> Press <b>Ctrl-shift-5</b> to start recording </div>
+<div class="h-100-vh play-sessions-container">
+    <!--<app-messagealert></app-messagealert>-->
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/home-sessions">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">REPLAY</div>
+        </div>
+    </p-toolbar>
+    <div class="content-body" id="reports"> 
+        <div class="p-grid">
+            <div class="p-col-12 no-padding">
+                <div class="breadcrumbs">
+                    <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+                </div>
+            </div>
+        
+            <div class="" [ngClass]="fullscreen ? 'p-col-9 p-0':'p-col-12 p-0'">
+                     <!--if not full screen mode, then control bar will appear in col 9-->
+                     <app-replay-control id="ctrl" *ngIf="fullscreen  && showPageActions && showReplaycontrol" [progressbarwidth]="progressBarVal" (replayexpansion)="expandFull($event)" (forwardreplay)="showNextReplay()" (backwardreplay)="showPrevReplay()" (firstpagereplay)="goToFirstPage()"
+             (lastpagereplay)="goToLastPage()" (resetMaps)="backtoReplay()" [disablefirst]="disablefirst" [disableprev]="disableprev" [disbaleplay]="disbaleplay" [disablenext]="disablenext" [disablelast]="disablelast" [rd]="replayDocument" [sid]="session.sid"
+             [isActive]="isActive" [playLabel]="playlabel" [playIcon]="playicon" [fullscreenTT]="fullscreentt"></app-replay-control> 
+            
+                     <div id="parentiframe" style="position: absolute;margin: auto;transform-origin: 0px 0px;" [style.width]="iframe_width" [style.height]="iframe_height" [style.transform]="iframe_transform" [style.left]="iframe_left" [style.position]="iframe_position">
+                        <app-loader [busy]="pagedumploading" [opacity]="'1'"></app-loader>
+                         <canvas [ngStyle]="canvas_style" [ngClass]="applyTemplate ? 'canvasdevices' : 'pagedumpcanvas'" #replaycanvas id="replaycanvas"></canvas>
+                         <iframe src="/netvision/reports/loadingPageDump.html" [ngClass]="applyTemplate ? templateCls : ''" frameborder="0" class="custom-size" id="replayIframe" #replayIframe></iframe>
+                     </div>
+ 
+            </div>
+            <div class="p-col-3 no-padding sidebar" [ngClass]="fullscreen ? 'active-right-sidebar' : 'inactive-right-sidebar'" #rsidebar>
+                <div class="p-grid p-justify-between p-align-center p-col-12 topBar">
+                    <div>
+                        <b *ngIf="session" [title]="'Session Start Time : '+session.formattedStartTime">{{session.formattedStartTime}}</b>
+                        <span class="home-page-label"></span>
+                    </div>
+                 
+                        <button pButton type="button" class="ui-button-secondary ui-button-rounded"
+                        label="Session Details" (click)="sessionDetails.toggle($event)"></button>
+                   
+                </div>
+                <div class="current-session p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p" style="height: 40px;">
+                    <div>
+                        <span class="icon-rounded clickable" (click)="toggleAllPanels()"><i class="icons8 icons8-expand"></i></span>
+                         {{toggleText}}
+                    </div>
+                    <div>
+                        <span class="uacountbtn" id="timerid" #timerid style="display:none;width: 52px;font-size: 13px;padding-top: 4px;">{{autoReplayTimer}}</span>
+                    </div>
+                    <div>
+                        <button *ngIf="session && session.protocolVersion == 1" pButton label="Actions" (click)="menua.toggle($event)"
+                        class="ui-button ui-button-rounded"></button>
+                    <p-menu #menua [popup]="true" styleClass="widget-menu" appendTo="body"
+                        [model]="actionOptions" [showTransitionOptions]="'0ms'"
+                        [hideTransitionOptions]="'0ms'"></p-menu>
+                      
+                    </div>
+                </div>
+                <div class="current-session" id="currentsession">
+                   
+                    <div class="session-info">
+                       
+                        <div class="panels-body">
+                        <div *ngFor="let panel of data.panels; let i = index" class="w-100-p">
+                                <div id="panel-{{panel.pageinfo.pageinstance}}" class="ip-summary-panel" name="pagediv">
+                                    <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true"
+                                        [(collapsed)]="panel.collapsed"
+                                        [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                                        <p-header class="cav-panel-header pt-5">
+                                            <div class="cav-panel-content p-grid">
+                                                <div class="panel-title leftbdr">
+                                                    <a tabindex="{{i}}">
+                                                        <span (click)="pnl.toggle($event)" name="panelbtn"
+                                                            [class]="pnl.collapsed ? 'icons8 icons8 icons8-add' : 'icons8 icons8-minus-sign'">
+                                                        </span>  
+                                                    </a>
+                                                 <div class="headings">
+                                                        <div class="p-grid p-align-center">
+                                                        <label class="text-primary" (click)="onClickfromPageNav(i)">{{panel.label}}</label>
+                                                        <i title="Page Details" class="icons8 icons8-info btn-icon mx-6 font-16" (click)="openPageInfo(pageDetails,$event, i)"></i>
+                                                        <span *ngFor="let event of panel.events; let e=index;">
+                                                            <p-menu class="menu-item" #eventMenu [popup]="true"
+                                                           [model]="eventOptions" appendTo="body"></p-menu>
+                                                            <img *ngIf="event.iconCls == null" src="{{event.icon}}" title="{{event.name}}" (click)="onClickMenu(event.name);eventMenu.toggle($event)" class="heigh12">
+                                                            <i *ngIf="event.iconCls != null" title="{{event.name}}" (click)="onClickMenu(event.name);eventMenu.toggle($event)" class="{{event.iconCls}}"></i>
+                                                        </span>  
+                                                        <span>
+                                                            <a *ngIf="panel.pageinfo.flowpathinstances != '' && panel.pageinfo.flowpathinstances != '-1'" id="ndSequenceLink" >
+                                                                <i (click)="openNDSession(i)" class="icons8 icons8-flow-chart btn-icon btn-link-green font-16 mx-4" title = "View Flow Path Report" id="SequenceDiagram"></i>
+                                                                <i (click)="openNF(i)" class='icons-8 icons8-search-property btn-link-green font-16 mx-4' id='SequenceDiagram' title="View Logs"></i>
+                                                            </a> 
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="p-grid p-align-center">
+                                                        <span id="navtype" class="mx-5">{{panel.navigationTitle}}</span>
+                                                        <span class="time-span" title="page start time">{{panel.duration}}</span>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                                <div
+                                                    class="p-grid p-justify-center p-align-center">
+                                                    <div *ngIf="showSilentActions == true" title="Silent Useraction Count" class="uacountbtn count suacount">{{panel.silentUseractions}}</div>
+                                                    <div title="Useraction Count" class="uacountbtn count">{{panel.nonSiletUseractios}}</div>
+                                                    <!-- <p-menu #menu [popup]="true" styleClass="widget-menu" appendTo="body"
+                                                        [model]="actionOptions" [showTransitionOptions]="'0ms'"
+                                                        [hideTransitionOptions]="'0ms'"></p-menu> -->
+                                                </div>
+                                            </div>
+                                        </p-header>
+                                        <div class="content">
+                                            <div class="p-grid pl-20" *ngFor="let subPanel of panel.accordion">
+                                              <div [attr.id]="'uaDiv'+ subPanel.id" [attr.name]="'uadiv'" class="w-100-p" [attr.pagediv]="'panel-'+panel.pageinfo.pageinstance">
+                                                <p-accordion  [multiple]="true">
+                                                    <p-accordionTab>
+                                                        <p-header>
+                                                            <div class="title-info p-grid p-justify-between p-align-center">
+                                                                <div class="useraction-val">
+
+                                                                    <div class="flex-grow1">
+                                                                        <div style="display: flex;">
+                                                                            <label class="elipseText" actionfield="label"  [ngStyle]="{'color': subPanel.color }">{{subPanel.label}}</label>
+                                                                            <i class="pi pi-exclamation-triangle warning-icon" style="color: yellow;display:none" title="Element is not visible on pagedump"></i>
+                                                                            <i class="pi pi-exclamation-triangle error-icon" style="color: red;display:none" title="Element is not present in pagedump"></i>
+                                                                        </div>
+                                                        
+                                                                    <span class="sub-time-span" [title]="'Useraction offset : '+subPanel.uaOffset+ ' Page offset : ' + subPanel.duration +''">{{subPanel.uaOffset}}</span>
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <i class="btn-link-green font-20 mx-3 actionicon" actionfield="icon" [class]="subPanel.icon" [title]="subPanel.iconTitle"></i>
+                                                                    </div>
+                                                                   
+                                                                   
+                                                                </div>
+                                                                <!--
+                                                                <div [ngStyle]="{'color': subPanel.color }" class="acc-btn">
+                                                                    <i *ngIf="subPanel.iconTriangle"
+                                                                        class="icons8 icons8-email-send"></i>
+                                                                    <i *ngIf="subPanel.iconcursor"
+                                                                    class="icons8 icons8-natural-user-interface-2"></i>
+                                                                    <i *ngIf="subPanel.iconmenu"
+                                                                        class="icons8 icons8-more"
+                                                                        (click)="menuicon.toggle($event)"></i>
+                                                                    <p-menu #menuicon [popup]="true" appendTo="body"
+                                                                        styleClass="widget-menu" [model]="menuOptions"
+                                                                        [showTransitionOptions]="'0ms'"
+                                                                        [hideTransitionOptions]="'0ms'"></p-menu>
+                                                                </div>-->
+                                                            </div>
+                                                        </p-header>
+                                                        <div class ="useraction-info px-5">
+                                                            <div class="p-grid p-justify-between p-align-center" *ngFor="let subPanelDetails of subPanel.details">
+                                                                <div class="p-grid p-align-center">
+                                                                    <b>{{subPanelDetails.label}}</b> :<span [title]="subPanelDetails.value" actionfield="attr"> {{subPanelDetails.value}}</span>
+                                                                    <a *ngIf="subPanelDetails.label == 'Ajax' && subPanelDetails.ajaxFPID != '' && subPanelDetails.ajaxFPID != '-1'" id="ndSequenceLink">
+                                                                        <i (click)="openNDFlowpath(i,subPanelDetails.ajaxFPID)" class="icons8 icons8-flow-chart btn-icon btn-link-green font-16 mx-4" title = "View Flow Path " id="SequenceDiagram"></i>
+                                                                    </a> 
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </p-accordionTab>
+                                                </p-accordion>
+                                             </div>
+                                          
+                                            </div>
+                                        </div>
+                                    </p-panel>
+                                </div>
+                            </div>
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+            <!--if full screen mode, then control bar will appear in col 12-->
+            <div class="p-col-12 no padding" *ngIf="!fullscreen" style="position: inherit;">
+                <app-replay-control id="ctrl" *ngIf="showPageActions && showReplaycontrol" [progressbarwidth]="progressBarVal" (replayexpansion)="expandFull($event)" (forwardreplay)="showNextReplay()" (backwardreplay)="showPrevReplay()" (firstpagereplay)="goToFirstPage()"
+             (lastpagereplay)="goToLastPage()" (resetMaps)="backtoReplay()" [disablefirst]="disablefirst" [disableprev]="disableprev" [disbaleplay]="disbaleplay" [disablenext]="disablenext" [disablelast]="disablelast" [rd]="replayDocument" [sid]="session.sid"
+             [isActive]="isActive" [playLabel]="playlabel" [playIcon]="playicon" [fullscreenTT]="fullscreentt"></app-replay-control>
+            </div>
+        </div>
+    </div>
+    <p-overlayPanel #sessionDetails class="solarPref">
+        <ng-template pTemplate>
+            <div class="p-grid">
+                <div class="p-col-12 no-padding">
+                    <header>
+                        <span>Session Details</span>
+                    </header>
+                </div>
+                 <div class="p-grid p-col-12 p-justify-between p-align-center">
+                    <!-- channel -->
+                    <div pTooltip="Channel : {{session.channel.name}}" tooltipPosition="top"><i class="gui gui-mobile"></i>{{session.channel.name}}</div>
+                    <!-- Device -->
+                    <div pTooltip="Device : {{session.deviceType.name}}" tooltipPosition="top"><i [class]='session.deviceType.font' >{{session.deviceType.name}}</i></div>
+                    <!-- Browser -->
+                    <div class="clips" *ngIf='session.AndroidBrowserFlag == false' pTooltip="Browser : {{session.browser.name}}({{session.browserVersion}})" tooltipPosition="top"><img [src]='session.browser.icon' height=14 width=14>{{session.browser.name}}({{session.browserVersion}})</div>
+                    <div class="clips" *ngIf='session.AndroidBrowserFlag == true' pTooltip="Browser : {{session.browser.name}}" tooltipPosition="top"><img [src]='session.browser.icon' height=14 width=14>{{session.browser.name}}</div>
+                    <!-- OS -->
+                    <div class="clips" pTooltip="OS : {{session.os.name}}{{(session.osVersion != null && session.osVersion != 'null') ? ('(' + session.osVersion + ')') : '' }}" tooltipPosition="top"><i class="fa fa-windows"></i>{{session.os.name}}
+                                                {{(session.osVersion != null && session.osVersion != 'null') ? ("(" + session.osVersion + ")") : "" }}</div>
+                    <!-- Order total -->
+                    <div class="count" pTooltip="Order Total : ${{session.orderTotal}}" tooltipPosition="top">${{session.orderTotal}}</div>
+                </div>
+                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                    <div  title="{{session.duration + ' (session duration)'}}"><i class="icons8 icons8-clock"></i>  {{session.duration}}</div>
+                    <div title="{{session.pageCount + ' (Page count)'}}" ><i class="icons8 icons8-document"></i>{{session.pageCount}}</div>
+                    <! -- login id -->
+                    <div *ngIf="(session.loginId != null && session.loginId != 'null' && session.loginId != '')" title="{{session.loginId}}">{{session.loginId}}</div>
+                    <div *ngIf ="(session.loginId == null || session.loginId == 'null' || session.loginId == '')" title="{{session.clientIp}}"> {{session.clientIp}}</div>
+                </div>
+                    <div class="p-col-12 info" *ngFor="let sessionDetail of data.sessionDetails">
+                        <span class="title"> <b>{{sessionDetail.label}} :</b>  {{sessionDetail.value}} </span>
+                    </div>
+            </div>
+        </ng-template>
+    </p-overlayPanel>
+    <p-overlayPanel #pageDetails class="solarPref">
+        <ng-template pTemplate>
+            <div class="p-grid">
+                <div class="p-col-12 no-padding">
+                    <header>
+                        <span>Page Details</span>
+                    </header>
+                </div>
+                <div class="p-col-12 info" *ngFor="let pageDetail of data.pageDetails" style="overflow-wrap: break-word;">
+                        <span class="title" [title]="pageDetail.label + ':' + pageDetail.value"> <b>{{pageDetail.label}} :</b>  {{pageDetail.value}} </span>
+                </div>
+            </div>
+        </ng-template>
+    </p-overlayPanel>
+</div>
+<!--Event Impact -->
+<div id='event-revenue' *ngIf="this.impactFlag == true">
+        <!--<app-event-revenue [impdata]="impactData" [cardData]="cardData" (changeFlagValue)='changeFlagValue($event)'
+           [loader]='appFlag'></app-event-revenue>-->
+            <app-event-revenue [impdata]="impactData" [cardData]="cardData" (changeFlagValue)='changeFlagValue($event)'
+            [loader]='appFlag'></app-event-revenue>
+    </div>
+
+<app-map-config #mapConfig [session]="session" [pages]="pages" [activePageindex]="currentpageindex"></app-map-config>
+
+
+

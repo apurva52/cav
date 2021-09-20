@@ -1,0 +1,53 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ResourcePerformanceComponent } from './resource-performance.component';
+import { RouterModule, Routes } from '@angular/router';
+import { AutoCompleteModule, BreadcrumbModule, ToolbarModule, ButtonModule, CardModule, DialogModule, DropdownModule, InputTextModule, MenuModule, MessageModule, MultiSelectModule, TableModule, TooltipModule } from 'primeng';
+import { FormsModule } from '@angular/forms';
+import { HeaderModule } from 'src/app/shared/header/header.module';
+import { ChartModule } from 'src/app/shared/chart/chart.module';
+import { PagePerformanceFilterModule } from '../page-performance-filter/page-performance-filter.module';
+import { OwlDateTimeModule } from 'ng-pick-datetime';
+import { OwlMomentDateTimeModule } from 'src/app/shared/date-time-picker-moment/moment-date-time.module';
+import { ResourcePerformanceCompareComponent } from './resource-performance-compare/resource-performance-compare.component';
+import { ResourcePerformanceCompareModule } from './resource-performance-compare/resource-performance-compare.module';
+
+const imports = [
+  BreadcrumbModule,
+  HeaderModule,
+  ToolbarModule,
+  OwlDateTimeModule,
+  OwlMomentDateTimeModule,
+  CommonModule,
+  InputTextModule,
+  ButtonModule,
+  MessageModule,
+  DialogModule,
+  CardModule,
+  FormsModule,
+  DropdownModule,
+  TableModule,
+  MultiSelectModule,
+  MenuModule,
+  TooltipModule,
+  ChartModule,
+  AutoCompleteModule,
+  PagePerformanceFilterModule,
+  ResourcePerformanceCompareModule
+];
+
+const components = [ResourcePerformanceComponent];
+
+const routes: Routes = [
+  {
+    path: 'resource-performance',
+    component: ResourcePerformanceComponent,
+  },
+];
+
+@NgModule({
+  declarations: [components],
+  imports: [imports, RouterModule.forChild(routes)],
+  exports: [components, RouterModule],
+})
+export class ResourcePerformanceModule { }

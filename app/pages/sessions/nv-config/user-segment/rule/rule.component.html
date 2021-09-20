@@ -1,0 +1,131 @@
+  <div >
+  <div class="action-container">
+    <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+      <div class="global-search-block">
+          <div class="p-input-icon-left search-div-css">
+              <i class="icons8 icons8-search"></i>
+              <input pInputText type="text" #searchInput class="input-field-search"
+                  (input)="rule.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+          </div>
+      </div>
+      <div class="icons-container p-justify-between p-align-center">
+        <p-multiSelect class="icon-button no-shadow " [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+           </p-multiSelect>
+
+        <i pButton class="icons8 icons8-search-property icon-button no-shadow column-filter" (click)="toggleFilters()" pTooltip="Column Filter"></i>
+
+        <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+
+  </div>
+
+  </div>
+  </div>
+  <div #widgetHeight [ngStyle]="{
+    height: !isEnabledColumnFilter
+    ? 'calc(100vh - 35px)'
+    : 'calc(100vh - 78px)'
+  }">
+  <p-card class="content-body pt-10">
+    <p-table  #rule [value]="tabledata" [columns]="selectedColumns" [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true"
+    [totalRecords]="totalRecords" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+    [globalFilterFields]="globalFilterFields" [rows]="data.paginator.rows" [scrollable]="true"
+    scrollHeight="calc({{widgetHeight.offsetHeight }}px - 202px)"  [(selection)]="selectedIds" selectionMode="single">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+            <div class="left">
+              {{ col.label }}
+            </div>
+            <div *ngIf="col.isSort" class="right">
+              <p-sortIcon  [field]="col.valueField" class="float-right" ariaLabel="Activate to sort"
+                ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+              </p-sortIcon>
+              
+            </div>
+          </th>
+        
+        </tr>
+        <tr *ngFor="let headerRow of data.headers">
+          <ng-container *ngIf="isEnabledColumnFilter">
+
+            <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+              <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'custom'
+                      ">
+                <input class="w-100-p"
+                  pTooltip="Enter number to search"
+                  *ngSwitchCase="col.label" pInputText type="text" (input)="
+                  rule.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'custom'
+                          )
+                        " />
+              </div>
+              <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'contains'
+                      ">
+                <input class="w-100-p" pTooltip="Enter text to search"
+                  *ngSwitchCase="col.label" pInputText type="text" (input)="
+                  rule.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'contains'
+                          )
+                        " />
+              </div>
+            </th>
+          </ng-container>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row let-columns="columns">
+        <tr [pSelectableRow]="row" >
+          <td *ngFor="let col of columns" class="{{ col.classes }}">
+            <span pTooltip={{row[col.valueField]}} >
+              {{ row[col.valueField] }}
+            </span>
+               
+          <span *ngIf="col.iconField">
+              <div class="rule-edit-icon" *ngIf="buttonflag">
+                  <i class="ui-icon-button icons8 icons8-edit pr-5" [style]="{color:'#1d5290'}"
+                      pTooltip="Edit" (click)="addNew.showDialog(row)"></i>
+
+                      <i  class="ui-icon-button icons8 icons8-delete-trash no-shadow" [style]="{color:'#1d5290'}" pTooltip="Delete"
+                      (click)="deleteEntry.open()"></i>
+              </div>
+              </span>
+          </td>
+          
+        </tr>
+       
+      </ng-template>
+      <!-----------Empty table error handling--------------------->
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length + 1" class="text-center">
+            <span *ngIf="error">Error while loading data</span>
+            <span *ngIf="emptyTable">Empty Table</span>
+            <span *ngIf="loading">Loading</span>
+            <span *ngIf="!empty && !loading && !error && searchInput.value.length">Nothing found
+              matching
+              "{{searchInput.value}}"</span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+</div>
+
+
+
+<app-rule-crud #addNew (editrulessegment)='editrulessegment($event)' > </app-rule-crud>
+<app-delete-entry #deleteEntry (deleteusersegment)='deleteEntryrules($event)'></app-delete-entry>

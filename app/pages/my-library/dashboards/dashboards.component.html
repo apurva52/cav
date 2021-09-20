@@ -1,0 +1,163 @@
+
+<div class="h-100-vh dashboard-container" #widget 
+[ngStyle]="{'height': isEnabledColumnFilter ? 'calc(100vh - 48px)' : 'calc(99vh)'}">
+  <div class="action-buttons" *ngIf="dataTable">
+    <div class="p-grid p-justify-between p-align-center pt-6">
+      <div class="pl-0">
+      <div class="ui-inputgroup w-100-p" style="padding-right: 10px;">
+      <span class="ui-inputgroup-addon">
+      <i class="ui-tree-filter-icon pi pi-search" style="margin-left: 5px;"></i>
+      </span>
+          <!-- <input type="text" [value]="dd2" [(ngModel)]="dd2" pInputText size="50" placeholder="Search Dashboard"  [value]="" (input)="
+            dashboard.filterGlobal(dd2,'contains')" class="search-box"/> -->
+            <input type="text" [value]="dd2" [(ngModel)]="dd2" pInputText size="50" placeholder="Search Dashboard"  [value]="" (input)="
+            searchGlobally(dd2)" class="search-box"/>
+          </div>
+      </div>
+      <p-dropdown [options]="dataTable.options"  [(ngModel)]="selectedUserOption" dropdownIcon="icons8 icons8-expand-arrow" (onChange)="dashboard.filterGlobal($event.value,'equals')"></p-dropdown>
+      <button pButton type="button" class="ui-button-rounded ui-button-secondary ml-10" (click)="dashboard.filterGlobal('','contains'); clearFilters()" label="Clear Search"></button>
+
+    </div>
+    <div class="icons-container">
+      <!-- <button pButton type="button" (click)="addDashboard.showDialog(null, true)"
+      class="ui-button ui-button-rounded ui-button-right right-align" label="ADD DASHBOARD">
+    </button> -->
+      <button pButton type="button" (click)="deleteSelection()"
+        class="ui-button ui-button-rounded ui-button-right" label="SELECT MULTIPLE DASHBOARD">
+      </button>
+    
+      <!-- <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+        (click)="menu.toggle($event);" pTooltip="Download"></button> -->
+
+      <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'"
+        [hideTransitionOptions]="'0ms'" appendTo="body"></p-menu>
+    <div pTooltip="Delete">
+      <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow" 
+        (click)="deleteMultipleDashboard()"  [disabled] = "!selectMultipleDelete || selectedNodes.length ==0"></button>
+    </div>
+      <button pButton icon="icons8 icons8-help" class="icon-button no-shadow" (click)="informativeDialog.show()"
+        pTooltip="Help"></button>
+    </div>
+
+  </div>
+
+  <div class="content-body">
+    <p-treeTable #dashboard
+    [value]="dataTable.data"
+    [columns]="dataTable.headers[0].cols"
+    [paginator]="true"
+    [totalRecords]="totalRecords"
+    [rows]="dataTable.paginator.rows"
+    [loading]="loading"
+    [scrollable]="true"
+    scrollHeight="calc({{widget.offsetHeight}}px - 280px)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+    [globalFilterFields]="globalFilterFields" 
+    class="all-tables"    
+  >
+  <!-- <ng-template pTemplate="colgroup" let-columns>
+    <colgroup>
+      <col *ngFor="let col of columns" [style.width]="col.width">
+    </colgroup>
+  </ng-template> -->
+  <ng-template pTemplate="colgroup" let-columns>
+    <colgroup>
+      <col style="width:110px"> 
+      <col style="width:80px">
+      <col style="width:100px">
+      <col style="width:100px"> 
+      <col style="width:100px">
+      <col style="width:110px">
+    </colgroup>
+  </ng-template>
+  <ng-template pTemplate="header" let-columns>
+    <tr>
+        <th *ngFor="let col of columns" [ttSortableColumn]="col.valueField">
+          {{col.label}}
+            <p-treeTableSortIcon [field]="col.valueField" *ngIf ="col.label != 'Action'"></p-treeTableSortIcon>
+        </th>
+        
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+    <!-- <tr [attr.disabled]= "rowData.access == 0 && rowData.owner!== userName ? true : false"> -->
+      <tr [ngClass]="{'row-accessories': ((rowData.access == 0 && rowData.owner!== userName) || (rowData.access == 4 && rowData.owner !== userName)) && rowData.type == 'File'}">  
+      <td *ngFor="let col of columns; let i = index" >
+          <div class="treeTableTextDiv">
+            <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+            <!-- <p-treeTableCheckbox [value]="rowNode" *ngIf="i == 0 && selectMultipleDelete"  [disabled]="rowData.label.indexOf('dashboards') == 0 ||rowData.path?.indexOf('/dashboards/system') == 0|| rowData.path == undefined  || rowData.path === undefined  || disableOptions ? true : false" (click)="toggleRowSelection($event, rowNode)"></p-treeTableCheckbox> -->
+            <input [(ngModel)]="rowData.isSelected" [value]="rowData.isSelected" type="checkBox" *ngIf="i == 0 && selectMultipleDelete" [disabled]="rowData.label.indexOf('dashboards') == 0 ||rowData.path?.indexOf('/dashboards/system') == 0|| rowData.path == undefined  || rowData.path === undefined  || disableOptions || (rowData|dashboardsDynamicTitle : userName :'deleteMultiple') ? true : false " (change)="nodeSelect(rowNode, $event)"/>
+            <ng-container *ngIf="col.valueField == 'label'">
+           <span class="treeTableText" [title]="rowData[col.valueField]"> 
+            <i class={{rowData.icon}}></i>  
+             {{rowData[col.valueField] == undefined ? '-' : rowData[col.valueField] }}
+            </span>
+          </ng-container>
+
+          <ng-container *ngIf="col.valueField == 'owner'">
+            <span class="treeTableText text-left" [title]="rowData[col.valueField]">            
+              {{ rowData.type == 'File' ?  rowData[col.valueField] == undefined ? '-' : rowData[col.valueField] : '' }}
+             </span>
+           </ng-container>
+
+          <ng-container *ngIf="col.valueField =='access'" >
+            <span class="text-left" [title]="rowData[col.valueField]">
+            {{rowData.access === -1 ? '' : rowData.access === 0 ? 'No Access' : rowData.access === 4 ? 'Read Only Access' : 'Read Write Access'}}
+            </span>
+          </ng-container>
+
+          <ng-container *ngIf="col.valueField =='frequency' && rowData.path != undefined" class="{{ col.classes }}">
+            <span class="text-right" [title]="rowData[col.valueField]">
+            {{rowData.frequency == -1 ? '' : rowData.frequency }}
+          </span>
+          </ng-container>
+
+          <ng-container *ngIf="col.valueField == 'creationDate' || col.valueField == 'modifiedDate'">
+            <span class="text-right" [title]="rowData[col.valueField]">
+        <!-- {{rowData[col.valueField]  | date: 'MM/dd/yyyy'}} -->
+        {{rowData[col.valueField]}}
+      </span>
+          </ng-container>
+
+          <ng-container  *ngIf="col.valueField =='actions'" class="p-grid p-justify-start">
+            <button  *ngIf = "rowData.type == 'File'" pButton icon="icons8 icons8-edit pr-5" (click)="loadDashboard(rowNode ,'editOperation')" class="ui-icon-button p-col-1 right-align"  [disabled]="(rowData.access == 4 && rowData.owner !== userName) ||(rowData.access == 0 && rowData.owner !== userName) || (selectedNodes && selectedNodes.length) || rowData.path?.indexOf('/dashboards/system') == 0 || (rowData.key | dashboardOperations) || disableOptions || (rowData|dashboardsDynamicTitle : userName :'edit') || selectMultipleDelete ? true : false" [title]="(rowData.access == 4 && rowData.owner !== userName) ||(rowData.access == 0 && rowData.owner !== userName) || (selectedNodes && selectedNodes.length) || rowData.path?.indexOf('/dashboards/system') == 0 || (rowData.key | dashboardOperations) || disableOptions || selectMultipleDelete ? 'No permission to edit the dashboard.' : (rowData|dashboardsDynamicTitle : userName :'edit') ? 'No Permission to edit currently loaded dashboard'  : 'Edit Dashboard.'"></button>
+            <button  *ngIf = "rowData.type == 'File'" pButton icon="icons8 icons8-copy pr-5" (click)="loadDashboard(rowNode, 'copyOperation')" class="ui-icon-button p-col-1 right-align"  [disabled]="(rowData.access == 4 && rowData.owner !== userName) ||(rowData.access == 0 && rowData.owner !== userName)   || (selectedNodes && selectedNodes.length) || (rowData.key | dashboardOperations) || disableOptions || selectMultipleDelete || (rowData|dashboardsDynamicTitle : userName : 'copy' ) ? true : false"  [title]="(rowData.access == 4 && rowData.owner !== userName) ||(rowData.access == 0 && rowData.owner !== userName) || (selectedNodes && selectedNodes.length) || (rowData.key | dashboardOperations) || disableOptions || selectMultipleDelete || (rowData|dashboardsDynamicTitle : userName : 'copy' ) ? 'No permission to copy the dashboard.' : 'Copy Dashboard.'"></button>
+            <!-- <button *ngIf = "rowData.type == 'File'" pButton icon="icons8 icons8-delete pl-5" class="ui-icon-button p-col-1 right-align" (click)="deleteDashboard(rowNode)" [disabled]="(rowData.access == 4 && rowData.owner !== userName) || (rowData.access == 0 && rowData.owner !== userName)  || (selectedNodes && selectedNodes.length)  || rowData.path == undefined || (rowData.key | dashboardOperations) || rowData.path?.indexOf('/dashboards/system') == 0 || disableOptions || (rowData|dashboardsDynamicTitle : userName : 'delete' ) || selectMultipleDelete ? true : false" [title]="(rowData|dashboardsDynamicTitle : userName :'delete')  || rowData.path === undefined || (selectedNodes && selectedNodes.length)|| disableOptions || selectMultipleDelete ? 'No permission to delete the dashboard.' : 'Delete Dashboard.'"></button> -->
+            
+            <!-- <button *ngIf = "rowData.type == 'File'" pButton icon="icons8 icons8-delete pl-5" class="ui-icon-button p-col-1 right-align" (click)="deleteDashboard(rowNode)" [disabled]="(rowData.access == 4 && rowData.owner !== userName) || (rowData.access == 0 && rowData.owner !== userName)  || (selectedNodes && selectedNodes.length)  || rowData.path == undefined || (rowData.key | dashboardOperations) || rowData.path?.indexOf('/dashboards/system') == 0 || disableOptions || (rowData|dashboardsDynamicTitle : userName : 'delete' ) || selectMultipleDelete ? true : false" [title]="(rowData|dashboardsDeleteTitle : userName : 'delete') == 'Delete Dashboard.' ? (selectedNodes && selectedNodes.length) || disableOptions == 'No permission to delete dashboard' : (rowData|dashboardsDeleteTitle : userName : 'delete')"></button> -->
+            <button *ngIf = "rowData.type == 'File'" pButton icon="icons8 icons8-delete pl-5" class="ui-icon-button p-col-1 right-align" (click)="deleteDashboard(rowNode)" [disabled]="(rowData.access == 4 && rowData.owner !== userName) || (rowData.access == 0 && rowData.owner !== userName)  || (selectedNodes && selectedNodes.length)  || rowData.path == undefined || (rowData.key | dashboardOperations) || rowData.path?.indexOf('/dashboards/system') == 0 || disableOptions || (rowData|dashboardsDynamicTitle : userName : 'delete' ) || selectMultipleDelete ? true : false" [title]="(rowData|dashboardsDeleteTitle : userName : 'delete' : selectedNodes)"></button>
+            
+            <button *ngIf = "rowData.type == 'Folder'" pButton icon="icons8 icons8-delete-trash pl-5" class="ui-icon-button p-col-1 right-align" (click)="deleteDashboard(rowNode)" [disabled]="(rowData.access == 4 && rowData.owner !== userName)||rowData.path == undefined ||(rowData.path?.indexOf('/dashboards') == 0 && rowData.label.indexOf('dashboards') == 0) || (selectedNodes && selectedNodes.length)  || (rowData.key | dashboardOperations) || rowData.path?.indexOf('/dashboards/system') == 0 || disableOptions || selectMultipleDelete? true : false" [title]=" rowData.path === undefined || (selectedNodes && selectedNodes.length)|| disableOptions ||  rowData.label.indexOf('dashboards') == 0 || selectMultipleDelete || rowData.path.indexOf('/dashboards/system') == 0 ? 'No permission to delete the dashboard directory.' : 'Delete Dashboard Directory.'"></button>
+            <button *ngIf = "rowData.type == 'File'" pButton icon="icons8 icons8-user pl-5" class="ui-icon-button p-col-1 right-align"  (click)="setUserProjectDashboard(rowNode ,'user')" [disabled]="(rowData.access == 4 && rowData.owner !== userName) || (rowData.access == 0 && rowData.owner !== userName)  || (selectedNodes && selectedNodes.length)  || rowData.path == undefined || (rowData.key | dashboardOperations)  || disableOptions || selectMultipleDelete? true : false" [title]="(rowData|dashboardsDynamicTitle : userName : 'user' )  || rowData.path === undefined || (selectedNodes && selectedNodes.length) || disableOptions || selectMultipleDelete ? 'No permission to make this dashboard as user default.' : 'make self default dashboard'"></button>
+            <button *ngIf = "rowData.type == 'File'" pButton icon="icons8 icons8-project pl-5" class="ui-icon-button p-col-1 right-align"  (click)="setUserProjectDashboard(rowNode , 'project')" [disabled]="(rowData.access == 4 && rowData.owner !== userName) || (rowData.access == 0 && rowData.owner !== userName)  || (selectedNodes && selectedNodes.length)  || rowData.path == undefined || (rowData.key | dashboardOperations) || disableOptions || selectMultipleDelete ? true : false" [title]="(rowData|dashboardsDynamicTitle : userName :'project' )  || rowData.path === undefined || (selectedNodes && selectedNodes.length) || disableOptions || selectMultipleDelete ? 'No permission to make this dashboard as project default.' : 'make project default dashboard'"></button>  <!-- <button pButton icon="icons8 icons8-synchronize pl-5" class="ui-icon-button p-col-1"></button> -->
+            <button *ngIf = "rowData.type == 'File'" pButton icon="icons8 icons8-installing-updates" class="ui-icon-button p-col-1 right-align"  (click)="fileToDownload(rowNode)" [disabled]="(rowData.access == 4 && rowData.owner !== userName) ||(rowData.access == 0 && rowData.owner !== userName) || (selectedNodes && selectedNodes.length) || rowData.path?.indexOf('/dashboards/system') == 0 || (rowData.key | dashboardOperations) || disableOptions" title="Export Dashboard"></button>
+            
+          </ng-container>
+        </div>
+      </td>
+
+    </tr>
+</ng-template>
+</p-treeTable>
+</div>
+  <p-toast position="top-right" [style]="{width: '20vw'}" [baseZIndex]="10000100011"></p-toast>
+  <div>
+    <p-confirmDialog #cd1 class="confirmdialog" [baseZIndex]="10000100011"  [style]="{width: '41vw'}">
+      <p-footer>
+        <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton icon="pi pi-check" label={{acceptLable}}
+          (click)="cd1.accept()"></button>
+          <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton icon="pi pi-times"
+          label="No" (click)="cd1.reject()" *ngIf="rejectVisible"></button>
+      </p-footer>
+    </p-confirmDialog>
+  
+  </div>
+  
+ 
+</div>
+
+<!-- <app-add-dashboard #addDashboard></app-add-dashboard> -->
+<!-- <app-confirmation-dialog #confirmDialog></app-confirmation-dialog> -->
+<app-informative-dialog #informativeDialog [data]="content"></app-informative-dialog>
+<app-add-dashboard #addDashboard [dashboard]="this" (dashboardEventBind)="dashboardEventBind($event)">
+</app-add-dashboard>

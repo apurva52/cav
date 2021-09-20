@@ -1,0 +1,324 @@
+<!-- <p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" /> -->
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+  <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner font-30"></i> <span class="font-30">Loading</span></div>
+  </div>
+</div>
+
+<div class="flowmap-box" id="flowmap-box">
+
+  <div class="ddr-toolbar">
+    <p-toolbar>
+      <div class="ui-toolbar-group-left p-6">
+      <label style="font-size : 12px; font-family : inherit;text-align: center;">
+        {{headerFilter}}
+      </label>
+    </div>
+      <span class="ui-toolbar-group-right p-6">
+        <span *ngIf="showDCMenu">
+          <label>Data Center : </label>
+          <p-dropdown [options]="dcList" (onChange)="getSelectedDC($event)" [(ngModel)]="selectedDC"
+            [style]="{'width':'75px'}"></p-dropdown>
+        </span><label (click)="openTimeFilter()" style="cursor:pointer;color:#fff">{{timeLabel}}</label>
+      </span>
+    </p-toolbar>
+  </div>
+
+  <p-accordion *ngIf="showGraph" class="accordHeader" (onOpen)="onTabOpen($event)" (onClose)="onTabClose($event)"
+    [multiple]='true'>
+    <p-accordionTab header="IP Stat" [selected]="graphTab">
+      <div style="border : 1px solid grey;height:220px">
+        <div class="ui-g-12">
+          <div class="ui-g-4">
+            <highcharts-chart [Highcharts]="highcharts" [options]="res"></highcharts-chart>
+          </div>
+          <div class="ui-g-4">
+            <highcharts-chart [Highcharts]="highcharts" [options]="cps"></highcharts-chart>
+          </div>
+          <div class="ui-g-4">
+            <highcharts-chart [Highcharts]="highcharts" [options]="err"></highcharts-chart>
+          </div>
+        </div>
+      </div>
+    </p-accordionTab>
+  </p-accordion>
+
+  <p-accordion class="accordHeader" [multiple]='true'>
+    <p-accordionTab header="IP Summary" [selected]="true">
+      <p-table class="scen-table scrollable-div2 all-tables" [value]="ipData" selectionMode="single" scrollable="true" scrollHeight="200px">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+              <col style="width:10%">
+              <col style="width:20%">
+              <col style="width:10%">
+              <col style="width:10%">
+              <col style="width:10%">
+              <col style="width:10%">
+              <col style="width:30%">
+              <col style="width:10%">
+              <col style="width:30%">
+              <col style="width:15%">
+              <col style="width:10%">
+              <col style="width:30%">
+          </colgroup>
+      </ng-template>
+     
+        <ng-template pTemplate="header">
+          <tr>
+            <ng-container *ngFor="let col of cols">
+              <th style="text-overflow: inherit; white-space:normal;" [pSortableColumn]="col.field">
+                <span *ngIf="col.header != 'Max' && col.header != 'Avg'" title="{{col.header}}">
+                  {{col.header}}
+                </span>
+                <span *ngIf="col.header == 'Max'" title="Max Response Time (ms)">
+                  {{col.header}}
+                </span>
+                <span *ngIf="col.header == 'Avg'" title="Avg Response Time (ms)">
+                  {{col.header}}
+                </span>
+                <span *ngIf="col.header != 'Action' && col.header != 'Health' && col.header != 'Response Time Trend' && col.header != 'CPS Trend' && col.header != 'Eroor Trend'">
+                  <p-sortIcon [field]="col.field"></p-sortIcon>
+                </span>
+              </th>
+            </ng-container>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-node>
+          <tr>
+            <ng-container *ngFor="let col of cols">
+              <td>
+                <div *ngIf="col.field == 'action'">
+                  <span [style]="{'margin-right':'5px'}">
+                    <i class="icons8 icons8-compare font-18" style="cursor:pointer;"
+                      title='View Flowpath Report By Backend Name'
+                      (click)="openFPByIntegrationReport(node, 'FPByID')"></i>
+                  </span>
+                  <span [style]="{'margin-right':'5px'}">
+                    <i class="icons8 icons8-sand-clock font-18" style="cursor:pointer;"
+                      title='View Flowpath Report By Backend Res. Time' (click)="isIPByResp(node)"></i>
+                  </span>
+                </div>
+                <span *ngIf="col.field == 'dispalyName'" title="{{node['discoverName']}}" class="ddr-table-left">
+                  <a class="activeLink"  (click)="showGraphWithInfo(node)">{{node[col.field]}}</a>
+                </span>
+                <!-- <img *ngIf="col.field == 'health'" border='0' width='14' height='15' src={{node[col.field]}}> -->
+                <i class="icons8 icons8-ok font-18 mr-5" *ngIf="col.field == 'health'" style="color:green;"></i>
+                <span *ngIf="col.field == 'available'">
+                  <span *ngIf="node[col.field] == 'NA'">
+                    {{node[col.field]}}
+                  </span>
+                  <span *ngIf="node[col.field] != 'NA'">
+                    <img border='0' width='14' height='15' src={{node[col.field]}}>
+                  </span>
+                </span>
+                <span *ngIf="col.field == 'res'" class="right">
+                  <span title="Avg : {{node[col.field]}} Max : {{node['resMax']}}">
+                    {{formatter(node[col.field])}}
+                  </span>
+                </span>
+                <span *ngIf="col.field == 'resMax'" class="right">
+                  {{formatter(node[col.field])}}
+                </span>
+                <span *ngIf="col.field == 'cps'" class="right">
+                  <span title="Avg : {{node[col.field]}} Max : {{node['cpsMax']}}">
+                    {{formatter(node[col.field])}}
+                  </span>
+                </span>
+                <span *ngIf="col.field == 'chart1'">
+                  <app-ddr-chart [chartData]=node.resData></app-ddr-chart>
+                </span>
+                <span *ngIf="col.field == 'chart2'">
+                  <app-ddr-chart [chartData]=node.callData></app-ddr-chart>
+                </span>
+                <span *ngIf="col.field == 'totalCps'" class="right">
+                  {{node[col.field]}}
+                </span>
+                <span *ngIf="col.field == 'epsTotal'" class="right" span>
+                  <span *ngIf="node[col.field] != '0'" title="View Exception Report">
+                  <a class="activeLink" (click)="openExceptionInstanceReport(node)">
+                    {{formatter(node[col.field])}}</a>
+                  </span>
+                  <span *ngIf="node[col.field] == '0'">
+                    {{node[col.field]}}
+                  </span>
+                </span>
+                <span *ngIf="col.field == 'chart3'">
+                  <app-ddr-chart [chartData]=node.errorData></app-ddr-chart>
+                </span>
+              </td>
+            </ng-container>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+              <td [attr.colspan]="cols.length + 1" class="text-center">
+                  <span>No Records Found</span>
+              </td>
+          </tr>
+      </ng-template>
+      </p-table>
+
+      <!-- <p-dataTable class="scen-table" [value]="ipData" sortField={{sortedField}} [sortOrder]=sortedOrder
+        (onSort)="sortEvent($event)" selectionMode="single" scrollable="true" scrollHeight="200px">
+        <p-column *ngFor="let col of cols" [sortable]="col.sortable" [field]="col.field" [header]="col.header"
+          (sortFunction)="sortColumnsOnCustom($event,ipData)"
+          [style]="{'width': col.width +'px','text-align':col.align}">
+          <ng-template pTemplate="header">
+            <span *ngIf="col.header != 'Max' && col.header != 'Avg'" title="{{col.header}}">
+              {{col.header}}
+            </span>
+            <span *ngIf="col.header == 'Max'" title="Max Response Time (ms)">
+              {{col.header}}
+            </span>
+            <span *ngIf="col.header == 'Avg'" title="Avg Response Time (ms)">
+              {{col.header}}
+            </span>
+          </ng-template>
+          <ng-template *ngIf="col.field == 'action'" let-col let-node="rowData" pTemplate="body">
+            <span [style]="{'margin-right':'5px'}">
+              <i class="icon ddrui-icon-selected-fp-page-instance" style="cursor:pointer;"
+                title='View Flowpath Report By Backend Name' (click)="openFPByIntegrationReport(node, 'FPByID')"></i>
+            </span>
+            <span [style]="{'margin-right':'5px'}">
+              <i class="icon ddrui-icon-method-timing" style="cursor:pointer;"
+                title='View Flowpath Report By Backend Res. Time' (click)="isIPByResp(node)"></i>
+            </span>
+          </ng-template>
+          <ng-template let-col let-node="rowData" *ngIf="col.field == 'dispalyName'" pTemplate type="body">
+            <span (click)="showGraphWithInfo(node)" title="{{node['discoverName']}}"
+              class="ddr-table-left">{{node[col.field]}}</span>
+          </ng-template>
+          <ng-template let-col let-node="rowData" *ngIf="col.field == 'health'" pTemplate type="body">
+            <img border='0' width='14' height='15' src={{node[col.field]}}>
+          </ng-template>
+          <ng-template let-col let-node="rowData" *ngIf="col.field == 'available'" pTemplate type="body">
+            <span *ngIf="node[col.field] == 'NA'">
+              {{node[col.field]}}
+            </span>
+            <span *ngIf="node[col.field] != 'NA'">
+              <img border='0' width='14' height='15' src={{node[col.field]}}>
+            </span>
+          </ng-template>
+          <ng-template let-col let-node="rowData" *ngIf="col.field == 'res'" pTemplate type="body">
+            <span title="Avg : {{node[col.field]}}
+Max : {{node['resMax']}}">
+              {{formatter(node[col.field])}}
+            </span>
+          </ng-template>
+          <ng-template let-col let-node="rowData" *ngIf="col.field == 'resMax'" pTemplate type="body">
+            {{formatter(node[col.field])}}
+          </ng-template>
+          <ng-template let-col let-node="rowData" *ngIf="col.field == 'cps'" pTemplate type="body">
+            <span title="Avg : {{node[col.field]}}
+Max : {{node['cpsMax']}}">
+              {{formatter(node[col.field])}}
+            </span>
+          </ng-template>
+          <ng-template let-col let-node="rowData" *ngIf="col.field == 'chart1'" pTemplate type="body">
+            <app-ddr-chart [chartData]=node.resData></app-ddr-chart>
+          </ng-template>
+          <ng-template let-col let-node="rowData" *ngIf="col.field == 'chart2'" pTemplate type="body">
+            <app-ddr-chart [chartData]=node.callData></app-ddr-chart>
+          </ng-template>
+          <ng-template let-col let-node="rowData" *ngIf="col.field == 'epsTotal'" pTemplate type="body">
+            <span *ngIf="node[col.field] != '0'" title="View Exception Report"
+              (click)="openExceptionInstanceReport(node)" class="ddr-table-right">
+              {{formatter(node[col.field])}}
+            </span>
+            <span *ngIf="node[col.field] == '0'">
+              {{node[col.field]}}
+            </span>
+          </ng-template>
+          <ng-template let-col let-node="rowData" *ngIf="col.field == 'chart3'" pTemplate type="body">
+            <app-ddr-chart [chartData]=node.errorData></app-ddr-chart>
+          </ng-template>
+        </p-column>
+      </p-dataTable> -->
+
+    </p-accordionTab>
+  </p-accordion>
+
+</div>
+
+
+<p-dialog class="secondary-dialog" header="Apply Time Period" [(visible)]="display" [style]="{width: '27vw'}"
+  [resizable]="false" modal="modal" [responsive]="true">
+  <div *ngIf="display">
+    <span class="ui-g-12">
+      <span class="ui-g-2">
+        <label>Time Period : </label>
+      </span>
+      <span class="ui-g-10">
+        <p-dropdown [options]="timeFilterOptions" scrollHeight="100px" appendTo="body" [(ngModel)]="selectedValue"
+          [style]="{'width':'150px'}" (onChange)="openDateFilter($event)" placeholder={{appliedTimeLabel}}></p-dropdown>
+      </span>
+    </span>
+    <div class="ui-g-12">
+      <span id="eventDateFilter">
+
+      </span>
+      <span *ngIf="customFilterDisplay">
+
+        <span class='ui-g-12'>
+          <span class='ui-g-6'>
+            <span class='ui-g-3'>
+              From &nbsp;:
+            </span>
+            <span class='ui-g-3'>
+              <p-calendar readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" [monthNavigator]="true"
+                [yearNavigator]="true" yearRange="1970:2030" [(ngModel)]="startDate"></p-calendar>
+            </span>
+          </span>
+          <span class='ui-g-6' style='margin-top: 6px;'>
+            <input pInputText type='text' title='HH' [(ngModel)]="startHours" onkeypress='valEnteredKeyN(event);'
+              placeholder='HH' autocomplete='off' tabindex='1' style='width:10%' maxlength='2'> :
+            <input pInputText type='text' title='MM' [(ngModel)]="startMinutes" onkeypress='valEnteredKeyN(event);'
+              placeholder='MM' autocomplete='off' tabindex='1' style='width:10%' maxlength='2'> :
+            <input pInputText type='text' title='SS' onkeypress='valEnteredKeyN(event);' [(ngModel)]="startSeconds"
+              placeholder='SS' autocomplete='off' tabindex='1' style='width:10%' maxlength='2'>
+          </span>
+        </span>
+
+        <span class='ui-g-12'>
+          <span class='ui-g-6'>
+            <span class='ui-g-3'>
+              To &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :
+            </span>
+            <span class='ui-g-3'>
+              <p-calendar readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" [monthNavigator]="true"
+                [yearNavigator]="true" yearRange="1970:2030" [(ngModel)]="endDate"></p-calendar>
+            </span>
+          </span>
+          <span class='ui-g-6' style='margin-top: 6px;'>
+            <input pInputText type='text' title='HH' [(ngModel)]="endHours" placeholder='HH' autocomplete='off'
+              onkeypress='valEnteredKeyN(event);' tabindex='1' style='width:10%' maxlength='2'> :
+            <input pInputText type='text' title='MM' onkeypress='valEnteredKeyN(event);' [(ngModel)]="endMinutes"
+              placeholder='MM' autocomplete='off' tabindex='1' style='width:10%' maxlength='2'> :
+            <input pInputText type='text' title='SS' onkeypress='valEnteredKeyN(event);' [(ngModel)]="endSeconds"
+              placeholder='SS' autocomplete='off' tabindex='1' style='width:10%' maxlength='2'>
+          </span>
+        </span>
+      </span>
+    </div>
+
+    <p-footer>
+      <div class="p-grid p-align-center p-justify-end py-5">
+          <button pButton type="button"  label="Submit" (click)="submitFilterValue()" class="ui-button-rounded"></button>
+      </div>
+    </p-footer>
+  </div>
+</p-dialog>
+<p-dialog class="secondary-dialog" [style]="{width: '25vw'}" [(visible)]="isIPByRespTime" [responsive]='true' [resizable]='false' [modal]="true"
+  [positionTop]='140' minHeight='120'>
+  <p-header>Integration Point By Response Time</p-header>
+  <div class="mt-10">
+    <span style="text-align:center;"> Response Time >=</span>
+    <span> <input id="input" (keypress)="validateQty($event)" type="text" size="5" pInputText [(ngModel)]="responseTime"
+        style='float:right'> </span>
+  </div>
+  <p-footer>
+    <button pButton type="button" label="Cancel" (click)="isIPByRespTime=false" class="ui-button-rounded ui-button-secondary"></button>
+      <button pButton type="button" label="Apply" (click)="openFPByIntegrationReport(resData, 'FPByResTime')" class="ui-button-rounded"></button>
+  </p-footer>
+</p-dialog>

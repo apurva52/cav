@@ -1,0 +1,166 @@
+<p-dialog header="{{popupTitle}}" [(visible)]="showFlowpathDetailsModel" class="secondary-dialog foterDialog"
+    [style]="{width: '90vw'}" [modal]="true" [draggable]="false" [resizable]="false" appendTo="body" closeIcon="icons8-delete" scrollHeight = '500px'>
+
+    <div class="dialog-content">
+        <div class="p-grid loader-container vertical-container" *ngIf="loading && !data">
+            <div class="p-col p-align-center text-center">
+                <div>
+                    <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+                </div>
+            </div>
+        </div>
+        <div class="p-grid vertical-container" *ngIf="error">
+            <div class="p-col p-align-center text-center">
+                <p-message severity="error" text="{{error.msg}}"></p-message>
+            </div>
+        </div>
+        <div class="p-grid vertical-container" *ngIf="empty">
+            <div class="p-col p-align-center text-center">
+                <p-message severity="normal" text="No Data"></p-message>
+            </div>
+        </div>
+
+        <div #widgetHeight *ngIf="data">
+            <div class="top-section">
+                <div class="p-grid">
+                    <!-- <div class="p-col-11">
+                        Flowpaths(Tier : name1, Server : server 1, Instance: 1
+                    </div> -->
+                    <div class="p-grid p-justify-end w-100-p">
+                        <div class="icons-group">
+                            <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                                (click)="downloadmenu.toggle($event);" pTooltip="Download"></button>
+                            <p-menu #downloadmenu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                                [showTransitionOptions]="'0ms'" appendTo="body" [hideTransitionOptions]="'0ms'"
+                                [style]="{minWidth:'2em'}"></p-menu>
+
+                            <!-- <button pButton icon="icons8 icons8-menu-vertical" class="icon-button no-shadow"
+                                (click)="menu.toggle($event);" pTooltip="Menu"></button>
+                            <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="menuOptions"
+                                [showTransitionOptions]="'0ms'" appendTo="body" [hideTransitionOptions]="'0ms'"
+                                [style]="{minWidth:'24em'}"></p-menu> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p-card>
+
+                <ng-container>
+                    <div>
+                        <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                            Select column to show
+                        </div>
+                        <div class="p-grid">
+                            <div class="repeated-call-table">
+                                <div class="p-col-12 no-padding">
+                                  <p-table class="all-tables" [columns]="selectedColumns" [value]="transactionTableArray" scrollable='true' scrollHeight = '300px'>
+                                    <ng-template pTemplate="colgroup" let-columns>
+                                      <colgroup>
+                                          <col *ngFor="let col of columns" [ngStyle]="{width: col.width}">
+                                      </colgroup>
+                                    </ng-template>
+                                    <ng-template pTemplate="header" let-columns>
+                                      <tr>
+                                        <th *ngFor="let col of columns" [pSortableColumn]="col.valueField" [pSortableColumn]="col.valueField" [ngStyle]="{'width.px': col.label === 'Query' ? '150': col.label === 'URL'? '150' : '60'}" class="{{ col.Classes }}">
+                                          {{col.label}}
+
+                                          <div *ngIf="col.isSort" class="right">
+                                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField"
+                                                class="text-right" ariaLabel="Activate to sort"
+                                                ariaLabelDesc="Activate to sort in descending order"
+                                                ariaLabelAsc="Activate to sort in ascending order">
+                                            </p-sortIcon>
+                                        </div>
+                                        </th>
+                                      </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-rowData let-columns="columns">
+                                      <tr>
+                                        <ng-container *ngFor="let col of columns; let i=index">
+                                        <td [ngStyle]="{'width.px': col.label === 'Query' ? '150': col.label === 'URL'? '150' : '60'}" class="{{ col.classes }}" pTooltip={{rowData[col.valueField]}} (click)="onRowClick(col.label, rowData)">
+                                          <span *ngIf="!(col.label == 'Action')">
+                                          {{rowData[col.valueField] | ellipsis: 60}}
+                                          </span>
+                                          <span *ngIf="col.label == 'Action'">
+                                              <img src='./assets/images/SequenceIcon.png' style="cursor: pointer; margin-right: 5px" title='View Method call Details' (click)="isFromMain = false;openMethodCallingTree(rowData)"/>
+
+                                              <img src='./assets/images/MethodTiming.png' style="cursor: pointer; margin-right: 5px" title='View Method Timing Report' (click)="isFromMain = false;openMethodTimingReport(rowData)"/>
+
+                                              <img src='./assets/images/hotspot.png' style="cursor: pointer; margin-right: 5px" title='View HotSpot Report' (click)="isFromMain = false;openHotspotReport(rowData)"/>
+
+                                              <img src='./assets/images/queryIcon.png' style="cursor: pointer; margin-right: 5px" title='View DB Request Report' (click)="isFromMain = false;openDBReports(rowData)"/>
+
+                                              <img src='./assets/images/HttpIcon.png'  style="cursor: pointer; font-size: 16px; margin-right: 5px" title='View Request/Response Body' (click)="openReqRespData(rowData)">
+
+                                               <img src='./assets/images/HttpIcon.png' style="cursor: pointer; font-size: 16px; margin-right: 5px" title='View CallOut Body' (click)="openReqRespDataForCallOut(rowData)">
+
+                                          </span>
+                                        </td>
+                                      </ng-container>
+                                      </tr>
+                                    </ng-template>
+                                     <!-----------Empty table error handling--------------------->
+                                     <ng-template pTemplate="emptymessage" let-columns>
+                                      <tr>
+                                          <td  class="text-center" [attr.coldiv]="columns.length + 1">
+                                              <span *ngIf="error">Error while loading data</span>
+                                              <span *ngIf="empty">Empty Table</span>
+                                              <span *ngIf="loading">Loading</span>
+                                          </td>
+                                      </tr>
+                                  </ng-template>
+                                  </p-table>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- </p-card> -->
+                    </div>
+                </ng-container>
+            </p-card>
+            <br>
+            <!-- <textarea pInputTextarea [rows]="5" [cols]="110" autoResize="autoResize">{{popupFooter}}</textarea> -->
+            <!-- <p-toolbar *ngIf="showClipboard">
+              <label style="float:right" class="icon ddrui-icon-copy-link" [cbContent]=popupFooter [ngxClipboard]="" title="Copy Query"  (cbOnSuccess)=showNotification()></label>
+              </p-toolbar> -->
+              <p-footer >
+              <!-- <div class="fixed-footer"> -->
+                <div class="p-col-12 form-buttons" *ngIf="showClipboard">
+                    <button pButton type="button" [cdkCopyToClipboard]="popupFooter"
+                        class="ui-button ui-button-rounded" label="Copy" title="Copy Query"></button>
+                </div>
+              <!-- </div> -->
+                <div style="border: 1px solid grey;min-height: 25px;padding: 4px;word-break: break-all;" >
+                  <div style="font-size:10px;max-width:100%"> {{popupFooter}} </div>
+                </div>
+              </p-footer>
+
+
+        </div>
+    </div>
+</p-dialog>
+<p-dialog [(visible)]="displayDetails" [resizable]="true" [modal]="true" class="secondary-dialog"
+    header="Dynamic Diagnostics Configuration" appendTo="body" [draggable]="false" closeIcon="icons8-delete"
+    [style]="{width: '50vw'}">
+    <app-diagnostics-configuration></app-diagnostics-configuration>
+</p-dialog>
+<p-dialog *ngIf = "isShowMCTTable" [(visible)]="isShowMCTTable" [resizable]="true" [modal]="true" class="secondary-dialog details"
+    header="Method Call Details Report" appendTo="body" [draggable]="false" closeIcon="icons8-delete"
+    [style]="{width: '100vw'}">
+    <app-method-call-details></app-method-call-details>
+</p-dialog>
+<p-dialog *ngIf = "isShowMTTable" [(visible)]="isShowMTTable" [resizable]="true" [modal]="true" class="secondary-dialog details"
+    header="Method Timing Report" appendTo="body" [draggable]="false" closeIcon="icons8-delete"
+    [style]="{width: '100vw'}">
+    <app-method-timing></app-method-timing>
+</p-dialog>
+<p-dialog *ngIf = "isShowHsTable" [(visible)]="isShowHsTable" [resizable]="true" [modal]="true" class="secondary-dialog details"
+    header="HotSpot Report" appendTo="body" [draggable]="false" closeIcon="icons8-delete"
+    [style]="{width: '100vw'}">
+    <app-hotspot></app-hotspot>
+</p-dialog>
+<p-dialog *ngIf = "isShowDbTable" [(visible)]="isShowDbTable" [resizable]="true" [modal]="true" class="secondary-dialog details"
+    header="DB Query" appendTo="body" [draggable]="false" closeIcon="icons8-delete"
+    [style]="{width: '100vw'}">
+    <app-db-queries></app-db-queries>
+</p-dialog>

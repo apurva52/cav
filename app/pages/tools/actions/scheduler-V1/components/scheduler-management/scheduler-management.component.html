@@ -1,0 +1,386 @@
+<p-dialog header="Create Task" [(visible)]="disCstmEvDaysWin" modal="modal" width="900" responsive="true">
+
+    <div class="ui-grid-row">
+        <div class="ui-grid-col-2">
+            Custom Event Days
+        </div>
+        <div class="ui-grid-col-10">
+            <input type="text" pInputText [(ngModel)]="cstmEvDayTxtModel" />
+        </div>
+    </div>
+
+    <div class="ui-grid-row">
+        <div class="ui-grid-col-12"></div>
+    </div>
+
+    <div class="ui-grid-row">
+        <div class="ui-grid-col-2">
+            Date
+        </div>
+        <div class="ui-grid-col-10">
+            <p-calendar [(ngModel)]="addCtsmEvDayCalModel" [showIcon]="true" [showTime]="true"></p-calendar>
+        </div>
+    </div>
+
+    <div class="ui-grid-row">
+        <div class="ui-grid-col-12"></div>
+    </div>
+
+    <div clas="ui-grid-row">
+        <div class="ui-grid-col-5"></div>
+        <div class="ui-grid-col-2">
+            <button pButton type="button" icon="fa fa-check" iconPos="left" label="Add"
+                (click)="addCstmDay();"></button>
+        </div>
+        <div class="ui-grid-col-5"></div>
+    </div>
+
+</p-dialog>
+
+<!-- <perfect-scrollbar class="container" [config]="config"> -->
+<div style="height:65vh">
+    <div class="ui-grid ui-grid-responsive ui-grid-pad">
+
+        <!--Task Table-->
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-12">
+                <p-table #event1 [columns]="tableHeaderInfo" [value]="tasksData" class="all-tables"
+                    selectionMode="single" [(selection)]="selectedScheduleRow" [rows]="20" [paginator]="true"
+                    [rowsPerPageOptions]=[20,40,100] [resizableColumns]="true" columnResizeMode="expand" [scrollable]="true" scrollHeight="56vh">
+                    <ng-template pTemplate="colgroup" let-columns>
+                      <colgroup>
+                        <col style="width:150px">
+                        <col style="width:150px">
+                        <col style="width:150px">
+                        <col style="width:135px">
+                        <col style="width:100px">
+                        <col style="width:70px">
+                      </colgroup>
+                    </ng-template>
+
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th *ngFor="let col of columns" title="{{col.header}}">{{ col.header }}
+                              <p-sortIcon *ngIf="col.isSort" [field]="col.field" class="right"
+                                    ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                    ariaLabelAsc="Activate to sort in ascending order">
+                                </p-sortIcon>
+                            </th>
+                            <th>Actions</th>
+                        </tr>
+                        <tr>
+                          <ng-container *ngIf="isShowColumnFilter">
+                              <th *ngFor="let col of columns" [ngSwitch]="col.header">
+                                  <div
+                                      *ngIf=" col.filter && col.filter.isFilter === true && col.filter.type === 'custom'">
+                                      <input class="w-100-p"
+                                          pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                          *ngSwitchCase="col.header" pInputText type="text"
+                                          (input)="event1.filter($event.target.value,col.value,'custom')"
+                                          placeholder="Search" />
+                                  </div>
+                                  <div
+                                      *ngIf=" col.filter && col.filter.isFilter === true && col.filter.type === 'contains'">
+                                      <input class="w-100-p" pTooltip="Will filter data which contains given text."
+                                          *ngSwitchCase="col.header" pInputText type="text"
+                                          (input)="event1.filter($event.target.value,col.field,'contains')"
+                                          placeholder="Search" />
+                                  </div>
+                              </th>
+                              <th></th>
+                          </ng-container>
+                      </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="body" let-rowData let-columns="columns">
+                        <tr (click)="onRowSelect(rowData)">
+                            <td>{{rowData.taskName}}</td>
+                            <td>{{rowData.description}}</td>
+                            <td>{{rowData.scheduleFrom}}</td>
+                            <td> <span *ngIf="rowData.scheduleExpiryDate == '0'">Not Set</span>
+                                <span *ngIf="rowData.scheduleExpiryDate != '0'">{{rowData.scheduleExpiryDate}}</span>
+                            </td>
+                            <td>{{rowData.status}}</td>
+                            <td><button type="button" id="enableDisableBtnID" pButton icon="icons8 icons8-unavailable"
+                                    title="disable/enable" (click)="enableDisableTask(rowData)"
+                                    style="margin:3px;"></button>
+                                <button type="button" pButton icon="icons8 icons8-delete-trash" title="delete"
+                                    (click)="deleteTask(rowData)" style="margin:3px;"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr (click)="onRowSelect($event)">
+                            <td colspan="8" class="text-center">
+                                <span *ngIf="tasksData && tasksData.length == 0">No records found</span>
+                                <!-- <span
+                                        *ngIf="groupUserObject && groupUserObject.length > 0 && searchInput1.value.length">Nothing
+                                        found
+                                        matching "{{searchInput1.value}}"</span> -->
+                            </td>
+                        </tr>
+                    </ng-template>
+
+
+
+
+                    <!-- <p-column field="taskType" header="Task Type" [style]="{'cursor':'pointer'}"></p-column>
+                        <p-column field="taskName" header="Task Name" [style]="{'cursor':'pointer'}"></p-column>
+                        <p-column field="description" header="Description" [style]="{'cursor':'pointer'}"></p-column>
+                        <p-column field="scheduleFrom" header="Schedule Time" [style]="{'cursor':'pointer'}"></p-column>
+                        <p-column field="scheduleExpiryDate" header="Schedule Expiry Time" [style]="{'cursor':'pointer'}">
+                            <ng-template let-rowData="rowData" pTemplate="body">
+                                <span *ngIf="rowData.scheduleExpiryDate == '0'">Not Set</span>
+                                <span *ngIf="rowData.scheduleExpiryDate != '0'">{{rowData.scheduleExpiryDate}}</span>
+                            </ng-template>
+                        </p-column>
+                        <p-column field="status" header="status" [style]="{'cursor':'pointer'}"></p-column>
+                        <p-column [style]="{'width':'80px'}">
+                            <ng-template pTemplate="header">
+                                Actions
+                            </ng-template>
+                            <ng-template let-rowData="rowData" pTemplate="body">
+                                <button type="button" id="enableDisableBtnID" pButton icon="fa fa-ban" title="disable/enable" (click)="enableDisableTask(rowData)" style="margin:3px;"></button> -->
+                    <!--<button type="button" pButton  icon="fa fa-edit" title="edit" (click)="setPreviousValues(rowData,1)"></button>-->
+                    <!-- <button type="button" pButton icon="fa fa-trash" title="delete" (click)="deleteTask(rowData)" style="margin:3px;"></button> -->
+                    <!--<button type="button" pButton  icon="fa fa-files-o" title="view" (click)="setPreviousValues(rowData,0)"></button>-->
+                    <!-- </ng-template>
+                        </p-column> -->
+                </p-table>
+            </div>
+        </div>
+        <!--Task Table ends-->
+
+        <!--Schedule Settings Page-->
+        <div class="ui-grid-row tabpanel " *ngIf="showScheduleSettingTable">
+            <div class="ui-grid-col-12 alltabs">
+                <p-tabView (onChange)="onTabChange($event)" class="scenTab12">
+
+                    <!--Hourly-->
+                    <p-tabPanel leftIcon="fa-bell-o" header="Hourly" [selected]="hourlyTab" [disabled]="hourlyTabDis">
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-1">
+                                <p-radioButton name="group2" value="every" label="Every" [(ngModel)]="everyOrDaily"
+                                    [disabled]="hourlyTabDis"></p-radioButton>
+                            </div>
+                            <div class="ui-grid-col-9">
+                                <input type="number" value="4" min="0" max="23" pInputText
+                                    [(ngModel)]="everyHourTxtModel" [disabled]="hourlyTabDis" />&nbsp;Hour(s)
+                            </div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-12">&nbsp;</div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-1">
+                                <p-radioButton name="group2" value="dailyAt" label="Daily At" [(ngModel)]="everyOrDaily"
+                                    [disabled]="hourlyTabDis"></p-radioButton>
+                            </div>
+                            <div class="ui-grid-col-9 cav-time">
+                                <p-calendar [(ngModel)]="dailyTxtModel" [timeOnly]="true" [disabled]="hourlyTabDis"
+                                    placeholder="HH:MM"></p-calendar>
+                            </div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-12">&nbsp;</div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-8">
+                                <input type="text" style="width:95% !important;" [(ngModel)]="taskDescModel"
+                                    [disabled]="hourlyTabDis" class="taskDescription" pInputText
+                                    placeholder="Task Description" />
+                            </div>
+                            <div class="ui-grid-col-4">
+                                <input type="text" style="width:100% !important;" [(ngModel)]="taskNameModel"
+                                    [disabled]="hourlyTabDis" class="taskDescription" pInputText
+                                    placeholder="Task Name" />
+                            </div>
+                        </div>
+                    </p-tabPanel>
+                    <!--End of Hourly-->
+
+                    <!--Weekly-->
+                    <p-tabPanel leftIcon="fa-bell-o" header="Weekly" [selected]="weeklyTab" [disabled]="weeklyTabDis">
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-12">
+                                <p-selectButton [options]="weekDays" [(ngModel)]="selectedWeek"
+                                    [disabled]="weeklyTabDis"></p-selectButton>
+                            </div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-12">&nbsp;</div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-1">
+                                Start Time
+                            </div>
+                            <div class="ui-grid-col-10 cav-time">
+                                <p-calendar [(ngModel)]="WeekTime" [timeOnly]="true" [disabled]="weeklyTabDis"
+                                    placeholder="HH:MM"></p-calendar>
+                            </div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-12">&nbsp;</div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-8">
+                                <input type="text" class="taskDescription" style="width:95% !important;" pInputText
+                                    placeholder="Task Description" [(ngModel)]="taskDescModel"
+                                    [disabled]="weeklyTabDis" />
+                            </div>
+
+                            <div class="ui-grid-col-4">
+                                <input type="text" style="width:100% !important;" [(ngModel)]="taskNameModel"
+                                    [disabled]="weeklyTabDis" class="taskDescription" pInputText
+                                    placeholder="Task Name" />
+                            </div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-12">&nbsp;</div>
+                        </div>
+
+                    </p-tabPanel>
+                    <!--End of Weekly-->
+
+                    <!--Monthly-->
+                    <p-tabPanel leftIcon="fa-bell-o" header="Monthly" [selected]="monthlyTab"
+                        [disabled]="monthlyTabDis">
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-12">
+                                Day
+                                <input type="text" pInputText [(ngModel)]="mDayModel" [disabled]="monthlyTabDis"
+                                    (keypress)="validateQty($event)" /> &nbsp;of every
+                                <input type="text" pInputText [(ngModel)]="mMonthModel" [disabled]="monthlyTabDis"
+                                    (keypress)="validateQty($event)" />&nbsp;Months
+                            </div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-12">&nbsp;</div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-1">
+                                Start Time
+                            </div>
+                            <div class="ui-grid-col-10 cav-time">
+                                <p-calendar [(ngModel)]="MonthlyTime" [timeOnly]="true" [disabled]="monthlyTabDis"
+                                    placeholder="HH:MM"></p-calendar>
+                            </div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-12">&nbsp;</div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-8">
+                                <input type="text" style="width:95% !important;" [(ngModel)]="taskDescModel"
+                                    [disabled]="monthlyTabDis" class="taskDescription" pInputText
+                                    placeholder="Task Description" />
+                            </div>
+                            <div class="ui-grid-col-4">
+                                <input type="text" style="width:100% !important;" [(ngModel)]="taskNameModel"
+                                    [disabled]="monthlyTabDis" class="taskDescription" pInputText
+                                    placeholder="Task Name" />
+                            </div>
+                        </div>
+
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-12">&nbsp;</div>
+                        </div>
+
+                    </p-tabPanel>
+                    <!--End of Monthly-->
+
+                    <p-tabPanel leftIcon="fa-bell-o" header="Custom" [selected]="customTab">
+                        <div class="ui-grid-row" style="margin-bottom:1%">
+                            <div class="ui-grid-col-2">
+                                Choose Date and Time
+                            </div>
+                            <div class="ui-grid-col-4 calendar-div-custom">
+                                <p-calendar [(ngModel)]="customDateTime" [showIcon]="true" dateFormat="mm/dd/yy"
+                                    [showTime]="true" placeholder="MM/DD/YYYY HH:MM"></p-calendar>
+                            </div>
+                        </div>
+                        <div class="ui-grid-row">
+                            <div class="ui-grid-col-8">
+                                <input type="text" style="width:95% !important;" [(ngModel)]="taskDescModel"
+                                    [disabled]="monthlyTabDis" class="taskDescription" pInputText
+                                    placeholder="Task Description" />
+                            </div>
+                            <div class="ui-grid-col-4">
+                                <input type="text" style="width:100% !important;" [(ngModel)]="taskNameModel"
+                                    [disabled]="monthlyTabDis" class="taskDescription" pInputText
+                                    placeholder="Task Name" />
+                            </div>
+                        </div>
+                    </p-tabPanel>
+
+                    <!--<p-tabPanel leftIcon="fa-bell-o" header="Event Days">
+            <div class="ui-grid-row">
+              <div class="ui-grid-col-2">
+               Schedule Event Day
+              </div>
+              <div class="ui-grid-col-2">
+                <p-dropdown appendTo = "body" [options]="eventDaysArr" [(ngModel)]="selectedEvent" (onChange)="onEventChange()" ></p-dropdown>
+              </div>
+              <div class="ui-grid-col-8">
+                <i class="material-icons editIcons" (click)="openCstmEvDaysWin()" style="cursor:pointer;" title="Add Custom Event Day">sync</i>
+              </div>
+            </div>
+            <div class="ui-grid-row">
+              <div class="ui-grid-col-12">
+                <input type="text" style="width:100% !important;" [(ngModel)]= "taskDescModel" class="taskDescription" pInputText placeholder="Task Description"/>
+              </div>
+            </div>
+         </p-tabPanel> -->
+                </p-tabView>
+
+                <!--schedule expiry date common to all the tabs-->
+                <div class="ui-grid-row" style="margin-top: 2%;margin-bottom:1%">
+                    <div class="ui-grid-col-2">
+                        Schedule expiry Date
+                    </div>
+                    <div class="ui-grid-col-4 calendar-div">
+                        <!--schedule expiry date must of be the Format="dd/mm/yy"-->
+                        <p-calendar [showIcon]="true" dateFormat="mm/dd/yy" [(ngModel)]="scheduleExpiry"
+                            [showTime]="true" [disabled]="scheduleExpiryDis" placeholder="MM/DD/YYYY HH:MM">
+                        </p-calendar>
+                    </div>
+                    <div class="ui-grid-col-4">
+                        &nbsp;
+                    </div>
+                    <div class="ui-grid-col-2">
+                        <button pButton type="text" (click)="saveSchedule()" icon="fa fa-check" label="Save"
+                            [disabled]="saveButtonDis"></button>
+                    </div>
+                </div>
+                <!--schedule expiry date common to all the tabs-->
+
+            </div>
+        </div>
+    </div>
+    <div class="ui-grid-row">
+        <div class="ui-grid-col-12">
+            Note : System should have latest version of nodejs to run Scheduler test.
+        </div>
+    </div>
+</div>
+<!-- </perfect-scrollbar> -->
+<!-- <p-growl life=5000 [value]="_message"></p-growl> -->
+<p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+<style>
+    /*:host>>> .ui-datepicker{left: 176px !important; top: -234px !important;}*/
+    /* :host>>> .rc-modal a {color: #282828 !important;}
+:host>>> .ui-tabview .ui-tabview-nav li a, .ui-tabview.ui-tabview-collapsible .ui-tabview-nav li.ui-tabview-selected a {cursor: pointer; color: black} */
+</style>

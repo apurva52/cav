@@ -1,0 +1,310 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+    blockScroll="true" appendTo="body">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <div>
+                <i class="icons8 icons8-search"></i>
+                <span>Search Flowpath</span>
+            </div>
+            <div class="action-icons">
+                <i class="icons8-delete"  (click)="closeClick()"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-content">
+        <p-tabView class="mini-tab" *ngIf="data">
+            <p-tabPanel header="STANDARD">
+                <form (ngSubmit)="searchBy('standard')" #groupForm="ngForm" ngNativeValidate>
+                <div>
+                    <div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Tier(s)</label>
+                        </div>
+                        <div class="search-input">
+
+                            <p-multiSelect class="w-100-p" [options]="storeViewDataOpt" [(ngModel)]="standardTier"  [ngModelOptions]="{standalone: true}" optionLabel="label"
+                                dropdownIcon="icons8 icons8-expand-arrow" [defaultLabel]="'Select an Item'"
+                                [panelStyle]="{ minWidth: '200px'}">
+                            </p-multiSelect>
+
+                        </div>
+                    </div>
+
+                    <div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Correlation ID</label>
+                        </div>
+                        <div class="search-input">
+                            <input class="control-input" type="text" pInputText placeholder="" [(ngModel)]="correlationID" [ngModelOptions]="{standalone: true}" name="showmethod1" />
+                        </div>
+                    </div>
+
+                    <div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Mode</label>
+                        </div>
+                        <div class="search-input">
+                            <p-dropdown [options]="data.values.mode" placeholder="--Select Mode--" [(ngModel)]="mode" [ngModelOptions]="{standalone: true}" dropdownIcon="icons8-expand-arrow" >
+                            </p-dropdown>
+                        </div>
+                    </div>
+
+                    <div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Flowpath ID</label>
+                        </div>
+                        <div class="search-input">
+                            <input class="control-input" type="text" pInputText placeholder=""  [(ngModel)]="flowpathID"  [ngModelOptions]="{standalone: true}" name="showmethod1" />
+                        </div>
+                    </div>
+                    <div class="p-grid p-justify-between sidebar-footer">
+                        <button pButton type="submit" label="SEARCH"
+                            class="w-40-p ui-button-rounded"></button>
+                            <button type="button" pButton icon="fa fa-close " (click)="closeClick()" label="Close" class=" w-40-p ui-button-rounded"></button>
+                    </div>
+                </div>
+            </form>
+            </p-tabPanel>
+            <p-tabPanel header="CUSTOM">
+                <div>
+
+                    <div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Tier(s)</label>
+                        </div>
+                        <div class="search-input">
+                            <p-multiSelect [options]="storeViewDataOpt" optionLabel="label" [(ngModel)]="customTier" [ngModelOptions]="{standalone: true}"
+                                dropdownIcon="icons8 icons8-expand-arrow" [defaultLabel]="'Select an Item'"
+                                [displaySelectedLabel]="true" pTooltip="" [panelStyle]="{ minWidth: '200px'}">
+                            </p-multiSelect>
+                        </div>
+                    </div>
+                    <form (ngSubmit)="searchBy('custom')" #groupForm="ngForm" ngNativeValidate>
+                    <div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Name</label>
+                        </div>
+                        <div class="search-input">
+                            <p-dropdown  placeholder="--Select Name--" [options]="customNameList" [(ngModel)]="customName" [ngModelOptions]="{standalone: true}" dropdownIcon="icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                    </div>
+
+                    <div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Operation</label>
+                        </div>
+                        <div class="search-input" >
+        
+                            <p-dropdown [options]="data.values.mode" placeholder="--Select Operation--"  dropdownIcon="icons8-expand-arrow">
+                            </p-dropdown>
+                           
+                        </div>
+                    </div>
+
+                    <div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Value</label>
+                        </div>
+                        <div class="search-input">
+                            <input class="control-input" type="text" pInputText placeholder=""  name="showmethod1" />
+                        </div>
+
+                    </div>
+                    <div class="right">
+                        <button pButton pTooltip="Add Entry" tooltipZIndex="1000010056" class="ui-icon-button"
+                            icon="icons8 icons8-plus-math"></button>
+                    </div>
+                    <div class="p-grid p-col-12">
+                        <div class="p-col-5">
+                            <span class="left"> Custom Rules</span>
+                        </div>
+                        <div class="p-col-7">
+                            <div class="icons-container">
+                                <i pTooltip="Delete" tooltipZIndex="1000010056" class="icons8 icons8-trash ">
+                                </i>
+                                <i pTooltip="Column Filter" tooltipZIndex="1000010056"
+                                    class="icons8 icons8-search-property " (click)="toggleFilters()">
+                                </i>
+                                <p-multiSelect class="ui-multiselect-secondary" tooltipZIndex="1000010056"
+                                    baseZIndex="10000" [options]="cols" [(ngModel)]="selectedColumns" [ngModelOptions]="{standalone: true}"
+                                    optionLabel="label" appendTo="body" [displaySelectedLabel]="false"
+                                    dropdownIcon='icons8 icons8-columns' pTooltip="Show/Hide Columns"
+                                    [panelStyle]="{minWidth: '150px'}">
+                                </p-multiSelect>
+                            </div>
+                        </div>
+                    </div>
+                    <div #widgetHeight [ngStyle]="{
+                        height: !isEnabledColumnFilter
+                        ? 'calc(100vh - 465)': 'calc(100vh - 502px)'}">
+
+                        <p-card>
+                            <p-table #searchData [columns]="selectedColumns" [value]="data.tableData.data"
+                                [rowHover]="true" [paginator]="false" [responsive]="true" [scrollable]="true"
+                                scrollHeight="215px">
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                        <th class="columnwidth">
+                                        </th>
+                                        <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv"
+                                            [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.valueField"
+                                            class="text-left">
+                                            <div class="left">
+                                                {{ col.label }}
+                                            </div>
+                                            <div *ngIf="col.isSort" class="right">
+                                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right"
+                                                    ariaLabel="Activate to sort"
+                                                    ariaLabelDesc="Activate to sort in descending order"
+                                                    ariaLabelAsc="Activate to sort in ascending order">
+                                                </p-sortIcon>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    <tr *ngFor="let headerRow of data.tableData.headers">
+                                        <ng-container *ngIf="isEnabledColumnFilter">
+                                            <th class="columnwidth">
+                                            </th>
+                                            <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                <div
+                                                    *ngIf="col.filter.isFilter === true && col.filter.type === 'custom'">
+                                                    <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                        pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                        *ngSwitchCase="col.label" pInputText type="text"
+                                                        (input)="searchData.filter($event.target.value, col.valueField , 'custom')">
+                                                </div>
+                                                <div
+                                                    *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+                                                    <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                        pTooltip="Will filter metric names which contains given text."
+                                                        *ngSwitchCase="col.label" pInputText type="text"
+                                                        (input)="searchData.filter($event.target.value, col.valueField , 'contains')">
+                                                </div>
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+
+                                    <tr [ngStyle]="{'backgroundColor': row.rowBgColor}" [pSelectableRow]="row">
+                                        <td class="columnwidth">
+                                            <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                                        </td>
+
+                                        <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}">
+                                            <span> {{ row[col.valueField] }} </span>
+
+                                        </td>
+                                        <!-- <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                        {{ row[col.valueField] }}
+                                    </td> -->
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                            <span *ngIf="error">Error while loading data</span>
+                                            <span *ngIf="emptyTable">No Records Found</span>
+                                            <span *ngIf="loading">Loading</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </p-card>
+                    </div>
+                    <div class="p-grid p-justify-between sidebar-footer">
+                        <button pButton type="submit" label="SEARCH"
+                            class="w-40-p ui-button-rounded"></button>
+                            <button type="button" pButton icon="fa fa-close " (click)="closeClick()" label="Close" class=" w-40-p ui-button-rounded"></button>
+                    </div>
+                </form>
+                </div>
+            </p-tabPanel>
+            <p-tabPanel header="LOGS">
+                <div>
+
+                    <div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Tier(s)</label>
+                        </div>
+                        <div class="search-input">
+                            <!-- <p-multiSelect class="icon-button no-shadow drop-down" dropdownIcon="icons8-expand-arrow"
+                                [options]="storeViewDataOpt" optionLabel="label"
+                                dropdownIcon="icons8 icons8-expand-arrow" [defaultLabel]="'Select Item'"
+                                [displaySelectedLabel]="true" pTooltip="Toggle Columns"
+                                [panelStyle]="{ minWidth: '200px'}">
+                            </p-multiSelect> -->
+                            
+                            <p-multiSelect class="w-100-p" [options]="storeViewDataOpt" optionLabel="label" [(ngModel)]="logsTier" [ngModelOptions]="{standalone: true}"
+                                dropdownIcon="icons8 icons8-expand-arrow" [defaultLabel]="'Select an Item'"
+                                [panelStyle]="{ minWidth: '200px'}">
+                            </p-multiSelect>
+                        </div>
+                    </div>
+                    <!-- <form (ngSubmit)="searchBy('logs')" #groupForm="ngForm" ngNativeValidate> -->
+                    <div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Correlation ID</label>
+                        </div>
+                        <div class="search-input">
+                            <input class="control-input" type="text" pInputText placeholder=""  name="showmethod1" />
+                        </div>
+                    </div>
+                    <!-- <div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Mode</label>
+                        </div>
+                        <div class="search-input">
+                            <p-dropdown [options]="data.values.mode" placeholder="--Select Mode--"  dropdownIcon="icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                    </div> -->
+                
+
+                    <!--<div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Flowpath ID</label>
+                        </div>
+                        <div class="search-input">
+                            <input class="control-input" type="text" pInputText placeholder="" name="showmethod1" />
+                        </div>
+                    </div>-->
+
+                    <div class="p-grid p-col-12">
+                        <div class="search-label">
+                            <label>Flowpath ID</label>
+                        </div>
+                        <div class="search-input">
+                            <input class="control-input" type="text" pInputText placeholder=""   name="showmethod1" />
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12">
+                        <div class="search-label">
+                          <label>Pattern</label>
+                        </div>
+                        <div class="search-input">
+                          <input class="control-input" type="text" pInputText placeholder=""  name="showmethod1" />
+                        </div>
+                      </div>
+                      <div class="p-grid p-justify-between sidebar-footer">
+                        <button pButton type="submit" label="SEARCH"
+                            class="w-40-p ui-button-rounded"></button>
+                            <button type="button" pButton icon="fa fa-close " (click)="closeClick()" label="Close" class=" w-40-p ui-button-rounded"></button>
+                        
+                    </div>
+                <!-- </form> -->
+                </div>
+            
+            
+            </p-tabPanel>
+        
+            <!-- <div class="p-grid p-justify-between sidebar-footer">
+                <button pButton type="submit" label="SEARCH"
+                    class="w-40-p ui-button-rounded"></button>
+                    <button type="button" pButton icon="fa fa-close " (click)="closeClick()" label="Close" class=" w-40-p ui-button-rounded"></button>
+            </div> -->
+        </p-tabView>
+    </div>
+</p-sidebar>

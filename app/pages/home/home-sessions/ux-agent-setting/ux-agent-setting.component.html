@@ -1,0 +1,161 @@
+<div class="profile-details">
+  <div class="action-container">
+    <div class="header">
+      <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+      <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a class="clickable" routerLink="/home/dashboard">
+          <i class="icons8 icons8-left toolbar-icon-color"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">
+          UX AGENT SETTING
+        </div>
+      </div>
+    </p-toolbar>
+    <div class="p-col-12 p-col-nogutter">
+      <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+      </div>
+    </div>
+    <ng-container>
+      <div class="main-block mh-10 mt-4">
+        <div class="p-grid ">
+          <div class="p-grid p-col-12 p-offset-1 sub-block">
+            <div class="p-col-4" *ngIf='adminflag == true'>
+              <p-card>
+                <p-header class="p-justify-end p-align-center">
+                  <span class="selected-label line-height">Add New Configuration</span>
+                </p-header>
+
+                <div class="icon-size">
+                  <i class="icons8 icons8-add" pTooltip="Click Here To Add New Configuration"
+                    (click)="AddNewConfiguration()"></i>
+                </div>
+
+              </p-card>
+            </div>
+            <div class="p-col-4 p-align-center" *ngFor="let carddata of tabledatavalue">
+              <p-card>
+                <p-header class="p-justify-end p-align-center">
+                  <span class="selected-label line-height"> </span>
+                  <div class="right">
+                    <span *ngIf='adminflag == false' class="profile-icon clickable"
+                      pTooltip="Click Here To View Configuration"><i class="pi pi-eye"
+                        (click)="EditConfiguration(carddata)"></i></span>
+                    <span *ngIf='adminflag == true' class="profile-icon clickable"
+                      pTooltip="Click Here To Edit Configuration"><i class="icons8 icons8-edit-2"
+                        (click)="EditConfiguration(carddata)"></i></span>
+                    <span *ngIf='adminflag == true' class="profile-icon"
+                      pTooltip="Click Here To Delete Configuration"><i class="icons8 icons8-delete-trash"
+                        (click)="DeleteConfiguration(carddata)"></i></span>
+                  </div>
+                </p-header>
+                <div></div>
+                <div class="prof-name p-align-center">
+                  <div class="selected-label2 p-col-6">Profile Name :</div>
+                  <div class="selected-label2 p-col-5">{{carddata.name}}</div>
+                </div>
+                <div class="prof-name p-align-center">
+                  <div class="selected-label2 p-col-6">Type :</div>
+                  <div class="selected-label2 p-col-5" *ngIf='carddata.type == "0"'>Web Application</div>
+                  <div class="selected-label2 p-col-5" *ngIf='carddata.type == "1"'>Android App</div>
+                  <div class="selected-label2 p-col-5" *ngIf='carddata.type == "2"'>Windows</div>
+                  <div class="selected-label2 p-col-5" *ngIf='carddata.type == "3"'>IOS App</div>
+                  <div class="selected-label2 p-col-5" *ngIf='carddata.type == "4"'>React Native App</div>
+                </div>
+                <div class="prof-name p-align-center">
+                  <div class="selected-label2 p-col-6">Last Updated :</div>
+                  <div class="selected-label2 p-col-5">{{carddata.lastEdit}}</div>
+                </div>
+                <div class="prof-name p-align-center">
+                  <div class="selected-label2 p-col-6">Description :</div>
+                  <div class="selected-label2 p-col-5">{{carddata.description}}</div>
+                </div>
+                <div class="prof-name p-align-center">
+                  <div class="selected-label2 p-col-6">Channel :</div>
+                  <div class="selected-label2 p-col-5">{{carddata.channel}}</div>
+                </div>
+              </p-card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<p-dialog header="Add New Configuration" [(visible)]="addnewconfiguration" [responsive]="true" [closable]="false"
+  [style]="{width:'30vw'}" class="secondary-dialog" [modal]="true">
+
+  <div class="p-grid p-col-12 p-align-center p-justify-between ui-fluid">
+    <div class="p-col-4">Profile Name</div>
+    <div class="p-col">
+      <input type="text" placeholder="Enter Profile Name" pInputText [(ngModel)]="name" />
+    </div>
+  </div>
+
+  <div class="p-grid p-col-12 p-align-center p-justify-between ui-fluid">
+    <div class="p-col-4">Channel Name</div>
+    <div class="p-col">
+      <p-dropdown placeholder="Please Select Channel" [options]="nchannel" [(ngModel)]="channel"
+        dropdownIcon="icons8 icons8-expand-arrow">
+      </p-dropdown>
+    </div>
+  </div>
+
+  <div class="p-grid p-col-12 p-align-center p-justify-between ui-fluid">
+    <div class="p-col-4"> Type</div>
+    <div class="p-col">
+      <p-dropdown (click)="getProfileName()" [options]="ntype" [(ngModel)]="type"
+        dropdownIcon="icons8 icons8-expand-arrow">
+      </p-dropdown>
+    </div>
+  </div>
+
+  <div class="p-grid p-col-12 p-align-center p-justify-between ui-fluid">
+    <div class="p-col-4">Description</div>
+    <div class="p-col">
+      <textarea pInputTextarea placeholder="Enter Description" [(ngModel)]="description"></textarea>
+    </div>
+  </div>
+
+  <div class="p-grid p-col-12 p-align-center p-justify-center">
+    <div class="p-col-1">
+      <p-checkbox [(ngModel)]="copyProfile" [binary]="true"></p-checkbox>
+    </div>
+    <div class="p-col">
+      <label>Copy configuration from another profile</label>
+    </div>
+  </div>
+
+  <div class="p-grid p-col-12 p-align-center p-justify-between" *ngIf='copyProfile && noprofile == "false"'>
+    <div class="p-col-4">Profile Name</div>
+    <div class="p-col">
+      <p-dropdown placeholder="Please Select Profile Name" [options]="profile_name" [(ngModel)]="pfname"
+        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+    </div>
+  </div>
+  <div class="p-grid p-col-12 p-align-center p-justify-center" *ngIf='noprofile == "true"'
+    style="text-align: center;font-size: 14px;color:red;">
+    <i class="icons8 icons8-error"></i>
+    No Configuration found for {{notypename}}
+  </div>
+
+
+  <p-footer>
+    <div style="text-align:center;">
+      <button pButton type="button" label="Cancel" class="ui-button-rounded ui-button-secondary"
+        (click)="CloseDialog()"></button>
+      <button pButton type="button" id="validateAdd" label="Add" class="ui-button-rounded"
+        (click)="OpenNewConfiguration()"></button>
+
+    </div>
+
+  </p-footer>
+</p-dialog>
+
+<p-confirmDialog appendTo="body" header="Confirmation"
+  maskStyleClass="ui-dialog-mask ui-widget-overlay ui-dialog-visible ui-dialog-mask-scrollblocker"
+  icon="fa fa-question-circle" width="425"></p-confirmDialog>

@@ -1,0 +1,63 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false" [style]="{width: '40vw'}">
+    <p-header>
+
+        <div class="compare-data-title" *ngIf="!showFields">
+            <div>
+                Add Usersegment Data
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+        <div class="compare-data-title" *ngIf="showFields">
+            <div>
+                Edit Usersegment Data
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+
+    <div class="dialog-content">
+        <div class="p-grid" *ngFor="let item of data">
+            <div class="p-col-4" >
+                <span class="line-height">{{item.label}}</span>
+            </div>
+            <div class="p-col-8">
+                <p-dropdown [options]="item.options" dropdownIcon="icons8-expand-arrow">
+                    </p-dropdown>
+            </div>
+        </div>
+        <div class="p-grid">
+            <div class="p-col-4">
+                <span class="line-height">Name</span>
+            </div>
+            <div class="p-col-8">
+                <input class="w-100-p" [(ngModel)]="userName" type="text" placeholder="Enter name" pInputText />
+            </div>
+        </div>
+
+      
+        <div class="p-grid">
+            <div class="p-col-4">
+                <span class="line-height">Description</span>
+            </div>
+            <div class="p-col-8">
+                <textarea class="w-100-p" [(ngModel)]="userDescription" type="text" placeholder="Enter Description" pInputText></textarea>
+            </div>
+        </div>
+      
+
+    </div>
+    <p-footer right>
+        <div class="p-col-12 form-buttons right" *ngIf="!showFields">
+            <button pButton type="submit" label="Cancel" class="ui-button-rounded ui-button-secondary" (click)="closeDialog()"></button>
+            <button pButton type="submit" label="Add" class="ui-button-rounded"></button>
+        </div>
+        <div class="p-col-12 form-buttons right" *ngIf="showFields">
+            <button pButton type="submit" label="Cancel" class="ui-button-rounded ui-button-secondary" (click)="closeDialog()"></button>
+            <button pButton type="submit" label="Update" class="ui-button-rounded"></button>
+        </div>
+    </p-footer>
+</p-dialog>

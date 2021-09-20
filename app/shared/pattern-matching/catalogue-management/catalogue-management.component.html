@@ -1,0 +1,193 @@
+<p-dialog #dialog header="Catalogue Management" class="secondary-dialog" [(visible)]="visible" [resizable]="false" closeIcon="icons8-delete" [draggable]="false" [modal]="true" [closable]="true" [baseZIndex]="10000" [style]="{width: '70vw'}" contentStyleClass="content500">
+    <div class="catalogue-container">
+        <p-tabView  (onChange)="handleChangeInTabs($event)" [(activeIndex)]="activeTab" >
+            <p-tabPanel header="Manage Catalogue">
+                <p-table  class="all-tables"  [resizableColumns]="true" [columns]="datatable.headers" [value]="cataloguedata" [paginator]="false"  (onPage)="onPage($event)"
+                 [paginator]="true" paginatorPosition="bottom" scrollHeight="93px"
+                [rows]="10" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true" [scrollable]="true">
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup *ngFor="let headerRow of columns">
+                            <col *ngFor="let col of headerRow.cols" [style.width]="col.width">
+                        </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns>
+                        <tr *ngFor="let headerRow of columns">
+                            <th *ngFor="let col of headerRow.cols" [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan" [pSortableColumn]="col.valueField" pResizableColumn>
+                                <!-- <div class="float-left">
+                                    {{ col.label }}
+                                </div> -->
+                                {{col.label}}
+                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField"></p-sortIcon>
+                                <!-- <div *ngIf="col.isSort" class="right">
+                                    <p-sortIcon *ngIf="col.isSort" field="col.isSort" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                    </p-sortIcon>
+                                </div> -->
+                            </th>
+                        </tr>
+                    </ng-template>
+
+                    <!-- <ng-template pTemplate="body" let-row let-columns="columns">
+                        <tr *ngFor="let headerRow of columns" class="pointer">
+                            <td *ngFor="let col of headerRow.cols; let i = index">
+                               <span> <i class="columnwidth" *ngIf="col.iconField && row.icon" [ngClass]="row.icon"></i> {{ row[col.valueField] }}</span>
+                                <span *ngIf="col.valueField==='action'" >
+                                    <i class="fa fa-pencil-square-o" title="Edit" ></i>
+                                    <i class="fa fa-times" title="Delete" ></i>
+                                    </span>
+                            </td>
+                        </tr>
+                    </ng-template> -->
+                    <ng-template pTemplate="body" let-row let-columns="columns"  let-rowIndex="rowIndex">
+<tr *ngFor="let headerRow of columns" class="pointer" >
+<td *ngFor="let col of headerRow.cols;  let i = index" >
+<span > <i class="columnwidth" *ngIf="col.iconField && row.icon" [ngClass]="row.icon"></i> {{ row[col.valueField] }}</span>
+<!-- <span *ngIf="col.valueField==='metricType'" >
+{{metricType}}
+</span> -->
+<span *ngIf ="col.valueField === 'serial'">
+{{rowIndex+1}}
+</span>
+<span *ngIf="col.valueField==='action'" >
+<i class="icons8 icons8-trash"  style="color: red; cursor: pointer;" title="Delete" (click)="deleteManageCatalogue(rowIndex,row)"></i>&nbsp;
+<i class="icons8 icons8-edit-2" style ="cursor: pointer;" title="Edit"  (click)="editManageCatalogue(cataloguedata,row,rowIndex)" ></i>
+</span>
+</td>
+</tr>
+</ng-template>
+                </p-table>
+            </p-tabPanel>
+
+
+            <p-tabPanel header="Add / Edit Catalogue" >
+                <div class="p-grid">
+                    <div class="p-col-12">
+                        <p-fieldset legend="Catalogue Detail">
+                            <div class="p-grid w-100-p">
+                                <div class="p-col-5">
+                                    <div class="p-grid">
+                                        <span class="line-height mr-20" >Name*</span>
+                                        <input type="text" class="w-75-p ml-10" [disabled]="!addCatal" [(ngModel)]="catalogueName" pInputText />
+                                    </div>
+                                </div>
+                                <!-- <div class="p-col-1"></div> -->
+                                <div class="p-col-7">
+                                    <div class="p-grid">
+                                        <span class="line-height mr-20">Description*</span>
+                                        <input type="text" class="w-75-p ml-10" [(ngModel)]="catDescription" pInputText />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </p-fieldset>
+
+                        <p-fieldset legend="Chart Detail">
+                            <div class="p-grid">
+                                <span>Select Metric Type:</span>
+
+                                <p-radioButton class="ml-10" name="groupname" value="all" label="Normal"  [(ngModel)]="metricType"  ></p-radioButton>
+
+                                <p-radioButton class="ml-10" name="groupname1" value="zero" label="Derived" [(ngModel)]="metricTypeDerived"  (onClick)= "derivedMetric.openDerivedWindow([]);openderWindow();"></p-radioButton>
+                            </div>
+                        </p-fieldset>
+
+                        <p-fieldset legend="Select Metrics">
+                            <div class="w-100-p mt-5 p-grid">
+                                <p-dropdown inputId="catalogue" [options]="data.categoryName" [filter]="true"  dropdownIcon="icons8-expand-arrow" class="category-type-css" [(ngModel)]="graphType" (onChange)="selectGraphs(graphType)" [showClear] = "false" placeholder ="Select Metric Name">
+                                </p-dropdown>
+                                <div [style]="{width:'10%'}">
+                                </div>
+                                <div [style]="{width:'45%'}" >
+                                     <div class="p-grid" *ngIf="graphType">
+                                        <p-radioButton class="ml-10 line-height" name="groupname2" value="group2"  label="All" [(ngModel)]="group2" ></p-radioButton>
+                                       <p-radioButton class="ml-10 mr-10 line-height" name="groupname3" value="group3"  [(ngModel)]="group3"  label="Specified" (click)="dmIndices.openDerivedIndecesWindow(dashboard, patternMatchingService.getGroupNameObject().groupName, patternMatchingService.groupData.group, null , false); testForSpecicified();"></p-radioButton>
+                                        <!-- <input type="text" class="w-50-p ml-10 mb-10" [(ngModel)]="SpecifiedFormula" pInputText /> -->
+                                        <input  *ngIf ="patternMatchingService.selectedTestIndices==='Specified'" type="text" class="w-50-p ml-10 mb-10" [(ngModel)]="patternMatchingService.finalArrayOfSelectedIndices"   />
+                                        <input  *ngIf ="patternMatchingService.selectedTestIndices==='Advance'" type="text" class="w-50-p ml-10 mb-10" [(ngModel)]="patternMatchingService.expressionForAdvancedSelection"   />
+                                         <button [disabled] ="disableCatalogue"  type="button" pButton  label="Add" class="ui-outline-button ui-button-secondary" (click)="addGraphToTable(targetData)"></button>
+                                        <!-- <button   type="button" pButton  label="Add" class="ui-outline-button ui-button-secondary" (click)="addGraphToTable(targetData)"></button> -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-10">
+                                <p-pickList [source]="graphList" [target]="targetData" [showSourceControls]="false" [showTargetControls]="false" [responsive]="true" dragdrop="true" [sourceStyle]="{'height':'140px'}" [targetStyle]="{'height':'140px'}" (onMoveToTarget)="picklistToTarget($event);" (onMoveToSource)= "pickListToSource($event);">
+                                    <ng-template let-items pTemplate="item">
+                                        <div class="ui-helper-clearfix">
+                                            <div class="ui-pick-list-text">{{items.label}}</div>
+                                        </div>
+                                    </ng-template>
+                                </p-pickList>
+                                <div class="w-100-p">
+                                    <!-- <p-card> -->
+                                        <p-table class ="all-tables"  [paginator]="false"  [resizableColumns]="true" [columns]="data.headers" [value]="data.data"  [responsive]="true" [scrollable]="true" scrollHeight="100px">
+                                            <ng-template pTemplate="colgroup" let-columns>
+                                                <colgroup *ngFor="let headerRow of columns">
+                                                    <col *ngFor="let col of headerRow.cols" [style.width]="col.width">
+                                                </colgroup>
+                                            </ng-template>
+                                            <ng-template pTemplate="header" let-columns>
+                                                <tr *ngFor="let headerRow of columns">
+                                                    <th *ngFor="let col of headerRow.cols" [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan" [pSortableColumn]="col.valueField" pResizableColumn>
+                                                        <!-- <div class="float-left">
+                                                            {{ col.label }}
+                                                        </div> -->
+                                                        {{col.label}}
+                                                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField"></p-sortIcon>
+                                                        <!-- <div *ngIf="col.isSort" class="right">
+                                                            <p-sortIcon *ngIf="col.isSort" field="col.isSort" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                            </p-sortIcon>
+                                                        </div> -->
+                                                    </th>
+                                                </tr>
+
+
+
+                                            </ng-template>
+                                            <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                                                <tr *ngFor="let headerRow of columns" class="pointer">
+                                                    <td *ngFor="let col of headerRow.cols; let i = index">
+                                                        <span><i class="columnwidth" *ngIf="col.iconField && row.icon" [ngClass]="row.icon"></i> {{ row[col.valueField] }}</span>
+                                                        <span *ngIf ="col.valueField === 'serial'">
+                                                            {{rowIndex+1}}
+                                                            </span>
+                                                        <span *ngIf="col.valueField==='action'" >
+                                                            <button  pButton icon="icons8 icons8-trash" style="color: red; cursor: pointer;" [disabled] ="disableCatalogue" title="Delete" (click)="deleteCatalogue(rowIndex,row)"></button>
+                                                            <!-- <i class="icons8 icons8-trash"  style="color: red; cursor: pointer;" [disabled] ="disableCatalogue" title="Delete" (click)="deleteCatalogue(rowIndex,row)"></i> -->&nbsp;
+                                                            <button class="icons8 icons8-edit-2" style ="cursor:  pointer;" title="Edit" [disabled] ="disableCatalogue" (click)="editCatalogue(data.data,row,rowIndex)"></button>
+                                                            <!-- <i class="icons8 icons8-edit-2" style ="cursor:  pointer;" title="Edit"  (click)="editCatalogue(data.data,row,rowIndex)"></i> -->
+                                                            </span>
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    <!-- </p-card> -->
+                                </div>
+                            </div>
+                        </p-fieldset>
+                    </div>
+
+                </div>
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+    <p-footer>
+        <div class="p-col-12 button-group">
+            <button  type="button" pButton icon="icons8 icons8-delete" label="Close" class="ui-outline-button ui-button-secondary" (click)="closeDialog()"></button>
+            <button   *ngIf="enableMangeCatalogue"  [disabled]="disableCatalogue" type="button" pButton icon="icons8 icons8-checkmark" class="ui-button ui-button-rounded" label="Update Catalogue" (click)="updateCatalogue()"></button>
+            <button   *ngIf="addCatal"   type="button" pButton icon="icons8 icons8-checkmark" class="ui-button ui-button-rounded" label="Add Catalogue" (click)="addCatalogueInfo()"></button>
+        </div>
+    </p-footer>
+    <div id="centerpoint">
+        <p-confirmDialog  acceptButtonStyleClass="ui-button-secondary-green"
+        rejectButtonStyleClass="ui-outline-button"  class="confirmdialog" key="graphs"  acceptLabel="Ok" ></p-confirmDialog>
+        <p-confirmDialog  acceptButtonStyleClass="ui-button-secondary-green"
+        rejectButtonStyleClass="ui-outline-button" styleClass="centerpointAd" key="deleteManageCat"  acceptLabel="Ok" rejectLabel="Cancel" [(visible)]="deleteCatalogueManage"></p-confirmDialog>
+    </div>
+</p-dialog>
+<app-derived-metric #derivedMetric ></app-derived-metric>
+<app-derived-metric-indices #dmIndices ></app-derived-metric-indices>
+
+
+
+

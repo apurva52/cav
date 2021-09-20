@@ -1,0 +1,56 @@
+<button type="button" (click)="openTimePeriodWindow()" title="Apply Time Period" pButton icon="fa-clock-o" label="Time Period: {{timeHandlerService.$graphTimeLabel}}"></button>
+
+<p-dialog class="scenmodal" header="Apply Time Period" [(visible)]="displayTimeWindow" modal="modal" width="540" [responsive]="true">
+    <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid">
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-3 marginClass">
+                Time Period:
+            </div>
+            <div class="ui-grid-col-8">
+                <p-dropdown class="timePeriodDrpClass" [options]="timePeriodList" appendTo="body" [(ngModel)]="selectedTimePeriod" [autoWidth]="false"
+                    (onChange)="changeTimePeriod()"></p-dropdown>
+            </div>
+        </div>
+
+        <!-- For Event Day -->
+        <div *ngIf="selectedTimePeriod === 'Event Day'">
+            <div class="ui-grid-row marginClass">
+                <div class="ui-grid-col-3 marginClass">
+                    Select Day:
+                </div>
+                <div class="ui-grid-col-4 marginRightClass">
+                    <p-dropdown class="timePeriodDrpClass" [options]="eventDaysList" appendTo="body" [(ngModel)]="selectedEventDay" [autoWidth]="false"
+                        (onChange)="changeTimePeriod()"></p-dropdown>
+                </div>
+                <div class="ui-grid-col-4">
+                    <p-dropdown class="timePeriodDrpClass" [options]="eventDayYear" appendTo="body" [(ngModel)]="selectedEventDayYear" [autoWidth]="false"
+                        (onChange)="changeTimePeriod()"></p-dropdown>
+                </div>
+            </div>
+            <ts-start-end-time-template [selectedTimePeriod]="selectedTimePeriod"></ts-start-end-time-template>
+        </div>
+
+        <!-- For Yesterday, Custom Date, Last Week Same Day -->
+        <div *ngIf="selectedTimePeriod === 'Yesterday' || selectedTimePeriod === 'Last Week Same Day' || selectedTimePeriod === 'Custom Date'">
+            <ts-start-end-time-template [selectedTimePeriod]="selectedTimePeriod"></ts-start-end-time-template>
+        </div>
+
+        <!-- for Phase -->
+        <div *ngIf="selectedTimePeriod === 'By Phase'">
+            <div class="ui-grid-row marginClass">
+                <div class="ui-grid-col-3 marginClass">
+                    Select Phase
+                </div>
+                <div class="ui-grid-col-4 marginRightClass">
+                    <p-dropdown class="timePeriodDrpClass" [options]="drpPhaseList" appendTo="body" [(ngModel)]="selectedPhase" [autoWidth]="false"></p-dropdown>
+                </div>
+            </div>
+            <ts-start-end-time-template [selectedTimePeriod]="selectedTimePeriod"></ts-start-end-time-template>
+        </div>
+
+    </div>
+    <p-footer>
+        <button type="button" pButton icon="fa-check" (click)="applyTimePeriod()" label="Submit"></button>
+        <button type="button" pButton icon="fa-close" (click)="displayTimeWindow=false; resetFilter();" label="Cancel"></button>
+    </p-footer>
+</p-dialog>

@@ -1,0 +1,187 @@
+<div class='maincontainer'> 
+    <p-toolbar class="ui-secondary-toolbar ">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            
+            <div class="p-col ui-toolbar-text">Locations Manage Locations here</div>
+        </div>
+    </p-toolbar>
+    <p-card> 
+        
+        <p-header>
+            <div class="action-buttons">
+                <div class="search-section">
+                    <div class="pr-10">
+                        <i class="dashboard icons8 icons8-search"></i>
+                        <div class="p-align-center">
+                            <input type="text" [value]="" pInputText size="50" placeholder="Search"
+                                (input)="servers.filterGlobal($event.target.value,'contains')" class="search-box" />
+                        </div>
+                    </div>
+                </div>
+                <div class="icons-container">   
+                    <button pButton  label="ADD NEW" class="ui-button ui-button-rounded ui-button-secondary "  (click)="adddailog()"></button>
+                    <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow" pTooltip="Delete"  (click)="deltedailog()"></button>
+                    <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label"
+                        [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns"
+                        [panelStyle]="{ minWidth: '200px' }" styleClass="dropdown-panel-left">
+                    </p-multiSelect>
+                    <button pButton icon="icons8 icons8-search-property" class="btn-icon mx-3" (click)="toggleFilters()"
+                        pTooltip="Column Filter"></button>
+                    <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                        pTooltip="Download" (click)="menu.toggle($event)"></button>
+                    <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                        [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" appendTo="body">
+                    </p-menu>
+
+                </div>
+            </div>
+        </p-header>
+        <p-table #servers [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true"
+            [totalRecords]="totalRecords" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+            [rows]="data.paginator.rows" [scrollable]="true" [responsive]="true" selectionMode="single"
+             class="all-tables">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width">
+                </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                        <div class="text-left">
+                            {{ col.label }}
+                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                ariaLabelAsc="Activate to sort in ascending order">
+                            </p-sortIcon>
+                        </div>
+                    </th>
+
+                </tr>
+                 <tr *ngFor="let headerRow of data.headers">
+                    <ng-container *ngIf="isEnabledColumnFilter">
+
+                        <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                            <div *ngIf="
+                                          col.filter.isFilter === true &&
+                                          col.filter.type === 'custom'
+                                        ">
+                                <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label"
+                                    pInputText type="text" (input)="servers.filter($event.target.value,col.valueField,'custom' )" />
+                            </div>
+                             <div *ngIf=" col.filter.isFilter === true && col.filter.type === 'contains'
+                                        ">
+                                <input class="w-100-p" pTooltip="Enter text to search" *ngSwitchCase="col.label"
+                                    pInputText type="text" (input)="
+                                    servers.filter( $event.target.value,col.valueField,'contains' )" />
+                            </div> 
+                        </th>
+                    </ng-container>
+                </tr> 
+            </ng-template>
+            <ng-template pTemplate="body" let-row let-columns="columns">
+                <tr>
+                    <td *ngFor="let col of columns" class="{{ col.classes }}">
+                        <span title="{{ row[col.valueField] }}">
+                            {{ row[col.valueField] }}
+                        </span>
+
+
+                    </td>
+                </tr>
+            </ng-template> 
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.colspan]="columns.length + 1" class="text-center">
+                        <span *ngIf="error">{{error}}</span>
+                        <span *ngIf="empty">No records found</span>
+                        <span *ngIf="loading">Loading</span>
+                    </td>
+                </tr>
+            
+            
+            </ng-template>
+
+        </p-table>
+
+    </p-card>
+</div>
+<p-dialog header="Delete" class="secondary-dialog" [(visible)]="deletFlag" [responsive]="true" showEffect="fade"
+    [modal]="true" [style]="{width:'500px'}" [baseZIndex]="999">
+
+    <div class="p-grid p-align-center">
+        <div class="ui-g-4"><label>Location/City: </label></div>
+        <div class="ui-g-8">
+            <p-dropdown placeholder="Select Location/City" [style]="{'min-width':'100%'}"
+                dropdownIcon="icons8 icons8-expand-arrow" [options]="addcity" [baseZIndex]="10001" appendTo="body"
+                [(ngModel)]="city">
+            </p-dropdown>
+        </div>
+    </div> 
+    <div class="p-grid p-align-center">
+        <div class="ui-g-4"><label>State: </label></div>
+        <div class="ui-g-8">
+            <p-dropdown placeholder="Select State" [style]="{'min-width':'100%'}"
+                dropdownIcon="icons8 icons8-expand-arrow" [options]="addState" [baseZIndex]="10001" appendTo="body"
+                [(ngModel)]="state">
+            </p-dropdown>
+        </div>
+    </div> 
+    <div class="p-grid p-align-center">
+        <div class="ui-g-4"><label>Country: </label></div>
+        <div class="ui-g-8">
+            <p-dropdown placeholder="Select Country" [style]="{'min-width':'100%'}"
+                dropdownIcon="icons8 icons8-expand-arrow" [options]="addCountry" [baseZIndex]="10001" appendTo="body"
+                [(ngModel)]="country">
+            </p-dropdown>
+        </div>
+    </div>
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" id="savecpid" class="ui-button-rounded px-15" pButton label="Action"  (click)="deletelocation()"></button>
+        </div>
+    </p-footer> 
+
+</p-dialog>
+<p-dialog header="add" class="secondary-dialog" [(visible)]="addFlag" [responsive]="true" showEffect="fade"
+    [modal]="true" [style]="{width:'500px'}" [baseZIndex]="999">
+
+     <div class="p-grid p-align-center">
+        <div class="ui-g-4"><label>Country: </label></div>
+        <div class="ui-g-8">
+            <p-dropdown placeholder="Select Country" [style]="{'min-width':'100%'}"
+                dropdownIcon="icons8 icons8-expand-arrow" [options]="addCountry" [baseZIndex]="10001" appendTo="body"
+                [(ngModel)]="country">
+            </p-dropdown>
+        </div>
+    </div> 
+    <div class="p-grid p-align-center">
+        <div class="ui-g-4"><label>State</label></div>
+        <div class="ui-g-8">
+            <p-dropdown placeholder="Select State" [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow"
+                [options]="addState" [(ngModel)]="state" [baseZIndex]="10001" appendTo="body"></p-dropdown>
+        </div>
+    </div> 
+    <div class="p-grid p-align-center">
+        <div class="ui-g-4"><label>City</label></div>
+        <div class="ui-g-8">
+            <p-dropdown placeholder="Select City" [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow"
+                [options]="addcity" [(ngModel)]="city" [baseZIndex]="10001" appendTo="body"></p-dropdown>
+        </div>
+    </div> 
+    <div class="p-grid p-align-center">
+        <div class="ui-g-4"><label>Zone</label></div>
+        <div class="ui-g-8">
+            <p-dropdown placeholder="Select Zone" [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow"
+                [options]="addCountry" [(ngModel)]="zone" [baseZIndex]="10001" appendTo="body"></p-dropdown>
+        </div>
+    </div>
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" id="savecpid" class="ui-button-rounded px-15" pButton label="Action" (click)="addlocation()"></button>
+        </div>
+    </p-footer> 
+
+</p-dialog>
+

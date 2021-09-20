@@ -1,0 +1,81 @@
+<div class="h-100-vh indices-metrics-wrapper">
+      <div class="content-body">
+            <div class="p-grid h-100-p">
+                  <div class="p-col-12">
+                        <div class="statistics-panel">
+                              <p-panel #statsPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="statsPnl.collapsed" [ngClass]="statsPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                                    <p-header class="cav-panel-header pt-5">
+                                        <div class="panel-title" (click)="statsPnl.toggle($event)">
+                                            <span [class]="statsPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                            </span> Cluster Statistics
+                                        </div>
+                                    </p-header>
+                                    <div class="p-grid">
+                                          <div class="p-col-3" *ngFor="let c of data.indicesMetricsStats">
+                                                <div class="statistics-card">
+                                                      <label for="value" class="value"><b>{{c.value}}</b></label>
+                                                      <label for="label" class="label">{{c.label}}</label>
+                                                </div>
+                                          </div>
+                                    </div>
+                                </p-panel>
+                        </div>
+                        <div #WidgetHeight class="p-grid ph-0 h-100-p">
+                              <div class="p-col-6">
+                                    <div class="health-panel">
+                                          <p-panel #healthPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="healthPnl.collapsed" [ngClass]="healthPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                                                <p-header class="cav-panel-header pt-5">
+                                                    <div class="panel-title" (click)="healthPnl.toggle($event)">
+                                                        <span [class]="healthPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                                        </span> Cluster Health
+                                                    </div>
+                                                </p-header>
+                                                <div class="p-grid p-align-stretch p-justify-center work-in-progress">
+                                                    <div class="p-col-12">
+                                                      <p-table class="health-table" [columns]="data.indicesMetricsHealth.headers[0].cols" [value]="data.indicesMetricsHealth.data" [scrollable]="true" scrollHeight="calc({{ WidgetHeight.offsetHeight }}px - 110px)">
+                                                            <ng-template pTemplate="body" let-row let-columns="columns">
+                                                                <tr *ngFor="let headerRow of data.indicesMetricsHealth.headers">
+                                                                    <td *ngFor="let col of headerRow.cols; let i = index">
+                                                                        <svg *ngIf="col.statusField && row.stats" height="10" width="10" class="status text-left">
+                                                                              <circle cx="5" cy="5" r="5" fill="#707070" />
+                                                                        </svg>
+                                                                        {{ row[col.valueField] }}
+                                                                    </td>
+                                                                </tr>
+                                                            </ng-template>
+                                                      </p-table>
+                                                    </div> 
+                                                </div>
+                                            </p-panel>
+                                    </div>
+                              </div>
+                              <div class="p-col-6">
+                                    <div class="indices-panel">
+                                          <p-panel #indicesPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="indicesPnl.collapsed" [ngClass]="indicesPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                                                <p-header class="cav-panel-header pt-5">
+                                                    <div class="panel-title" (click)="indicesPnl.toggle($event)">
+                                                        <span [class]="indicesPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                                        </span> Documents
+                                                    </div>
+                                                </p-header>
+                                                <div class="p-grid p-align-stretch p-justify-center work-in-progress">
+                                                    <div class="p-col-12">
+                                                      <p-table [columns]="data.indicesMetricsDocuments.headers[0].cols" [value]="data.indicesMetricsDocuments.data" [scrollable]="true" scrollHeight="calc({{ WidgetHeight.offsetHeight }}px - 153px)">
+                                                      <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex>
+                                                          <tr>
+                                                              <td *ngFor="let col of data.indicesMetricsDocuments.headers[data.indicesMetricsDocuments.headers.length - 1].cols">
+                                                                  {{ row[col.valueField] }}
+                                                              </td>
+                                                          </tr>
+                                                      </ng-template>
+                                                  </p-table>
+                                                    </div> 
+                                                </div>
+                                            </p-panel>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+      </div>
+</div>

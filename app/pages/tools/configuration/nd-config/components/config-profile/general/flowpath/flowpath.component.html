@@ -1,0 +1,420 @@
+<form *ngIf="flowPath" (ngSubmit)="saveKeywordData()" #form="ngForm" ngNativeValidate>
+    <div class="tabsincontent">
+        <div class="p-grid p-justify-between">
+        <div class="header mt-6 p-align-center">Settings</div>
+            <div class="pull-right pb-6">
+		        <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+		        <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Reset to Default"> </button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordsDataToDefault()" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" label="Save"></button>
+            </div>
+        </div>
+        <p-panel class="hideheader">
+            <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader"  *ngIf="agentType == 'Java' || agentType == '-'">
+                <div class="ui-g" style="overflow: auto; height: 350px;" >
+
+                    <div class="ui-g-12">
+                        <!--<div class = "ui-g-6">-->
+                        <!-- <div class="ui-g-1"> </div> --> 
+                        <div class="ui-g-3">
+                            <label>Flowpath Instrumentation (%)</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Percentage of Flowpath(s) to be captured for all Business Transaction monitored by Application agent.Slow,very Slow, and Error Flowpath is always captured."></i>
+                        </div>
+                        <div class="ui-g-1">
+                            <input type="number" name="bciInstrSessionPct" step=0.01 pInputText min="{{flowPath['bciInstrSessionPct'].min}}" max=100 [(ngModel)]="flowPath['bciInstrSessionPct'].value" style="width:80%" required />
+                        </div>
+                        <div class="ui-g-3">
+                        </div>  
+                        <div class="ui-g-4">
+                            <p-checkbox name="enableMergeThreadCallouts" [(ngModel)]="enableMergeThreadCallouts" binary="true" ngModel label="Merge Thread Callouts"></p-checkbox>                      
+                        </div> 
+                    </div>
+
+                    <!--<div class="ui-g-12">
+                        <div class="ui-g-1"> </div>
+                        <div class="ui-g-3">
+                            <label>Force detection of end to end transaction flow</label>
+                        </div>
+
+
+                        <div class="ui-g-1">
+                            <p-radioButton name="enableForcedFPChain" value="0" label="Disable" [(ngModel)]="fpChain"></p-radioButton>
+                        </div>
+                        <div class="ui-g-2">
+                            <p-radioButton name="enableForcedFPChain" value="1" label="Enable" [(ngModel)]="fpChain"></p-radioButton>
+                        </div>
+                        <div class="ui-g-3">
+                            <p-radioButton name="enableForcedFPChain" value="2" label="Enable all with complete FP" [(ngModel)]="fpChain"></p-radioButton>
+                        </div>
+                    </div>-->
+
+
+                    <div class="ui-g-12">
+                        <!-- <div class="ui-g-1"></div> -->
+                        <!--<div class="ui-g-3">
+                            <p-checkbox name="enableCaptureHeader" label="Enable HTTP Header Name for CorrelationID" [(ngModel)]="enableCaptureHeader" binary="true"></p-checkbox>
+                        </div>-->
+                        <div class="ui-g-3">
+                            <label>HTTP Header Name for CorrelationID</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="HTTP Header name used by Application to pass CorrelationID."></i>
+                        </div>
+                        <div class="ui-g-1">
+                            <input name="correlationIDHeader" title="When this is enabled NDE allows to search for flowpaths based on this header" type="text" size="30" pInputText [(ngModel)]="correlationIDHeader" min={{correlationIDHeader.min}} max={{correlationIDHeader.max}} title="Please enter valid correlation ID header.   &#013;Please enter maximum upto 1024 characters.  &#013;Whitespaces are not allowed."
+                                pattern="[^\s]{0,1024}$" style="width:80%" ngModel/>
+                            <span></span>
+                        </div>
+                        <div class="ui-g-3">
+                        </div>  
+                        <div class="ui-g-4">
+                            <p-checkbox name="dumpThreadIdInSeqblob" [(ngModel)]="dumpThreadIdInSeqblob" binary="true" ngModel label="Capture Method Thread ID"></p-checkbox>                      
+                        </div> 
+                    </div>
+                    <div class="ui-g-12 p-grid p-align-center">
+                        <!-- <div class="ui-g-1"></div> -->
+                        <div class="ui-g-7">
+                             <p-checkbox name="captureMethodForAllFP" [(ngModel)]="captureMethodForAllFPChk" binary="true" ngModel label="Capture callstacks of all offending business transaction(s)"></p-checkbox>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Capture all instrumented methods of slow/very slow/error flowpath"></i>
+                        </div>
+			<div class="ui-g-2">
+                            <label>Child Threads Filter Threshold</label>
+                        </div>
+                        <div class="ui-g-1">
+                            <input type="number" name="enableChildFPFilter" step=1 pInputText min=0 max=30000 [(ngModel)]="enableChildFPFilter" style="width:70%" required />
+                        </div>
+
+                    </div>
+                    <div class="ui-g-12">
+                        <!-- <div class="ui-g-1"> </div> -->
+                        <div class="ui-g-3">
+                            <label><b>CPU Profiling</b></label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Capture CPU Time consumed by Business transactions"></i>
+                        </div>
+                        </div>
+
+                        <div class="ui-g-12">
+                        <div class="ui-g-2">
+                            <p-radioButton name="enableCpuTime" value="0" label="Disable" [(ngModel)]="cpuTime"></p-radioButton>
+                        </div>
+                        <div class="ui-g-3 radioButtoncss">
+                            <p-radioButton name="enableCpuTime" value="1" label="Business Transaction Level" [(ngModel)]="cpuTime"></p-radioButton>
+                        </div>
+                        <div class="ui-g-3 configui-flowpath-css">
+                            <p-radioButton name="enableCpuTime" value="3" label="Method and Business Transaction Level" [(ngModel)]="cpuTime"></p-radioButton>
+                        </div>
+                        <div class="ui-g-2 configui-flowpath-css">
+                            <p-checkbox name="childCpuFp" label="Include child flowpath" [disabled]="cpuTime == '0'" [(ngModel)]="childCpuFp" binary="true"></p-checkbox>
+                        </div>
+                        <!--<p-dropdown name="enableForcedFPChain" [style]="{'width': '100%'}" scrollHeight="150px" [(ngModel)]="flowPath.enableForcedFPChain.value" [options]="enableForcedFPChainSelectItem"  required ngModel></p-dropdown>-->
+                        <!--<div class="ui-g-2">
+                            <p-dropdown name="enableCpuTime" [style]="{'width': '100%'}" scrollHeight="150px" [(ngModel)]="flowPath.enableCpuTime.value"
+                                [options]="enableCpuTimeSelectItem"  required ngModel></p-dropdown>
+                        </div>-->
+                    </div>
+                    <div class="ui-g-12">
+                        <!-- <div class="ui-g-1"> </div> -->
+                        <div class="ui-g-3">
+                            <label><b>Capture Time Breakdown</b></label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Capture wait and sync time"></i>
+                        </div>
+                        </div>
+                        <div class="ui-g-12">
+                        <div class="ui-g-2">
+                            <p-radioButton name="enableMethodBreakDownTime" value="0" label="Disable" [(ngModel)]="methodBreakDownTime"></p-radioButton>
+                        </div>
+                        <div class="ui-g-3 radioButtoncss">
+                            <p-radioButton name="enableMethodBreakDownTime" value="1" label="Business Transaction Level" [(ngModel)]="methodBreakDownTime"></p-radioButton>
+                        </div>
+                        <div class="ui-g-3 configui-flowpath-css">
+                            <p-radioButton name="enableMethodBreakDownTime" value="3" label="Method and Business Transaction Level" [(ngModel)]="methodBreakDownTime"></p-radioButton>
+                        </div>
+                        <div class="ui-g-2 configui-flowpath-css">
+                            <p-checkbox name="childBrkDown" label="Include child flowpath" [disabled]="methodBreakDownTime == '0'" [(ngModel)]="childBrkDown" binary="true"></p-checkbox>
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                
+                        <div class="ui-g-3">
+                            <p-checkbox name="captureFlowpathGC" label="Enable GC Notification(s) having threshold" [(ngModel)]="captureFlowpathGC" binary="true"></p-checkbox>                        
+                        </div>
+                        <div class="ui-g-2">
+                            <input name="flowpathGCThreshold" min="0" max="10000" type="number" [disabled]="!captureFlowpathGC" [(ngModel)]="flowpathGCThreshold" style="width: 40%;" pInputText required ngModel> ms
+                        </div>
+                    </div>
+
+                    <div class="ui-g-12">
+                        <div class="ui-g-4">
+                            <p-checkbox name="dumpOnlyMethodExitInFp" label="Optimize Flowpath data size" [(ngModel)]="dumpOnlyMethodExitInFP" binary="true"></p-checkbox>
+                        </div>
+			
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <p-checkbox name="methodResponseTimeFilter" [disabled]="dumpOnlyMethodExitInFP == false" label="Method Response time filter" [(ngModel)]="enableDisableMethodResTimeFilter" binary="true"></p-checkbox>
+                        </div>
+
+                    </div>
+                    <div class="ui-g-12 p-grid p-align-center">
+                        <div class="ui-g-3">
+                            <label>Normal Method Response Time</label>
+                        </div>
+                        <div class="ui-g-1">
+                            <input name="normalMethodResponseTime"  style="width: 70%" type="number" #from (input)="checkFrom(from,to)" [disabled]="dumpOnlyMethodExitInFP == false || enableDisableMethodResTimeFilter == false" [(ngModel)]="normalMethodResponseTime" min=0 max=3600000
+                                pInputText required ngModel>
+                        </div>
+                        <div class="ui-g-3">
+                            <label>Slow Very Slow Method Response Time</label>
+                        </div>
+                        <div class="ui-g-1">
+                            <input name="slowVerySlowMethodResponseTime" style="width: 70%" type="number" #to (input)="checkTo(from,to)" [disabled]="dumpOnlyMethodExitInFP == false || enableDisableMethodResTimeFilter == false" [(ngModel)]="slowVerySlowMethodResponseTime" min=0 max=36000}}
+                                pInputText required ngModel>
+                        </div>
+
+                    </div>
+                    <!-- <div class="ui-g-12">
+                        <div class="ui-g-1"></div>
+                        <div class="ui-g-3">
+                            <label>Set maximum cached queries to</label>
+                        </div>
+                        <div class="ui-g-2">
+                             <input type="number" name="maxQueryDetailsmapSize" [(ngModel)]="flowPath.maxQueryDetailsmapSize.value" min={{flowPath.maxQueryDetailsmapSize.min}} max={{flowPath.maxQueryDetailsmapSize.max}} required ngModel>
+                            <span></span>
+                        </div>
+
+                    </div> -->
+                    <!--<div class="ui-g-12" style="padding-left: 20px">
+                            <div class="ui-g-1"></div>
+                            <div class="ui-g-3" style="margin-left: 16px">
+                                <label>Capture HTTP Header for Correlation ID</label>
+                            </div>
+                            <div class="ui-g-2">
+                                <input disabled="{{!flowPath.correlationIDHeader}}" name="correlationIDHeader" type="number" size="30" pInputText [(ngModel)]="flowPath.correlationIDHeader.value" min={{flowPath.correlationIDHeader.min}} max={{flowPath.correlationIDHeader.max}} required
+                                    ngModel/>
+                            </div>
+                        </div>-->
+
+                    <!--<div class="ui-g-12">
+                        <div class="ui-g-1"> </div>
+                        <div class="ui-g-3">
+                            <label>Capture HTTP Header for Correlation ID</label>
+                        </div>
+
+                        <div class="ui-g-3">
+                            <input name="correlationIDHeader" type="number" size="30" [(ngModel)]="flowPath.correlationIDHeader.value" min={{flowPath.correlationIDHeader.min}}
+                                max={{flowPath.correlationIDHeader.max}} required ngModel/>
+                        </div>
+                    </div>-->
+                    <div class="ui-g-12">
+
+                        <div class="ui-g-5">
+                            <p-checkbox name="enableFPMethodStackTrace" label="Capture Flowpath method Stack Trace" [(ngModel)]="enableFPMethodStackTrace"
+                                binary="false"></p-checkbox>
+                        </div>
+                    </div>
+                    
+                        <div class="ui-g-12 p-grid p-align-center">
+                            <div class="ui-g-3">
+                                <label>Threshold duration of method</label>
+                            </div>
+                            <div class="ui-g-1">
+                                <input disabled="{{!this.enableFPMethodStackTrace}}" style="width: 70%;margin-right: 4px" [min]=0 [max]=12000 name="durationFP"
+                                    type="number" pInputText [(ngModel)]="fpMethodStackData.durationFP" required ngModel/>ms
+                            </div>
+                            <div class="ui-g-3">
+                                <label>Stack trace depth</label>
+                            </div>
+                            <div class="ui-g-1" style="margin-top: -4px">
+                                <input disabled="{{!this.enableFPMethodStackTrace}}" style="width: 70%" [min]=2 [max]=100 name="depthFP" type="number" pInputText
+                                    [(ngModel)]="fpMethodStackData.depthFP" required ngModel/>
+                            </div>
+                        </div>
+
+                        <div class="ui-g-12 p-grid p-align-center">
+                            <div class="ui-g-3">
+                                <label> Maximum stack trace per transaction</label>
+                            </div>
+                            <div class="ui-g-1">
+                                <input disabled="{{!this.enableFPMethodStackTrace}}" style="width: 70%" [min]=1 [max]=100 name="countStackTraceFP" type="number"
+                                    pInputText [(ngModel)]="fpMethodStackData.countStackTraceFP" required ngModel/>
+                            </div>
+                            <div class="ui-g-3">
+                                <label> Maximum duration between stack trace</label>
+                            </div>
+                            <div class="ui-g-1">
+                                <input disabled="{{!this.enableFPMethodStackTrace}}" style="width: 70% ;margin-right: 4px" [min]=0 [max]=12000 name="durationStackTraceFP"
+                                    type="number" pInputText [(ngModel)]="fpMethodStackData.durationStackTraceFP" required ngModel/>ms
+                            </div>
+                        </div>
+
+                        <div class="ui-g-12">
+                            <div class="ui-g-3">
+                                <p-checkbox disabled="{{!this.enableFPMethodStackTrace}}" name="enablecallOutFPMethodStackTrace" label="Capture Call out methods"
+                                    [(ngModel)]="enablecallOutFPMethodStackTrace" binary="false"></p-checkbox>
+                            </div>
+                        </div>
+                
+                </div>
+            </div>
+            <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader" *ngIf="agentType == 'NodeJS'">
+                <div class="ui-g">
+                    <div class="ui-g-12">
+                        <!--<div class = "ui-g-6">-->
+                        <!-- <div class="ui-g-1"> </div> -->
+                        <div class="ui-g-3">
+                            <label>Flowpath Instrumentation (%)</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Percentage of Flowpath(s) to be captured for all Business Transaction monitored by Application agent.Slow,very Slow, and Error Flowpath is always captured."></i>
+                        </div>
+                        <div class="ui-g-2">
+                            <input type="number" name="bciInstrSessionPct" step=0.01 pInputText min="{{flowPath['bciInstrSessionPct'].min}}" max="{{flowPath['bciInstrSessionPct'].max}}" [(ngModel)]="flowPath['bciInstrSessionPct'].value" style="width:80%" required />
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <!-- <div class="ui-g-1"></div> -->
+                        <div class="ui-g-3">
+                            <label>HTTP Header Name for CorrelationID</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="HTTP Header name used by Application to pass CorrelationID."></i>
+                        </div>
+                        <div class="ui-g-2">
+                            <input name="correlationIDHeader" title="When this is enabled NDE allows to search for flowpaths based on this header" type="text" size="30" pInputText [(ngModel)]="correlationIDHeader" min={{correlationIDHeader.min}} max={{correlationIDHeader.max}} title="Please enter valid correlation ID header.   &#013;Please enter maximum upto 50 characters.  &#013;Whitespaces are not allowed."
+                                pattern="[^\s]{0,49}$" style="width:80%" ngModel/>
+                            <span></span>
+                        </div>
+                        <div class="ui-g-12" style="margin-left: -3px">
+                            <!-- <div class="ui-g-1"></div> -->
+                            <div class="ui-g-5">
+                                <p-checkbox name="excludeMethodOnRespTime" [(ngModel)]="excludeMethodOnRespTimeChk" binary="true" ngModel label="Enable excluding of methods which are taking more time then keyword value"></p-checkbox>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader" *ngIf="agentType == 'Dot Net'">
+                <div class="ui-g">
+
+                    <div class="ui-g-12">
+                        <!--<div class = "ui-g-6">-->
+                        <!-- <div class="ui-g-1"> </div> -->
+                        <div class="ui-g-3">
+                            <label>Flowpath Instrumentation (%)</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Percentage of Flowpath(s) to be captured for all Business Transaction monitored by Application agent.Slow,very Slow, and Error Flowpath is always captured."></i>
+                        </div>
+                        <div class="ui-g-2">
+                            <input type="number" name="bciInstrSessionPct" step=0.01 pInputText min="{{flowPath['bciInstrSessionPct'].min}}" max=100 [(ngModel)]="flowPath['bciInstrSessionPct'].value" required />
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <label>HTTP Header Name for CorrelationID</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="HTTP Header name used by Application to pass CorrelationID."></i>
+                        </div>
+                        <div class="ui-g-2">
+                            <input name="correlationIDHeader" title="When this is enabled NDE allows to search for flowpaths based on this header" type="text" size="30" pInputText [(ngModel)]="correlationIDHeader" min={{correlationIDHeader.min}} max={{correlationIDHeader.max}} title="Please enter valid correlation ID header.   &#013;Please enter maximum upto 1024 characters.  &#013;Whitespaces are not allowed."
+                                pattern="[^\s]{0,1024}$" style="width:80%" ngModel/>
+                            <span></span>
+                        </div>
+
+                    </div>
+                        <div class="ui-g-12">
+                        <!-- <div class="ui-g-1"></div> -->
+                        <div class="ui-g-6" style="padding-left:6px">
+                            <p-checkbox name="captureMethodForAllFP" [(ngModel)]="captureMethodForAllFPChk" binary="true" ngModel label="Capture callstacks of all offending business transaction(s)"></p-checkbox>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Capture all instrumented methods of slow/very slow/error flowpath"></i>
+                        </div>
+
+                    </div>
+                    <div class="ui-g-12">
+                        <!-- <div class="ui-g-1"> </div> -->
+                        <div class="ui-g-3">
+                            <label>CPU Profiling</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Capture CPU Time consumed by Business transactions"></i>
+                        </div>
+                        <div class="ui-g-1">
+                            <p-radioButton name="enableCpuTime" value="0" label="Disable" [(ngModel)]="cpuTime"></p-radioButton>
+                        </div>
+                        <div class="ui-g-3 radioButtoncss">
+                            <p-radioButton name="enableCpuTime" value="1" label="Business Transaction Level" [(ngModel)]="cpuTime"></p-radioButton>
+                        </div>
+                        <div class="ui-g-3 configui-flowpath-css">
+                            <p-radioButton name="enableCpuTime" value="3" label="Method and Business Transaction Level" [(ngModel)]="cpuTime"></p-radioButton>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader" *ngIf="agentType == 'Php'">
+                <div class="ui-g">
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <label>Flowpath Instrumentation (%)</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Percentage of Flowpath(s) to be captured for all Business Transaction monitored by Application agent.Slow,very Slow, and Error Flowpath is always captured."></i>
+                        </div>
+                        <div class="ui-g-2">
+                            <input type="number" name="bciInstrSessionPct" step=0.01 pInputText min="{{flowPath['bciInstrSessionPct'].min}}" max="{{flowPath['bciInstrSessionPct'].max}}" [(ngModel)]="flowPath['bciInstrSessionPct'].value" required />
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-6" style="padding-left:6px">
+                            <p-checkbox name="captureMethodForAllFP" [(ngModel)]="captureMethodForAllFPChk" binary="true" ngModel label="Capture callstacks of all offending business transaction(s)"></p-checkbox>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Capture all instrumented methods of slow/very slow/error flowpath"></i>
+                        </div>
+
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <label>CPU Profiling</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Capture CPU Time consumed by Business transactions"></i>
+                        </div>
+                        <div class="ui-g-1">
+                            <p-radioButton name="enableCpuTime" value="0" label="Disable" [(ngModel)]="cpuTime"></p-radioButton>
+                        </div>
+                        <div class="ui-g-3 radioButtoncss">
+                            <p-radioButton name="enableCpuTime" value="1" label="Business Transaction Level" [(ngModel)]="cpuTime"></p-radioButton>
+                        </div>
+                        <div class="ui-g-3 configui-flowpath-css">
+                            <p-radioButton name="enableCpuTime" value="3" label="Method and Business Transaction Level" [(ngModel)]="cpuTime"></p-radioButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader" *ngIf="agentType == 'Python'">
+                <div class="ui-g">
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <label>Flowpath Instrumentation (%)</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Percentage of Flowpath(s) to be captured for all Business Transaction monitored by Application agent.Slow,very Slow, and Error Flowpath is always captured."></i>
+                        </div>
+                        <div class="ui-g-2">
+                            <input type="number" name="bciInstrSessionPct" step=0.01 pInputText min="{{flowPath['bciInstrSessionPct'].min}}" max="{{flowPath['bciInstrSessionPct'].max}}" [(ngModel)]="flowPath['bciInstrSessionPct'].value" required />
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-6" style="padding-left:6px">
+                            <p-checkbox name="captureMethodForAllFP" [(ngModel)]="captureMethodForAllFPChk" binary="true" ngModel label="Capture callstacks of all offending business transaction(s)"></p-checkbox>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Capture all instrumented methods of slow/very slow/error flowpath"></i>
+                        </div>
+
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <label>CPU Profiling</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Capture CPU Time consumed by Business transactions"></i>
+                        </div>
+                        <div class="ui-g-1">
+                            <p-radioButton name="enableCpuTime" value="0" label="Disable" [(ngModel)]="cpuTime"></p-radioButton>
+                        </div>
+                        <div class="ui-g-3 radioButtoncss">
+                            <p-radioButton name="enableCpuTime" value="1" label="Business Transaction Level" [(ngModel)]="cpuTime"></p-radioButton>
+                        </div>
+                        <div class="ui-g-3 configui-flowpath-css">
+                            <p-radioButton name="enableCpuTime" value="3" label="Method and Business Transaction Level" [(ngModel)]="cpuTime"></p-radioButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-panel>
+
+    </div>
+</form>

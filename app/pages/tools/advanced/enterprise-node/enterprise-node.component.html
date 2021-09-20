@@ -1,0 +1,165 @@
+<div class="header">
+  <app-header></app-header>
+</div>
+
+<p-toolbar class="ui-secondary-toolbar">
+  <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+    <div class="p-grid p-align-center">
+      <a routerLink="/home">
+          <i class="icons8 icons8-left toolbar-icon-color"></i>
+      </a>
+      <div class="p-col ui-toolbar-text">
+        Enterprise Home
+      </div>
+  </div>
+
+  <!-- <p-splitButton label="Create New" [model]="items"></p-splitButton> -->
+</div>
+</p-toolbar>
+
+
+<div class="p-10 enterprisenode">
+    <p-tabView (onChange)="handleChangeForTabs($event)" class="tabWauto1">
+      <p-tabPanel [header]="item.name" *ngFor="let item of resTabList; let i = index" [selected]="i == 0">
+        <div *ngIf="item.name==='Environment List'">
+          <div class="label-legents">
+            <div class="circle-label success" pTooltip="Total Project Clusters" tooltipPosition="top"
+              *ngIf="isAdminUser||isEnterPriseUser"> {{nodeCount}}</div>
+            <!--  <div class="circle-label warning" *ngIf="isAdminUser" > </div>
+          <div class="circle-label danger" *ngIf="isAdminUser">  </div> -->
+            <input type="text" #searchbar (keyup)="fetchEnvironments($event)" [(ngModel)]="searchInput"
+              placeholder="Enter Environment Name" pInputText style="font-size: 12px;" class="ml-5" />
+          </div>
+          <div class="p-grid p-align-center" *ngIf="isProjectClusterNotPresent">
+            <h2> No Project Cluster attached to this account. </h2>
+          </div>
+
+          <div class="environmentList" *ngIf="!searchInput">
+            <div class="envListBoxA" *ngFor="let n of listItems">
+              <!-- <div class="envListBoxinner"> -->
+              <a [ngClass]="(n.statusFlag==1)?'envListBoxinner':'envListBoxinnerForInactiveCluster'"
+                style="display: block;"
+                href="https://{{n.ip}}:{{n.port}}/UnifiedDashboard/sso.html?userName={{userName}}&requestFrom=SAML&oktaGroupList={{saasGroupList}}&saasIpForValidation={{saasIpForValidation}}&productKeyFromSaas={{productKeyFromSaas}}&isMultiDcCluster={{n.isMultiDcCluster}}&saasDomain={{saasDomain}}">
+  
+                <ul class="ullist">
+                  <li><span class="envIco"><i class="{{n.ico}}"
+                        [ngClass]=" n.ico == 'icons8 icons8-computer' ? 'primary-text font-24' : 'danger-text font-24'"></i> </span>
+                    <span class="forClusterLook" pTooltip={{n.host}} tooltipPosition="top"> {{n.host}}</span>
+                    <br>{{n.subhost}}</li>
+                  <li>
+                    <span class="circle {{n.bdr}}" *ngIf="isAdminUser">{{n.numberOfNodes}}</span>
+                    <span class="forClusterLook" pTooltip={{n.ip}} tooltipPosition="top"> {{n.ip}}</span>
+                  </li>
+  
+                </ul>
+              </a>
+              <!-- </div> -->
+            </div>
+          </div>
+          <div class="environmentList" *ngIf="searchInput">
+            <div class="envListBox" *ngFor="let n of searchResult">
+              <!-- <div class="envListBoxinner"> -->
+              <a [ngClass]="(n.statusFlag==1)?'envListBoxinner':'envListBoxinnerForInactiveCluster'"
+                style="display: block;"
+                href="https://{{n.ip}}:{{n.port}}/UnifiedDashboard/sso.html?userName={{userName}}&requestFrom=SAML&oktaGroupList={{saasGroupList}}&saasIpForValidation={{saasIpForValidation}}&productKeyFromSaas={{productKeyFromSaas}}&isMultiDcCluster={{n.isMultiDcCluster}}&saasDomain={{saasDomain}}">
+                <ul class="ullist">
+                  <li class="end-items"><span class="envIco"><i class="{{n.ico}}"
+                        [ngClass]=" n.ico == 'icons8 icons8-computer' ? 'primary-text' : 'danger-text'"></i> </span>
+                    <span class="textBreak" pTooltip={{n.host}} tooltipPosition="top">{{n.host}} <br>{{n.subhost}}</span>
+                  </li>
+                  <li>
+                    <span class="circle {{n.bdr}}" *ngIf="isAdminUser">{{n.numberOfNodes}}</span>
+                    <span class="forClusterLook" pTooltip={{n.ip}} tooltipPosition="top"> {{n.ip}}</span>
+                    <!-- <a class="forClusterLook" pTooltip={{n.ip}} tooltipPosition="top" href="http://{{n.ip}}:{{n.port}}/ProductUI?userName={{userName}}&requestFrom=SAAS&oktaGroupList={{saasGroupList}}&saasIpForValidation={{saasIpForValidation}}&productKeyFromSaas={{productKeyFromSaas}}&isMultiDcCluster={{isMultiDcCluster}}&saasDomain={{saasDomain}}"> {{n.ip}}</a></li> -->
+                </ul>
+              </a>
+              <!-- </div> -->
+            </div>
+          </div>
+        </div>
+     
+
+  
+  
+        <div *ngIf="item.name==='Build Information'">
+  
+  
+          <!-- <div class="cav-d-flex cav-justify-content-end">
+            <div class="cav-mb-2 cav-relative">
+              <input type="text" #searchbar (keyup)="fetchBuildInfo($event)" [(ngModel)]="searchInputForBuild"
+                placeholder="Enter Environment IP/Name" class="input-gui cav-ml-2" />
+            </div>
+          </div> -->
+  
+  
+  
+          <p-table [columns]="cols" [value]="searchInputForBuild === ''?buildInformation:searchResultForBuildInfo"
+            class="all-tables" [paginator]="true" [rows]="15" [totalRecords]="noOfBuildInfo"
+            (sortFunction)="sortTableOfbuildInfo($event)" [customSort]="true" [scrollable]="true" scrollHeight="370px">
+
+            <ng-template pTemplate="caption">
+              <div class="p-grid p-justify-end p-align-center">        
+                  <!-- <i class="pi pi-search" style="margin:4px 4px 0 0"></i> -->
+                  <input type="text" pInputText size="25" placeholder="Enter Environment IP/Name"  #searchbar (keyup)="fetchBuildInfo($event)" [(ngModel)]="searchInputForBuild">
+              </div>
+          </ng-template>
+  
+            <ng-template pTemplate="colgroup" let-columns>
+              <col style="width: 10%;">
+              <col style="width: 40%;">
+              <col style="width: 25%;">
+              <col style="width: 25%;">
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th>
+                  S.NO
+                </th>
+                <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                  {{col.header}}
+                  <p-sortIcon [field]="col.field"></p-sortIcon>
+                </th>
+              </tr>
+            </ng-template>
+           
+             <ng-template pTemplate="body" let-rowData let-columns="columns" >
+              <tr>
+                <td>
+                  <span>{{buildInformation.indexOf(rowData)+1}}</span>     
+                </td>
+                <td *ngFor="let col of columns">
+                  {{rowData[col.field]}}
+                </td>
+              </tr>
+            </ng-template>
+             <ng-template pTemplate="emptymessage" let-columns *ngIf="!buildDataFlag" >
+            
+              <tr>
+                  <td [attr.colspan]="4" class="text-center">
+                     <span>No records found</span> 
+                  </td>
+              </tr>
+          </ng-template>
+            
+           </p-table>
+        </div>
+        <!-- <div *ngIf="item.name==='Usage Information'">
+          <span>
+            <p>
+              Usage Info Tab
+            </p>
+          </span>
+        </div>
+      
+      <div *ngIf="item.name==='Health'">
+        <span>
+          <p>
+            this is Health TAB
+          </p>
+        </span>
+      </div>
+     -->
+      </p-tabPanel>
+    </p-tabView>
+</div>
+  <router-outlet></router-outlet>

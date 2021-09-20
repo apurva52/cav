@@ -1,0 +1,263 @@
+
+
+    <div class="breadcrumbs" *ngIf="isFromDDR == true">
+        <p-breadcrumb  [model]="breadcrumb.getBreadcrumbMenu() | async" (inItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+    </div>
+    <div class="p-grid my-10 srcbar p-align-center w-100-p">
+        
+        <div class="hitsCount p-col-2">
+            <!-- <i class="icons8 icons8-filter filter-icon" (click)="commonFilter.open()"></i> -->
+            <span pTooltip="{{title}}" class="mx-1 elipseText width-125" *ngIf="title">{{title}}</span>
+            <span class="mx-5">{{hitsValue}} hits</span>	
+        </div>
+
+        <div class="p-col-7">
+        <div class="type-search search-div-css">
+            <i class="icons8 icons8-search left-icon"></i>
+            <p-autoComplete [(ngModel)]="reportitem" [suggestions]="filteredReports"
+            (completeMethod)="filterFields($event)" field="name" placeholder=""
+            [minLength]="1" class="input-field-search" [dropdown]="true" (keydown.enter)="setAutoCompleteTextInQuery();fetchData()" inputId="searchQuery"
+            dropdownIcon="icons8 icons8-expand-arrow" tooltipStyleClass="width-400" pTooltip="{{reportitem}}" tooltipPosition="bottom">
+        </p-autoComplete>
+        </div>
+        </div>
+
+        <div class="p-grid p-align-center p-justify-between p-col-3 px-10">
+                <div>
+                    <button pButton type="button" (click)="setAutoCompleteTextInQuery();searchData()" class="ui-button-rounded mx-4" label="Search" [disabled]="searchVal"><i *ngIf="searchVal"class="pi pi-spin pi-spinner"></i></button>
+                    <button pButton type="button" (click)="clearQuery()" class="ui-button-rounded ui-button-secondary mx-4" label="Clear" ><i *ngIf="searchVal"class="pi pi-spin pi-spinner"></i></button>
+                </div>
+
+                <button pButton type="button" class="ui-button-rounded right10" label="Save"
+                    (click)="saveSearchData.open()" [disabled]="userPermission < 6"></button>
+        </div>
+        
+       
+        <!-- <div class="p-input-icon-left search-div-css">
+           
+         
+            </div>
+            -->
+           
+          
+       
+        <!-- <div class="p-col-2 icons-container p-grid p-justify-end p-align-center right">
+            <button pButton icon="icons8 icons8-tune" class="icon-button no-shadow" (click)="menu.toggle($event);"
+                pTooltip="Setting"></button>
+            <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="settingOptions"
+                [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+            <button pButton icon="icons8 icons8-star" class="icon-button no-shadow" pTooltip="Rating"></button>
+            <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow" pTooltip="Delete"></button>
+        </div> -->
+    </div>
+    <div class="vertical-container">
+
+    <div class="loader-container spinner" *ngIf="loading">
+        <i class="pi pi-spin pi-spinner"></i>
+    </div>
+
+<div *ngIf="hitsValue==0" class="px-100 pt-25">
+    <app-no-result-found></app-no-result-found>
+</div>
+
+    <div *ngIf="hitsValue!=0">
+        <div (rowClick)="serviceMethodTiming($event)" class="p-grid">
+            <div class="p-col-3">
+                <app-log-integration [fieldsArray]="fieldsdata" [filterVal]='filtervalue' (field)="addTableColumn($event)" (plus_paramsObject)='plus_filter($event)' (minus_paramsObject)='minus_filter($event)'  (pairs)='copyTextFilter($event)'></app-log-integration>
+            </div>
+            <div class="p-col-9 ph-5">
+                <div style=" font-size: larger;margin-left: 300px; ">{{ gte + ' To ' + lte }}</div>
+                <div class="p-grid p-col-12 p-align-center no-padding mtn-10" *ngIf="plus_arr.length||minus_arr.length||exist_arr.length">
+                    <div class="p-col-11">
+                        <p-chips [(ngModel)]="chipsValues" (onRemove)="onRemoveTag($event)">
+                            <ng-template let-item pTemplate="item">
+                                {{item}} <span style="margin: 10px;">  </span>
+                            </ng-template>
+                        </p-chips>
+                    </div>
+                    <div class="p-col-1">
+                        <button pButton icon="icons8 icons8-menu-vertical" class="icon-button no-shadow menu-button"
+                            (click)="menu.toggle($event)"></button>
+                        <p-menu #menu [popup]="true" styleClass="widget-menu psitionSetMenu" [model]="menuOptions"
+                            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12 mtn-20">
+
+                    <div class="p-grid p-col-12 no-padding">
+                        <div class="p-col-10 no-padding">
+                            <p-tabMenu [model]="widgetReportItems" [activeItem]="widgetReportItems[0]">
+                            </p-tabMenu>
+                        </div>
+                        <div class="p-col-2 p-justify-center p-align-center">
+                            <!-- <i pButton [ngClass]="showExpandedDiv == true ? 'icons8 icons8-expand-arrow expanded-icon-button' : 'icons8 icons8-back expanded-icon-button'" class=" right" (click)="showExpandedDiv = !showExpandedDiv"></i> -->
+                            <button pButton class="tabs-expand-button" [ngClass]="showExpandedDiv == true ? 'icons8 icons8-back icon-button right ' : 'icons8 icons8-expand-arrow icon-button right'" (click)="showExpandedDiv = !showExpandedDiv" pTooltip="{{showExpandedDiv == true ? 'Hide' : 'Expand'}}"></button>
+                        </div>
+                    </div>
+
+                    <div class="p-col-12 no-padding">
+                        <div class="tabs-data">
+                            <div *ngIf="showExpandedDiv" class="tab-content">
+                                <div *ngIf="checkTab == 0">
+                                    <app-visual-chart [XaxisData]='chartXaxisData' [YaxisData]='chartYaxisData' (zoomchanges)='zoomfun($event)' [XaxisTitle]='"@timestamp"' [YaxisTitle]='"count"'></app-visual-chart>
+                                </div>
+                                <div *ngIf="checkTab == 1">
+                                    <app-visual-table [tableData]='tabledata'></app-visual-table>
+                                </div>
+                                <div *ngIf="checkTab == 2">
+                                    <app-visual-request ></app-visual-request>
+                                </div>
+                                <div *ngIf="checkTab == 3">
+                                    <app-visual-response [respdata]='data.data'></app-visual-response>
+                                </div>
+                                <div *ngIf="checkTab == 4">
+                                    <app-visual-statistics [statsData]="stats"></app-visual-statistics>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-col-12 no-padding">
+                            <div class="table-container">
+                                <!-- <app-logs-table-data></app-logs-table-data> -->
+                               
+                                    <p-table [resizableColumns]="true" [value]="data.data" [rows]="10"  [paginator]="true"
+                                        [columns]="data.headers[0].cols" 
+                                        rowExpandMode="single" dataKey="no"
+                                         class="all-tables" [scrollable]="true">
+                                        <ng-template pTemplate="colgroup" let-columns>
+                                            <colgroup class="colWidth12">
+                                                <col *ngFor="let col of columns">
+                                            </colgroup>
+                                        </ng-template>
+                                        <!-- <ng-template pTemplate="colgroup" let-columns>	
+                                            <colgroup>	
+                                                <col class="width-80">
+                                                <col class="w-100-p">		
+                                                <col class="width-60">	
+                                            </colgroup>	
+                                        </ng-template> -->
+
+                                        <ng-template pTemplate="header" let-columns>
+                                            <tr>
+                                                <th *ngFor="let col of columns;let i = index" [pSortableColumn]="col.valueField" pResizableColumn>
+                                                    <div class="p-grid p-align-center p-justify-center">
+                                                        <div pTooltip="{{ col.label }}">{{ col.label }}</div>
+                                                        <button type="button" class="btn-icon" *ngIf="(isCustomTable==true || isCreateTable==true) && col.badgeField" (click)="deleteColumn(i,col.label)">
+                                                            <i class="icons8 icons8-trash"></i>
+                                                        </button>
+                                                        <p-sortIcon field="time" *ngIf="col.valueField == 'Time'" (click)="sorting_order()" class="right"
+                                                        ariaLabel="Activate to sort"
+                                                        ariaLabelDesc="Activate to sort in descending order"
+                                                        ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-expanded="expanded" let-row
+                                            let-columns="columns">
+                                            <tr>
+                                                <td *ngFor="let col of columns" class="{{ col.classes }}">
+
+                                                    <span *ngIf="col.badgeField">
+                                                        <span *ngFor="let item of row.responseBtns" class="clickable">
+                                                            <span *ngIf="isCreateTable==false && item.label!='<br>'" class="badge {{item.color}}"
+                                                                (click)="copyLabel(item,false)">
+                                                                {{item.label}}
+                                                            </span>
+                                                            <br *ngIf="item.label=='<br>'">
+                                                        </span>
+                                                        <br>
+                                                        <span *ngFor="let key of row.response">
+                                                            <span *ngIf="isCreateTable==false &&  isCustomTable==false && (!_sourceformatvalue.includes(key.label)) && key.label!='<br>'" class="key-label clickable" (click)="copyLabel(key.label+':'+key.value,true)" ><b style="background-color: rgb(236, 240, 241);" >{{key.label}} : </b></span> <span *ngIf="isCreateTable==false && isCustomTable==false && (!_sourceformatvalue.includes(key.label)) && key.label!='<br>'" style="margin-right: 20px;line-height: 21px;">{{key.value}}</span>
+                                                            <br *ngIf="key.label=='<br>'">
+                                                            <span *ngIf="(isCreateTable==true && key.label == col.valueField && key.label!='<br>')" class="key-label">{{key.value}}</span>
+                                                        </span>
+                                                    </span>
+                                                    <br>
+                                                    <span class="columndata" *ngIf=row[col.valueField] >{{ row[col.valueField] }}</span>
+                                                   
+                                                       
+                                                    <button *ngIf="col.iconField && getFpi(row.response,true)" pButton icon="icons8 icons8-document"
+                                                        (click)="NDNVIntegration('nf',row.response)" pTooltip="Show All Logs by fpi: {{getFpi(row.response,false)}}"
+                                                        class="icon-button no-shadow m-3"></button>
+                                                    <button *ngIf="col.iconField && getFpi(row.response,true)" pButton icon="icons8 icons8-futures"
+                                                        (click)="NDNVIntegration('nd',row.response)" pTooltip="Open Transaction By fpi: {{getFpi(row.response,false)}}"
+                                                        class="icon-button no-shadow m-3"></button>
+                                                    <button *ngIf="col.iconField && getFpi(row.response,true)" pButton icon="icons8 icons8-clock"
+                                                        class="icon-button no-shadow m-3" pTooltip="Open Timing by fpi: {{getFpi(row.response,false)}}"
+                                                        (click)="NDNVIntegration('nvt',row.response)"></button>
+                                                    <button *ngIf="col.iconField && getFpi(row.response,true)" pButton icon="icons8 icons8-memories"
+                                                        class="icon-button no-shadow m-3" pTooltip="Open Replay by fpi: {{getFpi(row.response,false)}}"
+                                                        (click)="NDNVIntegration('nvr',row.response)"></button>
+
+                                                        <button [pRowToggler]="row" *ngIf="col.iconField" pButton icon="{{ expanded ? 'icons8 icons8-collapse-arrow' : 'icons8 icons8-expand-arrow'}} " class="icon-button no-shadow  m-3" pTooltip="{{ expanded ? 'Collapse' : 'Expand'}}"></button>
+                                                   
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="rowexpansion" let-row let-columns="columns" let-rowData>
+                                            <tr class="sub-row" >
+                                                <td [attr.colspan]="columns.length">
+                                                <!-- <td *ngFor="let col of columns" class="{{ col.classes }}"  >  
+                                                    <span *ngIf="col.badgeField">
+                                                        <span *ngFor="let item of row.responseBtns" class="clickable">
+                                                            <span class="badge {{item.color}}"
+                                                                (click)="copyLabel(item)">
+                                                                {{item.label}}
+                                                            </span>
+                                                        </span>
+                                                        <br>
+                                                        <span *ngFor="let key of row.response">
+                                                            <span  class="key-label" ><b>{{key.label}} </b> : {{key.value}} </span>
+                                                        </span>
+                                                    </span>
+                                                    <span class="columndata" (mouseup)="copyText()"  >{{ row[col.valueField] }}</span>                                                                                                    
+                                                </td> -->
+                                               
+                                                    
+                                                        <app-log-details [rowdata]="rowData" (plus_paramsObject)='plus_filter($event)' (minus_paramsObject)='minus_filter($event)' (exist_paramsObject)='exist_filter($event)' (pairs)='copyTextFilter($event)'></app-log-details>
+                                                    
+                                                       
+                                               </td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
+                                    <p-overlayPanel #transMap>
+                                        <ng-template pTemplate>
+                                            Transaction Flowmap will be opened..
+                                        </ng-template>
+                                    </p-overlayPanel>
+                                    <p-overlayPanel #sessionReplay>
+                                        <ng-template pTemplate>
+                                            Session Reply will be opened..
+                                        </ng-template>
+                                    </p-overlayPanel>
+                                    <p-overlayPanel #sessionTiming>
+                                        <ng-template pTemplate>
+                                            Session Timing will be opened..
+                                        </ng-template>
+                                    </p-overlayPanel>
+                                
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- <app-save-dialog #saveDialog></app-save-dialog> -->
+    </div>
+    <!-- <div class="p-grid" *ngIf="isOn">
+        <div class="p-col-12">
+            <app-log-details [rowdata]="RowData" (arrowClick)="hotspotSummary($event)"></app-log-details>
+        </div>
+    </div> -->
+
+</div>
+
+<!-- save search dialog -->
+<app-save-dialog #saveSearchData></app-save-dialog>
+<app-commonfilter #commonFilter></app-commonfilter>

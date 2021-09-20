@@ -1,0 +1,121 @@
+<p-sidebar
+  #sidebar
+  [(visible)]="visible"
+  [showCloseIcon]="false"
+  blockScroll="true"
+  [styleClass]="classes"
+>
+  <div class="sidebar-header">
+    <div class="sidebar-title">
+      <div class="inline">
+        <i class="icons8 icons8-clock"></i>
+        <span>Query Filter</span>
+      </div>
+      <div class="inline">
+        <i class="icons8-delete sidebar-icon" (click)="hide()"></i>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-content">
+    <div class="p-grid">
+      <div class="p-col-12">
+            <p-panel #IndicesPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="IndicesPnl.collapsed" [ngClass]="IndicesPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                  <p-header class="cav-panel-header pt-5">
+                      <div class="panel-title" (click)="IndicesPnl.toggle($event)">
+                          <span [class]="IndicesPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                          </span> Indices
+                      </div>
+                  </p-header>
+                  <div class="indices">
+                        <div class="p-10" *ngFor="let item of indices">
+                              <p-checkbox name="{{item.value}}" value="val1" label="{{item.label}}" [(ngModel)]="item.value"></p-checkbox>
+                        </div>
+                  </div>
+            </p-panel>
+      </div>
+      <div class="p-col-12">
+            <p-panel #FieldsPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="FieldsPnl.collapsed" [ngClass]="FieldsPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                  <p-header class="cav-panel-header pt-5">
+                      <div class="panel-title" (click)="FieldsPnl.toggle($event)">
+                          <span [class]="FieldsPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                          </span> Fields
+                      </div>
+                  </p-header>
+            </p-panel>
+      </div>
+      <div class="p-col-12">
+            <p-panel #ShortByPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="ShortByPnl.collapsed" [ngClass]="ShortByPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                  <p-header class="cav-panel-header pt-5">
+                      <div class="panel-title" (click)="ShortByPnl.toggle($event)">
+                          <span [class]="ShortByPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                          </span> Short By
+                      </div>
+                  </p-header>
+                  <div class="p-col-12">
+                        <div>
+                          <div class="ui-fluid">
+                            <div class="p-field p-grid">
+                              <label for="status" class="p-col-12 p-md-2">_score</label>
+                              <div class="p-col-12 p-md-10">
+                                <p-dropdown
+                                  [options]="score"
+                                  dropdownIcon="icons8-expand-arrow"
+                                ></p-dropdown>
+                              </div>
+                            </div>
+                            <div class="p-field p-grid">
+                              <div class="p-col-12 p-md-12">
+                                <p-dropdown
+                                  [options]="order"
+                                  dropdownIcon="icons8-expand-arrow"
+                                ></p-dropdown>
+                              </div>
+                            </div>
+                            <div class="p-field p-grid">
+                              <div class="p-col-12 p-md-12">
+                                <p-dropdown
+                                  [options]="shortByType"
+                                  dropdownIcon="icons8-expand-arrow"
+                                ></p-dropdown>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+            </p-panel>
+      </div>
+      <div class="p-col-12">
+            <p-panel #DisplayPnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="DisplayPnl.collapsed" [ngClass]="DisplayPnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                  <p-header class="cav-panel-header pt-5">
+                      <div class="panel-title" (click)="DisplayPnl.toggle($event)">
+                          <span [class]="DisplayPnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                          </span> Display
+                      </div>
+                  </p-header>
+            </p-panel>
+      </div>
+      <div class="p-col-12">
+            <p-panel #TogglePnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="TogglePnl.collapsed" [ngClass]="TogglePnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                  <p-header class="cav-panel-header pt-5">
+                      <div class="panel-title" (click)="TogglePnl.toggle($event)">
+                          <span [class]="TogglePnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                          </span> Toggle
+                      </div>
+                  </p-header>
+            </p-panel>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <button
+      pButton
+      label="CANCEL"
+      class="ui-outline-button ui-button-secondary"
+    ></button>
+    <button
+      pButton
+      label="APPLY"
+      class="ui-outline-button ui-button-primary"
+    ></button>
+  </div>
+</p-sidebar>

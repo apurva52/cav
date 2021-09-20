@@ -1,0 +1,302 @@
+<div *ngIf="blockCheck" class = "store-progressbar">
+  <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw storeloadingIcon"></i>
+  <div class="loading-label">Loading...</div>
+</div>
+<div class="ed-box">
+<div class="d-flex-between">
+<div class="d-flex">
+    <div *ngIf="showDCList">
+        <span class="labelClass">NDE's</span>
+        <!-- <input style = "width: 55px" id="input" type="text" title="{{dcSelected}}" pInputText [(ngModel)]="dcSelected"> -->
+        <p-multiSelect #mulRef [disabled] = "disableDrpDown" [options]="dcList" class="multi-select-store-view"  [filter]='false' [displaySelectedLabel]='true' [(ngModel)]="datacontainer.$MultiDCsArr"
+          (onChange)="handleClickOfDCs()">
+          <!-- <ng-template let-val pTemplate="item">
+            <span title="{{val.label}}">{{val.label}}</span>
+          </ng-template> -->
+        </p-multiSelect>
+      </div>
+
+      <div>
+          <span class="labelClass-titilebar">Health Status</span>
+          <p-dropdown [options]="healthStatusDrp" [(ngModel)]="selectedhealthStatus" (onChange)="changeHealthStatus()"></p-dropdown>
+          <span class="labelClass-titilebar" *ngIf="showAppView">
+            <b>Store Name: </b> {{selectedStoreName}}</span>
+        </div>
+
+        <div *ngIf="!showAppView">
+            <span class="labelClass-titilebar" style="margin: 5px">Filter</span>
+            <p-dropdown [options]="filterOptions" placeholder="Filter" [(ngModel)]="selectedFilter" (onChange)="filterGoeMap()"></p-dropdown>
+            <input *ngIf="showFilterText" id="input" type="text" pInputText [(ngModel)]="filterText">
+            <i *ngIf="showFilterText" class="fa fa-search iconClass" title="Search" (click)="validateFilter()"></i>
+          </div>
+</div>
+
+
+
+<div  class="d-flex">
+    <span *ngIf="!showAppView">Store View</span>
+      <span *ngIf="showAppView">Application View</span>
+</div>
+
+<div  class="d-flex">
+      <div *ngIf="!showAppView">
+        <span class="labelClass-titilebar">Select Application</span>
+        <p-dropdown [options]="appDrp" [(ngModel)]="selectedApp" [title]="selectedApp" (onChange)="filterApps(selectedApp)">
+          <ng-template let-val pTemplate="item">
+            <span title="{{val.label}}">{{val.label}}</span>
+          </ng-template>
+        </p-dropdown>
+        <app-exec-dashboard-graph-time></app-exec-dashboard-graph-time>
+      <i class="fa  fa-search iconClass store-map-setting" title="Search By ID" (click)="showSearchDialog()"></i>
+      <i class="fa fa-cog iconClass store-map-setting" title="Open Settings" (click)="showAppSettingDialog()"></i>
+      </div>
+</div>
+</div>
+
+
+<div style="display: inline">
+    <button pButton (click)="showAppView = false; showGeoView = true; onButtonClick() " [label]="aliasSV" *ngIf="showAppView"
+      icon="fa fa-arrow-left"></button>
+  </div>
+  <app-app-level-view *ngIf="showAppView && !showGeoView" (updateGeoMapTimer)="updateTimer($event)"></app-app-level-view>
+  <app-geo-store-view *ngIf="!showAppView && showGeoView"></app-geo-store-view>
+
+</div>
+<!-- App Setting Dialog -->
+<p-dialog class="storemodal storePanel scenmodal" (onHide)="clearSettingWindow()" header="Application Settings" [(visible)]="appSettingFlag"
+  width="550">
+  <div class="divClass">
+    <div class="ui-g-12">
+      <div class="ui-g-4">
+        Create Application Name
+      </div>
+      <div class="ui-g-8">
+        <input pInputText type="text" [(ngModel)]="applicationName" style="width: 100%" placeholder="Enter Application Name" />
+      </div>
+    </div>
+    <div class="ui-g-12">
+      <div class="ui-g-4">
+        Select Tier
+      </div>
+      <div class="ui-g-8">
+        <p-multiSelect [options]="tierList" [(ngModel)]="selectedTiers" [style]="{'width': '100%'}"></p-multiSelect>
+      </div>
+    </div>
+    <div class="ui-g-12">
+      <div class="ui-g-4">
+        Front End Tier
+      </div>
+      <div class="ui-g-8">
+        <!-- <p-dropdown [options]="frontEndTierList" [(ngModel)]="selectedFETier" [autoWidth]="false" [style]="{'width': '100%'}"></p-dropdown> -->
+        <p-dropdown [options]="fetierList" [(ngModel)]="selectedFETier" [autoWidth]="false" [style]="{'width': '100%'}"></p-dropdown>
+      </div>
+    </div>
+    <div class="ui-toolbar-group-right">
+      <button pButton label="Save" type="button" (click)="saveAppSettings()"></button>
+    </div>
+  </div>
+  <div class="store-table">
+    <div style="max-height:200px; overflow-y: auto">
+      <table>
+        <tr>
+          <th>Application Name</th>
+          <th>Tier Name</th>
+          <th>Actions</th>
+        </tr>
+        <tr *ngFor="let entry of appList">
+          <td>{{entry.key}}</td>
+          <td>
+            <span [title]="appList[entry.key]['tierList']">{{appList[entry.key]["tierList"]}}</span>
+          </td>
+          <td>
+            <span>
+              <i class="fa fa-edit iconClass" title="Edit" (click)="editSelection(entry.key, appList[entry.key]['tierList'], appList[entry.key]['frontTier'] )"></i>
+            </span>
+            <span>
+              <i class="fa fa-trash iconClass" title="Delete" (click)="deleteSelection(entry.key)"></i>
+            </span>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <br>
+    <div class="ui-toolbar-group-right">
+      <button pButton label="OK" type="button" (click)="saveAppConfig()"></button>
+      <button pButton label="Cancel" type="button" (click)="appSettingFlag = false; clearSettingWindow()"></button>
+    </div>
+  </div>
+</p-dialog>
+<p-confirmDialog class="storePanel" header="Confirmation" icon="fa fa-question-circle" width="425"></p-confirmDialog>
+<div>
+  <p-growl [(value)]="graphicalKpiService.msgs"></p-growl>
+</div>
+<div>
+  <p-growl [(value)]="classReference.msgs"></p-growl>
+</div>
+
+
+<p-dialog header="Search FlowPath" *ngIf="searchByDialog" [(visible)]="searchByDialog" modal="modal" width="600"
+  onHide="closeDialog()">
+  <p-tabView>
+    <!-- For Standard -->
+    <p-tabPanel header="Standard">
+      <form (ngSubmit)="searchBy('standard')" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g">
+          <div class="ui-g-2">
+            <label>Tier(s)</label>
+          </div>
+          <div class="ui-g-10">
+            <p-multiSelect name="selectedtierList" [options]="tierListOption"
+              [style]="{'min-width':'38.5%','max-width' : '100%'}" [(ngModel)]="selectedtierList" appendTo='body'
+              ngModel></p-multiSelect>
+          </div>
+        </div>
+        <div class="ui-g">
+          <div class="ui-g-2">
+            <label>Correlation ID</label>
+          </div>
+          <div class="ui-g-4">
+            <p-chips name="correlationID" [addOnTab]='true' [addOnBlur]='true' [(ngModel)]="correlationID"></p-chips>
+          </div>
+          <div class="ui-g-1">
+            <label>Mode</label>
+          </div>
+          <div class="ui-g-4">
+            <input name="mode" *ngIf="flowpathID == ''" type="text" class='hidden-validator' pInputText
+              [(ngModel)]="mode"   ngModel />
+            <p-dropdown name="type" [options]="modeList" [(ngModel)]="mode" placeholder="--Select Mode--"
+              appendTo='body' ngModel></p-dropdown>
+          </div>
+        </div>
+        <div class="ui-g">
+          <div class="ui-g-2">
+            <label>FlowPath ID</label>
+          </div>
+          <div class="ui-g-4">
+            <input name="flowpathID" type="text" pInputText [(ngModel)]="flowpathID" ngModel />
+          </div>
+        </div>
+        <div class="ui-g" style="float: right">
+          <button type="submit" pButton label="Search"></button>
+          <button type="button" pButton (click)="closeSearchByDialog()" label="Close"></button>
+        </div>
+      </form>
+    </p-tabPanel>
+    <!-- For Custom -->
+    <p-tabPanel header="Custom">
+      <div class="ui-g">
+        <div class="ui-g-12">
+          <div class="ui-g-2">
+            <label>Tier(s)</label>
+          </div>
+          <div class="ui-g-10">
+            <p-multiSelect name="selectedtierList" [options]="tierListOption"
+              [style]="{'min-width':'38.5%','max-width' : '100%'}" [(ngModel)]="selectedtierListForCustom"
+              appendTo='body' ngModel></p-multiSelect>
+          </div>
+        </div>
+        <form (ngSubmit)="saveCustomRules()" #groupForm="ngForm" ngNativeValidate>
+          <div class="ui-g-12">
+            <div class="ui-g-4">
+              <input name="name" type="text" class='hidden-validator' pInputText [(ngModel)]="customDetail.name"
+                  ngModel />
+              <p-dropdown name="name" [options]="customNameList" [(ngModel)]="customDetail.name"
+                placeholder="--Select Name--" appendTo="body"></p-dropdown>
+            </div>
+            <div class="ui-g-4">
+              <input name="operationName" type="text" class='hidden-validator' pInputText
+                [(ngModel)]="customDetail.operationName"   ngModel />
+              <p-dropdown name="operationName" [options]="operationList" [(ngModel)]="customDetail.operationName"
+                placeholder="--Select Operation--" appendTo="body"></p-dropdown>
+            </div>
+            <div class="ui-g-3">
+              <input name="value" type="text" placeholder="Value" pInputText [(ngModel)]="customDetail.value"
+                (keydown.space)="$event.preventDefault()" style="max-width : 90%"   ngModel />
+            </div>
+            <div class="ui-g-1">
+              <button type="submit" pButton icon="fa fa-plus"></button>
+            </div>
+          </div>
+        </form>
+        <p-dataTable class="nde-ui" [value]="customRulesData" [(selection)]="selectedCustomRules" [rows]="4 "
+          [paginator]="customRulesData?.length> 4" [pageLinks]="4">
+          <p-header>
+            <span style="float: left;"> Custom Rule(s) </span>
+            <span style="float: right;margin-top:-3px">
+              <button pButton type="button" class="ui-button-danger" title="Delete selected rule(s)"
+                (click)="deleteCustomRules()" icon="fa fa-trash"></button>
+            </span>
+          </p-header>
+          <p-column [style]="{'width':'38px'}" selectionMode="multiple"></p-column>
+          <p-column class="col-overflow" field="name" header="Name" [sortable]="true">
+            <ng-template let-col let-customRule="rowData">
+              <span title="{{customRule[col.field]}}">{{customRule[col.field]}}</span>
+            </ng-template>
+          </p-column>
+          <p-column class="col-overflow" field="operationName" header="Operation" [sortable]="true">
+            <ng-template let-col let-customRule="rowData">
+              <span title="{{customRule[col.field]}}">{{customRule[col.field]}}</span>
+            </ng-template>
+          </p-column>
+          <p-column class="col-overflow" field="value" header="Value" [sortable]="true">
+            <ng-template let-col let-customRule="rowData">
+              <span title="{{customRule[col.field]}}">{{customRule[col.field]}}</span>
+            </ng-template>
+          </p-column>
+        </p-dataTable>
+      </div>
+      <div class="ui-g" style="float: right">
+        <button type="button" pButton (click)="searchBy('custom')" label="Search"></button>
+        <button type="button" pButton (click)="closeSearchByDialog()" label="Close"></button>
+      </div>
+    </p-tabPanel>
+    <!-- For Logs -->
+    <p-tabPanel header="Logs">
+      <form (ngSubmit)="searchBy('logs')" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g">
+          <div class="ui-g-12">
+            <div class="ui-g-2">
+              <label>Tier(s)</label>
+            </div>
+            <div class="ui-g-10">
+              <p-multiSelect name="selectedtierList" [options]="tierListOption"
+                [style]="{'min-width':'38.5%','max-width' : '100%'}" [(ngModel)]="selectedtierListForLogs"
+                appendTo='body' ngModel></p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <div class="ui-g">
+          <div class="ui-g-2">
+            <label>Correlation ID</label>
+          </div>
+          <div class="ui-g-4">
+            <input name="correlationIDForLogs" type="text" pInputText [(ngModel)]="correlationIDForLogs"
+              ngModel />
+          </div>
+        </div>
+        <div class="ui-g">
+          <div class="ui-g-2">
+            <label>FlowPath ID</label>
+          </div>
+          <div class="ui-g-4">
+            <input name="flowpathIDForLogs" type="number" pInputText min="0" [(ngModel)]="flowpathIDForLogs"
+              ngModel />
+          </div>
+        </div>
+        <div class="ui-g">
+          <div class="ui-g-2">
+            <label>Pattern</label>
+          </div>
+          <div class="ui-g-4">
+            <input name="pattern" type="text" pInputText [(ngModel)]="pattern"   ngModel />
+          </div>
+        </div>
+        <div class="ui-g" style="float: right">
+          <button type="submit" pButton label="Search"></button>
+          <button type="button" pButton (click)="closeSearchByDialog()" label="Close"></button>
+        </div>
+      </form>
+    </p-tabPanel>
+
+  </p-tabView>
+</p-dialog>

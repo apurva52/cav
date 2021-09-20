@@ -1,0 +1,175 @@
+<div class="business-transaction-jacket-container">
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div>
+                <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+            </div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{error.msg}}"></p-message>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+    <div class="p-grid custom-search">
+        <div class="box box box-stretched marginL">
+            <div class="p-col-12">
+                <h5 class="search-title">Flow Paths</h5>
+                <div class="close-search">
+                    <a (click)="openSort()"><i class="icons8-menu" title="Sorting"></i></a>
+                    <a (click)="closeSearch()"><i class="icons8-delete" title="Hide Side View"></i></a>
+                </div>
+            </div>
+
+            <div class="business-orderlist" *ngIf="data">
+                <p-orderList [value]="data.data" [(selection)]="selectedRow" header="" filter="filter" filterMatchMode="contains" filterBy="businessTransaction,flowpathInstance">
+                    <ng-template pTemplate="item" let-rowData>
+                        <div class="ui-helper-clearfix">
+                            <div class="list" (click)="getListData(rowData)">
+                                <div >
+                                    <label  class="right-margin" title="BT Name: {{rowData.businessTransaction}}">
+                                      {{rowData.businessTransaction | ellipsis: 35}}
+                                    </label>
+                                    <span class="left-margin">
+                                      <i class="icons8 icons8-filled-circle" title="BT Type: {{rowData.catagoryName}}" [style.color]="rowData.catagoryName == 'Very Slow' ? '#f8c136' : rowData.catagoryName == 'Slow' ? '#f0f514' : rowData.catagoryName == 'Normal' ? '#35ff05' : '#ff0000'"
+                                        aria-hidden="true"></i>
+                                      <label class="left-margin" title="Start Time: {{rowData.startTime}}">
+                                        {{rowData.startTime}}
+                                      </label>
+                                      <label class="left-margin" title="Response Time: {{rowData.responseTime}}ms.&#10;CPU Time: {{rowData.cpu}}ms.&#10;Wait Time: {{rowData.waitTime}}ms.&#10;Sync Time: {{rowData.syncTime}}ms.&#10;IO Time: {{rowData.iotime}}ms.&#10;Suspension Time: {{rowData.suspensiontime}}ms.">
+                                        {{rowData.responseTime}}
+                                      </label>
+                                    </span>
+                                  </div>
+                          
+                                  <div class ="top-margin">
+                                    <label class="right-margin" title="Tier: {{rowData.tierName}}">
+                                      {{(rowData.tierName)}}
+                                    </label>
+                                    <label class="right-margin" title="Server: {{rowData.serverName}}">
+                                      {{(rowData.serverName)}}
+                                    </label>
+                                    <label class="right-margin" title="Instance: {{rowData.appName}}">
+                                      {{(rowData.appName)}}
+                                    </label>
+                                  </div>
+                          
+                                  <div  class="left-margin displayInline" >
+                                    <ng-container *ngIf="rowData.methods != 0">
+                                      <img src='./assets/images/method.png' title="Method Count(s): {{rowData.methods}}" />
+                                      <span  class="displayInline">
+                                        {{rowData.methods}}
+                                      </span>
+                                    </ng-container>
+                                      <ng-container *ngIf="rowData.callOuts != 0">
+                                        <img src='./assets/images/callout.png' title="CallOut(s): {{rowData.callOuts}}" />
+                                        <span class="displayInline">
+                                          {{rowData.callOuts}}
+                                        </span>
+                                      </ng-container>
+                                      <ng-container *ngIf="rowData.coherenceCallOut != 0">
+                                        <img src='./assets/images/clazz.png' title="Coherence CallOut(s): {{rowData.coherenceCallOut}}" />
+                                        <span class="displayInline">
+                                          {{rowData.coherenceCallOut}}
+                                        </span>
+                                      </ng-container>
+                                      <ng-container *ngIf="rowData.jmsCallOut != 0">
+                                        <img src='./assets/images/jmsImg.png' title="JMS CallOut(s): {{rowData.jmsCallOut}}" />
+                                        <span class="displayInline">
+                                          {{rowData.jmsCallOut}}
+                                        </span>
+                                      </ng-container>
+                                      <ng-container *ngIf="rowData.dbCallouts != 0">
+                                        <img src='./assets/images/db.png' title="Total Queries: {{rowData.dbCallouts}}" />
+                                        <span class="displayInline">
+                                          {{rowData.dbCallouts}}
+                                        </span>
+                                      </ng-container>
+                                      <ng-container *ngIf="rowData.totalError != 0">
+                                        <img *ngIf="rowData.totalError != 0" src='./assets/images/ErrorCallOut.png' title="Exception(s): {{rowData.totalError}}"
+                                        />
+                                        <span class="displayInline">
+                                          {{rowData.totalError}}
+                                        </span>
+                                      </ng-container>
+                                      </div>
+                                      <label title = "Status Code: {{rowData.status}}" [style.color]="rowData.status >= 200 && rowData.status < 300 ? '#3c9227' : rowData.status >= 300 && rowData.status < 400 ? '#f8c136' : rowData.status >= 400  ? '#ff0505' : 'black'"
+                                        class="right-margin rightfloat" >
+                                      {{rowData.status}}
+                                    </label>
+                                    <div class="bottom-margin">
+                                      <span class="displayInline">
+                                        <img src='./assets/images/finstance.png' />
+                                        <label class="left-margin" title="Flowpath Instance: {{rowData.flowpathInstance}}">
+                                          {{rowData.flowpathInstance}}
+                                        </label>
+                                      </span>
+                                    </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-orderList>
+            </div>
+        </div>
+    </div>
+    <p-dialog header="Sort" [(visible)]="sortDetails" class="secondary-dialog" [style]="{width: '29vw'}" closeIcon="icons8-delete" [draggable]="true" [resizable]="false">
+        <div class="p-col-12">
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="businessTransaction" label="Business Transaction" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="catagoryName" label="Category" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="startTime" label="Start Time" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="responseTime" label="Total Response Time(ms)" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="tierName" label="Tier" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="serverName" label="Server" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="flowpathInstance" label="FlowpathInstance" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="methods" label="Methods" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="callOuts" label="CallOuts" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="coherenceCallOut" label="Coherence CallOuts" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="jmsCallOut" label="JMS CallOut" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="dbCallouts" label="DB CallOuts" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="totalError" label="CallOut Errors" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+            <div class="sort-info">
+                <p-radioButton name="groupname" value="status" label="Status" [(ngModel)]="sortFieldName"></p-radioButton>
+            </div>
+        </div>
+        <div class="fixed-footer">
+            <p-footer>
+                <div class="p-col-12 form-buttons">  
+                    <button pButton label="Ascending" (click)="sortColumnData('asc'); sortDetails=false" class="ui-outline-button ui-button-secondary"></button>
+                    <button pButton label="Descending" (click)="sortColumnData('dsc'); sortDetails=false" class="ui-outline-button ui-button-secondary"></button>
+                    <button pButton label="Close" class="ui-outline-button ui-button-secondary" (click)="sortDetails=false"></button>
+                </div>
+            </p-footer>
+        </div>
+    </p-dialog>
+</div>

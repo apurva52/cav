@@ -1,0 +1,15 @@
+ <div class="ScrollStyle">
+ <div class="alert alert-danger fade in" *ngIf='flag && flag == "noPageDump"'>
+    <strong><i class='fa fa-warning fa-lg'></i> No Pagedump Available on this page.</strong>
+   </div>
+   <div  id="pagedumpdiv">
+   <canvas id ='canvas1' [class.fullscreenC]='fullscreen == true' [class.standardC]='fullscreen == false'></canvas>
+   <iframe [class.fullscreen]='fullscreen == true' [class.standard]='fullscreen == false' [src]='srcpath' id='pagedumpid' name='pagedumppanel'>
+   </iframe>
+   <span class='toggle'  (click)= 'toggleFullscreen()' >
+     <i class='pi pi-window-maximize' title ="Expand"  *ngIf='max'></i>
+      <i class='pi pi-window-minimize' title="Collapse"  *ngIf='min'></i>
+   </span>
+   </div> 
+  </div>
+   

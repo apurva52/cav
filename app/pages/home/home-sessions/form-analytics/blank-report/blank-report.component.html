@@ -1,0 +1,41 @@
+<div class="overview">
+    <div class="p-grid p-col-12">
+        <div class="p-grid loader-container vertical-container" *ngIf="datacommon.reportformdata == null">
+           <div class="p-col p-col-align-center text-center">
+           <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+           </div>
+         </div>
+        <div class="p-col-12 no-padding" *ngIf = 'datacommon.reportformdata != null && datacommon.formfieldnameblank.length == 0'>
+            <p-card>
+                <p-header>
+                    <span class="selected-label line-height">
+                     Form was never submitted.
+                    </span>
+                 </p-header>
+              </p-card>
+        </div> 
+        <div class="p-col-12 no-padding" *ngIf = 'datacommon.reportformdata != null && datacommon.formfieldnameblank.length > 0'>
+            <p-card>
+                <p-header>
+                    <span class="selected-label line-height" *ngIf='datacommon.totalUniqueFormSubmitt === 0.00 || datacommon.formfieldnameblank[0].fdata === 0.00'>
+                     Form was never submitted.
+                    </span>
+                    <span class="selected-label line-height" *ngIf='datacommon.totalUniqueFormSubmitt !== 0.00 && datacommon.formfieldnameblank[0].fdata !== 0.00'>
+                        <ul>
+                            <li>Field <strong>"{{datacommon.formfieldnameblank[0].fname}}"</strong> has the most blank entries {{(datacommon.formfieldnameblank[0].fdata).toFixed(2)}}%.</li>
+                <li>High Blank rate is indicating that field is unnececessary and can be removed.</li>
+                        </ul>
+                    </span>
+                </p-header>
+                <div class="p-grid p-align-stretch p-justify-center ">
+                    <div class="p-grid p-col-12 time-details" *ngFor="let ffield of datacommon.formfieldnameblank">
+                        <label class="p-col-2 text-right" title='{{breakWord(ffield.fname)}}' >{{ffield.fname}}</label>
+                        <div class="p-col-9">
+                            <p-progressBar title='{{ffield.fdata.toFixed(2)}} %' [value]="ffield.fdata.toFixed(2)" unit="%"></p-progressBar>
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+<div class="p-grid funnel-container" [ngStyle]="{overflow: compareMode ? 'auto':null}">
+    <div class="p-grid p-col-6">
+        <p-card [style]="compareMode ? {height:'100%', 'overflow-y':'unset'}:{}">
+            <app-funnel-details [pageDetailsComponent]="pageDetails" [compareMode]="compareMode"
+                (compare)="compareMode = $event" (funnelDetails)="funnelDetails = $event">
+            </app-funnel-details>
+        </p-card>
+    </div>
+    <div class="p-grid p-col-6" *ngIf="!compareMode">
+        <p-card [styleClass]="'page-details-card'">
+            <div class="w-100-p">
+                <app-page-details [funnelDetails]="funnelDetails" [data]="funnelDetails?.pageDetails"
+                    (pageDetails)="pageDetails = $event">
+                </app-page-details>
+            </div>
+        </p-card>
+    </div>
+    <div class="p-grid p-col-6" *ngIf="compareMode">
+        <p-card class="page-details" [style]="compareMode ? {height:'100%', 'overflow-y':'unset'}:{}">
+            <div class="w-100-p">
+                <app-funnel-details [compareMode]="compareMode" [closeCompareIcon]="true"
+                    (compare)="compareMode = $event"></app-funnel-details>
+            </div>
+        </p-card>
+    </div>
+
+
+    <app-add-note #addNote></app-add-note>

@@ -1,0 +1,433 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+	<div class= "ddr-box">
+ <!-- COMMON TOOLBAR -->
+<div class="ddr-toolbar">
+<div class="ddr-progressbar">
+      <mat-progress-bar *ngIf="isActive" mode="indeterminate" [color]="primary"></mat-progress-bar>
+   </div>
+  <!--<p-toolbar>
+    <div class="reportInfo">
+      <label class="headerInfo"><b>{{reportHeader}}</b></label>
+    </div>
+  </p-toolbar>-->
+    <div>
+  <p-toolbar>
+    <div class="ui-toolbar-group-left">
+      <!--<label class="headerInfo"><b>Filter criteria : </b></label>-->
+      <label></label>
+ Tier:      <p-multiSelect class="mutilSelectDropDown" [options]="tierList" [(ngModel)]="selectedTiers" (onChange)="getServer()"></p-multiSelect>
+ Server:    <p-multiSelect class="mutilSelectDropDown" [options]="serverList" [(ngModel)]="selectedServers" (onChange)="getInstance()"></p-multiSelect>
+ Instance: 	<p-multiSelect class="mutilSelectDropDown" [options]="appList" [(ngModel)]="selectedApps"></p-multiSelect>
+	   <button pButton type="button" label="Apply" title="Apply" (click)="mergeTwoRequest()"></button>
+       <button pButton type="button" title="Take New Thread Dump" label="New" (click)="takeThreadDump()"></button>
+</div>
+    <div class="ui-toolbar-group-right">
+	  <!--button pButton type="button" title="Apply" icon="fa-check" iconPos="right" (click)="getViewThreadDump()"></button-->
+      <!--button pButton type="button" title="Take Thread Dump" icon="fa fa-tumblr" iconPos="right" (click)="takeThreadDump()"></button-->
+      <button pButton type="button" title="Remove Selected Thread Dumps" icon="fa fa fa-trash-o" class="w20" [disabled]="disableSelectedRemove" (click)="RemoveSelectedFiles()"></button>
+      <button pButton type="button" title="Show thread dump message" icon="fa fa-info-circle" (click)="showMessage()" [disabled]="disableMsg"></button>
+    <button pButton type="button" title="Show All Thread Dumps" icon="fa fa-refresh" (click)="resetViewTableData()"></button>
+	</div>
+  </p-toolbar>
+</div>
+<!-- COMMON BOX SCROLLLBAR -->
+<div class="ddruiscroll" [ngStyle]="{'height': screenHeight+'px'}" id='divForScroll'  style="overflow:auto;">
+ <div *ngIf="errorStatus && _ddrData.isBlack" style="padding:100px;text-align:center;font:16px bold;color:white;">
+    {{errorStatus}}
+    </div>
+      <div *ngIf="errorStatus && !_ddrData.isBlack" style="padding:100px;text-align:center;font:16px bold;color:black;">
+         {{errorStatus}}
+   </div>
+<div *ngIf="!errorStatus">
+  <p-accordion [multiple]="true" class="ddr-accordion">
+      <p-accordionTab [selected]="false">
+          <p-header>
+            Scheduled Thread Dump(s): {{scheduleTDInfo.length}}
+          </p-header>
+         <div>
+           <p-dataTable class="ddr-table scrollableSchedule" [value]="scheduleTDInfo"  scrollwidth="40px" [style]="{'font-size':'12px'}" resizableColumns="true" reorderableColumns="true" [rows]="5" [paginator]="true" [pageLinks]="3"
+              [rowsPerPageOptions]="[5,10,20,30,40,50]"  [editable]="true" sortField="scheduleSTInDate" sortOrder="-1">
+    
+              <!--p-column [style]="{'width':'5px'}" selectionMode="multiple"></p-column-->
+              <p-column field="tierName" header="Tier" [sortable]="true" [style]="{'width':'40px','text-align':'left'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                  <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+                </ng-template>
+              </p-column>
+              <p-column field="serverName" header="Server" [sortable]="true" [style]="{'width':'40px','text-align':'left'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                  <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+                </ng-template>
+              </p-column>
+              <p-column field="instanceName" header="Instance" [sortable]="true" [style]="{'width':'40px','text-align':'left'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                  <a pTooltip="{{node[col.field]}}"  tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+                </ng-template>
+              </p-column>
+              <p-column field="scheduleSTInDate" header="Schedule Start Time"  sortable="custom" (sortFunction)="schedulesort($event,scheduleTDInfo)" [style]="{'width':'70px','text-align':'right'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                  <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+                </ng-template>
+    
+              </p-column>
+              <p-column field="scheduleETInDate" header="Schedule End Time" sortable="custom" (sortFunction)="schedulesort($event,scheduleTDInfo)" [style]="{'width':'70px','text-align':'right'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                  <a  pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+                </ng-template>
+              </p-column>
+              <p-column field="userName" header="User" [sortable]="true" [style]="{'width':'70px','text-align':'left'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                  <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">
+                              {{node[col.field]}}</a>
+                </ng-template>
+              </p-column>
+              <p-column field="agentType" header="Agent" [sortable]="true" [style]="{'width':'70px','text-align':'left'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                  <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">
+                              {{node[col.field]}}</a>
+                </ng-template>
+              </p-column>
+              <p-column field="Status" header="Action" [style]="{'width':'70px','text-align':'left','overflow':'visible'}">
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                    <!-- span [ngSwitch]="node.completionStatus" -->
+                        <p-dropdown class="action-drop-down" *ngIf= "node.completionStatus == 'Scheduled'" [options]="scheduleAction" [(ngModel)]="node.Status" appendTo="body" (onChange)="updateScheduledTD(node)"> </p-dropdown>
+                        <p-dropdown class="action-drop-down" *ngIf= "node.completionStatus == 'Stopped'" [options]="stopAction" [(ngModel)]="node.Status" appendTo="body" (onChange)="updateScheduledTD(node)"> </p-dropdown>
+                        <p-dropdown class="action-drop-down" *ngIf= "node.completionStatus == 'Cancelled'" [options]="cancelAction" [(ngModel)]="node.Status" appendTo="body" (onChange)="updateScheduledTD(node)"> </p-dropdown>
+                        <p-dropdown class="action-drop-down" *ngIf= "node.completionStatus == 'Rescheduled'" [options]="rescheduleAction" [(ngModel)]="node.Status" appendTo="body" (onChange)="updateScheduledTD(node)"> </p-dropdown>
+                        <p-dropdown class="action-drop-down" *ngIf= "node.completionStatus == 'InProgress'" [options]="inprogressAction" [(ngModel)]="node.Status" appendTo="body" (onChange)="updateScheduledTD(node)"> </p-dropdown>
+                        <p-dropdown class="action-drop-down" *ngIf= "node.completionStatus == 'Completed Partially'" [options]="completedAction" [(ngModel)]="node.Status" appendTo="body" (onChange)="updateScheduledTD(node)"> </p-dropdown>  
+                        <p-dropdown class="action-drop-down" *ngIf= "node.completionStatus == 'Completed'" [options]="completedAction" [(ngModel)]="node.Status" appendTo="body" (onChange)="updateScheduledTD(node)"> </p-dropdown>  
+                        <p-dropdown class="action-drop-down" *ngIf= "node.completionStatus.indexOf('Failed') != -1" [options]="failedAction" [(ngModel)]="node.Status" appendTo="body" (onChange)="updateScheduledTD(node)"> </p-dropdown>  
+                        <p-dropdown class="action-drop-down" *ngIf= "node.completionStatus == 'Resumed'" [options]="resumedAction" [(ngModel)]="node.Status" appendTo="body" (onChange)="updateScheduledTD(node)"> </p-dropdown>
+                          <!--/span-->
+                </ng-template>
+              </p-column>
+               <p-column field="completionStatus" header="Status" [style]="{'width':'70px','text-align':'left'}">
+              <ng-template let-col let-node="rowData" pTemplate="body">
+                <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover"> {{node[col.field]}}</a>
+              </ng-template>
+              </p-column>
+            </p-dataTable>
+        </div>
+        </p-accordionTab>
+    <p-accordionTab [selected]="true">
+      <p-header>
+        Thread Dump(s) {{takeTDHeader}}
+      </p-header>
+
+      <div>
+          <p-dataTable class="ddr-table scrollableSchedule" [value]="takeThreadDumpInfo" (onHeaderCheckboxToggle) = "onHeaderCheckboxToggle($event)" [(selection)]="selectedThreadDumpInfo" scrollwidth="40px" 
+          [style]="{'font-size':'12px'}" resizableColumns="true" reorderableColumns="true" [rows]="5" [paginator]="true" [pageLinks]="3"
+          [rowsPerPageOptions]="[5,10,20,30,40,50]" (onRowSelect)="onRowSelect($event.data)" (onRowUnselect)="onRowUnselect($event.data)" [editable]="true" sortField="timeStamp" sortOrder="-1">
+ 
+          <p-column [style]="{'width':'5px'}" selectionMode="multiple"></p-column>
+          
+          <p-column *ngIf="isDC" field="dcName" header="DC" [sortable]="true" [style]="{'width':'30px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+            </ng-template>
+          </p-column>
+          <p-column field="tierName" header="Tier" [sortable]="true" [style]="{'width':'30px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+            </ng-template>
+          </p-column>
+          <p-column field="serverName" header="Server" [sortable]="true" [style]="{'width':'30px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+            </ng-template>
+          </p-column>
+          <p-column field="instanceName" header="Instance" [sortable]="true" [style]="{'width':'30px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}"  tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+            </ng-template>
+          </p-column>
+          <p-column field="timeStamp" header="Time"  sortable="custom" (sortFunction)="mysort($event,takeThreadDumpInfo)" [style]="{'width':'70px','text-align':'right'}">
+            <!--template pTemplate type="header">
+                        <a pTooltip="Time at which ThradDump is saved successfully" tooltipPosition="right" tooltipEvent="hover">Time</a>
+                </ng-template-->
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="Time at which ThreadDump is saved successfully" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+            </ng-template>
+
+          </p-column>
+          <p-column field="filePath" header="File" [sortable]="true" [style]="{'width':'100px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a style="color: #8484f0;cursor:pointer;" pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover" (click)="showAnalysisThreadDump(node)">
+                          {{node[col.field].substring(node[col.field].lastIndexOf('/')+1)}}</a>
+            </ng-template>
+          </p-column>
+          <p-column field="userName" header="User" [sortable]="true" [style]="{'width':'100px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">
+                          {{node[col.field]}}</a>
+            </ng-template>
+          </p-column>
+          <p-column field="agentType" header="Agent" [sortable]="true" [style]="{'width':'100px','text-align':'left'}">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">
+                          {{node[col.field]}}</a>
+            </ng-template>
+          </p-column>
+          <p-column field="userNote" header="User Note" [style]="{'width':'110px','text-align':'left'}" [editable]="true">
+            <ng-template let-col let-node="rowData" pTemplate type="body">
+              <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">
+                          {{node[col.field]}}</a>
+            </ng-template>
+            <ng-template let-col let-node="rowData" pTemplate="editor">
+             <input type="text" pInputText style="max-width:150px;width:auto;" [(ngModel)]="node[col.field]"  /> <button pButton type="button" title="Save User Note" icon="fa fa-pencil-square-o" (click)="updateUserNote(node)"></button>
+        </ng-template>
+          </p-column>
+           <p-column field="action" header="Actions" [style]="{'width':'100px','text-align':'left'}">
+             <ng-template pTemplate="header">
+            <a pTooltip="Actions" tooltipPosition="bottom" tooltipEvent="hover">Actions</a>
+          </ng-template>
+          <ng-template let-col let-node="rowData" pTemplate="body">
+            <button pButton type="button" title="download at local" icon="fa fa fa-download" class="w20" (click)="downloadFile(node)" download="FileName"></button>
+            <button pButton type="button" title="Remove Thread Dump" icon="fa fa fa-trash-o" class="w20" (click)="removeFile(node)"></button>
+          </ng-template>
+          </p-column>
+        </p-dataTable>
+      </div>
+      <p-toolbar>
+        <div class="ui-toolbar-group-left">
+  <button pButton type="button" title="Compared Summary" icon="fa fa-usd" [disabled]="disableComapre" (click)="getSummaryThreadDumps()"></button>
+	  <button pButton type="button" title="Analyze Multi Thread Dump(s)" icon="fa fa-random" (click)="compareThreadDump()" [disabled]="disableComapre"></button>
+        </div>
+         <div class="ui-toolbar-group-right">
+        <div class="ui-toolbar-group-right" *ngIf="showDownLoadReportIcon">
+                        <span title="Download Word Report"><i class = 'icon ddrui-icon-word'  style=' cursor:pointer' (click)='downloadReport("word")' ></i></span>
+                        <span title="Download Excel Report"><i class = 'icon ddrui-icon-excel'  style=' cursor:pointer' (click)='downloadReport("excel")' ></i></span>
+                        <span title="Download PDF Report"><i class = 'icon ddrui-icon-pdf'  style=' cursor:pointer' (click)='downloadReport("pdf")' ></i></span>
+        </div>
+         </div>
+      </p-toolbar>
+    </p-accordionTab>
+   
+ <p-accordionTab [selected]="summaryThreadDump" [style]="{'padding':'0px'}" *ngIf="summaryThreadDump == true">
+      <p-header>
+      Compared Summary
+      </p-header>
+     
+        <app-thread-dump-summary [dcInfo]="dcinfo" [value]="threadDumpSummaryInfo" *ngIf="summaryThreadDump == true"></app-thread-dump-summary>
+    </p-accordionTab>
+    <p-accordionTab [selected]="analyseThreadDump" [style]="{'padding':'0px'}" *ngIf="threadDumpAnalysis == true">
+      <p-header>
+       Analyze Thread Dump {{analyzeHeader}}
+      </p-header>
+      <app-thread-dump-analyse [value]="value" [productName]="productName" [dcInfo]="dcinfo" *ngIf="analyseData"></app-thread-dump-analyse>
+    </p-accordionTab>
+
+    <!-- Compare Thread Dump Analysis  -->
+
+    <p-accordionTab [selected]="compareThreadDumpAnalysis" [style]="{'padding':'0px'}" *ngIf="compareThreadDumpAnalysis == true">
+      <p-header>
+       Analyze Multi Thread Dump(s) 
+      </p-header>
+      <div *ngIf="compareThreadDumpAnalysis == true">
+        <app-thread-dump-analyse *ngFor="let change of selectedThreadDumpInfo" [value]="change" [productName]="productName" [dcInfo]="dcinfo" ></app-thread-dump-analyse>
+      </div>
+    </p-accordionTab>
+
+
+    <!-- Source Code Table -->
+    <p-accordionTab [style]="{'padding':'0px'}" [selected]="threadDumpView" *ngIf="threadDumpView == true">
+      <p-header>
+        View Thread Dump
+      </p-header>
+      <input type="text" [(ngModel)]="searchText" size={{searchInputSize}} placeholder="Search .." pInputText/>
+      <div class ="Container">
+        <pre class="Content" [innerHTML]="highlight()" style="outline:none" style="overflow-x: scroll; height: 300px; outline: none;"></pre>
+      </div>
+    </p-accordionTab>
+
+    <!-- Compare Thread Dump Content -->
+    <!-- <p-accordionTab [selected]="compareThreadDumpAnalysis" [style]="{'padding':'0px'}" *ngIf="compareThreadDumpAnalysis == true">
+      <p-header>
+        Compare & View Thread Dumps
+      </p-header>
+      <div class="ui-g">
+        <div class="ui-g-6">
+          <pre id="pre_text1" style="background: #d5ecfd;">{{compareThreadDumpData1}}</pre>
+        </div>
+        <div class="ui-g-6">
+          <pre id="pre_text1" style="background: #d5ecfd;">{{compareThreadDumpData2}}</pre>
+        </div>
+      </div>
+    </p-accordionTab>-->
+  </p-accordion>
+</div>
+</div>
+<p-dialog class="ddr-dialog" [closable]='false' [(visible)]="displayPopUp" *ngIf="displayPopUp" modal="true" appendTo ="body" [closeOnEscape]='false' width="700" positionTop="70"  [responsive]="true" [resizable]="false">
+<p-header>
+    <span>Take Thread Dump</span>
+  <span style="float:right;cursor: pointer;" id="myBtn" (click)="closeDialog()">X</span>
+  </p-header>
+
+  <p-blockUI [blocked]="loadingDialog"></p-blockUI>
+<img *ngIf="loadingDialog" class="loadingIcon1" src="./images/loading.gif" />
+
+<p-toolbar>
+  <div class="ui-toolbar-group-left">
+  
+    <span *ngIf="dcinfo">
+      DC: <p-dropdown [options]="dcNames" [filter]="true" filterBy="label,value.name" pTooltip="DC name" tooltipPosition="bottom" [(ngModel)]="selectedDcVal" appendTo='body' [style]="{'width':'130px'}" (onChange)="getDc(selectedDcVal)"></p-dropdown> 
+    </span>
+    Tier: <p-dropdown [options]="tiers" [filter]="true" filterBy="label,value.name" pTooltip="{{selectedTierVal}}" tooltipPosition="bottom" [(ngModel)]="selectedTierVal" appendTo='body' [style]="{'width':'130px'}" (onChange)="getServerValue(selectedTierVal)"></p-dropdown>
+     Server: <p-dropdown [options]="servers"  pTooltip="{{selectedServerVal}}" tooltipPosition="bottom" [filter]="true" filterBy="label,value.name" [(ngModel)]="selectedServerVal" appendTo='body'  [style]="{'width':'130px'}"></p-dropdown>
+  </div>
+  <div class="ui-toolbar-group-right">
+      <button pButton type="button" (click)="getJavaInstances()" label="All" title="Get All Instances"></button>
+      <button pButton type="button" (click)="getNDInstances()" label="ND" title="Get ND Instances"></button>
+      <button pButton type="button" title="Reset" icon="fa fa-refresh" (click)="resetData()"></button>
+  </div>
+</p-toolbar>
+
+
+ <div style="margin-top:5px;" *ngIf="showTable == true">
+    <p-accordion class="ddr-accordion"  [multiple]="true">
+      <p-accordionTab  header="Java Instances" [selected]="true">
+      <div style="margin-top:5px;">
+          <p-dataTable  class="ddr-table scrollable-div2 scrollableSchedule" [value]="instanceInfo" selectionMode="multiple" resizableColumns="true" [(selection)]="selectedInstanceInfo" (onRowSelect)="onRowSelectData($event.data)"
+            (onRowUnselect)="onRowUnselectData($event.data)" [rows]="10" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[10,20,50,100]">
+            <p-column [style]="{'width':'5px'}" selectionMode="multiple"></p-column>
+            <p-column field="pid" header="Process ID"  [filter]="true" [filterMatchMode]="filterMatchMode" sortable="custom" (sortFunction)="CustomsortForPID($event,instanceInfo)" [style]="{'width':'20px','text-align':'right'}">
+              <ng-template pTemplate="header">
+                <a pTooltip="Process ID" tooltipPosition="bottom" tooltipEvent="hover">Process ID</a>
+              </ng-template>
+            </p-column>
+            <p-column field="appName" header="Instance Name" [filter]="true" [filterMatchMode]="filterMatchMode" [sortable]="true" [style]="{'width':'30px','text-align':'left'}">
+              <ng-template pTemplate="header">
+                <a pTooltip="Instance Name" tooltipPosition="bottom" tooltipEvent="hover">Instance Name</a>
+              </ng-template>
+            </p-column>
+            <p-column field="arguments" header="Process Arguments" [filter]="true" [filterMatchMode]="filterMatchMode" [sortable]="true" [style]="{'width':'100px','text-align':'left'}">
+              <ng-template pTemplate="header">
+                <a pTooltip="Process Arguments" tooltipPosition="bottom" tooltipEvent="hover">Process Arguments</a>
+              </ng-template>
+              <ng-template let-col let-node="rowData" pTemplate="body">
+                <a *ngIf='(node[col.field].length > 70)' pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field].substring(0, 70)}}</a>
+                <a *ngIf='(node[col.field].length <= 70)' pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+              </ng-template>
+            </p-column>
+            <p-column field="status" *ngIf = "isNDCase" header="Status" [filter]="true" [filterMatchMode]="filterMatchMode" [sortable]="true" [style]="{'width':'30px','text-align':'left'}">
+              <ng-template pTemplate="header">
+                <a pTooltip="Status" tooltipPosition="bottom" tooltipEvent="hover">Status</a>
+              </ng-template>
+            </p-column>
+            <p-column field="agentType" *ngIf = "isNDCase" header="Agent" [filter]="true" [filterMatchMode]="filterMatchMode" [sortable]="true" [style]="{'width':'30px','text-align':'left'}">
+              <ng-template pTemplate="header">
+                <a pTooltip="Agent" tooltipPosition="bottom" tooltipEvent="hover">Agent</a>
+              </ng-template>
+            </p-column>
+          </p-dataTable>
+        </div>
+      
+      </p-accordionTab>
+    <p-accordionTab header="Settings" [selected]="true">
+       <div>
+          <label><b>Count</b>  </label>&nbsp;&nbsp;&nbsp;<input type="text" pInputText [(ngModel)]="TDTakencount" (keyup)="enableTimeInterval()"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <label><b>Time Interval(s)</b> </label>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" pInputText [(ngModel)]="timeInterval" [disabled]="showTInterval" (keyup)="calculateCount()" />
+          <span *ngIf="isNDCase"> <p-checkbox label="Compress Mode" [(ngModel)]="isChecked" binary="true"></p-checkbox></span>
+          <div class="ui-dialog-footer" *ngIf="showThreadDumpOption == true">
+          <button pButton type="button" (click)="takeThreadDumpBasedOnCountAndTimeInterval()" label="Take Thread Dump"></button>
+       </div>
+          
+          <p-accordionTab header="Schedule Settings" [selected]="true">
+              <label><b>Start Time &nbsp;&nbsp;</b> </label> <p-calendar [showIcon]="true" readonlyInput="true"  dateFormat="mm/dd/yy" (onSelect)="onStrDate($event)" [monthNavigator]="true"
+              [yearNavigator]="true" yearRange="2018:2050" [showTime]="true" [defaultDate]="defaultServerTime" [(ngModel)]="strDate"></p-calendar>     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          
+              <label><b>End Time &nbsp;&nbsp;</b> </label> <p-calendar [showIcon]="true" readonlyInput="true"  dateFormat="mm/dd/yy"  (onSelect)="onEndDate($event)" [monthNavigator]="true"
+              [yearNavigator]="true" yearRange="2018:2050" [showTime]="true" [defaultDate]="defaultServerTime" [(ngModel)]="endDate" ></p-calendar>
+            </p-accordionTab>
+        </div>
+    </p-accordionTab>
+    </p-accordion>
+    
+  </div>
+  <div class="ui-dialog-content" *ngIf="showTable == false">{{ErrorResult}}</div>
+ <p-footer> 
+  <div class="ui-dialog-footer" *ngIf="showThreadDumpOption == true">
+    <button pButton type="button" (click)="scheduleThreadDump()" label="Schedule Thread Dump"></button>
+  </div>
+ </p-footer> 
+
+</p-dialog>
+<p-dialog class="ddr-dialog" [closable]='false' [(visible)]="displayReschedulePopup"  *ngIf="displayReschedulePopup" modal="true"  [responsive]="true" positionTop="70" width="600" height="350" [responsive]="true" [resizable]="false" appendTo="body" [closeOnEscape]='false'>
+    <p-header>
+        <span>Reschedule Thread Dump</span>
+      <span style="float:right;cursor: pointer;" id="myBtn" (click)="closeRescheduleDialog()">X</span>
+      </p-header>
+      <div style="margin-top:10px;" >
+        <label><b>Tier:</b></label>&nbsp;<span>{{scheduledInfo.tierName}},</span> <label><b>&nbsp;&nbsp;Server:</b>&nbsp;</label><span>{{scheduledInfo.serverName}},</span><label><b>&nbsp;&nbsp;Instance:&nbsp;&nbsp;</b></label><span>{{scheduledInfo.instanceName}}</span>
+          <p-accordion class="ddr-accordion"  [multiple]="true"> 
+          <p-accordionTab header="Settings" [selected]="true">
+                 <label><b>Count</b>  </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" pInputText [(ngModel)]="TDTakencount" (keyup)="enableTimeInterval();calculateInterval();"/>&nbsp;&nbsp;&nbsp;&nbsp;
+                 <label><b>Time Interval(s)</b> </label><input type="text" pInputText [(ngModel)]="timeInterval" [disabled]="showTInterval" (keyup)="calculateCount()" /><br/><br/>
+                 <span *ngIf="isNDCase"> <p-checkbox label="Compress Mode" [(ngModel)]="isChecked" binary="true"></p-checkbox></span>
+                
+           </p-accordionTab>
+           <p-accordionTab header="Schedule Settings" [selected]="true">
+              <label><b>Start Time &nbsp;&nbsp;</b> </label> <p-calendar [showIcon]="true" readonlyInput="true"  d1ateFormat="mm/dd/yy" (onSelect)="onStrDate($event)" [monthNavigator]="true"
+              [yearNavigator]="true" yearRange="2018:2050" [showTime]="true" [defaultDate]="defaultServerTime" [(ngModel)]="strDate" appendTo="body"></p-calendar>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+               <label><b>End Time &nbsp;&nbsp;</b> </label> <p-calendar [showIcon]="true" readonlyInput="true"  dateFormat="mm/dd/yy"  (onSelect)="onEndDate($event)" [monthNavigator]="true"
+              [yearNavigator]="true" yearRange="2018:2050" [showTime]="true" [defaultDate]="defaultServerTime" [(ngModel)]="endDate" appendTo="body"></p-calendar><br/><br/>
+            </p-accordionTab>
+           </p-accordion>
+          </div>
+          <p-footer> 
+              <div class="ui-dialog-footer">
+                <button pButton type="button" (click)="rescheduleThreadDump()" label="ReSchedule Thread Dump"></button>
+              </div>
+             </p-footer> 
+     
+  </p-dialog>
+<p-dialog class="ddr-dialog" header="ThreadDump Status" [(visible)]="showStatusDialog" modal="true" responsive="true" [width]="1200"  appendTo ="body">
+  <div class="ui-g-12">
+    <p-accordion class="ddr-accordion">
+      <p-accordionTab header="Status Detail" [selected]="true">
+        <div style="overflow:auto;">
+          <p-dataTable [value]="msgObj" selectionMode="single" resizableColumns="true">
+            
+            <p-column field="tier" header="Tier" [sortable]="true" [style]="{'width':'20px','text-align':'left'}">
+            </p-column>
+            <p-column field="server" header="Server" [sortable]="true" [style]="{'width':'20px','text-align':'left'}">
+            </p-column>
+              <p-column field="instance" header="Instance" [sortable]="true" [style]="{'width':'20px','text-align':'left'}">
+                </p-column>
+                <p-column field="time" header="Time" [sortable]="true" [style]="{'width':'35px','text-align':'right'}">
+                    <!-- <ng-template pTemplate="header">
+                      <a pTooltip="Process ID" tooltipPosition="bottom" tooltipEvent="hover">Process ID</a>
+                    </ng-template> -->
+                </p-column>
+
+                <p-column field="pid" header="Process ID" [sortable]="true" [style]="{'width':'20px','text-align':'right'}">
+                    <ng-template pTemplate="header">
+                      <a pTooltip="Process ID" tooltipPosition="bottom" tooltipEvent="hover">Process ID</a>
+                    </ng-template>
+                  </p-column>
+            <p-column field="status" header="Status" [sortable]="true" [style]="{'width':'20px','text-align':'left'}">
+              <ng-template pTemplate="header">
+                <a pTooltip="Status" tooltipPosition="bottom" tooltipEvent="hover">Status</a>
+              </ng-template>
+            </p-column>
+            <p-column field="msg" header="Message" [sortable]="true" [style]="{'width':'150px','text-align':'left'}">
+              <ng-template pTemplate="header">
+                <a pTooltip="Message" tooltipPosition="bottom" tooltipEvent="hover">Message</a>
+              </ng-template>
+              <ng-template let-col let-node="rowData" pTemplate="body">
+                <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+              </ng-template>
+            </p-column>
+          </p-dataTable>
+        </div>
+      </p-accordionTab>
+    </p-accordion>
+  </div>
+</p-dialog>
+
+<p-growl life=5000 [value]="message"></p-growl>
+<p-confirmDialog header="Confirmation" icon="fa fa-question-circle" width="300" appendTo ="body"></p-confirmDialog>
+
+</div>
+</div>

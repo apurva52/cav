@@ -1,0 +1,84 @@
+<div class="ts-health">
+  <div class="ts-health-component ts-business-health py-15"  *ngIf="isND">
+    <label class="font-weight-700">Business Health</label>
+    <div class="ts-alert-top"> 
+      <div class="p-grid p-align-center p-justify-between my-3">
+        <div class="ts-alerts ts-alert-nor" [style.width]=" healthStatus.businessNormal+'%'">
+        </div>
+        <div class="ts-alerts ts-alert-maj" [style.width]="healthStatus.businessMajor+'%'">
+        </div>
+        <div class="ts-alerts ts-alert-crit" [style.width]="healthStatus.businessCritical+'%'">
+        </div>
+      </div>
+
+      <div class="p-grid p-align-center p-justify-between my-3">
+        <div class="dotted-class">
+          <i class="material-icons ts-crit-dot">
+          </i>Critical  {{healthStatus.businessCritical}}%
+        </div>
+        <div class="dotted-class">
+          <i class="material-icons ts-maj-dot">
+          </i> 
+         Warning  {{healthStatus.businessMajor}}%</div>
+        <div class="dotted-class">
+          <i class="material-icons ts-min-dot">
+          </i>
+          Normal  {{healthStatus.businessNormal}}%</div>
+      </div>
+    </div>
+  </div>
+  <div class="ts-health-component ts-server-health py-15">
+    <label class="font-weight-700">{{dispLabel}} ( Total Server: {{totalServer}})</label>
+      <div class="p-grid p-align-center p-justify-between my-3">
+        <div class="ts-alerts ts-alert-crit" [style.width]="healthStatus.serverCritical+'%'">
+        </div>
+        <div class="ts-alerts ts-alert-maj" [style.width]="healthStatus.serversMajor+'%'">
+        </div>
+        <div class="ts-alerts ts-alert-nor" [style.width]="healthStatus.serverNormal+'%'">
+        </div>
+      </div>
+
+      <div class="p-grid p-align-center p-justify-between my-3">
+        <div class="dotted-class">
+          <i class="material-icons ts-alert-crit"></i>
+          Critical  {{healthStatus.serverCritical}}%
+        </div>
+        <div class="dotted-class">
+          <i class="material-icons ts-maj-dot"></i>
+          Warning  {{healthStatus.serversMajor}}%</div>
+        <div class="dotted-class">
+          <i class="material-icons ts-min-dot"></i>
+          Normal  {{healthStatus.serverNormal}}%</div>
+      </div>
+  </div>
+  <div class="ts-health-component ts-ip-health py-15" *ngIf = "isDataAvailable && isND">
+    <label class="font-weight-700" [class.lblLink]="showLink" (click) = "showLink? _rightPanelService.openFPGroupURL(_dataHandlerService, 'intHealth') : null;" >Integration Point Health</label>
+    <!-- <label class="ts-right-headings" *ngIf = "!isDataAvailable">Integration Point Health</label> -->
+    <div class="ts-alert-top">
+      <div class="p-grid p-align-center p-justify-between my-5">
+        <div class="ts-alerts ts-alert-crit" [style.width]="healthObj.integrationCritical+'%'">
+        </div>
+        <div class="ts-alerts ts-alert-maj" [style.width]="healthObj.integrationMajor+'%'">
+        </div>
+        <div class="ts-alerts ts-alert-nor" [style.width]="healthObj.integrationNormal+'%'">
+        </div>
+      </div>
+      <div class="p-grid p-align-center p-justify-between my-5">
+        <div class="dotted-class">
+          <i class="material-icons ts-crit-dot"></i>
+          Critical  {{healthObj.integrationCritical}}%
+        </div>
+
+        <div class="dotted-class">
+          <i class="material-icons ts-maj-dot"></i>
+          Warning {{healthObj.integrationMajor}}%
+        </div>
+
+        <div class="dotted-class">
+          <i class="material-icons ts-min-dot"></i>
+          Normal  {{healthObj.integrationNormal}}%
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

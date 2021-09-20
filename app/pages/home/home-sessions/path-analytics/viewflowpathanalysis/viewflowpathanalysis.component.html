@@ -1,0 +1,15 @@
+<!-- sankey chart section -->
+
+<div class="panel panel-info" style='border-radius:0px !important;margin-top: -1%;'>
+   <div class="panel-heading pheader" role="tab" id="headingOne">
+     <h4 class="panel-title header">
+        <a class="collapsed" role="button"  aria-expanded="false" aria-controls="collapseTwo"></a>
+     </h4>
+   </div>
+   <div class="panel-body" style="overflow:auto;width:100%;height:500px">
+     <p-dropdown [options]="dimensions" [(ngModel)]="dimType" [style]="{'width':'200px','margin-left':'20px'}"></p-dropdown>
+     <span class='btn btn-primary' (click)='setValue()'><i class="pi pi-check" style='font-size: 29px;background-color: gray;border-radius: 7px;vertical-align: bottom;' ></i></span>
+     <span class='btn btn-primary' *ngIf='changemode == true' (click)='setBackNavigation()'>Back</span>
+    <svg id="sankey"   [style.height]="height" [style.width]="maxSankeyChartDepth" [style.overflow]="'auto'"></svg>
+   </div>
+</div>

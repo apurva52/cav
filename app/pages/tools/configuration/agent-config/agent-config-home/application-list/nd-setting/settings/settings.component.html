@@ -1,0 +1,225 @@
+<div class="h-100-vh settings-container">
+    <div class="vertical-container">
+        <div class="p-col-12 panel-card">
+            <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true"
+                [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title" (click)="pnl1.toggle($event)">
+                            <a>
+                                <span
+                                    [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                </span>
+                            </a>
+                            ND COLLECTOR
+                        </div>
+                    </div>
+                </p-header>
+                <div class="p-grid p-col-12">
+                    <div class="p-grid p-col-6 p-align-center" *ngFor="let item of data.settingLabelData">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-9">
+                                <span class="label">{{item.label}}</span>
+                            </div>
+                            <div class="p-col-3">
+                                <input type="text" [(ngModel)]="item.value" class="customInput" value="30" pInputText />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-6 p-align-center" *ngFor="let item of data.settingLabelData2">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-9">
+                                <span class="label">{{item.label}}</span>
+                            </div>
+                            <div class="p-col-3">
+                                <input type="text"  [(ngModel)]="item.value" class="customInput" value="30" pInputText />
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+               
+            </p-panel>
+            <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true"
+                [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title" (click)="pnl2.toggle($event)">
+                            <a>
+                                <span
+                                    [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                </span>
+                            </a>
+                            ND DATA PROCESSOR
+                        </div>
+                    </div>
+                </p-header>
+                <div class="p-grid p-col-12">
+                    <div class="p-grid p-col-6 p-align-center" *ngFor="let item of data.settingLabelData3">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-9">
+                                <span class="label">{{item.label}}</span>
+                            </div>
+                            <div class="p-col-3">
+                                <input type="text" [(ngModel)]="item.value" class="customInput" value="30" pInputText />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-6 p-align-center" *ngFor="let item of data.settingLabelData4">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-9">
+                                <span class="label">{{item.label}}</span>
+                            </div>
+                            <div class="p-col-3">
+                                <input type="text" [(ngModel)]="item.value" class="customInput" value="30" pInputText />
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+                <hr>
+                <div class="p-grid p-col-12">
+                    <div class="p-grid p-col-6" *ngFor="let item of data.settingLabelData5">
+                        <div class="p-col-6" >
+                            <span class="label">{{item.title}}</span>
+                        </div>
+                    
+                        <div class="p-col-6 ">
+                            <div class="p-grid" *ngFor="let itemsDetails of item.otherData">
+                            <div class="p-grid p-align-center p-col-3">
+                                <span class="label">{{itemsDetails.label}}</span>
+                            </div>
+                            <div class="p-grid p-align-center p-col-3">
+                                <input type="text" [(ngModel)]="itemsDetails.value" class="customInput" pInputText />
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-6 p-align-center">
+                        <div class="p-grid p-col-12 p-align-center" *ngFor="let item of data.settingLabelData6">
+                            <div class="p-col-6">
+                                <span class="label">Enable DB call by SQL</span>
+                            </div>
+                            <div class="p-col-3">
+                                <span class="label">{{item.label}}:</span>
+                            </div>
+                            <div class="p-col-3">
+                                <input type="text" [(ngModel)]="item.value" class="customInput" pInputText />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             
+                <hr>
+                <div class="p-grid p-col-12">
+                    <div class="p-grid p-col-6 p-align-center">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-6">
+                                <span class="label">Decide whether sequence blob strings will be written to separate
+                                    file</span>
+                            </div>
+                            <div class="p-col-3">
+                                <span class="label">Redirect to path:</span>
+                            </div>
+                            <div class="p-col-3">
+                                <input type="text" class="customInput" pInputText />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-6 p-align-center">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-9">
+                                <p-checkbox name="groupname" class="mh-10"
+                                    label="Enable NDP Similarity Search for SQL Metadata Optimization">
+                                </p-checkbox>
+                            </div>
+                            <div class="p-col-3">
+                                <input type="text" class="customInput" pInputText />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12">
+                    <div class="p-grid p-col-6 p-align-center">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-6">
+
+                            </div>
+                            <div class="p-col-3">
+                                <span class="label">Data Format:</span>
+                            </div>
+                            <div class="p-col-3">
+                                <input type="text" class="customInput" pInputText />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-6 p-align-center">
+                    </div>
+                </div>
+                <hr>
+                <div class="p-grid p-col-12">
+                    <div class="p-grid p-col-6 p-align-center">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-6">
+                                <span class="label">Decide whether sequence blob strings will be written to separate
+                                    file</span>
+                            </div>
+                            <div class="p-col-3">
+                                <span class="label">Redirect to path:</span>
+                            </div>
+                            <div class="p-col-3">
+                                <input type="text" class="customInput" pInputText />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-6 p-align-center">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-9">
+                                <p-checkbox name="groupname" class="mh-10"
+                                    label="Enable NDP Similarity Search for SQL Metadata Optimization">
+                                </p-checkbox>
+                            </div>
+                            <div class="p-col-3">
+                                <input type="text" class="customInput" pInputText />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12">
+                    <div class="p-grid p-col-6 p-align-center">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-6">
+
+                            </div>
+                            <div class="p-col-3">
+                                <span class="label">Data Format:</span>
+                            </div>
+                            <div class="p-col-2">
+                                <p-dropdown [options]="options1" class="customDropdown custom-min-width" [(ngModel)]="selectedOptions1"
+                                    dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-6 p-align-center">
+
+                    </div>
+                </div>
+                <div class="p-grid p-col-12">
+                    <div class="p-grid p-col-6 p-align-center">
+                        <div class="p-grid p-col-12 p-align-center">
+                            <div class="p-col-6">
+
+                            </div>
+                            <div class="p-col-3">
+                                <span class="label">Size (in MB):</span>
+                            </div>
+                            <div class="p-col-3">
+                                <input type="text" class="customInput" pInputText />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-6 p-align-center">
+                    </div>
+                </div>
+            </p-panel>
+        </div>
+    </div>
+</div>

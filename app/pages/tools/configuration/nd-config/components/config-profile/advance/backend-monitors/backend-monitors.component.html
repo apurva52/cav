@@ -1,0 +1,19 @@
+<form *ngIf="backend" (ngSubmit)="saveKeywordData()" #form="ngForm" ngNativeValidate>
+    <div class="tabsincontent">
+        <div class="header">Settings
+            <div class="pull-right">
+                <button type="button" pButton icon="fa fa-refresh" [disabled]="saveDisable || !enableGroupKeyword" (click)="resetKeywordData()" label="Reset"></button>
+                <button type="submit" pButton icon="fa fa-check" [disabled]="saveDisable || !enableGroupKeyword" label="Save"></button>
+            </div>
+        </div>
+        <p-panel class="hideheader">
+            <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid" class="configui-hideheader">
+                <div class="ui-g-12" class="configui-hideheader-css">
+                    <div class="ui-g-2">
+                        <p-checkbox name="enableBackendMonitor" [(ngModel)]="enableBackendMonitorChk" binary="true" ngModel label="Backend monitor"></p-checkbox>
+                    </div>
+                </div>
+            </div>
+        </p-panel>
+    </div>
+</form>

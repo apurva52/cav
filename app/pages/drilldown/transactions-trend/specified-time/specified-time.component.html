@@ -1,0 +1,55 @@
+<p-dialog #dialog class="secondary-dialog" closeIcon="icons8-delete" [(visible)]="visible" [draggable]="false" [resizable]="true" [modal]="true">
+    <p-header>
+        Apply Time Period
+    </p-header>
+
+    <div class="specified-container">
+
+        <div class="p-col-12">
+            <div class="p-grid">
+                <div class="p-col-2">
+                    <label for="start-date-time" class="label-css">From:</label>
+                </div>
+                <div class="p-col-10 ui-dialog-top">
+                    <input pInputText readonly id="start-date-time" [owlDateTime]="customStartDateTime" [owlDateTimeTrigger]="customStartDateTime" (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'" [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame">
+                    <owl-date-time #customStartDateTime></owl-date-time>
+                    <p-message *ngIf="invalidDate" severity="error" text="Start date and End date should not be the same.">
+                    </p-message>
+                </div>
+            </div>
+
+            <div class="p-grid">
+                <div class="p-col-2">
+                    <label for="start-date-time" class="label-css">To:</label>
+                </div>
+                <div class="p-col-10 ui-dialog-top">
+                    <input pInputText readonly id="end-date-time" [owlDateTime]="customEndDateTime" [owlDateTimeTrigger]="customEndDateTime" (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeTo'" [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame">
+                    <owl-date-time #customEndDateTime></owl-date-time>
+                    <p-message *ngIf="invalidDate" severity="error" text="End date and Start date should not be the same.">
+                    </p-message>
+                </div>
+            </div>
+        </div>
+        <p-footer>
+
+
+            <div class="p-col-12">
+                <div class="p-grid">
+                    <div class="p-col-6">
+
+                    </div>
+                    <div class="p-col-2">
+                        <button pButton type="button" class="ui-button ui-button-rounded" label="Apply" (click)="applyTimePeriod()"></button>
+
+                    </div>
+
+                    <div class="p-col-2">
+                    </div>
+                </div>
+            </div>
+        </p-footer>
+
+    </div>
+
+
+</p-dialog>

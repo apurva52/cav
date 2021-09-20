@@ -1,0 +1,34 @@
+<div class="overview">
+    <div class="p-grid p-col-12">
+        <div class="p-grid loader-container vertical-container" *ngIf="datacommon.reportformdata == null">
+           <div class="p-col p-col-align-center text-center">
+           <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+           </div>
+         </div>
+        <div class="p-col-12 no-padding" *ngIf = 'datacommon.reportformdata != null && datacommon.formfieldnamehesitation.length == 0'>
+            <p-card>
+                <p-header>
+                    <span class="selected-label line-height">
+                     Form was never submitted.
+                    </span>
+                 </p-header>
+              </p-card>
+        </div>
+        <div class="p-col-12 no-padding" *ngIf = 'datacommon.reportformdata != null && datacommon.formfieldnamehesitation.length > 0'>
+            <p-card>
+                <p-header>
+                    <span class="selected-label line-height"><b>{{ (datacommon.formfieldnamehesitation[0].fdata).toFixed(2) }} sec </b> is the maximum hesitation time taken by "{{ datacommon.formfieldnamehesitation[0].fname }}" field on an average. 
+             Hesitation time is time spent by user in understanding what the field is for. High hesitation time indicates that the field is confusing for user.</span>
+                </p-header>
+                <div class="p-grid p-align-stretch p-justify-center ">
+                    <div class="p-grid p-col-12 time-details" *ngFor="let progressDetail of datacommon.formfieldnamehesitation">
+                        <label class="p-col-2 text-right" title='{{breakWord(progressDetail.fname)}}'>{{progressDetail.fname}}</label>
+                        <div class="p-col-9">
+                            <p-progressBar title="{{ progressDetail.fdata.toFixed(2) }} sec" [value]="progressDetail.fdata.toFixed(2)" unit="sec"></p-progressBar>
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+    </div>
+</div>

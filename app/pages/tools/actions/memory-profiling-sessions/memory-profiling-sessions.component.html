@@ -1,0 +1,265 @@
+<div class="header">
+  <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+  <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+    <a routerLink="/home">
+      <i class="icons8 icons8-left toolbar-icon-color"></i>
+    </a>
+    <div class="p-col ui-toolbar-text">MEMORY PROFILING</div>
+  </div>
+</p-toolbar>
+<p-progressBar *ngIf="isProgressBar" [style]="{'height':'5px'}" mode="indeterminate"></p-progressBar>
+<div class="ddr_landing popins-fonts">
+  <div class="memory_profile">
+    <div class="memoryAllocation">
+      <span>Memory Profiling Session</span>
+      <button pButton type="button" icon="icons8 icons8-plus-math" title="Add New Session" (click)="redirectMemProfToInstance()"></button>
+      <!-- <button type="button" class="btn-add-new" title="Add" (click)="redirectMemProfToInstance()">
+        <i class="icons8 icons8-plus-math"></i> Add</button> -->
+    </div>
+    <ul class="memory_allocation_list" *ngIf="isShowSessions">
+      <li *ngFor="let list of allocatioList; let i = index" [ngStyle]="{'background-color':activeProjectIndex === i? '#b3e5fc' : 'white' }" (click)="selectedSessionDetails(list, i)">
+        <div class="memory_alo_name">
+          <div class="aloc_name">
+            <label>Name</label>
+            <span pTooltip="{{list.sessionName}}" tooltipPosition="top"
+              tooltipStyleClass="mytooltip">{{list.sessionName}}</span>
+          </div>
+          <div class="aloc_name">
+            <label>Tier</label>
+            <span pTooltip="{{list.tierName}}" tooltipPosition="top"
+              tooltipStyleClass="mytooltip">{{list.tierName}}</span>
+          </div>
+          <div class="aloc_name">
+            <label>Start Time</label>
+            <span style="margin-left: 12px;" pTooltip="{{list.startTime}}" tooltipPosition="top"
+              tooltipStyleClass="mytooltip">{{list.splitStartTime}}</span>
+          </div>
+          <div style="text-align: right;" class="aloc_name">
+            <label>Duration</label>
+            <span pTooltip="{{list.duration}} mins" tooltipPosition="top"
+              tooltipStyleClass="mytooltip">{{list.duration}} mins</span>
+          </div>
+
+          <div class="action_btn">
+            <i class="icons8 icons8-trash" style="color: #e91224;" (click)="showDeleteDialog(list)"></i>
+          </div>
+        </div>
+
+        <div class="des_cription">
+          <div class="aloc_name" style="width: 90%;">
+            <label>Description</label>
+            <span tooltipPosition="top" pTooltip="{{list.description}}"
+              tooltipStyleClass="mytooltip">{{list.description}}</span>
+          </div>
+        </div>
+	<i class="icons8 icons8-spinner spin spin_class" title="In Progress" *ngIf="list.status == 'In progress'" aria-hidden="true"></i>
+      </li>
+    </ul>
+
+    <!-- -------------------------add session--------------------->
+    <div *ngIf="!isShowSessions" class="cav-central noWrap">
+      <p class="cav-fnt-13 cav-fnt-weight500 opc5">Click to add memory profiling session</p>
+      <button type="button" class="button-all button" (click)="redirectMemProfToInstance()">Add Session</button>
+    </div>
+    <!-- -------------------------add session--------------------->
+  </div>
+
+  <div *ngIf="isShowSessionData && !isSessionInProgress && allocatioList.length != 0" class="memory_alocation cav-px-2">
+    <div class="memoryAllocation cav-px-0">
+      <span>Session Details : {{selectedSessionName}}</span>
+    </div>
+
+    <div class="cav-d-flex cav-justify-content-center cav-my-3" style="margin-left: 32%;
+    margin-top: 2px; margin-right: 5px;">
+      <p-selectButton [options]="types" [(ngModel)]="selectedType" (click)="changeMemProfUI()"></p-selectButton>
+    </div>
+
+    <div class="chrtside_div" *ngIf="!isNoData">
+      <table class="normalTable" style="width: 100%;">
+        <tr>
+          <th style="max-width: 100px; width: 100px;">Tier</th>
+          <th style="max-width: 100px; width: 100px;">Server</th>
+          <th style="max-width: 100px; width: 100px;">Instance</th>
+          <th style="text-align: right;">Duration</th>
+          <th style="text-align: right;">Heap max size</th>
+          <th style="text-align: right;">Used heap before</th>
+          <th style="text-align: right;">Used heap after</th>
+          <th style="text-align: right;">Free heap before</th>
+          <th style="text-align: right;">Free heap after</th>
+        </tr>
+	      <tr>
+          <td style="text-overflow: ellipsis;max-width: 100px;overflow: hidden;" tooltipPosition="left" pTooltip="{{ tierName }}" tooltipStyleClass="mytooltip">{{ tierName }}</td>
+          <td style="text-overflow: ellipsis;max-width: 100px;overflow: hidden;" tooltipPosition="left" pTooltip="{{ serverName }}" tooltipStyleClass="mytooltip">{{ serverName }}</td>
+          <td style="text-overflow: ellipsis;overflow: hidden;max-width: 100px;" tooltipPosition="left" pTooltip="{{ instanceName }}" tooltipStyleClass="mytooltip">{{ instanceName }}</td>
+          <td style="text-align: right;text-overflow: ellipsis;overflow: hidden;" tooltipPosition="right" pTooltip="{{ duration }} mins" tooltipStyleClass="mytooltip">{{ duration }} mins</td>
+          <td style="text-align: right;text-overflow: ellipsis;overflow: hidden;" tooltipPosition="right" pTooltip="{{ memProfSessionRes['profiler_data'].heapMaxSize }} GB" tooltipStyleClass="mytooltip">{{ memProfSessionRes['profiler_data'].heapMaxSize }} GB</td>
+          <td style="text-align: right;text-overflow: ellipsis;overflow: hidden;" tooltipPosition="right" pTooltip="{{ memProfSessionRes['profiler_data'].usedHeapBefore }} GB" tooltipStyleClass="mytooltip">{{ memProfSessionRes['profiler_data'].usedHeapBefore }} GB</td>
+          <td style="text-align: right;text-overflow: ellipsis;overflow: hidden;" tooltipPosition="right" pTooltip="{{ memProfSessionRes['profiler_data'].usedHeapAfter }} GB" tooltipStyleClass="mytooltip">{{ memProfSessionRes['profiler_data'].usedHeapAfter }} GB</td>
+          <td style="text-align: right;text-overflow: ellipsis;overflow: hidden;" tooltipPosition="right" pTooltip="{{ memProfSessionRes['profiler_data'].freeHeapBefore }} GB" tooltipStyleClass="mytooltip">{{ memProfSessionRes['profiler_data'].freeHeapBefore }} GB</td>
+          <td style="text-align: right;text-overflow: ellipsis;overflow: hidden;" tooltipPosition="right" pTooltip="{{ memProfSessionRes['profiler_data'].freeHeapAfter }} GB" tooltipStyleClass="mytooltip">{{ memProfSessionRes['profiler_data'].freeHeapAfter }} GB</td>
+        </tr>
+      </table>
+
+      <p-tabView>
+        <p-tabPanel header="Class Data">
+          <h3 class="cav-fnt-12 cav-fnt-weight600 cav-my-2">
+            <span *ngIf="selectedType != 'memoryLeaks'"> TOP {{topNClassLabel}} CLASSES</span>
+            <span *ngIf="selectedType == 'memoryLeaks'"> TOP {{topNClassLabel}} SURVIVORS</span>
+          </h3>
+          <p-table [columns]="selectedType == 'memoryLeaks' ? topNclassLeakCols:topNclassCols" [value]="selectedType != 'memoryLeaks' ? topNclass : topNsurvivors" [scrollable]="true" scrollHeight="148px"
+            class="apiResultTable" sortField="count" [sortOrder]="-1" selectionMode="single" dataKey="name"
+            (sortFunction)="customSort($event, 'topClass')" [customSort]="true">
+            <ng-template pTemplate="colgroup" let-columns>
+              <colgroup *ngIf="selectedType != 'memoryLeaks'">
+                <col style="width:36%">
+                <col style="width:16%">
+                <col style="width:16%">
+                <col style="width:16%">
+                <col style="width:16%">
+              </colgroup>
+              <colgroup *ngIf="selectedType == 'memoryLeaks'">
+                <col style="width:50%">
+                <col style="width:25%">
+                <col style="width:25%">
+              </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                  <span style="font-weight: bolder;">{{col.header}}</span>
+                  <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                    ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                  </p-sortIcon>
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+              <tr [pSelectableRow]="rowData">
+                <td *ngFor="let col of columns" pTooltip="{{rowData[col.field]}}" tooltipPosition="top" tooltipStyleClass="mytooltip"
+                  [ngStyle]="{'text-align' : col.field == 'name'  ? 'left' : 'right'}"
+                  (click)="getSelectedClassData(rowData)">
+                  {{rowData[col.field]}}
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-tabPanel>
+        <p-tabPanel header="Statistics">
+          <div class="allocation_chart cav-mt-3">
+            <div class="lbla">
+              <h3 class="cav-fnt-12 cav-fnt-weight600 cav-my-0">
+                <!-- TOTAL ALLOCATION -->
+                <p-dropdown [options]="chartOptions"
+                  [style]="{'background': 'transparent', 'border':'none', 'font-weight':'bold'}"
+                  [(ngModel)]="selectedChart" (onChange)="changeGraph()">
+                </p-dropdown>
+              </h3>
+            </div>
+            <div class="lbl2">
+              <h3 class="cav-fnt-12 cav-fnt-weight600 cav-my-0 cav-pl-2" *ngIf="selectedType != 'memoryLeaks'">ALLOCATION CHART</h3>
+              <h3 class="cav-fnt-12 cav-fnt-weight600 cav-my-0 cav-pl-2" *ngIf="selectedType == 'memoryLeaks'">SURVIVED MEMORY CHART</h3>
+            </div>
+          </div>
+          <div class="allocation_chart cav-mb-3">
+            <div class="allocation_chart1">
+              <highcharts-chart
+                [Highcharts] = "highcharts"
+                [options] = "pieCharts"
+                style = "width: 400px; height: 180px; display: block;">
+              </highcharts-chart>
+            </div>
+            <div class="allocation_chart2">
+              <highcharts-chart [options]="lineCharts" 
+              [Highcharts] = "highcharts"
+              style="width: 100%; height: 180px; display: block;">
+              </highcharts-chart>
+            </div>
+          </div>
+        </p-tabPanel>
+      </p-tabView>
+      <h3 class="cav-fnt-12 cav-fnt-weight600 cav-my-0">&nbsp;&nbsp;&nbsp;&nbsp;Stack Trace <span *ngIf="selectedClassName != ''">of {{ selectedClassName }}</span></h3>
+      <p-treeTable #tt [columns]="stacTracCols" [value]="stacTrac" [scrollable]="true" scrollHeight="148px" class="apiResultTable"
+        selectionMode="single" dataKey="name" (sortFunction)="customSort($event, 'st')" [customSort]="true" sortField="size" [sortOrder]="-1">
+          <ng-template pTemplate="caption">
+            <div style="text-align: right">        
+                <i class="pi pi-search" style="margin:4px 4px 0 0"></i>
+                <input type="text" pInputText size="50" placeholder="Search Stack Traces" (input)="tt.filterGlobal($event.target.value, 'contains')" style="width:auto">
+            </div>
+          </ng-template>
+          <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+              <col style="width:90%">
+              <col style="width:10%">
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header" let-columns>
+              <tr>
+                  <th *ngFor="let col of columns" [ttSortableColumn]="col.field == 'size' ? 'size' : ''">
+                      {{col.header}} <p-treeTableSortIcon *ngIf="col.field == 'size'" [field]="'size'"></p-treeTableSortIcon>
+                  </th>
+              </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+              <tr>
+                  <td *ngFor="let col of columns; let i = index" style="white-space: pre-wrap;"
+                  [ngStyle]="{'text-align' : col.field == 'name' ? 'left' : 'right'}">
+                      <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+                      {{rowData[col.field]}} <i class="pi pi-copy copyIcon" *ngIf="col.field == 'name' && rowNode.level === 0" [cdkCopyToClipboard]="rowNode.level === 0 ? rowNode.node.children[0].data.name : ''" 
+                      pTooltip="Click to Copy Stack Trace" tooltipPosition="top" tooltipStyleClass="mytooltip"></i>
+                  </td>
+              </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="columns.length" style="font-weight: bolder; text-align: center;">
+                    No records found
+                </td>
+            </tr>
+        </ng-template>
+      </p-treeTable>
+    </div>
+  </div>
+
+</div>
+
+<div *ngIf="isNoData" class="cav-central noWrap">
+  <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">{{ noDataMessage }}</p>
+</div>
+
+<!-- -------------------------when no session configured--------------------->
+<div *ngIf="!isShowSessions && allocatioList.length == 0" class="cav-central noWrap">
+  <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">No session configured. To
+    configure a memory allocation profiling session, click on 'Add Session'</p>
+</div>
+<!-- -------------------------when no session configured--------------------->
+
+<!-- -------------------------- When session in progress ------------------------- -->
+<div *ngIf="isSessionInProgress && allocatioList.length != 0" class="cav-central noWrap">
+  <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">Session is currently in
+    progress. Please wait for the
+    session to finish to see the data.</p>
+</div>
+<!-- -------------------------- When session in progress ------------------------- -->
+
+<!-- -------------------------when no session is selected--------------------->
+<div *ngIf="!isShowSessionData && allocatioList.length != 0 && !isNoSessionData && !isSessionInProgress" class="cav-central noWrap">
+  <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">
+    Click on session to view session's data</p>
+</div>
+<!-- -------------------------when no session is selected--------------------->
+
+<!---------------------------- When no session data available -------------------------->
+<div *ngIf="isNoSessionData && allocatioList.length != 0 && isNoSessionData" class="cav-central noWrap">
+  <p class="cav-fnt-13 cav-fnt-weight500 opc5" style="margin-bottom: 40px; margin-left: 38%;">No Session data is available. Please see logs for more details.</p>
+</div>
+<!---------------------------- When no session data available -------------------------->
+
+<p-dialog header="Confirmation" [style]="{'width':'400px'}" class="secondary-dialog foterDialog" [(visible)]="isOpenDeletedDialog" modal="modal" [resizable]="false" [draggable]="false">
+  <div>Do you want to delete this session ?</div>
+  <div class="p-grid p-align-center p-justify-end py-5">
+    <button type="button" pButton class="ui-button-rounded ui-button-secondary px-15 mx-6" (click)="isOpenDeletedDialog=false;">Cancel</button>
+    <button type="button" pButton class="ui-button-rounded px-15" (click)="deleteSession()">Okay</button>
+  </div>
+</p-dialog>

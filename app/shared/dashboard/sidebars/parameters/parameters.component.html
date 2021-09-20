@@ -1,0 +1,72 @@
+<p-sidebar #sidebar [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000" blockScroll="true" appendTo="body"
+  [styleClass]="classes">
+  <div class="sidebar-header">
+    <div class="sidebar-title">
+      <div>
+        <i class="icons8 icons8-synchronize"></i>
+        <span>Filter by Parameters</span>
+      </div>
+      <div class="action-icons">
+        <i class="icons8-delete sidebar-icon" (click)="hide()"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-content">
+
+    <div class="content-block">
+    <div class="p-col-12">
+      <span class="span-css">Replace the current widgets indices with the following indices</span>
+    </div>
+
+    <div *ngFor="let data of totalData let i=index" class="p-field p-grid">
+      <label for="description" class="p-col-12 p-md-4">{{data.metadata}}</label>
+      <div class="p-col-12 p-md-8">
+        <p-dropdown panelStyleClass="panelParameterWidth" [options]="data.vectorList" placeholder="Select {{data.metadata}}"
+          dropdownIcon="icons8-expand-arrow" (onChange)="OnHierarchyChange($event, i, data.metadata, data.vectorList)"></p-dropdown>
+        <div *ngIf="data.isPatterBox" class="p-col-12 p-md-12 pl-0 pr-0 mrn-5 ">
+          <input type="text" [(ngModel)]="selectPattenText[i]" pInputText  class="w-100-p"/>
+          <button
+          pButton
+          label="APPLY"
+          class="ui-outline-button ui-button-primary mt-4"
+          (click)="OnHierarchyChange('Select Pattern', i, data.metadata, data.vectorList)"
+        ></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- <button pButton type="add" label="ADD" class="ui-button-rounded" (click) = "addToTable()"></button> -->
+
+    <div class="p-col-12">
+      <span class="span-css">Previous Actions in this Session</span>
+    </div> 
+    <p-card>
+      <div *ngIf="previousData">
+        <!-- <p-orderList [value]="previousData" [(selection)]="selectedRow" header=""> -->
+          <p-orderList [value]="previousData" header="" (onSelectionChange)="onSelectionChange($event)">
+          <ng-template pTemplate="item" let-rowData>
+            <div class="ui-helper-clearfix">
+              <div class="list">
+
+                <span class="flowpathInstance">{{rowData}}</span>
+              </div>
+            </div>
+          </ng-template>
+        </p-orderList>
+      </div>
+
+    </p-card>
+
+  </div>
+
+    <div class="button-position p-grid p-col-12 p-align-center">
+      <div class="button-div">
+        <button pButton type="reset" label="RESET" class="ui-outline-button ui-button-secondary" (click) = "show()"></button>
+        <button pButton type="submit" label="Replace Indices" class="ui-button-rounded" (click) = "applyFilters()" ></button>
+
+      </div>
+
+    </div>
+  </div>
+</p-sidebar>

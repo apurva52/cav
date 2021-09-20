@@ -1,0 +1,46 @@
+<div class="kpi-graphical-wrapper">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="{{kpiURL}}">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                KPI-Graphical
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="global-time-bar">
+        <app-time-bar></app-time-bar>
+    </div>
+    <div class="content-body">
+        <div class="p-grid">
+            <div class="dashboard-options">
+                <div class="p-col-fixed p-col-nogutter p-align-stretch">
+                    <div class="box box box-stretched">                        
+                        <div class="vertical-menu" pTooltip="Graph Tree">
+                            <button pButton class="icon-button no-shadow" icon="icons8 icons8-flow-chart" 
+                             [disabled]="true">
+                            </button>
+                        </div>
+                        <div class="vertical-menu" pTooltip="Lower Panel">
+                            <button pButton class="icon-button no-shadow" (click)="lowerPanel.toggle()"
+                                icon="icons8 icons8-open-view"></button>
+                        </div>
+                        <div *ngIf="dashboard" class="highlight-dashboard" pTooltip="{{dashboard.name}}" tooltipPosition="top">
+                            <div>{{dashboard.name}}</div>
+                            <small>DASHBOARD</small>
+                        </div>
+                    </div>
+    
+                </div>
+            </div>
+            <div class="dashboard-container" #gkpiContainer>
+                <app-dashboard #dashboard></app-dashboard>
+                <app-lower-tabular-panel #lowerPanel [container]="gkpiContainer"></app-lower-tabular-panel>
+            </div>
+        </div>
+    </div>
+</div>

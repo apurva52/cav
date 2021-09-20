@@ -1,0 +1,335 @@
+<div class="auto-instrument-container">
+    <div class="p-grid p-col-12">
+        <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl1.toggle($event)">
+                        <a><span
+                                [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span></a>
+                        Active auto Instrumentation
+                    </div>
+                </div>
+            </p-header>
+            <div class="content p-grid p-col-12">
+                <div class="p-grid vertical-container" *ngIf="error">
+                    <div class="p-col p-col-align-center text-center">
+                        <p-message severity="error" text="{{ error.msg }}"></p-message>
+                    </div>
+                </div>
+                <div class="p-grid vertical-container" *ngIf="empty">
+                    <div class="p-col p-col-align-center text-center">
+                        <p-message severity="normal" text="No Data"></p-message>
+                    </div>
+                </div>
+
+                <div *ngIf="data">
+                    <div class="action-container">
+                        <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                            <div class="p-grid p-col-3">
+                                <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-search"></i>
+                                    <input #searchInputTemplate type="text" pInputText placeholder="Search"
+                                        (input)="activeInstrumentationTable.filterGlobal($event.target.value, 'contains')"
+                                        class="input-field-search" />
+                                </div>
+                            </div>
+                            <div class="p-col-6 icons-container p-justify-between p-align-center ip-alert-group">
+                                <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow"
+                                    pTooltip="Delete"></button>
+                                <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                                    (click)="downloadMenu.toggle($event)" pTooltip="Download"></button>
+                                <p-menu #downloadMenu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                                    [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                <button *ngIf="data.activeInstrumentationTable.tableFilter" pButton icon="icons8 icons8-search-property"
+                                    class="icon-button no-shadow" pTooltip="Toggle Filter" [tooltipZIndex]="100000"
+                                    (click)="isShowColumnFilter = !isShowColumnFilter"></button>
+                                <p-multiSelect class="icon-button no-shadow mr-10" [options]="cols"
+                                    [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false"
+                                    dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns"
+                                    [panelStyle]="{ minWidth: '200px' }">
+                                </p-multiSelect>
+
+                            </div>
+                        </div>
+                    </div>
+                    <ng-container>
+                        <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                            Select column to show
+                        </div>
+                        <div class="active-instrumentation-table">
+                            <p-table #activeInstrumentationTable [columns]="selectedColumns"
+                                [value]="data.activeInstrumentationTable.data" [paginator]="true"
+                                [totalRecords]="data.activeInstrumentationTable.data.length"
+                                [rows]="data.activeInstrumentationTable.paginator.rows"
+                                [rowsPerPageOptions]="data.activeInstrumentationTable.paginator.rowsPerPageOptions"
+                                [resizableColumns]="true" [showCurrentPageReport]="true"
+                                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                                [responsive]="true" [scrollable]="true" [globalFilterFields]="globalFilterFields"
+                                scrollHeight="350px" selectionMode="multiple">
+                                <ng-template pTemplate="colgroup" let-columns>
+                                    <colgroup>
+                                        <col *ngFor="let col of columns" [style.width]="col.width" />
+                                    </colgroup>
+                                </ng-template>
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                        <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv"
+                                            [attr.rowdiv]="col.rowdiv" pResizableColumn
+                                            [pSortableColumn]="col.valueField">
+                                            <div class="left">
+                                                {{ col.label }}
+                                            </div>
+                                            <div *ngIf="col.isSort" class="right">
+                                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" 
+                                                    ariaLabel="Activate to sort"
+                                                    ariaLabelDesc="Activate to sort in descending order"
+                                                    ariaLabelAsc="Activate to sort in ascending order">
+                                                </p-sortIcon>
+                                            </div>
+                                        </th>
+
+                                    </tr>
+                                    <tr *ngFor="let headerRow of data.headers">
+                                        <ng-container *ngIf="isShowColumnFilter">
+
+                                            <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                <div *ngIf="
+                                              col.filter.isFilter === true &&
+                                              col.filter.type === 'custom'
+                                            ">
+                                                    <input class="w-100-p"
+                                                        pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                              activeInstrumentationTable.filter(
+                                                  $event.target.value,
+                                                  col.value,
+                                                  'custom'
+                                                )
+                                              " />
+                                                </div>
+                                                <div *ngIf="
+                                              col.filter.isFilter === true &&
+                                              col.filter.type === 'contains'
+                                            ">
+                                                    <input class="w-100-p"
+                                                        pTooltip="Will filter metric names which contains given text."
+                                                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                              activeInstrumentationTable.filter(
+                                                  $event.target.value,
+                                                  col.valueField,
+                                                  'contains'
+                                                )
+                                              " />
+                                                </div>
+                                            </th>
+
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                                    <tr [ngStyle]="{ backgroundColor: row.rowBgColor }">
+
+                                        <td *ngFor="let col of columns" class="{{ col.classes }}"
+                                            pTooltip="{{ row[col.valueField] }}">
+                                            <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon"
+                                                class="column-icon"></i>
+                                            {{ row[col.valueField] | ellipsis: 35 }}
+                                        </td>
+                                    </tr>
+                                </ng-template>
+
+                                <!-----------Empty table error handling--------------------->
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                            <span *ngIf="error">Error while loading data</span>
+                                            <span *ngIf="emptyTable">Empty Table</span>
+                                            <span *ngIf="loading">Loading</span>
+                                            <span *ngIf="
+                                            !emptyTable &&
+                                            !loading &&
+                                            !error &&
+                                            searchInputTemplate.value.length
+                                          ">Nothing found matching "{{
+                                                searchInputTemplate.value
+                                                }}"</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+        </p-panel>
+        <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl2.toggle($event)">
+                        <a><span
+                                [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span></a>
+                        Auto Instrumented List
+                    </div>
+                </div>
+            </p-header>
+            <div class="content p-grid p-col-12">
+                <div class="p-grid vertical-container" *ngIf="error">
+                    <div class="p-col p-col-align-center text-center">
+                        <p-message severity="error" text="{{ error.msg }}"></p-message>
+                    </div>
+                </div>
+                <div class="p-grid vertical-container" *ngIf="empty">
+                    <div class="p-col p-col-align-center text-center">
+                        <p-message severity="normal" text="No Data"></p-message>
+                    </div>
+                </div>
+
+                <div *ngIf="data">
+                    <div class="action-container">
+                        <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                            <div class="p-grid p-col-3">
+                                <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-search"></i>
+                                    <input #searchInputTemplate type="text" pInputText placeholder="Search"
+                                        (input)="autoInstrumentationTable.filterGlobal($event.target.value, 'contains')"
+                                        class="input-field-search" />
+                                </div>
+                            </div>
+                            <div class="p-col-6 icons-container p-justify-between p-align-center ip-alert-group">
+                                <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow"
+                                    pTooltip="Delete"></button>
+                                <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                                    (click)="downloadMenu.toggle($event)" pTooltip="Download"></button>
+                                <p-menu #downloadMenu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                                    [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                <button *ngIf="data.autoInstrumentationTable.tableFilter" pButton icon="icons8 icons8-search-property"
+                                    class="icon-button no-shadow" pTooltip="Toggle Filter" [tooltipZIndex]="100000"
+                                    (click)="isShowColumnFilter = !isShowColumnFilter"></button>
+                                <p-multiSelect class="icon-button no-shadow mr-10" [options]="cols"
+                                    [(ngModel)]="selectedStatColumns" optionLabel="label" [displaySelectedLabel]="false"
+                                    dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns"
+                                    [panelStyle]="{ minWidth: '200px' }">
+                                </p-multiSelect>
+
+                            </div>
+                        </div>
+                    </div>
+                    <ng-container>
+                        <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                            Select column to show
+                        </div>
+                        <div class="auto-instrumentation-table">
+                            <p-table #autoInstrumentationTable [columns]="selectedStatColumns"
+                                [value]="data.autoInstrumentationTable.data" [paginator]="true"
+                                [totalRecords]="data.autoInstrumentationTable.data.length"
+                                [rows]="data.autoInstrumentationTable.paginator.rows"
+                                [rowsPerPageOptions]="data.autoInstrumentationTable.paginator.rowsPerPageOptions"
+                                [resizableColumns]="true" [showCurrentPageReport]="true"
+                                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                                [responsive]="true" [scrollable]="true" [globalFilterFields]="globalFilterFields"
+                                scrollHeight="350px" selectionMode="multiple">
+                                <ng-template pTemplate="colgroup" let-columns>
+                                    <colgroup>
+                                        <col *ngFor="let col of columns" [style.width]="col.width" />
+                                    </colgroup>
+                                </ng-template>
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                        <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv"
+                                            [attr.rowdiv]="col.rowdiv" pResizableColumn
+                                            [pSortableColumn]="col.valueField">
+                                            <div class="left">
+                                                {{ col.label }}
+                                            </div>
+                                            <div *ngIf="col.isSort" class="right">
+                                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField"
+                                                    ariaLabel="Activate to sort"
+                                                    ariaLabelDesc="Activate to sort in descending order"
+                                                    ariaLabelAsc="Activate to sort in ascending order">
+                                                </p-sortIcon>
+                                            </div>
+                                        </th>
+                                        <th>Operation</th>
+
+                                    </tr>
+                                    <tr *ngFor="let headerRow of data.headers">
+                                        <ng-container *ngIf="isShowColumnFilter">
+
+                                            <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                <div *ngIf="
+                                              col.filter.isFilter === true &&
+                                              col.filter.type === 'custom'
+                                            ">
+                                                    <input class="w-100-p"
+                                                        pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                        autoInstrumentationTable.filter(
+                                                  $event.target.value,
+                                                  col.value,
+                                                  'custom'
+                                                )
+                                              " />
+                                                </div>
+                                                <div *ngIf="
+                                              col.filter.isFilter === true &&
+                                              col.filter.type === 'contains'
+                                            ">
+                                                    <input class="w-100-p"
+                                                        pTooltip="Will filter metric names which contains given text."
+                                                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                        autoInstrumentationTable.filter(
+                                                  $event.target.value,
+                                                  col.valueField,
+                                                  'contains'
+                                                )
+                                              " />
+                                                </div>
+                                            </th>
+                                            <th></th>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                                    <tr [ngStyle]="{ backgroundColor: row.rowBgColor }">
+
+                                        <td *ngFor="let col of columns" class="{{ col.classes }}"
+                                            pTooltip="{{ row[col.valueField] }}">
+                                            <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon"
+                                                class="column-icon"></i>
+                                            {{ row[col.valueField] | ellipsis: 35 }}
+                                        </td>
+                                        <td>
+                                            <i class="icons8 icons8-delete-trash clickable" pTooltip="Delete"></i>
+                                            <i class="icons8 icons8-edit-2 clickable" pTooltip="Edit"></i>
+                                            <i class="icons8 icons8-installing-updates clickable" pTooltip="Download"></i>
+                                            <i class="icons8 icons8-calendar clickable" pTooltip=""></i>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+
+                                <!-----------Empty table error handling--------------------->
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                            <span *ngIf="error">Error while loading data</span>
+                                            <span *ngIf="emptyTable">Empty Table</span>
+                                            <span *ngIf="loading">Loading</span>
+                                            <span *ngIf="
+                                            !emptyTable &&
+                                            !loading &&
+                                            !error &&
+                                            searchInputTemplate.value.length
+                                          ">Nothing found matching "{{
+                                                searchInputTemplate.value
+                                                }}"</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+        </p-panel>
+    </div>
+</div>

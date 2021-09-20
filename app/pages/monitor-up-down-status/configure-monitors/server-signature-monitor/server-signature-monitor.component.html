@@ -1,0 +1,58 @@
+<div class="check-monitor-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/configure-monitors">
+                <span class="icons8 icons8-left toolbar-icon-color"></span>
+            </a>
+            <div class="p-col ui-toolbar-text">SERVER SIGNATURE</div>
+        </div>
+    </p-toolbar>
+    <div class="content-body">
+        <form (ngSubmit)="addData()" #form="ngForm" ngNativeValidate>
+            <p-panel>
+                <p-header>
+                    <p-checkbox [binary]="true" name="isChk" [(ngModel)] = "enabled"
+                        ngDefaultControl></p-checkbox>
+                        <span class="checkbox-label">Server Signature</span>
+                </p-header>
+            <div class="p-grid p-align-center w-100-p">
+                <div class="width-160 required-mark">Signature Name</div>
+            <div class="p-col-2">
+                <input class="w-100-p" name="signatureName" [(ngModel)] = "serverSignData.name"  pattern="[A-Za-z0-9_]+" type="text"  required="true" pInputText />
+            </div>
+            </div>
+            <div class="p-grid p-align-center">
+            <div class="required-mark width-160">Signature Type</div>
+            <div class="p-col-2">
+                <p-dropdown [style]="{'min-width':'100%'}" name="list" [(ngModel)] = "serverSignData.signType" required  placeholder="-- Select Signature Type --"
+                 [options]="serverSignList"  appendTo="body"  dropdownIcon="icons8 icons8-expand-arrow">
+      </p-dropdown> 
+            </div>
+            <div class="width-160 ml-30 required-mark">Command / File Name</div>
+            <div class="p-col-2">
+                <input class="w-100-p" placeholder="Enter command / file name" title="Please enter command / file name" [disabled] ="serverSignData.signType == ''" pattern="^\S+( +\S+)*$"   name="FileName" [(ngModel)] = "serverSignData.commandFileName"  type="text"  required="true" pInputText />
+            </div>
+        </div>
+            </p-panel>
+        <app-tier-server></app-tier-server>
+    
+        <div class="p-col-12 p-grid p-justify-end p-align-end">
+            <button type="submit" pButton class="ui-button ui-button-rounded ui-button-right" style="border-radius: 15px;"  label = "{{AddEditLabel}}" title="{{AddEditLabel}} Configuration"></button>
+            <button type="button" pButton *ngIf="AddEditLabel === 'Update'" title="Cancel Update" label="Cancel"
+            class="ui-button ui-button-rounded ui-button-right" (click)="resetUI()"></button>
+                            </div> 
+                            
+            <app-configured-monitor-info [techName]="techName" [showCols]="tableInfo"  (logMonData)="editData($event)"></app-configured-monitor-info>
+    
+        </form>
+        <div class="loading-indicator" *ngIf="loading">
+            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+            </p-progressSpinner>
+        </div>
+    </div>
+    </div>
+    

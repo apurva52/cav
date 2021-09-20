@@ -1,0 +1,145 @@
+<div class="transaction-group-container  h-100-vh">
+    <ng-container>
+        <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+            <div class="p-col p-col-align-center text-center">
+                <div>
+                    <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+                </div>
+            </div>
+        </div>
+        <div class="p-grid vertical-container" *ngIf="error">
+            <div class="p-col p-col-align-center text-center">
+                <p-message severity="error" text="{{error.msg}}"></p-message>
+            </div>
+        </div>
+        <div class="p-grid vertical-container" *ngIf="empty">
+            <div class="p-col p-col-align-center text-center">
+                <p-message severity="normal" text="No Data"></p-message>
+            </div>
+        </div>
+        <div #widgetHeight *ngIf="data" [ngStyle]="{'height': data.tableFilter ? 'calc(100vh - 180px)' : 'calc(100vh - 130px)'}">
+            <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                Select column to show
+            </div>
+            <div class="p-grid">
+                <div class="p-col-3 no-padding">
+                    <div class="box box box-stretched marginL">
+                        <div class="business-orderlist">
+                            <p-orderList [value]="data.data" [listStyle]="{'height':'calc(100% - 93%)'}" header="Groups" filter="filter" filterBy="businessTransaction">
+                                <ng-template pTemplate="item" let-rowData>
+                                    <div class="ui-helper-clearfix">
+                                        <div class="list">
+                                            <span class="businessTran">{{rowData.businessTransaction}}</span>
+                                            <span class="startTime">23</span>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </p-orderList>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-col-9 no-padding">
+                    <div class="display-flex p-justify-end">
+                        <div class="icon-group">
+                            <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                            <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                            <p-multiSelect [options]="cols" class="icon-button no-shadow" [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false" dropdownIcon='icons8 icons8-columns' pTooltip="Toggle Columns" [panelStyle]="{minWidth: '200px'}">
+                            </p-multiSelect>
+
+                            <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" pTooltip="Column Filter" [tooltipZIndex]="100000" (click)="data.tableFilter = !data.tableFilter">
+              </button>
+
+                        </div>
+                    </div>
+                    <div class="transaction-group-table">
+                        <div class="p-col-12">
+                            <p-card>
+                                <p-table #transactionGroupData [resizableColumns]="true" [columns]="selectedColumns" [value]="groupData" [rowHover]="true" [paginator]="true" [rows]="data.paginator.rows" [lazy]="true" (onLazyLoad)="loadPagination($event)" [totalRecords]="totalRecords"
+                                    [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true" [globalFilterFields]="selectedColumns"
+                                    [scrollable]="true" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 190px)" selectionMode="single" [(selection)]="selectedRow">
+                                    <ng-template pTemplate="colgroup" let-columns>
+                                        <colgroup>
+                                            <col *ngFor="let col of columns" [style.width]="col.width">
+                                        </colgroup>
+                                    </ng-template>
+                                    <ng-template pTemplate="header" let-columns>
+                                        <tr>
+                                            <th *ngFor="let col of columns" pResizableColumn [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.valueField" class="text-left">
+                                                <div class="left">
+                                                    {{ col.label }}
+                                                </div>
+                                                <div *ngIf="col.isSort" class="right">
+                                                    <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                    </p-sortIcon>
+                                                </div>
+                                            </th>
+                                            <th [style]="{ width: '50px' }"></th>
+                                        </tr>
+
+                                        <tr *ngFor="let headerRow of data.headers">
+                                            <ng-container *ngIf="data.tableFilter">
+                                                <th *ngIf="isCheckbox" class="columnwidth"></th>
+                                                <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                    <div *ngIf="
+                              col.filter.isFilter === true &&
+                              col.filter.type === 'custom'
+                            ">
+                                                        <input class="w-100-p" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                              transactionGroupData.filter(
+                                  $event.target.value,
+                                  col.value,
+                                  'custom'
+                                )
+                              " />
+                                                    </div>
+                                                    <div *ngIf="
+                              col.filter.isFilter === true &&
+                              col.filter.type === 'contains'
+                            ">
+                                                        <input class="w-100-p" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                              transactionGroupData.filter(
+                                  $event.target.valueField,
+                                  col.valueField,
+                                  'contains'
+                                )
+                              " />
+                                                    </div>
+                                                </th>
+                                            </ng-container>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                                        <tr [ngStyle]="{'backgroundColor': row.rowBgColor, 'borderLeft': '5px solid' + row.severityBgColorField}" [pSelectableRow]="row" >
+                                            
+                                            <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}" pTooltip="{{row[col.valueField]}}">
+                                                {{ row[col.valueField] | ellipsis: 40}}
+                                            </td>
+                                            <td [style]="{ width: '50px' }" class="text-center">
+               
+                                                <i
+                                                  class="icons8 icons8-menu-vertical"
+                                                  (click)="menu1.toggle($event)"
+                                                ></i>
+                                                <p-menu class="menu-item" #menu1 [popup]="true" [model]="items1" appendTo="body"></p-menu>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                    <!-----------Empty table error handling--------------------->
+                                    <ng-template pTemplate="emptymessage" let-columns>
+                                        <tr>
+                                            <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                                <span *ngIf="error">Error while loading data</span>
+                                                <span *ngIf="emptyTable">Empty Table</span>
+                                                <span *ngIf="loading">Loading</span>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </p-card>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</div>

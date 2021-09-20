@@ -1,0 +1,278 @@
+<div style="width:100%">
+    <div class="header-content p-grid p-justify-between p-align-center mb-10">
+        
+        <!-- <i aria-hidden="true"></i> -->
+        
+        <span>{{selectedEntityArr}} Detail (s)</span>
+        <span class="appIcon-css ">
+            <button pButton icon="icons8 icons8-edit" title="Edit" [disabled]="perm" (click)="editDialog()" class="ui-button-secondary mr-5"></button>
+
+           
+        </span>
+
+    </div>
+    <div *ngIf="routingFromAIGui == false" class="progressIcon">
+        <i class="icons8 icons8-spinner spin font-24"></i>
+    </div>
+    <p-table #tt class="ui-tree-containers nde-ui all-tables toggleChk" *ngIf="routingFromAIGui == true" [value]=topologyData [rows]="15"
+    [paginator]="topologyData?.length > 15" [pageLinks]="3" [(selection)]="selectedTopologyData"
+    [rowsPerPageOptions]="[15,50,100,200,400]" scrollable="true" scrollHeight="400px">
+    <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+            <col style="width:8%">
+        </colgroup>
+    </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th>
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th *ngFor="let col of tableHeaderInfo" [pSortableColumn]="col.field">
+                    {{col.header}}
+		            <p-sortIcon [field]="col.field"></p-sortIcon>
+                </th>
+            </tr>
+	    <tr>
+                <th>
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th *ngFor="let col of tableHeaderInfo">
+                     <span *ngIf="col.field !='checkbox'">
+                    <input style="width: 90%;" pInputText type="text" (input)="tt.filter($event.target.value, col.field, 'contains')" placeholder="Search">
+                    </span>
+                </th> 
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-col let-entity>
+            <tr>
+                <td class="text-center">
+                    <p-tableCheckbox [value]="entity"></p-tableCheckbox>
+                </td>
+                <td *ngFor="let col of tableHeaderInfo">
+                    <span *ngIf="col.field != 'profileName' && col.field != 'aiEnable'" title="{{entity[col.field]}}">
+                        {{entity[col.field]}}
+                    </span>
+                    <span *ngIf="col.field == 'profileName'">
+                        <a class="hyperlink" *ngIf="noProfilePerm" (click)="accessMessage()">{{entity[col.field]}}</a>
+                        <a class="hyperlink" *ngIf="!noProfilePerm && entity['tierGroupName'] != 'default'"
+                            (click)="routeToConfiguration(entity)">{{entity[col.field]}}</a>
+                        <span *ngIf="!noProfilePerm && entity['tierGroupName'] == 'default'">{{entity[col.field]}}</span>
+			<span><img border='0' width='15' height='15' style='margin-bottom: -3px; margin-left: 4px; margin-right: 4px; cursor:pointer'
+                    title="Dynamic logging applied" src='./assets/images/dl.png' *ngIf="dlAppliedProfileList.includes(entity['profileName'])"></span>
+                    </span>
+                    <span *ngIf="col.field == 'aiEnable'">
+                        <span *ngIf="entity[col.field]== false" title="Start Auto Instrumentation">
+                            <a class="hyperlink iconFontSize" *ngIf="isAIPerm" (click)="accessMessage()"
+                                style="margin-left: 45%; color:green">
+                                <i class="icons8 icons8-circled-play" style="font-size: 15px;"></i>
+                            </a>
+                            <a class="hyperlink iconFontSize" style="margin-left: 45%; color:green" *ngIf="!isAIPerm"
+                                (click)="openAutoInstrDialog(entity['instanceDisplayName'], entity['instanceId'], entity['instanceType'], entity['profileId'], entity['profileName'])">
+                                <!-- <i class="fa fa-play-circle-o"></i> -->
+                                <i class="icons8 icons8-circled-play" style="font-size: 15px;"></i>
+                            </a>
+                        </span>
+                        <span *ngIf="entity[col.field]== true" title="Stop">
+                            <a class="hyperlink iconFontSize" style="margin-left: 45%; color:red" *ngIf="isAIPerm"
+                                (click)="accessMessage()">
+                                <i class="icons8 icons8-shutdown"></i>
+                            </a>
+                            <a class="hyperlink iconFontSize" style="margin-left: 45%; color:red" *ngIf="!isAIPerm"
+                                (click)="stopInstrumentation(entity['instanceDisplayName'], entity['instanceId'], entity['instanceType'])">
+                                <i class="icons8 icons8-shutdown"></i>
+                            </a>
+                        </span>
+                        <span *ngIf="entity['mpEnable']== false" title="Start Memory Profiling">
+                            <a class="hyperlink iconFontSize"
+                                (click)="openMemProf(entity['instanceDisplayName'], entity['instanceId'], entity['instanceType'], entity['profileId'])">
+                                <i class="icons8 icons8-microchip"></i>
+                            </a>
+                        </span>
+                        <span *ngIf="entity['mpEnable']== true" title="Can't stop running session.">
+                            <a class="hyperlink iconFontSize">
+                                <i class="icons8 icons8-spinner"></i>
+                            </a>
+                        </span>
+			<span *ngIf="entity['mutexEnable']== true" title="Can't stop running session.">
+                            <a class="hyperlink iconFontSize" >
+                                <i class="icons8 icons8-spinner spin"></i>
+                            </a>
+                        </span>
+                        <span title="Start Mutex Lock" *ngIf="entity['mutexEnable'] == false">
+                            <a class="hyperlink iconFontSize" (click)="openMutexLock(entity['instanceDisplayName'], entity['instanceId'], entity['instanceType'], entity['profileId'])">
+                                <i class="icons8 icons8-play"></i>
+                            </a>
+                        </span>
+                    </span>
+                </td>
+            </tr>
+	    </ng-template>
+	   <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="3" style="text-align: center" >
+                    No records found
+                </td>
+            </tr>
+        </ng-template>
+   
+    </p-table>
+
+    <!-- <p-dataTable class="nde-ui toggleChk" *ngIf="routingFromAIGui == true" [value]=topologyData [rows]="15"
+        [paginator]="topologyData?.length > 15" [pageLinks]="3" [(selection)]="selectedTopologyData"
+        [rowsPerPageOptions]="[15,50,100,200,400]" scrollable="true" scrollHeight="400px">
+        <p-column [style]="{'width':'38px'}" selectionMode="multiple"></p-column>
+        <p-column [style]="{'text-overflow':'ellipsis','white-space': 'nowrap'}" *ngFor="let col of tableHeaderInfo"
+            [field]="col.field" [header]="col.header" class="config-ui toggleChk" [sortable]="true" [filter]="true"
+            filterPlaceholder="Search">
+            <ng-template *ngIf="col.field != 'profileName' || col.field != 'aiEnable'" let-col let-entity="rowData"
+                pTemplate="body">
+                <span title="{{entity[col.field]}}">{{entity[col.field]}}</span>
+            </ng-template>
+            <ng-template *ngIf="col.field == 'profileName'" let-col let-entity="rowData" pTemplate="body">
+                <a class="hyperlink" *ngIf="noProfilePerm" (click)="accessMessage()">{{entity[col.field]}}</a>
+                <a class="hyperlink" *ngIf="!noProfilePerm && entity['tierGroupName'] != 'default'"
+                    (click)="routeToConfiguration(entity)">{{entity[col.field]}}</a>
+                <span *ngIf="!noProfilePerm && entity['tierGroupName'] == 'default'">{{entity[col.field]}}</span>
+		<span><img border='0' width='15' height='15' style='margin-bottom: -3px; margin-left: 4px; margin-right: 4px; cursor:pointer'
+                    title="Dynamic logging applied" src='./images/dl.png' *ngIf="dlAppliedProfileList.includes(entity['profileName'])"></span>
+            </ng-template> -->
+            <!-- <template *ngIf="col.field == 'enabled'" let-col let-entity="rowData" pTemplate="body">
+            <md-slide-toggle  *ngIf="perm" [disabled]="perm" style="margin-left: 35%; padding-top: 4px;" [(ngModel)]=entity[col.field]></md-slide-toggle>
+                    <md-slide-toggle *ngIf="!perm" (change)="disableProfInstance(entity['instanceId'], entity[col.field], entity['profileId'])" style="margin-left: 35%; padding-top: 4px;" [(ngModel)]=entity[col.field]></md-slide-toggle>
+            </template> -->
+            <!-- <ng-template *ngIf="col.field == 'aiEnable'" let-col let-entity="rowData" pTemplate="body">
+                <span *ngIf="entity[col.field]== false" title="Start">
+                    <a class="hyperlink iconFontSize" *ngIf="isAIPerm" (click)="accessMessage()"
+                        style="margin-left: 45%; color:green">
+                        <i class="fa fa-play-circle-o"></i>
+                    </a>
+                    <a class="hyperlink iconFontSize" style="margin-left: 45%; color:green" *ngIf="!isAIPerm"
+                        (click)="openAutoInstrDialog(entity['instanceDisplayName'], entity['instanceId'], entity['instanceType'], entity['profileId'], entity['profileName'])">
+                        <i class="fa fa-play-circle-o"></i>
+                    </a>
+                </span>
+                <span *ngIf="entity[col.field]== true" title="Stop">
+                    <a class="hyperlink iconFontSize" style="margin-left: 45%; color:red" *ngIf="isAIPerm"
+                        (click)="accessMessage()">
+                        <i class="fa fa-stop-circle"></i>
+                    </a>
+                    <a class="hyperlink iconFontSize" style="margin-left: 45%; color:red" *ngIf="!isAIPerm"
+                        (click)="stopInstrumentation(entity['instanceDisplayName'], entity['instanceId'], entity['instanceType'])">
+                        <i class="fa fa-stop-circle"></i>
+                    </a>
+                </span>
+		        <span *ngIf="entity['mpEnable']== false" title="Start">
+                    <a class="hyperlink iconFontSize"
+                        (click)="openMemProf(entity['instanceDisplayName'], entity['instanceId'], entity['instanceType'], entity['profileId'], entity['profileName'])">
+                        <img src='./images/memory-profiling.png' style="width:24px; margin-bottom: -4px;">
+                    </a>
+                </span>
+                <span *ngIf="entity['mpEnable']== true" title="Can't stop running session.">
+                    <a class="hyperlink iconFontSize">
+                        <i class="fa fa-spin fa-spinner"></i>
+                    </a>
+                </span>
+            </ng-template>
+        </p-column>
+    </p-dataTable> -->
+
+</div>
+
+
+<!--Dialog for changing profile-------->
+<p-dialog class="secondary-dialog" [style]="{width: '30vw'}" header="Change Profile" *ngIf="changeProf" [(visible)]="changeProf" modal="modal"
+    width="500" responsive="true" [resizable]="false">
+    <form (ngSubmit)="checkForChildProfile()" #groupForm="ngForm" ngNativeValidate>
+
+        <div class="ui-g p-grid p-align-center">
+            <div class="ui-g-3">
+                <label>Profile</label>
+            </div>
+            <div class="ui-g-9">
+                <!--<input id="in2" type="text" size="30" pInputText [(ngModel)]="applicationDetail.topoName" />-->
+                <p-dropdown name="profileId" dropdownIcon="icons8 icons8-expand-arrow" [options]="profileSelectItem" [(ngModel)]="topoData.profileId"
+                 appendTo="body" required ngModel></p-dropdown>
+            </div>
+        </div>
+        <footer>
+            <div class="p-grid p-align-center p-justify-end py-5">
+                <button pButton type="button" (click)="closeDialog()" label="Cancel" class="ui-button-rounded ui-button-secondary mr-5"></button>
+                <button pButton type="submit" label="Save" class="ui-button-rounded mr-5"></button>
+
+
+            
+            </div>
+        </footer>
+    </form>
+</p-dialog>
+
+<!-- Dialog for Auto Instrumentation settings -->
+<p-dialog class="secondary-dialog headerCss" [style]="{width: '50vw'}" header="Auto Instrumentation Configuration" [resizable]="false"
+    *ngIf="showInstr" [(visible)]="showInstr" modal="modal" width="500" [contentStyle]="{'max-height':'560px', 'overflow-y':'auto'}"
+    responsive="true"> 
+    <app-dynamic-diagnostics (closeAIDDGui)="closeAIDDDialog($event)" (topologyData)="setTopologyData($event)"
+        [passAIDDSettings]="passAIDDSettings" [passAIDDserverEntity]="passAIDDserverEntity"></app-dynamic-diagnostics>
+</p-dialog>
+
+<p-dialog class="secondary-dialog headerCss" [style]="{width: '50vw'}" header="Memory Profiling Session Configuration" [resizable]="false"
+    *ngIf="isOpenMemProfDialog" [(visible)]="isOpenMemProfDialog" modal="modal" width="500" [contentStyle]="{'max-height':'560px', 'overflow-y':'auto'}"
+    responsive="true">
+    <app-config-memory-profiling (closeMemProfGui)="closeMemoryProfileDialog($event)" (serverData)="setServerData($event)"
+        [memProfSettings]="memProfSettings" [memProfServerEntity]="memProfServerEntity"></app-config-memory-profiling>
+</p-dialog>
+
+<p-dialog class="secondary-dialog headerCss" [style]="{width: '50vw'}" header="Mutex Lock Profiling Session Configuration" [resizable]="false"
+    *ngIf="isOpenMutexLockDialog" [(visible)]="isOpenMutexLockDialog" modal="modal" width="500" [contentStyle]="{'max-height':'560px', 'overflow-y':'auto'}" responsive="true">
+    <app-config-mutex-lock (closemutexLockGui)="closeMutexLockDialog($event)" (serverData)="setServerAndTopoData($event)"
+    [mutexLockSettings]="mutexLockSettings" [mutexLockServerEntity]="mutexLockServerEntity"></app-config-mutex-lock>
+</p-dialog>
+
+<!-- Dialog for showing info about the children's profile applied-->
+<p-dialog class="secondary-dialog headerCss" [style]="{width: '50vw'}" header="Confirmation" [resizable]="false" *ngIf="infoDialog"
+    [(visible)]="infoDialog" modal="modal" width="500" responsive="true">
+    <form (ngSubmit)="saveEditProfile()" #groupForm="ngForm" ngNativeValidate>
+        <div style="font-size: 13px;color: #111113;">
+            Changing profile at current level will also override profiles applied at below levels:
+            <br><br>
+            <b>
+                <ul>
+                    <li *ngFor="let i of infoMsg">
+                        <span>{{i}}</span>
+                    </li>
+                </ul>
+            </b>
+            <br>
+        </div>
+        <footer>
+            <div class="p-grid p-align-center p-justify-end py-5">
+                <button type="button" class="ui-button-sucess mr-6" (click)="saveEditProfile()" pButton icon="icons8 icons8-checkmark" label="Edit Selected"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton (click)="isOverride=true" icon="icons8 icons8-checkmark" label="Override All"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-delete" (click)="infoDialog=false" label="Cancel"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>
+
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" header="Runtime changes partially applied on instances" *ngIf="errDialog" [(visible)]="errDialog" modal="modal" width="500" responsive="true">
+    <div style="max-height: 500px; overflow-y: auto;">
+      Runtime changes successfully applied on: 
+      <ul>
+       <li *ngFor="let err of msg">
+          <span>{{err}}</span>
+       </li>
+      </ul>
+      Error while applying Runtime changes on:
+      <ul>
+        <li *ngFor="let e of errMsg">
+           <span>{{e}}</span>
+        </li>
+       </ul>
+    </div>
+   <footer>
+      <div class="p-grid p-align-center p-justify-end py-5">
+        <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-delete" label="Ok"></button> 
+        <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" label="Cancel"></button>      
+      </div>
+    </footer>
+</p-dialog>
+

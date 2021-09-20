@@ -1,0 +1,17 @@
+<div class="header">
+  <app-header></app-header>
+</div>
+
+
+
+<router-outlet></router-outlet> 
+
+<p-dialog header="Error" class="scenmodal" [(visible)]="this._config.$displayAlert" modal="modal" width="300" [responsive]="true">
+  <div>
+    {{this._config.$alertMessage}}
+  </div>
+  <div>
+    <button type="button" pButton (click)="this._config.$displayAlert=false" label="OK"></button>
+  </div>
+</p-dialog>
+

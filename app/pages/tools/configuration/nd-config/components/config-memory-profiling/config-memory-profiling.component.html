@@ -1,0 +1,109 @@
+<div>
+    <!-- <p-growl life="5000" [value]=message></p-growl> -->
+    <form (ngSubmit)="startMemProfSession()" #groupForm="ngForm" ngNativeValidate>
+        <p-accordion class="ndagent ddAIaccordion">
+            <p-accordionTab header="General Setting" [selected]="true">
+                    <div class="p-grid p-align-center w-100-p">
+                        <div class="ui-g-3">Session Name</div>
+                        <div class="ui-g-9">
+                            <input type="text" name="name" [(ngModel)]="memProfDto['name']" pInputText  class="w-100-p" required ngModel>
+                        </div>
+                    </div>
+                    <div class="p-grid p-align-center w-100-p">
+                        <div class="ui-g-3">Duration (in mins)</div>
+                        <div class="ui-g-2">
+                            <input type="number" style= "text-align: right;" name="duration" min=5 max=120 [(ngModel)]="memProfDto['duration']" pInputText  class="w-100-p"  required ngModel>
+                        </div>
+                    </div>
+                    <div class="p-grid p-align-center w-100-p">
+                        <div class="ui-g-3">No.of Top Class to Capture</div>
+                        <div class="ui-g-2">
+                            <input type="number" style= "text-align: right;" name="topNClassToInstrument" min=5 max=100 [(ngModel)]="memProfDto['topNClassToInstrument']" pInputText class="w-100-p"  required ngModel>
+                        </div>
+                    </div>
+		            <div class="p-grid p-align-center w-100-p">
+                        <div class="ui-g-3">
+                            <label>Profiling Type</label>
+                        </div>
+                        <!-- <div class="ui-g-1"></div> -->
+                        <div class="ui-g-4">
+                            <p-dropdown name="memProfTypes" dropdownIcon="icons8 icons8-expand-arrow" [options]="memProfTypes" [(ngModel)]="memProfDto['memoryProfilerType']"></p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid p-align-center w-100-p">
+                        <div class="ui-g-3">Description</div>
+                        <div class="ui-g-9">
+                            <textarea pInputTextarea name="description" pInputTextarea rows="
+                            4" class="w-100-p" [(ngModel)]="memProfObj['description']" ngModel></textarea>
+                        </div>
+                    </div>
+            </p-accordionTab>
+            <p-accordionTab header="Advance Setting">
+                <div class="ui-g">
+                    <div class="p-grid p-align-center w-100-p">
+                        <div class="ui-g-4">Frequency (in Secs)</div>
+                        <div class="ui-g-7">
+                            <div class="sliderIndicated">
+                                <div>0</div> 
+                                <div>Low</div> 
+                                <div>Med</div> 
+                                <div>High</div> 
+                            </div>
+                            <input type="range" style= "text-align: right;" name="frequency" [(ngModel)]="memProfDto['frequency']" style="width: 100%;" min="0" max="30" list="volsettings">
+                            <datalist id="volsettings">
+                                <option>0</option>
+                                <option>10</option>
+                                <option>20</option>
+                                <option>30</option>
+                            </datalist>
+                        </div>
+                        <div class="ui-g-1 text-center">
+                            {{ memProfDto['frequency'] }}
+                        </div>
+                    </div>
+                    <div class="p-grid p-align-center w-100-p">
+                        <div class="ui-g-9">TopNClass Find Duration (% of total session time) </div>
+                        <div class="ui-g-3">
+                            <input type="number" style= "text-align: right;" name="durTopClassFind" min=10 max=50 [(ngModel)]="memProfDto['durTopClassFind']" pInputText class="w-100-p" required ngModel>
+                        </div>
+                    </div>
+                    <div class="p-grid p-align-center w-100-p">
+                        <div class="ui-g-9">Maximum number of unique allocations to track</div>
+                        <div class="ui-g-3">
+                            <input type="number" style= "text-align: right;" name="maxStackTraceCount" min=100 max=10000 [(ngModel)]="memProfDto['maxStackTraceCount']"  pInputText class="w-100-p" required ngModel>
+                        </div>
+                    </div>
+                    <div class="p-grid p-align-center w-100-p">
+                        <div class="ui-g-9">No.of Lines/StackTrace</div>
+                        <div class="ui-g-3">
+                            <input type="number" style= "text-align: right;" name="stackTraceDepth" min=5 max=200 [(ngModel)]="memProfDto['stackTraceDepth']"  pInputText class="w-100-p" required ngModel>
+                        </div>
+                    </div>
+                    <div class="p-grid p-align-center w-100-p">
+                        <div class="ui-g-4">Black List Classes</div>
+                        <div class="ui-g-8">
+                            <p-chips class="scrollChips scrollPointer scrollableChips input-chips" name="blackListClasses" [(ngModel)]="memProfDto['blackListClasses']" required ngModel></p-chips>
+                        </div>
+                    </div>
+                   
+                    <div class="p-grid p-align-center w-100-p">
+                        <div class="ui-g-4">White List Classes</div>
+                        <div class="ui-g-8">
+                            <p-chips class="scrollChips scrollPointer scrollableChips input-chips" name="whiteListClasses" [(ngModel)]="memProfDto['whiteListClasses']" required ngModel></p-chips>
+                        </div>
+                    </div>
+                  
+                </div>
+            </p-accordionTab>
+        </p-accordion>
+        <footer>
+            
+            <div class="p-grid p-align-center p-justify-end py-10">
+                <button type="button" class="ui-button-rounded ui-button-secondary px-10 mx-3" pButton (click)="closeMemProfDialog()" label="Cancel "></button>
+                <button type="button" class="ui-button-rounded  px-10 mx-3" pButton (click)="resetToDefault()" style="float:left" label="Reset to default "></button>
+                <button type="submit" class="ui-button-rounded px-10 mx-3" pButton label="Start"></button>
+               
+            </div>
+        </footer>
+    </form>
+</div>

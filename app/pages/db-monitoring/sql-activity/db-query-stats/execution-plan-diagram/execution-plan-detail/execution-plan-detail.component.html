@@ -1,0 +1,31 @@
+<div class="execution-plan-detail-container">
+    <div class="">
+        <span class="" md-dialog-title> Node Details</span>
+    </div>
+    <div class="">
+    </div>
+    <table>
+
+        <tr>
+            <th><b>Name</b></th>
+            <th><b>Detail</b></th>
+        </tr>
+        <tr *ngFor="let key of Object.keys(data.completeElementInfo)">
+            <div *ngIf="data.completeElementInfo[key]">
+                <div *ngIf="key != 'objectTableDetails'">
+                    <th><b>{{key}}</b></th>
+                    <th><b>{{data.completeElementInfo[key]}}</b></th>
+                </div>
+            </div>
+        </tr>
+        <tr *ngFor="let objkey of Object.keys(data.completeElementInfo.objectTableDetails)">
+            <div *ngIf="data.completeElementInfo && data.completeElementInfo.objectTableDetails">
+                <div *ngIf="data.completeElementInfo.objectTableDetails[objkey]">
+                    <!-- <th><b>{{key}}</b></th> -->
+                    <th><b>{{objkey}}</b></th>
+                    <th><b>{{data.completeElementInfo.objectTableDetails[objkey]}}</b></th>
+                </div>
+            </div>
+        </tr>
+    </table>
+</div>

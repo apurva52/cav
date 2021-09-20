@@ -1,0 +1,152 @@
+<div class="show-in-graph-tree-container">
+  <p-card>
+    <p-header> 
+      <div class="card-title">
+        <div class="heading">
+          <i class="icons8 icons8-view-all" pTooltip="Metrics" tooltipZIndex="1000010056" tooltipPosition="top"></i>
+          <span>Metrics</span>
+        </div>
+        <div class="action-icons">
+          <i class="icons8-filter" pTooltip="Filter" (click)="showSearch = !showSearch "></i>
+          <!--<i class="icons8-copy" pTooltip="Multi Select" (click)="showCheck = !showCheck "
+            tooltipZIndex="1000010056"></i>-->
+          <button pButton class="icon-button no-shadow"  pTooltip="Pause" *ngIf= "pause" tooltipZIndex="1000010056" (click)="controlPause()" tooltipPosition="top" icon="icons8 icons8-pause">
+          </button>
+          <button pButton class="icon-button no-shadow"  pTooltip="Resume" *ngIf= "!pause" tooltipZIndex="1000010056" (click)="controlStart()" tooltipPosition="top" icon="icons8 icons8-play">
+          </button>
+          <i class="icons8-reboot" (click)="refreshClick()" pTooltip="Refresh" tooltipZIndex="1000010056"
+            tooltipPosition="top"></i>
+          <i class="icons8-delete" (click)="closeClick()" pTooltip="Close" tooltipZIndex="1000010056"
+            tooltipPosition="top"></i>
+        </div>
+      </div>
+      <div class="p-grid p-col-12 pt-4 pb-0" *ngIf="showSearch">
+        <div class="p-col-4 pl-0 pt-0 maxHeight"> 
+           <p-dropdown [options]="level" dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="selectedLevel" >
+
+            <ng-template let-item pTemplate="item">
+              <div>
+                  <span [pTooltip]="item.title" tooltipPosition="top">{{item.label}}</span>
+              </div>
+          </ng-template>
+          <ng-template let-item pTemplate="selectedLevel">
+            <div>
+                <span [pTooltip]="item.title" tooltipPosition="top">{{item.label}}</span>
+            </div>
+        </ng-template>
+           </p-dropdown>
+        </div>
+        <div class="p-col-8 pt-0 pr-0 pb-0">
+            <div class="type-search">
+              <input type="text" pInputText placeholder="Search In Tree" class="pr-26 w-100-p pl-5" [(ngModel)]="searchTextInTree"
+              (keyup.enter)="searchInTree()">
+              <button type="button" class="btn-icon right-icon" (click)="searchInTree()" pTooltip="Search" tooltipZIndex="1000010056" tooltipPosition="top">
+              <i class="icons8 icons8-search"></i></button>
+              </div>
+        </div>
+      </div>
+    </p-header>
+
+    <!-- Breadcrumb Not needed Now  -->
+    <!-- <div class="drill-breadcrumb">
+      <div>
+        <p-breadcrumb [model]="payloadPath" class="ui-breadcrumb-header">
+        </p-breadcrumb>
+      </div>
+    </div> -->
+    <!-- <div class="loader-container spinner" *ngIf="loading">
+      <i class="pi pi-spin pi-spinner" style="font-size: 3em"></i>
+    </div> -->
+    <div class="card-content">
+      <div class="drill-down-tree w-100-p" [style.height]="(showSearch && showCheck) ? 'calc(100vh - 285px)' : showSearch ? 'calc(100vh - 235px)' : (showCheck ? 'calc(100vh - 254px)' : 'calc(100vh - 205px)')">
+	 <div class="loader-container spinner" *ngIf="loading">
+          <p-progressSpinner [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+        </div>
+        <div class="empty-container" *ngIf="errorData">Data Not available.</div>
+        <div *ngIf="!errorData">
+        <p-tree #treeNode [value]="data" selectionMode="multiple" (onNodeExpand)="nodeExpand($event)"
+          (onNodeSelect)="treeNodeSelected($event)" (onNodeCollapse)="nodeCollapse($event)" [(selection)]="selectedFile"
+          [contextMenu]="menu1" (onNodeContextMenuSelect)="nodeContentMenu($event)">
+          <ng-template let-node pTemplate="default">
+            <div #tree class="tree-node">
+              <div  [ngClass]="(node.matched)?'classHighlighted':''" >
+                <div *ngIf="showCheck">
+                  <i *ngIf="node.icon == undefined && node.typeId !== 2" [ngClass]="node.expandedIcon" tooltipZIndex="100001005"
+                    tooltipPosition="top"></i>
+                  <i *ngIf="node.icon == undefined && node.typeId === 2" [ngClass]="changeIcons(node)" tooltipZIndex="100001005"
+                    tooltipPosition="top"></i>
+                  <i *ngIf="node.icon !== undefined && node.typeId !== 3" [ngClass]="node.icon" tooltipZIndex="100001005"
+                    tooltipPosition="top"></i>
+                  <p-checkbox *ngIf="node != undefined && node.typeId === 3" class="labels" name="groupname"
+                    value="val1"></p-checkbox>
+                  <span [ngStyle]="calculateClasses(node)" *ngIf="node != undefined && node.typeId === 2"> {{
+                    node.name||node.label }}</span>
+                  <!-- <span *ngIf="node != undefined && node.typeId === 2" style="color:#7abb15;"> {{ node.name||node.label }}</span> -->
+                  <span *ngIf="node != undefined && node.typeId === 5"  style="color:#800080;"> {{ node.name||node.label
+                  }}</span>
+                <span *ngIf="node != undefined && node.typeId === 3" style="color:#0000ff;"> {{ node.name||node.label
+                  }}</span>
+                  <span *ngIf="node != undefined && node.typeId !== 3 && node.typeId !== 5 && node.typeId !== 2">{{
+                    node.name||node.label }}</span>
+                </div>
+                <div *ngIf="!showCheck">
+                  <i *ngIf="node.icon == undefined && node.typeId !== 2" [ngClass]="node.expandedIcon" tooltipZIndex="100001005"
+                    tooltipPosition="top"></i>
+                  <i *ngIf="node.icon == undefined && node.typeId === 2" [ngClass]="changeIcons(node)" tooltipZIndex="100001005"
+                    tooltipPosition="top"></i>
+                  <i *ngIf="node.icon !== undefined" [ngClass]="node.icon" tooltipZIndex="100001005"
+                    tooltipPosition="top"></i>
+                  <span [ngStyle]="calculateClasses(node)" *ngIf="node != undefined && node.typeId === 2"> {{
+                    node.name||node.label }}
+                    <div *ngIf="expandLoad && node.name == expandName && node.parent == parentName" class ="text-center">
+                      <i class="icons8 icons8-spinner spin"></i>
+
+                    </div>
+                  
+                  </span>
+                  <!-- <span *ngIf="node != undefined && node.typeId === 2" style="color:#7abb15;"> {{ node.name||node.label }}</span> -->
+                  <span *ngIf="node != undefined && node.typeId === 5"  style="color:#800080;"> {{ node.name||node.label
+                  }}
+                  <div *ngIf="expandLoad && node.name == expandName && node.parent == parentName " class ="text-center">
+                    <i class="icons8 icons8-spinner spin"></i>
+
+                  </div>
+                
+                </span>
+                <span *ngIf="node != undefined && node.typeId === 3" style="color:#0000ff;"> {{ node.name||node.label
+                  }}
+                  <div *ngIf="expandLoad && node.name == expandName && node.parent == parentName" class ="text-center">
+                    <i class="icons8 icons8-spinner spin"></i>
+
+                  </div>
+                </span>
+                  <span *ngIf="node != undefined && node.typeId !== 3 && node.typeId !== 5 && node.typeId !== 2">{{
+                    node.name||node.label }}
+                    <div *ngIf="expandLoad && node.name == expandName && node.parent == parentName" class ="text-center">
+                      <i class="icons8 icons8-spinner spin "></i>
+  
+                    </div>
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Remove Below code after successfully implementing of context menu -->
+              <!-- <div class="right" *ngIf="node.data.treeLevel">
+                <app-widget-submenu [dashboard]="dashboard"></app-widget-submenu>
+              </div> -->
+              <!-- <div class="right" *ngIf="node.data.showSecondLevelMenu">
+                <app-tree-submenu [dashboard]="dashboard"></app-tree-submenu>
+              </div> -->
+            </div>
+          </ng-template>
+        </p-tree>
+        <p-contextMenu #menu1 [model]="items" appendTo="body" baseZIndex="10000" [style]="{width: '13vw'}"></p-contextMenu>
+       </div> 
+       <!-- <div class="action-buttons" *ngIf="showCheck && data">
+          <button pButton type="button" label="CANCEL" class="ui-outline-button ui-button-secondary"></button>
+          <button pButton type="submit" label="ACTION" class="ui-button-rounded ui-button-right"></button>
+        </div>-->
+      </div>
+    </div>
+  </p-card>
+</div>

@@ -1,0 +1,108 @@
+<form *ngIf="percentileForm" (ngSubmit)="saveKeywordData()" #form="ngForm" ngNativeValidate>
+    <div class="tabsincontent">
+        <div class="p-grid p-justify-between p-align-center"> 
+        <div class="header p-align-center font-13 font-weight-600">Settings</div>
+            <div class="pull-right pb-6">
+                <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+                <button type="button" class="ui-button-sucess mx-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordsDataToDefault()" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" label="Save"></button>
+            </div>
+        </div>
+        <p-panel class="hideheader exceptionpanel" [showHeader]="false">
+            <div class="ui-panel-contents">
+            <div style="margin: 5px 0px;" class="flowpathheader-accordion">
+                <div class="ui-g-12">
+                    <div class="ui-g-3">
+                        <p-checkbox label="Capture BT Percentile" name="captureBTPercentile" [(ngModel)]="captureBTPercentile" binary="true"></p-checkbox>
+                    </div>
+                </div>
+                <div class="ui-g-12 p-grid p-align-center">
+                    <div class="ui-g-2">
+                        <label>Aggregation Duration</label>
+                    </div>
+                    
+                    <div class="ui-g-2">
+                        <p-dropdown name="aggregationDurationForBT" [disabled]="!captureBTPercentile" [style]="{'min-width': '50%'}" [(ngModel)]="aggregationDurationForBT" [options]="aggregationDurationForBTList" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+                </div>
+                <p-fieldset legend="Advance Setting" [toggleable]="true" [collapsed]="true">
+                    <div class="ui-g">
+                        <div class="ui-g-12">
+                            <div class="ui-g-3">
+                                <p-checkbox label="Compress via serialization" name="compressSerializationForBT" [disabled]="!captureBTPercentile" [(ngModel)]="compressSerializationForBT" binary="true"></p-checkbox>
+                            </div>
+                        </div>
+                        <div class="ui-g-12">
+                            <div class="ui-g-5">
+                                <label>T-Digest Compression</label>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 p-align-center p-grid">
+                            <div class="p-5">Delta</div>
+                            <div class="p-5">
+                                <input type="number" [min]=1 [max]=1000 pInputText  [disabled]="!captureBTPercentile" name="deltaForBT" size="20" [(ngModel)]="deltaForBT" required ngModel/>
+                            </div>
+                            <div class="p-5 ml-10">K</div>
+                            <div class="p-5">
+                                <input type="number" [min]=1 [max]=1000 pInputText  [disabled]="!captureBTPercentile" name="kForBT" size="20" [(ngModel)]="kForBT" required ngModel/>
+                            </div>
+                        </div>
+                    </div>
+                </p-fieldset><br>
+                <hr>
+                <div class="ui-g-12">
+                    <div class="ui-g-3">
+                        <p-checkbox label="Capture IP Percentile" name="captureIPPercentile" [(ngModel)]="captureIPPercentile" binary="true"></p-checkbox>
+                    </div>
+                </div>
+                <div class="ui-g-12 p-grid p-align-center">
+                    <div class="ui-g-2">
+                        <label>Aggregation Duration</label>
+                    </div>
+                    
+
+                    <div class="ui-g-2">
+                        <p-dropdown name="aggregationDurationForIP" [disabled]="!captureIPPercentile" [style]="{'min-width': '50%'}" [(ngModel)]="aggregationDurationForIP" [options]="aggregationDurationForIPList" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </div>
+                </div>
+                <p-fieldset legend="Advance Setting" [toggleable]="true" [collapsed]="true">
+                    <div class="ui-g">
+                        <div class="ui-g-12">
+                            <div class="ui-g-3">
+                                <p-checkbox label="Compress via serialization" name="compressSerializationForIP" [disabled]="!captureIPPercentile" [(ngModel)]="compressSerializationForIP" binary="true"></p-checkbox>
+                            </div>
+                        </div>
+                        <div class="ui-g-12">
+                            <div class="ui-g-5">
+                                <label>T-Digest Compression</label>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 p-grid p-align-center">
+                            <div class="p-5">Delta</div>
+                            <div class="p-5">
+                                <input type="number" pInputText  [min]=1 [max]=1000 [disabled]="!captureIPPercentile" name="deltaForIP" size="20" [(ngModel)]="deltaForIP" required ngModel/>
+                            </div>
+                            <div class="p-5 ml-10">K</div>
+                            <div class="p-5">
+                                <input type="number" pInputText  [min]=1 [max]=1000 [disabled]="!captureIPPercentile" name="kForIP" size="20" [(ngModel)]="kForIP" required ngModel/>
+                            </div>
+                        </div>
+                    </div>
+                </p-fieldset>
+
+                <div class="ui-g-12 my-24">
+                    <div class="ui-g-3">
+                        <p-checkbox label="Store Percentile data at Instance level" name="isInstanceLevelDump" [disabled]="!(captureIPPercentile || captureBTPercentile)" [(ngModel)]="isInstanceLevelDump" binary="true"></p-checkbox>
+                        <i class="icons8 icons8-info" aria-hidden="true" title="This will enable aggregation of percentile data for higher 'View by' interval(s) in dashboard. Enabling this option may cause high disk usage."></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        </p-panel>
+    </div>
+</form>

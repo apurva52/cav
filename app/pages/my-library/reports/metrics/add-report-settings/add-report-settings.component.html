@@ -1,0 +1,428 @@
+<p-blockUI [blocked]="blockuiForGroupGraph">
+    <div class="loader-container spinner" *ngIf="timebarService.loading1">
+      <i class="pi pi-spin pi-spinner"></i>
+    </div>
+  </p-blockUI>
+<p-confirmDialog class="confirmdialog" key="addReportSettingsDialog" header="Info" acceptLabel="Ok" rejectLabel="Cancel" [(visible)]="dialogVisible">
+</p-confirmDialog>
+<div class="add-report-setting-container">
+    <div class="vertical-container">
+        <div class="p-grid panel-card">
+            <p-card>
+                <p-header>
+                    <span class="selected-label line-height"> REPORT SETS </span>
+                    <span class="btn-right">
+                        <button *ngIf="!isReportSetEdit" type="button" pButton
+                            class="ui-button-secondary ui-button-rounded" label="ADD" (click)="addReportSet()"></button>
+                    </span>
+                    <span *ngIf="isReportSetEdit" class="btn-right">
+                        <button type="button" pButton class="ui-button-secondary ui-button-rounded" label="Update"
+                            (click)="updateReportSet()"></button>
+                    </span>
+                </p-header>
+                <p-table #reportSetTable [columns]="selectedColumns" [value]="reportSetData" [paginator]="false"
+                [rows]="reportSetDataTable.paginator.rows" selectionMode="single" [resizableColumns]="true" [responsive]="true"
+                [scrollable]="true" scrollHeight="320px" [(selection)]='selectedRow' (onRowSelect)="editReportSet($event)">
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col *ngFor="let col of columns" [style.width]="col.width" />
+                    </colgroup>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                    <tr [pSelectableRow]="row">
+                        <td *ngFor="let col of columns">
+                            <div>
+                         <span pTooltip="{{row[col.valueField]}}" tooltipPosition="top">{{ row[col.valueField] }} </span> 
+                        </div>
+                        </td>
+                        <td>
+                            <div class="deleteStyle">
+                                <span class="delete-icon" pTooltip="Delete" tooltipPosition="top"><i class="icons8 icons8-trash"
+                                    (click)="removeReportSet(row)"></i></span>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            </p-card>
+
+            <p-card class="report-sets">
+                <p-header>
+                    <span class="selected-label"> REPORT SET DETAILS </span>
+                </p-header>
+                <div class="ph-5 mb-5">
+                    <input type="text" pInputText placeholder="Report Set Name" [(ngModel)]="reportSetName"
+                        class="input-field-search w-100-p" maxlength="64"/>
+                </div>
+
+                <div class="set-detail-wraper">
+                    <div class="p-grid" *ngIf="!addReportService.isHeirarchical && !addReportService.ischeckTrendCompare">
+                        <div class="p-col-5">
+                            <span class="line-height">Graph Type</span>
+                        </div>
+                        <div class="p-col-7">
+                            <p-dropdown appendTo="body" [baseZIndex]="99" [options]="data.addTemplateMenuOptions.dropDownGraph" placeholder=""
+                                optionLabel="label" (onChange)="changeGraphType($event)" [(ngModel)]="selectedGraphType" pTooltip="{{selectedGraphType.label}}" tooltipPosition="top">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid" *ngIf="addReportService.isHeirarchical && !addReportService.ischeckTrendCompare">
+                        <div class="p-col-5">
+                            <span class="line-height">Graph Type</span>
+                        </div>
+                        <div class="p-col-7">
+                            <p-dropdown appendTo="body" [baseZIndex]="99" [options]="data.addTemplateMenuOptions.hierarchicalGraph" placeholder=""
+                                optionLabel="label" (onChange)="changeGraphType($event)" [(ngModel)]="selectedGraphType" pTooltip="{{selectedGraphType.label}}" tooltipPosition="top">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid" *ngIf="addReportService.ischeckTrendCompare">
+                        <div class="p-col-5">
+                            <span class="line-height">Graph Type</span>
+                        </div>
+                        <div class="p-col-7">
+                            <p-dropdown appendTo="body" [baseZIndex]="99" [options]="data.addTemplateMenuOptions.trendCompareGraph" placeholder=""
+                                optionLabel="label" (onChange)="changeGraphType($event)" [(ngModel)]="selectedGraphType" pTooltip="{{selectedGraphType.label}}" tooltipPosition="top">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid p-justify-end" *ngIf="selectedGraphType.value == 1">
+                        <div class="mr-6">
+                            <button class="buttons-link" type="button" (click)="openPercentileWindow()">
+                                <i class="icons8 icons8-edit-2"></i>Percentile
+                            </button>
+                        </div>
+                    </div>
+                    <p-dialog header="Percentile" class="secondary-dialog" [modal]="true" [(visible)]="displayPerConf"
+                        [style]="{width: '1000px'}" (onHide)="cancelBtnEvent()">
+                        <p-fieldset legend="Select Percentile">
+                            <ul class="checkbox-list">
+                                <li *ngFor="let per of percentiles1">
+                                    <span *ngIf="per!=1 && per <= 10" class="first">
+                                        <p-checkbox [(ngModel)]="selectedPercentileModelArr[per]"
+                                            (onChange)="selectPercentileValue($event,per)" binary="true" [label]="per">
+                                        </p-checkbox>
+                                    </span>
+                                    <span *ngIf="per!=1 && (per>10 && per<=20)" class="first">
+                                        <p-checkbox [(ngModel)]="selectedPercentileModelArr[per]"
+                                            (onChange)="selectPercentileValue($event,per)" binary="true" [label]="per">
+                                        </p-checkbox>
+                                    </span>
+                                    <span *ngIf="per==1">
+                                        <p-checkbox [(ngModel)]="selectedPercentileModelArr[per]"
+                                            (onChange)="selectPercentileValue($event,per)" binary="true" [label]="per">
+                                        </p-checkbox>
+                                    </span>
+                                </li>
+                                <li *ngFor="let per of percentiles2" class="second">
+                                    <p-checkbox [(ngModel)]="selectedPercentileModelArr[per]"
+                                        (onChange)="selectPercentileValue($event,per)" binary="true" [label]="per">
+                                    </p-checkbox>
+                                </li>
+
+                                <li *ngFor="let per of percentiles3" class="third">
+                                    <p-checkbox [(ngModel)]="selectedPercentileModelArr[per]"
+                                        (onChange)="selectPercentileValue($event,per)" binary="true" [label]="per">
+                                    </p-checkbox>
+                                </li>
+                                <li *ngFor="let per of percentiles4" class="fourth">
+                                    <p-checkbox [(ngModel)]="selectedPercentileModelArr[per]"
+                                        (onChange)="selectPercentileValue($event,per)" binary="true" [label]="per">
+                                    </p-checkbox>
+                                </li>
+
+
+                                <li *ngFor="let per of percentiles5" class="fifth">
+                                    <p-checkbox [(ngModel)]="selectedPercentileModelArr[per]"
+                                        (onChange)="selectPercentileValue($event,per)" binary="true" [label]="per">
+                                    </p-checkbox>
+                                </li>
+                            </ul>
+
+                            <div class="threeButtons">
+
+                                <button label="Select Default Percentiles" pButton type="button"
+                                    (click)="selectDefaultPercentilesBtn()"></button>
+
+
+                                <button label="Select All Percentiles" pButton type="button"
+                                    (click)="selectAllPercentilesBtn()"></button>
+
+
+                                <button label="Clear Selection" pButton type="button"
+                                    (click)="clearPercentilesBtn()"></button>
+
+                            </div>
+                        </p-fieldset>
+                        <div class="twoButtons">
+                            <div class="mh-10">
+                                <button label="Ok" pButton type="button" (click)="okBtnEvent()"></button>
+
+                            </div>
+                            <button label="Cancel" pButton type="button" (click)="cancelBtnEvent()"></button>
+
+                        </div>
+                    </p-dialog>
+                    <div class="p-grid" *ngIf="(selectedGraphType.value == '0') && !addReportService.isHeirarchical && addReportService.isMultiLayot && !addReportService.isCompareReport && !addReportService.ischeckTrendCompare">
+                        <div class="p-col-5">
+                            <span class="line-height">Chart Type</span>
+                        </div>
+                        <div class="p-col-7">
+                            <p-dropdown appendTo="body" [baseZIndex]="99" [options]="data.addTemplateMenuOptions.dropDown" autoZIndex="true" placeholder="" pTooltip="{{selectedChartType.label}}" tooltipPosition="top"
+                                optionLabel="label" [(ngModel)]="selectedChartType" (onChange)="selectChartType()">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid" *ngIf="(selectedGraphType.value == '0') && addReportService.isCompareReport && !addReportService.ischeckTrendCompare">
+                        <div class="p-col-5">
+                            <span class="line-height">Chart Type</span>
+                        </div>
+                        <div class="p-col-7">
+                            <p-dropdown appendTo="body" [baseZIndex]="99" [options]="data.addTemplateMenuOptions.compareReport" autoZIndex="true" placeholder="" pTooltip="{{selectedChartType.label}}" tooltipPosition="top"
+                                optionLabel="label" [(ngModel)]="selectedChartType" (onChange)="selectChartType()">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid" *ngIf="(selectedGraphType.value == '0') && !addReportService.isHeirarchical && !addReportService.isMultiLayot && !addReportService.isCompareReport && !addReportService.ischeckTrendCompare">
+                        <div class="p-col-5">
+                            <span class="line-height">Chart Type</span>
+                        </div>
+                        <div class="p-col-7">
+                            <p-dropdown appendTo="body" [baseZIndex]="99" [options]="data.addTemplateMenuOptions.multiLayout" autoZIndex="true" placeholder="" pTooltip="{{selectedChartType.label}}" tooltipPosition="top"
+                                optionLabel="label" [(ngModel)]="selectedChartType" (onChange)="selectChartType()">
+                            </p-dropdown>
+                        </div>  
+                    </div>
+                    <div class="p-grid" *ngIf="addReportService.ischeckTrendCompare">
+                        <div class="p-col-5">
+                            <span class="line-height">Chart Type</span>
+                        </div>
+                        <div class="p-col-7">
+                            <p-dropdown  [options]="data.addTemplateMenuOptions.trendCompareChart" placeholder="" pTooltip="{{selectedChartType.label}}" tooltipPosition="top"
+                                optionLabel="label" [(ngModel)]="selectedChartType" (onChange)="selectChartType()">
+                            </p-dropdown>
+                        </div>  
+                    </div>
+                    <div class="p-grid" *ngIf="addReportService.isHeirarchical && !addReportService.isCompareReport && !addReportService.ischeckTrendCompare">
+                        <div class="p-col-5">
+                            <span class="line-height">Chart Type</span>
+                        </div>
+                        <div class="p-col-7">
+                            <p-dropdown appendTo="body" [baseZIndex]="99" [options]="data.addTemplateMenuOptions.hierarchicalChart" placeholder="" pTooltip="{{selectedChartType.label}}" tooltipPosition="top"
+                                optionLabel="label" [(ngModel)]="selectedChartType" (onChange)="selectChartType()">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid" *ngIf="(selectedGraphType.value == '1') && !addReportService.ischeckTrendCompare">
+                        <div class="p-col-5">
+                            <span class="line-height">Chart Type</span>
+                        </div>
+                        <div class="p-col-7">
+                            <p-dropdown appendTo="body" [baseZIndex]="99" [options]="data.addTemplateMenuOptions.graphPercentile" placeholder="" pTooltip="{{selectedChartType.label}}" tooltipPosition="top"
+                                optionLabel="label" [(ngModel)]="selectedChartType" (onChange)="selectChartType()">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid" *ngIf="(selectedGraphType.value == '2') && !addReportService.ischeckTrendCompare">
+                        <div class="p-col-5">
+                            <span class="line-height">Chart Type</span>
+                        </div>
+                        <div class="p-col-7">
+                            <p-dropdown appendTo="body" [baseZIndex]="99" [options]="data.addTemplateMenuOptions.graphSlab" placeholder="" pTooltip="{{selectedChartType.label}}" tooltipPosition="top"
+                                optionLabel="label" [(ngModel)]="selectedChartType" (onChange)="selectChartType()">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid" *ngIf=" selectedGraphType.value == 0 ">
+                        <div class="p-col-5">
+                            <span class="line-height">Formula Type</span>
+                        </div>
+                        <div class="p-col-7">
+                            <p-multiSelect appendTo="body" [baseZIndex]="99" [options]="data.addTemplateMenuOptions.dropDownBar" placeholder="" 
+                            tooltip="{{formulaData}}" tooltipPosition="top" maxSelectedLabels="5" (onChange)="selectedFormula($event)"
+                                optionLabel="label" class="w-100-p" [(ngModel)]="selectedFormulaType">
+                            </p-multiSelect>
+                        </div>
+                    </div>
+                    <div class="note" *ngIf="addReportService.isHeirarchical">
+                        Note : Only Normal Graph type with bar chart is supported in hierarchical
+                      </div>
+                    <div class="p-grid p-align-center" *ngIf="selectedChartType.value == 8 && selectedGraphType.value == 0">
+                        <div class="p-col-5">Total Buckets</div>
+                        <div class="p-col-7"> <input type="text" pInputText class="w-100-p" (keypress)="keyPressOnBucket($event)" [maxlength]="2"
+                                [(ngModel)]="totalbuckets" />
+                        </div>
+                    </div>
+                    <div class="p-grid p-align-center"
+                        *ngIf="(selectedChartType.value == 5 || selectedChartType.value == 12) && (selectedGraphType.value == 1)">
+                        <div class="p-col-5">Based On</div>
+                        <div class="p-col-7">
+                            <p-dropdown class="w-100-p" [(ngModel)]="basedOn"
+                                [options]="percentileData"></p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid p-align-center"
+                        *ngIf="(selectedChartType.value == 5 || selectedChartType.value == 12) && (selectedGraphType.value== 2)">
+                        <div class="p-col-5">Based On</div>
+                        <div class="p-col-7">
+                            <p-dropdown class="w-100-p" [(ngModel)]="basedOn"
+                                [options]="data.addTemplateMenuOptions.dropDownSlab"></p-dropdown>
+                        </div>
+                    </div>
+
+                    <div *ngIf="(selectedChartType.value == 5 || selectedChartType.value == 12)" class="p-col-12">
+                        <p-checkbox binary="false" [(ngModel)]="isLegendEnable" label="Enable Legend"></p-checkbox>
+                        <div *ngIf="isLegendEnable == true" class="note-color-class">
+                            Note: All legends may not come if more than 30 graphs are present.
+                        </div>
+                    </div>
+                    <div *ngIf=" selectedGraphType.value == 0 && addReportService.checkIncludeChart && selectedChartType.value != 5 && selectedChartType.value != 12">
+                        <div class="p-grid p-align-center">
+                            <div class="p-col-12">
+                                <p-checkbox  name="threshold" binary="true" label="Threshold" [(ngModel)]="isThreshold">
+                                </p-checkbox>
+                            </div>
+                        </div>
+                        <div *ngIf="isThreshold == true">
+                            <div class="p-grid p-align-center">
+                                <label class="p-col-5">Minor</label>
+                                <div class="p-col-7">
+                                    <input type="number" min="1" class="w-100-p" [(ngModel)]="fixedTrendMinor" (keypress)="keyPressOnMinor($event)"
+                                    pInputText placeholder="Minor" pTooltip="{{fixedTrendMinor}}" tooltipPosition="top" max="999999999999"/>
+                                </div>
+
+                                <label class="p-col-5">Major</label>
+
+                                <div class="p-col-7">
+                                    <input type="number" min='1' class="w-100-p" [(ngModel)]="fixedTrendMajor" (keypress)="keyPressOnMajor($event)"
+                                        pInputText placeholder="Major" pTooltip="{{fixedTrendMajor}}" tooltipPosition="top" max="999999999999" [maxlength]="12"/>
+                                </div>
+
+
+
+                                <label class="p-col-5">Critical</label>
+
+                                <div class="p-col-7">
+                                    <input type="number" min='1' class="w-100-p" [(ngModel)]="fixedTrendCritical" (keypress)="keyPressOnCritical($event)"
+                                        pInputText placeholder="Critical" pTooltip="{{fixedTrendCritical}}" tooltipPosition="top" max="999999999999" maxlength="12"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12" *ngIf="!addReportService.isHeirarchical && !addReportService.isCompareReport && addReportService.checkIncludeChart">
+                        <p-checkbox name="chartsperindices" [(ngModel)]="isChartsPerIndices" binary="true"
+                            label="Charts Per Indices"></p-checkbox>
+                    </div>
+                </div>
+            </p-card>
+
+            <!-- <p-card #addTemplateCard *ngIf="secondCard" class="metric-group">
+                <p-header>
+                    <span class="selected-label"> METRIC GROUP </span>
+                </p-header>
+                <p-orderList #metricGroupOrder class="search-width100" [value]="groupList" header="" [filter]="filterValueData" filterBy="label"
+                [(selection)]="selectedGroupName" (onSelectionChange)="reportGraphList($event.value[0].groupName,$event)"
+                (onFilterEvent) = "filterFun($event)" (trackBy) = "trackByFun($event)">
+                <ng-template #group pTemplate="item" let-rowData>
+                    <div class="ui-helper-clearfix list" pTooltip="{{rowData.label}}" tooltipPosition="top"  #row [attr.id]="rowData.label">
+                        {{rowData.label}}
+                        <div class="list">
+                            <p-checkbox [binary]="true" [(ngModel)]="rowData.groupcheck" value="{{rowData.groupcheck}}" name="groupclearfix" (onChange)="checkedGroup(rowData,$event)" label="{{rowData.label}}"></p-checkbox>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-orderList>
+        </p-card> -->
+
+        <!-- <p-card #addTemplateCard *ngIf="thirdCard" class="metrics">
+            <p-header>
+                <span class="selected-label"> METRICS </span>
+            </p-header>
+            <div class="mv-5">
+                <p-checkbox [binary]="true" [(ngModel)]="isMasterCheck" (onChange)="checkBoxChecked($event)"></p-checkbox>
+        </div>
+            <p-orderList #graph class="listbox-pr6" [value]="graphList" header="" filterBy="label"
+                 [(selection)]="selectedGraphName" filter="filter"
+                (onSelectionChange)="changeOrderGraphList($event)">
+                <ng-template pTemplate="item" let-rowData>
+                    <div class="ui-helper-clearfix">
+                        <div class="list" pTooltip="{{rowData.label}}" tooltipPosition="top">
+                            {{rowData.label}}
+                             <div class="list">
+                                <p-checkbox [binary]="true" [(ngModel)]="rowData.graphcheck" value="{{rowData.graphcheck}}" name="graphclearfix" (onChange)="checkedGraph(rowData,$event)" label="{{rowData.label}}"></p-checkbox>
+                        </div>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-orderList>
+            </p-card> -->
+            <p-card #addTemplateCard *ngIf="secondCard" class="metric-group">
+                <p-header>
+                    <span class="selected-label"> METRIC GROUP </span>
+                </p-header>
+                <p-orderList #metricGroupOrder class="search-width100" [value]="groupList" header="" filter="filter" filterBy="label"
+                [(selection)]="selectedMetricGrpRowVal" (onSelectionChange)="onMetricGroupRowSelection($event);" ariaFilterLabel="metricsGrpFilter">
+                <ng-template #group pTemplate="item" let-rowData>
+                    <div class="ui-helper-clearfix list" pTooltip="{{rowData.label}}" tooltipPosition="top"  #row [attr.id]="rowData.label">
+                        <!-- {{rowData.label}} -->
+                        <div class="list">
+                            <p-checkbox [binary]="true" [(ngModel)]="rowData.groupcheck" value="{{rowData.groupcheck}}" name="groupclearfix" (onChange)="onMetricGroupRowCheckboxClick(rowData,$event)"></p-checkbox>
+                            <label> {{rowData.label}}</label>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-orderList>
+        </p-card>
+        <p-card #addTemplateCard *ngIf="thirdCard" class="metrics">
+            <p-header>
+                <span class="selected-label"> METRICS </span>
+            </p-header>
+            <div class="metricCheckbox">
+                <p-checkbox [binary]="true" [(ngModel)]="isMasterCheck" (onChange)="onMetricsMasterCheckbox($event)"></p-checkbox>
+        </div>
+            <p-orderList #graph class="listbox-pr6" [value]="graphList" header="" filterBy="label"
+                 [(selection)]="selectedMetricesRowVal" filter="filter"  ariaFilterLabel="metricsFilter"
+                (onSelectionChange)="onMetricesRowSelection($event)">
+                <ng-template pTemplate="item" let-rowData>
+                    <div class="ui-helper-clearfix">
+                        <div class="list" pTooltip="{{rowData.label}}" tooltipPosition="top">
+                            <!-- {{rowData.label}} -->
+                             <div class="list">
+                                <p-checkbox [binary]="true" [(ngModel)]="rowData.graphcheck" value="{{rowData.graphcheck}}" name="graphclearfix" (onChange)="onMetricesRowCheckboxClick(rowData,$event)"></p-checkbox>
+                                <label> {{rowData.label}}</label>
+                        </div>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-orderList>
+            </p-card>
+            <!--No need to so Indices card if metric is custom/derived-->
+            <p-card *ngIf='!customMetricGroup'>
+                <p-header>
+                    <span class="selected-label"> INDICES </span>
+                </p-header>
+                <div class="p-col-12">
+                    <p-radioButton name="groupAllIndices" value="All" label="All" [(ngModel)]="selectedIndices"
+                        (click)="clickAllIndices()">
+                    </p-radioButton>
+                </div>
+                <div class="p-col-12">
+                    <p-radioButton name="groupAllIndices" value="Selected Indices" label="Selected Indices"
+                        (click)="openDerivedIndecesWindow(dmIndices)" [(ngModel)]="selectedIndices">
+                    </p-radioButton>
+                </div>
+                <div class="dashboard-report-pattern-exp-text-div">
+                    <p-inputMask type="text" [readonly]="true" [(ngModel)]="patternExpFromTxtArea"
+                     pTooltip="{{patternExpFromTxtArea}}" tooltipPosition="bottom" tooltipStyleClass="tooltipStyle" class="dashboard-pattern-exp-text">
+                </p-inputMask>
+                  </div>
+                <!-- <div class="add-temp-btn p-col-12">
+                    <button pButton type="button" class="applybtn ui-button ui-button-rounded" label="APPLY"></button>
+                </div> -->
+            </p-card>
+        </div>
+    </div>
+</div>
+
+<app-derived-metric-indices #dmIndices [addReportSettingsComponent]=this></app-derived-metric-indices>
+<!-- <app-indices-select #dmIndices></app-indices-select> -->

@@ -1,0 +1,111 @@
+<p-sidebar
+  #sidebar
+  position="right"
+  [styleClass]="classes"
+  [(visible)]="visible"
+  [showCloseIcon]="false"
+  baseZIndex="10000"
+  blockScroll="true"
+  appendTo="body"
+  styleClass="time-filter"
+  [baseZIndex]="100"
+  [style]="{ width: '50em' }"
+>
+  <div class="sidebar-header">
+    <div class="sidebar-title p-grid p-justify-between">
+      <div>
+        <span>Process : Cmon</span>
+      </div>
+      <div>
+        <i
+          class="icons8-delete icons8"
+          style="cursor: pointer"
+          (click)="closeClick()"
+        ></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-content" *ngIf="data">
+    <ng-container>
+      <p-card>
+        <div #widgetHeight>
+          <p-table
+          #allProcess
+          [resizableColumns]="true"
+          [columns]="selectedColumns"
+          [value]="data.data"
+          [rowHover]="true"
+          
+          [responsive]="true"
+          [scrollable]="true"
+          scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 140px)"
+        >
+          <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+              <col
+                *ngFor="let col of columns"
+                [style.width]="col.width"
+              />
+            </colgroup>
+          </ng-template>
+
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th
+                *ngFor="let col of columns"
+                pResizableColumn
+                [attr.coldiv]="col.coldiv"
+                [attr.rowdiv]="col.rowdiv"
+                [pSortableColumn]="col.valueField"
+                class="text-left"
+              >
+                <div class="left">
+                  {{ col.label }}
+                </div>
+                <div *ngIf="col.isSort" class="right">
+                  <p-sortIcon
+                    *ngIf="col.isSort"
+                    [field]="col.valueField"
+                    class="text-right"
+                    ariaLabel="Activate to sort"
+                    ariaLabelDesc="Activate to sort in descending order"
+                    ariaLabelAsc="Activate to sort in ascending order"
+                  >
+                  </p-sortIcon>
+                </div>
+              </th>
+            </tr>
+            
+          </ng-template>
+          <ng-template
+            pTemplate="body"
+            let-row
+            let-columns="columns"
+            let-rowIndex="rowIndex"
+          >
+            <tr>   
+              <td *ngFor="let col of columns">
+                {{ row[col.valueField] }}
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td
+                [attr.colspan]="columns.length + 1"
+                class="text-center"
+              >
+                <span *ngIf="error">Error while loading data</span>
+                <span *ngIf="emptyTable">Empty Table</span>
+                <span *ngIf="loading">Loading</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        </div>
+      </p-card>
+    </ng-container>
+  </div>
+</p-sidebar>

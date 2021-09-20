@@ -1,0 +1,355 @@
+<div class="p-align-stretch session-container" id="nothing">
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngif="!data">
+        <div class="p-col p-col-align-center text-center" *ngIf="loading">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+    <!-- <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message class="no-border" severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div> -->
+
+    <div *ngIf="data">
+        <div class="action-container">
+            <div class="p-grid p-justify-between p-align-center action-grid w-100-p px-10">
+                <div class="global-search-block">
+                    <div>
+                        <i class="icons8 icons8-filter left filter-icon clickable" pTooltip="Open Session Filter"
+                            (click)="sessionFilterSidebar.open()"></i>
+                        <i class="icons8 icons8-expand-arrow left filter-icon clickable ml-0"
+                            pTooltip="Open Other Filters" (click)="filtersMenu.toggle($event)"
+                            style="font-size: 2.25em;"></i>
+
+                        <p-menu #filtersMenu [popup]="true" [model]="filterItems"></p-menu>
+
+                    </div>
+                    <div class="p-input-icon-left search-div-css">
+                        <div class="ssMode">
+                            <p-dropdown [options]="sessionMode" [(ngModel)]="selectedSessionMode" dropdownIcon="icons8 icons8-expand-arrow" (onChange)="changeGloablSessionMode($event.value)"></p-dropdown>
+                        </div>
+
+                        <i class="icons8 icons8-search" (click)="applySmartSearchFilter()"></i>
+                        <p-autoComplete [(ngModel)]="smartSearchInput" [suggestions]="suggestions"
+                            (completeMethod)="findSuggestions($event)" field="value" [size]="30" placeholder=""
+                            [minLength]="1" class="input-field-search" dropdownIcon="icons8 icons8-expand-arrow"
+                            [multiple]="true" (onSelect)="smartSearchItemAdded($event)"
+                            (onUnselect)="smartSearchItemRemoved($event)" (onKeyUp)="handleKeyUpInSmartSearch($event)">
+                            <ng-template let-suggestion pTemplate="item">
+                                <ng-template [ngIf]="suggestion.filterName != 'Header'" [ngIfElse]="headerBlock">
+                                    <b>{{suggestion.value}}</b>
+                                    {{suggestion.separator}}
+                                    <b class="text-info">{{suggestion.filterName}}
+                                    </b>
+                                </ng-template>
+                                <ng-template #headerBlock>
+                                    <!--TODO: proper css.-->
+                                    <b>{{suggestion.value}}</b>
+                                </ng-template>
+                            </ng-template>
+                        </p-autoComplete>
+                    </div>
+                </div>
+
+                <div class="icons-container p-justify-between p-align-center">
+                    <button pButton type="button" class="ui-button-rounded ui-button-secondary mx-3"
+                        (click)="analyticsMenu.toggle($event)" label="ANALYTICS"></button>
+                    <p-tieredMenu class="config-tier" #analyticsMenu [model]="analyticsOptions" [popup]="true">
+                    </p-tieredMenu>
+                    <button pButton icon="icons8 icons8-search-property" class="btn-icon mx-3" (click)="toggleFilters()"
+                        pTooltip="Column Filter"></button>
+                    <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns"
+                        optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                        pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }" styleClass="dropdown-panel-left">
+                    </p-multiSelect>
+                    <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                        [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                    <button pButton icon="icons8 icons8-installing-updates" class="btn-icon mx-3"
+                        (click)="menu.toggle($event)" pTooltip="Export Sessions"></button>
+                    <button pButton icon="icons8 icons8-export" (click)="exportSessionDetail()" class="icon-button no-shadow" pTooltip="Export Session Details"></button>
+                    <button pButton icon="icons8 icons8-futures" class="btn-icon mx-3" pTooltip="Session Trend"
+                        (click)="toggleSessionTrend()"></button>
+                    <button pButton icon="pi pi-undo" class="btn-icon mx-3" (click)="Reload()" pTooltip="Reload Session(s)"></button>
+                    <p-inputSwitch class="mx-3" [(ngModel)]="activeSessions"
+                        [pTooltip]="'Toggle ' + (activeSessions ? 'Completed ':'Active ')+ 'Sessions'"
+                        (onChange)="handleSessionTypeChange($event.checked)"></p-inputSwitch>
+                    
+                    </div>
+            </div>
+            <div [innerHTML]="filterhtml" [attr.title]="filterTitle" class="filterDiv elipseText pr-20 pl-5" *ngIf="filterhtml !== ''"></div>
+
+            <ng-container>
+                <!-- Session Trend -->
+                <div class="content-body" *ngIf="showSessionTrend">
+                    <p-header>
+                        <div class="p-grid p-justify-between sessionTrend">
+                            <div class="p-col-2" style="font-weight: 700px;">Session Trend</div>
+                            <div class="p-col-1">
+                                <p-dropdown [options]="trendBuckets" [(ngModel)]="trendBucket"
+                                    dropdownIcon="icons8-expand-arrow" (onChange)="updateBucket()">
+                                </p-dropdown>
+                            </div>
+                        </div>
+                    </p-header>
+
+                    <div class="p-col-11 p-col-align-center text-center" *ngIf="trendloading">
+                        <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+                    </div>
+
+                    <app-chart [data]="sessionTrendData" *ngIf="trendLoaded"></app-chart>
+
+                </div>
+
+
+                <!-- Session Table -->
+                <div #widgetHeight [ngStyle]="{
+                    height: isEnabledColumnFilter
+                      ? 'calc(100vh - 215px)'
+                      : 'calc(100vh - 182px)'
+                  }">
+                    <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                        Select column to show
+                    </div>
+                    <div class="content-body">
+
+
+                        <p-table #session [value]="groupData" [columns]="selectedColumns"  [showCurrentPageReport]="!countLoading && totalRecords && !loading"  
+                            [rowHover]="true" [selection]="selectedRow" selectionMode="single" [first]="first"
+                            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                            [paginator]="true" [lazy]="true" (onLazyLoad)="loadPagination($event)"
+                            [totalRecords]="totalRecords" [responsive]="true" class="all-tables"
+                            [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [rows]="data.paginator.rows"
+                            [scrollable]="true" [loading]="loading" (onRowSelect)="handleRowSelection($event)"
+                            scrollHeight="calc({{widgetHeight.offsetHeight}}px - 91px)"
+                            [resizableColumns]="true" columnResizeMode="expand" [style]="{width:'99vw'}">
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup class="colWidth12">
+                                    <col>
+                                    <col *ngFor="let col of columns" [style.width]="col.width ? col.width: null">
+                                </colgroup>
+                            </ng-template>
+                            <ng-template pTemplate="header" let-columns>
+                                <tr>
+                                    <!-- <th [ngStyle]="{ 'width': '3px', 'heigth':'15px', 'padding':'0px'}" pResizableColumn></th> -->
+                                    <th pResizableColumn></th>
+                                    <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField" pResizableColumn>
+                                        <div class="text-center">
+                                            <!--{{ col.label }}-->
+                                            <span title="{{ col.label }}">{{ col.label }}</span>
+                                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                                ariaLabel="Activate to sort"
+                                                ariaLabelDesc="Activate to sort in descending order"
+                                                ariaLabelAsc="Activate to sort in ascending order">
+                                            </p-sortIcon>
+                                        </div>
+                                    </th>
+                                    <!--<th>Events</th>-->
+                                </tr>
+                                <tr *ngFor="let headerRow of data.headers">
+                                    <ng-container *ngIf="isEnabledColumnFilter">
+                                        <!-- <th [ngStyle]="{ 'width': '3px', 'heigth':'15px', 'padding':'0px'}"></th> -->
+                                        <th></th>
+                                        <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                            <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'custom'
+                      ">
+                                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                    pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                    *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                    session.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'custom'
+                          )
+                        " />
+                                            </div>
+                                            <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'contains'
+                      ">
+                                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                    pTooltip="Will filter metric names which contains given text."
+                                                    *ngSwitchCase="col.label" pInputText type="text"
+                                                   (input)="session.filter($event.target.value,col.valueField,'contains')" />
+                                                   
+                                            </div>
+                                        </th>
+
+                                    </ng-container>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-row let-columns="columns">
+                                <tr [pSelectableRow]="row" (click)="toggleMenuOptions($event, menuOptions)">
+                                    <p-menu class="menu-item" #menuOptions [popup]="true" [model]="linkOptions"
+                                        appendTo="body"></p-menu>
+                                    <!-- <td class="ui-resizable-column"
+                                      [ngStyle]="{'width': '3px', 'height':'15px', 'padding':'0px', 'border-left':0}"
+                                      [style.background-color]="row['struggling'] == true ? 'rgb(255, 132, 132)' : null">
+                                    </td> -->
+                                    <td class="ui-resizable-column"> <!--Select session to export-->
+                                        <div class="sortLine"  [style.background-color]="row['struggling'] == true ? 'rgb(255, 132, 132)' : null"></div>
+                                        <p-checkbox class="sm-checkbox" *ngIf='activeSessions == false' value="sid"  name='sid' (click)='setSession($event, row)'></p-checkbox>
+                                    </td>
+                                    <td *ngFor="let col of columns" class="{{ col.classes }} ui-resizable-column" >
+                                        <span
+                                            *ngIf="col.valueField !='actions' && col.valueField !='browser' && col.valueField !='location' && col.valueField !='os' && col.valueField != 'deviceType' && col.valueField != 'store' && col.valueField != 'terminal' && col.valueField != 'conType' && col.valueField != 'events'"
+                                            title={{row[col.valueField]}}> {{ row[col.valueField] }}
+                                        </span>
+                                        <!-- actions template -->
+                                        <div class="p-grid p-align-center p-justify-flex font-14 mln-5 mrn-5" *ngIf='col.valueField == "actions"'>
+                                            <!--struggling session-->
+                                            <!-- <i class="cav sessions btn-icon mx-3"  *ngIf='row["struggling"] == true' title='struggling session'></i> -->
+                                            <!--session has transaction-->
+                                            <i class="las la-exchange-alt mx-3" *ngIf='row["sessionHasTxn"] == true' title="Session has recorded transaction"></i>
+                                            <!--Open script-->
+                                            <i class="btn-icon las-file-alt mx-3"  *ngIf='activeSessions == false && nvconfigurations?.enableTestScript === true' (click)='openScript($event, row)'  title='Export as test case'></i>
+                                            <!--DDR TO ND-->
+                                            <i class='icons8 icons8-flow-chart btn-icon mx-3' *ngIf="row['flowpathInstances'] != null && row['flowpathInstances'] != '-1'"
+                                            title="View Flow Path Report" id='SequenceDiagram' (click)="openNDSession($event, row)"></i>
+                                            <!--DDR TO NF-->
+                                            <i class='icons-8 btn-icon icons8-search-property mx-3' *ngIf="row['flowpathInstances'] != null && row['flowpathInstances'] != '-1'"
+                                            id='SequenceDiagram' title="View Logs" (click)="openNF($event, row)"></i>
+                                            <!--BOT Session-->
+                                            <i class='las-user-secret-solid' title='Bot Session' *ngIf="row['botFlag'] == true"></i>
+                                            <!--Secure Client Authentication Failed-->
+                                            <i class="icons8 icons8-lock mx-3"
+                                                title='Secure Client Authentication Failed'
+                                                *ngIf="row['authFailed'] == true && row['authentic'] == true"></i>
+                                            <!--Secure Client Authentication Successfull-->
+                                            <i class="icons8 icons8-lock mx-3 font-14"
+                                                title='Secure Client Authentication Successfull'
+                                                *ngIf="row['authFailed'] == false && row['authentic'] == true"></i>
+
+                                        </div>
+                                        <!-- location template -->
+                                        <span class="p-grid p-align-center" *ngIf='col.valueField == "location"' title="{{(row.location.state ? (row.location.state + ','): '')}} {{row.location.country}}">
+                                            <!-- <img title="{{(row.location.state ? (row.location.state + ','): '')}} {{row.location.country}}"
+                                                [src]="row.location.icon"
+                                                style='height:14px;width:14px;'> -->
+                                                <!-- <i class="las-map-marker-solid btn-icon font-16 mr-3"></i> -->
+                                                {{(row.location.state ? (row.location.state + ','): '')}} {{row.location.country}}
+                                        </span>
+
+                                        <!-- os template -->
+                                        <span class="p-grid p-align-center" *ngIf='col.valueField == "os"' title={{row.os.name}}>
+                                            {{row.os.name}} {{(row.osVersion != "" && row.osVersion != null &&
+                                            row.osVersion != "null" ) ? ("("+row.osVersion+ ")") : "" }}
+                                        </span>
+
+                                        <!-- browser template if browser is  iphone app-->
+                                        <span class="p-grid p-align-center" *ngIf='col.valueField == "browser" && row.browser.id == "21"'>
+                                            <img title="{{row.browser.name}}" [src]="row.browser.icon" class="mr-3"
+                                                style='height:16px;width:16px;'> {{row.browser.name}}
+                                        </span>
+
+                                        <!-- browser template -->
+                                        <span class="p-grid p-align-center"
+                                            *ngIf='col.valueField == "browser" && row.AndroidBrowserFlag == false && row.browser.id != "21"'>
+                                            <img title="{{row.browser.name}}" [src]="row.browser.icon" class="mr-3"
+                                                style='height:16px;width:16px;'> {{row.browser.name}}
+                                            {{(row.browserVersion != "" && row.browserVersion != null &&
+                                            row.browserVersion != "null" ) ? ("("+row.browserVersion+ ")") : "" }}
+                                        </span>
+
+                                        <!-- browser template -->
+                                        <span class="p-grid p-align-center"
+                                            *ngIf='col.valueField == "browser"  && row.AndroidBrowserFlag == true && row.browser.id != "21"'>
+                                            <img title="{{row.browser.name}}" [src]="row.browser.icon" class="mr-3"
+                                                style='height:16px;width:16px;'> AndroidApp
+                                        </span>
+                                        <!-- device template -->
+                                        <span class="p-grid p-align-center" *ngIf='col.valueField == "deviceType"' title={{row.deviceType.name}}>
+                                            <i [class]='row.deviceType.font' class="font-16"></i>&nbsp;{{row.deviceType.name}}
+                                        </span>
+                                        <!-- store template -->
+                                        <span *ngIf='col.valueField == "store"'
+                                            title={{row.store._storenameforfilter}}>{{(row.store.id == '' ||
+                                            row.store.id == '-1') ? '-' : row.store.id }}</span>
+                                        <!-- terminal template -->
+                                        <span *ngIf='col.valueField == "terminal"'
+                                            title={{row.terminalId}}>{{(row.terminalId == '' || row.terminalId == '-1')
+                                            ? '-' : row.terminalId }}</span>
+                                        <!-- connection template -->
+                                        <span *ngIf='col.valueField == "conType"'
+                                            title={{row.conType}}>{{row.conType.name
+                                            }}</span>
+                                        <!-- event template -->
+                                        <span class="p-grid p-align-center" *ngIf='col.valueField == "events"'>
+                                            <span *ngFor="let event of row.events">
+                                                
+                                                <p-menu class="menu-item" #eventMenu [popup]="true"
+                                                    [model]="eventOptions" appendTo="body"></p-menu>
+                                                <img *ngIf="event.iconCls == null" title="{{event.name}}"
+                                                    (click)="onClickMenu(row,event.name,$event,eventMenu);"
+                                                    style='width:12px;height:12px;' [src]="event.icon">
+                                                <i *ngIf="event.iconCls != null" title="{{event.name}}" (click)="onClickMenu(row,event.name,$event,eventMenu);"
+                                                class="{{event.iconCls}} btn-icon mx-3 font-18"></i>
+
+                                            </span>
+                                        </span>
+
+                                        
+                                    </td>
+
+                                    
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td [attr.colspan]="columns.length + 1" class="text-center">
+                                        <span *ngIf="error">{{error.msg}}</span>
+                                        <span *ngIf="empty">No records found</span>
+                                        <span *ngIf="loading">Loading</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <!--Paginator template-->
+                            <ng-template pTemplate="paginatorright" let-state>
+                                <p-progressSpinner *ngIf="loading || countLoading" [style]="{width: '20px', height: '20px', paddingLeft: '50px'}"></p-progressSpinner>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
+<!--Event Impact -->
+
+<!--Event Impact -->
+<div id='event-revenue' *ngIf="this.impactFlag == true">
+    <app-event-revenue [impdata]="impactData" [cardData]="cardData" (changeFlagValue)='changeFlagValue($event)'
+        [loader]='appFlag'></app-event-revenue>
+</div>
+
+<app-session-filter #sessionFilterSidebar (filterChange)="applyFilter($event)"></app-session-filter>
+
+<p-dialog [(visible)]="testcase" class="secondary-dialog foterDialog" header="Export As Test Case"
+    [baseZIndex]="10000100011" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false"
+    [style]="{width: '615px'}">
+    <div class="p-grid pl-77 p-align-center">
+        <div class="p-grid p-col-12 p-align-center">
+            <strong class="p-col-3">Test Case Name:</strong>
+            <div class="p-col-6">
+                <input style="width:184px" type="text" pInputText [(ngModel)]="testcasename" />
+            </div>
+        </div>
+
+        <div *ngIf="responseForScript" class="p-grid p-col-12 p-align-center">
+            <i class="pi pi-spinner" aria-hidden="true" style="margin-left: 32%;"></i><span [innerHTML]="data4"></span>
+
+        </div>
+        <div *ngIf="msg != null" class="p-grid p-col-12 p-align-center">
+            <span class="p-col-10" style="text-align: center;" [innerHTML]="msg"></span>
+
+        </div>
+    </div>
+    <p-footer>
+        <div style="text-align: center;">
+            <button pButton type="button" label="Create" (click)="createScript(false)"></button>
+            <button pButton type="button" label="Create & Execute" (click)='createAndExecute()'></button>
+        </div>
+    </p-footer>
+</p-dialog>
+<p-toast></p-toast>

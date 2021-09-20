@@ -1,0 +1,71 @@
+<div class="sql-session-blocking-container">
+    <p-treeTable class= "all-tables" #blockingSessionTable [value]="dataTable.data" [columns]="selectedColumns" selectionMode="single" 
+        [paginator]="true" [totalRecords]="totalRecords" [rows]="dataTable.paginator.rows"
+        [rowsPerPageOptions]="dataTable.paginator.rowsPerPageOptions" [resizableColumns]="true"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [scrollable]="true" [globalFilterFields]="globalFilterFields" scrollHeight="350px">
+        <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+                <col *ngFor="let col of columns" class="width-200">
+            </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th *ngFor="let col of columns" [ttSortableColumn]="col.field" [title]="col.title">
+                    <span>
+                        {{col.label}}
+                    </span>
+                    <!-- <div  class="right"> -->
+                        <p-treeTableSortIcon *ngIf="col.isSort" [field]="col.field"></p-treeTableSortIcon>
+                    <!-- </div> -->
+                </th>
+
+            </tr>
+            <tr *ngFor="let headerRow of dataTable.headers">
+                <ng-container *ngIf="isShowColumnFilter">
+
+                    <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                        <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'custom'
+                        ">
+                            <input class="w-100-p"
+                                pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                blockingSessionTable.filter(
+                              $event.target.value,
+                              col.value,
+                              'custom'
+                            )
+                          " />
+                        </div>
+                        <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'contains'
+                         ">
+                            <input class="w-100-p"
+                                pTooltip="Will filter metric names which contains given text."
+                                *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                blockingSessionTable.filter(
+                              $event.target.value,
+                              col.field,
+                              'contains'
+                            )
+                          " />
+                        </div>
+                    </th>
+
+                </ng-container>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+            <tr [ttRow]="rowNode" [ttRow]="rowNode" [ttSelectableRow]="rowNode">
+                <td *ngFor="let col of columns; let i = index">
+                    <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+                    {{ rowData[col.field] }}
+                </td>
+            </tr>
+        </ng-template>
+    </p-treeTable> 
+</div>

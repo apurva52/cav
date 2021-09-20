@@ -1,0 +1,186 @@
+<div id=top-div>
+    <p-header class="p-grid p-justify-between">
+        <span class="configui-float-css p-align-center mt-12">Custom Configuration List
+            </span>
+        <span class="configui-float">
+          <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+             <button pButton type="button" class="ui-button-sucess mx-6 my-6" title="Add Custom configuration" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-plus-math"></button>
+             <button pButton type="button" class="ui-button-sucess mr-6 my-6" title="Add Custom configuration" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openAddDialog()" icon="icons8 icons8-plus-math"></button>
+             <button pButton type="button" class="ui-button-sucess mr-6 my-6" title="Edit Custom configuration" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-edit"></button>
+             <button pButton type="button" class="ui-button-sucess mr-6 my-6" title="Edit Custom configuration" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openEditDialog()" icon="icons8 icons8-edit"></button>
+             <button pButton type="button" class="ui-button-sucess mr-6 my-6" title="Delete Custom configuration" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-trash"></button>
+             <button pButton type="button" class="ui-button-sucess mr-6 my-6" title="Delete Custom configuration" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteCustomKeywords()" icon="icons8 icons8-trash"></button>
+             <button type="submit" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+             <button type="submit" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveKeywordData()" label="Save"></button>
+
+        <!--<button pButton class="ui-button-danger" type="button" title="Delete method monitor" [disabled]="saveDisable" (click)="deleteMethodMonitor()" icon="fa fa-trash"></button>-->
+    </span>
+    </p-header>
+    <p-table [columns]="cols" class="nde-ui config-ui all-tables" [value]="customKeywordsDataList" [(selection)]="selectedCustomKeywordsData">
+        <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+                <col style="width:7%">
+                <col style="width:30%">
+                <col style="width:30%">
+                <col style="width:30%">
+            </colgroup>
+        </ng-template>
+        <!-- <ng-template pTemplate="header">
+            <tr>
+                <th>
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th>Name</th>
+                <th>Value</th>
+                <th>Description</th>
+                
+            </tr>
+        </ng-template> -->
+        <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+            <tr>
+                <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                    <span class="width-20" *ngIf="col.field =='checkbox'"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></span>
+                    <span *ngIf="col.field !='checkbox'">
+                        {{col.header}}
+                        <p-sortIcon [field]="col.field"></p-sortIcon>
+                    </span>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template class="tableCss config-ui" pTemplate="body" let-customKeywordsData>
+            <tr>
+                <td class="text-center">
+                    <p-tableCheckbox [value]="customKeywordsData"></p-tableCheckbox>
+                </td>
+                <td class="tableCss" title="{{customKeywordsData.keywordName}}">{{customKeywordsData.keywordName}}</td>
+                <td class="tableCss" title="{{customKeywordsData.value}}">{{customKeywordsData.value}}</td>
+
+                <td class="tableCss" title="{{customKeywordsData.description}}">{{customKeywordsData.description}}</td>
+                
+            </tr>
+        </ng-template>
+    </p-table>
+
+
+    <!-- <p-dataTable class="nde-ui config-ui" [value]="customKeywordsDataList" [(selection)]="selectedCustomKeywordsData"> -->
+        <!-- <p-header>
+            <span class="configui-float-css">Custom Configuration List
+                </span>
+            <span class="configui-float">
+		 <i class="fa fa-question-circle" title="Help" (click)="sendHelpNotification()"></i>
+                 <button pButton type="button" title="Add Custom configuration" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-plus"></button>
+                 <button pButton type="button" title="Add Custom configuration" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openAddDialog()" icon="fa fa-plus"></button>
+                 <button pButton type="button" title="Edit Custom configuration" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-pencil"></button>
+                 <button pButton type="button" title="Edit Custom configuration" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openEditDialog()" icon="fa fa-pencil"></button>
+                 <button pButton type="button" class="ui-button-danger" title="Delete Custom configuration" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-trash"></button>
+                 <button pButton type="button" class="ui-button-danger" title="Delete Custom configuration" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteCustomKeywords()" icon="fa fa-trash"></button>
+                 <button type="submit" pButton icon="fa fa-check" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+                 <button type="submit" pButton icon="fa fa-check" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveKeywordData()" label="Save"></button>
+
+            <button pButton class="ui-button-danger" type="button" title="Delete method monitor" [disabled]="saveDisable" (click)="deleteMethodMonitor()" icon="fa fa-trash"></button>-->
+        <!-- </span> -->
+        <!-- </p-header> --> 
+        <!-- <p-column [style]="{'width':'2%'}" selectionMode="multiple"></p-column> -->
+        <!-- <p-column class="tableCss" field="keywordName" header="Name" [sortable]="true">
+            <ng-template let-col let-customKeywordsData="rowData" pTemplate>
+                <span title="{{customKeywordsData[col.field]}}">{{customKeywordsData[col.field]}}</span>
+            </ng-template>
+        </p-column> -->
+        <!-- <p-column class="tableCss" field="value" header="Value" [sortable]="true">
+            <ng-template let-col let-customKeywordsData="rowData" pTemplate>
+                <span title="{{customKeywordsData[col.field]}}">{{customKeywordsData[col.field]}}</span>
+            </ng-template>
+        </p-column> -->
+        <!-- <p-column class="tableCss" field="description" header="Description" [sortable]="true">
+            <ng-template let-col let-customKeywordsData="rowData" pTemplate>
+                <span title="{{customKeywordsData[col.field]}}">{{customKeywordsData[col.field]}}</span>
+            </ng-template>
+        </p-column> -->
+
+        <!-- <p-column class="tableCss config-ui" field="enable" header="Enabled" [sortable]="true" [style]="{'text-align':'center','width':'13%'}">
+            <ng-template class="config-ui" let-col let-customKeywordsData="rowData" pTemplate>
+                <mat-slide-toggle *ngIf="isProfilePerm" [disabled]="isProfilePerm" class="toggle-space config-ui" [(ngModel)]="customKeywordsData[col.field]"></mat-slide-toggle>
+                <mat-slide-toggle *ngIf="!isProfilePerm" class="toggle-space config-ui" (click)="enableKeyword(customKeywordsData)" [(ngModel)]="customKeywordsData[col.field]"></mat-slide-toggle>
+            </ng-template>
+        </p-column> -->
+    <!-- </p-dataTable> -->
+    <!-- Download reports as PDF,Excel and Word File  -->
+    
+<div class="p-grid p-align-center">
+    <label class="mr-5">Download Reports as: </label>
+    <button pButton class="icon-button no-shadow" pTooltip="Download Word file" tooltipPosition="top" icon="icons8 icons8-doc" (click)='downloadReports("WordFile")'></button>
+    <button pButton class="icon-button no-shadow" pTooltip="Download Excel file" tooltipPosition="top" icon="icons8 icons8-spreadsheet-file"  (click)='downloadReports("ExcelFile")'></button>
+    <button pButton class="icon-button no-shadow" pTooltip="Download PDF file" tooltipPosition="top" icon="icons8 icons8-pdf-2" (click)='downloadReports("PDFFile")'></button>
+</div>
+</div>
+
+<!--Dialog for method monitor-->
+
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" header="{{isNew ? 'Add Custom Configuration' : 'Edit Custom Configuration'}}" *ngIf="addEditDialog" [(visible)]="addEditDialog" modal="modal" width="500" responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveCustomKeywords()" #groupForm="ngForm" ngNativeValidate>
+        <div class="p-grid p-align-center w-100-p">
+            <div class="ui-g-3">
+                <label>Name</label>
+            </div>
+            <!--<div class="ui-g-9">
+                <input name="keywordName" [disabled]="!isNew" type="text" size="50" pInputText [(ngModel)]="customKeywords.keywordName" required autofocus ngModel/>
+            </div>-->
+
+            <div class="ui-g-6">
+                <!--input name="dropdown" *ngIf="isNew" type="text" size="35" class='hidden-validator' pInputText [(ngModel)]="customKeywords.keywordName" required ngModel/-->
+                <input name="dropdown" *ngIf="!isNew" type="text"  [disabled]="!isNew" pInputText [(ngModel)]="customKeywords.keywordName" required ngModel/>
+                <p-dropdown [options]="customKeywordsList" panelStyleClass="panelWidth" Type a message (onChange)="getKmdIdFromName(customKeywords.keywordName)"  *ngIf="isNew" name="keywordName" [(ngModel)]="customKeywords.keywordName" placeholder="--Select--" appendTo="body" class="customsearchfield"
+                    [filter]="true" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+            <div class="ui-g-2" style="padding-left: 0px; margin-left: -2px">
+                <div *ngIf="customKeywords.kmdId == '6'">
+                    <button pButton type="button" title="Browse" (click)="openFileManager()" icon="icons8 icons8-opened-folder" label="Browse"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center w-100-p" *ngIf="customKeywords.kmdId == '6'">
+            <div class="ui-g-3">
+                <label>Path</label>
+            </div>
+            <div class="ui-g-6">
+                <input name="path" [disabled]="true" type="text"  class="w-100-p" pInputText [(ngModel)]="customKeywords.value" (keydown.space)="$event.preventDefault()" ngModel/>
+            </div>
+        </div>
+
+
+        <div class="p-grid p-align-center w-100-p" *ngIf="customKeywords.kmdId != '6'">
+            <div class="ui-g-3">
+                <label>Value</label>
+            </div>
+            <div class="ui-g-6">
+                <input name="value" type="text" #minmax (input)="checkMinMax(minmax)" class="w-100-p"pInputText [(ngModel)]="customKeywords.value" (keydown.space)="$event.preventDefault()" required ngModel/>
+            </div>
+        </div>
+        <div class="p-grid p-align-center w-100-p">
+            <div class="ui-g-3">
+                <label>Description</label>
+            </div>
+            <div class="ui-g-6">
+                <textarea name="Desc" rows="2"  class="w-100-p" pInputTextarea [(ngModel)]="customKeywords.description" ngModel></textarea>
+            </div>
+        </div>
+        <footer>
+            <div class="p-grid p-align-center w-100-p p-justify-end my-15">
+                <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="addEditDialog=false" label="Cancel"></button>
+                <button type="submit" pButton class="ui-button-rounded  px-10" label="Save"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>
+
+<!--Dialog to open file explorer dialog -->
+<!--<p-dialog class="profile-dialog browseTopCssCustomKeyword" [style]="{width: '50vw'}" [resizable]="false " header="File Manager " *ngIf="openFileExplorerDialog " [(visible)]="openFileExplorerDialog " modal="modal " width="650 " responsive="true ">-->
+
+    <!-- This will look for this component in the ProductUI at this path -
+         ..\ProductUI\gui\src\app\modules\file-explorer\components\config-nd-file-explorer\-->
+
+    <!-- <app-config-nd-file-explorer></app-config-nd-file-explorer> -->
+<!--</p-dialog>-->
+
+<app-file-manager #fileManager (eventBind)="getPath($event)"></app-file-manager>

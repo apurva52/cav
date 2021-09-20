@@ -1,0 +1,42 @@
+<div jsplumb-surface-drop selector=".draggable-state" [surfaceId]="surfaceId" [dataGenerator]="dataGenerator">
+    <button type="button" pButton class="draggable-state ui-button-rounded ui-button-secondary" icon="icons8 icons8-add"
+        label="STATE" iconPos="right" data-node-type="state" title="Drag to add new state" jtk-width="" jtk-height=""
+        style="position:absolute;top:0;left:0;z-index:2;cursor:move"></button>
+</div>
+
+
+<jsplumb-surface [toolkitId]="toolkitId" [surfaceId]="surfaceId" [view]="view" [renderParams]="renderParams">
+</jsplumb-surface>
+
+<div style="position: absolute;top:0; right:0">
+    <jsplumb-miniview [surfaceId]="surfaceId"></jsplumb-miniview>
+</div>
+
+<p-dialog header="Edit Edge" [(visible)]="display" [style]="{width:'30vw'}" [modal]="true" (onHide)="onEditEdgeHide()">
+    <div class="p-grid ui-fluid">
+        <div class="p-col-12">
+            <input type="text" pInputText [(ngModel)]="edgeLabel" />
+        </div>
+    </div>
+    <div class="p-grid p-justify-center">
+        <button type="button" pButton label="Cancel" class="mh-5" (click)="display=false"></button>
+        <button type="button" pButton label="Save" class="mh-5" (click)="updateEdge()"></button>
+
+    </div>
+</p-dialog>
+
+<p-dialog header="Edit State" [(visible)]="editStateDialog" [style]="{width:'30vw'}" [modal]="true">
+    <div class="p-grid p-justify-between ui-fluid p-align-center">
+        <div class="p-col-2">
+            <label>Label</label>
+        </div>
+        <div class="p-col">
+            <input type="text" pInputText [(ngModel)]="stateLabel" />
+        </div>
+    </div>
+    <p-message severity="error" text="Label is required" *ngIf="invalidStateLabel"></p-message>
+    <div class="p-grid p-justify-end">
+        <button type="button" pButton label="Cancel" class="mh-5" (click)="editStateDialog = false"></button>
+        <button type="button" pButton label="Save" class="mh-5" (click)="saveStateLabel()"></button>
+    </div>
+</p-dialog>

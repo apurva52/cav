@@ -1,0 +1,25 @@
+<div class="execution-plan-diagram-container">
+    <div class="p-col-12 diagram-body">
+        <div class="h-100-vh">
+          <jsplumb-surface [surfaceId]="surfaceId" [toolkitId]="toolkitId" [view]="view" [renderParams]="renderParams"></jsplumb-surface>
+          <div class="mini-view">
+            <jsplumb-miniview [surfaceId]="surfaceId"></jsplumb-miniview>
+            <div id="myDIV" class="zoom-levels">
+                <div  class="1x selected" (click)="zoomToLevel(0.2)">1x</div>
+                <div  class="1x" (click)="zoomToLevel(0.4)">2x</div>
+                <div  class="1x" (click)="zoomToLevel(0.7)">3x</div>
+                <div  class="1x" (click)="zoomToLevel(1)">4x</div>
+            </div>
+            <div class="zoom-range">
+                <div>1</div>
+                <div>
+                    <p-slider [(ngModel)]="zoomLevel" [style]="{'width':'15em'}" (onChange)="zoomChange($event)"></p-slider>
+                </div>
+                <div>
+                    100
+                </div>
+            </div>
+        </div>
+        </div>
+      </div>
+</div>

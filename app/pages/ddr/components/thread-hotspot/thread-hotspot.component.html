@@ -1,0 +1,32 @@
+<p-dialog class="ddr-dialog" header="Custom Match Stack Depth" [(visible)]="display" [closable] = "false" modal="modal" appendTo = "body" width="300" [responsive]="true" [draggable]="false">
+    Number of Top Frames for Grouping <input id="input" type="text" size="5" maxlength="5" pInputText [(ngModel)]="topFrame">
+    <p-footer>
+        <button type="button" pButton (click)="getValue()" label="Ok"></button>
+        <button type="button" pButton (click)="back()" label="Cancel"></button>
+    </p-footer>
+</p-dialog>
+
+<div>
+     <!-- COMMON TOOLBAR -->
+    <div class="ddr-box">
+ <!-- <p-toolbar>
+    <div class="reportInfo">
+      <label class="headerInfo"><b>{{reportHeader}}</b></label>
+    </div>
+ </p-toolbar> -->
+<! --COMMON BOX SCROLLLBAR -->
+<!-- <div [ngStyle]="{'height': screenHeight+'px'}" style="overflow:auto;"> -->
+<p-tabView class="ddr-tabs" (onChange)="handleChange($event)">
+    <p-tabPanel header="No Grouping" leftIcon="fa fa-map-o" [selected]="index == 0" >
+        <app-nogrouping *ngIf = "index == 0"  [signatureName]="signatureName" [displayName] = "displayName" (stSignature)="saveSignatureData($event)" [compareDepth]="depth"></app-nogrouping>
+    </p-tabPanel>
+    <p-tabPanel header="All Frame" leftIcon="fa fa-bookmark-o" [selected]="index == 1">
+        <app-group-by-all *ngIf = "index == 1"  (stSignature)="saveSignatureData($event)" ></app-group-by-all>
+    </p-tabPanel>
+    <p-tabPanel header="Custom Depth" leftIcon="fa fa-crosshairs" [selected]="index == 2">
+        <app-group-by-custom *ngIf ="(!display && index == 2)" [topFrame]="topFrame" (stSignature)="saveSignatureData($event)" ></app-group-by-custom>
+    </p-tabPanel>
+</p-tabView>
+<!-- </div> -->
+</div>
+</div>

@@ -1,0 +1,172 @@
+<div class="add-configure-dialog">
+<p-dialog header="Advanced E-Mail settings" [(visible)]="displaySetings"  [closable]="false"  [baseZIndex]="10000100011"  [style]="{width: '60vw'}" [modal]="true">
+    <div class="modal-header">
+    <p-fieldset legend="Chart configuration" class="ph-20">
+         <div class="p-grid p-col-12">
+                  <p-inputSwitch [(ngModel)]="showCharts"></p-inputSwitch> 
+                  <span class="ml-5">Show charts in E-mail</span> 
+         </div>
+           <span *ngIf="showCharts">
+            <div class="p-grid p-col-12">
+                <div class="mt-8 mr-5">                       
+                    Include maximum
+                </div>
+                     <input  type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                      size="1" class="input" placeholder="duration" pInputText />  
+                      &nbsp; &nbsp;       
+                     <select name="cars" id="cars">
+                     <option value="Second(s)">Line</option>
+                     <option value="saab">Bar</option>
+                     <option value="mercedes">Area</option>
+                     </select>
+                     <div class="mt-8 mr-5"> 
+                     &nbsp; &nbsp;charts for last &nbsp; &nbsp;
+                         </div>
+                     <input     type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                       size="1" class="input" placeholder="Expected Size" pInputText /> &nbsp; &nbsp;
+                       <div class="mt-8 mr-5"> 
+                      minutes
+                      </div>
+           
+        </div>
+            <div class="p-grid p-col-12">
+                Criteria to select chart metrics
+            </div>
+            <div class="p-grid p-col-12"> 
+                <div class="p-grid p-col-1"></div>                                    
+                    <p-inputSwitch [(ngModel)]="useMetrics"  (click)="
+                    this.similarPattern= false;">  
+                   </p-inputSwitch> 
+                   <span class="ml-5"> use metrics on which alerts are generated</span> 
+           </div>
+           <div class="p-grid p-col-12"> 
+            <div class="p-grid p-col-1"></div>                               
+            <p-inputSwitch [(ngModel)]="similarPattern" (click)="
+            this.useMetrics= false;">  >   
+           </p-inputSwitch> 
+           <span class="ml-5"> Identify and show more relevant metrices where similar pattern is matched</span> 
+   </div>
+   <span *ngIf="similarPattern">
+    <div class="p-grid p-col-12">
+        <div class="p-grid p-col-1"></div> 
+        <div class="mt-8 mr-5">                       
+            out of metrics collection &nbsp;
+        </div>
+                                                 
+             <select name="cars" id="cars">
+             <option value="Second(s)">catalogue</option>
+             </select>
+             <div class="mt-8 mr-5"> 
+             &nbsp; &nbsp;having pattern match threshold as &nbsp; &nbsp;
+                 </div>
+             <input     type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+               size="1" class="input" placeholder="Expected Size" pInputText />
+               
+                
+</div>
+<div class="p-grid p-col-12">
+     <div class="p-grid p-col-1"></div> 
+<div class="mt-8 mr-5"> 
+    <select name="cars" id="cars">
+        <option value="Second(s)">with</option>
+        <option value="Second(s)">without</option>
+        </select> 
+    inverse match.
+  </div>
+  </div>
+<div class="p-grid p-col-12">
+     <div class="p-grid p-col-1"></div> 
+    <div class="mt-8 mr-5">                       
+        where baseline alert metric is picked based on 
+        maximum    &nbsp; &nbsp;
+    </div>
+    <select name="cars" id="cars">
+        <option value="Second(s)">maximum</option>
+        <option value="Second(s)">minimum</option>
+        </select>
+        <div class="mt-8 mr-5">                       
+            &nbsp; &nbsp;    alert condition value    &nbsp; &nbsp;
+        </div>
+</div>
+</span>
+<div class="p-grid p-col-12">
+<p-inputSwitch [(ngModel)]="PlaceMetrices">  
+</p-inputSwitch> 
+<span class="ml-5"> Place all the metrices in separate charts</span> 
+</div>    
+          </span>
+
+    </p-fieldset>
+</div> 
+    <p-fieldset legend="Stats report configuration" class="ph-20">
+        <div class="p-grid p-col-12">
+                  <p-inputSwitch [(ngModel)]="generateReport"></p-inputSwitch>
+                  <span class="ml-5">Generate report and send link in mail</span>
+         </div>
+
+         <span *ngIf="generateReport">
+              <div class="p-grid p-col-12">
+                <div class="mt-8 mr-5">                       
+                    Include &nbsp;
+                </div>
+                     
+                     
+                     <select name="cars" id="cars">
+                     <option value="Second(s)">Tabular</option>
+                     <option value="saab">Word</option>
+                     <option value="mercedes">HTML</option>
+                     </select>
+                     <div class="mt-8 mr-5"> 
+                     &nbsp; &nbsp;report for last  &nbsp; 
+                         </div>
+                     <input     type = "number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                       size="1" class="input"  pInputText />
+                       <div class="mt-8 mr-5"> 
+                      minutes &nbsp;
+                      </div>
+                      <select name="cars" id="cars">
+                        <option value="Second(s)">without</option>
+                        <option value="saab">with</option>
+                        </select>
+                        <div class="mt-8 mr-5"> 
+                            &nbsp; charts
+                            </div>
+           
+        </div>
+        <div class="p-grid p-col-12">
+            <div class="mt-8 mr-5"> 
+                Criteria to select metrics for report
+                </div>
+        </div>
+        <div class="p-grid p-col-12">
+            <div class="p-grid p-col-1"></div>                                   
+            <p-inputSwitch [(ngModel)]="useMetrics1"  (click)="
+            this.similarPattern1= false;">  
+           </p-inputSwitch> 
+           <span class="ml-5"> use metrics on which alerts are generated </span> 
+        </div>
+        <div class="p-grid p-col-12">
+            <div class="p-grid p-col-1"></div>                                   
+            <p-inputSwitch [(ngModel)]="similarPattern1"  (click)="
+            this.useMetrics1= false;">  
+           </p-inputSwitch> 
+           <span class="ml-5"> use metrics from the &nbsp;</span> 
+         
+           <select name="cars" id="cars">
+            <option value="Second(s)"  [disabled]="!similarPattern1" placeholder="Critical">Favorite</option>
+           
+            </select>
+        </div>
+
+         </span>
+         </p-fieldset>
+         <p-footer>
+            <div class="p-col-12 form-buttons right">
+                <button pButton type="submit" label="Save"  class="ui-button-rounded" ></button>
+
+                <button pButton type="button" label="Close" class="ui-button-rounded ui-button-secondary" (click)="closeDialog()"></button>
+                
+            </div>
+        </p-footer>
+ </p-dialog>
+</div>

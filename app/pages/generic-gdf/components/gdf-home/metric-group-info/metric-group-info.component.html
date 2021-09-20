@@ -1,0 +1,36 @@
+<div class="p-grid p-align-center">
+    <div class="required-mark">Metric Group Name</div>  
+    <div class="p-col-2">
+        <input type="text" pInputText class="w-100-p" name="grp" placeholder="Enter metric group name"
+            (focusout)="validateGrpInfo()" required pattern="^[a-zA-Z][a-zA-Z0-9-_ ]*$" autofocus maxlength="64"
+            [(ngModel)]="item['gdfInfo']['grpN']" required style="width: 200px;" [disabled]="isFromEdit">
+    </div>
+
+    <div class="">Metric Group Description</div>
+    <div class="p-col-2">
+        <input type="text" pInputText class="w-100-p" name="mgDesc" maxlength="128"
+            placeholder="Enter metric group description" [(ngModel)]="item['gdfInfo']['gD']" style="width: 216px;">
+    </div>
+
+
+    <div style="margin-left: 12px;">Technology</div>
+    <div class="p-col-2">
+        <p-dropdown name="category" [options]="techList" [(ngModel)]="item['cat']" filter="true"
+            placeholder="--Select Category--" dropdownIcon="icons8 icons8-expand-arrow" [disabled]="isFromEdit">
+        </p-dropdown>
+    </div>
+
+    <div class="p-col-1">
+        <input type="text" pInputText name="customCat" [disabled]="item['cat'] != 'addNewTechnology'" [(ngModel)]="item['cusCat']"
+            placeholder="Enter custom category" class="" required>
+    </div>
+</div>
+
+
+
+<!-- <div class="p-grid p-align-center p-5">
+    <div class="width-160">Metric Group Description</div>
+    <div >
+        <input type="text" pInputText  class="width-200" name="mgDesc" maxlength="128"
+            placeholder="Enter metric group description" [(ngModel)]="item['gdfInfo']['gD']">
+    </div> -->

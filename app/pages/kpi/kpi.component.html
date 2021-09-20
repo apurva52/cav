@@ -1,0 +1,141 @@
+<div class="h-100-vh kpi-wrapper">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toast position="top-right"></p-toast>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/system">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                KPI
+            </div>
+            <div class="p-col">
+                <div class="autoplay" *ngIf="autoplayConfig">
+                    <div class="autoplay-check toolbar-text-color">
+                        <p-checkbox [(ngModel)]="autoplayEnabled" binary="true" label="Autoplay" (onChange)="toggleAutoplay()"></p-checkbox>
+                    </div>
+                    <div class="timer-value">
+                        <p-dropdown [options]="autoplayConfig.timer.list" [(ngModel)]="autoplayInterval" (onChange)="autoplayTimerChanged()" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button pButton type="button" class="ui-button ui-button-rounded" label="GRAPHICAL" [routerLink]="['/graphical']">
+                </button>
+            </div>
+        </div>
+    </p-toolbar>
+
+    <div class="content-body">
+        <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+            <div class="p-col p-col-align-center text-center">
+                <div>
+                    <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+                </div>
+            </div>
+        </div>
+        <div class="p-grid vertical-container" *ngIf="error">
+            <div class="p-col p-col-align-center text-center">
+                <p-message severity="error" text="Error while loading data."></p-message>
+            </div>
+        </div>
+        <div>
+            <div id="panel-0">
+                <app-kpi-revenue></app-kpi-revenue>
+            </div>
+            <div *ngIf="data">
+                <div class="ui-fluid detailed-header">
+                    <div class="p-field p-grid">
+                        <label for="show" class="p-0">Show</label>
+                        <div class="p-col-6 p-md-2 multi-select">
+                            <p-multiSelect [options]="panelOptions" [(ngModel)]="selectedPanels" [filter]="false" [defaultLabel]="'Select Applications'" (onChange)="selectedPanelChange()" dropdownIcon="icons8-expand-arrow" class="w-100-p">
+                            </p-multiSelect>
+                        </div>
+                        <div class="p-col dc-lst">
+                            <div class="lst" *ngFor="let dc of dcData | keyvalue">
+                                <div class="lst-key">
+                                    <i class="pi pi-spin pi-spinner" *ngIf="dc.value.loading"></i>
+                                    <i class="pi pi-exclamation-circle" *ngIf="dc.value.error"></i>
+                                    <span pTooltip="{{dc.key}}">{{dc.key}}</span>
+                                </div>
+                                <div class="lst-value" *ngIf="dc && dc.value && dc.value.data && dc.value.data.date" pTooltip="{{dc.value.data.date}}">
+                                    {{dc.value.data.date}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-col">
+                            <div class="timebar-options p-grid p-justify-end p-align-center">
+                                <div class="ph-10 selected text-right" *ngIf="kpiTimeFilter.timePeriod.selected">
+                                    <div class="pv-2">Time Period</div>
+                                    <div><strong>{{kpiTimeFilter.timePeriod.selected.label}}</strong></div>
+                                    <div *ngIf="kpiTimeFilter.timePeriod.selected.title"><small>{{kpiTimeFilter.timePeriod.selected.title}}</small></div>
+                                </div>
+                                <button pButton class="right icon-button no-shadow" pTooltip="Time Filter" icon="icons8 icons8-filter" (click)="kpiTimeFilter.openTimeFilter()">
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="p-grid p-justify-center p-align-center pv-100 inner-wrapper" *ngIf="selectedPanels.length == 0">
+                    <h2 class="empty-text">Select an application to view data</h2>
+                </div>
+            </div>
+
+            <div *ngIf="selectedPanels.length && data">
+                <div class="p-grid p-justify-start p-align-center">
+                    <div *ngFor="let panel of data.panels; let i = index" class="w-100-p">
+                        <div *ngIf="selectedPanels.indexOf(i+1) != -1">
+                            <div id="panel-{{i+1}}" class="kpi-panel">
+                                <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="pnl.collapsed"
+                                [ngClass]="pnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                                    <p-header class="cav-panel-header pt-5">
+                                        <div class="panel-title" (click)="pnl.toggle($event)">
+                                            <a tabindex="{{i}}">
+                                                <span [class]="pnl.collapsed ? 'icons8 icons8-plus-math' : 'icons8 icons8-minus'">
+                                                </span>
+                                            </a>
+                                            {{panel.label}}
+                                        </div>
+                                        <div class="zone-check">
+                                            <div *ngFor="let zone of panel.zones">
+                                                <p-checkbox [binary]="true" [(ngModel)]="panel.selectedZones[zone]" value={{zone}} label="{{zone | uppercase}}" (onChange)="zoneChange(panel)" class="pl-10" [disabled]="isZoneCheckboxDisable(panel, zone)">
+                                                </p-checkbox>
+                                            </div>
+                                        </div>
+                                    </p-header>
+                                    <p-table class="panel-table" [columns]="panel.headers" [value]="panel.data">
+                                        <ng-template pTemplate="header" let-columns>
+                                            <tr *ngFor="let headerRow of panel.headers">
+                                                <th *ngFor="let col of headerRow.cols" [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan">
+                                                    {{col.label}}
+                                                </th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-tier>
+                                            <tr>
+                                                <td>
+                                                    {{tier.tier}}
+                                                </td>
+                                                <td *ngFor="let col of tier.cols" class="{{col.classes}}">
+                                                    <span pTooltip="{{col.tooltip}}" [escape]="false"> {{col.value}}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
+                                </p-panel>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <app-kpi-time-filter #kpiTimeFilter></app-kpi-time-filter>
+
+</div>

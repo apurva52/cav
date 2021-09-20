@@ -1,0 +1,98 @@
+<!-- <div class="dashboard-titlebar header">
+        <h3 class="modal-titlebar" mat-dialog-title     style="padding-left: 12px;">  {{_tabNavigator.yAxisFieldName}} Graph
+            <div style="float: right">
+                <mat-icon fontSet='fa' fontIcon='fa-times' title='Close' (click)="close()" style="color: white;cursor:pointer;" class=''></mat-icon>
+            </div>
+        </h3>
+
+        <span class="setleft">
+                <mat-icon fontSet='fa' fontIcon='fa-clock-o' class='dashboard-elapsed-time-icon-chk clr' title="Sample Duration"></mat-icon>
+        </span> 
+        
+        <span style="color:white; font-family: sans-serif;" >13-10-2019 00:00 To  13-10-2019 20:43</span> 
+</div>  -->
+
+<!-- <p-growl [value]="msgs" sticky="sticky"></p-growl> -->
+
+
+<div class="" data-role="header" data-position="fixed">
+    <!-- <h5 class="titlebar" mat-dialog-title>{{_tabNavigator.yAxisFieldName}} Graph</h5> -->
+    <div class="closeDialog accessLog-dialogHeaderText">
+        <!-- <mat-icon fontSet='fa' fontIcon='fa-times' title='Close' (click)="close()" class="closeIcon pointer" mat-dialog-close disable></mat-icon> -->
+        <i fontSet='fa' fontIcon='fa-times' title='Close' (click)="close()" class="closeIcon pointer"></i>
+    </div>
+</div>
+
+
+<!-- <div class="sql-main-toolbar setFontSize">
+    <mat-toolbar class="sql-toolbar setFontSize">
+      
+       <div> 
+        <span>   
+          {{_tabNavigator.yAxisFieldName}} Graph
+        </span>
+
+        <span class="setleft">
+                <mat-icon fontSet='fa' fontIcon='fa-clock-o' class='dashboard-elapsed-time-icon-chk clr' title="Sample Duration"></mat-icon>
+        </span>
+        
+        <span style="color: black; font-family: sans-serif;" >13-10-2019 00:00 To  13-10-2019 20:43</span>
+
+        
+       </div>
+
+    </mat-toolbar>
+</div> -->
+
+
+<div class="w-100-p">
+    <app-run-command-graphs [series]="demoSeries" [chartType]="chartType" [height]="height" [width]="width">
+    </app-run-command-graphs>
+    <div *ngIf="isShow" class="setPositioning">
+        {{getTotal}} : {{totalOrder}}
+    </div>
+</div>
+
+<div class="main-box setDivHeight ml-5 mr-12">
+    <p-toolbar>
+        <div class="p-grid p-align-center p-justify-between p-6">
+            <div>
+                <i class="icons8 icons8-document clickable mr-5"></i>
+                {{_tabNavigator.yAxisFieldName}} Details
+            </div>
+            <div>
+                <i class='icons8 icons8-download' title="Download as CSV" (click)="dt.exportCSV()"></i>
+            </div>
+    </div>
+    </p-toolbar>
+
+    <p-table #dt [columns]="cols" [value]="dataValues" scrollable="true" scrollHeight="130px" class="scen-ptable">
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                    {{col.header}}
+                    <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                        ariaLabelDesc="Activate to sort in descending order"
+                        ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr [pSelectableRow]="rowData">
+                <td *ngFor="let col of columns">
+                    <div *ngIf="(col.field != 'basisField')">
+                        <span style="float: right">
+                            {{rowData[col.field]}}
+                        </span>
+                    </div>
+                    <div *ngIf="(col.field == 'basisField')">
+                        <span>
+                            {{rowData[col.field]}}
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+</div>

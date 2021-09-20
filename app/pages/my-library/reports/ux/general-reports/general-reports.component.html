@@ -1,0 +1,126 @@
+<div class="p-grid p-justify-between p-align-center p-nogutter">
+    <div class="p-col">
+        <div class="p-grid p-justify-start p-align-center">
+            <div class="p-col-2">
+                <button type="button" pButton icon="icons8 icons8-filter" class="icon-button no-shadow"
+                    pTooltip="Apply Filters" (click)="toggle =true" style="margin: 0;"></button>
+            </div>
+            <div class="p-col">
+                <h3 style="margin: 0;font-weight:100">{{CRQ?.name}}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="p-col">
+        <div class="p-grid p-justify-end p-align-center">
+            <input type="text" pInputText size="20" placeholder="Filter Table"
+                (input)="dt.filterGlobal($event.target.value, 'contains')" style="width:auto" *ngIf="tabular">
+            <button type="button" pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                pTooltip="Export" (click)="menu.toggle($event)" *ngIf="tabular"></button>
+            <p-multiSelect class="icon-button no-shadow mr-10" [options]="cols" [(ngModel)]="selectedColumns"
+                optionLabel="field" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }" *ngIf="tabular"></p-multiSelect>
+            <button pButton label="TABULAR" class="ui-outline-button ui-button-secondary" pTooltip="Tabular View"
+                (click)="tabular = true" *ngIf="!tabular"></button>
+            <button pButton label="GRAHICAL" class="ui-outline-button ui-button-secondary" pTooltip="Grahical View"
+                (click)="tabular = false" *ngIf="tabular"></button>
+
+            <p-menu #menu [popup]="true" [model]="items" appendTo="body"></p-menu>
+
+        </div>
+    </div>
+</div>
+
+<div class="p-col-12 p-col-nogutter">
+    <p-card [style]="{ width: '100%', height: '69vh', overflow:'hidden' }">
+        <p-progressSpinner [style]="{height: '60px',width: '60px',left: '50%',top: '25vh'}" *ngIf="loading">
+        </p-progressSpinner>
+
+        <ng-container *ngIf="showTableChart">
+            <!-- Graphical View -->
+            <ng-container *ngIf="!tabular">
+                <div class="p-grid p-justify-between ui-fluid p-nogutter">
+                    <div class="p-col">
+                        <div class="p-grid">
+                            <div class="p-col-2">
+                                <p-dropdown [options]="topFilters" [(ngModel)]="topFilter"
+                                    dropdownIcon="icons8 icons8-expand-arrow" (onChange)="onTopValueChange()">
+                                </p-dropdown>
+                            </div>
+                            <div class="p-col-1">
+                                <p-inputNumber [(ngModel)]="topCount" mode="decimal" [useGrouping]="false"
+                                    (onBlur)="getChart()">
+                                </p-inputNumber>
+                            </div>
+                            <div class="p-col-3">
+                                <p-dropdown [options]="columnFilters" [(ngModel)]="columnFilter"
+                                    dropdownIcon="icons8 icons8-expand-arrow" (onChange)="getChart()">
+                                </p-dropdown>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-2">
+                        <p-dropdown [options]="chartTypes" [(ngModel)]="chartType"
+                            dropdownIcon="icons8 icons8-expand-arrow" (onChange)="this.getChart()">
+                        </p-dropdown>
+                    </div>
+                </div>
+                <div class="p-grid p-nogutter">
+                    <div class="p-col-12">
+                        <app-chart [data]="chartData" [setChart]="chartData"></app-chart>
+                    </div>
+                </div>
+            </ng-container>
+
+
+            <!-- Tabular View -->
+            <p-table #dt [columns]="selectedColumns" [value]="tableData" [paginator]="true" [rows]="10"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} rows"
+                [rowsPerPageOptions]="[10,20,30, 50, 100]" [resizableColumns]="true" columnResizeMode="expand"
+                class="all-tables" [scrollable]="true" scrollHeight="321px" *ngIf="tabular">
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col *ngFor="let col of columns">
+                    </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+                            <div class="left">{{col.header}}</div>
+                            <div class="right">
+                                <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                                    ariaLabelDesc="Activate to sort in descending order"
+                                    ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                    <tr>
+                        <td *ngFor="let col of columns" [numberRightAlign]="rowData[col.field]"
+                            class="ui-resizable-column" [pTooltip]="rowData[col.field]">
+                            {{rowData[col.field]}}
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="footer" let-columns>
+                    <tr>
+                        <td *ngFor="let col of columns" [pTooltip]="tableFooter[col.header]"
+                            [numberRightAlign]="tableFooter[col.header]">
+                            {{tableFooter[col.header]}}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </ng-container>
+    </p-card>
+</div>
+
+<app-general-reports-filter [name]="name" [display]="toggle" [CRQ]="CRQ" (sidebarClose)="toggle = false"
+    (submit)="generateReport($event)">
+</app-general-reports-filter>
+
+<p-confirmDialog header="Error" appendTo="body" [icon]="'las-exclamation-triangle-solid'" [rejectVisible]="false"
+    [acceptLabel]="'OK'"
+    maskStyleClass="success-dialog ui-dialog-mask ui-widget-overlay ui-dialog-visible ui-dialog-mask-scrollblocker">
+</p-confirmDialog>

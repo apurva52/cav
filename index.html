@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Cavisson</title>
+  <base href="./">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+  <script type="text/javascript">
+  sessionStorage.setItem('_nvtimezone','Asia/Calcutta');
+   if(typeof window["toDateString"] != 'function')
+   {
+     window["toDateString"] = function(d) {
+        let m = remPad((d.getMonth() + 1),2,'0');
+        let dt =remPad(d.getDate(),2,'0');
+        let y = (d.getYear() + 1900) ;
+        let full = m + '/' + dt + '/' + y;
+        return full;
+     }
+   }
+   function remPad(n, width, z)
+  {
+       z = z || '0';
+       n = n + '';
+       return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+  }
+  </script>
+</head>
+<style type="text/css">
+
+.splash-logo {
+  left: 50%;
+  top: 50%;
+  margin-left: -44px;
+  margin-top: -47px;
+  z-index: 2;
+  position: absolute;
+  width: 90px;
+}
+
+.splash-loader,
+.splash-loader::before,
+.splash-loader::after {
+  left: 50%;
+  top: 50%;
+  margin-left: -58px;
+  margin-top: -62px;
+  position: absolute;
+  vertical-align: middle;
+  background: #8ee5ee;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.splash-loader::before {
+  content: "";
+  animation: bounce 1.5s infinite;
+}
+
+.splash-loader::after {
+  content: "";
+  animation: bounce 1.5s -0.4s infinite;
+}
+
+@keyframes bounce {
+  0% {
+      transform: scale(0.8);
+      -webkit-transform: scale(0.8);
+      opacity: 1;
+  }
+  100% {
+      transform: scale(2);
+      -webkit-transform: scale(2);
+      opacity: 0;
+  }
+}
+
+@-webkit-keyframes bounce {
+  0% {
+      transform: scale(0.8);
+      -webkit-transform: scale(0.8);
+      opacity: 1;
+  }
+  100% {
+      transform: scale(2);
+      -webkit-transform: scale(2);
+      opacity: 0;
+  }
+}
+
+.splash-screen {
+  background-color: #f3f3f3;
+  height: 100%;
+}
+</style>
+<body id="maiBody" class="theme-2" oncontextmenu="return false;">
+
+  <app-root>
+    <entry>
+      <div>
+          <div class="splash-screen">
+              <div class="splash-loader"></div>
+              <img class="splash-logo" src="assets/images/new_logo-o.png">
+          </div>
+
+      </div>
+  </entry>
+  </app-root>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<p-dialog #dialog [(visible)]="isVisible"  styleClass="Metrics-dialog"
+    class="custom-dialog success-dialog" [resizable]="false" [draggable]="false" [modal]="true" [closable]="false"
+    [baseZIndex]="10000">
+    <p-header>
+        <div class="dialog-title p-grid p-justify-between p-align-center">
+            <div>
+              Create Derived Metric Using Group By
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-help"></i>
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+    <div class="p-grid">
+        <div class="p-col-12">
+            <div class="helper-text">
+              <h4>Created Metrics will be added in Custom Metrics </h4>
+            </div>
+            <!-- <div class="p-grid">
+                <div class="p-grid p-col-12 p-md-12 p-justify-between p-align-center">
+                    <label for="group-name" class="p-col-3">CPU Utilization (PCT)</label>
+                    <p-dropdown class="p-col-4" [options]="selectedUtilization" [(ngModel)]="selectedUtilization"></p-dropdown>
+                    <input id="group-name" class="p-col-4" type="text" placeholder="Description" pInputText>
+                </div>
+            </div> -->
+
+            <!-- <div class="p-grid p-col-12 p-md-12 p-justify-between p-align-center">
+                <label for="group-name" class="p-col-3">CPU Queue (%)</label>
+                <p-dropdown class="p-col-4" [options]="selectedQueue" [(ngModel)]="selectedQueue"></p-dropdown>
+                <input id="group-name" class="p-col-4" type="text" placeholder="Description" pInputText>
+            </div> -->
+            <fieldset >
+                <!-- <legend pTooltip="Custom Metrics">Custom Metrics</legend> -->
+            <div *ngFor="let graph of graphObjectArr" class="p-grid p-align-center">
+              <label for="group-name" class="p-col-4">{{graph.graphName}}</label>
+              <div class="p-col-2">
+              <p-dropdown [options]="items" [(ngModel)]="graph.value" dropdownIcon="icons8-expand-arrow" (onChange)="changedOnItem(graph)"></p-dropdown>
+              </div>
+              <div class="p-col-6">
+              <input id="group-name" class="input_box w-100-p" type="text" placeholder="description"
+              [(ngModel)]="graph.description" title={{graph.description}} pInputText>
+              </div>
+              </div>
+              </fieldset><br>
+              <fieldset >
+                <!-- <legend pTooltip="Group By and Metric Group">Group and Metric Group</legend> -->
+            <div class="p-grid p-align-center">
+                <label for="group-name" class="p-col-4">Group By </label>
+                <!-- <p-dropdown class="p-col-4" [options]="selectedTier" [(ngModel)]="selectedTier"></p-dropdown>
+                 -->
+                 <div class="p-col-8">
+                 <p-multiSelect  [options]="onList" [(ngModel)]="on" defaultLabel="None" dropdownIcon="icons8-expand-arrow" [showHeader]=false (onChange)="changedOn($event)"></p-multiSelect>
+                 </div>
+            </div>
+            <div class="p-grid p-align-center">
+                <label for="group-name" class="p-col-4">Metric Group</label>
+                <div class="p-col-8">
+                <input  id="group-name" [(ngModel)]="metricGroup" class="p-col-12" type="text" placeholder="Business Transaction Grouped By Server And Instance" pInputText>
+                </div>
+            </div>
+            </fieldset>
+        </div>
+    </div>
+    <p-footer>
+        <button type="button" pButton (click)="isVisible=false" label="CLOSE"
+            class="ui-button-secondary ui-button-rounded"></button>
+        <button type="button" class="ui-button ui-button-rounded" pButton (click)="apply()" label="APPLY"></button>
+    </p-footer>
+    <div id="centerpoint">
+      <p-confirmDialog key="GroupedDerivedMetrics" header="Error" acceptLabel="Ok" rejectLabel="Cancel"  [(visible)]="dialogVisible"></p-confirmDialog>
+      </div>
+      <div class="loading-indicator" *ngIf="isBlockUI">
+        <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+        </p-progressSpinner>
+    </div>
+</p-dialog>
+

@@ -1,0 +1,148 @@
+<p-dialog [(visible)]="isVisible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true"
+ class="secondary-dialog" [draggable]="false" [style]="{width: '70vw'}">
+    <p-header>
+    <div class="compare-data-title">
+    <div>
+    File Manager
+    </div>
+    <div class="action-buttons">
+    <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+    </div>
+    </div>
+    </p-header>
+
+    <div class="p-justify-between p-align-center flex_main">
+
+            <div class="flex_auto">
+                <label class="mr-5"><strong>{{pathTitle}}</strong></label>
+                <input type="text" #searchText pInputText title={{displayPath}} [(ngModel)]="displayPath"  [disabled]="!isOpenFromDashboard" (keydown.backspace)="preventBackspcase($event, searchText.value)"  (keyup.enter)="searchByName($event, searchText.value)" class="inputWidth"/>
+            </div>
+
+            <div class="nowarp_flex">
+                <button pButton type="button" class="w-100-p px-1 ui-button-secondary" (click)="goBack($event)" [disabled]="fileAndFolderPath == '/' || fileAndFolderPath == ' ' || disabledBackBtn" title="{{backTitle}}" label="Back">
+                </button>
+                 <!-- <i class="icons8 icons8-back"></i></button> -->
+                <button  *ngIf="isOpenFromDashboard" pButton type="button" title="{{uploadDownTooltip}}" class="w-100-p px-1 ui-button-secondary" label="OK"
+                (click)="fileToUpload()"></button>
+                <button  *ngIf="isOpenFromDashboard" pButton type="button" title="Click to go inside searched Folder/Directory." class="w-100-p px-1 ui-button-secondary" title="Apply" label="Apply"
+                (click)="searchByName($event, searchText.value)"></button>
+
+                <button *ngIf="!isOpenFromDashboard" pButton type="button" class="w-100-p px-1 ui-button-secondary" title="Apply" label="Apply" (click)="createFolder()"></button>
+
+
+                <!-- <button pButton type="button" class="backbutton" icon="icons8 icons8-back"
+                (click)="goBack($event)" [disabled]="!isBack"></button> -->
+            </div>
+
+    </div>
+
+
+    <div class="p-col-12 div-margin-top div-background">
+
+    <!-- <div>
+      <p-dialog class="file-upload-dialog" header="Upload Files" [baseZIndex]="10000" [(visible)]="toUploadFiles">
+        <p-fileUpload name="myfile[]" [url]="uploadUrl" multiple="multiple" #fileUpload  accept=".pem, .cer, .crt, .p7b, .p7r, .p12, .pfx" (onSelect)="onSelect($event,fileUpload)" (onUpload)="onUploadFile($event)"></p-fileUpload>
+      </p-dialog>
+    </div> -->
+    <div class="p-grid p-justify-between p-align-center pt-6">
+    <div class="pl-0">
+    <div class="ui-inputgroup w-100-p">
+    <span class="ui-inputgroup-addon">
+    <i class="ui-tree-filter-icon pi pi-search" style="margin-left: 5px"></i>
+    </span>
+    <input type="text" id="searchFile" #searchInput pInputText placeholder="Search Directories" style="margin-left: -4px;" class="w-100-p" (input)="fileExplorer.filterGlobal($event.target.value, 'contains')">
+    </div>
+    </div>
+
+<div *ngIf="!isCallFromRetentionPolicy" class="p-grid p-justify-between p-align-center">
+    <label class="mr-5"><strong>Create Directory:</strong></label>
+    <input [(ngModel)]="txtForNewFolder" maxlength="32" title="{{txtForNewFolder}}" type="text" pInputText placeholder="Enter Folder name"/>
+
+    <i class="icons8 icons8-plus-math plusIcon" title="Create Folder" (click)="addFolder()"></i>
+
+</div>
+
+
+
+    </div>
+
+
+    <p-toast position="top-right" [style]="{width: '20vw'}" [baseZIndex]="10000100011"></p-toast>
+
+
+    <p-card class="min-pad">
+            <div *ngIf="loading"><i class="pi pi-spin pi-spinner"></i></div>
+    <p-table  #fileExplorer class="file-table" [columns]="cols" selectionMode="multiple" [(selection)]="selectedFileData" [value]="data" [scrollable]="true" scrollHeight="300px"  class="all-tables">
+        <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+            <col style="width:5%" *ngIf="isOpenFromDashboard">
+            <col style="width:35%">
+            <col style="width:30%">
+            <col style="width:15%">
+            <col style="width:15%" *ngIf="isOpenFromDashboard">
+            </colgroup>
+            </ng-template>
+    <ng-template pTemplate="header" let-columns>
+    <tr>
+    <th class="table-icon-field header-color" *ngIf="isOpenFromDashboard"></th>
+    <th pSortableColumn="{{col.field}}" title="{{col.header}}" class="header-color" *ngFor="let col of columns">
+    {{col.header}}
+    <p-sortIcon field="{{col.field}}"></p-sortIcon>
+    </th>
+    </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-fileData let-columns="columns">
+    <tr [ngClass]="{'clickable' : fileData.isDir}">
+    <td class="text-center" *ngIf="isOpenFromDashboard">
+    <p-checkbox (onChange)="onItemClick(fileData,$event,fileData.name)" [(ngModel)]="fileData.isSelected" binary="true" *ngIf="fileData.isFile == true">
+    </p-checkbox>
+    <i class="pi pi-fw pi-chevron-circle-right" (click)="onItemClick(fileData,$event,fileData.name)" [(ngModel)]="fileData.isSelected" binary="true" *ngIf="fileData.isDir == true" title="Click to go inside this Folder/Directory.">
+    </i>
+    </td>
+    <td title="{{fileData.name}}" (click)="onItemClick(fileData,$event,fileData.name)">
+    <i class="icons8 icons8-folder yellow" *ngIf="fileData.isDir == true "></i>&nbsp;
+    <i class="icons8 icons8-file blue" *ngIf="fileData.isFile == true "></i>&nbsp;
+    <span class="elipseText">{{fileData.name}}</span>
+    </td>
+    <td title="{{fileData.modified}}">{{fileData.modified}}</td>
+    <!-- <td title="{{isOpenFromDashboard}}" *ngIf="isOpenFromDashboard">{{isOpenFromDashboard}}</td> -->
+    <td *ngIf="isOpenFromDashboard" title="{{fileData.mime}}">{{fileData.mime}}</td>
+    <td class="text-right" title="{{fileData.size | sizePipe}}">{{fileData.size | sizePipe}}</td>
+    </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage" let-columns>
+    <tr>
+    <td [attr.colspan]="columns.length+1" class="text-center">
+    <span *ngIf="error">Error while loading directory</span>
+    <span *ngIf="empty">No Directory</span>
+    <!-- <span *ngIf="loading">Loading</span> -->
+    <span *ngIf="!data">{{errorMessage}}</span>
+    <span *ngIf="!empty && !loading && !error && searchInput.value.length">Nothing found matching
+    "{{searchInput.value}}"</span>
+    <!-- <span *ngIf="data['data'] && data['data'].length == 0">{{errorMessage}}</span> -->
+    </td>
+    </tr>
+    </ng-template>
+    </p-table>
+    </p-card>
+    </div>
+    <!-- <div id="centerpoint">
+        <p-confirmDialog styleClass="centerpointAd" key="fileManager" header="Error" acceptLabel="Ok" rejectLabel="Cancel"  [(visible)]="dialogVisible"></p-confirmDialog>
+    </div> -->
+    </p-dialog>
+
+    <!-- Create New Folder -->
+    <p-dialog header="Create New Folder" class="success-dialog" [resizable]="false" [draggable]="false" [(visible)]="displayNewFolderDialog" closeIcon="icons8-delete" [baseZIndex]="10000">
+    <div class="p-field">
+    <span class="ui-float-label">
+    <input id="float-input" type="text" size="30" pInputText [formControl]="folderName">
+    <label for="float-input">Folder Name</label>
+    </span>
+    </div>
+    <p-footer>
+    <button pButton type="button" class="w-100-p px-1 ui-button-secondary" label="Cancel" (click)="cancel()"></button>
+    <button pButton type="button" class="w-100-p px-1" label="Ok" (click)="createFolder()"></button>
+    </p-footer>
+    </p-dialog>
+
+    <app-informative-dialog #informativeDialog [data]="content"></app-informative-dialog>

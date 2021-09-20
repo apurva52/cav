@@ -1,0 +1,287 @@
+<div class="">
+  <p-accordion legend="Metric Hierarchy" [toggleable]="true" class="custom-fieldset">
+    <p-accordionTab header="Metric Hierarchy" [selected]="true">
+
+
+    <div class="p-grid p-col-12 p-align-center p-5">
+
+      <div class="p-grid p-align-center w-100-p">
+      <div class="width-130">Metric</div>
+      <div class="p-col-2">
+        <p-dropdown [style]="{'min-width':'100%'}" name="ml" [options]="metricList" [(ngModel)]="item['gdfInfo']['mV']"
+        dropdownIcon="icons8 icons8-expand-arrow">
+      </p-dropdown>
+      </div>
+
+      <div class="p-col-2">
+        <input placeholder="Enter custom metric" [disabled]="item['gdfInfo']['mV'] != 'Custom Metrics'" name="cm"
+          type="text" required [(ngModel)]="customMetric" placeholder="Enter custom metric name" maxlength="64"
+          title="Custom metric name should end with 'Metrics' keyword.
+            For example: Android Metrics, Postgres Metrics." pInputText  class="w-100-p" />
+      </div>
+
+      <div class="p-col-1">
+        <p-checkbox [(ngModel)]="useTier" (onChange)="onTierChange(useTier)" name="uT" binary=true label="Tier">
+        </p-checkbox>
+      </div>
+
+      <div class="p-col-1">
+        <p-checkbox [(ngModel)]="useServer" (onChange)="onServerChange(useServer)" name="uS" binary=true label="Server"
+        [disabled]="!useTier">
+        </p-checkbox>
+      </div>
+     
+    </div>
+
+    <div class="p-grid p-align-center w-100-p" *ngIf="monType == 'statsd'">
+      <div class="required-mark width-130">Metric Syntax</div>
+      <div class="p-col-5">
+        <input name="matPat" type="text" placeholder="%Server%.database.%dbName%" style="width: 462px"
+          [(ngModel)]="item['mS']" pInputText  class="w-100-p" required maxlength="256"/>
+      </div>
+
+      <div class="mx-5">
+        <button pButton type="button" title="Auto Fill Vector" style="margin-left: -58px;" (click)="autoFillVector()"
+          label="Auto Fill Vector"></button>
+      </div>
+
+    </div>
+
+    <div class="cav-d-flex cav-mb-2 cav-ml-1 cav-align-items-center" *ngIf="monType == 'statsd'">
+    Note: Syntax Pattern example
+    <br>Ex: netstorm-proliat-ML10.database.postgres
+    <br>For above example, syntax should be of format: %Server%.database.%dbName%
+    <br>where, 
+    <br>%Server% = In this case netstorm-proliat-ML10 will be considered as server name and will be shown as Server in hierarchy.
+    <br>database = This will be the constant text which should come in every data.
+    <br>%dbName% = In this case postgres will be considered as dbName.
+    </div>
+
+    <div class="p-grid w-100-p">
+      <div class="p-col-7">
+        <div class="clean-up" >
+          <ng-container>
+            <div class="clean-up-table">
+          <p-table class="all-tables" [columns]="cols" [value]="hrchicaltableData" [rows]="5" [editable]="true"
+            [(selection)]="selectedHr" [paginator]="hrchicaltableData?.length >5" [pageLinks]="3">
+  
+            <ng-template pTemplate="caption">
+              <div style="text-align: right;background-color:#ededed">
+                <button pButton type="button" class="mx-3" icon="icons8 icons8-plus-math" (click)="addHierachy()" style="cursor:pointer;"
+                  title="Add Metric Hierarchy">
+                </button>
+                <button pButton type="button" class="ui-button-danger ml-3"
+                  title="You have not selected any configuration(s) to delete, it will delete the entire configured data."
+                  (click)="deleteAllConfig()"  icon="icons8 icons8-trash">
+                </button>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th class="columnwidth">
+                  <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+  
+                <th style="width:2.5em"></th>
+                <th *ngFor="let col of columns" [style]="{'width': col['width']}" [hidden]="col['visible']">
+                  {{col.header}}
+                </th>
+  
+                <th class="text-left columnwidth">
+                  Actions
+                </th>
+              </tr>
+            </ng-template>
+  
+            <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+              <tr [pReorderableRow]="index">
+                <td class="text-center">
+                  <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                </td>
+  
+                <td>
+                  <i class="icons8 icons8-menu" style="display: flex;justify-content: center;" pReorderableRowHandle></i>
+                </td>
+                <td *ngFor="let col of columns" title="{{rowData[col.field]}}"
+                  style="white-space: nowrap;text-overflow: ellipsis;overflow: hidden" [hidden]="col['visible']">
+                  {{rowData[col.field]}}
+                </td>
+  
+                <td style="text-align: center">
+                  <!-- <i class="fa fa-pencil" *ngIf="userRole != 'guest'" (click)="editHierarchy(rowData)"
+                    style="color: #2572b5;cursor:pointer;margin-right: 9px" title="Edit Hierarchy">
+                  </i>
+  
+                  <i class="fa fa-pencil disabled" *ngIf="userRole == 'guest'"
+                    style="color: #2572b5;cursor:pointer; margin-right: 9px" title="Edit Configured Data">
+                  </i>
+  
+                  <i class="fa fa-trash-o" *ngIf="userRole != 'guest'" (click)="deleteHierarchy(rowData)"
+                    style="color: #f12a2a;cursor:pointer" title="Delete from hierarchy">
+                  </i>
+  
+                  <i class="fa fa-trash-o disabled" *ngIf="userRole == 'guest'" style="color: #f12a2a;cursor:pointer"
+                    title="Delete from hierarchy">
+                  </i>
+  
+                  <i class="fa fa-link linked" *ngIf="index != 0 && rowData._linked && monType != 'db' && monType!='statsd'" (click)="linkRow(rowData)"
+                    title="Link vector"></i>
+  
+                  <i class="fa fa-link unlinked" *ngIf="index != 0 && !rowData._linked && monType != 'db' && monType!='statsd'" (click)="linkRow(rowData)"></i> -->
+                  <span class="action-icon">
+                    <span>
+                        <i   class="icons8-edit-2" (click)="editHierarchy(rowData)"></i>
+                        <i class="icons8-delete-trash red-fg" (click)="deleteHierarchy(rowData)" ></i>
+                        <i class="pi pi-external-link" *ngIf="index != 0 && rowData._linked && monType != 'db' && monType!='statsd'" (click)="linkRow(rowData)"
+                     title="Link vector"></i>
+   
+                  <i class="pi pi-external-link" *ngIf="index != 0 && !rowData._linked && monType != 'db' && monType!='statsd'" (click)="linkRow(rowData)"></i>
+                        <!-- <i class="icons8-delete-trash red-fg" (click)="deleteHierarchy(rowData)"></i> -->
+                        </span>
+  
+                <!-- <span *ngIf="editing" class="edit-action">
+                            <i pSaveEditableRow class="icons8-checkmark"></i>
+                            <i pCancelEditableRow class="icons8-delete"></i>
+                        </span> -->
+                </span>
+                </td>
+              </tr>
+            </ng-template>
+  
+            <ng-template pTemplate="emptymessage" let-columns>
+              <tr>
+                <td [attr.colspan]="columns.length+3" class="noRecords">No records found.</td>
+              </tr>
+            </ng-template>
+  
+          </p-table>
+      
+        </div>
+          </ng-container>
+        </div>
+      </div>
+  
+        
+      <div class="p-col-5">
+          <div class="" style="border:1px solid #3ea6e9;padding: 0.25em">
+            <span>
+              Metric Hierarchy Tree
+            </span>
+            <i class="icons8 icons8-sync-settings" (click)="refreshTree()" style="float:right;" title="Refresh tree"></i>
+          </div>
+          <div style="height: 180px;overflow: auto;">
+            <p-panel   [toggleable]="false">
+              <p-header>
+                Metric Hierarchy
+                <i class="fa fa-refresh" (click)="refreshTree()" style="float:right;" title="Refresh tree"></i>
+            </p-header>
+              <p-tree [value]="treeNodeValue" [style]="{'width':'auto','display':'flex'}"></p-tree>
+            </p-panel>
+          </div>
+          </div>
+    </div>
+        
+        
+    </div>
+  </p-accordionTab>
+  </p-accordion>
+
+  <!-- <p-dialog class="secondary-dialog"" header="{{dailogHeader}}" *ngIf="showHrDailog"
+    [(visible)]="showHrDailog" modal="modal" width="500" [resizable]="false" height="auto"> -->
+    <p-dialog class="secondary-dialog foterDialog"  [resizable]="false"  [(visible)]="showHrDailog" *ngIf="showHrDailog"
+      [modal]="true"
+      [closable]="false"
+
+      [style]="{ width: '500px' }"
+      closeIcon="icons8-delete">
+      <p-header>
+        <div class="compare-data-title">
+          <div>{{dailogHeader}}</div>
+          <div class="action-buttons">
+            <i class="icons8 icons8-delete"  (click)="showHrDailog = false"></i>
+          </div>
+        </div>
+      </p-header>
+    <form (ngSubmit)="saveHierarchy()" #groupForm="ngForm" ngNativeValidate class="my-15">
+      <div class="p-grid p-align-center w-100" *ngIf="displayMetaData">
+        <div class="p-col-6 required-mark">Metric Hierarchy Component</div>
+        <div class="p-col-6">
+          <input class="w-100-p" pInputText  name="md" type="text" [(ngModel)]="hrData._metadata"
+            autofocus required ngModel maxlength="128"/>
+        </div>
+      </div>
+
+      <div class="p-grid p-align-center w-100" *ngIf="monType == 'cmd'">
+        <div class="p-col-6">
+        <p-radioButton name="r1" value="defVal" label="Default Value" [(ngModel)]="vectorValue">
+        </p-radioButton>
+      </div>
+        <div class="p-col-6">
+          <input class="w-100-p" pInputText name="defaultVal" type="text" [disabled]="vectorValue == 'indexKey'"
+            [(ngModel)]="hrData._defVal" ngModel />
+        </div>
+      </div>
+
+      <div class="p-grid p-align-center w-100" *ngIf="monType == 'cmd'">
+        <div class="p-col-6">
+        <p-radioButton name="r1" value="indexKey" label="{{keyIndexLabel}}" [(ngModel)]="vectorValue"></p-radioButton>
+        </div>
+        <div class="p-col-6">
+          <input *ngIf="keyIndexLabel == 'Field Number'"  name="keyInd" class="w-100-p" pInputText
+            type="number" [disabled]="vectorValue == 'defVal'" [(ngModel)]="hrData._keyInd" ngModel />
+
+          <input *ngIf="keyIndexLabel == 'Column Key'" [disabled]="vectorValue == 'defVal'"
+            name="keyInd" class="w-100-p" pInputText type="text" [(ngModel)]="hrData._keyInd" ngModel />
+        </div>
+      </div>
+
+      <div class="p-grid p-align-center w-100" *ngIf="displayFilterType && monType == 'cmd'">
+        <div class="p-col-6 rquired-mark">Filter</div>
+        <div class="p-col-6">
+        <p-dropdown name="filterList" [(ngModel)]="hrData._filter" [options]="filterList" dropdownIcon="icons8 icons8-expand-arrow">
+        </p-dropdown>
+        </div>
+
+        <div class="p-col-6 p-offset-6">
+          <input class="w-100-p" pInputText [disabled]="hrData._filter == '' " name="fil" type="text" required="true"
+            [(ngModel)]="hrData._fVal" placeholder="Enter filter pattern" /> 
+        </div>
+      </div>
+
+      <div class="p-grid p-align-center w-100" *ngIf="monType != 'cmd'">
+        <div class="p-col-6 rquired-mark">Column Key</div>
+        <div class="p-col-6">
+          <p-dropdown [style]="{'min-width':'200px'}" name="cKey" [(ngModel)]="hrData._keyInd" placeholder="--Select--"
+            [editable]="monType == 'db' ? false : true" [options]="mKeyList" required dropdownIcon="icons8 icons8-expand-arrow"> </p-dropdown>
+        </div>
+      </div>
+
+      <div class="p-grid p-align-center w-100" *ngIf="monType == 'statsd'">
+        <div class="p-col-6 required-mark">Pattern</div>
+        <div class="p-col-6">
+          <input class="w-100-p" pInputText name="pat" type="text" [(ngModel)]="hrData._pat" autofocus
+            required ngModel />
+        </div>
+      </div>
+
+
+      <footer>
+        <div class="p-grid p-justify-end my-10 p-5">
+          <button type="button" class="ui-button-rounded ui-button-secondary px-15 mx-6" pButton (click)="showHrDailog = false;" label="Cancel"></button>
+          <button type="submit" class="ui-button-rounded px-15" pButton label="OK"></button>
+      </div>
+      </footer>
+    </form>
+  </p-dialog>
+
+ 
+    <p-confirmDialog class="confirmdialog" #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+    <p-footer>
+    <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton
+    icon="pi pi-check" label={{acceptLable}} (click)="cd.accept()"></button>
+    <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton
+    icon="pi pi-times" label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+    </p-footer>
+    </p-confirmDialog>
+   
+</div>

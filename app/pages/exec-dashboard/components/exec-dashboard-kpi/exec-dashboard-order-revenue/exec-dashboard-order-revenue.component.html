@@ -1,0 +1,31 @@
+<p-dataTable class="revenue-table ed-table" [value]="execDashboardCommonKPIDataservice.$kpiDataObj['orderRev']" rowGroupMode="subheader" groupField="header"
+    [sortableRowGroup]="false">
+    <div class="template">
+        <ng-template pTemplate="rowgroupheader" let-rowData>{{rowData['header']}} {{execDashboardCommonKPIDataservice.$appliedTimePeriodLabelForOrderRev}}</ng-template>
+    </div>
+    <p-headerColumnGroup>
+        <p-row>
+            <p-column *ngFor="let heading of ordersDataGridHeader" [styleClass]="heading.class">
+                <ng-template pTemplate="header">
+                    <div>
+                        <i [class]="heading.icon"></i> <span class="marginLeft">{{heading.header}}</span>
+                    </div>
+                </ng-template>
+            </p-column>
+        </p-row>
+    </p-headerColumnGroup>
+    <p-column *ngFor="let col of ordersDataGridHeader" [styleClass] = "col.bodyStyles" [field]="col.field" [header]="col.header">
+        <!-- <ng-template pTemplate="header">
+            <div [class]="col.class"><i [class]="col.icon"></i><span class="marginLeft">{{col.header}}</span></div>            
+        </ng-template>  -->
+        <ng-template *ngIf="col.field != 'updated2Min'" let-col let-car="rowData" pTemplate="body">
+            <span style="float:right">{{execDashboardCommonKPIDataservice.modifyViewObject(car[col.field])}}</span>
+        </ng-template>
+        <ng-template *ngIf="col.field == 'updated2Min'" let-col let-car="rowData" pTemplate="body">
+            <span tooltipPosition="bottom" pTooltip = "{{car[col.field]}}" *ngIf = "car[col.field] == 'Planned'">{{car[col.field]}}</span>
+            <span tooltipPosition="bottom" pTooltip = "{{car[col.field]}}" *ngIf = "car[col.field] != 'Planned'">{{car[col.field]}}</span>
+        </ng-template>
+    </p-column>
+
+
+</p-dataTable>

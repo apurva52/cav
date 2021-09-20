@@ -1,0 +1,111 @@
+<p-sidebar [(visible)]="display" [showCloseIcon]="false" blockScroll="true" [baseZIndex]="100" (onHide)="hide()">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <div>
+                <i class="icons8 icons8-star-filled"></i>
+                <span>{{name}}</span>
+            </div>
+            <div class="action-icons">
+                <i class="icons8-delete" (click)="hide()"></i>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar-content">
+        <div class="p-grid p-justify-between p-align-center">
+            <div class="p-col-5">
+                <p-radioButton name="timeFilter" value="last" label="Last" [(ngModel)]="timeFilter">
+                </p-radioButton>
+            </div>
+            <div class="p-col">
+                <div class="p-grid p-justify-between p-align-center ui-fluid">
+                    <div class="p-col-4">
+                        <p-inputNumber [(ngModel)]="lastValue" mode="decimal" [useGrouping]="false" [min]="1"
+                            [disabled]="timeFilter === 'custom' ? true:false">
+                        </p-inputNumber>
+                    </div>
+                    <div class="p-col">
+                        <p-dropdown [options]="lastSelects" placeholder="Select Duration"
+                            dropdownIcon="icons8-expand-arrow" [(ngModel)]="lastSelect"
+                            [disabled]="timeFilter === 'custom' ? true:false">
+                        </p-dropdown>
+                    </div>
+                </div>
+            </div>
+
+            <p-message severity="error" text="Last time is required" *ngIf="submitted && lastValue == null">
+            </p-message>
+        </div>
+        <div class="p-grid p-justify-between p-align-center">
+            <div class="p-col">
+                <p-radioButton name="timeFilter" value="custom" label="Custom" [(ngModel)]="timeFilter">
+                </p-radioButton>
+            </div>
+        </div>
+        <div class="p-grid p-justify-between p-align-center">
+            <div class="p-col">
+                <label>Starts At</label>
+            </div>
+            <div class="p-col">
+                <div class="p-input-icon-left search-div-css">
+                    <i class="icons8 icons8-calendar"></i>
+                    <input pInputText class="customInput" readonly id="start-date-time"
+                        [owlDateTime]="customStartDateTime" [owlDateTimeTrigger]="customStartDateTime"
+                        placeholder="04:30 PM 23/04/2020" [selectMode]="'rangeFrom'" [max]="maxDate"
+                        [(ngModel)]="customTime" [disabled]="timeFilter === 'last' ? true : false">
+                    <owl-date-time #customStartDateTime tooltipZIndex="100001005">
+                    </owl-date-time>
+                </div>
+            </div>
+        </div>
+        <div class="p-grid p-justify-between p-align-center mv-10">
+            <div class="p-col">
+                <label>Ends At</label>
+            </div>
+            <div class="p-col">
+                <div class="p-input-icon-left search-div-css">
+                    <i class="icons8 icons8-calendar"></i>
+                    <input pInputText class="customInput" readonly id="end-date-time" [owlDateTime]="customEndDateTime"
+                        [owlDateTimeTrigger]="customEndDateTime" placeholder="04:30 PM 23/04/2020"
+                        [selectMode]="'rangeTo'" [max]="maxDate" [(ngModel)]="customTime"
+                        [disabled]="timeFilter === 'last' ? true : false">
+                    <owl-date-time #customEndDateTime tooltipZIndex=" 100001005">
+                    </owl-date-time>
+                </div>
+            </div>
+        </div>
+        <div class="p-grid p-col-12 p-align-center" *ngIf="submitted && invalidDate">
+            <p-message severity="error" text="Start time cannot be greater than end time">
+            </p-message>
+        </div>
+        <div class="p-grid p-justify-between p-align-center mv-10">
+            <div class="p-col">
+                <label>Bucket</label>
+            </div>
+            <div class="p-col">
+                <p-dropdown [options]="buckets" placeholder="Select Bucket" dropdownIcon="icons8-expand-arrow"
+                    [(ngModel)]="bucket">
+                </p-dropdown>
+            </div>
+
+            <p-message severity="error" text="Bucket is required" *ngIf="submitted && bucket == null"></p-message>
+        </div>
+        <div class="p-grid p-justify-between p-align-center mv-10">
+            <div class="p-col">
+                <label>Channel</label>
+            </div>
+            <div class="p-col">
+                <p-dropdown [options]="channels" placeholder="Select Channel" dropdownIcon="icons8-expand-arrow"
+                    [(ngModel)]="channel">
+                </p-dropdown>
+            </div>
+
+            <p-message severity="error" text="Channel is required" *ngIf="submitted && channel == null">
+            </p-message>
+        </div>
+
+    </div>
+    <div class="sidebar-footer">
+        <button pButton label="APPLY" class="ui-outline-button ui-button-primary" pTooltip="Generate Report"
+            (click)="onSubmit()"></button>
+    </div>
+</p-sidebar>

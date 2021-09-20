@@ -1,0 +1,235 @@
+<div class="h-100-vh connectivity-container">
+    <div class="p-grid vertical-container" *ngIf="error">
+      <div class="p-col p-col-align-center text-center">
+        <p-message severity="error" text="{{ error.msg }}"></p-message>
+      </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+      <div class="p-col p-col-align-center text-center">
+        <p-message severity="normal" text="No Data"></p-message>
+      </div>
+    </div>
+    <div *ngIf="data">
+      <div class="action-container" >
+        <div
+          class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p"
+        >          
+        <div class="p-grid p-col-3">IPs not pinging</div>
+          <div class="p-grid p-col-3">
+            <div class="p-input-icon-left search-div-css">
+              <i class="icons8 icons8-search"></i>
+              <input
+                #searchInputTemplate
+                type="text"
+                pInputText
+                placeholder="Search"
+                (input)="connectivityTable.filterGlobal($event.target.value, 'contains')"
+                class="input-field-search"
+              />
+            </div>
+          </div>          
+          <div
+            class="p-col-6 icons-container p-justify-between p-align-center ip-alert-group"
+          >          
+            <button
+              pButton
+              icon="icons8 icons8-delete-trash"
+              class="icon-button no-shadow"
+              pTooltip="Delete"
+            ></button>
+            <button
+              pButton
+              icon="icons8 icons8-installing-updates"
+              class="icon-button no-shadow"
+              (click)="downloadMenu.toggle($event)"
+              pTooltip="Download"
+            ></button>
+            <p-menu
+              #downloadMenu
+              [popup]="true"
+              styleClass="widget-menu"
+              [model]="downloadOptions"
+              [showTransitionOptions]="'0ms'"
+              [hideTransitionOptions]="'0ms'"
+            ></p-menu>
+            <button
+              *ngIf="data.tableFilter"
+              pButton
+              icon="icons8 icons8-search-property"
+              class="icon-button no-shadow"
+              pTooltip="Toggle Filter"
+              [tooltipZIndex]="100000"
+              (click)="isShowColumnFilter = !isShowColumnFilter"
+            ></button>
+            <p-multiSelect
+              class="icon-button no-shadow mr-10"
+              [options]="cols"
+              [(ngModel)]="selectedColumns"
+              optionLabel="label"
+              [displaySelectedLabel]="false"
+              dropdownIcon="icons8 icons8-columns"
+              pTooltip="Toggle Columns"
+              [panelStyle]="{ minWidth: '200px' }"
+            >
+            </p-multiSelect>           
+          </div>
+        </div>
+      </div>
+      <ng-container>
+        <div #widgetHeight
+        class="mh-10"
+        [ngStyle]="{
+          height: data.tableFilter ? 'calc(100vh - 200px)' : 'calc(100vh - 155px)'
+        }">
+          <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+            Select column to show
+          </div>
+          <div class="advanced-session-table">
+            <p-card>
+              <p-table
+                #connectivityTable
+                [columns]="selectedColumns"
+                [value]="data.data"
+                [paginator]="true"
+                [rows]="data.paginator.rows"
+                [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                [resizableColumns]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [responsive]="true"
+                [scrollable]="true"
+                [globalFilterFields]="globalFilterFields"
+                scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 100px)"
+                selectionMode="multiple"
+              >
+                <ng-template pTemplate="colgroup" let-columns>
+                  <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width" />
+                  </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                  <tr>                    
+                    <th
+                      *ngFor="let col of columns"
+                      [attr.coldiv]="col.coldiv"
+                      [attr.rowdiv]="col.rowdiv"
+                      pResizableColumn
+                      [pSortableColumn]="col.valueField"
+                      class="text-left"
+                    >
+                      <div class="left">
+                        {{ col.label }}
+                      </div>
+                      <div *ngIf="col.isSort" class="float-right">
+                        <p-sortIcon
+                          *ngIf="col.isSort"
+                          [field]="col.valueField"
+                          class="text-right"
+                          ariaLabel="Activate to sort"
+                          ariaLabelDesc="Activate to sort in descending order"
+                          ariaLabelAsc="Activate to sort in ascending order"
+                        >
+                        </p-sortIcon>
+                      </div>
+                    </th>
+                  </tr>
+                  <tr *ngFor="let headerRow of data.headers">
+                    <ng-container *ngIf="isShowColumnFilter">                      
+                      <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                        <div
+                          *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'custom'
+                          "
+                        >
+                          <input
+                            class="w-100-p"
+                            pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                            *ngSwitchCase="col.label"
+                            pInputText
+                            type="text"
+                            (input)="
+                            connectivityTable.filter(
+                                $event.target.value,
+                                col.value,
+                                'custom'
+                              )
+                            "
+                          />
+                        </div>
+                        <div
+                          *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'contains'
+                          "
+                        >
+                          <input
+                            class="w-100-p"
+                            pTooltip="Will filter metric names which contains given text."
+                            *ngSwitchCase="col.label"
+                            pInputText
+                            type="text"
+                            (input)="
+                            connectivityTable.filter(
+                                $event.target.value,
+                                col.valueField,
+                                'contains'
+                              )
+                            "
+                          />
+                        </div>
+                      </th>
+                    </ng-container>
+                  </tr>
+                </ng-template>
+                <ng-template
+                  pTemplate="body"
+                  let-row
+                  let-columns="columns"
+                  let-rowIndex="rowIndex"
+                >
+                  <tr [ngStyle]="{ backgroundColor: row.rowBgColor }">                    
+                    <td
+                      *ngFor="let col of columns"
+                      class="{{ col.classes }}"
+                      pTooltip="{{ row[col.valueField] }}"
+                    >
+                      <i
+                        *ngIf="col.iconField && row.icon"
+                        [ngClass]="row.icon"
+                        class="column-icon"
+                      ></i>
+                      {{ row[col.valueField] | ellipsis: 35 }}
+                    </td>
+                  </tr>
+                </ng-template>
+  
+                <!-----------Empty table error handling--------------------->
+                <ng-template pTemplate="emptymessage" let-columns>
+                  <tr>
+                    <td [attr.coldiv]="columns.length + 1" class="text-center">
+                      <span *ngIf="error">Error while loading data</span>
+                      <span *ngIf="emptyTable">Empty Table</span>
+                      <span *ngIf="loading">Loading</span>
+                      <span
+                        *ngIf="
+                          !emptyTable &&
+                          !loading &&
+                          !error &&
+                          searchInputTemplate.value.length
+                        "
+                        >Nothing found matching "{{
+                          searchInputTemplate.value
+                        }}"</span
+                      >
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </p-card>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+  

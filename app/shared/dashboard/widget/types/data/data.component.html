@@ -1,0 +1,55 @@
+<div [ngStyle]="{ backgroundColor: widget?.settings?.types?.data?.dataWidgetSeverityDefDTO?.colorChecked ? widget?.settings?.types?.data?.dataWidgetSeverityDefDTO?.severityColor  :  widget?.settings?.types?.data?.widgetBgColor  }">
+  <div class="widget-header" >
+    <ul class="widget-options" (click)="select()">
+      <li *ngIf="!loading">
+        <i *ngIf="widget.settings.types.data.showIcon" class="widget-icon icons8"
+          [ngClass]="widget.settings.types.data.dataImgName"
+          [ngStyle]="{ color: widget?.settings?.types?.data?.iconColor }"></i>
+      </li>
+      <!-- Widget wise time applied -->
+      <li *ngIf="widget.widgetWiseInfo && widget.widgetWiseInfo.widgetWise" style="display: inline-block;color: red;"
+        [pTooltip]='widgetWiseTimeToolTip'><i class="icons8 icons8-clock app-graph "></i></li>
+
+      <li *ngIf="loading"><i class="pi pi-spin pi-spinner"></i></li>
+      <li *ngIf="dashboard.mode =='EDIT'" (click)='dashboard.copyWidget(widget);'>
+        <i style="display: inline-block;" pTooltip= 'Clone Widget' class="icons8 icons8-copy clickable"></i>
+    </li>
+      <li *ngIf="errorMessage">
+        <i style="display: inline-block;color: red;" [pTooltip]= 'errorMessage' class="icons8 icons8-error"></i>
+    </li>
+      <li [ngStyle]="{ display: !loading ? 'inline-block' : 'none' }">
+        <app-widget-menu *ngIf="visiblityMenu == undefined && !visiblityMenu" [widget]="this"></app-widget-menu>
+      </li>
+    </ul>
+    <div class="widget-title" *ngIf="dataOptions" (click)="select()" (dblclick)="toggleFocus()"  [style.fontWeight]= "widget?.settings?.types?.data?.bold  ?'600' : 'normal'" [style.fontFamily]= "widget?.settings?.types?.data?.displayWidgetFontFamily == 'Select Font Family' ? 'Poppins,sans-serif' : widget?.settings?.types?.data?.displayWidgetFontFamily" [style.fontStyle]="widget?.settings?.types?.data?.italic ?'italic' : 'normal'" [style.textDecoration]="widget?.settings?.types?.data?.underline ? 'Underline' : 'none'" [style.color]="widget?.settings?.types?.data?.fontColor">
+      <span [pTooltip]="dataOptions.dataDisplayName" [tooltipPosition]="'top'">{{ dataOptions.dataDisplayName }}</span>
+    </div>
+  </div>
+  <div class="widget-body"  [style.color]="widget?.settings?.types?.data?.fontColor" (dblclick)="toggleFocus()">
+    <div class="widget-body" *ngIf="dataOptions && !empty">
+      <div class="data-attr-name">
+        <!-- <span class="prefix">{{ dataOptions.prefix }}</span> -->
+
+        <svg viewBox="0 0 120 20" class="data-text">
+          <text x="15%" y="63%" [attr.fill]="widget?.settings?.types?.data?.fontColor" class="pre-suff" text-anchor="middle">
+            {{ dataOptions.prefix | ellipsis:16 }}
+          </text>
+          <text x="50%" y="70%" [attr.fill]="widget?.settings?.types?.data?.fontColor" text-anchor="middle" [ngStyle]="{fontSize: widget.settings.types.data.fontSize }">
+            {{ dataOptions.dataAttrName }}
+          </text>
+          <text x="85%" y="63%" [attr.fill]="widget?.settings?.types?.data?.fontColor" class="pre-suff" text-anchor="middle">
+            {{ dataOptions.suffix | ellipsis:16 }}
+          </text>
+        </svg>
+
+        <!-- <span class="suffix">{{ dataOptions.suffix }}</span> -->
+        <div *ngIf="widget.settings.types.data.showTitleBar || widget.settings.caption.overriden">
+          <span class="widget-title"  [pTooltip]="widget.name">{{ widget.name }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="empty-container" *ngIf="empty" [ngStyle]="{ color:widget?.settings?.types?.data?.fontColor}">
+      Data Not Available
+    </div>
+  </div>
+</div>

@@ -1,0 +1,223 @@
+
+<div class="service-method-container h-100-vh">
+  <div
+    class="p-grid loader-container vertical-container h-100-vh"
+    *ngIf="loading && !data"
+  >
+    <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+    </div>
+  </div>
+
+  <div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="error" text="{{ error.msg }}"></p-message>
+    </div>
+  </div>
+
+  <div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="normal" text="No Data"></p-message>
+    </div>
+  </div>
+
+  <div
+    #widgetHeight
+    *ngIf="data"
+    [ngStyle]="{
+      height: data.smtData.tableFilter
+        ? 'calc(100vh - 180px)'
+        : 'calc(100vh - 130px)'
+    }"
+  >
+    <div class="p-grid">
+      <div class="p-col-9 method-timing-filter-group">
+        <strong>
+          <a (click)="backToMethodTiming()" class="back-cursor-pointer">
+            <i class="icons8 icons8-back"></i>
+            Service Method Timing
+          </a>
+        </strong>
+      </div>
+      <div class="p-col-3 method-timing-alert-group">
+        <button
+          pButton
+          icon="icons8 icons8-search-property"
+          class="icon-button no-shadow"
+          pTooltip="Column Filter"
+          [tooltipZIndex]="100000"
+          (click)="data.smtData.tableFilter = !data.smtData.tableFilter"
+        ></button>
+        <!-- <p-menu
+              #menu
+              [popup]="true"
+              styleClass="widget-menu"
+              [model]="downloadOptions"
+              [showTransitionOptions]="'0ms'"
+              [hideTransitionOptions]="'0ms'"
+            ></p-menu> -->
+        <!-- <button
+              pButton
+              icon="icons8 icons8-installing-updates"
+              class="ui-icon-button"
+              (click)="menu.toggle($event)"
+            ></button> -->
+        <p-multiSelect
+          [options]="cols"
+          [(ngModel)]="selectedColumns"
+          optionLabel="label"
+          [displaySelectedLabel]="false"
+          dropdownIcon="icons8 icons8-columns"
+          pTooltip="Toggle Columns"
+          [panelStyle]="{ minWidth: '200px' }"
+        >
+        </p-multiSelect>
+      </div>
+    </div>
+
+    <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+      Select column to show
+    </div>
+    <div class="service-method-table">
+      <div class="p-col-12">
+        <p-card>
+          <p-table
+            #flowPath
+            [columns]="selectedColumns"
+            [value]="data.smtData.data"
+            [rowHover]="true"
+            [paginator]="true"
+            [rows]="data.smtData.paginator.rows"
+            [rowsPerPageOptions]="data.smtData.paginator.rowsPerPageOptions"
+            [(first)]="data.smtData.paginator.first"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            [responsive]="true"
+            [scrollable]="true"
+            scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 160px)"
+          >
+            <ng-template pTemplate="header" let-columns>
+              <tr *ngFor="let headerRow of data.smtData.headers">
+                <th *ngIf="isCheckbox" class="columnwidth"></th>
+                <th
+                  *ngFor="let col of columns"
+                  [attr.coldiv]="col.coldiv"
+                  [attr.rowdiv]="col.rowdiv"
+                  [ngStyle]="{
+                    'width.px':
+                      col.label === 'Business Transaction' ? '180' : '100'
+                  }"
+                  [pSortableColumn]="col.isSort && col.valueField"
+                  class="text-left"
+                >
+                  <div class="left">
+                    {{ col.label }}
+                  </div>
+                  <div *ngIf="col.isSort" class="right">
+                    <p-sortIcon
+                      *ngIf="col.isSort"
+                      [field]="col.valueField"
+                      class="text-right"
+                      ariaLabel="Activate to sort"
+                      ariaLabelDesc="Activate to sort in descending order"
+                      ariaLabelAsc="Activate to sort in ascending order"
+                    >
+                    </p-sortIcon>
+                  </div>
+                </th>
+              </tr>
+
+              <tr *ngFor="let headerRow of data.smtData.headers">
+                <ng-container *ngIf="data.smtData.tableFilter">
+                  <th *ngIf="isCheckbox" class="columnwidth"></th>
+                  <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                    <div
+                      *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'custom'
+                      "
+                    >
+                      <input
+                        class="w-100-p"
+                        pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                        *ngSwitchCase="col.label"
+                        pInputText
+                        type="text"
+                        (input)="
+                          flowPath.filter(
+                            $event.target.value,
+                            col.value,
+                            'custom'
+                          )
+                        "
+                      />
+                    </div>
+                    <div
+                      *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'contain'
+                      "
+                    >
+                      <input
+                        class="w-100-p"
+                        pTooltip="Will filter metric names which contains given text."
+                        *ngSwitchCase="col.label"
+                        pInputText
+                        type="text"
+                        (input)="
+                          flowPath.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'contain'
+                          )
+                        "
+                      />
+                    </div>
+                  </th>
+                </ng-container>
+              </tr>
+            </ng-template>
+
+            <ng-template
+              pTemplate="body"
+              let-row
+              let-columns="columns"
+              let-rowIndex="rowIndex"
+            >
+              <tr
+                [pSelectableRow]="row"
+                [pSelectableRowDisabled]="isCheckbox"
+                [ngStyle]="{
+                  backgroundColor: row.rowBgColor,
+                  borderLeft: '5px solid' + row.severityBgColorField
+                }"
+              >
+                <td class="text-center columnwidth" *ngIf="isCheckbox">
+                  <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                </td>
+                <td
+                  [ngStyle]="{
+                    'width.px':
+                      col.label === 'Business Transaction' ? '180' : '100'
+                  }"
+                  *ngFor="let col of columns; let i = index"
+                  class="{{ col.classes }}"
+                >
+                  {{ row[col.valueField] }}
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+              <tr>
+                <td class="text-center">
+                  <span *ngIf="error">Error while loading data</span>
+                  <span *ngIf="loading">Loading</span>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      </div>
+    </div>
+  </div>
+</div>

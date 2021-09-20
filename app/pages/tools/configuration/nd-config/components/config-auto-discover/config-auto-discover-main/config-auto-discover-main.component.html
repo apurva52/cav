@@ -1,0 +1,116 @@
+
+    <div class="p-grid p-align-center">
+        <div class="p-col-2">Agent Type</div>
+        <div class="ui-g-5">
+            <p-dropdown [options]="agent" name="agent" class="w-100-p" [(ngModel)]="selectedAgent"
+                placeholder="--Select--" (ngModelChange)="onChange()" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+        </div>
+    </div>
+
+    <form (ngSubmit)="discoverData()" #groupForm="ngForm" style="width:100%" ngNativeValidate>
+        <div class="p-grid p-align-center">
+      
+            <div class="p-col-2">Connected Agent (s)</div>
+            <div class="ui-g-5">
+                <input name="agents" type="text" class='hidden-validator' pInputText [(ngModel)]="autoDiscoverDetail.agents"
+                    required ngModel />
+                <p-dropdown name="agents" class="auto-discover ad_connectedagent" [options]="agents"  class="w-100-p"
+                    [(ngModel)]="autoDiscoverDetail.agents" placeholder="--Select--" filter="filter" [disabled]="isAgentSelected" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+        </div>
+       
+
+       
+        <div class="p-grid p-align-center">
+            <div class="p-col-2">Discovery Mode</div>
+                <div class="p-col-4">
+                    <div class="p-grid no-gutters">
+                    <div class="p-col-6">
+                        <p-radioButton name="discover" value="1" label="Discover by Filter" [(ngModel)]="autoDiscoverDetail.discoveryMode"
+                        [disabled]="isAgentSelected"></p-radioButton>
+                    </div>
+                    <div class="p-col-6">
+                        <p-radioButton name="discover" value="0" label="Discover All" [(ngModel)]="autoDiscoverDetail.discoveryMode"
+                        [disabled]="isAgentSelected"></p-radioButton>
+                    </div>
+                    </div>
+                </div>
+        </div>
+               
+           
+        <div class="p-grid p-align-center">
+                <div class="ui-g-2">Class Filter
+                    <i class="icons8 icons8-help" aria-hidden="true" title="Class filter should be Fully Qualified Class Name(e.g com.oracle.pitchfork.interfaces.inject.InjectionInfo) or its regex e.g:- com.ora.*"></i>
+                </div>
+                <div class="ui-g-5">
+                    <textarea name="classfilter" [disabled]="autoDiscoverDetail.discoveryMode == 0" (keydown.space)="$event.preventDefault()"
+                        rows="2" [(ngModel)]="autoDiscoverDetail.classFilters" class="w-100-p"
+                        pInputTextarea></textarea>
+                </div>
+        </div>
+           
+        <div class="p-grid p-align-center">
+                <div class="ui-g-2">Method Filter
+                    <i class="icons8 icons8-help" aria-hidden="true" title="Method filter should be only Method Name(e.g getvalue()I) or its regex e.g:- get.*"></i>
+                </div>
+                <div class="ui-g-5">
+                    <textarea name="methodfilter" [disabled]="autoDiscoverDetail.discoveryMode == 0" rows="2" 
+                        (keydown.space)="$event.preventDefault()" [(ngModel)]="autoDiscoverDetail.methodFilters" class="w-100-p"
+                        pInputTextarea></textarea>
+                </div>
+        </div>
+       
+
+        <div class="p-grid p-justify-center p-align-center">
+            <div class="p-col-2">&nbsp;</div>
+
+            <div class="ui-g-4 mln-3 mrn-3">
+                <button type="submit" pButton icon="icons8 icons8-edit" class="mx-3" *ngIf="isAutoPerm" [disabled]="isAutoPerm"
+                    label="Discover"></button>
+                <button type="submit" pButton icon="icons8 icons8-edit" class="mx-3" *ngIf="!isAutoPerm" [disabled]="isAgentSelected"
+                    label="Discover"></button>
+                <button type="submit" pButton icon="icons8 icons8-synchronize" class="mx-3" label="Reset" *ngIf="isAutoPerm"
+                    [disabled]="isAutoPerm" (click)="resetAllFields()"></button>
+                <button type="submit" pButton icon="icons8 icons8-synchronize" class="mx-3" label="Reset" *ngIf="!isAutoPerm"
+                    [disabled]="isAgentSelected" (click)="resetAllFields()"></button>
+                    </div>
+        </div> 
+    </form>
+
+
+
+<div class="ui-g">
+    <div class="ui-g-12 font-weight-600">
+        Instrument Profile Settings
+    </div>
+</div>
+
+<form (ngSubmit)="openAdrFile()" #groupForm="ngForm" ngNativeValidate>
+<div class="ui-g p-align-center">
+                <div class="ui-g-2">Autodiscovered Instance(s)</div>
+                <div class="ui-g-5 pr-120">
+                    <input name="instance" type="text" class='hidden-validator' [(ngModel)]="adrFile" pInputText
+                        required ngModel />
+                    <p-dropdown name="instance" *ngIf="instanceList.length > 3 || instanceList.length == 3" class="w-100-p"
+                        [options]="instanceList" [(ngModel)]="adrFile" placeholder="--Select--"
+                        filter="filter" [disabled]="isAgentSelected" 
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    <p-dropdown name="instance" *ngIf="instanceList.length == 2" class="w-100-p"
+                        [options]="instanceList" [(ngModel)]="adrFile" placeholder="--Select--"
+                        filter="filter" [disabled]="isAgentSelected" 
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    <p-dropdown name="instance" *ngIf="instanceList.length ==1" class="w-100-p"
+                        [options]="instanceList" [(ngModel)]="adrFile" placeholder="--Select--"
+                        filter="filter" [disabled]="isAgentSelected" 
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    <p-dropdown name="instance" *ngIf="instanceList.length ==0" [disabled]="true" class="w-100-p"
+                        [options]="instanceList" [(ngModel)]="adrFile" placeholder="--Select--"
+                        filter="filter" [disabled]="isAgentSelected" 
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+                <div class="mln-116">
+                    <button type="submit" pButton icon="icons8 icons8-checkmark" label="Open" [disabled]="isAgentSelected"></button>
+                </div>
+          
+</div>
+</form>

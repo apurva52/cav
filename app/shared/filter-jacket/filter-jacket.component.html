@@ -1,0 +1,44 @@
+<div class="filter-component">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <i class="icons8-filter"></i>
+            <span>Filters</span>
+        </div>
+    </div>
+    <div class="sidebar-content">
+        <div class="p-grid">
+            <div class="p-col-6 filter-dropdown">
+                <p-dropdown [options]="hours" placeholder="Last 4 Hours" optionLabel="name" [showClear]="true"
+                    dropdownIcon="icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+        </div>
+        <div>
+            <p-accordion>
+                <p-accordionTab header="Events" expandIcon="icons8-expand-arrow" expandIcon="icons8-expand-arrow">
+                    <div>
+                        <div class="chipset">
+                            <p-chips [(ngModel)]="filterValues">
+                                <ng-template let-item pTemplate="item">
+                                    <span class="ui-chips-token-label"> {{item}}</span>
+                                </ng-template>
+                            </p-chips>
+                        </div>
+                        <ul class="filter-list">
+                            <li *ngFor="let item of filterList">
+                                {{item.name}}
+                                <a (click)="addFilter(item)"><i class="icons8-plus-math"></i></a>
+                            </li>
+                        </ul>
+                    </div>
+                </p-accordionTab>
+                <p-accordionTab header="Sequence">
+                    Content 2
+                </p-accordionTab>
+                <p-accordionTab header="Advanced Filters">
+                    Content 3
+                </p-accordionTab>
+            </p-accordion>
+        </div>
+    </div>
+</div>

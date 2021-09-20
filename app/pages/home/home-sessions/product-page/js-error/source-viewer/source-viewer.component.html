@@ -1,0 +1,70 @@
+<div class="source-viewer-container">
+    <div class="p-grid p-col-12 p-justify-between p-align-center p-col-nogutter p-nogutter">
+        <div class="p-col-11" style="overflow: hidden;">
+            <p-tabMenu [model]="items" id="code-editor-tabs" [activeItem]="activeTab">
+                <ng-template pTemplate="item" let-item let-i="index">
+                    <i [class]="item.class" style="padding-right: 6px;font-size: large;"></i>
+                    {{item.label | slice:0-40}}
+                    <i class="las-times-solid close-tab-icon" title="Close" (click)="removeFile(item.id)"></i>
+                </ng-template>
+            </p-tabMenu>
+        </div>
+        <div class="p-col-1 text-right">
+            <i class="las-indent-solid editor-tab-op-icons ph-5" title="Show StackTrace"
+                (click)="op.toggle($event)"></i>
+            <i class="las-times-solid editor-tab-op-icons ph-5" style="font-weight: 700;" title="Close All"
+                (click)="closeEditor()"></i>
+        </div>
+    </div>
+    <div>
+
+    </div>
+
+    <ace-editor [(text)]="code" [theme]="'eclipse'" [mode]="'javascript'" [readOnly]="true" [autoUpdateContent]="true"
+        [durationBeforeCallback]="1000" (textChanged)="onChange()" #editor style="height: 100%; width:100%;">
+    </ace-editor>
+
+    <div class="code-editor-footer">
+        <div class="left">
+            <span class="beautify-bracket" [attr.title]="'Beautify' + file"
+                (click)="formatDocument(true)">{{'{}'}}</span>
+            <span class="line-column-div">Error at Line {{line}}, Column {{column}}</span>
+        </div>
+        <div class="right open-file-external" title="Open file in new tab" (click)="openFileExternal()">
+            <i class="pi pi-external-link" style="font-size: 20px;"></i>
+        </div>
+    </div>
+
+    <p-overlayPanel #op appendTo="body">
+        <ng-template pTemplate>
+            <div class="jsStackTrace">
+                <h4 class="jsstackTrace-header">
+                    <i class="pi pi-times-circle" style="vertical-align: middle;"></i>{{message}}
+                </h4>
+                <div class="jsstacktrace-content">
+                    <ng-container *ngFor="let token of stackTrace">
+
+                        <span *ngIf="token.type !== 1" style="color: red;">
+                            <span>at {{token.text}}</span>&nbsp;
+                        </span>
+                        <ng-container *ngIf="token.type === 1">
+                            <span [attr.title]="token.text" (click)="addInJSEditor(token)">
+                                <a style="text-decoration: underline;cursor: pointer;">
+                                    <span style="color: red;">(</span>
+                                    {{token.text.split('/').pop().trim()}}
+                                    <span style="color: red;">)</span>
+                                </a>
+                            </span>
+                            <div class="p-5"></div>
+                        </ng-container>
+
+                    </ng-container>
+                </div>
+            </div>
+        </ng-template>
+    </p-overlayPanel>
+</div>
+
+<p-confirmDialog header="Error" icon="pi pi-exclamation-triangle" key="source-viewer"
+    maskStyleClass="ui-dialog-mask ui-widget-overlay ui-dialog-visible ui-dialog-mask-scrollblocker"
+    class="success-dialog"></p-confirmDialog>

@@ -1,0 +1,47 @@
+<div class="p-grid p-justify-between">
+    <div class="p-grid">
+        <div class="p-col-12">
+            <h4 style="margin: 0;">Page Scatter Map on {{metric?.label}}</h4>
+        </div>
+        <div class="p-col-12">
+            From: {{startTime}} To: {{endTime}}
+        </div>
+    </div>
+    <div class="p-grid">
+        <h5>Max</h5>
+        <div class="p-col">
+            <p-dropdown [options]="metrics" [(ngModel)]="metric" optionLabel="label" dropdownIcon="icons8-expand-arrow"
+                (onChange)="updateMetric($event.value)" tooltip="Metric"></p-dropdown>
+        </div>
+        <div class="p-col">
+            <p-inputNumber [(ngModel)]="outlier" suffix=" sec" (onBlur)="outlierChange($event)" title="Outlier">
+            </p-inputNumber>
+        </div>
+        <div class="p-col">
+            <p-dropdown [options]="buckets" [(ngModel)]="bucket" dropdownIcon="icons8-expand-arrow"
+                (onChange)="updateBucket($event.value)" tooltip="Bucket">
+            </p-dropdown>
+        </div>
+    </div>
+</div>
+
+
+<app-chart [data]="scatterChart" [setChart]="scatterChart" [loading]="loading"></app-chart>
+
+<p-footer>
+    <div class="p-grid p-justify-between">
+        <div class="p-col">
+            <label>Page Views: {{chartData?.pageViews}}, Outlier: {{chartData?.outliers}}</label>
+            <button pButton type="button" icon="icons8 icons8-combo-chart" pTooltip="Open Percentile Graph"
+                (click)="openPercentileChart()"></button>
+        </div>
+        <div class="p-col">
+            <p-paginator (onPageChange)="updateOffset($event)" [rows]="1" [totalRecords]="offsetWindow.length">
+            </p-paginator>
+        </div>
+    </div>
+</p-footer>
+
+<p-dialog [header]="percentileData?.title" [(visible)]="visible" class="secondary-dialog">
+    <app-chart [data]="percentileChart" *ngIf="percentileChart"></app-chart>
+</p-dialog>

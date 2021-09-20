@@ -1,0 +1,41 @@
+<div class="overview">
+    <div class="p-grid p-col-12">
+        <div class="p-grid loader-container vertical-container" *ngIf="datacommon.reportformdata == null">
+           <div class="p-col p-col-align-center text-center">
+           <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+           </div>
+         </div>
+        <div class="p-col-12 no-padding chart" *ngIf = 'datacommon.reportformdata != null'>
+
+            <!-- <div class="funnel-section">
+                    <div class="block1" *ngFor="let item of pages" [ngStyle]="{ width: item.width +'%' }">
+                        <div class="entry-page" [ngStyle]="{ width: item.entryPage.entryCountPct +'%' }" *ngIf="item.entryPage && item.entryPage.entryCountPct >=1">{{item.entryPage.entryCountPct+'%'}}</div>
+                        <div class="exit-page" *ngIf="item.exitPage && item.exitPage.exitCountPct >= 1 " [ngStyle]="{ width: item.exitPage.exitCountPct +'%' }">{{item.exitPage.exitCountPct+'%'}}</div>
+                    </div> 
+                </div> -->
+            <div class="funnel-section" *ngFor="let item of datacommon.conversiondata">
+                <div class="block1">
+                    <div class="entry-page">{{item.dec1}}</div>
+                    <div class="entry-page2">{{item.count1}}</div>
+                    <div class="arrow"></div>
+                    <div class="sec1" [style.width.%] ="33.333333333333336 - item.count2"></div>
+                    <div class="sec2" [style.width.%] ="item.count2"></div>
+                    <div class="arrow2"></div>
+                    <div class="entry-page1">{{item.percentage}}</div>
+                    <div class="entry-page3">{{item.dec3}}</div>
+                </div>
+                <div class="new-section">
+                    <div class="block2">{{item.count3}}<br><br>{{item.dec2}}</div>
+                    <div class="block3"></div>
+                    <div class="sec3"></div>
+                    <div class="arrow3"></div>
+                </div>
+            </div>
+            <div class="p-col-12 no-padding text-center " style="margin-left: -88px;margin-top: 13px;font-size: 15px;">
+               <span>  
+                   Conversion Rate : {{(((datacommon.reportformdata.totalUniqueFormSubmit-datacommon.reportformdata.totalUniqueFailedSubmit)/datacommon.reportformdata.totalPageView)*100).toFixed(2)}} %
+               </span>
+            </div>
+        </div>
+    </div>
+</div>

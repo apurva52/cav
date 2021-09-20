@@ -1,0 +1,243 @@
+<div class="h-100-vh user-container" style="overflow: auto;" #widget>
+
+  <div class="action-container">
+    <div class="p-grid px-10 py-5 p-justify-between p-align-center action-grid w-100-p">
+      <div class="w-25-p">
+        <div class="type-search">
+          <i class="icons8 icons8-search btn-icon left-icon"></i>
+          <input pInputText type="text" #searchInput class="pl-20 w-100-p"
+            (input)="usersegment.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+        </div>
+      </div>
+      <div class="icons-container p-justify-between p-align-center">
+
+        <button pButton *ngIf="buttonflag" icon="icons8 icons8-delete-trash" class="icon-button no-shadow"
+          pTooltip="Delete" (click)="deleteEntry.open()"></button>
+
+        <p-multiSelect class="icon-button no-shadow " [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label"
+          [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns"
+          [panelStyle]="{ minWidth: '200px' }">
+        </p-multiSelect>
+
+        <i pButton class="icons8 icons8-search-property icon-button no-shadow column-filter" (click)="toggleFilters()"
+          pTooltip="Column Filter"></i>
+
+        <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'"
+          [hideTransitionOptions]="'0ms'"></p-menu>
+
+        <button pButton *ngIf="buttonflag" type="button"
+          class="ui-button ui-button-secondary ui-button-rounded btn-margin user-pointer" label="ADD NEW"
+          (click)="addNewSegment()">
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div #widgetHeight [ngStyle]="{
+    height: !isEnabledColumnFilter
+    ? 'calc(100vh - 35px)'
+    : 'calc(100vh - 78px)'
+  }">
+    <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+      Select column to show
+    </div>
+    <div class="content-body px-10">
+      <p-table #usersegment [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [paginator]="true"
+        [totalRecords]="totalRecords" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+        [globalFilterFields]="globalFilterFields" [rows]="data.paginator.rows" [scrollable]="true"
+        (onRowSelect)="handleRowSelection($event)"
+        scrollHeight="calc({{widgetHeight.offsetHeight }}px - 280px)" [(selection)]="selectedIds" selectionMode="single"
+        class="all-tables">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col *ngFor="let col of columns" [style.width]="col.width" />
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns" pResizableColumn [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+              [pSortableColumn]="col.valueField" class="text-left">
+              <div class="left">
+                {{ col.label }}
+              </div>
+              <div *ngIf="col.isSort" class="right">
+                <p-sortIcon [field]="col.valueField" class="float-right" ariaLabel="Activate to sort"
+                  ariaLabelDesc="Activate to sort in descending order"
+                  ariaLabelAsc="Activate to sort in ascending order">
+                </p-sortIcon>
+
+              </div>
+            </th>
+            <th [style]="{ width: '5%' }" *ngIf="buttonflag"></th>
+          </tr>
+          <tr *ngFor="let headerRow of data.headers">
+            <ng-container *ngIf="isEnabledColumnFilter">
+              <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                <div *ngIf="
+                      col.filter.isFilter === true &&
+                      col.filter.type === 'custom'
+                    ">
+                  <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label" pInputText
+                    type="text" (input)="
+                        usersegment.filter(
+                          $event.target.value,
+                          col.valueField,
+                          'custom'
+                        )
+                      " />
+                </div>
+                <div *ngIf="
+                      col.filter.isFilter === true &&
+                      col.filter.type === 'contains'
+                    ">
+                  <input class="w-100-p" pTooltip="Enter text to search" *ngSwitchCase="col.label" pInputText
+                    type="text" (input)="
+                      usersegment.filter(
+                          $event.target.value,
+                          col.valueField,
+                          'contains'
+                        )
+                      " />
+                </div>
+              </th>
+            </ng-container>
+          </tr>
+
+
+        </ng-template>
+        <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+          <tr [pSelectableRow]="row">
+            <td *ngFor="let col of columns">
+              <span *ngIf="col.buttonField" pTooltip={{row[col.valueField]}} style="color:blue;cursor:pointer"
+                (click)="openRulestable(row.rules)">
+                {{ row[col.valueField]}}
+              </span>
+              <span *ngIf="!col.buttonField" pTooltip={{row[col.valueField]}} class="p-justify-left">
+                {{ row[col.valueField]}}
+              </span>
+              <span class="p-justify-center" *ngIf="col.iconField && row.icons">
+                <!-- <i *ngIf="col.iconField && row.icons" pTooltip={{row.icons}} [ngClass]="row.icons" [style]="{color:'#1d5290'}"></i>-->
+                <img src="{{'/netvision/images/' + row.icons }}" pTooltip={{row.icons}} style="width: 16px;">
+              </span>
+
+
+              <span *ngIf="col.buttonField && buttonflag" class="btn-addrule user-pointer"
+                (click)="addNew.open(true)">ADD
+              </span>
+
+            </td>
+
+            <td [style]="{ width: '5%' }" *ngIf="buttonflag">
+              <div class="p-grid p-justify-center">
+                <i class="ui-icon-button icons8 icons8-edit-2 user-pointer" [style]="{color:'#1d5290'}"
+                  (click)="updatesegment(row)" pTooltip="Edit"></i>
+              </div>
+            </td>
+          </tr>
+
+        </ng-template>
+
+        <!-----------Empty table error handling--------------------->
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="columns.length + 1" class="text-center">
+              <span *ngIf="error">Error while loading data</span>
+              <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i>Loading</span>
+              <span *ngIf="!loading && !error && searchInput.value.length;else noRecords">Nothing found
+                matching
+                "{{searchInput.value}}"</span>
+              <ng-template #noRecords>
+                <span *ngIf="!loading && !error">No Records Found</span>
+              </ng-template>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    <br>
+    <p-card *ngIf="ruleenableflag == true" class="content-body" [style]="{'height': '320px'}">
+      <div *ngIf="ruleenableflag == true">
+        <app-rule [rulestabledata]='rulestabledata' (deleterulessegment)='deleterulessegment($event)'
+          (editrulessegmentevent)='editrulessegment($event)'></app-rule>
+      </div>
+    </p-card>
+    <p-messages *ngIf="msg.length > 0 " [(value)]="msg"> </p-messages>
+    <p-messages *ngIf="msgnormal.length > 0" [(value)]="msgnormal"> </p-messages>
+  </div>
+
+
+</div>
+
+<!-- <app-user-segment-crud #addNew> </app-user-segment-crud> -->
+<app-rule-crud #addNew (editrulessegment)='addrulessegment($event)' [selecteddata]="selectedIds"></app-rule-crud>
+<app-delete-entry #deleteEntry (deleteusersegment)='deleteEntrysegment($event)'></app-delete-entry>
+<!--<p-messages [(value)]="msgs"></p-messages> -->
+
+
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true"
+  class="secondary-dialog" [draggable]="false" [style]="{width: '40vw'}">
+  <p-header>
+
+    <div class="compare-data-title" *ngIf="!showFields">
+      <div>
+        Add Usersegment Data
+      </div>
+      <div class="action-buttons">
+        <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+      </div>
+    </div>
+    <div class="compare-data-title" *ngIf="showFields">
+      <div>
+        Edit Usersegment Data
+      </div>
+      <div class="action-buttons">
+        <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+      </div>
+    </div>
+  </p-header>
+  <div class="dialog-content">
+    <div class="p-grid">
+      <div class="p-col-4">
+        <span class="line-height">Icons For Event</span>
+      </div>
+      <div class="p-col-8">
+        <p-dropdown class="w-100-p" [options]="iconeventopn" [(ngModel)]="Icons" dropdownIcon="icons8-expand-arrow">
+        </p-dropdown>
+      </div>
+    </div>
+    <div class="p-grid">
+      <div class="p-col-4">
+        <span class="line-height">Name</span>
+      </div>
+      <div class="p-col-8">
+        <input class="w-100-p" [(ngModel)]="userName" type="text" placeholder="Enter name" pInputText />
+      </div>
+    </div>
+
+    <div class="p-grid">
+      <div class="p-col-4">
+        <span class="line-height">Description</span>
+      </div>
+      <div class="p-col-8">
+        <textarea class="w-100-p" [(ngModel)]="userDescription" type="text" placeholder="Enter Description"
+          pInputText></textarea>
+      </div>
+    </div>
+
+
+  </div>
+  <p-footer right>
+    <div class="p-col-12 form-buttons right" *ngIf="!showFields">
+      <button pButton type="submit" label="Cancel" class="ui-button-rounded ui-button-secondary"
+        (click)="closeDialog()"></button>
+      <button pButton type="submit" label="Add" class="ui-button-rounded" (click)="addsubmitdialog()"></button>
+    </div>
+    <div class="p-col-12 form-buttons right" *ngIf="showFields">
+      <button pButton type="submit" label="Cancel" class="ui-button-rounded ui-button-secondary"
+        (click)="closeDialog()"></button>
+      <button pButton type="submit" label="Update" class="ui-button-rounded" (click)="updatesubmitdialog()"></button>
+    </div>
+  </p-footer>
+</p-dialog>

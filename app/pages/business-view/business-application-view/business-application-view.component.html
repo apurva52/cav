@@ -1,0 +1,41 @@
+<div class="h-100-vh business-application-view-container" #widget>
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <ng-container>
+        <p-card class="content">
+            <p-header>
+                <div class="p-grid p-justify-center title">
+                    BUSINESS APPLICATION VIEW
+                </div>
+            </p-header>
+            <div class="p-grid p-justify-center">
+                <div class="loaded-data mh-10 mv-10" *ngFor="let dataLoad of data.dataLoaded"
+                    [ngStyle]="dataLoad.icon=='icons8 icons8-info'?{'border-color':'red'} : {'border-color': '#1d5290'}">
+                    <div class="heading p-grid p-align-center p-justify-between">
+                        <span>{{dataLoad.header}}</span>
+                        <span><i class="{{dataLoad.icon}}"></i></span>
+                    </div>
+
+                    <div class="description"
+                        [ngStyle]="dataLoad.icon=='icons8 icons8-info'?{'color':'red'} : {'color': '#1d5290'}">
+                        <div class="p-grid p-align-center p-justify-center">
+                            <i class="{{dataLoad.val1icon}} p-h-10"></i> {{dataLoad.val1}}
+                        </div>
+                        <div class="mt-10 ml p-grid p-align-center p-justify-center">
+                            <i class="{{dataLoad.val2icon}} p-h-10"></i> {{dataLoad.val2}}
+                        </div>
+                        <div class="mt-10 p-grid p-align-center p-justify-center">
+                            <i class="{{dataLoad.val3icon}} p-h-10"></i> {{dataLoad.val3}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-card>
+        <div class="p-grid p-align-center p-justify-center">
+            <button pButton type="button" class="view-dashboard-btn" routerLink="/home/dashboard"
+                label="VIEW DASHBOARD"></button>
+        </div>
+    </ng-container>
+</div>

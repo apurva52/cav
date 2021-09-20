@@ -1,0 +1,204 @@
+<div *ngIf= "isLoading" class = "store-progressbar">
+    <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw storeloadingIcon"></i>
+    <div class="loading-label">Loading...</div>
+  </div>
+<div class="h-100-vh geo-location-wrapper">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-grid p-align-center">
+                <a routerLink="/home/system">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">GEO-LOCATION</div>
+            </div>
+            <div class="p-grid p-align-center" >
+                <div class="p-col" *ngIf="geoLocationTimeFilter.timePeriod.selected">
+                        <span *ngIf="geoLocationTimeFilter.temporaryTimeFrame" style="margin-right: 15px;"pTooltip="Last Sample Time">Last Sample Time:
+                            {{geoLocationTimeFilter.temporaryTimeFrame[2] | formatDateTime: 'default'}}</span>
+                            <div class="clock" (click)="geoLocationTimeFilter.openTimeFilter()">
+                            <i class="icons8 icons8-clock"></i>
+                        <span *ngIf="geoLocationTimeFilter.type == 'PRESET'" pTooltip="Apply Time Period">TimePeriod: {{geoLocationTimeFilter.timePeriod.selected.label}}</span>
+                        <span *ngIf="geoLocationTimeFilter.type == 'CUSTOM'">(Custom Time)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+    <div class="action-container">
+        <div *ngIf="data" class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+            <div class="p-grid p-justify-space-around p-align-center">
+                <span class="labels">Applications</span>
+                <p-dropdown class="inputDropdown" [options]="data.geoLocationMenu.applications" (onChange)="filterStatTable($event.value.value)" [(ngModel)]="selectedApplication" optionLabel="label">
+                </p-dropdown>
+                <button pButton type="button" class="ui-button ui-button-rounded" (click)="configureSidebar.show()" label="CONFIGURE"></button>
+                <span class="labels">Health Status</span>
+                <p-dropdown class="inputDropdown" [options]="data.geoLocationMenu.health" [(ngModel)]="selectedHealthStatus" optionLabel="label" (onChange)="onStoreAlertChanged(selectedHealthStatus.value)">
+                </p-dropdown>
+                <span class="labels">Filter</span>
+                <p-dropdown class="inputDropdown" [options]="data.geoLocationMenu.search" [(ngModel)]="filterType" (onChange)="applyFilter()" optionLabel="label">
+                </p-dropdown>
+                <div *ngIf= "isShowSearch(filterType)" class="p-input-icon-left search-div-css">
+                    <i class="pi pi-search" (click)="applyFilter()" ></i>
+                    <input type="text" pInputText placeholder="Search" class="input-field-border-none" [(ngModel)]="searchValue" />
+                </div>
+            </div>
+            <div class="p-col-1 p-justify-end search-icon-css" (click)="searchSidebar.show()">
+                <i class="icons8 icons8-search right" pTooltip="Search By ID"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+
+    <div class="p-grid graph-container">
+        <div #mapContainer class="no-padding h-100-vh" [ngClass]="viewStatistics == true ||  showTopTransactionJacket == true ? 'p-col-9' : 'p-col-12'">
+            <app-map *ngIf="data" [data]="map"></app-map>
+        </div>
+        <div class="p-col-3 no-padding" *ngIf="viewStatistics">
+            <div class="app-statistics-container">
+                <p-card>
+                    <p-header>
+                        <div class="stat-card-header">
+                            <div class="stat-title">
+                                Application Statistics
+                            </div>
+                            <div class="stat-action-buttons">
+                                <!-- <button pButton icon="icons8 icons8-installing-updates" (click)="downloadMenu.toggle($event);" class="ui-icon-button icon-button no-shadow" pTooltip="Download"></button> -->
+                                <!-- <p-menu #downloadMenu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu> -->
+                                <i style="width: auto;" pButton class="icons8 icons8-installing-updates icon-button no-shadow"(click)="downloadMenu.toggle($event);" pTooltip="Download"></i>
+                                <p-menu #downloadMenu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"[showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" appendTo="body"></p-menu>
+                                <i *ngIf="data.appStats.tableFilter" pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" pTooltip="Column Filter" [tooltipZIndex]="100000" (click)="isShowStatColumnFilter = !isShowStatColumnFilter"></i>
+                                <p-multiSelect class="icon-button no-shadow" [(ngModel)]="selectedStatColumns" [options]="statCols" optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Show/Hide Columns" [panelStyle]="{ minWidth: '200px' }">
+                                </p-multiSelect>
+                            </div>
+                        </div>
+                    </p-header>
+                    <div class="p-col-12 app-stats">
+                        <p-table #statTable [columns]="selectedStatColumns" [value]="statTableData" [rowHover]="true" [paginator]="false" [responsive]="true" [scrollable]="true" scrollHeight="80px">
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                    <col *ngFor="let col of columns" [style.width]="col.width">
+                                </colgroup>
+                            </ng-template>
+                            <ng-template pTemplate="header" let-columns>
+                                <tr *ngFor="let headerRow of data.appStats.headers">
+                                    <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.isSort && col.valueField" class="text-left" pResizableColumn>
+                                        <div class="left">
+                                            {{ col.label }}
+                                        </div>
+                                        <div *ngIf="col.isSort" class="right">
+                                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                            </p-sortIcon>
+                                        </div>
+                                    </th>
+                                </tr>
+
+                                <tr *ngFor="let headerRow of data.appStats.headers">
+                                    <ng-container *ngIf="isShowStatColumnFilter">
+                                        <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                            <div *ngIf="
+                                          col.filter.isFilter === true &&
+                                          col.filter.type === 'custom'
+                                        ">
+                                                <input class="w-100-p" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                          statTable.filter(
+                                              $event.target.value,
+                                              col.value,
+                                              'custom'
+                                            )
+                                          " />
+                                            </div>
+                                            <div *ngIf="
+                                          col.filter.isFilter === true &&
+                                          col.filter.type === 'contains'
+                                        ">
+                                                <input class="w-100-p" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                          statTable.filter(
+                                              $event.target.value,
+                                              col.valueField,
+                                              'contains'
+                                            )
+                                          " />
+                                            </div>
+                                        </th>
+                                    </ng-container>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                                <tr>
+                                    <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                        <span *ngIf="col.format"> {{ row[col.valueField] | dec_3 }} </span>
+                                        <span *ngIf="!col.format">{{ row[col.valueField]}}</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td class="text-center" [attr.colspan]="columns.length + 1">
+                                        <span *ngIf="error">Error while loading data</span>
+                                        <span *ngIf="emptyTable">Empty Table</span>
+                                        <span *ngIf="loading">Loading</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                    <div class="p-col-12">
+                        <div class="business-health-chart text-center" >
+                            <app-chart [data]="chart" *ngIf="getchartdata" ></app-chart>
+                        </div>
+                        <!-- <div class="title mr-10">All (Business Health)</div> -->
+                    <div class="mr-10"*ngIf="!getchartdata">
+                        <div class="title" >All (Business Health)</div>
+                            <ul class="list-ul box" *ngIf="!getchartdata">
+                                <li ><i class="las-square-full-solid critical mr-5"></i>Critical: 0</li>
+                                <li><i class="las-square-full-solid major mr-5"></i>Major: 0</li>
+                                <li><i class="las-square-full-solid normal mr-5"></i>Normal: 0</li>
+                                <li><i class="las-square-full-solid inactive mr-5"></i>Inactive: 0</li>
+                           </ul>
+                        
+                        </div>
+                    </div>
+                    <p-footer>
+                        <div class="text-center">
+                            <button pButton type="button" class="ui-button ui-button-rounded" label="VIEW TOP 10 TRANSACTIONS" (click)="openTopTransactionJacket()"></button>
+                        </div>
+                    </p-footer>
+                </p-card>
+            </div>
+        </div>
+        <div class="p-col-3 no-padding" *ngIf="showTopTransactionJacket">
+            <div class="top-trans">
+                <app-top-transaction #topTransaction [geoLocation]="this"></app-top-transaction>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-configure-sidebar #configureSidebar></app-configure-sidebar>
+<app-search-sidebar #searchSidebar></app-search-sidebar>
+<app-geo-location-time-filter #geoLocationTimeFilter></app-geo-location-time-filter>

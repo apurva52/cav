@@ -1,0 +1,111 @@
+<div class="dynamic-logging-container">
+    <div class="p-grid ">
+        <div class="p-col-8 no-padding">
+            <h3 class="title">Track Point</h3>
+        </div>
+    <div class="p-col-4 no-padding">
+        <div class="icons-group">
+            <button pButton class="icons8-delete icon-button no-shadow" (click)="hotspotMethod()" pTooltip="Close"></button>
+            <button pButton icon="icons8 icons8-menu-vertical" class="icon-button no-shadow" pTooltip="Menu"></button>
+            <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow" (click)="menu.toggle($event);" pTooltip="Download"></button>
+            <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="items" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+        </div>
+    </div>
+    </div>
+    <div class="track-point">
+        <p-card>
+            <div class="p-grid ">
+                <div class="p-col-4">
+                    <div class="business-orderlist" *ngIf="data">
+                        <p-orderList [value]="data.data" [(selection)]="selectedRow">
+                            <ng-template pTemplate="item" let-rowData>
+                                <div class="ui-helper-clearfix">
+                                    <div class="list">
+                                        <span class="indexNo">{{rowData.indexNo}} .</span>
+                                        <span class="startTime">{{rowData.details}}</span>
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </p-orderList>
+                    </div>
+                    <div class="p-col-12 text-center btn-group">
+                        <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary-border" label="Apply">
+                        </button>
+                        <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary" label="Cancel">
+                        </button>
+                    </div>
+                </div>
+                <div class="p-col-8 ">
+                        <h3 class="title">Source Code</h3>
+                        <ace-editor
+                        [(text)]="jsonView"
+                        [mode]="'object'"
+                        [readOnly]="true"
+                        style="min-height: 230px; width: 100%; overflow: auto"
+                        ></ace-editor>
+                </div>
+            </div>
+        </p-card>
+    </div>
+    <div class="second-section">
+    <div class="p-grid">
+        <div class="p-col-4 no-padding">
+        <p-card>
+            <h3 class="title">&nbsp;TRACK POINT 1 OCCURRENCE</h3>
+            <div>
+                <ul class="list">
+                    <li>
+                        <p>Occurrence 1 : a</p>
+                        11:15:40
+                    </li>
+                    <li>
+                        <p>Occurrence 1 : a</p>
+                        11:15:40
+                    </li>
+                    <li>
+                        <p>Occurrence 1 : a</p>
+                        11:15:40
+                    </li>
+                </ul>
+                
+            </div>
+        </p-card>
+        </div>
+        <div class="p-col-8 no-padding">
+            <p-tabView>
+                <p-tabPanel header="LOGS" >
+                    <div class="p-grid">
+                        <div class="p-col-12">
+                            <div class="img-svg text-center">
+                                <img src="assets/icons/wip.svg">
+                            </div>
+                        </div>
+                    </div>
+                </p-tabPanel>
+                <p-tabPanel header="RECORDED VARIABLES" [selected]="true">
+                    <p-accordion [multiple]="true">
+                        <p-accordionTab header="Parent Objective type Objective name">
+                            <p>Child1 = Value1</p>
+                            <p>Child2 = Value 2</p>
+                        </p-accordionTab>
+                        <p-accordionTab header="Parent Objective type Objective name">
+                            <p>Child1 = Value1</p>
+                            <p>Child2 = Value 2</p>
+                        </p-accordionTab>
+                    </p-accordion>
+                    
+                </p-tabPanel>
+                <p-tabPanel header="STACK TRACE">
+                    <div class="p-grid">
+                        <div class="p-col-12">
+                            <div class="img-svg text-center">
+                                <img src="assets/icons/wip.svg">
+                            </div>
+                        </div>
+                    </div>
+                </p-tabPanel>
+            </p-tabView>
+        </div>
+    </div>
+</div>
+</div>

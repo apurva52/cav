@@ -1,0 +1,24 @@
+<div class="container">
+    <!-- [pTooltip]="obj.nodeName" -->
+    <div id="target" class="child-indices">
+        <div class="indices-index">
+            <svg height="49" width="50">
+                        <circle class="stroke-normal" cy="25" cx="25" [attr.r]="radius"></circle>
+                        <circle class="stroke-major" cy="25" cx="25" [attr.r]="radius"
+                              [style.strokeDasharray]="circumference" [style.strokeDashoffset]="dashoffsetMc"></circle>
+                        <circle class="stroke-critical" cy="25" cx="25" [attr.r]="radius"
+                              [style.strokeDasharray]="circumference" [style.strokeDashoffset]="dashoffsetCC"></circle>
+
+                        <image x="20%" y="20%" [attr.xlink:href]="obj.icon" dominant-baseline="central" height="30px"
+                              width="30px">
+                        </image>
+                  </svg>
+            </div>
+            <div class="node-name">
+                  {{obj.nodeName}}
+                  <button pButton icon="icons8 icons8-menu-vertical" class="ui-icon-button menuicon"
+                        (click)="menu1.toggle($event)"></button>
+                  <p-menu #menu1 [popup]="true" styleClass="widget-menu" [model]="menuOptions1" appendTo="body"
+                        [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+            </div>
+      </div>

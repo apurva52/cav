@@ -1,0 +1,41 @@
+<form [formGroup]="form" *ngIf="form && data">
+    <div class="p-grid p-justify-start ui-fluid">
+        <div class="p-col-12" *ngFor="let item of data.api.arguments">
+            <label>{{item.label}}</label>
+            <p-dropdown
+                [options]="(data.api.category !== 'localVarApi' || item.name !== 'varName') ? groupedVariables : localVariables"
+                [formControl]="form.controls[item.name]" [placeholder]="'Select ' + item.label" [group]="true"
+                [showClear]="true" editable="true" filter="true" dropdownIcon="icons8 icons8-expand-arrow"
+                (dragover)="allowDrop($event)" (drop)="drop($event, item.name)"
+                *ngIf="data.api.id !== 'gotoState' && data.api.id !== 'setSessionState'">
+
+                <ng-template let-group pTemplate="group">
+                    <i>{{group.label}}</i>
+                    <button type="button" pButton icon="icons8 icons8-add" class="icon-button no-shadow right"
+                        (click)="dataPoint.showDialog()" *ngIf="group.label === 'Data points'"
+                        pTooltip="Extract Data"></button>
+                    <button type="button" pButton icon="icons8 icons8-add" class="icon-button no-shadow right"
+                        (click)="localVar.showDialog()" *ngIf="group.label === 'Local variables'"
+                        pTooltip="Add Local Variable"></button>
+                </ng-template>
+
+            </p-dropdown>
+
+            <p-dropdown [options]="states" [formControl]="form.controls['stateName']" [placeholder]="'Select State'"
+                dropdownIcon="icons8 icons8-expand-arrow" (dragover)="allowDrop($event)" (drop)="drop($event, 'api')"
+                *ngIf="data.api.id === 'gotoState'">
+            </p-dropdown>
+
+            <p-dropdown [options]="sessionStates" [formControlName]="form.controls['sessionState']"
+                dropdownIcon="icons8 icons8-expand-arrow" [placeholder]="'Select State'" (dragover)="allowDrop($event)"
+                (drop)="drop($event, item.name)" *ngIf="data.api.id ==='setSessionState'">
+            </p-dropdown>
+        </div>
+    </div>
+    <div class="p-grid p-justify-end">
+        <button type="button" pButton label="Save" (click)="submit()"></button>
+    </div>
+</form>
+
+<app-callback-datapoint></app-callback-datapoint>
+<app-callback-localvar></app-callback-localvar>

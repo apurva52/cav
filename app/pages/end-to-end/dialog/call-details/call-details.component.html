@@ -1,0 +1,172 @@
+<p-dialog
+  class="secondary-dialog"
+  [draggable]="false"
+  [(visible)]="visible"
+  closeIcon="icons8-delete"
+  header="Call Details"
+  [style]="{ width: '90vw' }"
+>
+  <div class="p-col-12">
+    <div class="p-grid p-col-12 filter-div">
+      <div class="p-col-11"></div>
+      <div class="p-col-1">
+        <i
+          class="btn-icon icons8-search-property right"
+          (click)="checkToogle()"
+        ></i>
+      </div>
+    </div>
+    <p-card class="min-card">
+      <p-table
+        #callDetails
+        [columns]="data.callDetailsData.headers"
+        [value]="data.callDetailsData.data"
+        [rowHover]="true"
+        [paginator]="false"
+        [rows]="data.callDetailsData.paginator.rows"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [responsive]="true"
+        [scrollable]="true"
+        scrollHeight="calc(150px)"
+        selectionMode="single"
+      >
+        <ng-template pTemplate="header" let-columns>
+          <tr *ngFor="let column of columns; let i = index">
+            <th
+              *ngFor="let col of column.cols; let i = index"
+              [attr.coldiv]="col.coldiv"
+              [attr.rowdiv]="col.rowdiv"
+              class="text-left"
+            >
+              <div class="p-grid p-align-center p-justify-between">
+                <div class="text-left">{{ col.label }}</div>
+                <div *ngIf="col.isSort" class="right">
+                  <p-sortIcon
+                    *ngIf="col.isSort"
+                    [field]="col.valueField"
+                    class="text-right"
+                    ariaLabel="Activate to sort"
+                    ariaLabelDesc="Activate to sort in descending order"
+                    ariaLabelAsc="Activate to sort in ascending order"
+                  >
+                  </p-sortIcon>
+                </div>
+              </div>
+            </th>
+          </tr>
+          <tr *ngFor="let headerRow of data.callDetailsData.headers">
+            <ng-container *ngIf="isCallDetailsEnabledColumnFilter">
+              <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                <div
+                  *ngIf="
+                    col.filter.isFilter === true && col.filter.type === 'custom'
+                  "
+                >
+                  <input
+                    class="w-100-p"
+                    [tooltipZIndex]="tooltipzindex"
+                    pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                    *ngSwitchCase="col.label"
+                    pInputText
+                    type="text"
+                    (input)="
+                      callDetails.filter(
+                        $event.target.value,
+                        col.valueField,
+                        'custom'
+                      )
+                    "
+                  />
+                </div>
+                <div
+                  *ngIf="
+                    col.filter.isFilter === true &&
+                    col.filter.type === 'contains'
+                  "
+                >
+                  <input
+                    class="w-100-p"
+                    [tooltipZIndex]="tooltipzindex"
+                    pTooltip="Will filter metric names which contains given text."
+                    *ngSwitchCase="col.label"
+                    pInputText
+                    type="text"
+                    (input)="
+                      callDetails.filter(
+                        $event.target.value,
+                        col.valueField,
+                        'contains'
+                      )
+                    "
+                  />
+                </div>
+              </th>
+            </ng-container>
+          </tr>
+        </ng-template>
+        <ng-template
+          pTemplate="body"
+          let-row
+          let-columns="columns"
+          let-rowIndex="rowIndex"
+        >
+          <tr *ngFor="let column of columns; let i = index">
+            <td
+              *ngFor="let col of column.cols; let i = index"
+              class="{{ col.classes }}"
+            >
+              <span> {{ row[col.valueField] }} </span>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.coldiv]="columns.length + 1" class="text-center">
+              <span *ngIf="error">Error while loading data</span>
+              <span *ngIf="empty">Empty Table</span>
+              <span *ngIf="loading">Loading</span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+    <div class="p-col-12">
+      <label class="label-css">Download As:</label>
+      <div
+        class="p-grid p-col-12"
+        [routerLink]="['/end-to-end/graphical-tier']"
+      >
+        <i class="btn-icon icons8-pdf"></i>
+        <i class="btn-icon icons8-document"></i>
+        <i class="btn-icon icons8-spreadsheet-file"></i>
+      </div>
+    </div>
+    <!-- <div class="p-grid p-col-12 button-row-position">
+      <button
+        pButton
+        type="button"
+        class="ui-outline-button ui-button-secondary button-right-margin"
+        label=""
+        (click)="closePopup()"
+      >
+        <div class="button-text-margin">
+          <i class="icons8 icons8-delete left"></i> <label>Close</label>
+        </div>
+      </button>
+    </div> -->
+  </div>
+  <p-footer>
+    <div class="footer-buttons">
+      <button
+        pButton
+        type="button"
+        class="ui-outline-button ui-button-secondary"
+        icon="icons8 icons8-delete"
+        iconPos="left"
+        label="Close"
+        (click)="closePopup()"
+      ></button>
+    </div>
+  </p-footer>
+</p-dialog>

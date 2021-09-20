@@ -1,0 +1,67 @@
+<div class="p-grid p-col-12 p-align-center" >
+    <div class="p-col-5" >
+        <p-radioButton name="filter"  value="preset" label="Preset" [disabled]="dbMonService.isRealTimeAppled" [(ngModel)]="selectedFilter">
+        </p-radioButton>
+    </div>
+    <div class="p-col-7"  [ngClass]="selectedFilter != 'preset' ? 'disableFilter' : ''">
+        <p-slideMenu #menu  [model]="dbMonService.options"  styleClass="psitionSetMenu" [popup]="true" (click)= "onPresetChange($event)"></p-slideMenu>
+        <button pButton class="w-25-p ui-button ui-button-secondary mh-10" [disabled]="dbMonService.isRealTimeAppled" (click)="menu.toggle($event)">
+            <span class="text-left p-col-10 left">{{selectPresetLabel}}</span>
+            <i class="p-col-2 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+        </button>
+    </div>
+</div>
+<div class="p-grid p-col-12 p-align-center">
+    <div class="p-col-12" >
+        <p-radioButton name="filter" value="custom" label="Custom" [disabled]="dbMonService.isRealTimeAppled" [(ngModel)]="selectedFilter">
+        </p-radioButton>
+    </div>
+    <div class="p-col-12" [ngClass]="selectedFilter == 'preset' ? 'disableFilter' : ''">
+        <div class="p-grid">
+            <div class="p-col-1"></div>
+            <div class="p-col-3">
+                <label class="line-height">From:</label>
+            </div>
+            <div class="p-col-8">
+                <div class="p-grid">
+                    <div class="p-input-icon-left calender-input-css">
+                        <i class="icons8 icons8-calendar"></i>
+                        <input pInputText class="input-time-css" [disabled]="dbMonService.isRealTimeAppled" readonly id="start-date-time"
+                            [owlDateTime]="customStartDateTime" placeholder="{{latest_date}}"
+                            [owlDateTimeTrigger]="customStartDateTime" (ngModelChange)="onTimeFilterCustomTimeChange()"
+                            [selectMode]="'rangeFrom'" [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame">
+                        <owl-date-time #customStartDateTime tooltipZIndex="100001005">
+                        </owl-date-time>
+                        <p-message *ngIf="invalidDate" severity="error"
+                            text="Start date and End date should not be the same.">
+                        </p-message>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-grid">
+            <div class="p-col-1"></div>
+            <div class="p-col-3">
+                <label class="line-height">To:</label>
+            </div>
+
+            <div class="p-col-8">
+                <div class="p-grid">
+                    <div class="p-input-icon-left calender-input-css">
+                        <i class="icons8 icons8-calendar"></i>
+                        <input pInputText class="input-time-css" [disabled]="dbMonService.isRealTimeAppled" readonly id="end-date-time"
+                            [owlDateTime]="customEndDateTime" placeholder="{{latest_date}}"
+                            [owlDateTimeTrigger]="customEndDateTime" (ngModelChange)="onTimeFilterCustomTimeChange()"
+                            [selectMode]="'rangeTo'" [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame"
+                            baseZIndex="100001032111">
+                        <owl-date-time #customEndDateTime tooltipZIndex="10000103050">
+                        </owl-date-time>
+                        <p-message *ngIf="invalidDate" severity="error"
+                            text="Start date and End date should not be the same.">
+                        </p-message>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,33 @@
+<form *ngIf="HeaderForm" (ngSubmit)="showMessage()" #form="ngForm" ngNativeValidate>
+    <div class="tabsincontent">
+        
+        <div class="header p-grid p-justify-between mt-6">Settings
+            <div class="pull-right pb-6">
+		     <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+                     <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Reset to Default"></button>
+                     <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordsDataToDefault()" label="Reset to Default"></button>
+                     <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordData()" label="Undo All"></button>
+                     <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="resetKeywordData()" label="Undo All"></button>
+                     <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+                     <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" label="Save"></button>
+
+        </div>
+        </div>
+        <p-panel class="hideheader">
+            <div style="margin: 5px 0px" class="flowpathheader-accordion">
+                    <app-http-header [data]="httpKeywordObject"></app-http-header>
+            </div>
+        </p-panel>
+    </div>
+</form>
+
+<p-dialog class="primary-dialog " header="Confirmation" [resizable]="false" *ngIf="showMsg"
+    [(visible)]="showMsg" modal="modal" width="420" responsive="true">
+    HTTP Body will not be captured for Individual Business Transactions. Do you wish to proceed? <br>
+    <footer>
+        <div class="p-grid p-justify-end p-align-center pt-10">
+            <button type="button" class="ui-button-sucess mr-6" pButton (click)="showMsg=false" icon="icons8 icons8-delete" label="No"></button>
+            <button type="button" class="ui-button-sucess mr-6" pButton (click)="saveKeywordData()" icon="icons8 icons8-save" label="Yes"></button>
+        </div>
+    </footer>
+</p-dialog>

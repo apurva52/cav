@@ -1,0 +1,60 @@
+<p-blockUI [blocked]="dbMonService.loadingToBlockUI"></p-blockUI>
+<div class="h-100-vh page-container db-monitoring-page">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/dashboard">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div *ngIf= "(dbMonService.databaseType == 0)" class="p-col ui-toolbar-text">
+                MSSQL Monitoring: {{dbMonService.dataSource}}
+            </div>
+            <div *ngIf= "(dbMonService.databaseType == 1)" class="p-col ui-toolbar-text">
+                POSTGRES Monitoring  :{{dbMonService.dataSource}}
+            </div>
+            <div *ngIf= "(dbMonService.databaseType == 2)" class="p-col ui-toolbar-text">
+                MySQL Monitoring  :{{dbMonService.dataSource}}
+            </div>
+            <div *ngIf= "(dbMonService.databaseType == 3)" class="p-col ui-toolbar-text">
+                ORACLE Monitoring  : {{dbMonService.dataSource}}
+            </div>
+            <div *ngIf= "(dbMonService.databaseType == 4)" class="p-col ui-toolbar-text">
+                MONGODB Monitoring  : {{dbMonService.dataSource}}
+            </div>
+            <div class="p-grid p-col-2 p-align-center p-justify-end" *ngIf= "dbMonService.isShowAggregateToggle">
+                <span style="color: white;">Aggregate mode</span>
+                <p-inputSwitch (onChange)= "changeAggregateMode()" [(ngModel)]="dbMonService.isAggregate" title="{{(dbMonService.isAggregate) ? dbMonService.titleForDisableAggregationToggle : dbMonService.titleForEnableAggregationToggle}}"
+                class="mh-10"></p-inputSwitch>
+            </div>
+            <div class="p-grid p-col-1.5 p-align-center p-justify-end" *ngIf= "dbMonService.isShowRealtimeToggle">
+                <span style="color: white;">Real Time mode</span>
+                <p-inputSwitch (onChange)= "changeRealTimeMode()" [(ngModel)]="dbMonService.isRealTimeAppled" title="{{(dbMonService.isRealTimeAppled) ? dbMonService.titleForDisableRealTimeToggle : dbMonService.titleForEnableRealTimeToggle}}"
+                class="mh-10"></p-inputSwitch>
+                <p-dropdown *ngIf="dbMonService.isRealTimeAppled" [style]="{'min-width' : '72px','color':'white'}" [options]="realTimeRefreshOptions" class="customInput p-col-1.5"
+                           [(ngModel)]="dbMonService.selectedRTProgressInterval" dropdownIcon="icons8 icons8-expand-arrow" (onChange)="onFilterValueChange($event)"></p-dropdown>
+            </div>
+                <div class="p-grid p-col-1.5 icons-container p-justify-end">
+                    <button pButton class="icon-button no-shadow" style="color: white;" *ngIf="!dbMonService.isRealTimeAppled" title="Previous Segment" tooltipPosition="top" (click)="controlPrevious()" icon="icons8 icons8-back">
+                    </button>
+                    <button pButton class="icon-button no-shadow" style="color: white;" *ngIf="!dbMonService.isAnalysisMode" title="Pause Auto Refresh" tooltipPosition="top" (click)="controlPause()" icon="icons8 icons8-pause">
+                    </button>
+                    <button pButton class="icon-button no-shadow" style="color: white;" *ngIf="dbMonService.isAnalysisMode" title="Start Auto Refresh" tooltipPosition="top" (click)="controlStart()" icon="icons8 icons8-play">
+                    </button>
+                    <button pButton class="icon-button no-shadow" style="color: white;" *ngIf="!dbMonService.isRealTimeAppled" title="Next Segment" tooltipPosition="top" (click)="controlNext()" icon="icons8 icons8-forward">
+                    </button>
+                </div>
+        </div>
+
+    </p-toolbar>
+    <div class="content-header mh-10">
+        
+        <div>
+            <p-tabMenu [model]="items"></p-tabMenu>
+            <div class="content-body">
+                <router-outlet></router-outlet>
+            </div>
+        </div>
+    </div>
+</div>

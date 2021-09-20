@@ -1,0 +1,63 @@
+<div class="ui-g-12">
+    <div class="ui-g-12">
+        <div class="ui-g-8" style="padding-left:1px">
+            <input #search type="text" [(ngModel)]="addPath" pInputText value={{fileAndFolderPath}} size="50"
+                (keyup)="searchByName($event, search.value)" (keypress)="omit_enter_key($event)">
+        </div>
+        <div class="ui-g-2">
+            <button mat-button class="btn-select" (click)="setSelectedFiles()">ADD</button>
+        </div>
+        <!-- <div class=ui-g-2>
+            <button mat-button class="btn-upload" (click)="uploadFiles()">Upload</button>
+        </div> -->
+    </div>
+    <div class="ui-g-12">
+        <div class="ui-widget-header" style="padding:4px 10px;border-bottom: 0 none">
+            <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+            <input type="text" pInputText size="50" placeholder="Search..." (keyup)="globalFilter()"
+                [(ngModel)]="searchText">
+        </div>
+    </div>
+    <div *ngIf="isLoad">
+        <i class="fa fa-spinner fa-pulse fa-3x fa-fw loadingClass1"></i>
+    </div>
+    <div class="ui-g-12">
+        <p-dataTable class="nde-ui" [value]="filesData" scrollable="true" scrollHeight="370px" [style]="{'width':'96%'}"
+            [emptyMessage]="emptyMessage">
+            <p-column field="name" header="Name"
+                [style]="{'width':'40%','text-overflow':'ellipsis','white-space': 'nowrap'}">
+                <ng-template let-col let-file="rowData" let-ri="rowIndex" pTemplate="body">
+                    <i *ngIf="file.empty == 'none'" (click)="goBack($event)" class="fa fa-arrow-left" title="Back"></i>
+                    <span *ngIf="file.isDir" (dblclick)="onItemClick(ri,$event)">
+                        <mat-icon class="folder-browser-icon" fontSet="fa" fontIcon="fa-folder"></mat-icon>
+                        <span title={{file[col.field]}}>{{file[col.field]}}</span>
+                    </span>
+                    <span *ngIf="file.isFile" (dblclick)="addFiles(ri, $event)">
+                        <mat-icon class="file-browser-icon" fontSet="fa" fontIcon="fa-file"></mat-icon><span
+                            title={{file[col.field]}}>{{file[col.field]}}</span>
+                    </span>
+                </ng-template>
+            </p-column>
+
+            <p-column field="modified" header="Date Modified" sortable="custom"
+                (sortFunction)="myfilesDataSort($event,filesData)" [style]="{'width':'30%','text-align':'right'}">
+            </p-column>
+            <p-column field="mime" header="Type" sortable="custom" (sortFunction)="myfilesDataSort($event,filesData)"
+                [style]="{'width':'15%'}"></p-column>
+            <p-column field="size" header="Size(KB)" [style]="{'text-align':'right'}" [style]="{'width':'15%'}"
+                sortable="custom" (sortFunction)="myfilesDataSort($event,filesData)">
+                <ng-template let-col let-filesize="rowData" let-ri="rowIndex" pTemplate="body">
+                    <span title="{{filesize[col.field] | number}}">{{filesize[col.field] | number}}</span>
+                </ng-template>
+            </p-column>
+        </p-dataTable>
+    </div>
+</div>
+
+<div class="uploadFiles" *ngIf="toUploadFile">
+    <p-dialog class="uploadFileDialog" header="Upload Files" [(visible)]="toUploadFile">
+        <p-fileUpload name="myfile[]" class="configBrowser" #fileUpload [url]="uploadUrl" multiple="multiple"
+            (onUpload)="onUpload($event)" (onSelect)="onSelect($event,fileUpload)" [showUploadButton]="uploadFile"
+            (onError)="showErrorMessage()"></p-fileUpload>
+    </p-dialog>
+</div>

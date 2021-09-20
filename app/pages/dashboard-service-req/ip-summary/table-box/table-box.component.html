@@ -1,0 +1,116 @@
+<p-dialog header=" Integration Points Individual Info [Integration Point = {{ipName}}]" [style]="{width: '88vw'}" #dialog [(visible)]="displayBasicOpen" [draggable]="false" class="secondary-dialog" [resizable]="true" [modal]="true">
+
+    <div class="table-box-container h-100-vh">
+
+        <ng-container>
+            <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+                <div class="p-col p-col-align-center text-center">
+                    <div>
+                        <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-grid vertical-container" *ngIf="error">
+                <div class="p-col p-col-align-center text-center">
+                    <p-message severity="error" text="{{error.msg}}"></p-message>
+                </div>
+            </div>
+
+            <div class="p-grid vertical-container" *ngIf="empty">
+                <div class="p-col p-col-align-center text-center">
+                    <p-message severity="normal" text="No Data"></p-message>
+                </div>
+            </div>
+
+            <div #widgetHeight *ngIf="data" class="mh-10" style="height: calc(100vh - 225px);">
+
+                <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                    Select column to show
+                </div>
+
+                <div class="p-grid">
+
+                    <div class="table-box-table">
+                        <p-card>
+                            <div class="p-col-12">
+                                <p-table #tableBoxData [columns]="selectedColumns" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [value]="tableData" [paginator]="true" [lazy]="true" (onLazyLoad)="loadPagination($event)" [totalRecords]="data.data.length" [rows]="data.paginator.rows"
+                                    [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [scrollable]="true" [rowHover]="true" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                                    [responsive]="true" [globalFilterFields]="data.search.fields" selectionMode="single" [resizableColumns]="true">
+                                    <ng-template pTemplate="colgroup" let-columns>
+                                        <colgroup>
+                                        <col *ngFor="let col of columns">
+                                        </colgroup>
+                                        </ng-template>
+                                    <ng-template pTemplate="header" let-columns>
+                                        <tr>
+                                            <th *ngFor="let col of columns" pResizableColumn [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.valueField" class="text-left" [ngStyle]="{'width.px': col.label === 'Query' ? '45':col.label === 'First Query Time' ? '55': col.label === 'Last Query Time'? '55' : 
+                      col.label === 'Query Count'? '50' :col.label === 'Error Count'? '50' : col.label === 'Max'? '30'  : col.label === 'Min'? '30'  :
+                      col.label === 'Execution Time'? '50'  : '50'}">
+                                                <div class="left">
+                                                    {{ col.label }}
+                                                </div>
+                                                <div *ngFor="let p of data.sort.fields" class="right">
+                                                    <p-sortIcon *ngIf="p == col.valueField" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                    </p-sortIcon>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </ng-template>
+
+                                    <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+
+                                        <tr [ngStyle]="{'backgroundColor': row.rowBgColor}" [pSelectableRow]="row">
+                                            <td [ngStyle]="{'width.px': col.label === 'Query' ? '45':col.label === 'First Query Time' ? '55': col.label === 'Last Query Time'? '55' : 
+                    col.label === 'Query Count'? '50' :col.label === 'Error Count'? '50' : col.label === 'Max'? '30'  : col.label === 'Min'? '30'  :
+                    col.label === 'Execution Time'? '50'  : '50'}" *ngFor="let col of columns" class="{{ col.classes }}" class="ui-resizable-column">
+                                                <span *ngIf="col.label == 'Queries'">
+                                                    <a class="activeLink" pTooltip="View Query" (click)="showRowInfo(row)">
+                                                        {{ row[col.valueField] }}
+                                                    </a>
+                                                </span>
+                                                <span *ngIf="!(col.label == 'Queries' )" pTooltip={{row[col.valueField]}}>
+                                                    {{ row[col.valueField] }}
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+
+                                    <ng-template pTemplate="emptymessage" let-columns>
+                                        <tr>
+                                            <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                                <span *ngIf="error">Error while loading data</span>
+                                                <span *ngIf="empty">Empty Table</span>
+                                                <span *ngIf="loading">Loading</span>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+
+
+                                </p-table>
+                            </div>
+                        </p-card>
+                    </div>
+
+
+                </div>
+                <p-panel #pnl expandIcon="" collapseIcon="" [collapsed]="false" [toggleable]="true">
+                    <p-header class="cav-panel-header pt-5">
+                        <div class="cav-panel-content p-grid p-align-center">
+                            <div class="panel-title" (click)="pnl.toggle($event)">
+                                    <span [class]="pnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                    </span> Query
+                           </div>
+                        </div>
+                    </p-header>
+                    <div>
+                        <textarea pInputTextarea rows="5" style="width:100%;resize:none;" readonly>{{queryName}}</textarea>
+                    </div>
+                </p-panel>
+            </div>
+
+        </ng-container>
+    </div>
+
+</p-dialog>

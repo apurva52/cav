@@ -1,0 +1,121 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+      blockScroll="true" appendTo="body">
+      <div class="sidebar-header">
+            <div class="sidebar-title">
+                  <div>
+                        <i class="icons8 icons8-star-filled"></i>
+                        <span>Feedback Filter</span>
+                  </div>
+                  <div class="action-icons">
+                        <i class="icons8-delete" (click)="hide()"></i>
+                  </div>
+            </div>
+      </div>
+
+      <div class="sidebar-content">
+            <div class="form-content">
+                  <div class="p-grid">
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                              <p-radioButton name="last" label="Last" value="last" [(ngModel)]="preset"></p-radioButton>
+                              <p-dropdown [options]="duration" placeholder="1 Week" optionLabel="label" class=""
+                                    dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                              <p-radioButton name="custom" label="custom" value="Custom" [(ngModel)]="preset">
+                              </p-radioButton>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                              <label>Starts At</label>
+                              <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-calendar"></i>
+                                    <input pInputText class="customInput" readonly id="start-date-time"
+                                          [owlDateTime]="customStartDateTime" placeholder="04:30 PM 23/04/2020"
+                                          [owlDateTimeTrigger]="customStartDateTime"
+                                          (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'"
+                                          [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame">
+                                    <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                                    <p-message *ngIf="invalidDate" severity="error"
+                                          text="Start date and End date should not be the same.">
+                                    </p-message>
+                              </div>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                              <label>Ends At</label>
+                              <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-calendar"></i>
+                                    <input pInputText class="customInput" readonly id="start-date-time"
+                                          [owlDateTime]="customEndDateTime" placeholder="04:30 PM 23/04/2020"
+                                          [owlDateTimeTrigger]="customEndDateTime"
+                                          (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'"
+                                          [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame">
+                                    <owl-date-time #customEndDateTime tooltipZIndex="100001005"></owl-date-time>
+                                    <p-message *ngIf="invalidDate" severity="error"
+                                          text="Start date and End date should not be the same.">
+                                    </p-message>
+                              </div>
+                        </div>
+                  </div>
+                  <div class="p-grid" *ngIf="campaignCompare === true">
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                              <p-radioButton name="last" label="Last" value="last" [(ngModel)]="preset"></p-radioButton>
+                              <p-dropdown [options]="duration" placeholder="1 Week" optionLabel="label" class=""
+                                    dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                              <p-radioButton name="custom" label="custom" value="Custom" [(ngModel)]="preset">
+                              </p-radioButton>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                              <label>Starts At</label>
+                              <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-calendar"></i>
+                                    <input pInputText class="customInput" readonly id="start-date-time"
+                                          [owlDateTime]="customStartDateTime" placeholder="04:30 PM 23/04/2020"
+                                          [owlDateTimeTrigger]="customStartDateTime"
+                                          (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'"
+                                          [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame">
+                                    <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                                    <p-message *ngIf="invalidDate" severity="error"
+                                          text="Start date and End date should not be the same.">
+                                    </p-message>
+                              </div>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                              <label>Ends At</label>
+                              <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-calendar"></i>
+                                    <input pInputText class="customInput" readonly id="start-date-time"
+                                          [owlDateTime]="customEndDateTime" placeholder="04:30 PM 23/04/2020"
+                                          [owlDateTimeTrigger]="customEndDateTime"
+                                          (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'"
+                                          [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame">
+                                    <owl-date-time #customEndDateTime tooltipZIndex="100001005"></owl-date-time>
+                                    <p-message *ngIf="invalidDate" severity="error"
+                                          text="Start date and End date should not be the same.">
+                                    </p-message>
+                              </div>
+                        </div>
+                  </div>
+                  <div class="compare-buttons p-grid p-justify-between p-align-center ph-5">
+                        <button pButton label="TIME COMPARE" class="ui-outline-button ui-button-secondary"
+                              (click)="campaignCompare = false"></button>
+                        <button pButton label="CAMPAIGN COMPARE" class="ui-button-rounded ui-button-right"
+                              (click)="campaignCompare = true"></button>
+                  </div>
+                  <div class="p-grid p-col-12 p-justify-between p-align-center">
+                        <label class="w-100-p pb-5" for="bucketSize">Bucket Size</label>
+                        <p-dropdown [options]="bucket" placeholder="1 Week" optionLabel="label" class=""
+                              dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                  </div>
+                  <div class="p-grid p-col-12 p-justify-between p-align-center">
+                        <label class="w-100-p pb-5" for="bucketSize">Campaign</label>
+                        <p-dropdown [options]="campaign" placeholder="1 Week" optionLabel="label" class=""
+                              dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                  </div>
+            </div>
+      </div>
+      <div class="sidebar-footer">
+            <button pButton type="reset" label="RESET" class="ui-outline-button ui-button-secondary"></button>
+            <button pButton type="submit" label="Save" class="ui-button-rounded ui-button-right"></button>
+      </div>
+</p-sidebar>

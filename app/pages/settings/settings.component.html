@@ -1,0 +1,294 @@
+<div class="h-100-vh page-container settings-page" *ngIf="data">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <!-- <p-toast position="top-right" life='50000'></p-toast> -->
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/dashboard">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                SETTINGS
+            </div>
+            <div>
+                <button pButton type="button" class="ui-button ui-button-rounded" label="SAVE" [disabled]="isDisabled"
+                    title="Disabled as it will be enabled in future release." (click)="saveSettings()">
+                </button>
+            </div>
+        </div>
+
+    </p-toolbar>
+    <div class="content-body">
+        <div class="p-grid p-align-start p-justify-between">
+            <div class="p-col-4 settings-card">
+                <p-card class="" header="PROFILE SETTINGS" [style]="{width: '100%'}">
+                    <div class="p-col p-align-center p-justify-center">
+                        <div class="p-col">
+                            <div class="text-center">
+                                <i class="icons8 icons8-user"></i>
+                            </div>
+                            <div class="p-grid">
+                                <div class="p-col-12 p-grid">
+                                    <label class="p-col-3">Name</label>
+                                    <input class="p-col-9" type="text" [disabled]="isDisabled" title="Disabled as it will be enabled in future release."
+                                        pInputText />
+                                </div>
+                                <div class="p-col-12 p-grid">
+                                    <label class="p-col-3">E-mail</label>
+                                    <input class="p-col-9" type="text" [disabled]="isDisabled" title="Disabled as it will be enabled in future release."
+                                        pInputText />
+                                </div>
+                                <div class="p-col-12 p-grid">
+                                    <label class="p-col-3">Job Title</label>
+                                    <input class="p-col-9" type="text" [disabled]="isDisabled" title="Disabled as it will be enabled in future release."
+                                        pInputText />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-grid p-align-start p-justify-around button-container">
+                            <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary" label="Change Password"
+                                (click)="showPassDetails()" [disabled]="isGuestUser" title={{passwordTooltip}}>
+                            </button>
+                            <button pButton type="button" class="ui-button ui-button-rounded ui-button-tertiary"
+                                [disabled]="isDisabled" title="Disabled as it will be enabled in future release." label="Edit Profile">
+                            </button>
+                        </div>
+                    </div>
+                </p-card>
+                <!-- <p-card header="ORGANISATIONS" [style]="{width: '100%'}">
+                    <div>
+                        <p-card>
+
+                            <p-table [value]="data.data" [columns]="data.headers[0].cols">
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                        <th *ngFor="let col of columns;let i = index">
+                                            <div class="left">
+                                                {{ col.label }}
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row let-columns="columns">
+                                    <tr>
+                                        <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                            {{ row[col.valueField] }}
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+
+                          </p-card>
+                    </div>
+                </p-card> -->
+            </div>
+            <div class="p-col-8 settings-card">
+                <div class="p-card">
+                    <p-card header="EMAIL/SMS SETTINGS" [style]="{width: '100%'}">
+                        <div class="sub-cards">
+                            <p-card header="Time Zone" [style]="{width: '100%'}">
+                                <div class="p-grid">
+                                        <div class="p-grid p-col-12">
+                                                <div class="p-col-3">
+                                                    <!-- <label class="control-label">Server Timezone</label> -->
+                                                    <p-radioButton class="p-col-4" name="timezone" value="servertime" (onClick)="onChangeRadioTimeZone($event)" [(ngModel)]="selectedTime" label="Server Time Zone">
+                                                    </p-radioButton>
+                                                </div>
+                                                <div class="p-col-9">
+                                                    <span>{{sessionService.settingTime | serverFormatDateTime: 'default' }}</span>
+                                                    <br><br>
+                                                    <span>{{serverTimeInfo.zoneId}}{{serverTimeInfo.zone}}</span>
+                                                </div>
+                                        </div>
+                                        <div class="p-grid p-col-12">
+                                                <div class="p-col-3">
+                                                        <p-radioButton class="p-col-4" name="timezone" value="clienttime" (onClick)="onChangeRadioTimeZone($event)" [(ngModel)]="selectedTime" label="Local Time Zone">
+                                                        </p-radioButton>
+                                                </div>
+                                                <div class="p-col-9">
+                                                        <span>{{sessionService.time | clientFormatDateTime: 'default' }}</span>
+                                                        <br><br>
+                                                        <!-- <span>{{clientTimeInfo.abb}}{{clientTimeInfo.value}}</span> -->
+                                                        <span>{{clientTimeInfo}}</span>
+                                                </div>
+                                            </div>
+                                    <div class="p-col-12 p-grid">
+                                        <!-- <div class="p-col-12">
+                                            <label class="control-label">Timezone to be detected by Browser </label>
+                                        </div> -->
+                                        <div class="p-col-3">
+                                            <p-radioButton class="p-col-4" name="timezone" value="othertime" [(ngModel)]="selectedTime" label="Other Time Zones"
+                                            (onClick)="onChangeRadioTimeZone($event)">
+                                            </p-radioButton>
+                                        </div>
+                                        <div class="p-col-4">
+                                            <p-dropdown [options]="sessionService.timeZoneLists" [disabled]="selectedTime != 'othertime'" [(ngModel)]="sessionService.selectedTimeZone" filter="true"
+                                                (onChange)="onChangeTimeZone($event)"></p-dropdown>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </p-card>
+                            <p-card header="Mail Configuration" [style]="{width: '100%'}">
+                                <div class="p-grid">
+                                    <div class="p-field p-col-6">
+                                        <div class="p-col-12">
+                                            <label class="control-label">SMTP Host</label>
+                                        </div>
+                                        <div class="p-col-10">
+                                            <input class="control-input" type="text" pInputText placeholder="" [(ngModel)]="smtphost"
+                                                [disabled]="isDisabled" title="Disabled as it will be enabled in future release." />
+                                        </div>
+                                    </div>
+                                    <div class="p-field p-col-6">
+                                        <div class="p-col-12">
+                                            <label class="control-label">SMTP Port</label>
+                                        </div>
+                                        <div class="p-col-10">
+                                            <input class="control-input" type="text" pInputText placeholder="" [(ngModel)]="smtpport"
+                                                [disabled]="isDisabled" title="Disabled as it will be enabled in future release." />
+                                        </div>
+                                    </div>
+                                    <div class="p-field p-col-12">
+                                        <p-checkbox name="trend" binary="true" [(ngModel)]="isSecureConn"
+                                            inputId="tc" [disabled]="isDisabled" title="Use this component for enable/disable secure connection.">
+                                        </p-checkbox>
+                                        <label for="tc">Use Secure Connection</label>
+                                    </div>
+                                    <div class="p-field p-col-12">
+                                        <div class="p-col-5">
+                                            <p-dropdown class="control-input p-col-12" [options]="secureConnectionOption"
+                                                [disabled]="!isSecureConn" [(ngModel)]="selectedSecureConnType" title="Disabled as it will be enabled in future release."></p-dropdown>
+                                        </div>
+                                    </div>
+                                    <div class="p-field p-col-6">
+                                        <div class="p-col-12">
+                                            <label class="control-label">Sender E-Mail Address</label>
+                                        </div>
+                                        <div class="p-col-10">
+                                            <input class="control-input" type="text" pInputText placeholder="" [(ngModel)]="email"
+                                                [disabled]="isDisabled" title="Disabled as it will be enabled in future release." />
+                                        </div>
+                                    </div>
+                                    <div class="p-field p-col-12">
+                                        <p-checkbox binary="true" [(ngModel)]="isAuthRequire"
+                                            inputId="tc" [disabled]="isDisabled" title="Use this component for enable/disable Authentication Required.">
+                                        </p-checkbox>
+                                        <label for="tc">Authentication Required</label>
+                                    </div>
+                                    <div class="p-field p-col-6">
+                                        <div class="p-col-10">
+                                            <input class="control-input password" [type]="passwordType" [(ngModel)]="pwd" pInputText placeholder="Password"
+                                                name="password" [disabled]="!isAuthRequire" title="Disabled as it will be enabled in future release." />
+                                        </div>
+                                    </div>
+                                    <div class="p-field p-col-6">
+                                        <div class="p-col-10">
+                                            <input class="control-input password" [type]="passwordType" [(ngModel)]="confrmPwd" pInputText placeholder="Confirm Password"
+                                                [disabled]="!isAuthRequire" title="Disabled as it will be enabled in future release." />
+                                        </div>
+                                    </div>
+                                    <div class="p-col-12">
+                                        <label>Send Mail To </label><input [disabled]="isDisabled" title="Use this field to provide a valid mail ID"  type="text" size="80" pInputText placeholder="xyz@gmail.com" [(ngModel)]="sendMailTo"/>
+                                        <button type="button" pButton (click)="testMail()" class="ui-button ui-button-rounded ui-button-secondary" [disabled]="isDisabled" label="Test"></button>
+                                    </div>
+                                </div>
+
+                            </p-card>
+                            <p-card header="SMS Configuration" [style]="{width: '100%'}">
+                                <div class="p-grid">
+                                    <div class="p-field p-col-6 p-grid">
+                                        <div class="p-col-1 radio-group">
+                                            <p-radioButton name="groupname1" value="0" [(ngModel)]="selectedCarrierType"></p-radioButton>
+                                        </div>
+                                        <div class="p-col-10">
+                                            <label class="control-label p-col-12">Standerd</label>
+                                            <!-- <p-dropdown class="control-input p-col-12" [options]="carriers"
+                                                [disabled]="selectedCarrierType == 1" [(ngModel)]="standardCarriers" title="Disabled as it will be enabled in future release."></p-dropdown> -->
+                                                <p-multiSelect [disabled]="selectedCarrierType == 1" [options]="carriers" [(ngModel)]="standardCarriers" title="Use this field to select SMS Gateway Domains."
+                                                style="min-width: 3 em;" [maxSelectedLabels]="3" [panelStyle]="{minWidth: '200px'}"></p-multiSelect>
+                                        </div>
+                                    </div>
+                                    <div class="p-field p-col-6 p-grid">
+                                        <div class="p-col-1 radio-group">
+                                            <p-radioButton name="groupname1" value="1" [(ngModel)]="selectedCarrierType"></p-radioButton>
+                                        </div>
+                                        <div class="p-col-10">
+                                            <label class="control-label p-col-12">Custon SMS Gateway Domain</label>
+                                            <!-- <p-dropdown class="control-input p-col-12" [options]="data.domain"
+                                                [disabled]="isDisabled" title="Disabled as it will be enabled in future release."></p-dropdown>
+                                             -->
+                                             <input [disabled]="selectedCarrierType == 0" title="Use this field to provide SMS Gateway Domain"  type="text" size="40" pInputText [(ngModel)]="customCarriers"/>
+                                        </div>
+                                    </div>
+                                    <div class="p-col-12">
+                                        <label>Send SMS To </label><input [disabled]="isDisabled" title="Use this field to provide a valid phone number or mail ID"  type="text" size="80" pInputText [(ngModel)]="sendSmsTo"/>
+                                        <button type="button" pButton (click)="testSms()" class="ui-button ui-button-rounded ui-button-secondary" [disabled]="isDisabled" label="Test"></button>
+                                    </div>
+                                </div>
+                            </p-card>
+                        </div>
+                    </p-card>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<p-dialog header="Change Password" [(visible)]="displayDetails" class="secondary-dialog" [style]="{width: '30vw'}"
+    [modal]="true" [baseZIndex]="10000" [draggable]="false" [resizable]="false" closeIcon="icons8-delete">
+    <div class=" p-align-start p-justify-between">
+        <div class="p-grid p-col-12 p-align-center">
+            <div class="p-col-5">
+                <label class="control-label">Old Password <span style="color:red;" title="All Fields are mandatory"> * </span></label>
+                <!-- (<i style="cursor: pointer;" title="Show/Hide Password" class="icons8 icons8-eye" (click)="changePasswordType()" ></i>) -->
+            </div>
+            <div class="p-col-7">
+                <input class="control-input" [type]="passwordType" [(ngModel)]='oldPassword' id="oldPassword"
+                    (keyup.enter)="changePassword()" style="width:100%;" placeholder="Old Password" pInputText>
+            </div>
+            <div class="p-col-5">
+                <label class="control-label">New Password <span style="color:red;" title="All Fields are mandatory" > * </span> </label>
+                <!-- (<i style="cursor: pointer;" title="Show/Hide Password" class="icons8 icons8-eye" (click)="changePasswordType()" ></i>) -->
+            </div>
+            <div class="p-col-7">
+                <input class="control-input" [type]="passwordType" [(ngModel)]='newPassword' id="newPassword"
+                    (keyup.enter)="changePassword()" style="width:100%;" placeholder="New Password" pInputText>
+            </div>
+            <div class="p-col-5">
+                <label class="control-label">Confirm Password <span style="color:red;"title="All Fields are mandatory" > * </span> </label>
+            </div>
+            <div class="p-col-7">
+                <input class="control-input" [type]="passwordType" [(ngModel)]='confirmPassword' id="confirmPassword"
+                    (keyup.enter)="changePassword()" style="width:100%;" placeholder="Confirm Password" pInputText>
+            </div>
+
+            <div class="p-col-12">
+                <div class="p-align-center" style="
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    ">
+                    Show/Hide Password &nbsp;
+                    <i style="cursor: pointer;" title="Show/Hide Password" class="icons8 icons8-eye" (click)="changePasswordType()"></i>
+                </div>
+            </div>
+        </div>
+        <div class="p-col-12 form-buttons">
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-right" label="SAVE"
+                (keyup.enter)="changePassword()" (click)="changePassword()">
+            </button>
+            <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary" label="CANCEL"
+                (click)="closeDialog()">
+            </button>
+        </div>
+    </div>
+    <div id="centerpoint">
+        <p-confirmDialog styleClass="centerpointAd" key="settings" header="Error" acceptLabel="Ok" rejectLabel="Cancel"  [(visible)]="dialogVisible"></p-confirmDialog>
+    </div>
+</p-dialog>
+<app-informative-dialog #informativeDialog [data]="content"></app-informative-dialog>

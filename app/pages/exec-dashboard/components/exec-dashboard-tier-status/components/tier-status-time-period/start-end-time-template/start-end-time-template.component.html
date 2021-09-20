@@ -1,0 +1,28 @@
+<div class="ui-grid-row marginClass">
+  <div class="ui-grid-col-3 marginClass">
+    Select Start Time:
+  </div>
+  <div class="ui-grid-col-4 marginRightClass">
+    <p-calendar class="graphtimeClass" pTooltip="MM/DD/YYYY" tooltipPosition="bottom" [(ngModel)]="graphTime.$txtStartDate" dateFormat="mm/dd/yy" [disabled]="selectedTimePeriod != 'Custom Date'" appendTo="body"></p-calendar>
+  </div>
+  <div class="ui-grid-col-4">
+    <p-inputMask class="graphtimeClass" pTooltip="hh/mm/ss" tooltipPosition="bottom" mask="99:99:99" [(ngModel)]="graphTime.$txtStartTime" placeholder="00:00:00"></p-inputMask>
+  </div>
+</div>
+
+<div class="ui-grid-row marginClass">
+  <div class="ui-grid-col-3 marginClass">
+    Select End Time:
+  </div>
+  <div class="ui-grid-col-4 marginRightClass">
+    <p-calendar class="graphtimeClass" pTooltip="MM/DD/YYYY" tooltipPosition="bottom" [(ngModel)]="graphTime.$txtEndDate" dateFormat="mm/dd/yy" [disabled]="selectedTimePeriod != 'Custom Date'" appendTo="body"></p-calendar>
+  </div>
+  <div class="ui-grid-col-4">
+    <p-inputMask class="graphtimeClass" pTooltip="hh/mm/ss" tooltipPosition="bottom" mask="99:99:99" [(ngModel)]="graphTime.$txtEndTime" placeholder="00:00:00"></p-inputMask>
+  </div>
+</div>
+
+<!--Added include discontinuous in template-->
+<div class="ui-grid-row marginClass">
+  <p-checkbox name="discontGraphChk" value="val1" [(ngModel)]="graphTime.$chkIncludeDiscontineGraph"></p-checkbox> Include discontinous graph
+</div>

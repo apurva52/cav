@@ -1,0 +1,250 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+    [baseZIndex]="100" blockScroll="true" appendTo="body">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <div>
+                <i class="icons8 icons8-star-filled"></i>
+                <span>Page Filter</span>
+            </div>
+            <div class="action-icons">
+                <i class="icons8-delete" (click)="hide()"></i>
+            </div>
+        </div>
+    </div>
+     <!-- <p-toast></p-toast>  -->
+<p-toast  key ="my key" position="top-left"></p-toast>
+
+    <div class="sidebar-content">
+        <div class="form-content">
+            <div class="p-grid p-align-center">
+                <div class="p-col-4">
+                    <p-radioButton name="last" label="Last" value="last" [(ngModel)]="timefilter"></p-radioButton>
+                </div>
+                <div class="p-col-8">
+                    <p-dropdown [options]="duration" placeholder="1 Hour" class="" dropdownIcon="icons8 icons8-expand-arrow"
+                    [(ngModel)]="lasttime" [disabled]="timefilter !== 'last'"></p-dropdown>
+                </div>
+            </div>
+
+            <div class="p-grid p-col-12 p-justify-between p-align-center">
+                <p-radioButton name="last" label="custom" value="custom" [(ngModel)]="timefilter"></p-radioButton>
+            </div>
+
+            <div class="p-grid p-align-center">
+                <div class="p-col-4">From:</div>
+
+                <div class="p-col-8">
+                <div class="p-input-icon-left search-div-css">
+                    <i class="icons8 icons8-calendar"></i>
+                    <input pInputText class="customInput" readonly id="start-date-time"
+                        [owlDateTime]="customStartDateTime" placeholder="04:30 PM 23/04/2020"
+                        [owlDateTimeTrigger]="customStartDateTime" (ngModelChange)="onTimeFilterCustomTimeChange()"
+                        [selectMode]="'rangeFrom'" [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame"
+                        [disabled]="timefilter === 'last' ? true:null"> 
+            
+                    <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                   <!-- <p-message *ngIf="invalidDate" severity="error"
+                        text="Start date and End date should not be the same.">
+                    </p-message>-->
+                </div>
+                </div>
+
+            </div>
+            <div class="p-grid w-100-p p-align-center">
+                <div class="p-col-4">To:</div>
+
+                <div class="p-col-8">
+                <div class="p-input-icon-left search-div-css">
+                    <i class="icons8 icons8-calendar"></i>
+                    <input pInputText class="customInput" readonly id="start-date-time"
+                        [owlDateTime]="customEndDateTime" placeholder="04:30 PM 23/04/2020"
+                        [owlDateTimeTrigger]="customEndDateTime" (ngModelChange)="onTimeFilterCustomTimeChange()"
+                        [selectMode]="'rangeTo'" [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame"
+                        [disabled]="timefilter === 'last' ? true:null">
+                    <owl-date-time #customEndDateTime tooltipZIndex="100001005"></owl-date-time>
+                   <!--<p-message *ngIf="invalidDate" severity="error"
+                        text="Start date and End date should not be the same.">
+                    </p-message>-->
+                </div>
+            </div>
+            </div>
+
+           <!-- <p-message severity="error" text="Start time cannot be greated than end time."
+                *ngIf="submitted && invalidDate"></p-message>-->
+            <!--
+            <div class="p-grid p-col-12 p-justify-between p-align-center" *ngFor="let item of data.pageFilterData">
+                <div class="p-grid p-justify-between p-align-center w-35-p">
+                 <div class="spacing1"> <label for="val">{{item.label}}</label></div>
+                  <div>  <p-inputSwitch [(ngModel)]="item.checked"></p-inputSwitch> </div>
+                </div>
+                <div>
+                  <p-slider [(ngModel)]="item.val" [style]="{'width':'14em'}"></p-slider>
+                </div>
+            </div>
+            -->
+            <!--ONLOAD-->
+
+
+
+
+            <div class="p-grid p-align-center w-100-p">
+                <!--ONLOAD-->
+                <div class="p-col-4 p-grid p-align-center">
+                    <p-inputSwitch onLabel="On" offLabel="Off" [(ngModel)]="checkOnload"></p-inputSwitch>
+                    <label for="val" class="ml-4">Onload</label>
+                </div>
+                <div class="p-col-8">
+                    <p-slider [(ngModel)]="onload" [range]="true" [min]="min" [max]="120" [step]="step"
+                    [style]="{'width':'97%'}"></p-slider>
+                    <label class="loadSec" for="val">{{onload[0]}} - {{onload[1]}} (sec)</label>
+                </div>
+
+                <!--TTDL-->
+                <div class="p-col-4 p-grid p-align-center">
+                    <p-inputSwitch onLabel="On" offLabel="Off" [(ngModel)]="checkTTDL"></p-inputSwitch>
+                    <label for="val" class="ml-4">TTDL</label>
+                </div>
+                <div class="p-col-8">
+                    <p-slider [(ngModel)]="ttdl" [range]="true" [min]="min" [max]="120" [step]="step"
+                    [style]="{'width':'97%'}"></p-slider>
+                    <label for="val" class="loadSec">{{ttdl[0]}} - {{ttdl[1]}} (sec)</label>
+                </div>
+
+              <!--TTDI-->
+                <div class="p-col-4 p-grid p-align-center">
+                    <p-inputSwitch onLabel="On" offLabel="Off" [(ngModel)]="checkTTDI"></p-inputSwitch>
+                    <label for="val" class="ml-4">TTDI</label>
+                   
+                </div>
+                <div class="p-col-8">
+                    <label for="val" class="loadSec">{{ttdi[0]}} - {{ttdi[1]}} (sec)</label>
+                        <p-slider [(ngModel)]="ttdi" [range]="true" [min]="min" [max]="120" [step]="step"
+                            [style]="{'width':'97%'}"></p-slider>
+                </div>
+
+                 <!--Wait-->
+                <div class="p-col-4 p-grid p-align-center">
+                    <p-inputSwitch onLabel="On" offLabel="Off" [(ngModel)]="checkWait"></p-inputSwitch>
+                    <label for="val" class="ml-4">Wait</label>
+                </div>
+                <div class="p-col-8">
+                    <p-slider [(ngModel)]="wait" [range]="true" [min]="min" [max]="60" [step]="step"
+                        [style]="{'width':'97%'}"></p-slider>
+                        <label for="val" class="loadSec">{{wait[0]}} - {{wait[1]}} (sec)</label>
+                </div>
+
+                <!--DOM-->
+                <div class="p-col-4 p-grid p-align-center">
+                    <p-inputSwitch onLabel="On" offLabel="Off" [(ngModel)]="checkDOM"></p-inputSwitch>
+                    <label for="val" class="ml-4">DOM</label>
+                </div>
+                <div class="p-col-8">
+                        <p-slider [(ngModel)]="dom" [range]="true" [min]="min" [max]="120" [step]="step"
+                            [style]="{'width':'97%'}"></p-slider>
+                            <label for="val" class="loadSec">{{dom[0]}} - {{dom[1]}} (sec)</label>
+                </div>
+
+                <!--PRT-->
+                <div class="p-col-4 p-grid p-align-center">
+                    <p-inputSwitch onLabel="On" offLabel="Off" [(ngModel)]="checkPRT"></p-inputSwitch>
+                    <label for="val" class="ml-4">PRT</label>
+                </div>
+                <div class="p-col-8">
+                    <p-slider [(ngModel)]="prt" [range]="true" [min]="min" [max]="120" [step]="step"
+                        [style]="{'width':'97%'}"></p-slider>
+                        <label for="val" class="loadSec">{{prt[0]}} - {{prt[1]}} (sec)</label>
+                </div>
+
+                <!--TCP-->
+                <div class="p-col-4 p-grid p-align-center">
+                    <p-inputSwitch onLabel="On" offLabel="Off" [(ngModel)]="checkTCP"></p-inputSwitch>
+                    <label for="val" class="ml-4">TCP</label>
+                </div>
+                <div class="p-col-8">
+                    <p-slider [(ngModel)]="tcp" [range]="true" [min]="min" [max]="10" [step]="step"
+                        [style]="{'width':'97%'}"></p-slider>
+                        <label for="val" class="loadSec">{{tcp[0]}} - {{tcp[1]}} (sec)</label>
+                </div>
+
+                 <!--DNS-->
+                <div class="p-col-4 p-grid p-align-center">
+                    <p-inputSwitch onLabel="On" offLabel="Off" [(ngModel)]="checkDNS"></p-inputSwitch>
+                    <label for="val" class="ml-4">DNS</label>
+                </div>
+                <div class="p-col-8">
+                    <p-slider [(ngModel)]="dns" [range]="true" [min]="min" [max]="10" [step]="step"
+                        [style]="{'width':'97%'}"></p-slider>
+                        <label for="val" class="loadSec">{{dns[0]}} - {{dns[1]}} (sec)</label>
+                </div>
+
+                <!--FP-->
+                <div class="p-col-4 p-grid p-align-center">
+                    <p-inputSwitch onLabel="On" offLabel="Off" [(ngModel)]="checkFirstpaint"></p-inputSwitch>
+                    <label for="val" class="ml-4">FP</label>
+                </div>
+                <div class="p-col-8">
+                    <p-slider [(ngModel)]="firstpaint" [range]="true" [min]="min" [max]="60" [step]="step"
+                        [style]="{'width':'97%'}"></p-slider>
+                        <label for="val" class="loadSec">{{firstpaint[0]}} - {{firstpaint[1]}} (sec)</label>
+                </div>
+
+                <!--FCP-->
+                <div class="p-col-4 p-grid p-align-center">
+                    <p-inputSwitch onLabel="On" offLabel="Off" [(ngModel)]="checkFirstcontentpaint"></p-inputSwitch>
+                    <label for="val" class="ml-4">FCP</label>
+                </div>
+                <div class="p-col-8">
+                        <p-slider [(ngModel)]="firstcontentpaint" [range]="true" [min]="min" [max]="60" [step]="step"
+                            [style]="{'width':'97%'}"></p-slider>
+                            <label for="val" class="loadSec">{{firstcontentpaint[0]}} - {{firstcontentpaint[1]}} (sec)</label>
+                </div>
+
+                <!--FID-->
+                <div class="p-col-4 p-grid p-align-center">
+                    <p-inputSwitch onLabel="On" offLabel="Off" [(ngModel)]="checkFirstinputdelay"></p-inputSwitch>
+                    <label for="val" class="ml-4">FID</label>
+                </div>
+                <div class="p-col-8">
+                        <p-slider [(ngModel)]="firstinputdelay" [range]="true" [min]="min" [max]="120" [step]="step"
+                            [style]="{'width':'97%'}"></p-slider>
+                            <label for="val" class="loadSec">{{firstinputdelay[0]}} - {{firstinputdelay[1]}} (sec)</label>
+                </div>
+
+                 <!--TTI-->
+                <div class="p-col-4 p-grid p-align-center">
+                    <p-inputSwitch onLabel="On" offLabel="Off" [(ngModel)]="checkTimetointeractive"></p-inputSwitch>
+                    <label for="val" class="ml-4">TTI</label>
+                </div>
+                <div class="p-col-8">
+                    <p-slider [(ngModel)]="timetointeractive" [range]="true" [min]="min" [max]="300" [step]="step"
+                        [style]="{'width':'97%'}"></p-slider>
+                        <label for="val" class="loadSec">{{timetointeractive[0]}} - {{timetointeractive[1]}} (sec)</label>
+                </div>
+
+            </div>
+         
+   
+
+           
+
+          
+         
+          
+        
+       
+          
+      
+        
+          
+
+
+        </div>
+    </div>
+    <div class="sidebar-footer">
+        <button pButton type="reset" label="RESET" class="ui-outline-button ui-button-secondary mx-3 px-15"
+            (click)='resetFilter()'></button>
+        <button pButton type="submit" label="Apply" class="ui-button-rounded  mx-3 px-15"
+            (click)='setFilters()'></button>
+    </div>
+</p-sidebar>
+<p-toast></p-toast>

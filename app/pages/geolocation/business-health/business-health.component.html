@@ -1,0 +1,139 @@
+<div class="h-100-vh wrapper">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-grid p-align-center">
+                <a routerLink="/geo-location">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">BUSINESS HEALTH</div>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+    <div class="events-container h-100-vh">
+        <ng-container>
+            <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+                <div class="p-col p-col-align-center text-center">
+                    <div>
+                        <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-grid vertical-container" *ngIf="error">
+                <div class="p-col p-col-align-center text-center">
+                    <p-message severity="error" text="{{error.msg}}"></p-message>
+                </div>
+            </div>
+            <div class="p-grid vertical-container" *ngIf="empty">
+                <div class="p-col p-col-align-center text-center">
+                    <p-message severity="normal" text="No Data"></p-message>
+                </div>
+            </div>
+            <div #widgetHeight *ngIf="data" [ngStyle]="{'height': data.tableFilter ? 'calc(100vh - 225px)' : 'calc(100vh - 180px)'}">
+                <div>
+                    <div class="p-grid actions-container">
+                        <div class="p-col-4 filter-group">
+                            <div class="ui-inputgroup">
+                                <div class="ui-inputgroup-addon">
+                                    <i class="icons8 icons8-search"></i>
+                                </div>
+                                <input class="search-text ui-inputtext w-100-p" type="text" pInputText #searchInput placeholder="Search" (input)="eventData.filterGlobal($event.target.value, 'contains')" />
+                            </div>
+                        </div>
+                        <div class="p-col-5 filter-button-group ">
+                            <div *ngFor="let filter of data.filters">
+                                <span [ngStyle]=" filter.selected ? {'color': '#1d5290', 'borderColor': filter.color, 'backgroundColor': '#ffdbdb61'} : {'color': filter.color, 'borderColor': filter.color}" class="filter-buttons" (click)="toggleFilter(filter)">{{filter.name}}</span>
+                            </div>
+                        </div>
+                        <div class="p-col-3 alert-group">
+                            <i pTooltip="Column Filter" class="icons8 icons8-search-property filter-search-icon" (click)="isShowColumnFilter = !isShowColumnFilter"></i>
+
+                            <p-multiSelect pTooltip="Show/Hide Columns" [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false" dropdownIcon='icons8 icons8-columns' [panelStyle]="{minWidth: '200px'}">
+                            </p-multiSelect>
+                           
+                           <i style="width: auto;" pButton class="icons8 icons8-installing-updates icon-button no-shadow"(click)="downloadMenu.toggle($event);" pTooltip="Download"></i>
+                            <p-menu #downloadMenu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"[showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" appendTo="body"></p-menu>
+                          
+                        </div>
+                    </div>
+                    <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                        Select column to show
+                    </div>
+                    <div class="bh-table">
+                        <p-table #eventData [columns]="selectedColumns" [value]="businessHealthData" [totalRecords]="totalRecords"  [rowHover]="true" [paginator]="true" [rows]="data.paginator.rows" [showCurrentPageReport]="true"
+                        [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true" [globalFilterFields]="globalFilterFields" [scrollable]="true" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 100px)"
+                            selectionMode="single" [(selection)]="selectedRow">
+
+                            <ng-template pTemplate="header" let-columns>
+                                <tr>
+                                    <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.isSort && col.valueField" class="text-left">
+                                        <div class="left">
+                                            {{ col.label }}
+                                        </div>
+                                        <div *ngIf="col.isSort" class="right">
+                                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                            </p-sortIcon>
+                                        </div>
+
+                                    </th>
+                                </tr>
+                                <tr *ngFor="let headerRow of data.headers">
+                                    <ng-container *ngIf="isShowColumnFilter">
+
+                                        <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                            <div *ngIf="col.filter.isFilter === true && col.filter.type === 'custom'">
+                                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="eventData.filter($event.target.value, col.valueField , 'custom')">
+                                            </div>
+                                            <div *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+                                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="eventData.filter($event.target.value, col.valueField, 'contains')">
+                                            </div>
+                                        </th>
+                                    </ng-container>
+                                </tr>
+
+
+                            </ng-template>
+
+                            <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+
+                                <tr [pSelectableRow]="row" >
+                                    <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}">
+                                        {{ row[col.valueField] }}
+                                        <button *ngIf="i === (columns.length - 1) && row === selectedRow" [routerLink]="['/home/dashboard']" pButton icon="icons8 icons8-computer" pTooltip="Open WebDashboard" class="ui-icon-button row-action-btn ui-button-rounded"></button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <!-----------Empty table error handling--------------------->
+
+
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                        <span *ngIf="error">Error while loading data</span>
+                                        <span *ngIf="emptyTable">Empty Table</span>
+                                        <!-- <span *ngIf="loading">Loading</span> -->
+                                    </td>
+                                </tr> 
+                            </ng-template>
+
+                            <ng-template pTemplate="paginatorleft">
+                                <div class="legend-group" *ngFor="let legend of data.filters">
+
+                                    <div *ngIf="legend.showInLegend" class="paginator-legend" [ngStyle]="{'backgroundColor': legend.color}">
+                                    </div>
+                                    <span *ngIf="legend.showInLegend">{{legend.name}}</span>
+
+                                </div>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>

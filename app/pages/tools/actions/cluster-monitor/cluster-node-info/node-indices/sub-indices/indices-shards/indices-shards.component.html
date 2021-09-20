@@ -1,0 +1,174 @@
+<div class="shard-wrapper h-100-vh" *ngIf="data">
+  <div class="p-grid">
+    <div class="p-col-12">
+      <div class="search-section">
+        <div class="action-buttons">
+          <button
+            pButton
+            icon="icons8 icons8-installing-updates"
+            class="ui-icon-button icon-button no-shadow"
+            pTooltip="Download"
+          ></button>
+          <i
+            *ngIf="data.shardData.tableFilter"
+            pButton
+            icon="icons8 icons8-search-property"
+            class="icon-button no-shadow"
+            pTooltip="Column Filter"
+            [tooltipZIndex]="100000"
+            (click)="isShowColumnFilter = !isShowColumnFilter"
+          ></i>
+          <p-multiSelect
+            class="icon-button no-shadow"
+            [(ngModel)]="selectedColumns"
+            [options]="cols"
+            optionLabel="label"
+            [displaySelectedLabel]="false"
+            dropdownIcon="icons8 icons8-columns"
+            pTooltip="Toggle Columns"
+            [panelStyle]="{ minWidth: '200px' }"
+          >
+          </p-multiSelect>
+        </div>
+      </div>
+    </div>
+    <div class="p-col-12">
+      <div
+        #widgetHeight
+        class="shard-table"
+        [ngStyle]="{
+          height: isShowColumnFilter
+            ? 'calc(100vh - 214px)'
+            : 'calc(100vh - 215px)'
+        }"
+      >
+        <p-table
+          #flowPath
+          [columns]="selectedColumns"
+          [value]="data.shardData.data"
+          [rowHover]="true"
+          [paginator]="true"
+          [rows]="data.shardData.paginator.rows"
+          [totalRecords]="data.shardData.data.length"
+          [rowsPerPageOptions]="data.shardData.paginator.rowsPerPageOptions"
+          [(first)]="data.shardData.paginator.first"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          [responsive]="true"
+          [scrollable]="true"
+          scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 110px)"
+        >
+          <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width">
+                </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header" let-columns>
+            <tr *ngFor="let headerRow of data.shardData.headers">
+              <th
+                *ngFor="let col of columns"
+                [attr.coldiv]="col.coldiv"
+                [attr.rowdiv]="col.rowdiv"
+                [pSortableColumn]="col.isSort && col.valueField"
+                class="text-left"
+              >
+                <div class="left">
+                  {{ col.label }}
+                </div>
+                <div *ngIf="col.isSort" class="right">
+                  <p-sortIcon
+                    *ngIf="col.isSort"
+                    [field]="col.valueField"
+                    class="text-right"
+                    ariaLabel="Activate to sort"
+                    ariaLabelDesc="Activate to sort in descending order"
+                    ariaLabelAsc="Activate to sort in ascending order"
+                  >
+                  </p-sortIcon>
+                </div>
+              </th>
+            </tr>
+
+            <tr *ngFor="let headerRow of data.shardData.headers">
+              <ng-container *ngIf="isShowColumnFilter">
+                <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                  <div
+                    *ngIf="
+                      col.filter.isFilter === true &&
+                      col.filter.type === 'custom'
+                    "
+                  >
+                    <input
+                      class="w-100-p"
+                      pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                      *ngSwitchCase="col.label"
+                      pInputText
+                      type="text"
+                      (input)="
+                        flowPath.filter(
+                          $event.target.value,
+                          col.value,
+                          'custom'
+                        )
+                      "
+                    />
+                  </div>
+                  <div
+                    *ngIf="
+                      col.filter.isFilter === true &&
+                      col.filter.type === 'contains'
+                    "
+                  >
+                    <input
+                      class="w-100-p"
+                      pTooltip="Will filter metric names which contains given text."
+                      *ngSwitchCase="col.label"
+                      pInputText
+                      type="text"
+                      (input)="
+                        flowPath.filter(
+                          $event.target.value,
+                          col.valueField,
+                          'contains'
+                        )
+                      "
+                    />
+                  </div>
+                </th>
+              </ng-container>
+            </tr>
+          </ng-template>
+
+          <ng-template
+            pTemplate="body"
+            let-row
+            let-columns="columns"
+            let-rowIndex="rowIndex"
+          >
+            <tr>
+              <td
+                *ngFor="let col of columns; let i = index"
+                class="{{ col.classes }}"
+              >
+                <span>
+                  <a>
+                    {{ row[col.valueField] }}
+                  </a>
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+          <!-- <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td class="text-center">
+                <span *ngIf="error">Error while loading data</span>
+                <span *ngIf="emptyTable">No Data</span>
+                <span *ngIf="loading">Loading</span>
+              </td>
+            </tr>
+          </ng-template> -->
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>

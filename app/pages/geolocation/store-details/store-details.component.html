@@ -1,0 +1,57 @@
+<div class="h-100-vh wrapper">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-grid p-align-center">
+                <a [routerLink]="['/geo-location', 'details', tp, st, et]">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text" *ngIf="data">{{data.name}}</div>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+    <div class="vertical-container" *ngIf="data && !loading">
+        <div class="p-grid p-justify-start p-align-start">
+            <p-card class="p-col-3 content-card" *ngFor="let store of data.data">
+                <p-header class="p-grid p-justify-between p-align-center">
+                    <div class="store-name">{{store.name}}</div>
+                    <div>
+                        <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="items" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                        <button pButton icon="icons8 icons8-menu-vertical" class="ui-icon-button" (click)="menu.toggle($event);"></button>
+                    </div>
+                </p-header>
+                <div class="table-body">
+                    <div>TPS : <b>{{store.tps}}></b></div>
+                    <div>Response Time :<b> {{store.responseTime}} </b></div>
+                    <div>Error % :<b> {{store.error}} </b></div>
+                    <div>Scan/min :<b> {{store.scanPerMin}} </b></div>
+                    <div>Order placed/min : <b>{{store.orderPlacedPerMin}} </b></div>
+                </div>
+            </p-card>
+        </div>
+    </div>
+</div>
+<app-geo-location-time-filter #geoLocationTimeFilter></app-geo-location-time-filter>

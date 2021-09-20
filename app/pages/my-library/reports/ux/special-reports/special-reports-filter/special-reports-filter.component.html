@@ -1,0 +1,227 @@
+<form [formGroup]="form">
+    <div class="accordion-height-css">
+        <p-accordion [multiple]="true">
+            <p-accordionTab header="Reports" [selected]="true">
+                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                    <div class="p-col">
+                        <label class="line-height">Report</label>
+                    </div>
+                    <div class="p-col">
+                        <p-dropdown [options]="reports" filter="true" formControlName="report"
+                            placeholder="Select Report" dropdownIcon="icons8 icons8-expand-arrow"
+                            (onChange)="onReportChange($event.value)">
+                        </p-dropdown>
+                    </div>
+                </div>
+            </p-accordionTab>
+
+            <p-accordionTab header="Time Filter">
+                <div class="p-grid p-justify-between  p-align-center">
+                    <div class="p-col">
+                        <p-radioButton class="line-height" name="groupname" value="last" label="Last"
+                            formControlName="timeFilter">
+                        </p-radioButton>
+                    </div>
+                    <div class="p-col">
+                        <p-dropdown [options]="lastTime" formControlName="lastTime"
+                            [disabled]="form.controls['timeFilter'].value !== 'last'"></p-dropdown>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                        <p-radioButton class="line-height" name="groupname" value="specified" label="Custom"
+                            formControlName="timeFilter">
+                        </p-radioButton>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                        <div class="p-col">
+                            Starts At
+                        </div>
+                        <div class="p-col">
+                            <div class="p-input-icon-left search-div-css">
+                                <i class="icons8 icons8-calendar"></i>
+                                <input pInputText class="customInput" readonly id="start-date-time"
+                                    [owlDateTime]="customStartDateTime" [owlDateTimeTrigger]="customStartDateTime"
+                                    placeholder="04:30 PM 23/04/2020"
+                                    (dateTimeChange)="onTimeFilterCustomTimeChange('start')" [selectMode]="'rangeFrom'"
+                                    [max]="maxDate" [formControl]="form.controls['customTime']"
+                                    [attr.disabled]="form.controls['timeFilter'].value == 'last' ? true:null">
+                                <owl-date-time #customStartDateTime tooltipZIndex="100001005">
+                                </owl-date-time>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center">
+                        <div class="p-col">
+                            Ends At
+                        </div>
+                        <div class="p-col">
+                            <div class="p-input-icon-left search-div-css">
+                                <i class="icons8 icons8-calendar"></i>
+                                <input pInputText class="customInput" readonly id="end-date-time"
+                                    [owlDateTime]="customEndDateTime" [owlDateTimeTrigger]="customEndDateTime"
+                                    placeholder="04:30 PM 23/04/2020"
+                                    (dateTimeChange)="onTimeFilterCustomTimeChange('end')" [selectMode]="'rangeTo'"
+                                    [max]="maxDate" [formControl]="form.controls['customTime']"
+                                    [attr.disabled]="form.controls['timeFilter'].value == 'last' ? true:null">
+                                <owl-date-time #customEndDateTime tooltipZIndex=" 100001005">
+                                </owl-date-time>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p-accordionTab>
+            <p-accordionTab header="Filters">
+                <div class="p-grid p-col-12 p-justify-between p-align-center"
+                    *ngIf="filters?.bucketMode && (crqName != 'JCPTotalMetricsReport' || crqName != 'JCPTotalMetricsReport' || crqName != 'JCPTotalMetricsReport')">
+                    <div class="p-col">
+                        <label class="line-height">Bucket</label>
+                    </div>
+                    <div class="p-col">
+                        <p-dropdown [options]="buckets" formControlName="bucket" placeholder="Select Bucket"
+                            dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12 p-justify-between p-align-center"
+                    *ngIf="filters?.channel && (crqName != 'JCPDotMobTotalMetricsReport' && crqName != 'ResponseTimeWeeklyReport')">
+                    <div class="p-col">
+                        <label class="line-height">Channel</label>
+                    </div>
+                    <div class="p-col">
+                        <p-dropdown [options]="channels" formControlName="channel" placeholder="Select Channel"
+                            dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12 p-justify-between p-align-center" *ngIf="filters?.page && (crqName == 'DomainResponseTimeSummary' || crqName == 'DomainReport' || crqName ==
+                      'NativeAppOverallPerformanceReport')">
+                    <div class="p-col">
+                        <label class="line-height">Page</label>
+                    </div>
+                    <div class="p-col">
+                        <p-multiSelect [options]="pages" formControlName="page" defaultLabel="Select Page"
+                            dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12 p-justify-between p-align-center"
+                    *ngIf="crqName === 'NativeAppOverallPerformanceReport'">
+                    <div class="p-col">
+                        <label class="line-height">Domain</label>
+                    </div>
+                    <div class="p-col">
+                        <p-multiSelect [options]="domains" formControlName="domain" defaultLabel="Select Domain"
+                            dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-multiSelect>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12 p-justify-between p-align-center" *ngIf="filters?.domain">
+                    <div class="p-col">
+                        <label class="line-height">Domain</label>
+                    </div>
+                    <div class="p-col">
+                        <p-multiSelect [options]="domains" formControlName="domain" defaultLabel="Select Domain"
+                            dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-multiSelect>
+                    </div>
+                </div>
+                <ng-container
+                    *ngIf="filters?.store && !(crqName == 'DomainResponseTimeSummary' || crqName == 'DomainReport' || crqName == 'NVHourlyEvent')">
+                    <div class="p-grid p-col-12 p-justify-between p-align-center"
+                        *ngIf="filters?.store[0].storeType && !(crqName=='TransactionReport' )">
+                        <div class="p-col">
+                            <label class="line-height">Store type</label>
+                        </div>
+                        <div class="p-col">
+                            <p-dropdown [options]="storeTypes" placeholder="Select Store Type"
+                                (onChange)="onStoreTypeChange($event.value)" dropdownIcon="icons8 icons8-expand-arrow"
+                                formControlName="storeType"></p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center"
+                        *ngIf="filters?.store[0].storeName && crqName=='TransactionReport'">
+                        <div class="p-col">
+                            <label class="line-height">Domain</label>
+                        </div>
+                        <div class="p-col">
+                            <p-dropdown [options]=" storeNames" placeholder="Select Store Name"
+                                formControlName="storeName" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center"
+                        *ngIf="filters?.store[0].storeid && (crqName=='TransactionReport' )">
+                        <div class="p-col">
+                            <label class="line-height">Domain</label>
+                        </div>
+                        <div class="p-col">
+                            <p-dropdown [options]="storeIDs" placeholder='Select Store Id' formControlName="storeID"
+                                dropdownIcon="icons8 icons8-expand-arrow" (onChange)="onStoreIDChange($event.value)">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-between p-align-center"
+                        *ngIf="filters?.store[0].storeid && (crqName=='TransactionReport' )">
+                        <div class="p-col">
+                            <label class="line-height">Domain</label>
+                        </div>
+                        <div class="p-col">
+                            <p-dropdown [options]="terminalIDs" editable="true" placeholder="Select Terminal Id"
+                                formControlName="terminalID" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                        </div>
+                    </div>
+                </ng-container>
+                <div class="p-grid p-col-12 p-justify-between p-align-center"
+                    *ngIf="crqName == 'NativeAppOverallPerformanceReport'">
+                    <div class="p-col">
+                        <label class="line-height">App Name and Version</label>
+                    </div>
+                    <div class="p-col">
+                        <p-multiSelect [options]="appNameandVersions" formControlName="appNameandVersion"
+                            defaultLabel="Select App Name and Version" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-multiSelect>
+                    </div>
+                </div>
+                <div class="p-grid p-col-12 p-justify-between p-align-center"
+                    *ngIf="crqName == 'NativeAppOverallPerformanceReport'">
+                    <div class="p-col">
+                        <label class="line-height">Connection</label>
+                    </div>
+                    <div class="p-col">
+                        <p-dropdown [options]="connectionTypes" placeholder="Select Connection Type"
+                            formControlName="connectionType" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                </div>
+            </p-accordionTab>
+            <p-accordionTab header="Group By"
+                *ngIf="form?.controls?.report?.value?.reportName === 'Native App Overall Performance Report'">
+                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                    <p-checkbox name="groupby" value="page.pageid" [formControl]="form.controls['groupBy']">
+                    </p-checkbox>
+                    <label class="line-height">Page Name</label>
+                </div>
+                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                    <p-checkbox name="groupby" value="contype" [formControl]="form.controls['groupBy']">
+                    </p-checkbox>
+                    <label class="line-height">Connection Type</label>
+                </div>
+                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                    <p-checkbox name="groupby" value="applicationversion" [formControl]="form.controls['groupBy']">
+                    </p-checkbox>
+                    <label class="line-height">Application Version</label>
+                </div>
+                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                    <p-checkbox name="groupby" value="domain" [formControl]="form.controls['groupBy']">
+                    </p-checkbox>
+                    <label class="line-height">Domain Name</label>
+                </div>
+            </p-accordionTab>
+        </p-accordion>
+    </div>
+</form>
+<div class="button-position text-center">
+    <div class="">
+        <button pButton type="reset" label="RESET" class="ui-outline-button ui-button-secondary mr-5"
+            (click)="setForm()"></button>
+        <button pButton type="submit" label="GENERATE" class="ui-button-rounded" (click)="onSubmit()"> </button>
+    </div>
+</div>

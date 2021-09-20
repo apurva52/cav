@@ -1,0 +1,144 @@
+<p-sidebar #sidebar [(visible)]="visible" position="right" baseZIndex="10000" blockScroll="true" appendTo="body"
+  styleClass="node-action-sidebar" [showCloseIcon]="false" [baseZIndex]="100">
+  <div class="sidebar-header">
+    <div class="sidebar-title" *ngIf="nodeData">
+      <span >Tier : {{nodeData.nodeName}}</span>
+      <i class="icons8-delete close-icon-css" (click)="hide()"></i>
+      <app-node-action-menu [Graphical]="Graphical" [solarNodeData]="nodeData"></app-node-action-menu>
+    </div>
+  </div>
+
+  <div class="sidebar-content ui-fluid h-100-p">
+    <div class="node-info-container h-100-p">
+      <div class="node-info-body h-100-p">
+        <p-tabView class="mini-tab h-100-p" *ngIf="nodeData">
+          <p-tabPanel header="DETAILS">
+            <div class="tier-detail" *ngFor="let tier of nodeData.nodeHealthInfo">
+              <span class="tier-label">{{ tier.label }}</span>
+              <div class="tier-bar-container">
+                <div *ngFor="let tierBar of tier.nodeHealthData" class="tier-bar" [ngStyle]="{
+                    backgroundColor: tierBar.color,
+                    width: tierBar.percentage +'%'
+                  }"></div>
+              </div>
+              <div class="tier-legend" *ngFor="let legend of tier.nodeHealthData">
+                <div class="legend-point" [ngStyle]="{ backgroundColor: legend.color }"></div>
+                {{ legend.label }}: {{ legend.percentage +'%' }}
+              </div>
+            </div>
+            <div class="tier-detail" *ngIf="nodeData.transactionScorecard">
+              <span class="tier-label">{{ nodeData.transactionScorecard.label }}</span>
+              <div class="tier-bar-container">
+                <div *ngFor="let tierBar of nodeData.transactionScorecard.transScoreSeverity" class="tier-bar"
+                  [ngStyle]="{
+                    backgroundColor: tierBar.color,
+                    width: tierBar.percentage +'%'
+                  }"></div>
+              </div>
+              <div class="trans-tier-legend" *ngFor="let legend of nodeData.transactionScorecard.transScoreSeverity">
+                <div class="legend-point" [ngStyle]="{ backgroundColor: legend.color }"></div>
+                {{ legend.label }}: {{ legend.percentage +'%' }} ({{legend.data +', '}}) {{legend.avg + 'ms'}}
+              </div>
+            </div>
+          </p-tabPanel>
+          <p-tabPanel header="RELATIONS">
+            <div class="p-grid tier-relations">
+              <div class="p-col-12 application-relation-box" *ngIf="data.relations.applications">
+                <label class="tier-label" for="label">{{ data.relations.applications.label }}</label>
+                <div class="tier-relation-box" *ngFor="let legend of data.relations.applications.legend | slice:0:4;">
+                  <div class="relation-legend">
+                    <i class="legend-icon" *ngIf="legend.icon" [ngClass]="legend.icon"></i>
+                    <span class="legend-value" *ngIf="legend.value">{{legend.value}}</span>
+                  </div>
+                  <label class="legend-label" for="legend-label">{{legend.label}}</label>
+                </div>
+                <div class="tier-relation-box clickable" (click)="showTierInfo()" *ngIf="data.relations.applications.legend.length >=5">
+                  <div class="view-more">
+                    <i class="legend-icon icons8 icons8-forward"></i>
+                  </div>
+                  <label class="legend-label" for="legend-label">+{{data.relations.applications.legend.length - 4}}</label>
+                </div>
+              </div>
+              <div class="p-col-12 tiers-relation-box" *ngIf="data.relations.tiers">
+                <label class="tier-label" for="label">{{ data.relations.tiers.label }}</label>
+                <div class="tier-relation-box" *ngFor="let legend of data.relations.tiers.legend | slice:0:4;">
+                  <div class="relation-legend">
+                    <i class="legend-icon" *ngIf="legend.icon" [ngClass]="legend.icon"></i>
+                    <span class="legend-value" *ngIf="legend.value">{{
+                      legend.value
+                    }}</span>
+                  </div>
+                  <label class="legend-label" for="legend-label">{{legend.label}}</label>
+                </div>
+                <div class="tier-relation-box clickable" (click)="showTierInfo()" *ngIf="data.relations.tiers.legend.length >=5">
+                  <div class="view-more">
+                    <i class="legend-icon icons8 icons8-forward"></i>
+                  </div>
+                  <label class="legend-label" for="legend-label">+{{data.relations.tiers.legend.length - 4}}</label>
+                </div>
+              </div>
+              <div class="p-col-12 servers-relation-box" *ngIf="data.relations.servers">
+                <label class="tier-label" for="label">{{ data.relations.servers.label }}</label>
+                <div class="tier-relation-box" *ngFor="let legend of data.relations.servers.legend | slice:0:4;">
+                  <div class="relation-legend">
+                    <i class="legend-icon" *ngIf="legend.icon" [ngClass]="legend.icon"></i>
+                    <span class="legend-value" *ngIf="legend.value">{{
+                      legend.value
+                    }}</span>
+                  </div>
+                  <label class="legend-label" for="legend-label">{{legend.label}}</label>
+                </div>
+                <div class="tier-relation-box clickable" (click)="showTierInfo()" *ngIf="data.relations.servers.legend.length >=5">
+                  <div class="view-more">
+                    <i class="legend-icon icons8 icons8-forward"></i>
+                  </div>
+                  <label class="legend-label" for="legend-label">+{{data.relations.servers.legend.length - 4}}</label>
+                </div>
+              </div>
+              <div class="p-col-12 instances-relation-box" *ngIf="data.relations.instances">
+                <label class="tier-label" for="label">{{ data.relations.instances.label }}</label>
+                <div class="tier-relation-box" *ngFor="let legend of data.relations.instances.legend | slice:0:4;">
+                  <div class="relation-legend">
+                    <i class="legend-icon" *ngIf="legend.icon" [ngClass]="legend.icon"></i>
+                    <span class="legend-value" *ngIf="legend.value">{{
+                      legend.value
+                    }}</span>
+                  </div>
+                  <label class="legend-label" for="legend-label">{{
+                    legend.label
+                  }}</label>
+                </div>
+                <div class="tier-relation-box clickable" (click)="showTierInfo()" *ngIf="data.relations.instances.legend.length >=5">
+                  <div class="view-more">
+                    <i class="legend-icon icons8 icons8-forward"></i>
+                  </div>
+                  <label class="legend-label" for="legend-label">+{{data.relations.instances.legend.length - 4}}</label>
+                </div>
+              </div>
+              <div class="p-col-12 ip-point-relation-box" *ngIf="data.relations.ipPoint">
+                <label class="tier-label" for="label">{{ data.relations.ipPoint.label }}</label>
+                <div class="tier-relation-box" *ngFor="let legend of data.relations.ipPoint.legend | slice:0:4;">
+                  <div class="relation-legend">
+                    <i class="legend-icon" *ngIf="legend.icon" [ngClass]="legend.icon"></i>
+                    <span class="legend-value" *ngIf="legend.value">{{
+                      legend.value
+                    }}</span>
+                  </div>
+                  <label class="legend-label" for="legend-label">{{
+                    legend.label
+                  }}</label>
+                </div>
+                <div class="tier-relation-box clickable" (click)="showTierInfo()" *ngIf="data.relations.ipPoint.legend.length >=5">
+                  <div class="view-more">
+                    <i class="legend-icon icons8 icons8-forward"></i>
+                  </div>
+                  <label class="legend-label" for="legend-label">+{{data.relations.ipPoint.legend.length - 4}}</label>
+                </div>
+              </div>
+            </div>
+          </p-tabPanel>
+        </p-tabView>
+      </div>
+    </div>
+  </div>
+</p-sidebar>

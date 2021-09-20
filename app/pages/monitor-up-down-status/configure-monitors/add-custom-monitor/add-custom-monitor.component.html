@@ -1,0 +1,28 @@
+<div class="h-100-vh custom-config-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/configure-monitors">
+                <span class="icons8 icons8-left toolbar-icon-color"></span>
+            </a>
+            <div class="p-col ui-toolbar-text">CUSTOM MONITORS</div>
+
+        </div>
+    </p-toolbar>
+
+    <p-tabMenu [model]="tabs" class="ui-tabmenu-big">
+        <ng-template pTemplate="item" let-item let-i="index">
+            <!-- <button pButton icon="icons8 icons8 icons8-menu-vertical" class="ui-icon-button options-button" (click)="menu.toggle($event);"></button>
+            <p-menu #menu popup="true" [model]="getTabOptionsFor(item)" appendTo="body"></p-menu> -->
+            <div class="ui-menuitem-text">
+                {{item.label}}
+            </div>
+        </ng-template>
+    </p-tabMenu>
+    <div class="content-body">
+        <router-outlet></router-outlet>
+    </div>
+</div>

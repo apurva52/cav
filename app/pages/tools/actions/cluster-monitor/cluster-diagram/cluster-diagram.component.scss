@@ -1,0 +1,148 @@
+app-cluster-diagram {
+  .cluster-wrapper {
+    overflow: hidden;
+    .content-body {
+      padding-bottom: 5px;
+      height: calc(100% - 100px);
+      background-color: #ffffff;
+      .panel-title {
+        cursor: pointer;
+      }
+      .ph-0 {
+        padding-left: 0;
+        padding-right: 0;
+      }
+      .p-0 {
+        padding: 0;
+      }
+      .pv-0 {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      .query-filter-container {
+        height: 100%;
+        border: 1px solid #ccc;
+        .query-header {
+          padding: 1.1em;
+          font-size: 17px;
+          border-bottom: 1px solid #ccc;
+        }
+        .query-content {
+          height: calc(100% - 100px);
+          padding: 1em;
+          overflow: auto;
+          .ui-panel {
+            margin: 10px 0;
+          }
+        }
+        .query-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-evenly;
+          position: sticky;
+          bottom: 0;
+        }
+      }
+
+      .diagram-container {
+        .diagram-header {
+          border: 1px solid #ccc;
+          .action-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            .routing-buttons {
+              display: inline;
+              vertical-align: middle;
+              button {
+                margin: 0 5px;
+                .ui-button-text {
+                  padding: 0.529em 1.5em;
+                }
+              }
+            }
+            .action-icons {
+              display: inline;
+              vertical-align: middle;
+              button {
+                padding: 0 5px;
+                color: #1d5290;
+              }
+            }
+          }
+        }
+        .diagram-body {
+          height: calc(100% - 60px);
+          overflow: auto;
+
+          jsplumb-surface {
+            height: 100%;
+          }
+
+          .jtk-surface {
+            height: 100%;
+            background-color: #ffffff;
+          }
+
+          .jtk-overlay {
+            background-color: white;
+            padding: 7px;
+          }
+
+          .connectingConnectorLabel {
+            height: 23px;
+            width: 110px;
+            border-radius: 13px;
+            color: #1d5290;
+            text-align: center;
+            z-index: 1 !important;
+            left: 50% !important;
+            background-color: #1d5290;
+          }
+          .parent-cluster {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 50px;
+            height: 50px;
+            background-color: #e3d627;
+            border-radius: 50%;
+            color: #1d5290;
+          }
+          .child-node {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #1d5290;
+            padding: 10px;
+            width: max-content;
+            border-radius: 20px;
+            .node-index {
+              border: 1px solid #1d5290;
+              border-radius: 50%;
+              display: flex;
+              height: 34px;
+              width: 34px;
+              align-items: center;
+              position: absolute;
+              left: 1px;
+              justify-content: center;
+            }
+            .node-name {
+              padding-left: 30px;
+            }
+          }
+          .child-indices {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #1d5290;
+            padding: 10px;
+            width: max-content;
+            border-radius: 20px;
+          }
+        }
+      }
+    }
+  }
+}

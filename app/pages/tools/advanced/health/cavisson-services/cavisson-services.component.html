@@ -1,0 +1,655 @@
+<div class="h-100-vh cavisson-services-container">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <div class="p-col-8">
+        <div class="p-grid p-align-center">
+          <a routerLink="/alert-rules">
+            <i class="icons8 icons8-left toolbar-icon-color"></i>
+          </a>
+          <div class="p-col ui-toolbar-text">CAVISSON SERVICES</div>
+        </div>
+      </div>
+      <div class="p-col-4 text-right">
+        <button
+          pButton
+          type="button"
+          class="ui-button ui-button-rounded"
+          label="Save"
+        ></button>
+      </div>
+    </div>
+  </p-toolbar>
+  <div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+  </div>
+  <div class="vertical-container">
+    <div class="p-col-12 panel-card">
+      <div class="top-section mv-10 p-align-center">
+        <div>
+          <span class="mh-10">Appliance Services</span>
+        </div>
+        <div class="services">
+          <p-dropdown
+            placeholder="All"
+            [options]="options"
+            dropdownIcon="icons8 icons8-expand-arrow"
+            placeholder="IOtop"
+          ></p-dropdown>
+        </div>
+        <div class="mh-10">
+          <button
+            pButton
+            type="button"
+            (click)="commandSidebar.open()"
+            class="ui-button ui-button-rounded"
+            label="EXECUTE"
+          ></button>
+        </div>
+      </div>
+      <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true">
+        <p-header class="cav-panel-header pt-5">
+          <div class="cav-panel-content p-grid p-align-center">
+            <div class="panel-title" (click)="pnl1.toggle($event)">
+              <a>
+                <span
+                  [class]="
+                    pnl1.collapsed
+                      ? 'icons8 icons8-expand-arrow'
+                      : 'icons8 icons8-collapse-arrow'
+                  "
+                >
+                </span>
+              </a>
+              Cavisson Services
+            </div>
+          </div>
+        </p-header>
+        <div *ngIf="data">
+          <div
+            #widgetHeight
+          >
+            <div class="action-container">
+              <div
+                class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p"
+              >
+                <div class="global-search-block">
+                  <div class="p-input-icon-left search-div-css">
+                    <i class="icons8 icons8-search"></i>
+                    <input
+                      #searchInput
+                      pInputText
+                      type="text"
+                      class="input-field-search"
+                      (input)="
+                        cavissonServices.filterGlobal(
+                          $event.target.value,
+                          'contains'
+                        )
+                      "
+                      placeholder="Search"
+                    />
+                  </div>
+                </div>
+                <div class="icons-container p-justify-between p-align-center">
+                  <p-multiSelect
+                    class="icon-button no-shadow"
+                    [(ngModel)]="selectedColumns"
+                    [options]="cols"
+                    optionLabel="label"
+                    [displaySelectedLabel]="false"
+                    dropdownIcon="icons8 icons8-columns"
+                    pTooltip="Toggle Columns"
+                    [panelStyle]="{ minWidth: '200px' }"
+                  >
+                  </p-multiSelect>
+                  <!-- <button
+                    pButton
+                    icon="icons8 icons8-search-property"
+                    class="icon-button no-shadow"
+                    (click)="toggleFilters()"
+                    pTooltip="Column Filter"
+                  ></button>
+                <button
+                    pButton
+                    icon="icons8 icons8-trash"
+                    class="icon-button no-shadow"
+                    pTooltip="Delete"
+                  ></button> -->
+                  <p-menu
+                    #menu
+                    [popup]="true"
+                    styleClass="widget-menu"
+                    [model]="downloadOptions"
+                    [showTransitionOptions]="'0ms'"
+                    [hideTransitionOptions]="'0ms'"
+                  ></p-menu>
+                  <button
+                    pButton
+                    icon="icons8 icons8-installing-updates"
+                    class="icon-button no-shadow"
+                    (click)="menu.toggle($event)"
+                    pTooltip="Download"
+                  ></button>
+                  <button
+                    pButton
+                    type="button"
+                    class="ui-button ui-button-rounded ui-button-secondary btn-margin"
+                    label="REFRESH"
+                  ></button>
+                  <button
+                    pButton
+                    type="button"
+                    class="ui-button ui-button-rounded ui-button-secondary btn-margin"
+                    label="VIEW LOGS"
+                  ></button>
+                  <button
+                    pButton
+                    type="button"
+                    (click)="confirmationSidebar.open()"
+                    class="ui-button ui-button-rounded ui-button-secondary btn-margin"
+                    label="CONFIGURATION"
+                  ></button>
+                  <button
+                    pButton
+                    type="button"
+                    (click)="confirmDialog.open()"
+                    class="ui-button ui-button-rounded ui-button-secondary btn-margin"
+                    label="STOP SERVICE"
+                  ></button>
+                </div>
+              </div>
+            </div>
+
+            <ng-container>
+              <div
+                class="empty-table-message"
+                *ngIf="selectedColumns.length === 0"
+              >
+                Select column to show
+              </div>
+              <p-card>
+                <p-table
+                  #cavissonServices
+                  [resizableColumns]="true"
+                  [columns]="selectedColumns"
+                  [value]="data.cavissonServices.data"
+                  [rowHover]="true"
+                  [paginator]="true"
+                  [rows]="data.cavissonServices.paginator.rows"
+                  [totalRecords]="data.cavissonServices.data.length"
+                  [rowsPerPageOptions]="
+                    data.cavissonServices.paginator.rowsPerPageOptions
+                  "
+                  [showCurrentPageReport]="true"
+                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                  [responsive]="true"
+                  [scrollable]="true"
+                  scrollHeight="300px"
+                  [globalFilterFields]="globalFilterFields"
+                >
+                  <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                      <col
+                        *ngFor="let col of columns"
+                        [style.width]="col.width"
+                      />
+                    </colgroup>
+                  </ng-template>
+
+                  <ng-template pTemplate="header" let-columns>
+                    <tr>
+                      <th>Process</th>
+                      <th
+                        *ngFor="let col of columns"
+                        pResizableColumn
+                        [attr.coldiv]="col.coldiv"
+                        [attr.rowdiv]="col.rowdiv"
+                        [pSortableColumn]="col.valueField"
+                        class="text-left"
+                      >
+                        <div class="left">
+                          {{ col.label }}
+                        </div>
+                        <div *ngIf="col.isSort" class="right">
+                          <p-sortIcon
+                            *ngIf="col.isSort"
+                            [field]="col.valueField"
+                            class="text-right"
+                            ariaLabel="Activate to sort"
+                            ariaLabelDesc="Activate to sort in descending order"
+                            ariaLabelAsc="Activate to sort in ascending order"
+                          >
+                          </p-sortIcon>
+                        </div>
+                      </th>
+                    </tr>
+                    <tr *ngFor="let headerRow of data.headers">
+                      <ng-container *ngIf="isEnabledColumnFilter">
+                        <th></th>
+                        <th
+                          *ngFor="let col of headerRow.cols"
+                          [ngSwitch]="col.label"
+                        >
+                          <div
+                            *ngIf="
+                              col.filter.isFilter === true &&
+                              col.filter.type === 'custom'
+                            "
+                          >
+                            <input
+                              class="w-100-p"
+                              pTooltip="Enter number to search"
+                              *ngSwitchCase="col.label"
+                              pInputText
+                              type="text"
+                              (input)="
+                                cavissonServices.filter(
+                                  $event.target.value,
+                                  col.valueField,
+                                  'custom'
+                                )
+                              "
+                            />
+                          </div>
+                          <div
+                            *ngIf="
+                              col.filter.isFilter === true &&
+                              col.filter.type === 'contains'
+                            "
+                          >
+                            <input
+                              class="w-100-p"
+                              pTooltip="Will filter metric names which contains given text."
+                              *ngSwitchCase="col.label"
+                              pInputText
+                              type="text"
+                              (input)="
+                                cavissonServices.filter(
+                                  $event.target.value,
+                                  col.valueField,
+                                  'contains'
+                                )
+                              "
+                            />
+                          </div>
+                        </th>
+                      </ng-container>
+                    </tr>
+                  </ng-template>
+                  <ng-template
+                    pTemplate="body"
+                    let-row
+                    let-columns="columns"
+                    let-rowIndex="rowIndex"
+                  >
+                    <tr
+                      [ngStyle]="{ backgroundColor: row.rowBgColor }"
+                      [pSelectableRow]="row"
+                      [pSelectableRowDisabled]="isCheckbox"
+                    >
+                      <td>
+                        <div class="active-symbol"></div>
+                        <a (click)="processSidebar.open()">Cmon</a>
+                      </td>
+                      <td *ngFor="let col of columns">
+                        {{ row[col.valueField] | ellipsis: 35 }}
+                      </td>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template pTemplate="emptymessage" let-columns>
+                    <tr>
+                      <td
+                        [attr.colspan]="columns.length + 1"
+                        class="text-center"
+                      >
+                        <span *ngIf="error">Error while loading data</span>
+                        <span *ngIf="emptyTable">Empty Table</span>
+                        <span *ngIf="loading">Loading</span>
+                        <span
+                          *ngIf="
+                            !empty &&
+                            !loading &&
+                            !error &&
+                            searchInput.value.length
+                          "
+                          >Nothing found matching "{{
+                            searchInput.value
+                          }}"</span
+                        >
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </p-card>
+            </ng-container>
+          </div>
+        </div>
+      </p-panel>
+      <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true">
+        <p-header class="cav-panel-header pt-5">
+          <div class="cav-panel-content p-grid p-align-center">
+            <div class="panel-title" (click)="pnl2.toggle($event)">
+              <a>
+                <span
+                  [class]="
+                    pnl2.collapsed
+                      ? 'icons8 icons8-expand-arrow'
+                      : 'icons8 icons8-collapse-arrow'
+                  "
+                >
+                </span>
+              </a>
+              All Processes
+            </div>
+          </div>
+        </p-header>
+        <div *ngIf="data.allProcesses">
+          <div
+            #widgetHeight>
+            <div class="action-container">
+              <div
+                class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p"
+              >
+                <div class="global-search-block">
+                  <div class="p-input-icon-left search-div-css">
+                    <i class="icons8 icons8-search"></i>
+                    <input
+                      #searchInput
+                      pInputText
+                      type="text"
+                      class="input-field-search"
+                      (input)="
+                        allProcess.filterGlobal($event.target.value, 'contains')
+                      "
+                      placeholder="Search"
+                    />
+                  </div>
+                </div>
+                <div class="icons-container p-justify-between p-align-center">
+                  <p-multiSelect
+                    class="icon-button no-shadow"
+                    [(ngModel)]="selectedStatColumns"
+                    [options]="statCols"
+                    optionLabel="label"
+                    [displaySelectedLabel]="false"
+                    dropdownIcon="icons8 icons8-columns"
+                    pTooltip="Toggle Columns"
+                    [panelStyle]="{ minWidth: '200px' }"
+                  >
+                  </p-multiSelect>
+                  <!-- <button
+                    pButton
+                    icon="icons8 icons8-search-property"
+                    class="icon-button no-shadow"
+                    (click)="toggleFilters1()"
+                    pTooltip="Column Filter"
+                  ></button> -->
+                  <p-menu
+                    #menu
+                    [popup]="true"
+                    styleClass="widget-menu"
+                    [model]="downloadOptions"
+                    [showTransitionOptions]="'0ms'"
+                    [hideTransitionOptions]="'0ms'"
+                  ></p-menu>
+                  <!-- <button
+                    pButton
+                    icon="icons8 icons8-trash"
+                    class="icon-button no-shadow"
+                    pTooltip="Delete"
+                  ></button> -->
+                  <button
+                    pButton
+                    icon="icons8 icons8-installing-updates"
+                    class="icon-button no-shadow"
+                    (click)="menu.toggle($event)"
+                    pTooltip="Download"
+                  ></button>
+                  <button
+                    pButton
+                    type="button"
+                    class="ui-button ui-button-rounded ui-button-secondary btn-margin"
+                    label="REFRESH"
+                  ></button>
+                  <button
+                    pButton
+                    type="button"
+                    (click)="files.toggle($event)"
+                    class="ui-button ui-button-rounded ui-button-secondary btn-margin"
+                    label="VIEW NO.OF FOLE"
+                  ></button>
+                </div>
+              </div>
+            </div>
+
+            <ng-container>
+              <div
+                class="empty-table-message"
+                *ngIf="selectedColumns.length === 0"
+              >
+                Select column to show
+              </div>
+              <p-card>
+                <p-table
+                  #allProcess
+                  [resizableColumns]="true"
+                  [columns]="selectedStatColumns"
+                  [value]="data.allProcesses.data"
+                  [rowHover]="true"
+                  [paginator]="true"
+                  [rows]="data.allProcesses.paginator.rows"
+                  [totalRecords]="data.allProcesses.data.length"
+                  [rowsPerPageOptions]="
+                    data.allProcesses.paginator.rowsPerPageOptions
+                  "
+                  [showCurrentPageReport]="true"
+                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                  [responsive]="true"
+                  [scrollable]="true"
+                  scrollHeight="300px"
+                  [globalFilterFields]="globalFilterFields"
+                >
+                  <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                      <col
+                        *ngFor="let col of columns"
+                        [style.width]="col.width"
+                      />
+                    </colgroup>
+                  </ng-template>
+
+                  <ng-template pTemplate="header" let-columns>
+                    <tr>
+                      <th>Process</th>
+                      <th
+                        *ngFor="let col of columns"
+                        pResizableColumn
+                        [attr.coldiv]="col.coldiv"
+                        [attr.rowdiv]="col.rowdiv"
+                        [pSortableColumn]="col.valueField"
+                        class="text-left"
+                      >
+                        <div class="left">
+                          {{ col.label }}
+                        </div>
+                        <div *ngIf="col.isSort" class="right">
+                          <p-sortIcon
+                            *ngIf="col.isSort"
+                            [field]="col.valueField"
+                            class="text-right"
+                            ariaLabel="Activate to sort"
+                            ariaLabelDesc="Activate to sort in descending order"
+                            ariaLabelAsc="Activate to sort in ascending order"
+                          >
+                          </p-sortIcon>
+                        </div>
+                      </th>
+                    </tr>
+                    <tr *ngFor="let headerRow of data.headers">
+                      <ng-container *ngIf="isEnabledColumnFilter1">
+                        <th></th>
+                        <th
+                          *ngFor="let col of headerRow.cols"
+                          [ngSwitch]="col.label"
+                        >
+                          <div
+                            *ngIf="
+                              col.filter.isFilter === true &&
+                              col.filter.type === 'custom'
+                            "
+                          >
+                            <input
+                              class="w-100-p"
+                              pTooltip="Enter number to search"
+                              *ngSwitchCase="col.label"
+                              pInputText
+                              type="text"
+                              (input)="
+                                allProcess.filter(
+                                  $event.target.value,
+                                  col.valueField,
+                                  'custom'
+                                )
+                              "
+                            />
+                          </div>
+                          <div
+                            *ngIf="
+                              col.filter.isFilter === true &&
+                              col.filter.type === 'contains'
+                            "
+                          >
+                            <input
+                              class="w-100-p"
+                              pTooltip="Will filter metric names which contains given text."
+                              *ngSwitchCase="col.label"
+                              pInputText
+                              type="text"
+                              (input)="
+                                allProcess.filter(
+                                  $event.target.value,
+                                  col.valueField,
+                                  'contains'
+                                )
+                              "
+                            />
+                          </div>
+                        </th>
+                      </ng-container>
+                    </tr>
+                  </ng-template>
+                  <ng-template
+                    pTemplate="body"
+                    let-row
+                    let-columns="columns"
+                    let-rowIndex="rowIndex"
+                  >
+                    <tr
+                      [ngStyle]="{ backgroundColor: row.rowBgColor }"
+                      [pSelectableRow]="row"
+                      [pSelectableRowDisabled]="isCheckbox"
+                    >
+                      <td>
+                        <div class="active-symbol"></div>
+                        <a (click)="processSidebar.open()">Cmon</a>
+                      </td>
+                      <td *ngFor="let col of columns">
+                        {{ row[col.valueField] | ellipsis: 35 }}
+                      </td>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template pTemplate="emptymessage" let-columns>
+                    <tr>
+                      <td
+                        [attr.colspan]="columns.length + 1"
+                        class="text-center"
+                      >
+                        <span *ngIf="error">Error while loading data</span>
+                        <span *ngIf="emptyTable">Empty Table</span>
+                        <span *ngIf="loading">Loading</span>
+                        <span
+                          *ngIf="
+                            !empty &&
+                            !loading &&
+                            !error &&
+                            searchInput.value.length
+                          "
+                          >Nothing found matching "{{
+                            searchInput.value
+                          }}"</span
+                        >
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+                <p-overlayPanel #files>
+                  <ng-template pTemplate>
+                    <b>No. Of Files : 6</b>
+                  </ng-template>
+                </p-overlayPanel>
+              </p-card>
+            </ng-container>
+          </div>
+        </div>
+      </p-panel>
+      <p-panel #pnl3 expandIcon="" collapseIcon="" [toggleable]="true">
+        <p-header class="cav-panel-header pt-5">
+          <div class="cav-panel-content p-grid p-align-center">
+            <div class="panel-title" (click)="pnl3.toggle($event)">
+              <a>
+                <span
+                  [class]="
+                    pnl3.collapsed
+                      ? 'icons8 icons8-expand-arrow'
+                      : 'icons8 icons8-collapse-arrow'
+                  "
+                >
+                </span>
+              </a>
+              Logs
+            </div>
+          </div>
+        </p-header>
+        <div class="action-container">
+          <div
+            class="p-grid p-col-12 p-justify-between p-align-center menu-grid"
+          >
+            <div class="icons-container p-justify-between p-align-center">
+              <p-menu
+                #menu
+                [popup]="true"
+                styleClass="widget-menu"
+                [model]="downloadOptions"
+                [showTransitionOptions]="'0ms'"
+                [hideTransitionOptions]="'0ms'"
+              ></p-menu>
+              <button
+                pButton
+                icon="icons8 icons8-installing-updates"
+                class="icon-button no-shadow"
+                (click)="menu.toggle($event)"
+                pTooltip="Download"
+              ></button>
+              <button
+                pButton
+                type="button"
+                class="ui-button ui-button-rounded ui-button-secondary btn-margin"
+                label="REFRESH"
+              ></button>
+            </div>
+          </div>
+        </div>
+        <div class="p-grid p-col-12">test</div>
+      </p-panel>
+    </div>
+  </div>
+</div>
+<app-confirmation-dialog #confirmDialog></app-confirmation-dialog>
+<app-configuration #confirmationSidebar></app-configuration>
+<app-process-info #processSidebar></app-process-info>
+<app-command-execution #commandSidebar></app-command-execution>

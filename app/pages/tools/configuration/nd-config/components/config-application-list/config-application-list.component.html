@@ -1,0 +1,123 @@
+<div class="ndegui-mainbox">
+
+
+    <div class="p-grid p-align-center p-justify-between">
+        <span class="p-grid p-align-center font-14 mb-10">
+        Application List
+    </span>
+    <span class="p-grid p-align-center mb-10">
+           <!-- <button pButton type="button" title="Generate agent configuration settings" icon="fa fa-file-text" (click)="generateNDConfFile()"></button> -->
+           <button pButton icon="icons8 icons8-plus-math" title="Add an Application" [disabled]="isAppPerm" (click)="openAppDialog()" class="ui-button-secondary mr-5"></button>
+           <button pButton icon="icons8 icons8-edit" title="Edit an Application" [disabled]="isAppPerm" (click)="editAppDialog()" class="ui-button-secondary mr-5"></button>
+           <button pButton icon="icons8 icons8-delete-trash" title="Delete Application(s)" [disabled]="isAppPerm" (click)="deleteApp()" class="ui-button-danger mr-5"></button>
+
+           
+        </span>
+
+
+    <!--For showing application list -->
+    <div class="config-ui-table-margin">
+        <p-table [columns]="cols" class="all-tables" [value]="applicationData" [(selection)]="selectedApplicationData" [rows]="15" [paginator]="applicationData?.length > 15" [pageLinks]="3">
+           
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col style="width:6%">
+    
+                    
+                </colgroup>
+            </ng-template>
+           
+            <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                        <span class="width-50" *ngIf="col.field =='checkbox'"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></span>
+                        <span *ngIf="col.field !='checkbox'">
+                            {{col.header}}
+                        <p-sortIcon [field]="col.field"></p-sortIcon>
+                        </span>
+                    </th>
+                    <!-- <th class="width-50">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th>Name</th>
+                    <th>Topology Applied</th>
+                    <th>User Name</th>
+                    <th>Last Updated On</th>
+                    <th>ND Server Settings</th>
+                    <th>Description</th> -->
+                </tr>
+            </ng-template>
+
+            <ng-template class="tableCss config-ui" pTemplate="body" let-application>
+                <tr>
+                    <td class="text-center">
+                        <p-tableCheckbox [value]="application"></p-tableCheckbox>
+                    </td>
+                    <td class="tableCss" >
+                        <span title="Click to open '{{application.appName}}' topology details"><a class="hyperlink" (click)="routeToTree(application['dcId'], application['appName'])">{{application.appName}}</a></span>
+                        <i class="icons8 icons8-spinner spin font-18" style="color: #073c77" title="Running Application" *ngIf="runningApp==application.appName"></i>
+                    </td>
+
+                    <td class="tableCss" title="{{application.topoName}}">{{application.topoName}}</td>
+                    <td class="tableCss" title="{{application.userName}}">{{application.userName}}</td>
+                    <td class="tableCss text-right" title="{{application.timeStamp}}">{{application.timeStamp}}</td>
+                    <td class="tableCss">
+                        <a (click)="routeToNDCKeywords(application['appId'])" title="Click to Open '{{application.appName}}' ND Server Settings"><i style="font-size: 20px ; margin-left:43%; cursor: pointer;" class="cav rule"></i></a>
+                    </td>
+                    <td class="tableCss" title="{{application.appDesc}}">{{application.appDesc}}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+</div>
+<!--Dialog for adding Application-->
+</div>
+<p-dialog class="secondary-dialog" header="{{isNewApp ? 'New Application' : 'Edit Application'}}" 
+*ngIf="addEditAppDialog" [(visible)]="addEditAppDialog" modal="modal" [style]="{width: '450px'}">
+
+
+    <form (ngSubmit)="saveEditApp()" #groupForm="ngForm" ngNativeValidate>
+        <div class="p-grid p-align-center my-15 mx-15">
+            <div class="p-col-3">Name</div>
+            <div class="p-col-9">
+                <input name="appName" type="text" class="w-100-p" pInputText [(ngModel)]="applicationDetail.appName" title="Please enter valid application name. &#013;Application name is of maximum 32 characters.  &#013;First character must be Alpha.  &#013;Other characters are Alpha, Numeric, Dash or Underscore"
+                    autofocus required pattern="^[a-zA-Z][a-zA-Z0-9_-]{0,31}$" ngModel />
+            </div>
+
+
+            <div class="p-col-3">Topology</div>
+                <div class="p-col-9">
+                    <input name="dropdown" type="text" class='hidden-validator w-100-p' pInputText [(ngModel)]="applicationDetail.topoName" required ngModel/>
+                    <p-dropdown name="topoId" [options]="topologySelectItem" placeholder="--Select Topology--" class="w-100-p" [(ngModel)]="applicationDetail.topoName" appendTo="body" required ngModel dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+
+
+                <div class="p-col-3">Description</div>
+                    <div class="p-col-9">
+                        <textarea pInputTextarea name="appDesc" rows="2" class="w-100-p" [(ngModel)]="applicationDetail.appDesc" ngModel></textarea>
+                    </div>
+
+        </div>
+
+        <!--<div class="ui-g">
+                <div class="ui-g-4">
+                    <label>User Name</label>
+                </div>
+                <div class="ui-g-8">
+                    <input name="userName" type="text" size="30" pInputText [disabled]="true" [(ngModel)]="applicationDetail.userName" title="Please enter valid user name. &#013;Group name is of maximum 32 characters.  &#013;First character must be Alpha.  &#013;Other characters are Alpha, Numeric, Dash or Underscore"
+                        required pattern="^[a-zA-Z][a-zA-Z0-9_-]{0,31}$" ngModel />
+                </div>
+            </div>-->
+      
+      
+            <p-footer>
+            <div class="p-grid p-align-center py-5 p-justify-end mr-20">
+                <button pButton type="button" label="Cancel" (click)="closeDialog()" class="ui-button-rounded ui-button-secondary mx-6"></button>
+                <button pButton type="submit" label="Save" class="ui-button-rounded"></button>
+
+            
+            </div>
+      </p-footer>
+    </form>
+</p-dialog>

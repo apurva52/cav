@@ -1,0 +1,61 @@
+<div class="wait-statistics-container">
+    <p-card>
+        <div class="action-container">
+            <div class="p-grid px-5">
+                    <button pButton icon="icons8 icons8-filter" class="btn-icon"
+                            (click)="commonFilterSidebar.show()" title="Preset Filter"></button>
+            </div>
+        </div>
+        <div class="p-grid p-align-stretch p-justify-center chart-container" *ngIf="enableChart">
+            <div class="p-col-12" style="height: 254px;">
+                <app-chart [data]="dataChart" style="height: 195px;"></app-chart>
+            </div>
+        </div>
+        <div class="p-5">
+            <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true" styleClass="mb-10">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-justify-between p-align-center">
+                        <div class="panel-title" (click)="pnl1.toggle($event)">
+                            <a><span
+                                    [class]="pnl1.collapsed? 'icons8 icons8-expand-arrow': 'icons8 icons8-collapse-arrow'"></span></a>
+                                    Session Wait Statistics
+                        </div>
+                        <div class="panel-time">
+                            <span *ngIf="dbMonService.isAggregate && sessionWait"><i class="icons8 icons8-clock"></i>{{sessionWait.timeRange}}</span>
+                            <span *ngIf="!dbMonService.isAggregate && wait"><i class="icons8 icons8-clock"></i>{{wait.timeRange}}</span>
+                            <!-- <button pButton icon="icons8 icons8-rewind" class="icon-button no-shadow"></button>
+                            <button pButton icon="icons8 icons8-filter" class="icon-button no-shadow"></button> -->
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content" *ngIf="dbMonService.isAggregate">
+                    <app-session-wait-stats #sessionWait (waitDataChart)="updateChart($event)"></app-session-wait-stats>
+                </div>
+                <div class="content" *ngIf="!dbMonService.isAggregate">
+                    <app-wait-stats #wait (waitDataChart)="updateChart($event)"></app-wait-stats>
+                </div>
+            </p-panel>
+                
+            <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-justify-between p-align-center">
+                        <div class="panel-title" (click)="pnl2.toggle($event)">
+                            <a><span
+                                    [class]="pnl2.collapsed? 'icons8 icons8-expand-arrow': 'icons8 icons8-collapse-arrow'"></span></a>
+                                    Session Statistics
+                        </div>
+                        <div class="panel-time">
+                            <span><i class="icons8 icons8-clock"></i>{{sessionStats.timeRange}}</span>
+                            <!-- <button pButton icon="icons8 icons8-rewind" class="icon-button no-shadow"></button>
+                            <button pButton icon="icons8 icons8-filter" class="icon-button no-shadow"></button> -->
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content">
+                    <app-session-stats #sessionStats [showFilter]="false"></app-session-stats>
+                </div>
+            </p-panel>
+        </div>  
+    </p-card>
+</div>
+<app-common-stats-filter #commonFilterSidebar></app-common-stats-filter>

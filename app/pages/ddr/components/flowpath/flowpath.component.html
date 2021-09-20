@@ -1,0 +1,704 @@
+<div *ngIf="toggle">
+  <!-- <p-blockUI [blocked]="loading"></p-blockUI>
+  <img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" /> -->
+  <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+    <div class="p-col p-col-align-center text-center">
+        <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+    </div>
+  </div>
+  
+  <div class="ddruiscroll" [ngStyle]="{'height': screenHeight + 67 +'px'}" style="overflow:hidden;">
+    <p-accordion (onOpen)="onTabOpen($event)" (onClose)="onTabClose($event)" class="accordHeader" [multiple]="true"
+      #accordSec>
+      <!-- <p-accordionTab header="Flowpaths" [selected]="commonService.openFlowpath"> -->
+        <div class="ddr-box" id="DDR-BOX" style="height: 350px;">
+          <!-- COMMON TOOLBAR -->
+          
+            <div class="p-grid p-align-center p-justify-between ui-table-header">
+              
+
+              <div>
+                <span>{{filterDCName}}</span>
+                <span title="{{completeTier}}">{{filterTierName}}</span>
+                <span title="{{completeServer}}">{{filterServerName}}</span>
+                <span title="{{completeInstance}}">{{filterInstanceName}}</span>
+                <span>{{headerInfo}}</span>
+                <span title="{{CompleteURL}}">{{URLstr}}</span>
+              </div>
+              <div>
+                <div style="display: flex;">
+                  <span *ngIf="showDCMenu">
+                    <label>Data Center : </label>
+                    <p-dropdown [options]="dcList" (onChange)="getSelectedDC($event)" [(ngModel)]="selectedDC"
+                      [style]="{'width':'75px'}"></p-dropdown>
+                  </span>
+                  <button pButton icon="icons8 icons8-business-report" class="btn-icon mx-3"  *ngIf="downDc" (click)="showWarningMessgae()"
+                           pTooltip="Warning Message"></button>
+                           <button pButton icon="cav log-monitoring" class="btn-icon mx-3"  (click)="openNetForest()" ></button>
+                           <button pButton icon="cav fusion-monitor" class="btn-icon mx-3"  (click)="openNVFromND()" ></button>
+                           <button pButton icon="cav application" *ngIf="securityEnableMode" class="btn-icon mx-3"  (click)="openED()"
+                           pTooltip="Open ED"></button>
+                           <button pButton icon="icons8 icons8-zoom-in" class="btn-icon mx-3"  (click)="openAutoInstDialog()"
+                           pTooltip="Click to Start Auto Instrumentation"></button>
+                           <button pButton icon="cav scenario-diff" *ngIf="keyMetadata==1" class="btn-icon mx-3"  (click)="change()"
+                           pTooltip="View Metadata"></button>
+                           <button pButton icon="icons8 icons8-copy" class="btn-icon mr-3" (click)="copyLink()"
+                           pTooltip="Copy Flowpath Link" ></button> 
+                           <button pButton icon="cav System-Events" *ngIf="nvtondReport == true" class="btn-icon mx-3"  (click)="clickBack()"
+                           pTooltip="View Previous Flowpaths"></button>
+                           <button pButton icon="cav System-Events"  class="btn-icon mx-3"  (click)="openFlowpathWithNvFilter('session')"
+                           pTooltip="Show All Flowpaths of selected Flowpath's Session"></button>
+                           <button pButton icon="cav update-comp"  class="btn-icon mx-3" *ngIf="showNF == true"  (click)="openFlowpathWithNvFilter('page')"
+                           pTooltip="Show All Flowpaths of selected Flowpath's PageInstance"></button>
+                           <button pButton icon="cav update-compcav test-suite"  class="btn-icon mx-3"  (click)="openFlowpathWithNvFilter('nvsession')"
+                           pTooltip="Show All Flowpaths of selected Flowpath's NVSession"></button>
+                           <button pButton icon="icons8 icons8-compare"  class="btn-icon mx-3"  (click)="compareFlowpaths()"
+                           pTooltip="Compare Flowpaths"></button>
+                           <button pButton icon="cav compare font-18"  class="btn-icon mx-3"  tooltipPosition="left" placeholder="Left"  (click)="openAggregateMethodTiming()"
+                           pTooltip="Open Aggregate Method Timing for selected Flowpaths"></button>
+                           <button pButton icon="las-trash-alt font-18" tooltipPosition="left" placeholder="Left"  (cbOnSuccess)=showDeleteNotification()  class="btn-icon mx-3"  (click)="openDeleteCache()"
+                           pTooltip="Delete Cached Data"></button>
+                           <button pButton icon="icons8 icons8-doc" *ngIf="showDownLoadReportIcon" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReports("word")'
+                           pTooltip="Download as Word Report"></button>
+                           <button pButton icon="icons8 icons8-spreadsheet-file" *ngIf="showDownLoadReportIcon" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReports("excel")'
+                           pTooltip="Download as Excel Report"></button>
+                           <button pButton icon="icons8 icons8-pdf-2" *ngIf="showDownLoadReportIcon" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReports("pdf")'
+                           pTooltip="Download as PDF Report"></button>
+                           
+
+  
+                
+                 
+                  
+                  <!-- <label (click)="openNVFromND()" class="fa fa-link" title="Open NVSession"></label> -->
+                 
+     
+            
+                </div>
+              </div>
+            </div>
+         
+          <!-- COMMON BOX SCROLLLBAR -->
+          <div class="ddruiscroll">
+            <p-dialog class="secondary-dialog foterDialog" [(visible)]="loader" [style]="{width: '50vw'}" height="75"
+              [closable]="false" [resizable]="false" modal="modal" [responsive]="true">
+              <div *ngIf="loader">
+                <p-progressBar [value]="value"></p-progressBar>
+              </div>
+            </p-dialog>
+            <!-- <p-accordion class="ddr-accordion" (onClose)="closeFPDetailTab()" (onOpen)="openFPDetailTab()"> 
+              <p-accordionTab header="Flowpath Details" [selected]="!selectedTab"> -->
+            <div class="p-grid p-justify-end p-align-center my-4 pr-8">
+
+
+
+              <p-multiSelect class="icon-button no-shadow mr-3" *ngIf="optionsButton" [options]="columnOptions"
+                [(ngModel)]="visibleCols" (onChange)="showHideColumn($event)" dropdownIcon="icons8 icons8-columns"
+                pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+              </p-multiSelect>
+              <button pButton icon="icons8 icons8-menu"  title={{toggleFilterTitle}}
+              (click)="toggleColumnFilter()" pTooltip="Column Filter" class="btn-icon mr-3"></button>
+              <!-- <i class="icons8 icons8-menu font-18 mx-5" style="color: #1D5290;" title={{toggleFilterTitle}}
+                (click)="toggleColumnFilter()"></i> -->
+
+              <!-- <i pButton pTooltip="Toggle Check" style="margin: -10px;" [ngClass]="isCheckbox == true ? 'icons8-delete' : 'icons8-tick-box'"
+                class="icon-button no-shadow toggle-check font-18" (click)="isCheckbox = !isCheckbox; selectedRow = null"></i> -->
+
+                <button pButton icon="icons8 icons8-search" class="btn-icon mr-3"></button>
+
+              <!-- <button pButton type="button" *ngIf="optionsButton" title="Show/Hide columns"
+                              icon="fa-check-square-o fa"></button> -->
+
+              <!-- <button pButton type="button" title={{toggleFilterTitle}} icon="icons8 icons8-menu"
+                              (click)="toggleColumnFilter()"></button> -->
+              <!-- <img src="./images/showall.png" *ngIf="showAllOption"
+                              style="height:21px; width:21px;float:right;cursor:pointer;" title="Show all data" icon="icons8 icons8-synchronize"
+                              (click)="showAllData()"> -->
+
+              <!-- <input #gb type="text" pInputText size="50" [(ngModel)]="searchProperty" style="width:9% !important;"
+                placeholder="Search" icon="icons8 icons8-search"> -->
+              <input pInputText size="50" type="text" style="width:12% !important;" icon="icons8 icons8-search"
+                (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+
+            </div>
+            <div>
+              <!-- *ngIf="(tableOptions == true && fpSignatureFlag == false) || signatureToFP == true"
+                    this case to be handled
+              -->
+              <div class="px-10">
+              <p-table #dt1 class="all-tables" [value]="flowpathData"
+                [resizableColumns]="true"
+                sortField={{commonService.sortedField}} [sortOrder]=commonService.sortedOrder (onSort)="sortEvent($event)"
+                [reorderableColumns]="true" (onRowSelect)="onRowSelectData($event.data)"
+                (sortFunction)="sortColumnsOnCustom($event, flowpathData)" [customSort]="true" (onRowClick)='onRowClick($event)'
+                [(selection)]="selectedRowInfo" [globalFilterFields]="visibleCols"
+                (onRowUnselect)="onRowUnselectData($event.data)" [scrollable]="true" scrollHeight="360px">
+
+                <ng-template pTemplate="colgroup" let-columns>
+                  <colgroup>
+                    <ng-container *ngFor="let col of cols">
+                      <col *ngIf="col.action" [style]="{'width': col.width+'px'}">
+                    </ng-container>
+                  </colgroup>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                  <tr>
+                    <!-- <th *ngIf="isCheckbox" class="columnwidth"></th> -->
+                    <ng-container *ngFor="let col of cols">
+                      <th style="text-overflow: inherit; white-space:normal;" pResizableColumn [pSortableColumn]="col.field"
+                        *ngIf="col.action">
+                        <span *ngIf="!(col.field == 'check')">{{col.header}}
+                        <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                          ariaLabelDesc="Activate to sort in descending order"
+                          ariaLabelAsc="Activate to sort in ascending order">
+                        </p-sortIcon>
+                      </span>
+                        <span *ngIf="isCheckbox && (col.field == 'check')"> </span>
+                        <!-- <p-sortIcon [field]="col.field"></p-sortIcon> -->
+                      </th>
+                    </ng-container>
+                  </tr>
+                  <tr *ngIf="isEnabledColumnFilter">
+                    <ng-container *ngFor="let col of cols">
+                      <th *ngIf="col.action">
+                        <span *ngIf="!(col.field == 'check')">
+                        <input class="w-100-p" pInputText type="text" (input)="dt1.filter($event.target.value, col.field, 'contains')">
+                        </span>
+                      </th>
+                    </ng-container>
+                  </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="body" let-node>
+                  <tr>
+                    <!-- <td class="columnwidth" *ngIf="isCheckbox"><p-tableCheckbox [value]="node"></p-tableCheckbox></td> -->
+
+                    <ng-container *ngFor="let col of cols">
+                      <td *ngIf="col.action">
+                        <div class="text-center" *ngIf="isCheckbox && (col.field == 'check')">
+                          <p-tableCheckbox [value]="node"></p-tableCheckbox>
+                        </div>
+                        <div *ngIf="col.field == 'urlName'"><a
+                            class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-left' : 'ddr-table-left'}} activeLink"
+                            title="View IP Summary  &#13;BT:- {{node[col.field]}}" (click)="openReport(true,node,col.field)">{{node[col.field]}} </a>
+                        </div>
+                        <div *ngIf="col.field == 'urlQueryParamStr'"><a
+                            class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-left' : 'ddr-table-left'}} activeLink"
+                            title="View HTTP Report &#13;URL:- {{node[col.field]}}"
+                            (click)="openReport(true,node,col.field)">{{node[col.field]}}</a> </div>
+                        <div *ngIf="col.field == 'btCatagory'"><a
+                            class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-left' : 'ddr-table-left'}} activeLink"
+                            title="View Hotspot Report"
+                            (click)="openReport(true,node,col.field)">{{node[col.field]}}</a></div>
+                        <div class="right" *ngIf="col.field == 'fpDuration'"><a
+                            class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}} activeLink"
+                            title="View Method Timing Report"
+                            (click)="openReport(true,node,col.field)">{{node[col.field]}}</a>
+                        </div>
+                        <div class="right" *ngIf="col.field == 'callOutCount'"><a
+                          class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}} activeLink"
+                          title="View End to End Transaction FlowMap" (click)="openReport(true,node,col.field)">
+                          {{node[col.field]}}</a></div>
+                        <span *ngIf="col.field == 'totalError'" class="right">
+                          <div *ngIf="!(node[col.field] == '0')">
+                            <a class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}} activeLink"
+                              title="View Exception Report"
+                              (click)="openReport(true,node,col.field)">{{node[col.field]}}</a>
+                          </div>
+                          <div *ngIf="node[col.field] == '0'">{{node[col.field]}}</div>
+                        </span>
+                        <div class="right" *ngIf="col.field == 'dbCallCounts'"><a class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}} activeLink"
+                            title="View DB Report" (click)="openReport(true,node,col.field)">{{node[col.field]}}</a>
+                        </div>
+                        <div class="right" *ngIf="col.field == 'methodsCount'"><a
+                            class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}} activeLink"
+                            title="View Method Call Details"
+                            (click)="openReport(true,node,col.field)">{{node[col.field]}}</a>
+                        </div>
+                        <span *ngIf="(col.field == 'statusCode') ">
+                          <div *ngIf="(node['flowpathtype'] >=32) "> 
+                            <a class="right activeLink" title="Flagged Flowpath Messages" (click)="openFpTypeError(node)">{{node[col.field]}}</a>
+                          </div>
+                          <div *ngIf="!(node['flowpathtype'] >=32) " class="right" >{{node[col.field]}}</div>
+                        </span>
+                        <div
+                          *ngIf="col.field == 'ndSessionId' || col.field == 'nvPageId' || col.field == 'suspensiontime' || col.field == 'coherenceCallOut' || col.field == 'jmsCallOut' || col.field == 'nvSessionId' || col.field == 'terminalId' || col.field == 'storeId' || col.field == 'waitTime' || col.field == 'syncTime' || col.field == 'iotime' || col.field == 'btCpuTime' || col.field == 'selfResponseTime' || col.field == 'ParentFlowpathInstance' || col.field == 'totalCpuTime' || col.field == 'QTimeInMS'"
+                          class="right">
+                          {{node[col.field]}}
+                        </div>
+                        <div *ngIf="col.field=='correlationId'" pTooltip={{(node[col.field])}} tooltipPosition="left">
+                          {{node[col.field]}}</div>
+                        <div *ngIf="col.field == 'backendMaxDur'" class="right">
+                          {{node[col.field]}}
+                        </div>
+                        <div *ngIf="col.field == 'startTime'">
+                        <a class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}} activeLink"
+                          title="View Transaction Flowmap" (click)="openReport(true,node,col.field)">{{node[col.field]}} </a>
+                        </div>
+                        <div *ngIf="col.field == 'flowpathInstance'">
+                         <a class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}} activeLink right"
+                          title="View Sequence Diagram" (click)="openReport(true,node,col.field)">{{node[col.field]}} </a>
+                        </div>
+                        <div *ngIf="(col.field == 'dynamicLoggingFlag')" style="text-align: left">
+                          <img *ngIf="(node.dynamicLoggingFlag == '1')" src="./assets/images/dl.png"
+                            (click)="openDynamicLoggerReport(node)" title='View Dynamic Logging'
+                            style="margin-right :10px;margin-bottom: -3px;width:16px;height:16px;cursor:pointer;" />
+                          <i *ngIf="(node.traceRequest == '1')" class='icon-http-data' title="View Trace Request"
+                            style="margin-right :10px;font-size: 16px;cursor:pointer;"></i>
+                        </div>
+                        <div
+                          *ngIf="['urlName','urlQueryParamStr','btCatagory','fpDuration','callOutCount','totalError', 'dbCallCounts', 'statusCode', 'ndSessionId', 'correlationId', 'backendMaxDur', 'startTime', 'flowpathInstance', 'dynamicLoggingFlag','nvPageId', 'suspensiontime','coherenceCallOut','jmsCallOut','nvSessionId','terminalId','storeId','waitTime','syncTime','iotime','btCpuTime','ParentFlowpathInstance','selfResponseTime','totalCpuTime','QTimeInMS','methodsCount'].indexOf(col.field) == -1">
+                          {{node[col.field]}}
+                        </div>
+                      </td>
+                    </ng-container>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage" let-columns>
+                  <tr>
+                      <td [attr.colspan]="cols.length + 1" class="text-center">
+                          <span *ngIf="empty">No Records Found</span>
+                      </td>
+                  </tr>
+              </ng-template>
+              </p-table>
+
+            </div>
+              <!-- <p-dataTable class="scen-table scrollable-div" [value]="flowpathData"
+                sortField={{commonService.sortedField}} [sortOrder]=commonService.sortedOrder
+                (onSort)="sortEvent($event)" [globalFilter]="gb"
+                *ngIf="(tableOptions == true && fpSignatureFlag == false) || signatureToFP == true" scrollHeight="340px"
+                [style]="{'max-height':'61vh','height':'auto','font-size':'12px'}" resizableColumns="true"
+                reorderableColumns="true" (onRowSelect)="onRowSelectData($event.data)" (onRowClick)='onRowClick($event)'
+                [(selection)]="selectedRowInfo" (onRowUnselect)="onRowUnselectData($event.data)">
+                <p-column [style]="{'width':'20px'}" selectionMode="multiple"></p-column>
+                <div *ngFor="let col of cols">
+                  <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable"
+                    [sortable]="true" [filter]="col.filter" filterMatchMode='contains'
+                    (sortFunction)="sortColumnsOnCustom($event,flowpathData)" [style]="{'width': col.width + 'px'}">
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'urlName'" pTemplate="body">
+                      <div class=" {{node['flowpathtype'] >=32 ? 'ddr-fptype-left' : 'ddr-table-left'}}"
+                        title="View IP Summary" (click)="openReport(true,node,col.field)">{{node[col.field]}}</div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'urlQueryParamStr'" pTemplate="body">
+                      <div class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-left' : 'ddr-table-left'}}"
+                        title="View HTTP Report &#13;URL:- {{node[col.field]}}"
+                        (click)="openReport(true,node,col.field)">{{node[col.field]}} </div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'btCatagory'" pTemplate="body">
+                      <div class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-left' : 'ddr-table-left'}}"
+                        title="View Hotspot Report" (click)="openReport(true,node,col.field)">{{node[col.field]}}</div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'fpDuration'" pTemplate="body">
+                      <div class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}}"
+                        title="View Method Timing Report" (click)="openReport(true,node,col.field)">{{node[col.field]}}
+                      </div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'callOutCount'" pTemplate="body">
+                      <div class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}}"
+                        title="View End to End Transaction FlowMap" (click)="openReport(true,node,col.field)">
+                        {{node[col.field]}}</div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'totalError'" pTemplate="body">
+                      <div *ngIf="!(node[col.field] == '0')"
+                        class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}}"
+                        title="View Exception Report" (click)="openReport(true,node,col.field)">{{node[col.field]}}
+                      </div>
+                      <div *ngIf="node[col.field] == '0'" style="text-align: right">{{node[col.field]}}</div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'dbCallCounts'" pTemplate="body">
+                      <div class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}}"
+                        title="View DB Report" (click)="openReport(true,node,col.field)">{{node[col.field]}}</div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'methodsCount'" pTemplate="body">
+                      <div class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}}"
+                        title="View Method Call Details" (click)="openReport(true,node,col.field)">{{node[col.field]}}
+                      </div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" *ngIf="(col.field == 'statusCode') " pTemplate="body">
+                      <div *ngIf="(node['flowpathtype'] >=32) " class="ddr-fptype-right"
+                        title="Flagged Flowpath Messages" (click)="openFpTypeError(node)">{{node[col.field]}}</div>
+                      <div *ngIf="!(node['flowpathtype'] >=32) " style="text-align: right">{{node[col.field]}}</div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData"
+                      *ngIf="col.field == 'ndSessionId' || col.field == 'nvPageId' || col.field == 'suspensiontime' || col.field == 'coherenceCallOut' || col.field == 'jmsCallOut' || col.field == 'nvSessionId' || col.field == 'terminalId' || col.field == 'storeId' || col.field == 'waitTime' || col.field == 'syncTime' || col.field == 'iotime' || col.field == 'btCpuTime' || col.field == 'flowpathInstance' || col.field == 'selfResponseTime' || col.field == 'totalCpuTime' || col.field == 'QTimeInMS'"
+                      pTemplate="body">
+                      <div style="text-align: right">
+                        {{node[col.field]}}
+                      </div>
+                    </ng-template>
+                    <ng-template *ngIf="col.field=='correlationId'" let-col let-node="rowData" pTemplate type="body">
+                      <div pTooltip={{(node[col.field])}} tooltipPosition="left">
+                        {{node[col.field]}}</div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'backendMaxDur'" pTemplate="body">
+                      <div style="text-align: right">
+                        {{node[col.field]}}
+                      </div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'startTime'" pTemplate="body">
+                      <div class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}}"
+                        title="View Transaction Flowmap" (click)="openReport(true,node,col.field)">{{node[col.field]}}
+                      </div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" *ngIf="col.field == 'flowpathInstance'" pTemplate="body">
+                      <div class="{{node['flowpathtype'] >=32 ? 'ddr-fptype-right' : 'ddr-table-right'}}"
+                        title="View Sequence Diagram" (click)="openReport(true,node,col.field)">{{node[col.field]}}
+                      </div>
+                    </ng-template>
+                    <ng-template let-col let-node="rowData" pTemplate type="body"
+                      *ngIf="(col.field == 'dynamicLoggingFlag')">
+                      <div style="text-align: left">
+                        <img *ngIf="(node.dynamicLoggingFlag == '1')" src="./images/dl.png"
+                          (click)="openDynamicLoggerReport(node)" title='View Dynamic Logging'
+                          style="margin-right :10px;margin-bottom: -3px;width:16px;height:16px;cursor:pointer;" />
+                        <i *ngIf="(node.traceRequest == '1')" class='icon-http-data' title="View Trace Request"
+                          style="margin-right :10px;font-size: 16px;cursor:pointer;"></i>
+                      </div>
+                    </ng-template>
+
+                  </p-column>
+                </div>
+              </p-dataTable> -->
+
+              <p-table class="scen-table scrollable-div" [value]="flowpathData" *ngIf="tableOptions == false"
+                selectionMode="single" scrollHeight="340px"
+                resizableColumns="true" reorderableColumns="true">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Business Transaction</th>
+                    <th>FlowPath Count</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-node>
+                  <tr>
+                    <td>{{node.urlName}}</td>
+                    <td>
+                      <a *ngIf="node['fpCount'] != 0" class="ddr-table-right"
+                        (click)="openFlowPathCount(node, 'grpByBT')">
+                        <span>{{node['fpCount']}}</span>
+                      </a>
+                      <a *ngIf="node['fpCount'] == 0">
+                        <span>{{node['fpCount']}}</span>
+                      </a>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+
+              <!-- <p-dataTable class="scen-table scrollable-div" [value]="flowpathData" [globalFilter]="gb"
+                *ngIf="tableOptions == false" selectionMode="single" scrollHeight="340px"
+                [style]="{'height':'340px','font-size':'12px'}" resizableColumns="true" reorderableColumns="true">
+                <p-column field="urlName" header="Business Transaction" [sortable]="true"
+                  [style]="{'text-align':'left'}">
+                  <ng-template pTemplate="header">
+                    <a pTooltip="Business Transaction" tooltipPosition="bottom" tooltipEvent="hover">Business
+                      Transaction</a>
+                  </ng-template>
+                </p-column>
+                <p-column field="fpCount" header="FlowPath Count" sortable="custom"
+                  (sortFunction)="sortColumnsOnCustom($event, flowpathData)" [style]="{'text-align':'right'}">
+                  <ng-template let-col let-node="rowData" pTemplate="body">
+                    <a *ngIf="node[col.field] != 0" class="ddr-table-right"
+                      (click)="openFlowPathCount(node, 'grpByBT')">
+                      <span>{{node[col.field]}}</span>
+                    </a>
+                    <a *ngIf="node[col.field] == 0">
+                      <span>{{node[col.field]}}</span>
+                    </a>
+                  </ng-template>
+                  <ng-template pTemplate="header">
+                    <a pTooltip="FlowPath Count" tooltipPosition="bottom" tooltipEvent="hover">FlowPath Count</a>
+                  </ng-template>
+                </p-column>
+              </p-dataTable> -->
+              <div *ngIf='paginationFlag' class="ddr-paginator">
+                <!-- <div> {{fpOffset+1}} - {{fpOffset+fpLimit}} of {{fpTotalCount}} </div>
+                  <p-paginator rows={{commonService.rowspaerpage}} [totalRecords]="fpTotalCount" [rowsPerPageOptions]="[50,100,200,400]" pageLinkSize="3"
+                    (onPageChange)="paginate($event)"></p-paginator> -->
+                <app-ddr-paginator [limit]="commonService.fpLimit" [offset]="commonService.fpOffset"
+                  [totalCount]="fpTotalCount" (paginateData)="setPaginateData($event)"></app-ddr-paginator>
+
+              </div>
+            </div>
+            <!-- </p-accordionTab>
+                          </p-accordion> -->
+          </div>
+        </div>
+        <!-- <div class="section" *ngIf="showDownLoadReportIcon">
+                        <label style="font-size: 12px;padding-left: 6px;">Download Reports as: </label>
+                        <span title="PDF Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")' src='./images/iconPDF.gif'></span>
+                        <span title="Word Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")' src='./images/iconWord.gif'></span>
+                        <span title="Excel Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")' src='./images/iconExcel.gif'></span>
+                      </div> -->
+
+        <!-- <p-growl life=50000 [(value)]="msgs"></p-growl> -->
+        <p-toast></p-toast>
+        <!--   <p-growl life=50000 [value]="errMsg" [sticky]="true"></p-growl> -->
+
+        <p-dialog class="secondary-dialog foterDialog" [(visible)]="displayPopUp" [responsive]='true' [resizable]='false'
+          [positionTop]='140' width="500" minHeight='300' [style]="{'max-height':'500px'}">
+          <p-header>{{infoHeader}}</p-header>
+          <div>
+            <table width="500" height="150" cellspacing="0">
+              <tbody>
+                <tr>
+                  <td style="border: 0px solid grey;font-size:10pt;text-align:center;">{{strInfoMessage}}.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </p-dialog>
+      <!-- </p-accordionTab> -->
+      <div *ngIf="commonService.showAllTabs">
+        <p-accordionTab [selected]="commonService.openCurrentFlowpathTab" header="Current Flowpath">
+
+          <p-table class="scen-table scrollable-div" [value]="commonService.CurrentflowpathData"
+            *ngIf="(tableOptions == true && fpSignatureFlag == false) || signatureToFP == true" resizableColumns="true"
+            reorderableColumns="true">
+            <ng-template pTemplate="header">
+              <tr>
+                <ng-container *ngFor="let col of cols">
+                  <th *ngIf="col.action">
+                    <span>{{col.header}}</span>
+                  </th>
+                </ng-container>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-node>
+              <tr>
+                <ng-container *ngFor="let col of cols">
+                  <td *ngIf="col.action">
+                    <div *ngIf="col.field == 'urlName'" class="ddr-table-left" title="View IP Summary"
+                      (click)="openReport(true,node,col.field)">
+                      {{node[col.field]}}</div>
+                    <div *ngIf="col.field == 'urlQueryParamStr'" class="ddr-table-left"
+                      title="View HTTP Report &#13;URL:- {{node[col.field]}}" (click)="openReport(true,node,col.field)">
+                      {{node[col.field]}}</div>
+                    <div *ngIf="col.field == 'btCatagory'" class="ddr-table-left" title="View Hotspot Report"
+                      (click)="openReport(true,node,col.field)">
+                      {{node[col.field]}}</div>
+                    <div *ngIf="col.field == 'fpDuration'" class="ddr-table-right" title="View Method Timing Report"
+                      (click)="openReport(true,node,col.field)">{{node[col.field]}}</div>
+                    <div *ngIf="col.field == 'callOutCount'" class="ddr-table-right" title="View Transaction FlowMap"
+                      (click)="openReport(true,node,col.field)">{{node[col.field]}}</div>
+                    <span *ngIf="col.field == 'totalError'" class="right">
+                      <div *ngIf="!(node[col.field] == '0')" class="ddr-table-right" title="View Exception Report"
+                        (click)="openReport(true,node,col.field)">{{node[col.field]}}</div>
+                      <div *ngIf="node[col.field] == '0'" style="text-align: right">{{node[col.field]}}</div>
+                    </span>
+                    <div *ngIf="col.field == 'dbCallCounts'" class="ddr-table-right" title="View DB Report"
+                      (click)="openReport(true,node,col.field)">
+                      {{node[col.field]}}</div>
+                    <div *ngIf="col.field == 'methodsCount'" class="ddr-table-right" title="View Method Call Details"
+                      (click)="openReport(true,node,col.field)">{{node[col.field]}}</div>
+                    <div
+                      *ngIf="col.field == 'ndSessionId' || col.field == 'nvPageId' || col.field == 'suspensiontime' || col.field == 'coherenceCallOut' || col.field == 'jmsCallOut' || col.field == 'nvSessionId' || col.field == 'terminalId' || col.field == 'storeId' || col.field == 'startTime' || col.field == 'waitTime' || col.field == 'syncTime' || col.field == 'iotime' || col.field == 'btCpuTime' || col.field == 'statusCode' || col.field == 'flowpathInstance'"
+                      style="text-align: right">
+                      {{node[col.field]}}
+                    </div>
+                  </td>
+                </ng-container>
+              </tr>
+            </ng-template>
+          </p-table>
+
+          <!-- <p-dataTable class="scen-table scrollable-div" [value]="commonService.CurrentflowpathData"
+            *ngIf="(tableOptions == true && fpSignatureFlag == false) || signatureToFP == true" resizableColumns="true"
+            reorderableColumns="true">
+            <div *ngFor="let col of cols">
+              <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable"
+                [sortable]="true" [filter]="col.filter" [filterMatchMode]='contains'
+                (sortFunction)="sortColumnsOnCustom($event,flowpathData)" [style]="{'width': col.width + 'px'}">
+                <ng-template let-col let-node="rowData" *ngIf="col.field == 'urlName'" pTemplate="body">
+                  <div class="ddr-table-left" title="View IP Summary" (click)="openReport(true,node,col.field)">
+                    {{node[col.field]}}</div>
+                </ng-template>
+                <ng-template let-col let-node="rowData" *ngIf="col.field == 'urlQueryParamStr'" pTemplate="body">
+                  <div class="ddr-table-left" title="View HTTP Report &#13;URL:- {{node[col.field]}}"
+                    (click)="openReport(true,node,col.field)">{{node[col.field]}}</div>
+                </ng-template>
+                <ng-template let-col let-node="rowData" *ngIf="col.field == 'btCatagory'" pTemplate="body">
+                  <div class="ddr-table-left" title="View Hotspot Report" (click)="openReport(true,node,col.field)">
+                    {{node[col.field]}}</div>
+                </ng-template>
+                <ng-template let-col let-node="rowData" *ngIf="col.field == 'fpDuration'" pTemplate="body">
+                  <div class="ddr-table-right" title="View Method Timing Report"
+                    (click)="openReport(true,node,col.field)">{{node[col.field]}}</div>
+                </ng-template>
+                <ng-template let-col let-node="rowData" *ngIf="col.field == 'callOutCount'" pTemplate="body">
+                  <div class="ddr-table-right" title="View Transaction FlowMap"
+                    (click)="openReport(true,node,col.field)">{{node[col.field]}}</div>
+                </ng-template>
+                <ng-template let-col let-node="rowData" *ngIf="col.field == 'totalError'" pTemplate="body">
+                  <div *ngIf="!(node[col.field] == '0')" class="ddr-table-right" title="View Exception Report"
+                    (click)="openReport(true,node,col.field)">{{node[col.field]}}</div>
+                  <div *ngIf="node[col.field] == '0'" style="text-align: right">{{node[col.field]}}</div>
+                </ng-template>
+                <ng-template let-col let-node="rowData" *ngIf="col.field == 'dbCallCounts'" pTemplate="body">
+                  <div class="ddr-table-right" title="View DB Report" (click)="openReport(true,node,col.field)">
+                    {{node[col.field]}}</div>
+                </ng-template>
+                <ng-template let-col let-node="rowData" *ngIf="col.field == 'methodsCount'" pTemplate="body">
+                  <div class="ddr-table-right" title="View Method Call Details"
+                    (click)="openReport(true,node,col.field)">{{node[col.field]}}</div>
+                </ng-template>
+                <ng-template let-col let-node="rowData"
+                  *ngIf="col.field == 'ndSessionId' || col.field == 'nvPageId' || col.field == 'suspensiontime' || col.field == 'coherenceCallOut' || col.field == 'jmsCallOut' || col.field == 'nvSessionId' || col.field == 'terminalId' || col.field == 'storeId' || col.field == 'startTime' || col.field == 'waitTime' || col.field == 'syncTime' || col.field == 'iotime' || col.field == 'btCpuTime' || col.field == 'statusCode' || col.field == 'flowpathInstance'"
+                  pTemplate="body">
+                  <div style="text-align: right">
+                    {{node[col.field]}}
+                  </div>
+                </ng-template>
+              </p-column>
+            </div>
+          </p-dataTable> -->
+
+        </p-accordionTab>
+        <p-accordionTab [selected]="commonService.openFlowMapTab" header="Transaction FlowMap">
+          <!-- <app-ddr-transaction-flowmap *ngIf='commonService.showTransactionFlowmap'></app-ddr-transaction-flowmap> -->
+        </p-accordionTab>
+        <!-- <p-accordionTab [selected]="commonService.openMethodCallingTreeTab" header="Method Call Details">
+          <methodcallingtree *ngIf='commonService.showMethodCallingTree'></methodcallingtree>
+        </p-accordionTab>
+        <p-accordionTab [selected]="commonService.openMethodTimingTab" header="Methods Timing">
+          <methodtiming *ngIf='commonService.showMethodTiming'></methodtiming>
+        </p-accordionTab>
+        <p-accordionTab [selected]="commonService.openHotspotTab" header="Hotspots">
+          <app-hotspot *ngIf='commonService.showHotspot'></app-hotspot>
+        </p-accordionTab>
+        <p-accordionTab [selected]="commonService.openDbTab" header="Database Queries">
+          <app-queries *ngIf='commonService.showDbreport'></app-queries>
+        </p-accordionTab>
+        <p-accordionTab [selected]="commonService.openExceptionTab" header="Exceptions">
+          <exception-report [showLink]="showLink" *ngIf='commonService.showExceptionReport'></exception-report>
+        </p-accordionTab>
+        <p-accordionTab [selected]="commonService.openHttpTab" header="HTTP Headers & Custom Data">
+          <http-req-resp *ngIf='commonService.showHttp'></http-req-resp>
+        </p-accordionTab> -->
+      </div>
+      <!-- <div *ngIf='showCompareReport'>
+        <p-accordionTab [selected]="!commonService.isToLoadSideBar" header="Flowpath Compare">
+          <app-compare-flowpath [comparedFpInfo]="compareFPInfo"></app-compare-flowpath>
+        </p-accordionTab>
+      </div> -->
+    </p-accordion>
+  </div>
+</div>
+
+<div class="ui-g-12" *ngIf="!toggle">
+  <div class="ddr-toolbar">
+
+    <button pButton (click)="showHide()" class="btn-icon" title="{{buttonValueTootip}}" icon="{{buttonValue}}"></button>
+    <button pButton *ngIf="sortButtonHide" class="btn-icon" (click)="openPopUp()" title="Sort" icon="icons8 icons8-up-down-arrow"></button>
+  </div>
+    <div class="ui-g-3 ddr-side-view-bg" #sideView>
+    <app-ddr-side-view [selectedData]="currentRowData" [index]="index" [order]="order" [sortField]="sortFieldName"
+      [flowpathData]="flowpathData" (flowpathSelected)="selectedRowData($event)"></app-ddr-side-view>
+  </div>
+  <div class={{setClass}} style="padding:0;">
+    <app-ddr-details-view [column]="columnName" (indexValue)="setIndex($event)" (windowToggle)="flagValue($event)"
+      [flowpathData]="currentRowData"></app-ddr-details-view>
+  </div>
+</div>
+
+<p-dialog class="secondary-dialog" [style]="{width: '40vw', height: '50vh'}" header="Sort" [(visible)]="openSortPopUp" modal="modal" [resizable]='false'
+  [responsive]="true">
+
+  <div *ngIf="openSortPopUp">
+    <ng-container *ngFor="let val of sortOptions">
+      <span class="ui-g-6">
+        <p-radioButton value={{val.value}} name="group1" label={{val.label}} [(ngModel)]="sortFieldName">
+        </p-radioButton>
+        <ng-container *ngIf="sortFieldName == val.value && sortingOrder == 'desc'">
+          <i class="fa fa-sort-desc" aria-hidden="true"></i>
+        </ng-container>
+        <ng-container *ngIf="sortFieldName == val.value && sortingOrder == 'asc'">
+          <i class="fa fa-sort-asc" aria-hidden="true"></i>
+        </ng-container>
+      </span>
+    </ng-container>
+  </div>
+  <p-footer>
+    <div class="p-grid p-align-center p-justify-center py-5">
+
+    <button pButton type="button" label="Ascending" (click)="order='1';sortingOrder='asc';openSortPopUp=false" class="ui-button-rounded ui-button-secondary"></button>
+    <button pButton type="button" label="Descending" (click)="order='-1';sortingOrder='desc';openSortPopUp=false" class="ui-button-rounded ui-button-secondary"></button>
+    <button pButton type="button" label="Close" (click)="openSortPopUp=false;order='';sortingOrder=''" class="ui-button-rounded ui-button-secondary"></button>
+  </div>
+    <!-- <button type="button" pButton icon="fa fa-caret-up" (click)="order='1';sortingOrder='asc';openSortPopUp=false"
+      label="Ascending"></button>
+    <button type="button" pButton icon="fa fa-caret-down" (click)="order='-1';sortingOrder='desc';openSortPopUp=false"
+      label="Descending"></button>
+    <button type="button" pButton icon="fa-close" (click)="openSortPopUp=false;order='';sortingOrder=''"
+      label="Close"></button> -->
+  </p-footer>
+</p-dialog>
+
+<p-dialog class="secondary-dialog foterDialog" [style]="{width: '65vw'}" header="Dynamic Diagnostics Configuration"
+  [resizable]="false" *ngIf="showAutoInstrPopUp"  [(visible)]="showAutoInstrPopUp" modal="modal"
+   responsive="true">
+  <app-dynamic-diagnostics (resultAfterStart)="startInstrumentaion($event)" (closeAIDDGui)="closeAIDDDialog($event)"
+    [passAIDDSettings]="argsForAIDDSetting"></app-dynamic-diagnostics>
+</p-dialog>
+
+<p-dialog class="secondary-dialog foterDialog" header="FP Type Details" [style]="{width: '50vw'}" [modal]="true" 
+  [(visible)]="fptypeErrorFlag" [resizable]="false">
+  <div class="modalPopUp">
+    <table cellspacing="3" cellpadding="0" border="2" style="margin:0px 0px 0px 0px;width:365px;">
+      <tr style="width:100px;height:30px" valign="center" align="center">
+        <th>Message Code</th>
+        <th> Message</th>
+      </tr>
+      <tr *ngFor="let errorbit of errormsgObj " style="width:100px;height:30px" valign="center" align="center">
+        <td>{{errorbit.errorbit}}</td>
+        <td>{{errorbit.errmsg}}</td>
+      </tr>
+    </table>
+  </div>
+</p-dialog>
+
+<p-dialog class="secondary-dialog foterDialog" [style]="{width: '40vw'}" header="Clear Cached Data"
+  [(visible)]="deleteCachedFlag" modal="modal" [resizable]='false' [responsive]="true" height="230" width="350"
+  minWidth="200">
+  <div *ngIf="deleteCachedFlag" style="overflow:auto;">
+    <ng-container *ngFor="let val of reportList">
+      <span class="ui-g-6">
+        <p-checkbox value={{val.value}} name="group1" label={{val.label}} [(ngModel)]="selectedReport"></p-checkbox>
+      </span>
+    </ng-container>
+  </div>
+  <p-footer>
+    <button pButton type="button" label="Close" (click)="deleteCachedFlag=false;"
+      class="ui-button-rounded ui-button-secondary"></button>
+    <button pButton type="button" label="Apply" (click)="onApply();" class="ui-button-rounded"></button>
+
+  </p-footer>
+</p-dialog>
+<p-dialog class="secondary-dialog" [style]="{width: '45vw'}" [(visible)]="isCancelQuery"
+  modal="modal" [resizable]='false' [modal]="true" [responsive]="true" height="150">
+  <p-header>
+    <i class="icons8 icons8-info" style="color:red"></i>
+    <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+  </p-header>
+  <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+  <p-footer>
+    <div class="p-grid p-justify-end sevbtn py-12">
+    <button pButton type="button" label="Cancel" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" class="ui-button-rounded"></button>
+    <button pButton type="button" label="Wait" (click)="waitQuery();" class="ui-button-rounded"></button>
+</div>
+    <!-- <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait"
+      style="height: 25px;"></button>
+
+      
+    <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" [disabled]="isCancelQuerydata"
+      label="Cancel" style="height: 25px;"></button> -->
+  </p-footer>
+</p-dialog>
+<p-dialog class="secondary-dialog" [(visible)]="waningPopup" [responsive]='true' [resizable]='false'
+  [positionTop]='150' width="350" [style]="{'height':'100px'}">
+  <p-header> <img src='images/warning.png' style="cursor: pointer;height:18px" (click)='showWarningMessgae()' /> <span
+      style='font-size: 14px'> Warning</span></p-header>
+  <b><span style='font-size: 13px'> Warning : Some data centers are down Or giving error.</span></b>
+</p-dialog>

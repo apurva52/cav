@@ -1,0 +1,143 @@
+<div>
+    <div >
+    <div *ngIf="showWarning">
+        <button pButton type="button" icon="fa fa-exclamation-triangle"></button>
+          <label>
+         
+           <b>Showing for top {{commonService.formatter(maxFlowPath)}} Slowest Flowpath(s).To see more or less apply filter Settings.</b>
+          
+         </label>
+       </div>
+    </div>
+        <div  class="p-grid p-justify-end p-align-center py-6">
+          <div>
+              <input #searchInput type="text" [value]="" class="w-100-p" pInputText size="50" placeholder="Search" (input)="dt3.filterGlobal($event.target.value, 'contains')" class="search-box" />
+          <button type="button" class="btn-icon mx-3" title={{toggleFilterTitleForIP}} (click)="toggleColumnFilterForIP()"><i class="icons8 icons8-menu"></i></button>
+          </div>
+          <div  *ngIf="showDownLoadReportIcon" >
+            <button type="button" class="btn-icon mx-3" (click)='downloadReportForInd("word")' title="Download as Word Report"><i class ="icons8 icons8-doc"></i></button>
+            <button type="button" class="btn-icon mx-3" (click)='downloadReportForInd("excel")' title="Download Excel file"><i class ="icons8 icons8-spreadsheet-file"></i></button>
+            <button type="button" class="btn-icon mx-3" (click)='downloadReportForInd("pdf")' title="Download PDF file"><i class ="icons8 icons8-pdf-2" ></i></button>
+          </div>
+        </div>
+</div>
+    <p-table #dt3 class="scen-table scrollable-div2 all-tables" [value]="actualAggIPInfo" scrollHeight="180px" [style]="{'height':'180px','font-size':'12px'}" resizableColumns="true"
+    reorderableColumns="true" [rows]="10" [paginator]="showPagination" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]"  [globalFilterFields]="visibleColsForIP">
+      <ng-template pTemplate="colgroup">
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width+'px'">
+        </colgroup>
+      </ng-template>
+      
+   
+      <ng-template pTemplate="header">
+              <tr>
+              <ng-container *ngFor="let col of columns">
+                <th *ngIf="col.action" pResizableColumn pReorderableColumn  [pSortableColumn]="col.field" >
+                    {{col.header}}
+                    <p-sortIcon [field]="col.field"></p-sortIcon>
+                </th>
+            </ng-container>
+        </tr>
+        <tr>
+            <ng-container *ngIf="isEnabledColumnFilterForIP">
+                <th *ngFor="let col of columns" [ngSwitch]="col.header">
+                    <div>
+                        <input class="w-100-p" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.header" pInputText type="text" (input)="
+                        dt3.filter($event.target.value,col.field, 'contains' ) " />
+                    </div>
+                </th>
+            </ng-container>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-node>
+          <tr>
+              <td *ngFor = "let col of columns">
+                <div *ngIf="col.field == 'action'">
+                  <span [style]="{'margin-right':'5px'}">
+                    <i class="icon ddrui-icon-selected-fp-page-instance" style="cursor:pointer;" title='View Flowpath Report By Backend Name' (click)="openFPByIntegrationReport(node, 'FPByID')"></i> 
+                  </span>
+                  <span [style]="{'margin-right':'5px'}">
+                    <i class="icon ddrui-icon-method-timing" style="cursor:pointer;" title='View Flowpath Report By Backend Res. Time' (click)="isIPByResp(node)"></i>
+                  </span>
+                </div>
+                <div *ngIf="(col.field == 'backendType' )">
+                  <a class="activeLink" (click)="openIndIpInfoPopUp(node)" title="View IP Individual Info" >{{node[col.field]}}</a>
+                </div>
+                <div *ngIf="(col.field != 'action' && col.field != 'backendType')"> {{ node[col.field] }}
+              </div>
+              </td>
+          </tr>
+      </ng-template>
+  </p-table>
+
+    <!-- <p-dataTable class="scen-table scrollable-div2 " [value]="actualAggIPInfo" [globalFilter]="gbCall" scrollHeight="180px" [style]="{'height':'180px','font-size':'12px'}" resizableColumns="true"
+        reorderableColumns="true" [rows]="10" [paginator]="showPagination" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]" >
+        <div *ngFor = "let col of colsForAGGIP">
+            <p-column *ngIf = "col.action" [field] = "col.field" [header] = "col.header" [filter] = "col.filter" [sortable] = "col.sortable" [style]="{'width': col.width+'px','text-align': col.align}" (sortFunction)="sortAggIPTable($event,actualAggIPInfo)">
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'action'" pTemplate type="body">
+              <span [style]="{'margin-right':'5px'}">
+                <i class="icon ddrui-icon-selected-fp-page-instance" style="cursor:pointer;" title='View Flowpath Report By Backend Name' (click)="openFPByIntegrationReport(node, 'FPByID')"></i> 
+              </span>
+              <span [style]="{'margin-right':'5px'}">
+                <i class="icon ddrui-icon-method-timing" style="cursor:pointer;" title='View Flowpath Report By Backend Res. Time' (click)="isIPByResp(node)"></i>
+                </span>
+            </ng-template>   
+            <ng-template let-col let-node="rowData" *ngIf="col.field == 'backendType'" pTemplate type="body">
+                <span class ="ddr-table-left" title="View IP Individual Info" (click)="openIndIpInfoPopUp(node)">{{node[col.field]}}</span>
+            </ng-template>
+          </p-column>
+        </div>
+      </p-dataTable> -->
+
+
+    <p-dialog header="Integration Points Individual Info {{ipName}}" style="width: '60vw';word-break: break-all;" [(visible)]="showIndIPInfo" [resizable]="false" modal="modal" [resizable]=false autoAlign="true" >
+        <div >
+          <p-table class="scen-table scrollable-div2 auto-table-layout all-tables" [value]="indIPInfo"  [style]="{'overflow':'unset'}" resizableColumns="true"
+          reorderableColumns="true" [rows]="10" [paginator]="showPaginationIP" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]" [(selection)]="selectedRowInfo" >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th *ngFor = "let col of colsForIndIP">
+                      <span *ngIf = "col.action"> {{col.header}} </span>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-node>
+                <tr>
+                    <td *ngFor = "let col of colsForIndIP">
+                      <span *ngIf="(col.field == 'queries')">
+                        <a class="activeLink" (click)="showRowInfo(node)" title="View Query" >{{node[col.field]}}</a>
+                      </span>
+                      <span *ngIf="(col.field != 'queries')">
+                        {{node[col.field]}}
+                      </span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+	<!-- <p-dataTable class="scen-table scrollable-div2 auto-table-layout" [value]="indIPInfo"  [style]="{'overflow':'unset'}" resizableColumns="true"
+        reorderableColumns="true" [rows]="10" [paginator]="showPaginationIP" [pageLinks]="3" [rowsPerPageOptions]="[10,20,30,40,50]" [(selection)]="selectedRowInfo">
+        <div *ngFor = "let col of colsForIndIP">
+            <p-column *ngIf = "col.action" [field] = "col.field" [header] = "col.header" [filter] = "col.filter" [sortable] = "col.sortable" [style]="{'width': col.width+'px','text-align': col.align}" (sortFunction)="sortIndIPTable($event,indIPInfo)">
+              <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'queries')">
+                <span  class = "break-text" style="cursor:pointer;color:blue;" title="View Query" (click)="showRowInfo(node)">{{node[col.field]}}</span>
+              </ng-template> 
+            </p-column>
+        </div> 
+      </p-dataTable> -->
+	</div>
+      <div>
+        <textarea pInputTextarea rows="5" style="width:100%;resize:none;" readonly>Query : {{fullQueryName}}</textarea>
+      </div>
+</p-dialog>
+  <p-dialog  class="scenmodal  Ddr-popup-footer" [style]="{width: '60vw'}" [(visible)]="isIPByRespTime"  [responsive]='true' [resizable]='false' [positionTop]='140'>
+      <p-header>Integration Point By Response Time</p-header>
+       <div>
+    <span style="text-align:center"> Response Time >=</span>
+    <span> <input id="input" (keypress)="validateQty($event)" type="text" size="5" pInputText [(ngModel)]="responseTime" style='float:right'> </span>	
+        </div>
+       <p-footer>
+              <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-checkmark" (click)="openFPByIntegrationReport(resData, 'FPByResTime')" label="Apply"></button>
+              <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-delete" (click)="isIPByRespTime=false" label="Cancel" class="ui-button-secondary"> </button>
+          </p-footer>
+    </p-dialog>

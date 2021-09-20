@@ -1,0 +1,139 @@
+
+<div class="derived-view-metric">
+  <p-dialog [(visible)]="visible" class="derived-metric" styleClass="derived-metric ui-dialog-maximized"  [resizable]="false" [draggable]="false" [modal]="true" [closable]="false"
+  [baseZIndex]="10000">
+
+  <p-header>
+    <div class="p-grid">
+      <div class="derived-title" (click)="closeDerivedWindow()">
+        <i class="icons8 icons8-back toolbar-icon-color"></i>
+        View Expression
+      </div>
+      <div class="action-buttons">
+        <button pButton label="Close" class="ui-outline-button ui-button-secondary"
+          (click)="closeDerivedWindow()"></button>
+        <!-- <button pButton label="Save" class="ui-outline-button ui-button-primary" (click)="saveChanges(customTree)"></button> -->
+      </div>
+    </div>
+  </p-header>
+    <div class="content-body">
+      <div class="p-grid">
+        <div class="p-col-12 details">
+          <p-panel header="Details" [showHeader]="false">
+            <div class="p-grid">
+              <div class="ui-fluid">
+
+                <label for="derivedName" class="labelName" style="padding-left: 0px;">Derived Metric Name</label>
+                <div class="inputes">
+                  <input id="derivedName" [(ngModel)]="derivedName" disabled  type="text" pInputText />
+                </div>
+
+                <label for="groupName" class="labelName">Group Name</label>
+                <div class="inputes">
+                  <input id="derivedGroupName" disabled [(ngModel)]="derivedGroupName" type="text"
+                    pInputText />
+                </div>
+
+                <label for="description" class="labelName">Description</label>
+                <div class="inputes2">
+                  <input id="description" disabled [(ngModel)]="description" type="text" pInputText />
+                </div>
+              </div>
+            </div>
+          </p-panel>
+        </div>
+
+        <div class="p-col-12">
+        <p-panel header="Metric Expression" class="w-100-p">
+
+          <div class="p-col-12 derived-graph-bucket">
+
+            <div class="graph-details" *ngFor="let graph of addedGraph let i=index"
+                    [ngClass]="graph.updateGraph? 'selected' : 'graph-details'">
+                    <div class="graph-section-1">
+                      <div class="token-index" [ngStyle]="{'backgroundColor': graph.colorForGraph}"
+                        title={{graph.expression}}>{{ graph.index }}</div>
+                      <div class="token" title={{graph.groupInfo}}>
+                        <b>Metric Group: &nbsp;</b> {{ graph.groupName }}
+                      </div>
+                      <div class="token" title={{graph.graphInfo}}>
+                        <b>Metric Name:&nbsp; </b> {{ graph.graphName }}
+                      </div>
+                      <div class="token" title={{graph.expressionAllSpecfied}}><b>Subject: &nbsp;</b>{{
+                        graph.specifiedAdvExpValue }}</div>
+                      <div *ngIf="graph.function" class="token"><b>Function: &nbsp;</b> {{ graph.function }}</div>
+                      <div>
+                        <div class="token" *ngIf="graph.operator && graph.operator.length > 0"> <b>Operator:
+                            &nbsp;</b>{{ graph.newOperator }}</div>
+                      </div>
+                    </div>
+                    <!-- <div *ngIf="!graph.updateGraph" class="token-icon">
+                      <i class="icons8 icons8-delete-trash"></i>
+                      <span></span>
+                    </div> -->
+                  </div>
+
+
+          </div>
+
+          <div class="my-5 derived-graph-visual">
+            <div class="graph-operations">
+              <div class="generate-operation">
+                <div class="formula ph-5">
+                  <input type="text" pInputText style="width: 400px;text-transform:uppercase;opacity: 1 !important;"
+                    [(ngModel)]="graphOperationExpression" disabled>
+                </div>
+
+                <div class="p-grid p-align-center">
+                <div class="formula-type p-align-center">
+                  <label class="pl-20 pr-5">Applied</label>
+                  <!-- <div class="width-160 ui-inputtext ui-corner-all ui-state-default ui-widget ui-state-filled">
+                    {{apply}}
+                  </div> -->
+                  <input type="text" class="width-160 opc1" pInputText value="{{apply}}" disabled>
+
+                </div>
+                <div class="formula-type p-align-center">
+                  <label class="pl-20 pr-5">Using</label>
+                  <!-- <div class="width-160 ui-inputtext ui-corner-all ui-state-default ui-widget ui-state-filled">
+                    {{using}}
+                  </div> -->
+                  <input  type="text" class="width-160 opc1" pInputText value="{{using}}" disabled>
+
+                </div>
+                <div class="formula-type p-align-center">
+                  <label class="pl-20 pr-5">On</label>
+                  <!-- <div class="width-160 ui-inputtext ui-corner-all ui-state-default ui-widget ui-state-filled">
+                    {{on}}
+                  </div> -->
+                  <input  type="text" class="width-160 opc1" pInputText value="{{on}}" disabled>
+                </div>
+                </div>
+
+                </div>
+
+              </div>
+          </div>
+
+          <div class="generated-graph">
+            <!-- <div *ngIf="generatedChart">
+              <app-chart [setChart]="generatedChart" [data]="generatedChart"></app-chart>
+            </div> -->
+
+          </div>
+
+
+
+        </p-panel>
+        </div>
+
+
+
+
+      </div>
+    </div>
+  </p-dialog>
+  </div>
+
+
+

@@ -1,0 +1,20 @@
+<!-- <div class="singlePanel" *ngIf="pannel2 != undefined then dial else others">
+</div> -->
+<div *ngIf="pannel2 != undefined else others">
+    <div class="ui-g ui-g-12 singlePanel">
+        <div class="ui-g-6">
+            <exec-dashboard-hchart [options]="options" (load)="load($event.context)"></exec-dashboard-hchart>
+        </div>
+        <div class="ui-g-6">
+            <exec-dashboard-hchart [options]="pannel2" (load)="load($event.context)"></exec-dashboard-hchart>
+        </div>
+    </div>
+</div>
+<ng-template #others>
+    <div class="biswa">
+    <exec-dashboard-hchart [options]="options" (load)="load($event.context)" style="width:100%;"></exec-dashboard-hchart>
+    </div>
+</ng-template>
+<!-- <div class="singlePanel dialPanel" *ngIf="chartData.pNum == '1'">
+        <exec-dashboard-hchart [options]="dial2" (load)="load($event.context)"></exec-dashboard-hchart>
+    </div> -->

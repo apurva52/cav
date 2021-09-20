@@ -1,0 +1,36 @@
+<p-fieldset class="custom-fieldset" legend="Advanced Settings" [toggleable]="true" [collapsed]="true">
+  <div class="p-grid p-align-center">
+  
+    <div class="width-120">Retry Count</div>
+    <div class="width-100">
+      <input type="number" pInputText  class="w-100-p" name="rCount"
+         [(ngModel)]="item['rCount']"
+        min="1">
+    </div>
+    <div class="width-120 ml-30">Sample Interval</div>
+    <div class="width-100">
+      <input type="number" pInputText  class="w-100-p" tooltipPosition="bottom" name="sInterval"
+        [(ngModel)]="item['interval']" min="1">
+    </div>
+    <div class="mx-3">{{monType == 'statsd'?'sec':'ms'}}</div>
+
+    <div class="width-120 ml-30">Vector Delete Time</div>
+    <div class="width-100">
+      <input name="vdTime" [(ngModel)]="item['delVecCount']"  pInputText  class="w-100-p"
+         type="number" min="1" /> 
+    </div>
+    <div class="mx-3">min(s)</div>
+
+
+      <div class="width-120 ml-30" *ngIf="monType == 'statsd'">Replace Characters</div>
+      <div class="width-100" *ngIf="monType == 'statsd'">
+       <input name="rKey" [(ngModel)]="item['rChar']" pInputText  class="w-100-p" type="text"
+         />
+      </div>
+   
+    </div>
+
+
+
+   
+</p-fieldset>

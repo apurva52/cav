@@ -1,0 +1,32 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+      blockScroll="true" appendTo="body">
+      <div class="sidebar-header">
+            <div class="sidebar-title">
+                  <div>
+                        <i class="icons8 icons8-star-filled"></i>
+                        <span>Business Process</span>
+                  </div>
+                  <div class="action-icons">
+                        <i class="icons8-delete" (click)="hide()"></i>
+                  </div>
+            </div>
+      </div>
+
+            <div class="p-grid p-10">
+                  <div class="p-col-12 p-md-12">
+                        <p-dropdown [options]="businessProcess" placeholder="Node Information"
+                              dropdownIcon="icons8-expand-arrow"></p-dropdown>
+                  </div>
+                  <div class="p-col-12 p-md-12">
+                        <p-dropdown [options]="timePeriod" placeholder="Node Information"
+                              dropdownIcon="icons8-expand-arrow"></p-dropdown>
+                  </div>
+
+            </div>
+
+      <div class="p-grid p-align-center p-justify-end mx-15">
+            <button pButton label="CLOSE" class="ui-outline-button ui-button-secondary px-15"></button>
+            <button pButton label="ADD" (click)="AddNote()" class="ui-outline-button px-15 mx-6"></button>
+            <button pButton label="APPLY" class="ui-outline-button px-15"></button>
+      </div>
+</p-sidebar>

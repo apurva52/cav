@@ -1,0 +1,18 @@
+<p-dialog header="Add Local Variable" [(visible)]="visible" [modal]="true" [style]="{width:'30vw'}">
+    <form [formGroup]="form">
+        <div class="p-grid p-justify-between ui-fluid p-align-center">
+            <div class="p-col-4">
+                <label>Name</label>
+            </div>
+            <div class="p-col">
+                <input type="text" pInputText formControlName="name" />
+                <p-message severity="error" text="Name is required" *ngIf="submitted && !form.controls['name'].valid">
+                </p-message>
+            </div>
+        </div>
+
+        <div class="p-grid p-justify-center">
+            <button type="button" pButton label="Add" (click)="addLocalVar()"></button>
+        </div>
+    </form>
+</p-dialog>

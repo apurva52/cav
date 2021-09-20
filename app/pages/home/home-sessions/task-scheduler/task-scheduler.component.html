@@ -1,0 +1,212 @@
+<div class="sql-activity-conatiner">
+
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/ux-agent-setting">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                SCHEDULED TASKS
+            </div>
+            <div class="p-grid">
+                <div>
+                    <button pButton icon="icons8 icons8-futures" title="View All Reports" (click)="openReport()"
+                        class="ui-button-rounded ui-button-secondary "></button>
+                </div>
+                <p-menu #menu [popup]="true" [model]="items" appendTo="body"></p-menu>
+                <div>
+                    <button pButton icon="icons8 icons8-plus-math" (click)="menu.toggle($event)" title="Add Task"
+                        class="ui-button-rounded ui-button-secondary"></button>
+                </div>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="p-col-12 no-padding">
+        <div class="breadcrumbs">
+            <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+        </div>
+    </div>
+    <ng-container *ngIf="scheduleddata">
+        <p-table [reorderableColumns]="true" [loading]="loading" [responsive]="true" [paginator]="true"
+            [responsive]="true" [value]="tableData" [rows]="10" class="all-tables" [totalRecords]="totalrecords"
+            class="all-tables" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" sortMode="single"
+            class="scen-table" [resizableColumns]="true">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pResizableColumn>Task Type
+                    </th>
+                    <th pResizableColumn pSortableColumn="description">Description
+                        <p-sortIcon field="description"></p-sortIcon>
+                    </th>
+
+                    <th pResizableColumn SortableColumn="scheduleTime">Schedule Time
+                        <p-sortIcon field="scheduleTime"></p-sortIcon>
+                    </th>
+                    <th rowspan="3" pResizableColumn pSortableColumn="progressInterval">Schedule Expiry Time
+                        <p-sortIcon field="progressInterval"></p-sortIcon>
+                    </th>
+                    <th pResizableColumn>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-data>
+                <tr>
+                    <td title="{{data.taskType}}">{{data.taskType}}</td>
+                    <td title="{{data.description}}">{{data.description}}</td>
+                    <td title="{{data.scheduleTime}}">{{data.scheduleTime}}</td>
+                    <td title="{{data.scheduleExpiryTime}}">{{data.scheduleExpiryTime}}</td>
+                    <td title="{{data.status}}">{{data.status}}</td>
+                    <td>
+                        <a class="btn btn-primary" (click)="deleteTask(data)" style="padding: 2px 4px"
+                            title="Delete Report" download="{{data.fileName}}">
+                            <i class=" pi pi-trash"></i>
+                        </a>
+
+
+                        <a class="btn btn-primary" (click)="enableDisable(data)" style="padding: 2px 4px"
+                            title="Mail Report">
+                            <i class="pi pi-pencil"></i>
+                        </a>
+                        <a class="btn btn-primary" (click)="enableDisable(data)" style="padding: 2px 4px"
+                            title="Mail Report">
+                            <i [ngClass]="data.status == 'enabled'  ? 'pi pi-times' : 'pi pi-check'"
+                                [title]="data.status == 'enabled' ? 'Disable Task':'Enable Task' "></i>
+                        </a>
+                    </td>
+
+
+                </tr>
+
+            </ng-template>
+
+        </p-table>
+    </ng-container>
+    <ng-container *ngIf="reportdata">
+        <p-table [reorderableColumns]="true" [loading]="loading" [responsive]="true" [paginator]="true"
+            [responsive]="true" [value]="reporttableData" [rows]="10" [totalRecords]="reporttotalrecords"
+            class="all-tables" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [resizableColumns]="true">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pResizableColumn>Report
+                    </th>
+                    <th pResizableColumn pSortableColumn="reportTime">Report Time
+                        <p-sortIcon field="reportTime"></p-sortIcon>
+                    </th>
+
+                    <th pResizableColumn SortableColumn="fileName">File Name
+                        <p-sortIcon field="fileName"></p-sortIcon>
+                    </th>
+                    <th rowspan="3" pResizableColumn pSortableColumn="progressInterval">Format
+                        <p-sortIcon field="progressInterval"></p-sortIcon>
+                    </th>
+
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-data>
+                <tr>
+                    <td title="{{data.report}}">{{data.report}}</td>
+                    <td title="{{data.reportTime}}">{{data.reportTime}}</td>
+                    <td title="{{data.fileName}}">
+                        <a href="/reports/genreports/{{data.fileName}}" style="color:rgb(51,104,255);"
+                            download="{{data.fileName}}">{{data.fileName}}</a>
+
+                    </td>
+                    <td title="{{data.fileName}}">
+                        <i class="pi pi-file-excel" title=".XLXS"></i>
+
+                    </td>
+                    <td>
+                        <a href="/reports/genreports/{{data.fileName}}" class="btn btn-primary" style="padding: 2px 4px"
+                            title="Click Here To Download File" download="{{data.fileName}}">
+                            <i class="pi pi-download"></i>
+                        </a>
+                        <a class="btn btn-primary" (click)="openCustom(data.fileName)" style="padding: 2px 4px"
+                            title="Mail Report">
+                            <i class="pi pi-envelope"></i>
+                        </a>
+                        <a class="btn btn-primary" (click)="deleteReport(data.fileName)" style="padding: 2px 4px"
+                            title="Delete Report" download="{{data.fileName}}">
+                            <i class=" pi pi-trash"></i>
+                        </a>
+
+                    </td>
+
+
+
+                </tr>
+
+            </ng-template>
+
+        </p-table>
+    </ng-container>
+
+</div>
+
+<p-dialog appendTo="body" class="dialog-filters" [(visible)]="customData" [responsive]="true" showEffect="fade"
+    [modal]="true">
+    <p-header>
+        <span style="font-size:15px;">Send Mail</span>
+    </p-header>
+    <div class="ui-g">
+        <div class="ui-g-12 ui-lg-12">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon" style="min-width: 100px;">Subject</span>
+                <input type="text" pInputText [(ngModel)]="subject" style="width:700px;">
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="ui-g">
+
+        <div class="ui-g-12 ui-lg-12">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon" style="min-width: 100px;">To</span>
+                <p-chips [(ngModel)]="to" pTooltip="Press Enter to Add Reciepient"></p-chips>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="ui-g">
+        <div class="ui-g-12 ui-lg-12">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon" style="min-width: 100px;">Attach</span>
+                <input type="text" pInputText [(ngModel)]="attach" style="width:700px;">
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="ui-g">
+        <div class="ui-g-12 ui-lg-12">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon" style="min-width: 100px;">Body</span>
+                <textarea pInputTextarea [(ngModel)]="body" style="width:700px;"></textarea>
+            </div>
+        </div>
+        <br>
+
+    </div>
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" pButton icon="pi pi-sign-in" title="Send" (click)="sendMail()" label="Send"></button>
+            <button type="button" pButton icon="pi pi-refresh" title="Reset" (click)="sendMail()"
+                label="Refresh"></button>
+        </div>
+    </p-footer>
+    <label class="btn btn-default"><b>Mail Subject : </b>{{subject}}</label>
+    <label class="btn btn-default"><b>Mail To : </b>{{to}}</label>
+    <label class="btn btn-default"><b>attach : </b>{{attach}}</label>
+    <label class="btn btn-default"><b>Mail Body : </b>{{body}}</label>
+
+</p-dialog>
+
+<p-toast></p-toast>

@@ -1,0 +1,257 @@
+<div class="h-100-vh template-container">
+
+    <div #widgetHeight class="mh-10" [ngStyle]="{
+        height: isEnabledColumnFilter
+          ? 'calc(100vh - 165px)'
+          : 'calc(100vh - 120px)'
+      }">
+        <div class="action-container">
+            <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                <div class="global-search-block">
+                    <div class="p-input-icon-left search-div-css">
+                        <i class="icons8 icons8-search"></i>
+                        <input #searchInputTemplate pInputText type="text" class="input-field-search"
+                            (input)="template.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                    </div>
+                </div>
+            </div>
+
+            <p-table #template [resizableColumns]="true" [columns]="selectedColumns" [value]="data.data"
+                [rowHover]="true" [paginator]="true" [rows]="data.paginator.rows" [totalRecords]="data.data.length"
+                [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+                [scrollable]="true" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 211px)"
+                [globalFilterFields]="['name','method','statusCode','domainName','formattimestamp','size','initiator','responseTime']"
+                dataKey="eventcounter" class="all-tables">
+                <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col [style]="{ width: '3%' }">
+                        <col *ngFor="let col of columns" [style.width]="col.width" />
+                    </colgroup>
+                </ng-template>
+
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th pResizableColumn></th>
+                        <th *ngFor="let col of columns" pResizableColumn [pSortableColumn]="col.valueField">
+                            <!--{{ col.label }}-->
+                            <span title="{{ col.label }}">{{ col.label }}</span>
+                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right"
+                                ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                ariaLabelAsc="Activate to sort in ascending order">
+                            </p-sortIcon>
+                        </th>
+
+                    </tr>
+                    <tr *ngFor="let headerRow of data.headers">
+                        <ng-container *ngIf="isEnabledColumnFilter">
+                            <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                <div *ngIf="col.filter.isFilter === true &&col.filter.type === 'custom'">
+                                    <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label"
+                                        pInputText type="text"
+                                        (input)="template.filter($event.target.value,col.valueField,'custom')" />
+                                </div>
+                                <div *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+                                    <input class="w-100-p"
+                                        pTooltip="Will filter metric names which contains given text."
+                                        *ngSwitchCase="col.label" pInputText type="text"
+                                        (input)="template.filter($event.target.value,col.valueField,'contains')" />
+                                </div>
+                            </th>
+                        </ng-container>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-row let-expanded="expanded" let-columns="columns"
+                    let-rowIndex="rowIndex">
+                    <tr [pSelectableRow]="row" [pSelectableRowDisabled]="isCheckbox">
+                        <td style="text-overflow: unset;">
+                            <a href="#" [pRowToggler]="row">
+                                <i [ngClass]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i>
+                            </a>
+                        </td>
+                        <td *ngFor="let col of columns" class="{{col.classes}}">
+
+                            <ng-container [ngSwitch]="col.valueField">
+                                <!-- the same view can be shown in more than one case -->
+                                <ng-container *ngSwitchCase="'action'">
+                                   <!--DDR TO ND-->
+                                   <i class='icons8 icons8-flow-chart btn-icon mx-3' *ngIf="row['flowPathInstance'] != null && row['flowPathInstance'] != '-1'"
+                                   title="View Flow Path Report" id='SequenceDiagram' (click)="openNDFlowpath(row['flowPathInstance'])"></i>
+                                </ng-container>
+                                <ng-container *ngSwitchCase="'name'">
+                                    <span [pTooltip]="row.url">{{row[col.valueField]}}</span>
+                                </ng-container>
+                                <ng-container *ngSwitchCase="'statusCode'">
+                                    <span [pTooltip]="row.title">{{row[col.valueField]}}</span>
+                                </ng-container>
+                                <ng-container *ngSwitchCase="'responseTime'">
+                                    <div class="netTimelineBar" acid="0" (mouseenter)="showTimelineDialog(row)"
+                                        (mouseleave)="hideTimelineDialog()">
+                                        <div class="netOriginBar" [ngStyle]="{left:getLeft(row), width:getWidth(row)}">
+                                            <span class="netTimeLabel ">{{row.responseTime}} s</span>
+                                        </div>
+                                    </div>
+
+
+
+
+                                </ng-container>
+                                <!--default case when there are no matches -->
+                                <ng-container *ngSwitchDefault>
+                                    <span [pTooltip]="row[col.valueField]"> {{((row[col.valueField]) !=
+                                        null ? row[col.valueField] : '-')}}</span>
+                                </ng-container>
+                            </ng-container>
+                        </td>
+
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="rowexpansion" let-item let-columns="columns">
+                    <tr>
+                        <td [attr.colspan]="columns.length + 1">
+                            <div>
+                                <div><span><b> URL &nbsp;: </b></span>&nbsp; <span
+                                        title={{item.data.url}}?{{item.data.query}}>
+                                        {{item.data.url}}?{{item.data.query}}</span></div>
+                                <div><span><b> Correlationid &nbsp;: </b></span>&nbsp; <span
+                                        title={{item.correlationid}}> {{item.correlationid}}</span></div>
+                            </div>
+                            <p-tabView>
+                                <p-tabPanel header="Timing" *ngIf="item.timings">
+
+                                    <div class="list" *ngFor="let q of Object.keys(item.timings)">
+                                        <ng-container *ngIf="item['timings'][q].indexOf('NaN') == -1">
+                                            <span class="list-name">{{q}}</span> :
+                                            <span class="list-time">{{ item["timings"][q]}}</span>
+                                        </ng-container>
+                                    </div>
+
+                                </p-tabPanel>
+                                <p-tabPanel header="Header" *ngIf="item.data.headers">
+                                    <div class="list" *ngFor="let h of item.data.headers">
+                                        <ng-container *ngIf="h !=''">
+                                            <span class="list-name">{{h.split(":")[0]}}</span> :
+                                            <span class="list-time">{{ h.split(":")[1]}}</span>
+                                        </ng-container>
+                                    </div>
+                                </p-tabPanel>
+                                <p-tabPanel header="Response" *ngIf="item.response">
+                                    <div class="list">
+                                        <span class="list-name" [innerHTML]="item.response"></span>
+                                    </div>
+                                </p-tabPanel>
+                                <p-tabPanel header="Post Data" *ngIf="item.postData">
+                                    <div class="list">
+                                        <span class="list-name">
+                                            {{item.postData}}
+                                        </span>
+                                    </div>
+                                </p-tabPanel>
+                                <p-tabPanel header="Parameters" *ngIf="item.query">
+                                    <div class="list" *ngFor="let q of item.query">
+                                        <span class="list-name">{{q.split("=")[0]}}</span> :
+                                        <span class="list-time">{{ q.split("=")[1]}}</span>
+                                    </div>
+                                </p-tabPanel>
+                            </p-tabView>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage" let-columns>
+                    <tr>
+                        <td [attr.colspan]="columns.length + 1" class="text-center">
+                            <span *ngIf="error">Error while loading data</span>
+                            <span *ngIf="empty">NO data available</span>
+                            <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i>Loading</span>
+                            <span *ngIf="
+                        !empty &&
+                        !loading &&
+                        !error &&
+                        searchInputTemplate.value.length
+                      ">Nothing found matching "{{
+                                searchInputTemplate.value
+                                }}"</span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <dialog [attr.open]="timelineDialog ? 'true':null">
+                <div class="p-grid" *ngIf="row">
+                    <div class="p-col-12">
+                        {{row.name}}
+                    </div>
+                    <div class="p-col-12">
+                        Ajax request start time since the beginning
+                    </div>
+                    <div class="p-col-12">
+                        {{row.startTimeValue}}
+                    </div>
+                    <div class="p-col-12">
+                        Intermediate Timing:
+                    </div>
+                    <div class="p-grid p-col-12 p-justify-start">
+                        <div class="p-col-2">0ms</div>
+                        <div class="p-col">Request Start</div>
+                    </div>
+
+                    <div class="p-col-12"
+                        *ngIf="row.tooltip && row.tooltip.loading && row.tooltip.loading.indexOf('NaN') == -1">
+                        <div class="p-grid p-justify-start">
+                            <div class="p-col-2">{{row.tooltip.loading}}</div>
+                            <div class="p-col">Loading</div>
+                        </div>
+                    </div>
+
+                    <div class="p-col-12"
+                        *ngIf="row.tooltip && row.tooltip.header_received && row.tooltip.header_received.indexOf('NaN') == -1">
+                        <div class="p-grid p-justify-start">
+                            <div class="p-col-2">{{row.tooltip.header_received}}
+                            </div>
+                            <div class="p-col">Header Received</div>
+                        </div>
+                    </div>
+
+                    <div class="p-col-12"
+                        *ngIf="row.tooltip && row.tooltip.loadEventEnd && row.tooltip.loadEventEnd.indexOf('NaN') == -1">
+                        <div class="p-grid p-justify-start">
+                            <div class="p-col-2">{{row.tooltip.loadEventEnd}}</div>
+                            <div class="p-col">LoadEventEnd</div>
+                        </div>
+                    </div>
+
+                    <div class="p-col-12"
+                        *ngIf="row.tooltip && row.tooltip.done && row.tooltip.done.indexOf('NaN') == -1">
+                        <div class="p-grid p-justify-start">
+                            <div class="p-col-2">{{row.tooltip.done}}</div>
+                            <div class="p-col">Done</div>
+                        </div>
+                    </div>
+
+                    <div class="p-col-12">
+                        Event timing relative to the request start:
+                    </div>
+                    <div class="p-col-12">
+                        <div class="p-grid p-justify-start">
+                            <div class="p-col-2">{{domInteractiveTime}}</div>
+                            <div class="p-col">DOMContentLoaded</div>
+                        </div>
+                    </div>
+
+                    <div class="p-col-12">
+                        <div class="p-grid p-justify-start">
+                            <div class="p-col-2">{{timeToLoad}}</div>
+                            <div class="p-col">DOM Loaded</div>
+                        </div>
+                    </div>
+
+                </div>
+            </dialog>
+
+        </div>
+    </div>
+
+</div>

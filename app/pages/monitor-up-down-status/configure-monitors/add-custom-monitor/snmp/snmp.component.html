@@ -1,0 +1,236 @@
+<div class="h-100-vh check-monitor-container">
+
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a class = "clickable" (click)="navigateToPage()">
+                <span class="icons8 icons8-left toolbar-icon-color"></span>
+            </a>
+            <div class="p-col ui-toolbar-text">Configure SNMP Monitors</div>
+        </div>
+    </p-toolbar>
+
+    <div class="content-body  p-col-12">
+        <form (ngSubmit)="saveSNMPData()" #form="ngForm" ngNativeValidate>
+            <p-panel>
+                <p-header>
+                    <p-checkbox [binary]="true" name="isChk" [(ngModel)]="enabled" ngDefaultControl></p-checkbox>
+                    <span class="checkbox-label">SNMP Monitor</span>
+                </p-header>
+                <div class="p-grid p-align-center w-100-p">
+                    <div>Instance</div>
+                    <div class="p-col-2">
+                        <input name="inst" class="w-100-p" [(ngModel)]="snmpMonData.instance" type="text"
+                            required="true" pInputText />
+                    </div>
+
+                    <div>Snmp Host</div>
+                    <div class="p-col-2">
+                        <input name="host" style="margin-left:10px" [(ngModel)]="snmpMonData.snmpHost" type="text" pattern="^((([0-9]{1,3}\.){3}[0-9]{1,3})|([A-Za-z][A-Za-z0-9-_.]*$))$"
+                            pInputText required ngModel />
+                    </div>
+
+                    <div>Metric Group Name</div>
+                    <div class="p-col-2">
+                        <input name="grpN" [(ngModel)]="snmpMonData.gdfName" type="text" pInputText required ngModel />
+                    </div>
+
+                    <div>Group Hierarchy</div>
+                    <div class="p-col-2">
+                        <input name="gH" type="text" [(ngModel)]="snmpMonData.metaData" pInputText required ngModel />
+                    </div>
+                </div>
+
+                <p-accordion [multiple]="true">
+                    <p-accordionTab [selected]="false" header="Monitor Settings">
+                        <p-table [columns]="cols" [value]="snmpMonData.gdfDetails" [(selection)]="selectedGDFdetails"
+                            [rows]="5" [paginator]="true" [pageLinks]="3" class="all-tables">
+
+                            <ng-template pTemplate="caption">
+                                <div style="text-align: right">
+                                    <button pButton type="button" class="mx-3" icon="icons8 icons8-plus-math"
+                                        (click)="openDialog()" style="cursor:pointer;" title="Add Metric Hierarchy">
+                                    </button>
+                                    <button pButton type="button" class="mx-3" icon="icons8 icons8-edit"
+                                        (click)="editDialog()" style="cursor:pointer;" title="Edit ">
+                                    </button>
+                                    <button pButton type="button" class="ui-button-danger ml-3"
+                                        title="Delete"
+                                        (click)="deleteGDFDetails()" icon="icons8 icons8-trash">
+                                    </button>
+
+                                </div>
+                            </ng-template>
+
+                            <ng-template pTemplate="header" let-columns>
+                                <tr>
+                                    <th style="width:40px">
+                                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                    </th>
+                                    <th *ngFor="let col of columns">
+                                        {{col.header}}
+                                    </th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+                                <tr>
+                                    <td style="width:40px">
+                                        <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                                    </td>
+                                    <td *ngFor="let col of columns">
+                                        {{rowData[col.field]}}
+                                    </td>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td [attr.colspan]="columns.length + 1" class="text-center">
+                                        <span>Empty Table</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+
+                    </p-accordionTab>
+                    <p-accordionTab [selected]="false" header="Advance Settings">
+                        <div class="p-grid p-align-center w-100-p">
+                            <div class="p-col-1">Community</div>
+                            <div class="p-col-2">
+                                <input value="Public" name="com" [(ngModel)]="snmpMonData.com" type="text" pInputText
+                                    ngModel class="w-90-p" />
+                            </div>
+                            <div class="p-col-1">User Name</div>
+                            <div class="p-col-2">
+                                <input name="user" type="text" [(ngModel)]="snmpMonData.user" pInputText  class="w-90-p" />
+                            </div>
+
+                            <div class="p-col-1">Interval (In secs)</div>
+                            <div class="p-col-2">
+                                <input name="intrval" type="number" [(ngModel)]="snmpMonData.interval" pInputText  class="w-90-p" />
+                            </div>
+
+                            <div class="p-col-1">Version</div>
+                            <div class="p-col-2">
+                                <p-dropdown name="vers"  [style]="{'width': '90%'}" [options]="versionList" [(ngModel)]="snmpMonData.ver" dropdownIcon="icons8 icons8-expand-arrow">
+                                </p-dropdown>
+                            </div>
+                        </div>
+
+                        <div class="p-grid p-align-center w-100-p" *ngIf="snmpMonData.ver == '3'">
+                            <div class="p-col-1">Auth Protocol</div>
+                            <div class="p-col-2">
+                                <input name="auth_protocol" type="text" [(ngModel)]="snmpMonData.authPro" pInputText  class="w-90-p" />
+                            </div>
+                            <div class="p-col-1">Auth Passphrase</div>
+                            <div class="p-col-2">
+                                <input name="auth_params" type="text" [(ngModel)]="snmpMonData.authParams" pInputText class="w-90-p" />
+                            </div>
+                            <div class="p-col-1">Privacy Protocol</div>
+                            <div class="p-col-2">
+                                <input name="encry_protocol" type="text" [(ngModel)]="snmpMonData.encryPr" pInputText class="w-90-p" />
+                            </div>
+                            <div class="p-col-1">Privacy Protocol Passphrase</div>
+                            <div class="p-col-2">
+                                <input class="w-90-p" name="priv_params" type="text" [(ngModel)]="snmpMonData.privParams" pInputText />
+                            </div>
+                        </div>
+                        <div class="p-grid p-align-center w-100-p" *ngIf="snmpMonData.ver == '3'">
+                            <div class="p-col-1">Security Level</div>
+                            <div class="p-col-2">
+                                <p-dropdown name="sl" [(ngModel)]="snmpMonData.sl" [options]="levelList"
+                                    [style]="{'width': '90%'}" dropdownIcon="icons8 icons8-expand-arrow">
+                                </p-dropdown>
+                            </div>
+                        </div>
+                    </p-accordionTab>
+                </p-accordion>
+            </p-panel>
+
+            <app-tier-server></app-tier-server>
+
+            <div class="p-col-12 p-grid p-justify-end p-align-end">
+
+            <button type="submit" pButton *ngIf="AddEditLabel === 'Update'" title="Cancel Update" label="Cancel"
+            class="ui-button-rounded ui-button-secondary mr-6" (click)="resetUI()"></button>
+            <button type="submit" pButton class="ui-button-rounded" style="border-radius: 15px;" label="{{AddEditLabel}}"></button>
+
+            </div>
+
+            <app-configured-monitor-info [techName]="techName" [showCols]="tableInfo" (logMonData)="editData($event)">
+            </app-configured-monitor-info>
+
+        </form>
+
+        <div class="loading-indicator" *ngIf="loading">
+            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+            </p-progressSpinner>
+        </div>
+    </div>
+
+
+    <p-dialog class="secondary-dialog foterDialog" header="{{dialogHeaderForTable}}" *ngIf="showSrchDialog" [(visible)]="showSrchDialog"
+        modal="modal" [style]="{'width':'400px'}">
+        <form (ngSubmit)="saveSrchPattData()" #groupForm="ngForm" ngNativeValidate>
+            <div class="p-grid p-align-center">
+                <div class="ui-g-4">OID</div>
+                <div class="ui-g-8">
+                    <input name="oid" type="text" [(ngModel)]="gdfData.oid" class="w-100-p" pInputText required
+                        ngModel />
+                </div>
+                <div class="ui-g-4">Type</div>
+                <div class="ui-g-8">
+                    <p-dropdown [style]="{'width':'100%'}" name="type" [(ngModel)]="gdfData.dataType"
+                        [options]="graphTypeList" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                </div>
+                <div class="ui-g-4">Relative</div>
+                <div class="ui-g-8">
+                    <p-dropdown [style]="{'width':'100%'}" name="rel" [(ngModel)]="gdfData.rel"
+                        [options]="relationList" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                    <!-- <input name="rel" type="text" style="width:180px" [(ngModel)]="gdfData.rel" pInputText required ngModel /> -->
+                </div>
+
+                <div class="ui-g-4">Formulae</div>
+                <div class="ui-g-8">
+                    <p-dropdown [style]="{'width':'100%'}" name="formulaType" [(ngModel)]="gdfData.formulae"
+                        [options]="formulaTypeList" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                </div>
+
+                <div class="ui-g-4">Formulae value</div>
+                <div class="ui-g-8">
+                    <input name="fVal" type="text" class="w-100-p" [(ngModel)]="gdfData.fVal" pInputText ngModel />
+                </div>
+
+                <div class="ui-g-4">Graph Name</div>
+                <div class="ui-g-8">
+                    <input name="GrN" type="text" class="w-100-p" [(ngModel)]="gdfData.graphName" pInputText required
+                        ngModel />
+                </div>
+                <div class="ui-g-4">Graph Description</div>
+                <div class="ui-g-8">
+                    <input name="GrphDesc" type="text" class="w-100-p" [(ngModel)]="gdfData.grphDesc" pInputText
+                        required ngModel />
+                </div>
+            </div>
+            <footer class="right my-10">
+                <button type="button" pButton class="ui-button-rounded ui-button-secondary" (click)="showSrchDialog = false" label="Cancel"></button>
+                <button type="submit" pButton label="Save"  class="ui-button-rounded ml-6"></button>
+            </footer>
+        </form>
+    </p-dialog>
+</div>  
+<div class="confirm-dialog">
+    <p-confirmDialog  class="secondary-dialog confirmdialog" #cd [style]="{width: '500px'}" [baseZIndex]="100000000011">
+    <p-footer>
+    <button type="button" class="ui-button-rounded px-20 ui-button-secondary mx-6" pButton label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+    <button type="button" class="ui-button-rounded px-20" style="border-radius: 15px;" pButton label={{acceptLable}} (click)="cd.accept()"></button>
+    </p-footer>
+    </p-confirmDialog>
+    </div>
+    

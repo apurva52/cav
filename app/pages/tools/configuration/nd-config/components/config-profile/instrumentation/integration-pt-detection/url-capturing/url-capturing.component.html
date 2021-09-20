@@ -1,0 +1,85 @@
+<form (ngSubmit)="saveKeywordData()" #form="ngForm" ngNativeValidate>
+    <div class="tabsincontent">
+        
+        <div class="header p-grid p-justify-between p-align-center">Integration Point Settings
+            <div class="pull-right my-6">
+		    <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+                    <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Reset to Default"></button>
+                     <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordsDataToDefault()" label="Reset to Default"></button>
+                     <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordData()" label="Undo All"></button>
+                     <button type="button" class="ui-button-sucess mr-6"  pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="resetKeywordData()" label="Undo All"></button>
+                     <button type="submit" class="ui-button-sucess mr-6" *ngIf="isProfilePerm" [disabled]="isProfilePerm" pButton icon="icons8 icons8-save" label="Save"></button>
+                     <button type="submit" class="ui-button-sucess mr-6" *ngIf="!isProfilePerm" pButton icon="icons8 icons8-save" [disabled]="saveDisable" label="Save"></button>
+
+
+            </div>
+        </div>
+
+
+        <p-panel class="hideheader">
+            <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader">
+                <div class="ui-g">
+                    <div class="ui-g-12" *ngIf="agentType == 'Java' || agentType == 'Dot Net'">
+                        <div class="ui-g-3">
+                                <p-checkbox name="enableIPResourceURL" label="Capture URL" [(ngModel)]="enableIPResourceURL" binary="false"></p-checkbox>
+                        </div>
+                    </div>
+                    <div class="ui-g-12" *ngIf="agentType == 'Java' || agentType == 'Dot Net'">
+                        <div class="ui-g-5">
+                            <p-checkbox  [disabled]="!this.enableIPResourceURL" name="enableURLCapturing" label="Capture Endpoint URL" [(ngModel)]="enableFormatIPResourceURL" binary="false"></p-checkbox>
+                        </div>
+                    </div>
+                    <div class="ui-g-12" *ngIf="agentType == 'Java' || agentType == 'Dot Net'">
+                        <div class="ui-g-5" style="padding-left:25px">
+                            <p-checkbox [disabled]="!this.enableFormatIPResourceURL || !this.enableIPResourceURL" name="includeParameter" label="Capture request parameters" [(ngModel)]="urlCapturingData.includeParameter" binary="true"></p-checkbox>
+                        </div>
+                    </div>
+                    <div class="ui-g-12" *ngIf="agentType == 'Java' || agentType == 'Dot Net'">
+                        <div class="ui-g-2 mt-7" style="padding-left:25px;width: 11%; padding-top:12px;">
+                            <label>Extract URL from</label>
+                        </div>
+                        <div class="ui-g-1">
+                            <input [disabled]="!this.enableFormatIPResourceURL || !this.enableIPResourceURL" name="urlOffset" type="number" #offset (input)="checkOffset(offset, maxChar)" min="0" max="256" [(ngModel)]="urlCapturingData.urlOffset" pInputText ngModel/>
+                        </div>
+                        <div class="ui-g-1 mt-7" style="width: 2%">
+                            <label>to</label>
+                        </div>
+                        <div class="ui-g-1">
+                            <input [disabled]="!this.enableFormatIPResourceURL || !this.enableIPResourceURL" name="maxChar" type="number" #maxChar (input)="checkMaxChar(offset, maxChar)" min="0" max="256" [(ngModel)]="urlCapturingData.maxChar" pInputText ngModel/>
+                        </div>
+                        <div class="ui-g-1 mt-7" >
+                            <label>characters</label>
+                        </div>
+                    </div>
+
+                <!-- </div> -->
+                <div class="ui-g-12" *ngIf="agentType == 'Java'">
+                    <div class="ui-g-3">
+                            <p-checkbox name="dumpDefaultCassandraQuery" label="Capture cassandra query" [(ngModel)]="dumpDefaultCassandraQuery" binary="false"></p-checkbox>
+                    </div>
+                </div>
+
+
+                <div class="ui-g-12" *ngIf="agentType == 'Java'">
+                    <div class="ui-g-3">
+                            <p-checkbox name="enableTransformThreadSubClass" label="Capture Thread subclasses" [(ngModel)]="enableTransformThreadSubClass" binary="false"></p-checkbox>
+                    </div>
+                </div>
+
+                <div class="ui-g-12" *ngIf="agentType == 'Java'">
+                        <div class="ui-g-3">
+                            <p-checkbox name="enableCaptureNetDelay" label="Capture Network Delay" [(ngModel)]="enableCaptureNetDelay" binary="false"></p-checkbox>
+                        </div>
+                </div>
+            </div>
+
+            <div class="ui-g-12" *ngIf="agentType == 'NodeJS'">
+                    <div class="ui-g-3">
+                        <p-checkbox name="enableCaptureNetDelay" label="Capture Network Delay" [(ngModel)]="enableCaptureNetDelay" binary="false"></p-checkbox>
+                    </div>
+            </div>
+            
+        </div>
+        </p-panel>
+    </div>
+</form>

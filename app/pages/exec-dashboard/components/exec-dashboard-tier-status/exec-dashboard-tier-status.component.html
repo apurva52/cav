@@ -1,0 +1,53 @@
+
+
+
+
+<div *ngIf="_dataHandlerService.$tsBlockUI" style=" position: absolute; margin: 0.5% 0 0% 0;color: gainsboro;">
+  <i class="icons8 icons8-spinner spin"></i>
+</div>
+
+<p-toolbar class="ui-secondary-toolbar">
+  <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+    <div class="p-grid p-align-center">
+      <a routerLink="/home">
+          <i class="icons8 icons8-left toolbar-icon-color"></i>
+      </a>
+      <div class="p-col ui-toolbar-text">
+        End To End
+      </div>
+  </div>
+  <div>
+    <app-tier-status-top-panel></app-tier-status-top-panel>
+  </div>
+</div>
+</p-toolbar>
+
+
+
+
+<div class="show-dashboard">
+<div class="exec-wrapper p-5">
+  <div class="exec-content" [ngClass]="toggleClass ? 'mr-5' : 'mr-0'">
+    <button type="button" class="btn-icon btn-n" (click)="showHideRightPanel()">
+      <i class="icons8 icons8-right" pTooltip="Maximize view" [ngClass]="(toggleClass || _dataHandlerService.$isMinMax)? 'show' : 'hide'"></i>
+      <i class="icons8 icons8-left" pTooltip="Minimize view" [ngClass]="(toggleClass || _dataHandlerService.$isMinMax)? 'hide' : 'show'"></i>
+  </button>
+    <div [className]="_dataHandlerService.$isMinMax? 'tier-status-left' : 'tier-status-left-full'" app-tier-status-left-panel
+    (leftPanelEmitter)="getEventFromLeftPanel($event)"></div>
+  </div>
+  <div class="exec-sidebar" [ngClass]="toggleClass || _dataHandlerService.$isMinMax? 'active' : 'in-active'">
+  <!-- <div [className]="_dataHandlerService.$isMinMax? (_dataHandlerService.isDataAvailable? 'tier-status-right':'tier-status-right-none') : 'tier-status-right-hide'"
+    app-tier-status-right-panel></div> -->
+    <div app-tier-status-right-panel></div>
+  </div>
+</div> 
+
+<div *ngIf="_dataHandlerService.$showDashboard" class="tier-status-lower-panel">
+  <app-tier-status-lower-panel></app-tier-status-lower-panel>
+</div>
+</div>
+
+
+<div>
+  <p-growl [(value)]="_dataHandlerService.msgs"></p-growl>
+</div>

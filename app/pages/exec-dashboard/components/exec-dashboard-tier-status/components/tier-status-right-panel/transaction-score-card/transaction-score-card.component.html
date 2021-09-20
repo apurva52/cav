@@ -1,0 +1,228 @@
+<!--need to replace all hard coded values with {{}}-->
+<div class="score-card-main">
+  <div>
+    <span *ngIf="isAvailable then table else info"></span>
+    <ng-template #table>  
+
+    <div class="ts-health-component ts-business-health py-15">
+
+      <div class="score-card-heading">
+        <label for="Transaction Scorecard" (click)="_rightPanelService.openFPGroupURL(_dataHandlerService, 'extbt')" title="View Business Transaction Trend" class="font-weight-700">Transaction Scorecard</label>
+        <label (click)="_rightPanelService.openFPGroupURL(_dataHandlerService, 'All')" title=" Total count = {{totalCount}}" class="font-weight-700">( Total Count: {{getRepString(totalCount)}})</label>
+    </div>
+
+      <div class="ts-alert-top"> 
+        <div class="p-grid p-align-center p-justify-between my-5">
+
+          <div class="ts-alerts ts-alert-nor" [style.width]="scoreCardData['Normal']['percentage']+'%'"></div>
+          <div class="ts-alerts ts-alert-slow" [style.width]="scoreCardData['Slow']['percentage']+'%'"></div>
+          <div class="ts-alerts ts-alert-very-slow" [style.width]="scoreCardData['VerySlow']['percentage']+'%'"></div>
+          <div class="ts-alerts ts-alert-error" [style.width]="scoreCardData['Errors']['percentage']+'%'"></div>
+
+        </div>
+
+
+<table class="scored-table font-11">
+  <tr class="font-11">
+    <td  class="w-25-p"></td>
+    <td class="font-weight-600 w-25-p">Transaction % </td>
+    <td class="font-weight-600 w-25-p">Transaction<br>count</td>
+    <td class="font-weight-600 w-25-p">Response<br>Time</td>
+  </tr>
+  <tr>
+    <td pTooltip="View Normal Business Transaction Report" tooltipPosition="left">
+      <i class="material-icons ts-normal-dot"></i>
+      <span *ngIf="scoreCardData['Normal']['data'] == 0" >Normal</span>
+      <span *ngIf="scoreCardData['Normal']['data'] > 0" >
+        <span class="clickable" (click) = "_rightPanelService.openFPGroupURL(_dataHandlerService, 'Normal')">Normal</span>
+      </span>  
+    </td>
+    <td class="font-weight-700">{{scoreCardData['Normal']['percentage']}}%</td>
+    <td class="font-weight-700">
+      <label *ngIf="scoreCardData['Normal']['data'] == 0">{{scoreCardData['Normal']['data']}}</label>
+      <span class="clickable" (click)="_rightPanelService.openFP(_dataHandlerService, 'Normal',1)" *ngIf="scoreCardData['Normal']['data'] > 0 " tooltipPosition="left" pTooltip="click to drill down">{{getRepString(scoreCardData['Normal']['data'])}}</span>
+    </td>
+    <td class="font-weight-700">
+      {{getRepString(scoreCardData['Normal']['avg'])}}
+    </td>
+  </tr>
+  <tr>
+    <td tooltipPosition="left" pTooltip="View Slow Business Transaction Report">
+      <i class="material-icons ts-slow-dot"></i> 
+      <span *ngIf="scoreCardData['Slow']['data'] == 0">Slow</span> 
+      <span *ngIf="scoreCardData['Slow']['data'] > 0 ">
+        <span class="clickable" (click) = "_rightPanelService.openFPGroupURL(_dataHandlerService, 'Slow')">Slow</span>
+      </span> 
+    </td>
+    <td class="font-weight-700">{{scoreCardData['Slow']['percentage']}}%</td>
+    <td class="font-weight-700">
+      <span *ngIf="scoreCardData['Slow']['data'] == 0">{{scoreCardData['Slow']['data']}}</span>
+      <span class="clickable" (click) = "_rightPanelService.openFP(_dataHandlerService, 'Slow',1)" *ngIf="scoreCardData['Slow']['data'] > 0 " tooltipPosition="left" pTooltip="click to drill down">{{getRepString(scoreCardData['Slow']['data'])}}</span>
+    </td>
+    <td class="font-weight-700">{{getRepString(scoreCardData['Slow']['avg'])}}</td>
+  </tr>
+  <tr>
+    <td tooltipPosition="left" pTooltip="View VerySlow Business Transaction Report">
+      <i class="material-icons ts-very-slow-dot"></i>
+      <span *ngIf="scoreCardData['VerySlow']['data'] == 0">Very Slow</span>
+      <span *ngIf="scoreCardData['VerySlow']['data'] > 0 ">
+        <span class="clickable" (click)="_rightPanelService.openFPGroupURL(_dataHandlerService, 'VerySlow')">Very Slow</span>
+      </span>
+    </td>
+    <td class="font-weight-700">{{scoreCardData['VerySlow']['percentage']}}%</td>
+    <td class="font-weight-700">
+      <span *ngIf="scoreCardData['VerySlow']['data'] == 0">{{scoreCardData['VerySlow']['data']}}</span>
+      <span class="clickable" (click)="_rightPanelService.openFP(_dataHandlerService, 'VerySlow',1)" *ngIf="scoreCardData['VerySlow']['data'] > 0 " tooltipPosition="left" pTooltip="click to drill down">{{getRepString(scoreCardData['VerySlow']['data'])}}</span>
+    </td>
+    <td class="font-weight-700">{{getRepString(scoreCardData['VerySlow']['avg'])}}</td>
+  </tr>
+  <tr>
+    <td tooltipPosition="left" pTooltip="View Errors Business Transaction Report">
+      <i class="material-icons ts-error-dot"></i>
+      <span *ngIf="scoreCardData['Errors']['data'] == 0 ">Error</span>
+      <span *ngIf="scoreCardData['Errors']['data'] > 0 ">
+        <span class="clickable" (click)="_rightPanelService.openFPGroupURL(_dataHandlerService, 'Errors')" >Error</span>
+      </span>
+    </td>
+    <td class="font-weight-700">{{scoreCardData['Errors']['percentage']}}%</td>
+    <td class="font-weight-700">
+      <label *ngIf="scoreCardData['Errors']['data'] == 0">{{scoreCardData['Errors']['data']}}</label>
+      <span class="clickable" (click) = "_rightPanelService.openFP(_dataHandlerService, 'Errors',1)" *ngIf="scoreCardData['Errors']['data'] > 0 " tooltipPosition="left" pTooltip="click to drill down">{{getRepString(scoreCardData['Errors']['data'])}}</span>
+    </td>
+    <td class="font-weight-700">{{getRepString(scoreCardData['Errors']['avg'])}}</td>
+  </tr>
+
+</table>
+
+  
+        <!-- <div class="p-grid p-justify-between my-5 p-dir-col">
+          <div class="dotted-class my-5">
+            <i class="material-icons ts-normal-dot"></i>
+            <span class="mr-10" *ngIf="scoreCardData['Normal']['data'] == 0" >Normal :</span>
+            <span class="mr-10" *ngIf="scoreCardData['Normal']['data'] > 0" >
+              <div class="labelMsgLeft lblLink" (click) = "_rightPanelService.openFPGroupURL(_dataHandlerService, 'Normal')" title = "View Normal Business Transaction Report">Normal : </div>
+            </span>  
+
+            <span>
+              <label class="labelMsgRight" title="Normal Transaction % = {{scoreCardData['Normal']['percentage']}}%">{{scoreCardData['Normal']['percentage']}}%</label>
+            </span>
+
+            <span class="mx-4">
+              <label class="labelMsgRight" *ngIf="scoreCardData['Normal']['data'] == 0" title="Normal Transaction count = {{scoreCardData['Normal']['data']}}">{{scoreCardData['Normal']['data']}}</label>
+              <label class="labelMsgRight lblLink" (click) = "_rightPanelService.openFP(_dataHandlerService, 'Normal',1)" *ngIf="scoreCardData['Normal']['data'] > 0 " title="Normal Transaction count = {{scoreCardData['Normal']['data']}} &#013;click to drill down">{{getRepString(scoreCardData['Normal']['data'])}},</label>
+            </span>
+            
+            <span>
+              <label class="labelMsgRight"  title="Normal Response Time = {{scoreCardData['Normal']['avg']}} ms"> {{getRepString(scoreCardData['Normal']['avg'])}}
+              </label>
+            </span>
+
+          </div>
+
+          <div class="dotted-class my-5">
+            <i class="material-icons ts-slow-dot"></i> 
+            <span class="mr-10" *ngIf="scoreCardData['Slow']['data'] == 0">Slow :</span> 
+            <span class="mr-10" *ngIf="scoreCardData['Slow']['data'] > 0 ">
+              <div class="labelMsgLeft lblLink" (click) = "_rightPanelService.openFPGroupURL(_dataHandlerService, 'Slow')" title = "View Slow Business Transaction Report">Slow :</div>
+            </span> 
+            
+            <span>
+              <label class="labelMsgRight"  title="Slow Transaction % = {{scoreCardData['Slow']['percentage']}}%">{{scoreCardData['Slow']['percentage']}}%</label>
+            </span>
+
+            <span class="mx-4">
+              <label class="labelMsgRight" *ngIf="scoreCardData['Slow']['data'] == 0" title="Slow Transaction count = {{scoreCardData['Slow']['data']}}">{{scoreCardData['Slow']['data']}}</label>
+              <label class="labelMsgRight lblLink" (click) = "_rightPanelService.openFP(_dataHandlerService, 'Slow',1)" *ngIf="scoreCardData['Slow']['data'] > 0 " title="Slow Transaction count = {{scoreCardData['Slow']['data']}} &#013;click to drill down">{{getRepString(scoreCardData['Slow']['data'])}},</label>
+            </span>
+
+            <span>
+              <label class="labelMsgRight" title="Slow Response Time = {{scoreCardData['Slow']['avg']}} ms"> {{getRepString(scoreCardData['Slow']['avg'])}}</label>
+            </span>
+          </div>
+
+          <div class="dotted-class my-5">
+            <i class="material-icons ts-very-slow-dot"></i>
+            <span class="mr-10" *ngIf="scoreCardData['VerySlow']['data'] == 0">Very Slow :</span>
+            <span class="mr-10" *ngIf="scoreCardData['VerySlow']['data'] > 0 ">
+              <div class="labelMsgLeft lblLink" (click) = "_rightPanelService.openFPGroupURL(_dataHandlerService, 'VerySlow')" title = "View VerySlow Business Transaction Report">VerySlow</div>
+            </span>
+
+            <span>
+              <label class="labelMsgRight" title="VerySlow Transaction % = {{scoreCardData['VerySlow']['percentage']}}%">{{scoreCardData['VerySlow']['percentage']}}%</label>
+            </span>
+
+            <span class="mx-4">
+              <label class="labelMsgRight" *ngIf="scoreCardData['VerySlow']['data'] == 0" title="VerySlow Transaction count = {{scoreCardData['VerySlow']['data']}}">{{scoreCardData['VerySlow']['data']}}</label>
+              <label class="labelMsgRight lblLink" (click) = "_rightPanelService.openFP(_dataHandlerService, 'VerySlow',1)" *ngIf="scoreCardData['VerySlow']['data'] > 0 " title="VerySlow Transaction count = {{scoreCardData['VerySlow']['data']}} &#013;click to drill down">{{getRepString(scoreCardData['VerySlow']['data'])}},</label>
+            </span>
+
+            <span>
+              <label class="labelMsgRight" title="VerySlow Response Time = {{scoreCardData['VerySlow']['avg']}} ms"> {{getRepString(scoreCardData['VerySlow']['avg'])}}</label>
+            </span>
+
+          </div>
+
+          <div class="dotted-class my-5">
+            <i class="material-icons ts-error-dot"></i>
+            <span class="mr-10" *ngIf="scoreCardData['Errors']['data'] == 0 ">Error :</span>
+            <span class="mr-10" *ngIf="scoreCardData['Errors']['data'] > 0 ">
+              <div class="labelMsgLeft lblLink" (click) = "_rightPanelService.openFPGroupURL(_dataHandlerService, 'Errors')" title = "View Errors Business Transaction Report">Error : </div>
+            </span>
+
+            <span>
+              <label class="labelMsgRight" title="Errors Transaction % = {{scoreCardData['Errors']['percentage']}}%">{{scoreCardData['Errors']['percentage']}}%</label>
+            </span>
+
+            <span class="mx-4">
+              <label class="labelMsgRight" *ngIf="scoreCardData['Errors']['data'] == 0" title="Errors Transaction count = {{scoreCardData['Errors']['data']}}">{{scoreCardData['Errors']['data']}}</label>
+              <label class="labelMsgRight lblLink" (click) = "_rightPanelService.openFP(_dataHandlerService, 'Errors',1)" *ngIf="scoreCardData['Errors']['data'] > 0 " title="Errors Transaction count = {{scoreCardData['Errors']['data']}} &#013;click to drill down">{{getRepString(scoreCardData['Errors']['data'])}},</label>
+            </span>
+
+            <span>
+              <label class="labelMsgRight" title="Errors Response Time = {{scoreCardData['Errors']['avg']}} ms"> 
+                {{getRepString(scoreCardData['Errors']['avg'])}}</label>
+            </span>
+
+            
+          </div>
+
+        </div> -->
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+      
+    </ng-template>
+    
+    <ng-template #info>
+    <p-messages severity="error" [closable]="false" class="hide-messages-icon">
+      <ng-template pTemplate>
+        <div class="p-grid">
+          <div class="p-col-12 font-weight-600">Transaction Scorecard</div>
+          <div class="p-col-12">
+            NetDiagnostic is not Configured for {{removeNullString(_dataHandlerService.$selectedNode)}}
+          </div>
+        </div>
+       
+         
+      </ng-template>
+  </p-messages>
+  </ng-template>
+
+
+    <!-- <ng-template #info>
+      <div>
+        <div class="score-card-heading">
+          <label for="Transaction Scorecard" title="View Business Transaction Trend" class="ts-right-headings">Transaction Scorecard</label>
+        </div>
+        
+      </div>
+    </ng-template> -->
+  </div>
+</div>

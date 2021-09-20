@@ -1,0 +1,369 @@
+<div class="ui-g content-area">
+    <div class="ui-g-4">
+        <p-card class="AC-leftpane">
+            <div class=" cosmotable">
+                <div class="p-grid p-align-center p-justify-between mb-6">
+                    <div class="type-search width-270">
+                        <input #gb type="text" pInputText placeholder="Search Group" class="width-270 pl-20"
+                            (input)="gth.filterGlobal($event.target.value, 'contains')">
+                        <i class="icons8 icons8 icons8-search btn-icon left-icon"></i>
+                    </div>
+                </div>
+                <span class="compotable">
+
+                    <p-table #gth class="all-tables" [columns]="groupHeaderInfo" [value]="data"
+                        [resizableColumns]='true' selectionMode="single" [(selection)]="selectedvalue"
+                        [globalFilterFields]="globalFilterFields1" [scrollable]="true" scrollHeight="56vh"
+                        sortField="name" [sortOrder]="1">
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                                <col style="width:10%">
+                                <col style="width:40%">
+                                <col style="width:40%">
+                                <col style="width:10%">
+                            </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th>
+                                    <button [disabled]=aclPermissionfrdisable type="button" class="btn-icon"
+                                        icon="pi pi-plus" (click)="createNewGroup('true')" pButton></button>
+                                </th>
+                                <th *ngFor="let col of columns" [pSortableColumn]="col.valueField"
+                                    title="{{col.header}}">
+                                    {{ col.header }}
+                                    <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                        ariaLabel="Activate to sort"
+                                        ariaLabelDesc="Activate to sort in descending order"
+                                        ariaLabelAsc="Activate to sort in ascending order">
+                                    </p-sortIcon>
+                                </th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-rowData let-index="rowIndex" let-columns="columns">
+                            <tr (click)="handleClickForGroup(rowData)" [pSelectableRow]="rowData">
+                                <td><i class="pi pi-users" aria-hidden="true" style="margin-left: 7px"></i></td>
+                                <td *ngFor="let col of columns" title="{{rowData[col.valueField]}}">
+                                    {{rowData[col.valueField]}}</td>
+                                <td><span
+                                        *ngIf="rowData.name !='SystemDefault'&& rowData.name!='System Default ReadOnly Multisession'">
+                                        <button type='button' matTooltip='Delete' class="btn-icon mx-3"
+                                            [disabled]="(rowData?.id == '-1')|| aclPermissionfrdisable" title="Delete"
+                                            (click)="deleteselectedGroup(rowData ,index)" pButton><i
+                                                class="icons8 icons8 icons8-trash"></i></button>
+                                    </span></td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage" let-columns>
+                            <tr>
+                                <td [attr.colspan]="4" class="text-center">
+                                    <span *ngIf="noRecordMsg">No records found</span>
+                                    <span *ngIf="data  && data.length == 0 && !noRecordMsg"> <i class="pi pi-spin pi-spinner"></i>
+                                    </span>
+                                    <span *ngIf="data && data.length > 0 && gb.value.length">Nothing found
+                                        matching "{{gb.value}}"</span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </span>
+            </div>
+        </p-card>
+    </div>
+    <div class="ui-g-8 AC-rightpane">
+        <p-card class="mb-5">
+            <h3 class="m-5 font-weight-500">Group Details</h3>
+            <div class="p-grid p-align-center w-100-p">
+                <label class="width-100 p-5"> Group Name </label>
+                <div class="p-col-7">
+                    <input #input1 pInputText [(ngModel)]="groupName" value="" maxlength="64"
+                        [disabled]=isToEnableFiled||aclPermissionfrdisable class="w-90-p">
+                </div>
+                <div class="p-col-2">
+                    <p-checkbox name="group1" label="Native" binary="false" [(ngModel)]="userCheckBoxValue"
+                        disabled=false></p-checkbox>
+                </div>
+            </div>
+
+            <div class="p-grid w-100-p">
+                <label class="width-100 p-5"> Description </label>
+                <div class="ui-g-10">
+                    <textarea pInputTextarea [disabled]=isToEnableFiled||aclPermissionfrdisable rows="3" maxlength="256" style="resize:none;" class="w-100-p"
+                        [(ngModel)]="groupSource"> </textarea>
+                </div>
+            </div>
+
+        </p-card>
+
+        <div class="p-grid mln-6 mrn-6">
+            <div class="ui-g-6">
+                <p-card>
+
+                    <div class="p-grid p-align-center p-justify-between w-100-p mb-6">
+                        <h3 class="mb-5 mt-0 font-weight-500">Users</h3>
+                        <div class="p-grid p-align-center relative">
+                            <input #gb1 pInputText type="text"
+                                (input)="bth.filterGlobal($event.target.value, 'contains')" placeholder="Text to search"
+                                class="w-100-p pl-20" />
+                            <i class="pi pi-search btn-icon inpSearch"></i>
+                        </div>
+                    </div>
+
+                    <span class="compotable">
+                        <p-table class="all-tables" #bth [columns]="userHeaderInfo" [value]="dataForUser"
+                            [resizableColumns]='true' selectionMode="multiple"
+                            [globalFilterFields]="globalFilterFields2" [scrollable]="true" scrollHeight="100px">
+
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                    <col style="width:12%">
+                                    <col style="width:25%">
+                                    <col style="width:25%">
+                                    <col style="width:25%">
+                                    <col style="width:13%">
+                                </colgroup>
+                            </ng-template>
+
+                            <ng-template pTemplate="header" let-columns>
+                                <tr>
+                                    <th>
+                                        <!-- <span *ngIf="groupName != 'SystemDefault'"> -->
+                                        <span *ngIf="groupName != 'SystemDefault'">
+                                            <button type="button" class="btn-icon"
+                                                [disabled]="selectedGroupType||aclPermissionfrdisable"
+                                                (click)="addUser()">
+                                                <i class="pi pi-plus"></i>
+                                            </button>
+                                        </span>
+                                    </th>
+                                    <th *ngFor="let col of columns" title="{{col.header}}">{{col.header}} </th>
+                                    <th></th>
+                                </tr>
+                            </ng-template>
+
+
+                            <ng-template pTemplate="body" let-rowData let-index="rowIndex" let-columns="columns">
+                                <tr>
+                                    <td></td>
+                                    <td *ngFor="let col of columns" title="{{rowData[col.valueField]}}">
+                                        {{rowData[col.valueField]}}</td>
+                                    <td class="text-center"><span
+                                            *ngIf="!(((rowData.name =='Cavisson'||rowData.name =='cavisson')&& groupName =='SystemDefault')|| (rowData.name =='guest'&& groupName =='System Default ReadOnly Multisession') )">
+                                            <button type='button' class="btn-icon mx-3"
+                                                [disabled]="selectedGroupType||aclPermissionfrdisable" title="Delete"
+                                                (click)="deleteselectedUser(rowData)">
+                                                <i class="icons8 icons8-trash"></i>
+                                            </button>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td colspan="5" class="text-center">
+                                        <span *ngIf="dataForUser && dataForUser.length == 0">No records found</span>
+                                        <span *ngIf="dataForUser && dataForUser.length > 0 && gb1.value.length">Nothing
+                                            found
+                                            matching "{{gb1.value}}"</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </span>
+                </p-card>
+            </div>
+
+            <div class="ui-g-6">
+                <p-card>
+
+                    <div class="p-grid p-align-center p-justify-between w-100-p mb-6">
+                        <h3 class="mb-5 mt-0 font-weight-500">Capabilities</h3>
+                        <div class="p-grid p-align-center relative">
+                            <input #gb2 pInputText type="text"
+                                (input)="dth.filterGlobal($event.target.value, 'contains')" placeholder="Text to search"
+                                class="w-100-p pl-20" />
+                            <i class="pi pi-search btn-icon inpSearch"></i>
+                        </div>
+                    </div>
+
+                    <span class="compotable">
+                        <p-table class="all-tables" #dth [columns]="capabilityHeaderInfo" [value]="dataForcapablities"
+                            selectionMode="multiple" [globalFilterFields]="globalFilterFields3" [scrollable]="true"
+                            scrollHeight="100px">
+
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                    <col style="width:12%">
+                                    <col style="width:38%">
+                                    <col style="width:38%">
+                                    <col style="width:12%">
+                                </colgroup>
+                            </ng-template>
+
+                            <ng-template pTemplate="header" let-columns>
+                                <tr>
+                                    <th>
+                                        <span *ngIf="groupName != 'SystemDefault'">
+                                        <button class="btn-icon" [disabled]=aclPermissionfrdisable type="button"
+                                            (click)="addCapabilities()"><i class="pi pi-plus"></i></button>
+                                        </span>
+                                    </th>
+                                    <th *ngFor="let col of columns" title="{{col.header}}">{{col.header}} </th>
+                                    <th></th>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="body" let-rowData let-index="rowIndex" let-columns="columns">
+                                <tr>
+                                    <td class="text-center">
+                                        <span class="px-3" *ngIf="rowData.name == 'Admin'"> <i
+                                                class="pi pi-users"></i></span>
+                                        <span class="px-3" *ngIf="rowData.name == 'Business'"> <i
+                                                class="icons8 icons8-suitcase"></i></span>
+                                        <span class="px-3" *ngIf="rowData.name == 'ReadAll'"> <i
+                                                class="icons8 icons8-template"></i></span>
+                                        <span class="px-3" *ngIf="rowData.name == 'ReadWriteAll'"> <i
+                                                class="icons8 icons8-template"></i></span>
+                                        <span class="px-3"
+                                            *ngIf="rowData.name != 'Admin'&&rowData.name != 'Business'&&rowData.name != 'ReadAll'&&rowData.name != 'ReadWriteAll'">
+                                            <i class="icons8 icons8-browse-page"></i></span>
+                                    </td>
+                                    <td *ngFor="let col of columns" title="{{rowData[col.valueField]}}">
+                                        {{rowData[col.valueField]}}</td>
+                                    <td><span
+                                            *ngIf="(groupName !='SystemDefault') &&(groupName != 'System Default ReadOnly Multisession')">
+                                            <button [disabled]=aclPermissionfrdisable type='button' matTooltip='Delete'
+                                                class="btn-icon mx-3" pButton title="Delete"
+                                                (click)="deleteselectedcapability(rowData)"><i
+                                                    class="icons8 icons8 icons8-trash"></i></button>
+                                        </span></td>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        <span *ngIf="dataForcapablities && dataForcapablities.length == 0">No
+                                            records found</span>
+                                        <span
+                                            *ngIf="dataForcapablities && dataForcapablities.length > 0 && gb2.value.length">Nothing
+                                            found
+                                            matching "{{gb2.value}}"</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </span>
+                </p-card>
+            </div>
+
+            <div class="ui-g-6" *ngIf="saasValue == 1">
+                <p-card>
+                    <div class="p-grid p-align-center p-justify-between w-100-p mb-6">
+                        <h3 class="mb-5 mt-0 font-weight-500">Project Cluster</h3>
+                        <div class="p-grid p-align-center relative">
+                            <input #gb1 pInputText type="text"
+                                (input)="dth.filterGlobal($event.target.value, 'contains')" placeholder="Text to search"
+                                class="w-100-p pl-20" />
+                            <i class="pi pi-search btn-icon inpSearch"></i>
+                        </div>
+                    </div>
+                    <!-- <ng-template pTemplate="header">
+                        <label>Project Clusters</label>
+                    </ng-template>
+                    <div class="ui-widget-header" style="padding:4px 10px;border-bottom: 0 none">
+                        <input #gb1 type="text" pInputText size="50" placeholder="Text to search" style="width:230px">
+                        <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+                    </div> -->
+                    <span class="compotable">
+                        <p-table  class="all-tables" #dth [columns]="clusterHeaderInfo" [value]="dataForProjectCluster" [resizableColumns]='true' selectionMode="multiple"
+                            [globalFilterFields]="gb1" scrollable="true" scrollHeight="80px">
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                    <col style="width:12%">
+                                    <col style="width:38%">
+                                    <col style="width:38%">
+                                    <col style="width:12%">
+                                </colgroup>
+                            </ng-template>
+
+
+                            <ng-template pTemplate="header" let-columns>
+                                <tr>
+                                    <th><span *ngIf="groupName!='SystemDefault'">
+                                            <button  class="btn-icon" [disabled]="aclPermissionfrdisable" type="button"
+                                                (click)="addpClusters()"><i class="pi pi-plus"></i>
+                                            </button>
+                                        </span>
+                                    </th>
+                                    <th *ngFor="let col of columns" title="{{col.header}}">{{col.header}} </th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-da="rowData" let-index="rowIndex">
+                                <tr>
+                                    <td></td>
+                                    <td><span title={{da.externalDomain}}>
+                                            {{da.externalDomain }}
+                                        </span></td>
+                                    <td> <span title={{da.uiExternalDomain}}>
+                                            {{da.uiExternalDomain }}
+                                        </span></td>
+                                    <td><span
+                                        *ngIf="! (((da.name =='Cavisson' || da.name =='cavisson' || da.name =='admin@cavisson.com') && groupName =='SystemDefault') || ((da.name =='guest' || da.name =='guest@cavisson.com' || da.name =='nsrepo.cavisson') && groupName =='System Default ReadOnly Multisession'))">
+                                        <button   [disabled]="selectedGroupType||aclPermissionfrdisable" type='button' matTooltip='Delete'
+                                                 class="btn-icon mx-3"  pButton    title="Delete" (click)="deleteselectedCluster(data)"><i class="icons8 icons8-trash"></i>
+                                        </button>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        <span *ngIf="dataForProjectCluster && dataForProjectCluster.length == 0">No
+                                            records found</span>
+                                        <span
+                                            *ngIf="dataForProjectCluster && dataForProjectCluster.length > 0 && gb2.value.length">Nothing
+                                            found
+                                            matching "{{gb1.value}}"</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </span>
+                </p-card>
+            </div>
+        </div>
+    </div>
+
+    <div class="secondary-dialog" >
+        <!-- <p-confirmDialog #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+            <p-footer>
+                <button type="button" class="ui-button-rounded ui-button-secondary px-15 mx-6" pButton 
+                    label="Cancel" (click)="cd.reject()" *ngIf="rejectVisible" ></button>
+                <button type="button" class="ui-button-rounded px-15" pButton 
+                    label= {{acceptLable}} (click)="cd.accept()" ></button>
+            </p-footer>
+        </p-confirmDialog> -->
+        <p-confirmDialog class="confirmdialog" #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+            <p-footer>
+            <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton
+            icon="pi pi-check" label={{acceptLable}} (click)="cd.accept()"></button>
+            <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton
+            icon="pi pi-times" label="Cancel" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+            </p-footer>
+            </p-confirmDialog>
+    </div>
+
+</div>
+
+<div class="p-grid p-justify-center p-8 w-100-p my-6 footerButton">
+    <button pButton icon="icons8 icons8-save" label="Save" [disabled]=aclPermissionfrdisable
+        (click)=saveData()></button>
+
+</div>

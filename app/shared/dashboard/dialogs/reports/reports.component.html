@@ -1,0 +1,40 @@
+<p-dialog #dialog header="Reports" [(visible)]="isVisible" class="secondary-dialog"
+    [resizable]="false" [draggable]="false" closeIcon="icons8-delete" [modal]="true" [closable]="true"
+    [baseZIndex]="10000" [style]="{width: '60vw'}">
+    <div class="p-grid">
+        <div class="p-col-12">
+            <p-fieldset legend="Select Reports">
+                <div class="ui-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-3">
+                        <label class="line-height" for="report">Report Type</label>
+                        <p-dropdown inputId="report" [options]="reportTypeOptions" [(ngModel)]="reportType"
+                            dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-field p-col-12 p-md-3">
+                        <label class="line-height" for="view">View Type</label>
+                        <p-dropdown inputId="view" [options]="viewTypeOptions" [(ngModel)]="viewType"
+                            dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-field p-col-12 p-md-3">
+                        <label class="line-height" for="widget">Widget Info</label>
+                        <p-dropdown inputId="widget" [options]="widgetinfoOptions" [(ngModel)]="widgetinfo"
+                            dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-field p-col-12 p-md-3 top-padding" *ngIf="(viewType != 'All' && viewType !== 'pdf')">
+                        <p-checkbox name="include_charts" value="include_charts" label="Include Charts">
+                        </p-checkbox>
+                    </div>
+                </div>
+            </p-fieldset>
+        </div>
+    </div>
+    <div class="p-col-12 button-group">
+        <button type="button" pButton icon="icons8 icons8-delete" (click)="displayBasic2=false" label="Close"
+            class="ui-outline-button ui-button-secondary"></button>
+        <button type="button" pButton icon="icons8 icons8-checkmark" class="ui-button ui-button-rounded" (click)="displayBasic2=false"
+            label="Generate"></button>
+    </div>
+</p-dialog>

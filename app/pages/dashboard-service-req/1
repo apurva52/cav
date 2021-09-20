@@ -1,0 +1,279 @@
+diff --git a/src/app/pages/dashboard-service-req/dashboard-service-req.component.html b/src/app/pages/dashboard-service-req/dashboard-service-req.component.html
+index d165407..f0172ce 100755
+--- a/src/app/pages/dashboard-service-req/dashboard-service-req.component.html
++++ b/src/app/pages/dashboard-service-req/dashboard-service-req.component.html
+@@ -19,14 +19,14 @@
+                     <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+                 </div>
+             </div>
+-            <div class="p-col-3 no-padding" *ngIf="!isShow">
++            <div class="p-col-3 no-padding" *ngIf="!isShow && isFromFP">
+                 <app-business-transaction-jacket (closeClick)="searchSummaryHide()" (selectRowEvent)="getRowData()"></app-business-transaction-jacket>
+             </div>
+-            <div [ngClass]="(isShow == true)?'p-col-12':'p-col-9'" class="no-padding main-table">
++            <div [ngClass]="(isShow == true || !isFromFP)?'p-col-12':'p-col-9'" class="no-padding main-table">
+                 <div class="p-grid">
+                     <div class="p-col-7 filter-group">
+                         <div class="ui-inputgroup">
+-                            <a *ngIf="isShow" class="openSearch" (click)="openSearchPanel()"><i class="icons8 icons8-left"></i></a>
++                            <a *ngIf="isShow && isFromFP" class="openSearch" (click)="openSearchPanel()"><i class="icons8 icons8-left"></i></a>
+                             <div class="clickable" (click)="longValue.open()">{{selectedFilter | ellipsis: 60}}</div>
+                         </div>
+                     </div>
+@@ -38,7 +38,7 @@
+                         <button pButton class="filter-buttons" [routerLink]="['/']" disabled>ED</button>
+                     </div>
+                 </div>
+-                <p-tabMenu [model]="widgetReportItems" [activeItem]='activeTab'>
++                <p-tabMenu  *ngIf="isFromFP" [model]="widgetReportItems" [activeItem]='activeTab'>
+                 </p-tabMenu>
+                 <div class="tab-content">
+                     <router-outlet></router-outlet>
+diff --git a/src/app/pages/dashboard-service-req/dashboard-service-req.component.ts b/src/app/pages/dashboard-service-req/dashboard-service-req.component.ts
+index 3b42887..18725c7 100755
+--- a/src/app/pages/dashboard-service-req/dashboard-service-req.component.ts
++++ b/src/app/pages/dashboard-service-req/dashboard-service-req.component.ts
+@@ -39,6 +39,7 @@ export class DashboardServiceReqComponent implements OnInit {
+   empty: boolean;
+   widgetReportItems: MenuItem[];
+   isShow: boolean;
++  isFromFP: boolean;
+   breadcrumb: MenuItem[] = [];
+   rowID: number;
+   static readonly ROUTE_DATA_BREADCRUMB = 'breadcrumb';
+@@ -53,6 +54,7 @@ export class DashboardServiceReqComponent implements OnInit {
+   selectedFilter =
+     'Tier=RHEL,BT=/DashboardService/RestService,StartTime=06/26/20 16:40:00, EndTime=06/26/20 20:38:56, BT Type=All';
+ 
++    showTabMenu = true;
+   @ViewChild(BusinessTransactionJacketComponent, { read: BusinessTransactionJacketComponent })
+   private businessTransactionJacketComponent: BusinessTransactionJacketComponent;
+ 
+@@ -82,7 +84,11 @@ export class DashboardServiceReqComponent implements OnInit {
+ 
+   ngOnInit(): void {
+     const me = this;
+-    
++    this.isFromFP =false;
++    if( me.sessionService.getSetting("ddrSource") == "flowpath")
++    {
++      this.isFromFP =true;
++    }
+     me.breadcrumb = [
+       { label: 'Home', routerLink: '/home/dashboard' },
+       { label: 'Drill Down Flow Paths',       
+@@ -112,7 +118,7 @@ export class DashboardServiceReqComponent implements OnInit {
+     me.selectedData =  me.businessTransactionJacketComponent.selectedData;
+     me.fpDataID = 'fpRowData' + '-' + IDGenerator.newId();
+     me.sessionService.setSetting('fpRowdata', me.selectedData);
+-    this.dashboardServiceReqService.splitViewUI$.next();
++   // this.dashboardServiceReqService.splitViewUI$.next();
+     me.loadAfterLeftPanel(me.fpDataID, this.stateID);
+   }
+   
+@@ -176,13 +182,7 @@ export class DashboardServiceReqComponent implements OnInit {
+           me.router.navigate(['/dashboard-service-req/sequence-diagram'], { queryParams: { state: stateID, fpData: fpDataID, id: 'SD' } });
+         },
+       },
+-      {
+-        label: 'Transaction FlowMap',
+-        id: 'TF',        
+-        command: (event: any) => {          
+-          me.router.navigate(['/dashboard-service-req/transaction-flowmap'], { queryParams: { state: stateID, fpData: fpDataID,  id: 'MCD' }});
+-        },
+-      },
++     
+     ];
+ 
+     const state: WidgetDrillDownMenuItem = me.sessionService.getSetting(me.stateID, null);
+diff --git a/src/app/pages/dashboard-service-req/transaction-flowmap/service/transaction-flowmap.service.interceptor.ts b/src/app/pages/dashboard-service-req/transaction-flowmap/service/transaction-flowmap.service.interceptor.ts
+index 8902054..0f951d0 100644
+--- a/src/app/pages/dashboard-service-req/transaction-flowmap/service/transaction-flowmap.service.interceptor.ts
++++ b/src/app/pages/dashboard-service-req/transaction-flowmap/service/transaction-flowmap.service.interceptor.ts
+@@ -53,92 +53,11 @@ export class TransactionFlowMapServiceInterceptor {
+     console.log(this.jsonforflowmap);
+     //console.log(this.jsonforflowmap.testRun);
+     this.jsonData = this.mergeDataForTransactionFlow(this.jsonforflowmap);
+-    this.jsonData = this.adapter(this.jsonData);
++   
+     
+   }
+ 
+-  adapter(data){
+-    //var finaldata:any;
+-    var finaldata = {};
+-   // newObject["tierName"] = "-";
+-    var node =[];
+-    var edge =[];
+-    var entry = {
+-      id: 'root',
+-      type: 'cluster',
+-      left: 58.5392,
+-      top: 6.59954,
+-      tier: 'tier',
+-      server: 'server',
+-      instance: 'instance',
+-      startTime: '02/05/2020',
+-      totalDuration: '20/2/20',
+-      percentage: '20%',
+-      nodeName: 'Entry',
+-      calls: 15,
+-      rspTime: 1700,
+-      icon: '',
+-    }
+-    node.push(entry);
+-    for (var i = 0; i < data.length; i++) {
+-      var edgeval1 = {};
+-     var nodeval1 ={};
+-     // var edgeval2 = {};
+-     // var nodeval2 ={};
+-      edgeval1["target"] = data[i].id ;
+-      edgeval1["source"] = data[i].sourceId;
+-      edgeval1["data"] = {type:'outputEdgeLabel', index: i+1+"", rspTime:data[i].avgBackendDuration.toFixed(2)+'ms', calls:data[i].count,putMyLabelAt: 0.5}
+-     // edgeval2["id"] = data[i].id ;
+-     // edgeval2["source"] =data[i].id + "connector";
+-     // nodeval1["name"] = data[i].tierName + "connector" ;
+-    // String icon = geticonName(data[i].icon);
+-      nodeval1 =  {
+-        id: data[i].id ,
+-        type: 'nodeIndices',
+-        left: 1693.116,
+-        top: -171.204,
+-        tier: data[i].tierName,
+-        server: data[i].serverName,
+-        instance: '25%',
+-        startTime: '02/05/2020', 
+-        totalDuration: '20/2/20',
+-        percentage: '20%',
+-        nodeName: data[i].tierName + ":" +  data[i].serverName,
+-        calls: 15,
+-        rspTime: 1700,
+-        icon: this.geticonName(data[i].icon),//'./assets/icons8-png/icons8-database-100.png',
+-      } 
+-     // nodeval2["name"] = data[i].tierName + ":" + data[i].serverName; 
+-      //nodeval2["id"] =  data[i].id ; 
+-      edge.push(edgeval1);
+-      node.push(nodeval1);
+-   //   edge.push(edgeval2);
+-   //   node.push(nodeval2);
+-    }
+-    finaldata["node"]= node;
+-    finaldata["edge"]= edge;
+-    var returndata = {};
+-    returndata["nodeInfoData"] = finaldata;
+-    console.log("finaldata::" + JSON.stringify(finaldata));
+-    return returndata;
+-  }
+-
+-  geticonName(name)
+-  {
+-    var val = './assets/icons8-png/';
+-  switch(name)
+-  {
+-    case 'java.png' : return val+'icons8-java-100.png';
+-    case 'nodejs.png' : return val+'icons8-node-js-100.png';
+-
+-    case 'mongodb.png' : return val+'icons8-database-100.png';
+-    case 'db.png' : return val+'icons8-database-100.png';
+-
+-    //case 'java.png' : return val+'icons8-java-100.png'
+-
+-
+-  }
+-}
++  
+   //phase 1- 615 original
+ 
+   //TODO - Merge Data 
+@@ -1115,6 +1034,91 @@ getDBCounts(dbCallout) {
+ 
+   return object;
+ }
++
++adapter(data){
++  //var finaldata:any;
++  var finaldata = {};
++ // newObject["tierName"] = "-";
++  var node =[];
++  var edge =[];
++  var entry = {
++    id: 'root',
++    type: 'cluster',
++    left: 58.5392,
++    top: 6.59954,
++    tier: 'tier',
++    server: 'server',
++    instance: 'instance',
++    startTime: '02/05/2020',
++    totalDuration: '20/2/20',
++    percentage: '20%',
++    nodeName: 'Entry',
++    calls: 15,
++    rspTime: 1700,
++    icon: '',
++  }
++  node.push(entry);
++  for (var i = 0; i < data.length; i++) {
++    var edgeval1 = {};
++   var nodeval1 ={};
++   // var edgeval2 = {};
++   // var nodeval2 ={};
++    edgeval1["target"] = data[i].id ;
++    edgeval1["source"] = data[i].sourceId;
++    edgeval1["data"] = {type:'outputEdgeLabel', index: i+1+"", rspTime:data[i].avgBackendDuration.toFixed(2)+'ms', calls:data[i].count,putMyLabelAt: 0.5}
++   // edgeval2["id"] = data[i].id ;
++   // edgeval2["source"] =data[i].id + "connector";
++   // nodeval1["name"] = data[i].tierName + "connector" ;
++  // String icon = geticonName(data[i].icon);
++    nodeval1 =  {
++      id: data[i].id ,
++      type: 'nodeIndices',
++      left: 1693.116,
++      top: -171.204,
++      tier: data[i].tierName,
++      server: data[i].serverName,
++      instance: '25%',
++      startTime: '02/05/2020', 
++      totalDuration: '20/2/20',
++      percentage: '20%',
++      nodeName: data[i].tierName + ":" +  data[i].serverName,
++      calls: 15,
++      rspTime: 1700,
++      icon: this.geticonName(data[i].icon),//'./assets/icons8-png/icons8-database-100.png',
++    } 
++   // nodeval2["name"] = data[i].tierName + ":" + data[i].serverName; 
++    //nodeval2["id"] =  data[i].id ; 
++    edge.push(edgeval1);
++    node.push(nodeval1);
++ //   edge.push(edgeval2);
++ //   node.push(nodeval2);
++  }
++  finaldata["node"]= node;
++  finaldata["edge"]= edge;
++  var returndata = {};
++  returndata["nodeInfoData"] = finaldata;
++  console.log("finaldata::" + JSON.stringify(finaldata));
++  return returndata;
++}
++
++geticonName(name)
++{
++  var val = './assets/icons8-png/';
++switch(name)
++{
++  case 'java.png' : return val+'icons8-java-100.png';
++  case 'nodejs.png' : return val+'icons8-node-js-100.png';
++
++  case 'mongodb.png' : return val+'icons8-database-100.png';
++  case 'db.png' : return val+'icons8-database-100.png';
++
++  //case 'java.png' : return val+'icons8-java-100.png'
++
++
++}
++}
++
++
+ //This function is used to set backedtype according to the type
+ getBackendTypeName(backendType) {
+   var backendTypeName = "OTHER";

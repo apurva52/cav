@@ -1,0 +1,239 @@
+<div class="h-100-vh multiconfig-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-grid p-align-center">
+                <a routerLink="/home/dashboard">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">MULTI NODE CONFIGURATION</div>
+            </div>
+            <div class="p-col-4 text-right">
+                <button pButton type="button" style="margin-right: 10px;" class="ui-button-secondary ui-button-rounded" pTooltip="Save Node Configuration" label="SAVE" (click)="saveNodeConfiguration()"></button>
+                <button pButton type="button" class="ui-button ui-button-rounded" label="APPLY" title="Restart Node" pTooltip= "Restart Node" [disabled]="!isConfigurationSaved" (click)="applyNodeConfiguration()"></button>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+    <div #widgetHeight class="mh-10" [ngStyle]="{
+        height: isEnabledColumnFilter
+          ? 'calc(100vh - 165px)'
+          : 'calc(100vh - 120px)'
+      }">
+        <div class="action-container" *ngIf="data">
+            <div class="config p-align-center action-grid w-100-p p-20">
+                <div class="p-grid p-align-center">
+                    <div class="p-col-1"></div>
+                    <div class="p-col-1 spacing">
+                        <label>Node Name<span style="color:red;" title="Mandatory field" >* </span></label>
+                    </div>
+                    <div class="p-col-3 spacing">
+                        <input class="w-100-p" type="text" placeholder="Enter name"  [(ngModel)]="nodeName" pInputText required />
+                    </div>
+                    <div class="p-col-2"></div>
+                    <div class="p-col-1 spacing">
+                        <label>Session No.<span style="color:red;" title="Mandatory field" >* </span></label>
+                    </div>
+                    <div class="p-col-3 spacing">
+                        <input class="w-100-p" type="text" placeholder="Enter test run" [(ngModel)]="tr" pInputText required />
+                    </div>
+                    <div class="p-col-1"></div>
+                </div>
+
+
+                <div class="p-grid p-align-center">
+                    <div class="p-col-1"></div>
+                    <div class="p-col-1 spacing">
+                        <label>IP<span style="color:red;" title="Mandatory field" >* </span></label>
+                    </div>
+                    <div class="p-col-3 spacing">
+                        <input class="w-100-p" type="text" placeholder="IP" [(ngModel)]="ip" pInputText required />
+                    </div>
+                    <div class="p-col-2"></div>
+                    <div class="p-col-1 spacing">
+                        <label>Port<span style="color:red;" title="Mandatory field" >* </span></label>
+                    </div>
+                    <div class="p-col-3 spacing">
+                        <input class="w-100-p" type="text" placeholder="Port" [(ngModel)]="port" pInputText required />
+                    </div>
+                    <div class="p-col-1"></div>
+                </div>
+                <div class="p-grid p-align-center">
+                    <div class="p-col-1"></div>
+                    <div class="p-col-1 spacing">
+                        <label>Protocol</label>
+                    </div>
+                    <div class="p-col-3 spacing">
+                        <p-dropdown [options]="options2" optionLabel="label"  [(ngModel)]="protocol" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-col-2"></div>
+                    <div class="p-col-1 spacing">
+                        <label>Master</label>
+
+                    </div>
+                    <div class="p-col-3 spacing">
+                        <p-checkbox name="groupname"  binary=true [(ngModel)]="isMaster"></p-checkbox>
+                    </div>
+                    <div class="p-col-1"></div>
+                </div>
+
+
+                <div class="p-grid p-align-center">
+                    <div class="p-col-1"></div>
+                    <div class="p-col-1 spacing">
+                        <label>Product Type</label>
+                    </div>
+                    <div class="p-col-3 spacing">
+                        <p-dropdown [options]="options" optionLabel="label" [(ngModel)]="selProdType" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+            <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                <div class="global-search-block">
+
+                    <div class="p-input-icon-left search-div-css">
+                        <i class="icons8 icons8-search"></i>
+                        <input #searchInputTemplate pInputText type="text" class="input-field-search" (input)="template.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                    </div>
+                </div>
+
+                <div class="icons-container p-justify-between p-align-center">
+                    <!-- <button pButton icon="icons8 icons8-trash" class="icon-button no-shadow" pTooltip="Delete"></button> -->
+                    <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" (click)="toggleFilters()" pTooltip="Column Filter"></button>
+                    <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+                    </p-multiSelect>
+                    <!-- <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu> -->
+                    <!-- <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow" (click)="menu.toggle($event)" pTooltip="Download"></button> -->
+                    <button pButton label="RESET" pTooltip="Reset Node Info"  class="ui-button ui-button-rounded ui-button-secondary btnspacing" (click)="resetConfiguration();" ></button>
+                    <button pButton label={{buttonValue}} pTooltip= "Add/Update Node Info" class="ui-button ui-button-rounded ui-button-secondary" (click)="addConfiguration(buttonValue);" ></button>
+                </div>
+            </div>
+
+            <ng-container>
+                <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                    Select column to show
+                </div>
+                <p-card>
+                    <p-table #template [resizableColumns]="true" [columns]="selectedColumns" [value]="data.data" [rowHover]="true" [paginator]="true" [rows]="data.paginator.rows" [totalRecords]="data.data.length" [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [showCurrentPageReport]="true"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true" [scrollable]="true" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 388px)" [globalFilterFields]="globalFilterFields" class="all-tables">
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                                <col *ngFor="let col of columns" [style.width]="col.width" />
+                            </colgroup>
+                        </ng-template>
+
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+
+                                <th *ngFor="let col of columns" pResizableColumn [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.valueField" class="text-left">
+                                    <div class="left">
+                                        {{ col.label }}
+                                    </div>
+                                    <div *ngIf="col.isSort" class="right">
+                                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                        </p-sortIcon>
+                                    </div>
+                                </th>
+                                <th [style]="{ width: '100px' }">Actions</th>
+
+                            </tr>
+                            <tr *ngFor="let headerRow of data.headers">
+                                <ng-container *ngIf="isEnabledColumnFilter">
+
+                                    <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                        <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'custom'
+                        ">
+                                            <input class="w-100-p" pTooltip="Enter number to search" *ngSwitchCase="col.label" pInputText type="text" (input)="
+                            template.filter(
+                              $event.target.value,
+                              col.valueField,
+                              'custom'
+                            )
+                          " />
+                                        </div>
+                                        <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'contains'
+                        ">
+                                            <input class="w-100-p" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                            template.filter(
+                              $event.target.value,
+                              col.valueField,
+                              'contains'
+                            )
+                          " />
+                                        </div>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-da="rowData" let-columns="columns" let-rowIndex="rowIndex">
+                            <tr [ngStyle]="{ backgroundColor: row.rowBgColor }" [pSelectableRow]="row" [pSelectableRowDisabled]="isCheckbox">
+
+                                <td *ngFor="let col of columns">
+                                    {{ row[col.valueField] | ellipsis: 35 }}
+                                    <!-- <i class="masterIcon" *ngIf="col.iconField && row.icon == 'icons8 icons8-checkmark'" [ngClass]= "isMaster ? row.icon : 'icons8 icons8-delete'" pTooltip="Master"></i> -->
+                                </td>
+
+                                <td [style]="{ width: '100px' }" class="text-center edit-row">
+                                    <div class="p-grid p-justify-center">
+                                        <i class="icons8 icons8-delete-trash" pTooltip="Delete Node Info"  (click)="deleteRowFromTable(rowIndex , row);"></i>
+                                        <i class="icons8 icons8-edit-2 pl-5" pTooltip="Edit Node Info"  (click)="editRowFromTable(row);"></i>
+                                    </div>
+
+                                </td>
+
+
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="emptymessage" let-columns>
+                            <tr>
+                                <td [attr.colspan]="columns.length + 1" class="text-center">
+                                    <span *ngIf="error">Error while loading data</span>
+                                    <span *ngIf="emptyTable">Empty Table</span>
+                                    <span *ngIf="loading">Loading</span>
+                                    <span *ngIf="
+                        !empty &&
+                        !loading &&
+                        !error &&
+                        searchInputTemplate.value.length
+                      ">Nothing found matching "{{
+                                        searchInputTemplate.value
+                                        }}"</span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </p-card>
+            </ng-container>
+        </div>
+    </div>
+</div>

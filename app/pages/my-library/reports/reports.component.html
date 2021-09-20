@@ -1,0 +1,45 @@
+<p-confirmDialog class="confirmdialog" key="reports" header="Info" acceptLabel="Ok" rejectLabel="Cancel"
+    [(visible)]="dialogVisible">
+</p-confirmDialog>
+<div class="h-100-vh page-container reports-page">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/my-library">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                REPORTS
+            </div> 
+            <div>
+                <span>
+                <button pButton type="button" class="ui-button-secondary ui-button-rounded" label="Templates" (click)="openTemplate()">
+                </button>
+            </span>
+                <span pTooltip="{{ tip }}" tooltipPosition="bottom">
+                <button pButton type="button" class="ui-button-secondary ui-button-rounded" label="Schedules" (click)="openSchedule()" [disabled]="disableSchButton || schBtnDisable">
+                </button>
+            </span> 
+            </div>
+        </div>
+
+    </p-toolbar>
+    <div class="content-body" id="reports">
+        <div class="p-grid">
+            <div class="p-col-12 no-padding">
+                <div class="breadcrumbs">
+                    <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+                </div>
+            </div>
+            <div class="p-col-12 no-padding main-table">
+                <p-tabMenu [model]="widgetReportItems" [activeItem]='activeTab'>
+                </p-tabMenu>
+                <div class="tab-content">
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

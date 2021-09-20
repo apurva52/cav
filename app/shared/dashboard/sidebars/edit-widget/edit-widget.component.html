@@ -1,0 +1,1072 @@
+<div class="widget-setting-container">
+  <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+    <div class="p-col p-col-align-center text-center">
+      <div>
+        <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+      </div>
+    </div>
+  </div>
+  <div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="error" text="{{error.msg}}"></p-message>
+    </div>
+  </div>
+  <div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="normal" text="No Data"></p-message>
+    </div>
+  </div>
+  <p-card>
+    <p-header>
+      <div class="card-title">
+        <div class="heading">
+          <i class="icons8 icons8-paint-palette"></i>
+          <span>Widget Settings</span>
+        </div>
+        <div class="action-icons">
+          <i class="icons8-delete sidebar-icon" (click)="closeClick()"></i>
+        </div>
+      </div>
+      <p class="note-line" *ngIf="errorMessage == null">Configurations will be applied for selected widget</p>
+      <p-message *ngIf = "errorMessage !=null" severity="error" text={{errorMessage}}></p-message>
+    </p-header>
+    <div class="card-content edit-widget">
+      <div class="tabs-container">
+        <p-tabView class="mini-tab" [(activeIndex)]="selectedTab">
+          <p-tabPanel header="Charts Setting">
+            <p-accordion [multiple]="true">
+              <p-accordionTab header="Configurations" [selected]="true">
+                <div class="p-grid p-formgrid">
+                  <div class="p-grid p-align-center w-100-p">
+                    <div class="p-col-4">
+                      <label class="field-label" for="datasource-type">Data Source</label>
+                    </div>
+                    <div class="p-col-8">
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" [options]="dropDownData.dataSourceOptions"
+                        [(ngModel)]="selectedDataSourceType" (onChange)="changeDataSourceType(selectedDataSourceType)"></p-dropdown>
+                    </div>
+                  </div>
+                  <div class="p-grid p-align-center w-100-p">
+                    <div class="p-col-4">
+                      <label class="field-label" for="widget-type">Widget Type</label>
+                    </div>
+                    <div class="p-col-8">
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="widget-type"
+                        [options]="dropDownData.widgetTypeOptions" [(ngModel)]="selectedWidgetType" (onChange)="changeWidgetTypeOptions(selectedWidgetType)">
+                      </p-dropdown>
+                    </div>
+                  </div>
+
+                </div>
+              </p-accordionTab>
+              <p-accordionTab header="Log Monitor"
+                *ngIf="selectedDataSourceType === 'log' ">
+                <!-- <div class="p-grid p-align-center w-100-p">
+                  <div class="p-col-4">
+                    <label class="field-label" for="indexpattern-type">Index Pattern</label>
+                  </div>
+                  <div class="p-col-8">
+                    <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="indexpattern-type"
+                      [options]="dropDownData.indexPatternDataOptions" [(ngModel)]="selectedIndexPatternType">
+                    </p-dropdown>
+                  </div>
+                </div>
+                <div class="p-grid p-align-center w-100-p">
+                  <div class="p-col-4">
+                    <label class="field-label" for="query-type">Query Type</label>
+                  </div>
+                  <div class="p-col-8">
+                    <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="query-type"
+                      [options]="dropDownData.queryTypeOptions" [(ngModel)]="selectedQueryType">
+                    </p-dropdown>
+                  </div>
+                </div> -->
+                <div class="p-grid p-align-center w-100-p">
+                  <div class="p-col-4">
+                    <label class="field-label" for="query">Log Query</label>
+                  </div>
+                  <div class="p-col-8">
+                    <textarea [rows]="1" [cols]="30" id="query" class="custom-textarea" pInputTextarea
+                      autoResize="autoResize" [(ngModel)]="nfQuery" placeholder="Write your query here"></textarea>
+                  </div>
+                </div>
+                <!-- <div class="p-grid p-align-center w-100-p">
+                  <div class="p-col-4">
+                    <label class="field-label" for="evironment-type">Environment</label>
+                  </div>
+                  <div class="p-col-8">
+                    <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="evironment-type"
+                      [options]="dropDownData.environmentTypeOptions" [(ngModel)]="selectedEnvironmentType">
+                    </p-dropdown>
+                  </div>
+                </div> -->
+              </p-accordionTab>
+              <p-accordionTab header="Graph Widget Settings" [selected]="false" *ngIf="selectedWidgetType === 'graph' ">
+
+                <div class="p-grid p-align-center w-100-p">
+                  <div class="p-col-4">
+                    <label class="field-label" for="graph-type">Graph Type</label>
+                  </div>
+                  <div class="p-col-8">
+                    <p-dropdown [disabled]="selectedDataSourceType == 'log'" dropdownIcon="icons8 icons8-expand-arrow" [options]="dropDownData.graphTypeOptions"
+                      [(ngModel)]="selectedGraphType" inputId="graph-type" (onChange)="changeGraphType(selectedGraphType , true)">
+                    </p-dropdown>
+                  </div>
+                </div>
+                <div class="p-grid p-align-center w-100-p">
+                  <div class="p-col-4">
+                    <label class="field-label" for="chart-type">Chart Type</label>
+                  </div>
+                  <div class="p-col-8">
+                    <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="chart-type"
+                      [options]="dropDownData.chartTypeDataOptions" [(ngModel)]="selectedChartType" (onChange)="changeChartType(selectedChartType)">
+                    </p-dropdown>
+                  </div>
+                </div>
+                <div class="p-grid p-align-center w-100-p" *ngIf="(selectedGraphType === 'percentile_graph'
+              || selectedGraphType === 'slab_count_graph') && (selectedChartType === 'dial'  ||selectedChartType === 'meter' ||
+               selectedChartType === 'pie' || selectedChartType === 'donut')">
+                  <div class="p-col-4">
+                    <label class="field-label" for="chart-type">Based On</label>
+                  </div>
+                  <div class="p-col-8" *ngIf="selectedGraphType === 'percentile_graph' ">
+                    <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="chart-type"
+                      [options]="dropDownData.basedOnPercentileOptions" [(ngModel)]="selectedBasedOn">
+                    </p-dropdown>
+                  </div>
+                  <div class="p-col-8" *ngIf="selectedGraphType === 'slab_count_graph' ">
+                    <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="chart-type"
+                      [options]="dropDownData.basedOnSlabOptions" [(ngModel)]="selectedBasedOn">
+                    </p-dropdown>
+                  </div>
+                </div>
+                <div class="p-grid p-align-center w-100-p"
+                  *ngIf=" selectedGraphType != 'percentile_graph' && selectedGraphType != 'slab_count_graph' &&  selectedDataSourceType != 'log'">
+                  <div class="p-col-4">
+                    <label class="field-label" for="formula-type">Formula Type</label>
+                  </div>
+                  <div class="p-col-8">
+                    <p-multiSelect inputId="formula-type" [options]="formulaTypeDataOptions"
+                      [(ngModel)]="selectedFormulaType" [filter]="false" class="w-100-p" styleClass="form-multi-select"
+                      dropdownIcon="icons8-expand-arrow">
+                    </p-multiSelect>
+                  </div>
+                </div>
+              </p-accordionTab>
+              <p-accordionTab header="Data Widget Settings" [selected]="true" *ngIf="selectedWidgetType === 'data' ">
+                <div class="p-grid p-align-center w-100-p">
+                  <div class="p-col-4">
+                    <label class="field-label" for="data-field-type">Data Field Name</label>
+                  </div>
+                  <div class="p-col-8">
+                    <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="data-field-type"
+                      [options]="dropDownData.dataFieldOptions" [(ngModel)]="selectedDataFieldType" (onChange)="onChangeDataFieldName(selectedDataFieldType)">
+                    </p-dropdown>
+                  </div>
+                </div>
+                
+                <div class="p-grid p-align-center w-100-p">
+                  <div class="p-col-4">
+                    <label class="field-label" for="data-name">Display Name</label>
+                  </div>
+                  <div class="p-col-8">
+                    <input type="text" id="data-name" [(ngModel)]="dataDisplayName" pInputText />
+                  </div>
+                </div>
+              </p-accordionTab>
+              <p-accordionTab header="Tabular Widget Settings" [selected]="true"
+                *ngIf="selectedWidgetType === 'tabular' ">
+                <div class="p-grid p-align-center w-100-p">
+                  <div class="p-col-4">
+                    <label class="field-label" for="table-type">Table Type</label>
+                  </div>
+                  <div class="p-col-8">
+                    <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="table-type"
+                      [options]="dropDownData.tableTypeDataOptions" [(ngModel)]="selectedTableType">
+                    </p-dropdown>
+            
+                  </div>
+                </div>
+                <div class="p-grid p-align-center w-100-p" *ngIf="selectedTableType === 'graph_stats_based' ">
+                  <div class="p-col-4">
+                    <label class="field-label" for="select-field">Select Field</label>
+                  </div>
+                  <div class="p-col-8">
+                    <p-multiSelect inputId="select-field" [options]="dropDownData.FieldDataOptions"
+                      [(ngModel)]="selectedTableFieldType" [filter]="false" class="w-100-p" defaultLabel="Choose"
+                      styleClass="form-multi-select" dropdownIcon="icons8-expand-arrow" (onChange)="SelectedTableField()">
+                    </p-multiSelect>
+                    <p-message *ngIf = "tableMessage !=null" severity="error" text={{tableMessage}}></p-message>
+                  </div>
+              
+                </div>
+                <div class="p-field-checkbox p-col-12  p-md-12" *ngIf="selectedTableType === 'vector_based' ">
+                  <p-checkbox binary="true" label="Show Rank and Score" [(ngModel)]="isShowRankScore">
+                  </p-checkbox>
+                </div>
+              </p-accordionTab>
+              <p-accordionTab header="Health Widget Settings" [selected]="true"
+                *ngIf="selectedWidgetType === 'system_health' ">
+                <div class="p-grid p-col-12 ">
+                  <div class="p-col-4 p-grid p-align-center">
+                    <label class="field-label" for="data-field-type">Data Field Name</label>
+                  </div>
+                  <div class="p-col-8">
+                    <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="data-field-type"
+                      [options]="dropDownData.dataFieldOptions" [(ngModel)]="selectedDataFieldType">
+                    </p-dropdown>
+                  </div>
+                </div>
+                <div class="p-grid p-col-12 ">
+                  <!-- <p-checkbox name="groupname" binary="true" [(ngModel)]="showNameOnTop" value="show_metric"
+                    label="Show Metric Name on top">
+                  </p-checkbox> -->
+                  <p-checkbox name="groupname" style="margin-right: -3px;" binary="true" [(ngModel)]="showMetric" value="show_metric"
+                  label="Show Metric">
+                </p-checkbox>
+                </div>
+              </p-accordionTab>
+              <p-accordionTab header="Dial/Meter Settings"
+                *ngIf="selectedChartType === 'dial' || selectedChartType === 'meter' ">
+                <div class="text-danger" style="height: 1px;">
+                  <i class="icons8 icons8-delete mr-5" *ngIf="dialOperatorerror"></i>
+                  {{dialOperatorerror}}
+                </div>
+                <div class="p-grid p-col-12">
+                  <div class="p-col-6 p-dir-col p-grid">
+                    <label class="my-3" for="datasource-type">Minimum</label>
+                    <input id="min-pct" value="0" min='0' max='100' [(ngModel)]="minDialValue" class="w-100-p"
+                    type="number" pInputText />
+                  </div>
+
+                  <div class="p-col-6 p-dir-col p-grid">
+                    <label class="my-3" for="widget-type">Maximum</label>
+                    <input id="max-pct" value="100" min='0' max='100' [(ngModel)]="maxDialValue" class="w-100-p"
+                    type="number" pInputText />
+                  </div>
+                </div>
+
+                <div class="p-grid p-col-12">
+                  <div class="p-col-3 p-dir-col p-grid">
+                    <label class="my-3" for="datasource-type">Warning</label>
+                    <input id="warning-pct" min='0' max='100' [(ngModel)]="warningDialValue" value=30 class="w-100-p"
+                    type="number" pInputText />
+                  </div>
+
+                  <div class="p-col-6 p-dir-col p-grid">
+                    <label class="my-3" for="widget-type">Operator</label>
+                    <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="select-severity"
+                    placeholder="Select Operator" [options]="dropDownData.operatorOptions"
+                    [(ngModel)]="selectedDialOperator" (onChange)="changeDialOperator()">
+                  </p-dropdown>
+                    </div>
+
+                    <div class="p-col-3 p-dir-col p-grid">
+                      <label class="my-3" for="widget-type">Critical</label>
+                      <input id="critical-pct" min='0' max='100' [(ngModel)]="criticalDialValue" value=70
+                      class="w-100-p" type="number" pInputText />
+
+                    </div>
+
+
+                </div>
+
+
+              </p-accordionTab>
+              <p-accordionTab header="Correlated Properties" *ngIf="selectedGraphType === 'correlated_graph'">
+                <div class="p-grid p-formgrid">
+                  <div class="p-grid p-col-12 ">
+                    <div class="p-col-4 p-grid p-align-center">
+                      <label class="field-label" for="datasource-type">Minimum Bucket</label>
+                    </div>
+                    <div class="p-col-4 p-grid p-align-center">
+                      <label class="field-label" for="widget-type">Maximum Bucket</label>
+                    </div>
+                    <div class="p-col-4 p-grid p-align-center">
+                      <label class="field-label" for="widget-type">Total Buckets</label>
+                    </div>
+                  </div>
+                  <div class="p-grid p-col-12 ">
+                    <div class="p-col-4">
+                      <input id="minimum-buckets" class="w-100-p" placeholder="Minimum" disabled="true" value="0"
+                        type="number" pInputText />
+                    </div>
+                    <div class="p-col-4">
+                      <input id="maximum-buckets" class="w-100-p" placeholder="Maximum" disabled="true" value="60"
+                        type="number" pInputText />
+                    </div>
+                    <div class="p-col-4">
+                      <input id="total-buckets" class="w-100-p" placeholder="Total" disabled="true" value="10"
+                        type="number" pInputText />
+                    </div>
+                  </div>
+                </div>
+                <div class="p-grid p-formgrid">
+                  <div class="p-grid p-col-12 ">
+                    <div class="p-col-4 p-grid p-align-center">
+                      <label class="field-label" for="datasource-type">Baseline Graph</label>
+                    </div>
+                    <div class="p-col-12 ">
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="select-severity"
+                        placeholder="Baseline Graph" [options]="dropDownData.criticalhealthSeverityOptions"
+                        [(ngModel)]="selectedCriticalSeverityType">
+                      </p-dropdown>
+                    </div>
+                    <div class="p-col-12 ">
+                      <div class="p-col-4 p-grid p-align-center">
+                        <label class="field-label" for="datasource-type">Left Position</label>
+                      </div>
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="select-severity"
+                        placeholder="Left Position" [options]="dropDownData.criticalhealthSeverityOptions"
+                        [(ngModel)]="selectedCriticalSeverityType">
+                      </p-dropdown>
+                    </div>
+                  </div>
+                </div>
+
+              </p-accordionTab>
+              <p-accordionTab header="Geo Map Settings"
+                *ngIf="selectedChartType === 'geo_map' || selectedChartType === 'geo_map_extended'">
+                <div class="p-grid p-formgrid">
+                  <div class="p-grid p-col-12 ">
+                    <div class="p-col-4 p-grid p-align-center">
+                      <label class="field-label" for="datasource-type">By Value</label>
+                    </div>
+                    <div class="p-col-8">
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="select-severity"
+                        [options]="dropDownData.geoMapValueOptions"
+                        [(ngModel)]="selectedGeoMapValueType">
+                      </p-dropdown>
+                    </div>
+                  </div>
+                  <div class="p-grid p-col-12 ">
+                    <div class="p-col-4 p-grid p-align-center">
+                      <label class="field-label" for="widget-type">Color Band</label>
+                    </div>
+                    <div class="p-col-8">
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="select-severity"
+                        [options]="dropDownData.geoMapColorBandOptions"
+                        [(ngModel)]="selectedGeoMapColorBandType">
+                      </p-dropdown>
+                    </div>
+                  </div>
+                </div>
+                <!-- <div class="p-grid p-formgrid">
+                  <div class="p-grid p-col-12 ">
+                    <div class="p-col-4">
+                      <label class="field-label" for="widget-type">Color Brand</label>
+                    </div>
+                    <div class="p-col-8">
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="select-severity"
+                        [options]="dropDownData.criticalhealthSeverityOptions"
+                        [(ngModel)]="selectedCriticalSeverityType">
+                      </p-dropdown>
+                    </div>
+                  </div>
+                </div> -->
+                <!-- <div class="p-grid p-formgrid">
+                  <div class="p-grid p-col-12 ">
+                    <div class="p-col-4 p-grid p-align-center">
+                      <label class="field-label" for="datasource-type">Threshold</label>
+                    </div>
+                    <div class="p-col-8">
+                      <input id="critical-pct" class="w-100-p" type="text" pInputText />
+                    </div>
+                  </div>
+                </div> -->
+              </p-accordionTab>
+              <p-accordionTab header="Label Widget Settings" [selected]="false" *ngIf="selectedWidgetType === 'label' ">
+                <!-- <div class="p-grid p-col-12  ">
+                  <div class="p-col-8 ">
+                    <p-checkbox name="bgColor" binary="true" id="bg-color" label="Background Color"
+                      [(ngModel)]="isLabelBgColor"></p-checkbox>
+                  </div>
+                  <div class="p-col-4 p-grid p-justify-end">
+                    <p-colorPicker [(ngModel)]="labelBgColor" [hidden]="!isLabelBgColor"></p-colorPicker>
+                  </div>
+                </div> -->
+                <div class="p-grid p-col-12 ">
+                  <div class="p-grid p-col-4">
+                    <label class="field-label" for="edit-text">Edit text</label>
+                  </div>
+                  <div class="p-grid p-col-8">
+                    <input id="edit-text" type="text" maxlength="256" pInputText [(ngModel)]="labelField">
+                  </div>
+                </div>
+              </p-accordionTab>
+              <p-accordionTab header="Legend Settings" *ngIf="selectedWidgetType === 'graph' && (selectedChartType !=='dial' &&  selectedChartType !=='meter')">
+                <!-- <div class="ui-fluid p-formgrid p-grid">
+                  <div class="p-field p-col-12  p-md-12">
+                    <p-checkbox name="showLegend" value="showLegend" label="Show Legend" [binary]="true"
+                      (click)="showLegendToggle()"></p-checkbox>
+                  </div>
+                  <div class="p-grid p-col-12 " *ngIf="showLegend">
+                    <div class="p-col-4 p-grid p-align-center">
+                      <label class="field-label" for="legend-position">Legend Position</label>
+                    </div>
+                    <div class="p-col-8">
+                      <p-dropdown [options]="dropDownData.legendPositionOptions" [(ngModel)]="selectedLegendType"
+                        dropdownIcon="icons8 icons8-expand-arrow">
+                      </p-dropdown>
+                    </div>
+                  </div>
+                </div> -->
+                <div class="p-grid">
+                  
+                  <div class="p-grid p-col-12 " >
+                    <p-checkbox name="slegends" binary="true" label="Show Legend"
+                      [(ngModel)]="showLegend">
+                    </p-checkbox>
+                  </div>
+                  <div class="p-grid p-align-center w-100-p" *ngIf="showLegend">
+                    <div class="p-col-4">
+                      <label class="field-label" for="font-family">Legend Position</label>
+                    </div>
+                    <div class="p-col-8">
+                      <p-dropdown [options]="dropDownData.legendPositionOptions" [(ngModel)]="selectedLegendType"
+                        dropdownIcon="icons8 icons8-expand-arrow">
+                      </p-dropdown>
+                    </div>
+                  </div>
+                </div>
+              </p-accordionTab>
+              <p-accordionTab header="Severity Definitions"
+                *ngIf="selectedWidgetType === 'system_health' ||  selectedWidgetType === 'data'">
+                <div class="ui-fluid p-formgrid p-grid">
+                  <div class="p-grid p-grid p-align-center w-100-p">
+                    <div class="p-col-6 p-grid p-dir-col">
+                      <label class="field-label w-100-p my-5" for="critical-value">Critical Value</label>
+
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="critical-value"
+                      [options]="dropDownData.operatorOptions" [(ngModel)]="selectedCriticalOperatorType"
+                      placeholder="Select Operator" (onChange)="changeCriticalOperatorType()">
+                    </p-dropdown>
+
+
+                    </div>
+                    <div class="p-col-6 p-grid p-dir-col">
+                      <label class=" my-5" for="critical-thre">Threshold</label>
+                      <input id="critical-thre" [disabled]='selectedCriticalOperatorType == "Select operator"' type='number' min='0'
+                      [(ngModel)]="criticalThreshold" pInputText />
+                    </div>
+                  </div>
+
+                  <!-- <div class="p-grid p-grid p-align-center w-100-p">
+                    <div class="p-col-3 p-grid p-dir-col">
+                      <label class="field-label" for="major-value">Major Value</label>
+                    </div>
+                    <div class="p-col-6 p-grid p-align-center">
+                      <label class="field-label" for="major-thre">Threshold</label>
+                    </div>
+
+                  </div>
+                  <div class="p-grid p-col-12 ">
+                    <div class="p-col-6">
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" idInput="major-value"
+                        [options]="dropDownData.operatorOptions" [(ngModel)]="selectedMajorOperatorType"
+                        placeholder="Select Operator" (onChange)="changeMajorOperatorType()">
+                      </p-dropdown>
+                    </div>
+                    <div class="p-col-6">
+                      <input id="major-thre" [disabled]='selectedMajorOperatorType == "Select operator"' type='number' min='0'
+                        [(ngModel)]="majorThreshold" pInputText />
+                    </div>
+                  </div> -->
+            
+                </div>
+                <div class="p-grid p-col-12 " *ngIf = "selectedWidgetType == 'data'">
+                  <!-- <p-checkbox name="groupname" binary="true" [(ngModel)]="showNameOnTop" value="show_metric"
+                    label="Show Metric Name on top"> -->
+                    <!-- <p-checkbox  label="Apply as Background Color" name="dataBackGroundColor" binary="true" value="dataBackGroundColor"
+                    [(ngModel)]="dataBackGroundColor"></p-checkbox> -->
+                    <input type="checkbox" *ngIf = "selectedWidgetType === 'data'" name="dataBackGroundColor" value="dataBackGroundColor"
+                  [(ngModel)]="dataBackGroundColor"><label>Apply as Background Color</label>
+                  <!-- </p-checkbox> -->
+                </div>
+              </p-accordionTab>
+              <p-accordionTab header="Health Rules" *ngIf="selectedWidgetType === 'system_health' " [disabled]="selectedCriticalOperatorType !== 'Select operator' || selectedMajorOperatorType !== 'Select operator' ? false : true">
+               
+                <div class="ui-fluid p-formgrid p-grid">
+                  <div class="p-grid w-100 p-align-center">
+                    <span class="sub-heading w-100-p px-5">Critical</span>
+                    <div class="p-col-6 p-dir-col p-grid">
+                      <label class="field-label mb-5" for="critical-pct">CriticalPct</label>
+                      <input id="critical-pct" type="number" pInputText [(ngModel)]="healthCriticalPct" [disabled]="selectedCriticalSeverityType == 'Select operator'"/>
+                    </div>
+                    <div class="p-col-6 p-dir-col p-grid">
+                      <label class="field-label mb-5" for="select-severity">Select Severity </label>
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="select-severity"
+                      [options]="dropDownData.criticalhealthSeverityOptions" placeholder="Select Operator"
+                      [(ngModel)]="selectedCriticalSeverityType" (onChange)="changeCriticalSeverity()">
+                    </p-dropdown>
+                    </div>
+
+                    <div class="p-col-12">
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow"
+                        [options]="dropDownData.criticalhealthSeverityOperators"
+                        [(ngModel)]="selectedCriticalHealthType" placeholder="Select Operator" (onChange)="changeCriticalSeverityOperators()">
+                      </p-dropdown>
+                    </div>
+
+                  </div>
+     
+                  <div class="p-grid w-100 p-align-center" >
+                    <div class="p-col-6 p-dir-col p-grid">
+                      <label class="field-label mb-5" for="critical-pct">CriticalPct</label>
+                      <input id="critical-pct"  [disabled]="selectedCriticalHealthType == 'Select operator' ? true : false" type="number" pInputText [(ngModel)]="criticalAnotherPct"  />
+                    </div>
+                    <div class="p-col-6 p-dir-col p-grid">
+                      <label class="field-label mb-5" for="cri-severity">Severity</label>
+                      <input id="cri-severity" type="text" size="30" pInputText [(ngModel)]="criticalAnotherSeverity" [disabled]="selectedCriticalHealthType == 'Select operator' ? true : false"/>
+                    </div>
+                  </div>
+                </div>
+             
+                <div class="ui-fluid p-formgrid p-grid">
+                  <div class="p-grid w-100 p-align-center">
+                    <span class="sub-heading w-100-p px-5">Major</span>
+                    <div class="p-col-6 p-dir-col p-grid">
+                      <label class="field-label mb-5" for="major-pct">MajorPct</label>
+                      <input id="major-pct" type="number" pInputText  [(ngModel)] = "majorPct"  [disabled]="selectedMajorSeverityType == 'Select operator'"/>
+                    </div>
+                    <div class="p-col-6 p-dir-col p-grid">
+                      <label class="field-label mb-5" for="select-saverity">Select Severity </label>
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow" inputId="select-saverity"
+                      [options]="dropDownData.majorhealthSeverityOptions" [(ngModel)]="selectedMajorSeverityType" placeholder="Select Operator" (onChange)="changeMajorSeverity()">
+                    </p-dropdown>
+                    </div>
+                    <div class="p-col-12">
+                      <p-dropdown dropdownIcon="icons8 icons8-expand-arrow"
+                        [options]="dropDownData.majorhealthSeverityOperators" [(ngModel)]="selectedMajorHealthType"
+                        placeholder="Select Operator" (onChange)="changeMajorSeverityOperators()">
+                      </p-dropdown>
+                    </div>
+                  </div>
+  
+                  <div class="p-grid w-100 p-align-center" >
+                    <div class="p-col-6 p-dir-col p-grid">
+                      <label class="field-label mb-5" for="major-pct">MajorPct</label>
+                      <input id="major-pct" [disabled]="selectedMajorHealthType == 'Select operator' ? true : false" type="number" pInputText [(ngModel)]="majorAnotherPct" />
+                    </div>
+                    <div class="p-col-6 p-dir-col p-grid">
+                      <label class="field-label mb-5" for="mjr-severity">Severity</label>
+                      <input id="mjr-severity" [disabled]="selectedMajorHealthType == 'Select operator' ? true : false" type="text" size="30" pInputText [(ngModel)]="majorAnotherSeverity" />
+                    </div>
+
+
+                  </div>
+
+                </div>
+              </p-accordionTab>
+            </p-accordion>
+          </p-tabPanel>
+          <p-tabPanel header="Advance" >
+            <div>
+              <p-accordion [multiple]="true">
+                <p-accordionTab header="Widget Delay Time"
+                  *ngIf="selectedWidgetType === 'graph' && selectedGraphType === 'normal_graph' ">
+                  <div class="p-grid p-col-12">
+                    <div class="p-col-6 p-grid p-align-center">
+                      <label for="shift-data">Shift back data by(mins)</label>
+                    </div>
+                    <div class="p-col-6">
+                      <input type="number" min='0' max='1440' (keypress)="validateQty($event)" [(ngModel)]="delayTime"
+                        class="input-w-100" pInputText placeholder="0 min" />
+                    </div>
+                  </div>
+                </p-accordionTab>
+                <p-accordionTab header="Caption Settings" *ngIf="selectedWidgetType != 'label' ">
+                  <div class="p-grid" *ngIf="selectedWidgetType === 'data' || selectedWidgetType == 'system_health'">
+                    <div class="p-col-6 p-grid p-align-center">
+                      <label for="prefix" class="mb-5">Prefix</label>
+                      <input id="prefix" class="w-100-p" type="text" size="30" maxlength="16" [(ngModel)]="prefix" pInputText />
+                    </div>
+                    <div class="p-col-6 p-grid p-align-center">
+                      <label for="prefix"  class="mb-5">Suffix</label>
+                      <input id="suffix" class="w-100-p" type="text" size="30" maxlength="16" [(ngModel)]="suffix" pInputText />
+                    </div>
+                  </div>
+                  <div class="p-grid p-align-center">
+                    <div class="p-col p-grid p-align-center">
+                      <p-checkbox name="bold" binary="true" value="bold" label="Bold" [(ngModel)]="isBold"></p-checkbox>
+                    </div>
+                    <div class="p-col p-grid p-align-center">
+                      <p-checkbox name="italic" binary="true" value="italic" label="Italic" [(ngModel)]="isItalic">
+                      </p-checkbox>
+                    </div>
+                    <div class="p-col-padding-0 p-grid p-align-center">
+                      <p-checkbox name="underline" binary="true" value="underline" label="Underline"
+                        [(ngModel)]="isUnderline">
+                      </p-checkbox>
+                    </div>
+                  </div>
+
+                  <div class="p-grid p-align-center">
+                    <div class="p-col-5 p-grid p-align-center">
+                      <p-checkbox name="editCaption" binary="true" value="editCaption" label="Edit Caption"
+                        [(ngModel)]="editCaption"></p-checkbox>
+                    </div>
+                    <div class="p-col-7">
+                      <input id="edit-caption" [(ngModel)]="panelCaption" class="w-100-p" type="text" size="30" maxlength="256"
+                        [hidden]="!editCaption" pInputText />
+                        <p-message *ngIf = "captionMessage != null && captionError && panelCaption == captionEmpty" severity="error" text={{captionMessage}}></p-message>
+                    </div>
+                  </div>
+
+                  <div class="p-grid p-align-center w-100-p" *ngIf="selectedChartType === 'dual_axis_line' || selectedChartType === 'dual_axis_bar_line' ||
+                selectedChartType === 'dual_axis_area_line' || selectedChartType === 'dual_axis_stacked_bar' ">
+                    <div class="p-col-12  p-grid p-align-center">
+                      <label for="primaryyaxis">Primary Y Axis Label</label>
+                    </div>
+                    <div class="p-col-12 ">
+                      <input id="primaryyaxis" [(ngModel)]="primaryYAxisLabel" class="w-100-p" type="text" size="30"
+                        pInputText />
+                    </div>
+                  </div>
+                  <div class="p-grid p-col-12 " *ngIf="selectedChartType === 'dual_axis_line' || selectedChartType === 'dual_axis_bar_line' ||
+                selectedChartType === 'dual_axis_area_line' || selectedChartType === 'dual_axis_stacked_bar' ">
+                    <div class="p-col-12  p-grid p-align-center">
+                      <label for="secondaryyaxis">Secondary Y Axis Label</label>
+                    </div>
+                    <div class="p-col-12 ">
+                      <input id="secondaryyaxis" [(ngModel)]="secondaryYAxisLabel" class="w-100-p" type="text" size="30"
+                        pInputText />
+                    </div>
+                  </div>
+                </p-accordionTab>
+                <p-accordionTab header="Widget DrillDown" *ngIf="selectedWidgetType != 'label' ">
+                  <div>
+                    <div class="p-grid p-align-center">
+                      <div class="p-col-6 p-grid p-align-center">
+                        <p-checkbox name="Widgetddr" binary="true" value="Widgetddr" label="Widget DrillDown"
+                          [(ngModel)]="isWidgetDrillDown"></p-checkbox>
+                      </div>
+                      <div class="p-col-3 p-grid p-align-center p-justify-end">
+                        <label class="field-label" for="level">Level</label>
+                      </div>
+                      <div class="p-col-3">
+                        <input class="input-w-100" type="number" min="0" max="20" [(ngModel)]="drillDownLevel"
+                          [disabled]="!isWidgetDrillDown" pInputText placeholder="0 min" />
+                      </div>
+
+                    </div>
+                    <div class="p-grid p-align-center">
+                      <div class="p-col-12">
+                        <p-dropdown [options]="dropDownData.drillDownOptions" [(ngModel)]="selectedFavForDrillDown"
+                          [disabled]="!isWidgetDrillDown" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="p-grid p-align-center">
+                    <div class="p-col-12  p-grid p-align-center">
+                      <p-checkbox name="disParameter" binary="true" label="Disable Parameterization"
+                        [disabled]="!isWidgetDrillDown" [(ngModel)]="disableParameterization"></p-checkbox>
+                    </div>
+                  </div>
+                </p-accordionTab>
+                <p-accordionTab header="Compare Baseline"
+                  *ngIf="selectedWidgetType === 'graph' && selectedChartType === 'line' ">
+                  <div class="p-grid p-col-12  ">
+                    <div class="p-grid p-col-12  ">
+                      <p-checkbox name="compare" binary="true" label="Compare With Fixed Trend"
+                        [(ngModel)]="isCompareWith">
+                      </p-checkbox>
+                    </div>
+
+                    <!-- <div class="p-grid p-col-12  ">
+                  <div class="p-col-6 p-grid p-align-center">
+                    <label for="select-trend" [hidden]="!isCompareWith">Select Trend</label>
+                  </div>
+                  <div class="p-col-6">
+                    <p-dropdown [options]="dropDownData.compareTrendOptions" [hidden]="!isCompareWith" [(ngModel)]="selectedCompareTrend"
+                      dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-dropdown>
+                  </div>
+                </div> -->
+                <div *ngIf="isCompareWith === true ">
+                  <div class="p-grid p-col-12 ">
+                    <div class="p-col-4 p-grid p-align-center" style="justify-content: center;">
+                      <label for="fixed-trend">Critical</label>
+                    </div>
+                     <div class="p-col-4 p-grid p-align-center" style="justify-content: center;">
+                      <label for="fixed-trend">Major</label>
+                    </div>
+                    <div class="p-col-4 p-grid p-align-center" style="justify-content: center;">
+                      <label for="fixed-trend">Minor</label>
+                    </div>
+                  </div>
+                  <div class="p-grid p-col-12 "> 
+                    <div class="p-col-4 p-grid p-align-center">
+                      <input type="number" min='0' class="input-w-100" [(ngModel)]="fixedTrendCritical" pInputText
+                        placeholder="Critical" />
+                    </div>
+                    <div class="p-col-4 p-grid p-align-center">
+                      <input type="number" min='0' class="input-w-100" [(ngModel)]="fixedTrendMajor" pInputText
+                        placeholder="Major" />
+                    </div>
+                    <div class="p-col-4 p-grid p-align-center">
+                      <input type="number" min='0' class="input-w-100" [(ngModel)]="fixedTrendMinor" pInputText
+                        placeholder="Minor" />
+                    </div>
+                  </div>
+                  
+                </div>
+                  </div>
+
+                </p-accordionTab>
+                <p-accordionTab header="Show Data Value"
+                  *ngIf="selectedChartType === 'pie' || selectedChartType === 'donut'">
+                  <div class="p-grid p-col-12 ">
+                    <div class="p-grid p-col-6">
+                      <p-checkbox name="showvalue" binary="true" value="showvalue" label="Show Data Value"
+                        [(ngModel)]="showDataValue">
+                      </p-checkbox>
+                    </div>
+                  </div>
+                </p-accordionTab>
+                <p-accordionTab header="Hide Chart Axis" *ngIf="selectedWidgetType === 'graph' ">
+                  <div class="p-grid p-col-12 ">
+                    <div class="p-grid p-col-6">
+                      <p-checkbox name="hidexaxis" binary="true" value="hidexaxis" label="Hide X Axis"
+                        [(ngModel)]="hideXAxis">
+                      </p-checkbox>
+                    </div>
+                    <div class="p-grid p-col-6">
+                      <p-checkbox name="hideyaxis" binary="true" value="hideyaxis" label="Hide Y Axis"
+                        [(ngModel)]="hideYAxis">
+                      </p-checkbox>
+                    </div>
+                  </div>
+                </p-accordionTab>
+                <p-accordionTab  pTooltip='Color Settings'
+                  header="Color Settings">
+                  <div class="border-bottom ">
+                    <!-- <div class="p-grid p-col-12 " *ngIf="selectedWidgetType != 'label' ">
+                      <div class="p-col-8 mb-5" >
+                        <p-checkbox name="monochrome" binary="true" value="monochrome" label="Monochromatic Colors"
+                          [(ngModel)]="isMonochromatic"></p-checkbox>
+                      </div>
+                      <div class="p-col-4 p-grid p-justify-end">
+                        <p-colorPicker [hidden]="!isMonochromatic" [(ngModel)]="monochromaticColor"></p-colorPicker>
+                      </div>
+                    </div> -->
+                    <div class="p-grid p-align-center" >
+                      <div class="p-col-8 p-grid p-align-center">
+                        <label class="field-label" for="font-color">Font Color</label>
+                      </div>
+                      <div class="p-col-4 p-grid p-justify-end">
+                        <!-- <p-colorPicker [(ngModel)]="fontColor"></p-colorPicker> -->
+                        <input type="color" [(ngModel)]="fontColor">
+                      </div>
+                    </div>
+                    <div class="p-grid p-align-center" >
+                      <div class="p-col-8 p-grid p-align-center">
+                        <label class="field-label" for="backgroung-color">Background Color</label>
+                      </div>
+                      <div class="p-col-4 p-grid p-justify-end">
+                        <!-- <p-colorPicker [(ngModel)]="backgroundColor"></p-colorPicker> -->
+                        <input type="color" [(ngModel)]="backgroundColor">
+                      </div>
+                    </div>
+                    <div class="p-grid p-align-center" *ngIf = "selectedWidgetType != 'system_health'">
+                      <div class="p-col-8 p-grid p-align-center">
+                        <label class="field-label" for="icon-color">Icon Color</label>
+                      </div>
+                      <div class="p-col-4 p-grid p-justify-end">
+                        <!-- <p-colorPicker [(ngModel)]="iconColor"></p-colorPicker> -->
+                        <input type="color" [(ngModel)]="iconColor">
+                        
+                      </div>
+                    </div>
+                  </div>
+
+                </p-accordionTab>
+                <p-accordionTab pTooltip='Display settings'
+                  header="Display">
+
+                  <div class="p-grid p-align-center">
+                    <div class="p-col p-grid p-align-center">
+                      <p-checkbox name="bold" binary="true" value="bold" label="Bold" [(ngModel)]="isBold"></p-checkbox>
+                    </div>
+                    <div class="p-col p-grid p-align-center">
+                      <p-checkbox name="italic" binary="true" value="italic" label="Italic" [(ngModel)]="isItalic">
+                      </p-checkbox>
+                    </div>
+                    <div class="p-col-padding-0 p-grid p-align-center">
+                      <p-checkbox name="underline" binary="true" value="underline" label="Underline"
+                        [(ngModel)]="isUnderline">
+                      </p-checkbox>
+                    </div>
+                  </div>
+                  <div class="p-grid p-align-center">
+                    <div class="p-col-4 p-grid p-align-center">
+                      <label class="field-label" for="font-family">Font-Family</label>
+                    </div>
+                    <div class="p-col-8">
+                      <p-dropdown [options]="dropDownData.fontFamilyOptions" [(ngModel)]="selectedFontFamily"
+                        dropdownIcon="icons8 icons8-expand-arrow">
+                      </p-dropdown>
+                    </div>
+                    <div class="p-col-4 p-grid p-align-center" *ngIf ="selectedWidgetType === 'label' || selectedWidgetType == 'system_health' || selectedWidgetType === 'data'"  >
+                      <label class="field-label" for="font-family">Font-Size</label>
+                    </div>
+                    <div class="p-col-8" *ngIf ="selectedWidgetType === 'label' || selectedWidgetType == 'system_health' || selectedWidgetType === 'data'">
+                      <p-dropdown [options]="dropDownData.fontSizeOptions" [(ngModel)]="selectedFontSize"
+                        dropdownIcon="icons8 icons8-expand-arrow">
+                      </p-dropdown>
+                    </div>
+                  </div>
+                  <div class="p-grid p-col-12 "  *ngIf="selectedWidgetType === 'graph'">
+                    <div class="p-col-4 p-grid p-align-center">
+                      <label class="field-label" for="grid-line">Grid Line Width</label>
+                    </div>
+                    <div class="p-col-8">
+                      <p-dropdown [options]="dropDownData.gridLineOptions" [(ngModel)]="selectedGridLineWidth"
+                        dropdownIcon="icons8 icons8-expand-arrow">
+                      </p-dropdown>
+                    </div>
+                  </div>
+
+                </p-accordionTab>
+              </p-accordion>
+            </div>
+          </p-tabPanel>
+          <p-tabPanel header="Filters"
+            *ngIf=" selectedWidgetType != 'system_health' && selectedWidgetType != 'label' && selectedGraphType != 'category_graph'">
+            <div>
+              <p-accordion [multiple]="true">
+                <p-accordionTab header="Panel Graph Filter">
+                  <div class="ui-fluid p-formgrid p-grid">
+                    <div class="p-field-checkbox p-col-12  p-md-12">
+                      <p-checkbox binary="true" label="Enable Panel Graph Filter" [(ngModel)]="enableFilter">
+                      </p-checkbox>
+                    </div>
+                    <div class="caption p-col-12  p-md-12">
+                      <label for="show-values">Show Values </label>
+                    </div>
+                    <div class="p-field-checkbox p-col-12  p-md-12">
+                      <p-radioButton value="Non-Zero" [(ngModel)]="selectedFilter" label="All Non Zero"
+                        [disabled]=!enableFilter>
+                      </p-radioButton>
+                    </div>
+                    <div class="p-field-checkbox p-col-12  p-md-12">
+                      <p-radioButton value="Zero" [(ngModel)]="selectedFilter" label="All Zero"
+                        [disabled]=!enableFilter>
+                      </p-radioButton>
+                    </div>
+                    <div class="p-field-checkbox p-col-12  p-md-12">
+                      <p-radioButton value="Advanced" [(ngModel)]="selectedFilter" label="Advanced"
+                        [disabled]=!enableFilter></p-radioButton>
+                    </div>
+
+                  </div>
+                  <div class="ui-fluid p-formgrid" *ngIf="selectedFilter === 'Advanced' ">
+                    <div class="p-field p-grid p-align-center">
+
+                      <div class="p-col-4 p-grid">
+                        <label for="Value" class="mb-5">Value</label>
+                        <p-dropdown [options]="dropDownData.opratersSampleData" [(ngModel)]="operater"
+                          [disabled]="!enableFilter" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                      </div>
+
+                      <div class="p-col p-grid">
+                         <label for="graphCount" class="mb-5">No. of Graphs to Filter </label>
+                          <input type="number" pInputText [(ngModel)]="operaterValue1" [disabled]="!enableFilter" />
+                        </div>
+
+                        <div class="p-col-3 p-grid" *ngIf="operater === 'In-Between'">
+                          <label for="and" class="mb-5">AND</label>
+                          <input type="number" pInputText [(ngModel)]="operaterValue2" [disabled]="!enableFilter" />
+                        </div>
+                    </div>
+
+                    <div class="p-grid p-align-center">
+                      <div class="caption p-col-12  p-md-12">
+                        <label for="By">By </label>
+                      </div>
+                      <div class="p-field p-col-12 p-md-6">
+                        <p-dropdown [options]="dropDownData.filterBySampleData" [(ngModel)]="filterBy"
+                          [disabled]="!enableFilter" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                      </div>
+                      <div class="p-field p-col-12 p-md-6" [hidden]=" operater === 'Top' || operater === 'Bottom'">
+                        <label for=""></label>
+                        <p-dropdown [options]="dropDownData.criteriaSampleData" binary="true" [(ngModel)]="criteriaSampleData"
+                          [disabled]="!enableFilter" dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                      </div>
+                    </div>
+                  </div>
+
+                </p-accordionTab>
+                <p-accordionTab header="Graph Sample Filter" *ngIf="selectedWidgetType === 'graph' ">
+                  <div class="p-grid p-col-12">
+                    <div class="p-col-12 ">
+                      
+                      <p-checkbox name="sampleFilter" binary="true" value="sampleFilter" label="Edit Filter"
+                      [(ngModel)]="enableSampleFilter"></p-checkbox>
+                    </div>
+                    <div *ngIf="enableSampleFilter">
+                    <div class="p-grid p-col-12" >
+                      <div class="p-col-2 p-grid p-align-center">
+                        <label class="field-label" for="graphs">Graphs</label>
+                      </div>
+                      <div class="p-col-10">
+                        <p-dropdown [options]="dropDownData.graphNameOptions" [(ngModel)]="selectedGraphForFilter"
+                          dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                      </div>
+                    </div>
+                    <div class="p-grid p-col-12">
+                      <div class="p-col-4 p-grid p-align-center">
+                        <label class="field-label" for="selected-values">Selected Values</label>
+                      </div>
+                      <div class="p-col-8">
+                        <p-dropdown [options]="dropDownData.sampleFilterOperatorOptions" [(ngModel)]="filterType"
+                          dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                      </div>
+                    </div>
+                    <div class="p-grid p-col-12" >
+                      <div class="p-col-4" *ngIf = "(filterType != 'In-Between')" ></div>
+                      <div class="p-col-12  p-md-5">
+                        <input type="text" pInputText [(ngModel)]="filterValue1"/>
+                      </div>
+                      <div class="p-col-12  p-md-2" [hidden]="!(filterType === 'In-Between')">
+                        <label for="and">AND</label>
+                      </div>
+                      <div class="p-col-12  p-md-5" [hidden]="!(filterType === 'In-Between')">
+                        <input type="text" pInputText [(ngModel)]="filterValue2"/>
+                      </div>
+                    </div>
+                    <div class="p-grid p-col-12">
+                      <div class="caption p-col-12  p-md-12">
+                        <label for="By">By </label>
+                      </div>
+                      <div class="p-field p-col-12  p-md-6">
+                        <p-dropdown [options]="dropDownData.valueSampleData" [(ngModel)]="sampleFilterBy"
+                           dropdownIcon="icons8-expand-arrow">
+                        </p-dropdown>
+                      </div>
+                      <!-- <div class="p-col-6"></div> -->
+                      <div class="p-col-6 p-grid p-justify-end">
+                        <button pButton type="button" class="ui-button-secondary ui-button-rounded" (click)="addRowToSampleFilters();"
+                          label="ADD"></button>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
+
+                  <div *ngIf="enableSampleFilter" class="filer-table" #widgetHeight
+                    [ngStyle]="{'height': data.tableFilter ? '460px' : '450px'} ">
+                    <p-card>
+                      <p-table #filterTable [columns]="selectedColumns" [value]="data.data" [rowHover]="true"
+                        [paginator]="false" [rows]="data.paginator.rows"
+                        [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [resizableColumns]="true"
+                        [showCurrentPageReport]="true" [responsive]="true" [scrollable]="true"
+                        scrollHeight="calc({{widgetHeight.offsetHeight}}px - 100px)" selectionMode="multiple">
+                        <ng-template pTemplate="colgroup" let-columns>
+                          <colgroup>
+                            <col *ngFor="let col of columns" [style.width]="col.width">
+                          </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                          <tr>
+                            <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv"
+                              pResizableColumn [pSortableColumn]="col.valueField" class="text-left">
+                              <div class="left">
+                                {{ col.label }}
+                              </div>
+                              <div *ngIf="col.isSort" class="float-right">
+                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right"
+                                  ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                                  ariaLabelAsc="Activate to sort in ascending order">
+                                </p-sortIcon>
+                              </div>
+
+                            </th>
+                          </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                          <tr [ngStyle]="{'backgroundColor': row.rowBgColor}" [pSelectableRow]="row"
+                            [pRowToggler]="row">
+                            <td *ngFor="let col of columns" class="{{ col.classes }}">
+                              <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon" class="column-icon"></i>
+                              {{ row[col.valueField]}}
+                            </td>
+                          </tr>
+                        </ng-template>
+
+                        <!-----------Empty table error handling--------------------->
+                        <ng-template pTemplate="emptymessage" let-columns>
+                          <tr>
+                            <td [attr.coldiv]="columns.length + 1" class="text-center">
+                              <span *ngIf="error">Error while loading data</span>
+                              <span *ngIf="emptyTable">Empty Table</span>
+                              <span *ngIf="loading">Loading</span>
+                            </td>
+                          </tr>
+                        </ng-template>
+                      </p-table>
+                    </p-card>
+                  </div>
+                </p-accordionTab>
+                <p-accordionTab header="Geo Map Filter" *ngIf="selectedChartType === 'geo_map_extended'">
+                  <div>
+                    <div class="p-col-12 ">
+                      <p-checkbox name="sampleFilter" binary="true" label="Enable Filter"
+                        [(ngModel)]="enableSampleFilter"></p-checkbox>
+                    </div>
+                    <div class="p-grid p-col-12  ">
+                      <div class="p-col-4 p-grid p-align-center">
+                        <label class="field-label" for="graphs">Filter Type</label>
+                      </div>
+                      <div class="p-col-8">
+                        <p-dropdown [options]="dropDownData.decimalOptions" [(ngModel)]="selectedDecimal"
+                          dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                      </div>
+                    </div>
+                    <div class="p-grid p-col-12  ">
+                      <div class="p-col-4 p-grid p-align-center">
+                        <label class="field-label" for="selected-values">Health Type</label>
+                      </div>
+                      <div class="p-col-8">
+                        <p-dropdown [options]="dropDownData.opratersSampleData" [(ngModel)]="operater"
+                          dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                      </div>
+                    </div>
+                    <div class="p-grid p-col-12  ">
+                      <div class="p-col-4">
+                        <label class="field-label" for="selected-values">Pattern</label>
+                      </div>
+                      <div class="p-col-8">
+                        <input type="text" pInputText [(ngModel)]="operaterValue2" />
+                      </div>
+                    </div>
+
+                  </div>
+                </p-accordionTab>
+              </p-accordion>
+            </div>
+          </p-tabPanel>
+        </p-tabView>
+      </div>
+    </div>
+    <div class="sidepanel-footer">
+      <button pButton type="reset" (click)="resetWidgetSettings();" label="RESET"
+        class="ui-outline-button ui-button-secondary px-15 mx-3"></button>
+      <button pButton type="submit" (click)="applyWidgetSettings()" label="APPLY" class="ui-button-rounded px-15 mx-3"></button>
+    </div>
+  </p-card>
+
+</div>
+
+
+
+<!-- <app-confirmation-dialog #confirmDialog></app-confirmation-dialog> -->
+<app-informative-dialog #informativeDialog [data]="content"></app-informative-dialog>

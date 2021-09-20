@@ -1,0 +1,134 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+    blockScroll="true" appendTo="body" styleClass="time-filter" [baseZIndex]="100">
+    <div class="sidebar-header">
+        <div class="sidebar-title p-grid p-justify-between">
+            <div>
+                <i class="icons8 icons8-view-all"></i>
+                <span>Mapping Configuration</span>
+            </div>
+            <i class="icons8-delete icons8" style="cursor: pointer" (click)="closeClick()"></i>
+        </div>
+    </div>
+
+    <div class="sidebar-content">
+        <div class="form-content">
+            <div class="p-grid p-col-12 p-justify-between p-align-center">
+                <p-radioButton name="last" label="Last" value="true" [(ngModel)]="lastTime"></p-radioButton>
+                    <p-dropdown [options]="last" [(ngModel)]="mapLastTime" [disabled]="lastTime != 'true' ? '': null" class="" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+            <div class="p-grid p-col-12 p-justify-between p-align-center">
+                <p-radioButton name="custom" label="custom" value="false" [(ngModel)]="lastTime"></p-radioButton>
+            </div>
+            <div class="p-grid p-col-12 p-justify-between p-align-center">
+                    <label>Starts At</label>
+                        <div class="p-input-icon-left search-div-css">
+                            <i class="icons8 icons8-calendar"></i>
+                            <input pInputText class="customInput" readonly id="start-date-time"
+                                [owlDateTime]="customStartDateTime" placeholder=""
+                                [owlDateTimeTrigger]="customStartDateTime"
+                                (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeFrom'"
+                                [disabled]="lastTime == 'true' ? '': null"
+                                [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame">
+                            <owl-date-time #customStartDateTime tooltipZIndex="100001005" [pickerType]="pickerType"></owl-date-time>
+                            <p-message *ngIf="invalidDate" severity="error"
+                                text="Start date and End date should not be the same.">
+                            </p-message>
+                        </div>
+            </div>
+            <div class="p-grid p-col-12 p-justify-between p-align-center">
+                    <label>Ends At</label>
+                    <div class="p-input-icon-left search-div-css">
+                        <i class="icons8 icons8-calendar"></i>
+                        <input pInputText class="customInput" readonly id="start-date-time"
+                            [owlDateTime]="customEndDateTime" placeholder=""
+                            [owlDateTimeTrigger]="customEndDateTime" (ngModelChange)="onTimeFilterCustomTimeChange()"
+                            [disabled]="lastTime == 'true' ? '': null"
+                            [selectMode]="'rangeTo'" [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame">
+                        <owl-date-time #customEndDateTime tooltipZIndex="100001005" [pickerType]="pickerType"></owl-date-time>
+                        <p-message *ngIf="invalidDate" severity="error"
+                            text="Start date and End date should not be the same.">
+                        </p-message>
+                    </div>
+            </div>
+           
+            <div class="p-grid p-col-12 p-justify-between p-align-center" *ngIf="map == 'clickmap' || map == 'navigationmap'">
+                <p-checkbox class="line-height" name="groupname" [binary]="true" label="Show Hidden Elements" [(ngModel)]="hiddenele"></p-checkbox>
+            </div>
+            <div class="p-grid p-col-12 p-justify-between p-align-center" *ngIf="map == 'clickmap' || map == 'navigationmap'">
+                <p-checkbox class="line-height" name="groupname" [binary]="true" label="Hidden Elements Not Present in Current View" [(ngModel)]="presentview"></p-checkbox>
+            </div>
+            <div class="p-grid p-col-12 p-justify-between p-align-center" *ngIf="map == 'clickmap' || map == 'navigationmap'">
+                <p-checkbox class="line-height" name="groupname" [binary]="true" label="Rollover Mode" [(ngModel)]="rollovermode"></p-checkbox>
+            </div>
+            <div class="p-grid p-col-12 p-justify-between p-align-center"  *ngIf="map == 'clickmap' || map == 'navigationmap'">
+                <div class="p-col-4">
+                    <span class="label">Threshold</span>
+                </div>
+                <div class="p-col-8">
+                    <input type="text" class="customTextbox" pInputText id="threshold" [(ngModel)]="threshold" placeholder="200"/>
+                </div>
+            </div>
+            <div class="p-grid p-col-12 p-justify-between p-align-center">
+                <div class="p-col-4">
+                    <span class="label">User Segment</span>
+                </div>
+                <div class="p-col-8">
+                    <p-dropdown class="ui-dropdown-label" [options]="userSegment" [(ngModel)]="selectedSegmentforMap" dropdownIcon="icons8-expand-arrow">
+                    </p-dropdown>
+                </div>
+            </div><br>
+            <div class="p-grid p-col-12 p-justify-between p-align-center" *ngIf="map == 'clickmap' || map == 'navigationmap'">
+                <label>Table Click Granularity</label>
+                <p-slider [(ngModel)]="Granularity" [style]="{'width':'14em'}"></p-slider>
+                {{Granularity}}
+            </div><br>
+            <div class="p-grid p-col-12 p-justify-between p-align-center" *ngIf="map == 'clickmap' || map == 'navigationmap'">
+                <label>View Click Granularity</label>
+                <p-slider [(ngModel)]="viewrange" [style]="{'width':'14em'}"></p-slider>
+                {{viewrange}}
+            </div>
+        </div>
+        <br><br>
+        
+        <div *ngIf="map == 'heatmap'">
+
+            <p-fieldset legend="Setting">
+                <div class="p-grid p-col-12">
+                    <label>Gradient Color</label>
+                </div>
+                <div class="p-grid p-col-12">
+                    <div class="p-col-6">
+                        <p-radioButton inputId="opt1" id="gradient" name="gradietSetting" value="cyan" label="cyan" [(ngModel)]="selectedgradient" (click)="changeG()"></p-radioButton>
+                    </div>
+                    <div class="p-col-6">
+                        <p-radioButton inputId="opt1" id="gradientb" name="gradietSetting" value="blue" label="blue" [(ngModel)]="selectedgradient" (click)="changeG()"></p-radioButton>
+                    </div>
+                </div>
+
+                <div class="p-grid p-col-12">
+                    <label>Transparency</label>
+                </div>
+                <div class="p-grid p-col-12">
+                        <p-slider [(ngModel)]="Tranparency" class="w-100-p" (onChange)="setTransparencyHeatmap()" id="Tranparency"></p-slider>
+                </div>
+            </p-fieldset>
+        </div>
+           
+        <div *ngIf="showDates" id="suggestionDiv" class="cav-text-left">
+            <p style="padding: 3px;">Data is not available for selected time period.Started map parser for applied time.</p>
+            <p style="padding: 3px;" *ngIf="suggestions.length > 0">Please try for available dates.</p>
+            <div style="display:flex;flex-wrap: wrap;">
+                <div *ngFor="let e of suggestions" style="padding: 5px;">
+                    <button pButton class="button-all" type="button" (click)="generateMap(e)">{{e.st}} - {{e.et}}</button>
+                </div>
+            </div>
+        </div>
+        <p *ngIf="parser_failed">More than 5 parser instances are not allowed.</p>
+
+    </div>
+    <div class="sidebar-footer">
+        <button pButton type="reset" label="RESET" class="ui-outline-button ui-button-secondary" (click)="reset()"></button>
+        <button pButton type="submit" label="Save" class="ui-button-rounded ui-button-right" (click)="generateMap(null)"></button>
+    </div>
+  
+</p-sidebar>

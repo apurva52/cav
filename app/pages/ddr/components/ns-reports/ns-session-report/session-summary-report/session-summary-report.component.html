@@ -1,0 +1,115 @@
+<!--component html goes here -->
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+<div class="ddr-box">
+    <p-toolbar>
+        <div class="ui-toolbar-group-left">
+            <label class="headerInfo" >{{filterCriteria}}</label>
+            <label class="headerInfo" title="{{toolTipStatus}}">{{filterStatus}}</label>
+            <label class="headerInfo" title="{{toolTipUrl}}">{{filterUrl}}</label>
+        </div>
+        <div class="ui-toolbar-group-right">
+            <span title="Download PDF Report">
+                <img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")' src='./images/iconPDF.gif'>
+            </span>
+            <span title="Download Word Report">
+                <img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")' src='./images/iconWord.gif'>
+            </span>
+            <span title="Download Excel Report">
+                <img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")' src='./images/iconExcel.gif'>
+            </span>
+        </div>
+    </p-toolbar>
+    <!-- <p-toolbar>
+
+        <div class="ui-toolbar-group-right" style="text-align: right">
+            <p-multiSelect title="Show/Hide columns" appendTo="body" [options]="columnOptions" class="dashboard-lowerPanel-multiSelect" (onChange)="showHideColumn($event)" [(ngModel)]="visibleCols"></p-multiSelect>
+            <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o fa"></button>
+            <i class="fa fa-search" style="margin:0 0 0 0;"></i>
+            <input #gb type="text" pInputText size="50" style="width: 30% !important;" placeholder="Search">
+        </div>
+    </p-toolbar> -->
+        <!-- COMMON BOX SCROLLLBAR -->
+<div class="ddruiscroll"  style="overflow:auto; height:85vh;">
+    <p-accordion class="ddr-accordion" [multiple]="true">
+        <p-accordionTab header="Session Summary" [selected]="true">
+                <p-growl life=5000 [(value)]="msgs"></p-growl>
+            <div>
+                <p-toolbar>
+                        <div class="ui-toolbar-group-right" style="text-align: right">
+                                <p-multiSelect title="Show/Hide columns" [options]="columnOptions"  class="dashboard-lowerPanel-multiSelect ddr-multiselect-down" (onChange)="showHideColumn($event)"
+                                [(ngModel)]="visibleCols"></p-multiSelect>
+                            <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o fa"></button>
+                            <button pButton type="button" title={{toggleFilterTitle}} icon="fa fa-bars" (click)="toggleColumnFilter()"></button>
+                            <input #gb type="text" pInputText size="15" placeholder="Global Filter">
+                        </div>
+                    </p-toolbar>
+                <p-dataTable class="ddr-table scrollable-div3" [value]="data" selectionMode="single" [globalFilter]="gb" sortField="average" [sortOrder]="-1" [style]="{'height':'auto'}" scrollHeight="405px"
+                    resizableColumns="true">
+                    <div *ngFor="let col of cols">
+                        <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [style]="{'width': width+'px'}" [sortable]="col.sortable" [filter] = "col.filter"
+                            (sortFunction)="customsortOnColumns($event,data)">
+                            <ng-template let-col let-node="rowData" pTemplate type="body">
+                                <div class="ddr-table-left" *ngIf="(col.field == 'scriptName')" pTooltip={{(node[col.field])}} tooltipPosition="right" (click)="openSessionName(node[col.field])">{{node[col.field]}}</div>
+                                <div style="text-align: left  !important;" *ngIf=" (col.field == 'statusName')">{{node[col.field]}}</div>
+                                <div class="ddr-table-right" *ngIf="(node[col.field] != 0 && col.field == 'tried')" pTooltip={{formatter(node[col.field])}} tooltipPosition="right"
+                                    (click)="openInstanceReport(node)">{{formatter(node[col.field])}}</div>
+                                <div style="text-align: right !important;" *ngIf="(node[col.field] == 0 && col.field == 'tried')" pTooltip={{formatter(node[col.field])}}
+                                    tooltipPosition="right">{{formatter(node[col.field])}}</div>
+                                <div class="ddr-table-right" *ngIf="(node[col.field] != 0 && col.field == 'success')" pTooltip={{formatter(node[col.field])}} tooltipPosition="right"
+                                    (click)="openInstanceReport(node,'Success')">{{formatter(node[col.field])}}</div>
+                                <div style="text-align: right !important;" *ngIf="(node[col.field] == 0 && col.field == 'success')" pTooltip={{formatter(node[col.field])}}
+                                    tooltipPosition="right">{{formatter(node[col.field])}}</div>
+                                <div class="ddr-table-right" *ngIf="(node[col.field] != 0 && col.field == 'fail')" pTooltip={{formatter(node[col.field])}} tooltipPosition="right"
+                                    (click)="openFailureReport(node)">{{formatter(node[col.field])}}</div>
+                                <div style="text-align: right !important;" *ngIf="(node[col.field] == 0 && col.field == 'fail')" pTooltip={{formatter(node[col.field])}}
+                                    tooltipPosition="right">{{formatter(node[col.field])}}</div>
+                                <div style="text-align: right !important;" *ngIf="((col.field == 'percentFail'))" pTooltip={{node[col.field]}}
+                                    tooltipPosition="right">{{node[col.field]}}</div>
+                                <div style="text-align: right !important;" *ngIf="((col.field == 'generatorName'))" pTooltip={{node[col.field]}}
+                                    tooltipPosition="right">{{node[col.field]}}</div>
+                                <div style="text-align: right !important;" *ngIf="(col.field == 'min')" pTooltip={{msToTimeFormate(node[col.field])}}(HH.MM.SS.ms)
+                                    tooltipPosition="right">{{msToTimeFormate(node[col.field])}}</div>
+                                <div class="ddr-table-right" *ngIf="(col.field == 'average')" pTooltip={{msToTimeFormate(node[col.field])}}(HH.MM.SS.ms)
+                                    tooltipPosition="right" (click)="openSessionDetailReport(node)">{{msToTimeFormate(node[col.field])}}</div>
+                                <div style="text-align: right !important;" *ngIf="(col.field == 'max')" pTooltip={{msToTimeFormate(node[col.field])}}(HH.MM.SS.ms)
+                                    tooltipPosition="right">{{msToTimeFormate(node[col.field])}}</div>
+                                <div style="text-align: right !important;" *ngIf="(col.field == 'median')" pTooltip={{msToTimeFormate(node[col.field])}}(HH.MM.SS.ms)
+                                    tooltipPosition="right">{{msToTimeFormate(node[col.field])}}</div>
+                                <div style="text-align: right !important;" *ngIf="(col.field == 'percent80')" pTooltip={{msToTimeFormate(node[col.field])}}(HH.MM.SS.ms)
+                                    tooltipPosition="right">{{msToTimeFormate(node[col.field])}}</div>
+                                <div style="text-align: right !important;" *ngIf="(col.field == 'percent90')" pTooltip={{msToTimeFormate(node[col.field])}}(HH.MM.SS.ms)
+                                    tooltipPosition="right">{{msToTimeFormate(node[col.field])}}</div>
+                                <div style="text-align: right !important;" *ngIf="(col.field == 'percent95')" pTooltip={{msToTimeFormate(node[col.field])}}(HH.MM.SS.ms)
+                                    tooltipPosition="right">{{msToTimeFormate(node[col.field])}}</div>
+                                <div style="text-align: right !important;" *ngIf="(col.field == 'percent99')" pTooltip={{msToTimeFormate(node[col.field])}}(HH.MM.SS.ms)
+                                    tooltipPosition="bottom">{{msToTimeFormate(node[col.field])}}</div>
+
+                                <!-- <div *ngIf = "!(col.field == 'JSPName') && !(col.field == 'cumSelfTime') && !(col.field == 'avgSelfTime') && !(col.field == 'cumCPUTime') && !(col.field == 'avgCPUTime') && !(col.field == 'executionTime')&& !(col.field == 'waitTime')&& !(col.field == 'syncTime')&& !(col.field == 'iotime')&& !(col.field == 'suspensiontime')">{{node[col.field]}}</div> -->
+                            </ng-template>
+                        </p-column>
+                    </div>
+                </p-dataTable>
+         <div> {{offset+1}} - {{offset+limit}} of {{count}} </div>
+                <p-paginator #paginateRef rows="50" [totalRecords]="count" [rowsPerPageOptions]="[50,100,200,400]" pageLinkSize="3" (onPageChange)="paginate($event)"></p-paginator>
+            </div>
+        </p-accordionTab>
+    </p-accordion>
+    </div>
+</div>
+<p-dialog class="ddr-dialog"   appendTo="body" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true" [height]="120" [width]="600" > 
+    <p-header>
+        <i class="fa fa-info-circle" style="color:red"></i>
+        <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+    </p-header>  
+    <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+    <p-footer>
+    <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait" style="height: 25px;"></button>
+    <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" label="Cancel" style="height: 25px;"></button>
+    </p-footer>
+  </p-dialog>
+  <p-dialog class="ddr-dialog" [(visible)]="loader" appendTo="body" [width]="500" [height]="75" [closable]="false" [resizable]="false" modal="modal" [responsive]="true">
+    <div *ngIf="loader">
+      <p-progressBar [value]="value"></p-progressBar>
+    </div>
+  </p-dialog>

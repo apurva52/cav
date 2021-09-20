@@ -1,0 +1,50 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+
+<div class="ddr-box">
+  <div class="ddr-toolbar">
+    <p-toolbar>
+      <div class="group-left">
+        <span>{{filterCriteria}}</span>
+      </div>
+      <div class="group-right">
+        <span *ngIf="showDownloadOption" title="Download Word Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("word")' src='./images/iconWord.gif'></span>
+        <span *ngIf="showDownloadOption" title="Download Excel Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("excel")' src='./images/iconExcel.gif'></span>
+        <span *ngIf="showDownloadOption" title="Download PDF Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("pdf")' src='./images/iconPDF.gif'></span>     
+      </div>
+    </p-toolbar>
+  </div>
+
+  <div class="ddruiscroll" [ngStyle]="{'height': screenHeight+'px'}" style="overflow:auto;">
+    <div class="ui-g-12">
+      <p-accordion class="ddr-accordion">
+        <p-accordionTab header="SQL Report By Query Execution Time" [selected]="true">
+          <p-toolbar>
+            <div class="ui-toolbar-group-right" style="text-align: right">
+              <p-multiSelect class="dashboard-lowerPanel-multiSelect ddr-multiselect-down" title="Show/Hide Columns" [options]="columnOptions" [(ngModel)]="visibleCols" (onChange)="showHideColumn($event)"></p-multiSelect>
+              <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o fa"></button>
+              <i class="fa fa-search" style="margin:0 0 0 0;"></i>
+              <input #gb type="text" pInputText size="50" style="width:30% !important;" placeholder="Search" icon="fa-search">
+            </div>
+          </p-toolbar> 
+    
+          <div style="overflow:auto">
+            <p-dataTable  class="scen-table" [value]="queryInfo" selectionMode="single" resizableColumns="true" [globalFilter]="gb" [style]="{'height':'auto'}">
+              <div *ngFor="let col of cols">
+                <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable" [style]="{'text-align':col.align,'width':dynamicWidthColumn + 'px'}">
+                  <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'count')">
+                    <span style="cursor:pointer;color:blue;" title="View Execution Time For Query" (click)="openSQLTimingReport(node)">{{node[col.field]}}</span>
+                  </ng-template>
+                </p-column>
+              </div>
+            </p-dataTable>
+          </div>
+          
+          <div> {{offset+1}} - {{offset+limit}} of {{totalCount}} </div>
+          <p-paginator rows="50" [totalRecords]="totalCount"  [rowsPerPageOptions]="[50,100,200,400]" pageLinkSize="3" (onPageChange)="paginate($event)"></p-paginator>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+  </div>
+  
+</div>

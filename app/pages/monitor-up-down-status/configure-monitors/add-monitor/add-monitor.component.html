@@ -1,0 +1,861 @@
+<div class="h-100-vh add-monitor-container">
+
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a class = "clickable" (click) = "backClicked()">
+                <span class="icons8 icons8-left toolbar-icon-color"></span>
+            </a>
+            <div class="p-col ui-toolbar-text">{{techDisplayName | uppercase }} : ADD MONITOR</div>
+        </div>
+    </p-toolbar>
+
+    <div class="content-body p-grid">
+        <form (ngSubmit)="addData()" #form="ngForm" ngNativeValidate>
+
+            <p-panel>
+                <p-header>
+                    {{techDisplayName}} Deployment
+                    <span style="float: right;">
+                        <i class="icons8 icons8-download" style="color: #2572b5;cursor:pointer; margin-left: 10px"
+                            title="Download Configuration" (click)="downloadProfile()"></i>
+                    </span>
+                </p-header>
+                <span class="p-grid p-col-12 p-justify-start">
+                    <p-checkbox name="isGlobal" [binary]="true" [(ngModel)]="isUseGlobal"
+                        (onChange)="handleData($event)">
+                    </p-checkbox>
+                    <label style="padding-top: 5px; margin-left: 7px;">
+                        Use Global Configuration <span>(<b>Note:</b> These changes will be applied to all the monitors
+                            using Global configuration.)</span>
+                    </label>
+                </span>
+
+                <span class="p-grid p-col-12 p-align-center">
+                    <ng-container *ngFor="let field of formData">
+                        <ng-container *ngIf="field.monName === 'component'">
+                            <ng-container *ngTemplateOutlet="tree;context:{node:field}"></ng-container>
+                        </ng-container>
+                    </ng-container>
+                </span>
+
+                <ng-template #tree let-node="node">
+                    <ng-container *ngIf="node.type === 'TextField'">
+                        <div [ngClass]="node.cls" class="">
+                            <div *ngIf="node.label != ''" class="input-label width-150"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">
+                                {{node.label}}
+                            </div>
+                            <span *ngIf="node.label === ''"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'pb-15 required-mark' : ''"></span>
+                            <div class="flexAuto">
+                                <input name="{{node.id}}" [type]="node.validationObj.inputType" pInputText
+                                    [(ngModel)]="node.value" [disabled]="node.validationObj.disabled"
+                                    [title]="node.toolTip != null ? node.toolTip:''"
+                                    [pattern]="node['validationObj']['pattern']" [placeholder]="node['placeholder']"
+                                    [ngStyle]="node.style" class="w-100-p" [min]="node['validationObj']['min']"
+                                    [max]="node['validationObj']['max']" [required]="node['validationObj']['required']"
+                                    ngDefaultControl />
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'Checkbox'">
+                        <div [ngClass]="node.cls" class="p-grid p-justify-start p-align-center form-checkbox">
+                            <p-checkbox name="{{node.id}}" [ngModel]="node.value == 'true'"
+                                (onChange)="node.value = $event.checked; addDisableValidationForCheckbox(node)"
+                                [binary]="true" ngDefaultControl [disabled]="node.validationObj.disabled">
+                            </p-checkbox>
+                            <div class="checkbox-label"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">
+                                {{node.label}}
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'NewLine'">
+                        <div class="w-100-p"></div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'FieldSet'">
+                        <div class="p-col-12">
+                            <p-fieldset legend={{node.label}} [toggleable]="true" collapsed="true">
+                                <div class="p-grid p-col-12 p-align-center">
+                                    <ng-container *ngFor="let data of node.dependentComp">
+                                        <ng-container *ngTemplateOutlet="tree;context:{node:data}"></ng-container>
+                                    </ng-container>
+                                </div>
+                            </p-fieldset>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'subTitle'">
+                        <div [ngClass]="node.cls" class="field-label">{{node.label}}</div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'Button'">
+                        <div [ngClass]="node.cls">
+                            <a pButton class="ui-button ui-button-rounded ui-button-right" [style]="node.style"
+                                [label]="node.label"></a>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'TextArea'">
+                        <div [ngClass]="node.cls" [style]="node.style">
+                            <div class="input-label width-150">
+                                {{node.label}}<span style="color:red;"
+                                    *ngIf="node['validationObj']['required']">*</span>
+                            </div>
+                            <div class="flexAuto">
+                                <textarea [rows]="8" [cols]="100" pInputTextarea autoResize="true"></textarea>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'instanceName'">
+                        <div class="p-grid p-col-4 p-align-center" [ngClass]="node.cls">
+                            <div class="input-label width-150"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">
+                                {{node.label}}
+                            </div>
+                            <div class="flexAuto">
+                                <input type="text" name="{{node.id}}" pInputText [(ngModel)]="node.value"
+                                    [pattern]="node['validationObj']['pattern']" class="w-100-p"
+                                    [disabled]="node.validationObj.disabled" [title]="node.toolTip"
+                                    [required]="node['validationObj']['required']" ngDefaultControl />
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.isSpecific">
+                        <div class="p-col-12">
+                            <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true" [collapsed]="true"
+                                [ngClass]="pnl2.collapsed ? 'collapsed' : 'uncollapsed'">
+                                <p-header class="cav-panel-header">
+                                    <div class="p-grid p-align-center p-justify-between">
+                                        <div class="panel-title p-grid p-align-center mr-10">
+                                            <div (click)="pnl2.toggle($event)">
+                                                <a>
+                                                    <span
+                                                        [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span>
+                                                </a>
+                                            </div>
+
+                                            <p-checkbox [binary]="true" [(ngModel)]="node.enabled"
+                                                name="{{node.inMonName}}"
+                                                (onChange)="expandPnl(node, node.enabled); displayContent ? pnl2.collapsed = false : displayContent = false">
+                                            </p-checkbox>
+
+                                            <div (click)="pnl2.toggle($event)">
+                                                <span class="checkbox-label">{{node.monType}}</span>
+                                            </div><i class="pi pi-info-circle" title="Click to open Monitor Information"
+                                                (click)="getMonInfo(node.monType,node.inMonName)"></i>
+                                        </div>
+                                        <i title="Add other arguments" class="icons8 icons8-settings toolbar-icon-css"
+                                            (click)="toggle(node)"></i>
+                                    </div>
+                                </p-header>
+                                <div class="content filepath1 p-grid p-col-12 p-align-center">
+                                    <ng-container *ngFor="let data of node.dependentComp; let i = index">
+                                        <ng-container *ngTemplateOutlet="tree;context:{node:data}">
+                                        </ng-container>
+                                    </ng-container>
+                                </div>
+                            </p-panel>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'Spinner'">
+                        <div [ngClass]="node.cls">
+                        <div class="input-label width-150"
+                            [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">
+                            {{node.label}}
+                        </div>
+                        <div class="flexAuto">
+                            <input name="{{node.id}}" type="number" pInputText [title]="node.toolTip"
+                                [disabled]="node['validationObj']['disabled']" [min]="node['validationObj']['min']"
+                                [required]="node['validationObj']['required']" [max]="node['validationObj']['max']"
+                                class="w-100-p" [(ngModel)]="node.value" ngDefaultControl />
+                        </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'Note'">
+                        <div class="p-col-12 note-label">
+                            <!-- <span> -->
+                            <b>Note:</b> {{node.label}}
+                            <!-- </span> -->
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'Tree'">
+                        <p-panel [ngClass]="node.cls" [toggleable]="false">
+                            <p-header>
+                                {{node.label}}
+                            </p-header>
+                            <p-tree [value]="node.value"></p-tree>
+                        </p-panel>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'Dropdown'">
+                        <div [ngClass]="node.cls" class="p-justify-start p-align-center p-grid"
+                            [style]="node.style">
+                            <div class="input-label width-150"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">{{node.label}}
+                            </div>
+                            <div class="flexAuto">
+                                <p-dropdown class="" name="{{node.id}}" [(ngModel)]="node.value"
+                                    [options]="node.dropDownList" ngDefaultControl placeholder="--Select--"
+                                    [title]="node.toolTip" [disabled]="node.validationObj.disabled"
+                                    [style]="{'min-width':'171px'}" dropdownIcon="icons8 icons8-expand-arrow"
+                                    [baseZIndex]="99999">
+                                </p-dropdown>
+                            </div>
+                        </div>
+                        <ng-container *ngFor="let item of node.dropDownList">
+                            <ng-container *ngIf="node.value  === item.value">
+                                <ng-container *ngIf="item.dependentComp != null">
+                                    <ng-container *ngFor="let dependentData of item.dependentComp">
+                                        <ng-container *ngTemplateOutlet="tree;context:{node:dependentData}">
+                                        </ng-container>
+                                    </ng-container>
+                                </ng-container>
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'MultiSelect'">
+                        <div [ngClass]="node.cls" class="p-justify-start p-align-center p-grid my-5">
+                            <div class="input-label width-150"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">{{node.label}}
+                            </div>
+                            <div class="flexAuto">
+                                <p-multiSelect ngDefaultControl class="" [(ngModel)]="node.value" [options]="node.list"
+                                    name="{{node.id}}" [style]="{'min-width':'170px'}"
+                                    dropdownIcon="icons8 icons8-expand-arrow">
+                                </p-multiSelect>
+                            </div>
+                        </div>
+                        <ng-container *ngFor="let item of node.value">
+                            <ng-container *ngIf="item.dependentComp">
+                                <ng-container *ngFor="let comp of item.dependentComp">
+                                    <ng-container *ngTemplateOutlet="tree;context:{node:comp}">
+                                    </ng-container>
+                                </ng-container>
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'RadioButtonGroup'">
+                        <div [ngClass]="node.cls" class="p-grid p-justify-start p-align-start w-100-p"
+                            [ngStyle]="node.style">
+                            <div class="p-col-12 input-label boldLabel"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">{{node.label}}
+                            </div>
+                            <span class=" p-col-12 p-grid p-align-center" *ngFor="let data of node.items">
+                                <p-radioButton [value]="data.value" [label]="data.label" [(ngModel)]="node.value"
+                                    [styleClass]="node.cls" ngDefaultControl name="{{data.id}}" [title]="node.toolTip"
+                                    (onClick)="selectedRadioOption = data;addDisableValidation(node)">
+                                </p-radioButton>
+                                <!-- <div [ngClass]="node.cls"> -->
+                                <ng-container *ngFor="let dependentData of data.dependentComp">
+                                    <ng-container *ngTemplateOutlet="tree;context:{node:dependentData}">
+                                    </ng-container>
+                                </ng-container>
+                                <!-- </div> -->
+                            </span>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'Textbox'">
+                        <textarea pInputTextarea [(ngModel)]="node.value" name="{{node.label}}"
+                            ngDefaultControl></textarea>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'Table' || node.type === 'TableSingleArg'">
+                        <div [ngClass]="node.cls">
+                            <app-dynamic-table [tableCompData]="node" [tableTemplate]="tree"
+                                [disabled]="node.validationObj.disabled">
+                            </app-dynamic-table>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'other'">
+                        <div [ngClass]="node.cls" class="">
+                            <div class="input-label width-150" [hidden]="node['validationObj']['hidden']"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">
+                                {{node.label}}
+                            </div>
+                            <div class="flexAuto" [hidden]="node['validationObj']['hidden']">
+                                <input name="{{node.label}}{{node.value}}" [type]="node.validationObj.input" pInputText
+                                    [(ngModel)]="node.value" [disabled]="node.validationObj.disabled"
+                                    title="Enter Other Arguments as:&#10; 1. --opt1 val1 --opt2 val2 &#10; 2. -opt1 val1 -opt2 val2 &#10; 3. /opt1:val1 /opt2:val2"
+                                    [ngStyle]="node.style" ngDefaultControl class="w-100-p" />
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'agentType'">
+                        <div [ngClass]="node.cls" class="">
+                            <div class="input-label">
+                                {{node.label}}
+                            </div>
+                            <div>
+                                <p-dropdown [style]="node['style']" name="agntlist" required placeholder="-- Select --"
+                                    [options]="agentList" [(ngModel)]="node.value" [title]="node.toolTip">
+                                </p-dropdown>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'tierName'">
+                        <div [ngClass]="node.cls" class="">
+                            <div class="input-label width-150">
+                                {{node.label}}
+                            </div>
+                            <div class="flexAuto">
+                                <p-multiSelect [style]="node['style']" appendTo="body" defaultLabel="Choose Tier"
+                                    name="list" [required]="node['validationObj']['required']" [options]="tierList"
+                                    [(ngModel)]="node.valObj" [style]="{'min-width':'170px'}"
+                                    dropdownIcon="icons8 icons8-expand-arrow">
+                                </p-multiSelect>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'javaHome'">
+                        <div [ngClass]="node.cls">
+                            <div class="input-label width-150"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">
+                                {{node.label}}
+                            </div>
+                            <div class="flexAuto">
+                                <input name="{{node.id}}" type="text" pInputText [(ngModel)]="node.value"
+                                    [pattern]="node['validationObj']['pattern']" [title]="node.toolTip"
+                                    [required]="node['validationObj']['required']"
+                                    [disabled]="node.validationObj.disabled" class="w-100-p" [ngStyle]="node.style"
+                                    ngDefaultControl />
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'classPath'">
+                        <div [ngClass]="node.cls">
+                            <div class="input-label width-150"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">
+                                {{node.label}}
+                            </div>
+                            <div class="flexAuto">
+                                <input name="{{node.id}}" class="w-100-p" type="text" pInputText
+                                    [(ngModel)]="node.value" [required]="node['validationObj']['required']"
+                                    [ngStyle]="node.style" ngDefaultControl [title]="node.toolTip" />
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'appName'">
+                        <div [ngClass]="node.cls">
+                            <div class="input-label width-150"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">
+                                {{node.label}}
+                            </div>
+                            <div class="flexAuto">
+                                <input name="{{node.id}}" type="text" pInputText [(ngModel)]="node.value"
+                                    [required]="node['validationObj']['required']" [ngStyle]="node.style"
+                                    [title]="node.toolTip" class="w-100-p" pattern="^[a-zA-Z][a-zA-Z0-9@.-]{0,64}$"
+                                    ngDefaultControl />
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'excludeAppName'">
+                        <div [ngClass]="node.cls">
+                            <div class="input-label width-150"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">
+                                {{node.label}}
+                            </div>
+                            <div class="flexAuto">
+                                <input name="{{node.id}}" pattern="^[a-zA-Z][a-zA-Z0-9@.-]{0,64}$" type="text"
+                                    [title]="node.toolTip" pInputText [(ngModel)]="node.value" class="w-100-p"
+                                    [ngStyle]="node.style" ngDefaultControl />
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="node.type === 'isProcess'">
+                        <div [ngClass]="node.cls" class="p-grid p-justify-start p-align-center form-checkbox">
+                            <p-checkbox name="{{node.id}}" [ngModel]="node.value == 'true'" [title]="node.toolTip"
+                                (onChange)="node.value = $event.checked" [binary]="true" ngDefaultControl>
+                            </p-checkbox>
+                            <div class="checkbox-label"
+                                [ngClass]="node['validationObj']['defRequired'] ? 'required-mark' : ''">{{node.label}}
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <div *ngIf="showChild(node) && node.type !=='Accordion' && node.type !=='FieldSet' && node.type !=='dependentComp'"
+                        class="p-grid" [ngClass]="node.cls" [ngStyle]="node.style">
+
+                        <ng-container *ngFor="let child of node.dependentComp">
+
+                            <ng-container *ngTemplateOutlet="tree;context:{node:child}">
+                            </ng-container>
+
+                        </ng-container>
+                    </div>
+                </ng-template>
+
+                <ng-container *ngFor="let label of monCategory">
+                    <p-accordion>
+                        <p-accordionTab [header]="label" [selected]="false">
+                            <div>
+                                <span class="p-grid p-col-12 p-align-center">
+                                    <ng-container *ngFor="let field of formData">
+                                        <ng-container *ngIf="field.monName == label">
+                                            <ng-container *ngTemplateOutlet="tree;context:{node:field}"></ng-container>
+                                        </ng-container>
+                                    </ng-container>
+                                </span>
+                            </div>
+                        </p-accordionTab>
+                    </p-accordion>
+                </ng-container>
+
+                <div *ngIf="isCMD">
+                    <p-accordion>
+                        <p-accordionTab [header]="'Command Based Monitors'" [selected]="false">
+                            <div>
+
+                                <app-cmd-deployment [item]="cmdData" [showRmTier]="rTFlag" [showRmServer]="rSFlag">
+                                </app-cmd-deployment>
+                                <ng-container *ngFor="let field of formData">
+                                    <ng-container *ngIf="field.monName == 'cmd'">
+                                        <ng-container *ngTemplateOutlet="tree;context:{node:field}">{{field.monName}}
+                                        </ng-container>
+                                    </ng-container>
+                                </ng-container>
+                                <ng-container *ngFor="let node of customCmdMon">
+                                    <p-accordion ngClass="p-col-12">
+                                        <p-accordionTab [header]="node.key" [selected]="false">
+                                            <p-header>
+                                                <p-checkbox [binary]="true" name="isChk" [(ngModel)]="node.enable"
+                                                    ngDefaultControl></p-checkbox>
+                                                <span class="checkbox-label">{{node.key}}</span>
+                                            </p-header>
+                                            <span class="p-grid p-col-12" *ngIf="node.op">
+                                                <p-card>
+                                                    <p-table class="scen-ptable" [columns]="customMonCols"
+                                                        [value]="node.opData" [rows]="5" [paginator]="node.rows >5"
+                                                        [pageLinks]="3">
+                                                        <ng-template pTemplate="caption">Other Parameters
+                                                        </ng-template>
+
+                                                        <ng-template pTemplate="header" let-columns>
+                                                            <tr>
+                                                                <th *ngFor="let col of columns">
+                                                                    {{col.header}}
+                                                                </th>
+                                                            </tr>
+                                                        </ng-template>
+
+                                                        <ng-template pTemplate="body" let-rowData let-columns="columns"
+                                                            let-index="rowIndex" let-editing="editing">
+                                                            <tr>
+                                                                <td>{{rowData.pattern}}</td>
+
+                                                                <td>
+                                                                    <input pInputText type="text"
+                                                                        name="{{rowData.pattern}}"
+                                                                        [(ngModel)]="rowData.upVal" style="width:100%"
+                                                                        required>
+                                                                </td>
+                                                            </tr>
+                                                        </ng-template>
+
+                                                        <ng-template pTemplate="emptymessage" let-columns>
+                                                            <tr>
+                                                                <td [attr.colspan]="columns.length" class="noRecords"
+                                                                    style="text-align: center">No records found.</td>
+                                                            </tr>
+                                                        </ng-template>
+                                                    </p-table>
+                                                </p-card>
+                                            </span>
+                                        </p-accordionTab>
+
+                                    </p-accordion>
+                                </ng-container>
+                            </div>
+                        </p-accordionTab>
+                    </p-accordion>
+                </div>
+
+                <div *ngIf="isDB">
+                    <p-accordion>
+                        <p-accordionTab [header]="'DB Based Monitors'" [selected]="false">
+                            <div>
+                                <app-db-deployment [item]="dbData" [showRmTier]="rTFlag" [showRmServer]="rSFlag">
+                                </app-db-deployment>
+                                <ng-container *ngFor="let field of formData">
+                                    <ng-container *ngIf="field.monName == 'db'">
+                                        <ng-container *ngTemplateOutlet="tree;context:{node:field}">{{field.monName}}
+                                        </ng-container>
+                                    </ng-container>
+                                </ng-container>
+                                <ng-container *ngFor="let node of customDbMon">
+                                    <p-accordion ngClass="p-col-12">
+                                        <p-accordionTab [header]="node.key" [selected]="false">
+                                            <p-header>
+                                                <p-checkbox [binary]="true" [(ngModel)]="node.enable" name="isChk1"
+                                                    ngDefaultControl></p-checkbox>
+                                                <span class="checkbox-label">{{node.key}}</span>
+                                            </p-header>
+
+                                            <div class="mb-10" *ngIf="node.op">
+                                                <p-table class="all-tables" [columns]="customMonCols"
+                                                    [value]="node.opData" [rows]="5" [paginator]="node.rows >5"
+                                                    [pageLinks]="3">
+                                                    <ng-template pTemplate="caption">Other Parameters
+                                                    </ng-template>
+
+                                                    <ng-template pTemplate="header" let-columns>
+                                                        <tr>
+                                                            <th *ngFor="let col of columns">
+                                                                {{col.header}}
+                                                            </th>
+                                                        </tr>
+                                                    </ng-template>
+
+                                                    <ng-template pTemplate="body" let-rowData let-columns="columns"
+                                                        let-index="rowIndex" let-editing="editing">
+                                                        <tr>
+                                                            <td>{{rowData.pattern}}</td>
+
+                                                            <td>
+                                                                <input pInputText type="text" name="{{rowData.pattern}}"
+                                                                    [(ngModel)]="rowData.upVal" style="width:100%">
+                                                            </td>
+                                                        </tr>
+                                                    </ng-template>
+
+                                                    <ng-template pTemplate="emptymessage" let-columns>
+                                                        <tr>
+                                                            <td [attr.colspan]="columns.length" class="noRecords"
+                                                                style="text-align: center">No records found.</td>
+                                                        </tr>
+                                                    </ng-template>
+                                                </p-table>
+                                            </div>
+
+                                        </p-accordionTab>
+
+                                    </p-accordion>
+                                </ng-container>
+                            </div>
+                        </p-accordionTab>
+                    </p-accordion>
+                </div>
+
+                <div *ngIf="isJMX">
+                    <p-accordion>
+                        <p-accordionTab [header]="'JMX Based Monitors'" [selected]="false">
+                            <div>
+                                <app-jmx-deployment [item]="jmxData"></app-jmx-deployment>
+                                <ng-container *ngFor="let field of formData">
+                                    <ng-container *ngIf="field.monName === 'jmx'">
+                                        <ng-container *ngTemplateOutlet="tree;context:{node:field}">{{field.monName}}
+                                        </ng-container>
+                                    </ng-container>
+                                </ng-container>
+                                <ng-container *ngFor="let node of customJmxMon">
+                                    <p-accordion ngClass="p-col-12">
+                                        <p-accordionTab [header]="node.key" [selected]="false">
+                                            <p-header>
+                                                <p-checkbox [binary]="true" name="isJmxChk" [(ngModel)]="node.enable"
+                                                    ngDefaultControl></p-checkbox>
+                                                <span class="checkbox-label">{{node.key}}</span>
+                                            </p-header>
+                                            <span class="p-grid p-col-12" *ngIf="node.op">
+                                                <p-card>
+                                                    <p-table [columns]="customMonCols" [value]="node.opData" [rows]="5"
+                                                        [paginator]="node.rows >5" [pageLinks]="3">
+                                                        <ng-template pTemplate="caption">Other Parameters
+                                                        </ng-template>
+
+                                                        <ng-template pTemplate="header" let-columns>
+                                                            <tr>
+                                                                <th *ngFor="let col of columns">
+                                                                    {{col.header}}
+                                                                </th>
+                                                            </tr>
+                                                        </ng-template>
+
+                                                        <ng-template pTemplate="body" let-rowData let-columns="columns"
+                                                            let-index="rowIndex" let-editing="editing">
+                                                            <tr>
+                                                                <td>{{rowData.pattern}}</td>
+
+                                                                <td>
+                                                                    <input pInputText type="text"
+                                                                        [(ngModel)]="rowData.upVal" style="width:100%"
+                                                                        name="{{rowData.pattern}}" required>
+                                                                </td>
+                                                            </tr>
+                                                        </ng-template>
+
+                                                        <ng-template pTemplate="emptymessage" let-columns>
+                                                            <tr>
+                                                                <td [attr.colspan]="columns.length" class="noRecords"
+                                                                    style="text-align: center">No records found.</td>
+                                                            </tr>
+                                                        </ng-template>
+                                                    </p-table>
+                                                </p-card>
+                                            </span>
+                                        </p-accordionTab>
+
+                                    </p-accordion>
+                                </ng-container>
+                            </div>
+                        </p-accordionTab>
+                    </p-accordion>
+                </div>
+
+                <div *ngIf="isOtherMon">
+                    <p-accordion>
+                        <p-accordionTab [header]="'Other'" [selected]="false">
+                            <div>
+                                <span class="p-grid p-col-12 p-align-center">
+                                    <ng-container *ngFor="let field of formData">
+                                        <ng-container *ngIf="field.monName === 'other'">
+                                            <ng-container *ngTemplateOutlet="tree;context:{node:field}"></ng-container>
+                                        </ng-container>
+                                    </ng-container>
+                                </span>
+                            </div>
+                        </p-accordionTab>
+                    </p-accordion>
+                </div>
+            </p-panel>
+
+            <div>
+                <div class="p-grid p-justify-start p-align-center server-filter-container mt-10">
+                    <div class="p-grid p-justify-start p-align-center p-col-11 server-filters"
+                        *ngFor="let data of serverFilter;let i = index">
+                        <div class=" p-grid p-justify-start p-align-center p-col-3">
+                            <div class="input-label width-100 required-mark">Tier</div>
+                            <div class="flexAuto">
+                                <p-dropdown class="" [options]="tierList" placeholder="-- Select Tier --" [disabled]="reConfId != '-1'"
+                                    dropdownIcon="icons8 icons8-expand-arrow" name="tier_{{data.id}}"
+                                    [(ngModel)]="data.tier" (onChange)="onTierChange(data)"
+                                    [style]="{'min-width':'170px'}" [filter]="true" resetFilterOnHide="true">
+                                </p-dropdown>
+                            </div>
+                        </div>
+
+                        <div class=" p-grid p-justify-start p-align-center p-col-8">
+                            <div class=" p-grid p-justify-start p-align-center px-5" *ngIf="data.tier != 'ALLtier'">
+                                <div class="input-label width-100 required-mark">Server</div>
+                                <div class="p-grid">
+                                    <p-dropdown name="actualServer_{{data.id}}" [options]="serverOptionList" 
+                                        placeholder="-- Select Server --" dropdownIcon="icons8 icons8-expand-arrow"
+                                        [(ngModel)]="data.actualServer" (onChange)="onServerChange(data)"
+                                        [style]="{'min-width':'170px'}" [disabled]="!data.tier || reConfId != '-1'">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                            <div *ngIf="data.actualServer === 'specified' && data.tier !== 'ALLtier'" class="p-grid">
+                                <p-multiSelect class="ml-10" [options]="data.serverList" name="server_{{data.id}}" [disabled]="reConfId != '-1'"
+                                    display="chip" ngDefaultControl [(ngModel)]="data.server" [filter]="true"
+                                    appendTo="body" resetFilterOnHide="true" dropdownIcon="icons8 icons8-expand-arrow">
+                                    <ng-template let-serverList pTemplate="selectedItems">
+                                        <div *ngFor="let val of serverList"
+                                            class="ui-multiselected-item-token ui-corner-all">
+                                            <span>{{val}}</span>
+                                        </div>
+                                        <span *ngIf="!data.server || data.server.length === 0"
+                                            class="ui-multiselected-empty-token ui-corner-all">--Select Server--</span>
+                                    </ng-template>
+                                </p-multiSelect>
+                            </div>
+
+                            <div class=" p-grid p-justify-start p-align-center"
+                                *ngIf="data.actualServer === -1 && data.tier !== 'ALLtier'">
+                                <div class="input-label width-100 text-right mx-30">Exclude Server</div>
+                                <div class="flexAuto">
+                                    <p-multiSelect [options]="data.exServerList" name="exServer_{{data.id}}" [disabled]="reConfId != '-1'"
+                                        ngDefaultControl [(ngModel)]="data.exServer" [filter]="true" appendTo="body"
+                                        resetFilterOnHide="true" defaultLabel="Choose Exclude Server list"
+                                        [style]="{'width':'170px'}" dropdownIcon="icons8 icons8-expand-arrow">
+                                    </p-multiSelect>
+                                </div>
+                            </div>
+
+                            <div class=" p-grid p-justify-start p-align-center px-5" *ngIf="data.tier == 'ALLtier'">
+                                <div class="input-label width-100">Exclude Tier</div>
+                                <div class="flexAuto">
+                                    <p-multiSelect [options]="exTierList" name="exTier_{{data.id}}" ngDefaultControl [disabled]="reConfId != '-1'"
+                                        [(ngModel)]="data.exTier" defaultLabel="Choose Tier list" [filter]="true"
+                                        appendTo="body" resetFilterOnHide="true" [style]="{'width':'170px'}"
+                                        dropdownIcon="icons8 icons8-expand-arrow">
+                                    </p-multiSelect>
+                                </div>
+                            </div>
+
+                            <span>
+                                <button type="button" class="btn-icon mx-3" *ngIf="i !== 0"
+                                (click)="serverFilter.splice(i, 1)">
+                                    <i class="icons8 icons8-trash delete-icon" title="Remove Tier-Server"></i>
+                                </button>
+                            </span>
+
+                        </div>
+                    </div>
+                    <div class="p-col-1 p-justify-end p-align-end">
+                        <i class="icon8 icons8-add add-icon" *ngIf="reConfId == '-1' && techName != 'Log Metric Monitor'"   title="Add Agent Tier-Server"
+                            (click)="addServerFilter()"></i>
+                    </div>
+
+                </div>
+                <div class="action-container">
+                    <div class="p-col-12 p-grid p-justify-end p-align-end">
+                        <p-button type="submit" label="{{AddEditLabel}}" title="{{AddEditLabel}} Configuration"
+                            (onClick)="validateRequired()" class="ui-button ui-button-rounded ui-button-right">
+                        </p-button>
+                        <p-button type="button" *ngIf="AddEditLabel === 'Update'" title="Cancel Update" label="Cancel"
+                            (onClick)="clearFormFields()" class="ui-button ui-button-rounded ui-button-right">
+                        </p-button>
+                        <p-button type="button" *ngIf="reConfId != '-1'" title="Add New Configuration" label="Add New Configuration"
+                            (onClick)="clearFormFields()" class="ui-button ui-button-rounded ui-button-right">
+                        </p-button>
+
+                    </div>
+                    <div class="clean-up">
+                        <ng-container>
+                            <div #widgetHeight class="" [ngStyle]="{
+            height: !isEnabledColumnFilter
+              ? 'calc(100vh - 350px)'
+              : 'calc(100vh - 244px)'
+          }">
+                                <div class="clean-up-table">
+
+                                    <p-table class="all-tables" [columns]="tableCols" [resizableColumns]="true"
+                                        [value]="confTableData" [totalRecords]="confTableData.length"
+                                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedMonConf"
+                                        [responsive]="true" [scrollable]="true" selectionMode="multiple" [rows]="5"
+                                        [paginator]="true" [pageLinks]="3" dataKey="gMonId">
+                                        <ng-template pTemplate="colgroup">
+                                            <colgroup>
+                                                <col>
+                                                <col>
+                                            </colgroup>
+                                        </ng-template>
+                                        <ng-template pTemplate="caption">
+                                            <div style="text-align: right">
+                                              <button pButton type="button" class="ui-button-danger ml-3" (click)= "deleteConf()"
+                                                title="Delete selected monitor configuration(s)" icon="icons8 icons8-trash">
+                                              </button>
+                                            </div>
+                                          </ng-template>
+                                        <ng-template pTemplate="header" let-columns>
+                                            <tr>
+                                                <th style="width:40px">
+                                                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                                  </th>
+                                                <th pResizableColumn [pSortableColumn]="'tierInfo'">
+                                                    <div class="left">
+                                                        Tier-Server Information
+                                                    </div>
+                                                    <div class="right">
+                                                        <p-sortIcon field="col.tierInfo" class="text-right"
+                                                            ariaLabel="Activate to sort"
+                                                            ariaLabelDesc="Activate to sort in descending order"
+                                                            ariaLabelAsc="Activate to sort in ascending order">
+                                                        </p-sortIcon>
+                                                    </div>
+                                                </th>
+                                                <th pResizableColumn [pSortableColumn]="'monInfo'">
+                                                    <div class="left">
+                                                        Monitors
+                                                    </div>
+                                                    <div class="right">
+                                                        <p-sortIcon field="col.monInfo" class="text-right"
+                                                            ariaLabel="Activate to sort"
+                                                            ariaLabelDesc="Activate to sort in descending order"
+                                                            ariaLabelAsc="Activate to sort in ascending order">
+                                                        </p-sortIcon>
+                                                    </div>
+                                                </th>
+                                                <th style="width: 150px;">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </ng-template>
+
+                                        <ng-template pTemplate="body" let-rowData let-columns="columns"
+                                            let-rowIndex="rowIndex">
+                                            <tr>
+                                                <td style="width:40px">
+                                                    <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                                                  </td>
+                                                <td title="{{rowData.tierInfo}}">{{rowData.tierInfo}}</td>
+
+                                                <td title="{{rowData.monInfo}}">{{rowData.monInfo}}</td>
+
+                                                <td style="width: 150px;">
+                                                    <span class="action-icon width-130 text-center">
+                                                        <i class="icons8-edit-2" title="Edit Monitor Configuration"
+                                                            (click)="onRowEditInit(rowData)"></i>
+                                                        <i class="icons8-delete-trash red-fg"
+                                                            title="Delete Monitor Configuration"
+                                                            (click)="removeRowDataConfirmation(rowData)"></i>
+                                                        <!-- <i class="icons8-copy"></i> -->
+                                                    </span>
+                                                </td>
+
+                                            </tr>
+                                        </ng-template>
+
+                                        <ng-template pTemplate="emptymessage" let-columns>
+                                            <tr>
+                                                <td [attr.colspan]="columns.length + 1" class="text-center">
+                                                    <span *ngIf="error">Error while loading data</span>
+                                                    <span *ngIf="emptyTable">Empty Table</span>
+                                                    <span *ngIf="loading">Loading</span>
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
+
+                                </div>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+
+            <div class="confirm-dialog">
+                <p-confirmDialog #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+                    <p-footer>
+                        <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton
+                            icon="pi pi-check" label={{acceptLable}} (click)="cd.accept()"></button>
+                        <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton
+                            icon="pi pi-times" label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+                    </p-footer>
+                </p-confirmDialog>
+            </div>
+        </form>
+
+        <div class="loading-indicator" *ngIf="loading">
+            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+            </p-progressSpinner>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="display">
+    <app-mon-stats [display]="display" [item]="gdfDetail" (displayChange)="onDialogClose($event)"></app-mon-stats>
+</div>

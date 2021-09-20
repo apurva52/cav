@@ -1,0 +1,113 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+
+<div class="ddr-box">
+
+  <div class="ddr-toolbar">
+    <p-toolbar>
+        <div class="group-left">
+      <label class="headerInfo" >{{filterCriteria}}</label>
+            <label class="headerInfo" title="{{toolTipStatus}}">{{filterStatus}}</label>
+            <label class="headerInfo" title="{{toolTipUrl}}">{{filterUrl}}</label>
+      </div>
+      <div class="group-right">
+        <span *ngIf="showDownloadOption" title="Download Word Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("word")' src='./images/iconWord.gif'></span>
+        <span *ngIf="showDownloadOption" title="Download Excel Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("excel")' src='./images/iconExcel.gif'></span>
+        <span *ngIf="showDownloadOption" title="Download PDF Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReport("pdf")' src='./images/iconPDF.gif'></span>     
+      </div>
+    </p-toolbar>
+  </div>
+
+  <div class="ddruiscroll"  style="overflow:auto; height:85vh;">
+    <div class="ui-g-12">
+      <p-accordion class="ddr-accordion">
+        <p-accordionTab header="{{tableHeader}}" [selected]="true">
+            <p-growl life=5000 [(value)]="msgs"></p-growl>
+          <p-toolbar>
+            <div class="ui-toolbar-group-right" style="text-align: right">
+              <p-multiSelect class="dashboard-lowerPanel-multiSelect ddr-multiselect-down" title="Show/Hide Columns" [options]="columnOptions" [(ngModel)]="visibleCols" (onChange)="showHideColumn($event)"></p-multiSelect>
+              <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o fa"></button>
+              <i class="fa fa-search" style="margin:0 0 0 0;"></i>
+              <input #gb type="text" pInputText size="50" style="width:30% !important;" placeholder="Search" icon="fa-search">
+            </div>
+          </p-toolbar> 
+
+          <div style="overflow:auto">
+            <p-dataTable  class="scen-table scrollable-div" [value]="pageSummaryData" selectionMode="single" resizableColumns="true" [globalFilter]="gb" [style]="{'max-height':'63vh'}">
+              <div *ngFor="let col of cols">
+                <p-column *ngIf = "col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable" (sortFunction)="customSortOnColumns($event, pageSummaryData)" [style]="{'text-align':col.align,'width':dynamicWidthColumn +'px'}">
+                  <ng-template let-col let-node="rowData" pTemplate="body">
+                    <span style="text-align: right !important;" *ngIf="(col.field == 'min')" pTooltip={{msToTimeFormat(node[col.field])}}(HH.MM.SS.ms)
+                    tooltipPosition="right">{{msToTimeFormat(node[col.field])}}</span>
+                    <span style="text-align: right !important;" *ngIf="(col.field == 'max')" pTooltip={{msToTimeFormat(node[col.field])}}(HH.MM.SS.ms)
+                    tooltipPosition="right">{{msToTimeFormat(node[col.field])}}</span>
+                    <span style="text-align: right !important;" *ngIf="(col.field == 'median')" pTooltip={{msToTimeFormat(node[col.field])}}(HH.MM.SS.ms)
+                    tooltipPosition="right">{{msToTimeFormat(node[col.field])}}</span>
+                    <span style="text-align: right !important;" *ngIf="(col.field == 'percent80')" pTooltip={{msToTimeFormat(node[col.field])}}(HH.MM.SS.ms)
+                    tooltipPosition="right">{{msToTimeFormat(node[col.field])}}</span>
+                    <span style="text-align: right !important;" *ngIf="(col.field == 'percent90')" pTooltip={{msToTimeFormat(node[col.field])}}(HH.MM.SS.ms)
+                    tooltipPosition="right">{{msToTimeFormat(node[col.field])}}</span>
+                    <span style="text-align: right !important;" *ngIf="(col.field == 'percent95')" pTooltip={{msToTimeFormat(node[col.field])}}(HH.MM.SS.ms)
+                    tooltipPosition="right">{{msToTimeFormat(node[col.field])}}</span>
+                    <span style="text-align: right !important;" *ngIf="(col.field == 'percent99')" pTooltip={{msToTimeFormat(node[col.field])}}(HH.MM.SS.ms)
+                    tooltipPosition="bottom">{{msToTimeFormat(node[col.field])}}</span>
+                  </ng-template>                  
+                  <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'scriptCount')">
+                    <span style="color:blue;cursor:pointer;" *ngIf="node[col.field] != '0'" title="View Page Session Summary Report" (click)="openPageSessionSummaryReport(node)">{{node[col.field]}}</span>
+                  </ng-template>
+                  <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="col.field == 'tried'">
+                    <span style="color:blue;cursor:pointer;" title="View Page Instance Report" *ngIf="node[col.field] != '0' && pageSummaryByStatus == false" (click)="openPageInstanceReport(node,-2)">{{formatter(node[col.field])}}</span>
+                    <span style="color:blue;cursor:pointer;" title="View Page Instance Report" *ngIf="node[col.field] != '0' && pageSummaryByStatus == true" (click)="openPageInstanceReport(node)">{{formatter(node[col.field])}}</span>
+                    <span *ngIf="node[col.field] == '0'">{{node[col.field]}}</span>
+                  </ng-template>
+                  <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'success')">
+                    <span style="color:blue;cursor:pointer;" title="View Page Instance Report" *ngIf="node[col.field] != '0' && pageSummaryByStatus == false" (click)="openPageInstanceReport(node,0)">{{formatter(node[col.field])}}</span>
+                    <span style="color:blue;cursor:pointer;" title="View Page Instance Report" *ngIf="node[col.field] != '0' && pageSummaryByStatus == true" (click)="openPageInstanceReport(node)">{{formatter(node[col.field])}}</span>
+                    <span *ngIf="node[col.field] == '0'">{{node[col.field]}}</span>
+                  </ng-template> 
+                  <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'fail')">
+                    <span style="color:blue;cursor:pointer;" title="View Page Failure Report" *ngIf="node[col.field] != '0'  && pageSummaryByStatus == false" (click)="openPageFailureReport(node)">{{formatter(node[col.field])}}</span>
+                    <span style="color:blue;cursor:pointer;" title="View Page Instance Report" *ngIf="node[col.field] != '0' && pageSummaryByStatus == true" (click)="openPageInstanceReport(node)">{{formatter(node[col.field])}}</span>
+                    <span *ngIf="node[col.field] == '0'">{{node[col.field]}}</span>
+                  </ng-template>
+                  <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'avg')">
+                      <span style="color:blue;cursor:pointer;" title="View Page Component Detail Report" (click)="openPageComponentDetailReport(node)">{{msToTimeFormat(node[col.field])}}</span>
+                    </ng-template>
+                  <ng-template let-col let-node="rowData" pTemplate="body" *ngIf=" col.field == 'failPercent' || col.field == 'status'">
+                    <span> {{node[col.field]}}</span>
+                  </ng-template>
+                  <ng-template *ngIf="(col.field == 'pageName')" let-col let-node="rowData" pTemplate type="body">
+                    <div pTooltip={{(node[col.field])}} tooltipPosition="top">
+                        {{node[col.field]}} </div>
+                  </ng-template>
+                </p-column>
+              </div>
+            </p-dataTable>
+          </div>
+
+        
+          <div > {{offset+1}} - {{offset+limit}} of {{totalCount}} </div>
+          <p-paginator rows="50" [totalRecords]="totalCount" pageLinkSize="3" [rowsPerPageOptions]="[50,100,200,400]" (onPageChange)="paginate($event)"></p-paginator>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+  </div>
+
+</div>
+
+<p-dialog class="ddr-dialog"   appendTo="body" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true" [height]="120" [width]="600" > 
+  <p-header>
+      <i class="fa fa-info-circle" style="color:red"></i>
+      <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+  </p-header>  
+  <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+  <p-footer>
+  <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait" style="height: 25px;"></button>
+  <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" label="Cancel" style="height: 25px;"></button>
+  </p-footer>
+</p-dialog>
+<p-dialog class="ddr-dialog" [(visible)]="loader" appendTo="body" [width]="500" [height]="75" [closable]="false" [resizable]="false" modal="modal" [responsive]="true">
+  <div *ngIf="loader">
+    <p-progressBar [value]="value"></p-progressBar>
+  </div>
+</p-dialog>

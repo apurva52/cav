@@ -1,0 +1,47 @@
+<div [ngStyle]="{ backgroundColor: widget?.settings?.types?.graph?.bgColor  }">
+    <div class="widget-header" graphData >
+        <ul class="widget-options" (click)="select()"  [ngStyle]="{ color: widget?.settings?.types?.graph?.iconColor}">
+            <!-- If graph has zoom feature -->
+            <!-- <li *ngIf="isZoom" style="display: inline-block;" [pTooltip]="'Reset Zoom'" (click)="resetZoom()"><i class="icons8 icons8-reboot"></i></li> -->
+            <li *ngIf="loading"><i class="pi pi-spin pi-spinner"></i></li>
+
+            <!-- Delay time applied -->
+          <li  *ngIf="widget.settings.types.graph && widget.settings.types.graph.selectedWidgetTimeDelay > 0"
+             style="display: inline-block;color:  #53b771;" [pTooltip]= 'delayTimeToolTip'><i  *ngIf ="!widget.isCompareData" class="icons8 icons8-time-machine app-graph "></i></li>
+
+          <!-- Widget wise time applied -->
+          <li  *ngIf="widget.widgetWiseInfo && widget.widgetWiseInfo.widgetWise "
+           style="display: inline-block;color: #53b771;" [pTooltip]= 'widgetWiseTimeToolTip'><i   *ngIf ="!widget.isCompareData" class="icons8 icons8-clock app-graph "></i></li>
+
+          <!-- If graph has zoom feature -->
+          <li  *ngIf="(widget.zoomInfo && widget.zoomInfo.isZoom)  || (widget.compareZoomInfo && zoomlength>0 && isCompareZoom)"
+          style="display: inline-block;color: #53b771;" [pTooltip]= 'zoomTimeToolTip'><i    class="icons8 icons8-dashboard app-graph "></i></li>
+          <li  style="display: inline-block; cursor: pointer; color: #53b771;" *ngIf="widget && widget.zoomInfo && widget.zoomInfo.times.length >0"
+            (click) = 'undoZoomEventHandler();' [pTooltip]="'Undo Zoom'"><i class="icons8">{{widget.zoomInfo.times.length}} x</i></li>
+          <li  style="display: inline-block; cursor: pointer; color: #53b771;" *ngIf="widget.compareZoomInfo && zoomlength>0 && isCompareZoom"
+          (click) = 'undoZoomEventHandler();' [pTooltip]="'Undo Zoom'"><i class="icons8">{{zoomlength}} x</i></li>
+          <li *ngIf="dashboard.mode =='EDIT'" (click)='dashboard.copyWidget(widget);'>
+            <i style="display: inline-block;" pTooltip= 'Clone Widget' class="icons8 icons8-copy clickable"></i>
+        </li>
+          <li *ngIf="errorMessage">
+            <i style="display: inline-block;color: red;" [pTooltip]= 'errorMessage' class="icons8 icons8-error"></i>
+        </li>
+            <li [ngStyle]="{display: !loading ? 'inline-block' : 'none'}">
+                <app-widget-menu *ngIf="visiblityMenu == undefined && !visiblityMenu" [widget]="this"></app-widget-menu>
+            </li>
+            <li *ngIf="widget.icon">
+                <i [pTooltip]="widget.iconTooltip" class="widget-icon" [ngClass]="widget.icon"></i>
+            </li>
+        </ul>
+        <div class="widget-title" (click)="select()" (dblclick)="toggleFocus()" [style.color]="widget?.settings?.types?.graph?.displayWidgetFontColor" [style.fontWeight]= "widget?.settings?.types?.graph?.bold ?'600' : 'normal'" [style.fontFamily]= "widget?.settings?.types?.graph?.displayWidgetFontFamily == 'Select Font Family' ? 'Poppins,sans-serif' : widget?.settings?.types?.graph?.displayWidgetFontFamily" [style.fontStyle]="widget?.settings?.types?.graph?.italic ?'italic' : 'normal'" [style.textDecoration]="widget?.settings?.types?.graph?.underline ?'Underline' : 'none'" >
+            <span [pTooltip]="widget.name" [tooltipPosition]="'top'">{{widget.name}}</span>
+        </div>
+    </div>
+
+    <div class="widget-body" #container [ngStyle]="{ backgroundColor: widget?.settings?.types?.graph?.bgColor }" (dblclick)="toggleFocus()">
+        <div class="chart-container" #chartContainer [style.backgroundColor]="widget?.settings?.types?.graph?.bgColor" [style.color]="widget?.settings?.types?.graph?.displayWidgetFontColor" *ngIf="!empty"></div>
+        <div class="empty-container" *ngIf="empty">
+            Data Not Available
+        </div>
+    </div>
+</div>

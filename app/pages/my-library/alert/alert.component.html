@@ -1,0 +1,472 @@
+<div class="h-100-vh alert-container">
+  <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+    <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+    </div>
+  </div>
+
+  <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="!data">
+    <div class="p-col p-col-align-center text-center">
+      <div>
+        <i class="pi pi-spin pi-spinner font-size"></i> <span class="font-size">Loading</span>
+      </div>
+    </div>
+  </div>
+  <div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (inItemClick)="breadcrumb.handleBreadcrumbClick($event)" ></p-breadcrumb>
+  </div>
+  <!-- <div class="p-grid vertical-container" *ngIf="_alertEventService.error">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="_alertEventService.error" text="{{ _alertEventService.error.msg }}"></p-message>
+    </div>
+  </div> -->
+  <!-- <div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+      <p-message severity="normal" text="No Data"></p-message>
+    </div>
+  </div> -->
+  <div #widgetHeight [ngStyle]="{
+    height: isEnabledColumnFilter
+      ? 'calc(100vh - 157px)'
+      : 'calc(100vh - 115px)'
+  }">
+  <div class="action-container" *ngIf="data">
+    <div
+      class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p"
+    >
+      <div class="global-search-block">
+        <div *ngIf="isActHis == 'history'">
+          <i pTooltip="Alert Filter" class="icons8 icons8-filter left filter-icon" (click)="alertFilterSidebar.open()"></i>
+        </div>
+        <div class="p-input-icon-left search-div-css">
+          <i class="icons8 icons8-search"></i>
+          <input
+            #searchInputTemplate
+            pInputText
+            type="text"
+            class="input-field-search"
+            [(ngModel)]="globalFilterVla"
+            (input)="filter($event.target.value, '-1', 'contains')"
+            placeholder="Search"
+          />
+          <p-dropdown class="mx-2" placeholder="Active" [options]="searchOptions" [(ngModel)]="isActHis" dropdownIcon="icons8 icons8-expand-arrow" (onChange)="loadActiveOnHistoryChange()"></p-dropdown>
+          <p-dropdown placeholder="Level0" [options]="hierarchyOptions" [(ngModel)]="_alertEventService.hierarchy" optionLabel="label" (onChange)="onTagHierarchyChg()" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+
+          <div *ngIf="isActHis == 'active'" class="p-col-5 severity-button-group ">
+            <div *ngFor="let severity of data.severities">
+              <span
+                [ngStyle]=" severity.selected ? {'color': '#ffffff','fontWeight': 'bold', 'borderColor': severity.color, 'backgroundColor': '#6fc388'} : {'color': severity.color, 'borderColor': severity.color}"
+                class="severity-buttons" (click)="severityFilter(severity)" pTooltip={{severity.name}} tooltipPosition="top">{{severity.name}}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="icons-container p-justify-between p-align-center">
+        <!-- <button
+          pButton
+          label="BASELINE"
+          class="ui-button ui-button-rounded ui-button-secondary add-template"
+          (click)="showBasline()"
+        ></button> -->
+        <button
+          pButton
+          label="ACTIONS LIST" *ngIf="alertCapability.isHasPermission('Alert Action')"
+          class="ui-button ui-button-rounded ui-button-secondary add-template"
+          pTooltip="Alert Actions"
+          (click)="showActionList()"
+        ></button>
+        <button *ngIf="alertCapability.isHasPermission('Alert Rule')"
+          pButton
+          label="RULES LIST"
+          class="ui-button ui-button-rounded ui-button-secondary add-template"
+          pTooltip="Alert Rules"
+          (click)="showAlertRules()"
+        ></button>
+        <button
+          pButton
+          icon="icons8 icons8-settings"
+          class="icon-button no-shadow"
+          pTooltip="Settings" (click)="settings.toggle($event)"
+        ></button>
+        <p-menu
+          #settings
+          [popup]="true"
+          styleClass="widget-menu"
+          [model]="alertSetting"
+          [showTransitionOptions]="'0ms'"
+          [hideTransitionOptions]="'0ms'"
+        ></p-menu>
+        <p-multiSelect
+          class="icon-button no-shadow"
+          [options]="cols"
+          [(ngModel)]="selectedColumns"
+          optionLabel="label"
+          [displaySelectedLabel]="false"
+          (onChange)="onChangeToggleColumn($event)"
+          dropdownIcon="icons8 icons8-columns"
+          pTooltip="Toggle Columns"
+          [panelStyle]="{ minWidth: '200px' }"
+        >
+        </p-multiSelect>
+        <button
+          pButton
+          icon="icons8 icons8-search-property"
+          class="icon-button no-shadow"
+          (click)="toggleFilters()"
+          pTooltip="Column Filter"
+        ></button>
+        <button
+          pButton
+          icon="icons8 icons8-installing-updates"
+          class="icon-button no-shadow"
+          (click)="menuDownload.toggle($event)"
+          pTooltip="Download"
+        ></button>
+        <p-menu
+          #menuDownload
+          [popup]="true"
+          styleClass="widget-menu"
+          [model]="downloadOptions"
+          [showTransitionOptions]="'0ms'"
+          [hideTransitionOptions]="'0ms'"
+        ></p-menu >
+        <button
+        pButton
+        icon="icons8 icons8-futures"
+        class="icon-button no-shadow"
+        pTooltip="Open graph"
+        (click) = "openGraphInDashboard()"
+        ></button>
+        <button 
+          *ngIf="isActHis == 'active'"
+          pButton
+          [disabled]="isOnlyReadable"
+          icon="icons8 icons8-trash"
+          class="icon-button no-shadow"
+          pTooltip="Force clear event"
+          (click)= forceClear()
+        ></button>
+        <button
+        *ngIf="isActHis == 'active'"
+        pButton
+        icon="icons8 icons8-checked"
+        class="icon-button no-shadow"
+        pTooltip="Acknowledge"
+        [disabled]="isOnlyReadable"
+        (click)= ackThisEvents()
+        ></button>
+        <button
+          pButton
+          icon="icons8-synchronize"
+          class="icon-button no-shadow"
+          pTooltip="Refresh events" (click)= refreshActiveAlert()
+        ></button>
+        <div *ngIf="!_alertEventService.isShowGui">
+          <div class="display-flex mb-3">
+            <i class="pi pi-spin pi-spinner"></i> <span class="mt-3">Loading...</span>
+          </div>
+        </div>
+        <div *ngIf="alertDownloadService.isDownloading">
+          <div class="display-flex mb-3">
+            <i class="pi pi-spin pi-spinner"></i> <span class="mt-3">Downloading...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-container>
+      <p-card class="content">
+        <p-table
+          #alert
+            [columns]="selectedColumns"
+            [value]="data.data"
+            [loading]="loading"
+            dataKey = "tagging"
+            [rowHover]="true"
+            [paginator]="_alertEventService.hierarchy.label != 'Level0' && _alertEventService.isShowGui ? true  : false"
+            [rows]="data.paginator.rows"
+            [totalRecords]="data.data.length"
+            [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            [responsive]="true"
+            [scrollable]="_alertEventService.hierarchy.label != 'Level0' && _alertEventService.isShowGui ? true  : false"
+            scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 150px)"
+            [globalFilterFields]="globalFilterFields"
+            class="all-tables"
+            [expandedRowKeys]="expandedRows"
+
+            [customSort]="true"
+            (sortFunction)="customSort($event)"
+        >
+        <!-- (sortFunction)="customSort($event)"  -->
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col *ngFor="let col of columns" field="col.valueField" [style.width]="col.width" />
+          </colgroup>
+        </ng-template>
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <!-- <th class="text-center columnwidth">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+              </th> -->
+              <th
+                *ngFor="let col of columns; let i = index"
+                [pSortableColumn]="col.valueField" [style.width]="col.width"
+              >
+              <div *ngIf="col.valueField == 'selected'">
+                <p-checkbox [(ngModel)]="selectedAll" [binary]="true" (click)="selectedAllData()"></p-checkbox>
+<!--                 <p-tableHeaderCheckbox [(ngModel)]="selectedAll" (click)="selectedAllData()"></p-tableHeaderCheckbox>
+ -->              </div>
+                <div class="text-left" *ngIf="col.valueField != 'selected'">
+                  {{ col.label }}
+                  <p-sortIcon
+                    *ngIf="col.sort"
+                    [field]="col.valueField"
+                    class="right"
+                    ariaLabel="Activate to sort"
+                    ariaLabelDesc="Activate to sort in descending order"
+                    ariaLabelAsc="Activate to sort in ascending order"
+                  >
+                  </p-sortIcon>
+                </div>
+              </th>
+            </tr>
+            <tr *ngFor="let headerRow of data.headers">
+              <ng-container *ngIf="isEnabledColumnFilter">
+                <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                  <div
+                    *ngIf="
+                      col.filters.filter === true &&
+                      col.filters.type === 'custom'
+                    "
+                  >
+                    <input
+                      class="w-100-p"
+                      [tooltipZIndex]="tooltipzindex"
+                      pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                      *ngSwitchCase="col.label"
+                      pInputText
+                      type="text"
+                      (input)="
+                        filter(
+                          $event.target.value,
+                          col.label,
+                          'custom'
+                        )
+                      "
+                    />
+                  </div>
+                  <div
+                    *ngIf="
+                      col.filters.filter === true &&
+                      col.filters.type === 'contains'
+                    "
+                  >
+                    <input
+                      class="w-100-p"
+                      [tooltipZIndex]="tooltipzindex"
+                      pTooltip="Will filter metric names which contains given text."
+                      *ngSwitchCase="col.label"
+                      pInputText
+                      type="text"
+                      (input)="
+                        filter(
+                          $event.target.value,
+                          col.label,
+                          'contains'
+                        )
+                      "
+                    />
+                  </div>
+                </th>
+              </ng-container>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-rowIndex="rowIndex" let-columns="columns" let-expanded="expanded">
+            <tr *ngIf="row['tagging'] != ''">
+              <td [attr.colspan]="columns.length">
+                <button type="button" *ngIf="!loadingRBtn ||  (row.tagging !== selectedRForProgress)"  style="width: 2%; margin-right: 0.3em;" pButton pRipple [pRowToggler]="row" class="p-button-text p-button-rounded p-button-plain p-mr-2" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" (click)="onButtonClick(row)"></button>
+                <button type="button" *ngIf="loadingRBtn &&  (row.tagging === selectedRForProgress)" style="width: 2%; margin-right: 0.3em;" pButton class="p-button-text p-button-rounded p-button-plain p-mr-2" icon="pi pi-spin pi-spinner"></button>                   
+                <span class="p-text-bold p-ml-2">{{row['tagging'] == 'Default'? 'Configuration': row['tagging']}}</span>
+              </td>
+            </tr>
+        </ng-template>
+          <ng-template pTemplate="rowexpansion" let-rowIndex="rowIndex" let-row let-columns="columns"
+          let-expanded="expanded">
+              <td [attr.colspan]="columns.length">
+                <div class="p-p-3">
+                  <p-table
+                  #alertrow
+                  [value]="row['events']"
+                  [paginator]="_alertEventService.hierarchy.label == 'Level0' && _alertEventService.isShowGui? true : false"
+                  [rows]="data.paginator.rows"
+                  [totalRecords]="data.data.length"
+                  [rowsPerPageOptions]="data.paginator.rowsPerPageOptions"
+                  [showCurrentPageReport]="true"
+                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                  [scrollable]="_alertEventService.hierarchy.label == 'Level0' && _alertEventService.isShowGui? true : false"
+                  scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 155px)"
+                  [(selection)]="selectedRow"
+                  (onRowSelect)="onRowSelect($event)"
+                  [responsive]="true"
+                  [dataKey]="isActHis == 'history'? 'sequenceId' : 'id'"
+                  >
+                    <ng-template pTemplate="body" let-row>
+                      <tr>
+                        <!-- <td class="text-center columnwidth">
+                          <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                        </td>  -->
+                        <td *ngFor="let col of columns" class="{{ col.classes }}" [style.width]="col.width">
+                          <div *ngIf="col.valueField == 'selected'">
+                            <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                          </div>
+                          <span pTooltip="{{ row[col.valueField] }}" *ngIf="!col.iconField && !col.severity && !col.st && !col.timeAgo && !col.tagInfo && col.valueField != 'selected' && col.valueField != 'ack' && col.valueField != 'ruleName' && col.valueField != 'currentValue'">
+                              {{ row[col.valueField] }}
+                          </span>
+                          <span [ngClass] = "isActHis == 'history'? '': 'ruleNamehover'" pTooltip="{{ row[col.valueField] }}" *ngIf="col.valueField == 'ruleName'" (click)="viewAlertRuleConfigurationWindow(row)">
+                            {{ row[col.valueField] }}
+                          </span>
+                          <div *ngIf = "col.valueField == 'ack'">
+                            <svg *ngIf="!row[col.valueField]" height="10" width="10" class="blinking text-left">
+                              <circle cx="5" cy="5" r="5" fill="#FF4646" />
+                            </svg>
+                            <button *ngIf="row[col.valueField]" pButton icon="icons8 icons8-checked" style="height: 0.5em;" class="icon-button no-shadow" pTooltip="Acknowledge"></button>
+                          </div>
+                          <div *ngIf="col.st">
+                            <span pTooltip="{{row[col.valueField] | formatDateTime: 'default' }}">{{row[col.valueField] | formatDateTime: 'default' }}</span>
+                          </div>
+                          <div *ngIf="col.tagInfo">
+                            <span pTooltip="{{ row[col.valueField] === 'Default'? 'NA': row[col.valueField] }}" >{{ row[col.valueField] === 'Default'? 'NA': row[col.valueField] }}</span>
+                          </div>
+                          <div *ngIf="col.timeAgo">
+                            <span pTooltip="{{row[col.valueField] | alertTimeAgo }}">{{row[col.valueField] | alertTimeAgo }}</span>
+                          </div>
+                          <div #actualTarget class = "ruleNamehover" *ngIf="col.valueField == 'currentValue'" pTooltip="{{ row[col.valueField] }}" style="text-align: left;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;" (click)="alertValueEvaluation(row, $event, actualTarget)">
+                            {{ row[col.valueField] }}
+                          </div>
+                          <div pTooltip="{{ row[col.valueField] }}" *ngIf="col.severity && row[col.valueField] && col.severityColorField" class="severity-condition-badge" [ngStyle]="{'border': '2px solid', 'border-color': row[col.valueField] | colorCrossSeverity: 'forColumn' }">
+                            {{ row[col.valueField] }}
+                          </div >
+                          <span *ngIf="col.iconField && row[col.valueField]">
+                              <i [ngClass]="row[col.valueField]" class="icon-color"></i>
+                          </span>
+                      </td>
+                      </tr>
+                    </ng-template>
+                    <!-----------Empty table error handling--------------------->
+                    <ng-template pTemplate="emptymessage" let-columns>
+                      <tr>
+                        <td [attr.colspan]="columns" class="text-center">
+                          <span *ngIf="_alertEventService.error">Error while loading data</span>
+                          <span *ngIf="loading">Loading</span>
+                          <span *ngIf="empty">No records found</span> 
+                          <span *ngIf="!empty && !loading && !_alertEventService.error">No records found</span>             
+                      </td>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="paginatorleft">
+                      <ng-template let-item pTemplate="paginatordropdownitem">
+                        {{item.value}} - per page
+                      </ng-template>
+                      <div class="legend-group" *ngFor="let legend of data.severities">
+          
+                        <div *ngIf="legend.showInLegend" class="paginator-legend"
+                          [ngStyle]="{'backgroundColor': legend.color}">
+                        </div>
+                        <span *ngIf="legend.showInLegend" pTooltip={{legend.name}}({{severityObj[legend.name].counter}}) tooltipPosition="top">
+                          {{legend.name}}({{severityObj[legend.name].counter}})
+                        </span>
+          
+                      </div>
+                      <div class = "paginator-center">
+                        <span>Last Refresh Time  </span>
+                        <span class = "timer-bold">
+                          {{hour}} : {{min}} : {{sec}}
+                        </span>
+                        <span>  ago</span>
+                      </div>
+          
+                    </ng-template>
+                  </p-table>
+                </div>
+              </td>
+          </ng-template>
+          <!-----------Empty table error handling--------------------->
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td [attr.colspan]="columns.length + 1" class="text-center">
+                <span *ngIf="_alertEventService.error">Error while loading data</span>
+                <span *ngIf="!_alertEventService.error && emptyTable">No records found</span>
+                <span *ngIf="loading">Loading</span>
+                <!-- <span *ngIf="!emptyTable && !loading && !_alertEventService.error && searchInputTemplate.value.length">Nothing found
+                  matching
+                  "{{searchInputTemplate.value}}"</span> -->
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="paginatorleft">
+            <ng-template let-item pTemplate="paginatordropdownitem">
+              {{item.value}} - per page
+            </ng-template>
+            <div class="legend-group" *ngFor="let legend of data.severities">
+
+              <div *ngIf="legend.showInLegend" class="paginator-legend"
+                [ngStyle]="{'backgroundColor': legend.color}">
+              </div>
+              <span *ngIf="legend.showInLegend" pTooltip={{legend.name}}({{severityObj[legend.name].counter}}) tooltipPosition="top">
+                {{legend.name}}({{severityObj[legend.name].counter}})
+              </span>
+
+            </div>
+            <div class = "paginator-center">
+              <span>Last Refresh Time  </span>
+              <span class = "timer-bold">
+                {{hour}} : {{min}} : {{sec}}
+              </span>
+              <span>  ago</span>
+            </div>
+
+          </ng-template>
+
+        </p-table>
+      </p-card>
+    </ng-container>
+  </div>
+  </div>
+</div>
+<app-alert-filter #alertFilterSidebar (upDateHistoryTable)="upDateHistoryTable($event)"></app-alert-filter>
+<!-- <p-toast position="top-right" style="z-index: 1005;"></p-toast>
+ --><!-- <p-messages></p-messages>
+ -->
+<p-overlayPanel #opAlertEve appendTo="body" [showCloseIcon]="true" [style]="{width: '450px'}">
+
+  <p-treeTable [value]="alertValEvl['data']" 
+    [columns]="cols_alert_val"
+    [paginator]="true" 
+    [rows]="10"
+    sortMode="multiple"
+    [style]="{'overflow': 'auto', 'max-height': '25em'}"
+  >
+    <ng-template pTemplate="header" let-rowNode let-columns>
+        <tr [ttRow]="rowNode">
+            <th *ngFor="let col of columns" [ttSortableColumn]="col.field">
+                {{col.header}}
+                <p-treeTableSortIcon [field]="col.field"></p-treeTableSortIcon>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+        <tr>
+            <td *ngFor="let col of columns; let i = index">
+                <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+                {{rowData[col.field]}}
+            </td>
+        </tr>
+    </ng-template>
+  </p-treeTable>
+  
+</p-overlayPanel>

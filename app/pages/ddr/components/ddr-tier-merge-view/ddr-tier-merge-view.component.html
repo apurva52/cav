@@ -1,0 +1,57 @@
+<div class="ddr-box">
+    <div id="flowmap-box" class="flowmap-box">
+        <div class="screenbackground">
+        <div class="screenHeader">Aggregate Transaction Flowmap</div>
+        </div>
+        <div>
+            <!-- <label ><b>Filter criteria : </b></label>-->
+	<div class='for-filter'>
+            <span id='filterTier'></span>
+        <!-- <button *ngIf ="aggFlowmapService.enableAggView == 1" pButton type="button" id='dwnldbtn1'  icon="fa fa-random" style='float:right; margin-right:0px' title="View Aggregate Flowmap"  (click)="openAgg()"></button> -->
+        <!-- <i *ngIf ="aggFlowmapService.enableAggView == 1" id='dwnldbtn1' class="icons8 icons8-slack-new font-20" style='float:right; margin-right:0px' title="View Aggregate Flowmap"  (click)="openAgg()"></i> -->
+      </div>
+        </div>
+        <div class="ddrk-jtk-demo-canvas canvas-wide flowchart-demo ddr-jtk-surface jtk-surface-nopan" style="position: relative" id="canvas">
+            <span style="width:100%;float:right; height: 500px;">
+            <span style='float:right' *ngIf='aggFlowmapService.rootFpMiss'>
+                   <img src='./assets/images/warning.png' height='18' style="cursor: pointer;margin-right:7px"  (click)='showWarningMessgae()'/>
+                 </span></span>
+            <div class="window node" [ngStyle]="{'top':'110px','left':'2pxpx','background':'#bdef84', 'padding':' 15px 0 0 2px','margin-left':'4px'}" id="root">
+                <strong>Entry</strong>
+                <br/>
+                <br/>
+            </div>
+            <div *ngFor="let col of dataToDraw,let i = index">
+
+                <div *ngIf="col.ovalClass" id='{{col.id}}' #nodediv [ngClass]="{'tierNode': col.tierClass, 'window': true, 'oval': col.ovalClass}"
+                    [ngStyle]="{'top': col.top, 'left': col.left }"(mouseover)="ShowtooltiponHover(col)"
+                    (mouseleave)="removeTooltip(col)" title="{{tooltipForNodes}}">
+
+
+                    <a><img src="./assets/images/{{col.icon}}" class="nodeImage"><span  [ngStyle]="{'margin-top': '25px' }"></span></a>
+                    <div class='nodeRight'>
+                        <div class='nodeHeading'>{{trimTextForLarge(col.displayName)}} </div>
+                        <div class="nodeBottom"></div>
+                      </div>
+
+                </div>
+                <div *ngIf="col.tierClass" id='{{col.id}}' #nodediv [ngClass]="{'tierNode': col.tierClass, 'window': true, 'oval': col.ovalClass}"
+                    [ngStyle]="{'top': col.top, 'left': col.left }"(mouseover)="ShowtooltiponHover(col)"
+                    (mouseleave)="removeTooltip(col)"  (mousedown)="getNodeDataforRouting($event,col)" (dblclick)="showDialogTable(col)"  title="{{tooltipForNodes}}">
+
+
+                    <a><img src="./assets/images/{{col.icon}}" class="tierimage"><span  [ngStyle]="{'margin-top': '25px' }"></span></a>
+                    <div class="tierName" >{{trimTextForLarge(col.tN)}}</div>
+
+                </div>
+            </div>
+            <p-contextMenu id='contextmenu' #contextRef  [style]="{'width':'188px', 'position': 'absolute'}"   [model]="mainContextMenu"></p-contextMenu>
+        </div>
+    </div>
+</div>
+<canvas id="canvasforDownload" style="background-color: white; display:none;" width="1400" height="1040"> </canvas>
+<a id='trans' style='display:none;'></a>
+<p-dialog  class="scenmodal  Ddr-popup-footer" [(visible)]="waningPopup"  [responsive]='true' [resizable]='false' [positionTop]='150' width="350"  [style]="{'height':'100px'}">
+    <p-header> <img src='./assets/images/warning.png' style="cursor: pointer;height:18px"  (click)='showWarningMessgae()'/> <span style='font-size: 14px'> Warning</span></p-header>
+    <b><span  style='font-size: 13px'> -   One or more root flowpaths are not captured.</span></b>
+   </p-dialog>

@@ -1,0 +1,17 @@
+<form [formGroup]="form">
+    <p-accordion>
+        <p-accordionTab [header]="fieldData.label" [selected]="fieldData?.expanded">
+            <p-message severity="info" [text]="fieldData.description" *ngIf="fieldData?.description"></p-message>
+
+            <div class="p-col-12" [ngStyle]="{'pointer-events':fieldData?.readonly == true ? 'none':''  }">
+                <ng-container *ngFor="let field of fieldData.fields">
+                    <div [class]="field.classes">
+                        <app-dynamic-form-right [fields]="field" [form]="form.controls[this.fieldData.key]">
+                        </app-dynamic-form-right>
+                    </div>
+                </ng-container>
+            </div>
+
+        </p-accordionTab>
+    </p-accordion>
+</form>

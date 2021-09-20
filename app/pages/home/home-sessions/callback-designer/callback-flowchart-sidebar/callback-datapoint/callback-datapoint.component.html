@@ -1,0 +1,191 @@
+<!-- Data Point Dialog -->
+<p-dialog [header]="(editMode ? 'Edit ': 'Add ') + 'Data Point'" [(visible)]="visible" [modal]="true"
+    [style]="{'min-width':'30vw'}" [contentStyle]="{overflow:'visible'}" (onHide)="hideDialog()">
+    <form [formGroup]="form">
+        <!-- Name -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center">
+            <div class="p-col-4">
+                <label>Name</label>
+            </div>
+            <div class="p-col">
+                <input type="text" pInputText formControlName="name">
+
+                <p-message severity="error" text="Name is required" *ngIf="submitted && !form.controls['name'].valid">
+                </p-message>
+            </div>
+        </div>
+
+        <!-- Source -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center">
+            <div class="p-col-4">
+                <label>Source</label>
+            </div>
+            <div class="p-col">
+                <p-dropdown [options]="dataSource" formControlName="source" placeholder="Select Source"
+                    dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                <p-message severity="error" text="Source is required"
+                    *ngIf="submitted && !form.controls['source'].valid">
+                </p-message>
+            </div>
+        </div>
+
+        <!-- CSS Selector -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center" *ngIf="form.value.source == 'ele'">
+            <div class="p-col-4">
+                <label>CSS Selector</label>
+            </div>
+            <div class="p-col">
+                <input type="text" pInputText formControlName="cssSelector">
+            </div>
+        </div>
+
+        <!-- Element Property -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center" *ngIf="form.value.source == 'ele'">
+            <div class="p-col-4">
+                <label>Element Property</label>
+            </div>
+            <div class="p-col">
+                <p-dropdown placeholder="Select Property" [options]="elementProperty"
+                    dropdownIcon="icons8 icons8-expand-arrow" formControlName="property">
+                </p-dropdown>
+            </div>
+        </div>
+
+        <!-- Attribute Name -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center"
+            *ngIf="form.value.source == 'ele' && form.value.property == 'attribute'">
+            <div class="p-col-4">
+                <label>Attribute Name</label>
+            </div>
+            <div class="p-col">
+                <input type="text" pInputText formControlName="attributeName">
+            </div>
+        </div>
+
+        <!-- Style Properties -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center"
+            *ngIf="form.value.source == 'ele' && form.value.property == 'style'">
+            <div class="p-col-4">
+                <label>Style Properties</label>
+            </div>
+            <div class="p-col">
+                <p-dropdown placeholder="Enter/Select Style Property" [options]="elementStyle" [editable]="true"
+                    dropdownIcon="icons8 icons8-expand-arrow" formControlName="elementStyle">
+                </p-dropdown>
+            </div>
+        </div>
+
+        <!-- Value -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center"
+            *ngIf="form.value.source == 'ele' && form.value.property == 'value'">
+            <div class="p-col-4">
+                <label>Value</label>
+            </div>
+            <div class="p-col">
+                <input type="text" pInputText formControlName="value">
+            </div>
+        </div>
+
+        <!-- URL Properties -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center" *ngIf="form.value.source == 'url'">
+            <div class="p-col-4">
+                <label>URL Properties</label>
+            </div>
+            <div class="p-col">
+                <p-dropdown placeholder="Select Url Property" [options]="urlProperties"
+                    dropdownIcon="icons8 icons8-expand-arrow" formControlName="urlProperty">
+                </p-dropdown>
+            </div>
+        </div>
+
+        <!-- Cookie Name -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center" *ngIf="form.value.source == 'cookie'">
+            <div class="p-col-4">
+                <label>Cookie Name</label>
+            </div>
+            <div class="p-col">
+                <input type="text" pInputText formControlName="cookieName">
+            </div>
+        </div>
+
+        <!-- Code Snippet -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center" *ngIf="form.value.source == 'code'">
+            <div class="p-col-4">
+                Code Snippet
+            </div>
+            <div class="p-col">
+                Open Editor ...
+                <button type="button" pButton class="icon-button no-shadow right" icon="pi pi-external-link"
+                    (click)="toggleEditorDialog()"></button>
+            </div>
+        </div>
+
+        <!-- Pattern -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center">
+            <div class="p-col-4">
+                <label>Pattern</label>
+            </div>
+            <div class="p-col">
+                <input type="text" pInputText formControlName="pattern" placeholder="[0-9]+">
+            </div>
+            <div class="p-col-2">
+                <button pButton type="button" class="ui-button-rounded ui-button-secondary" label="Test"
+                    (click)="showTextBox = true"></button>
+            </div>
+        </div>
+        <div class="p-grid p-justify-between ui-fluid p-align-center" [formGroup]="testForm" *ngIf="showTextBox">
+            <div class="p-col-4">
+                <label><i>Text</i></label>
+            </div>
+            <div class="p-col">
+                <textarea pInputTextarea formControlName="testStr"
+                    placeholder="Enter the Pattern and Text to see matches."></textarea>
+            </div>
+            <div class="p-col-8 p-offset-4 ng-star-inserted  p-col-nogutter" *ngIf="isTesting">
+                <i [ngStyle]="{'color': matchedCount > 0 ?'green':'red'}">{{matchedCount +' Matches.'}}</i>
+            </div>
+        </div>
+
+        <!-- Pattern Index -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center">
+            <div class="p-col-4">
+                <label>Pattern Index</label>
+            </div>
+            <div class="p-col">
+                <p-dropdown [options]="indexOption" formControlName="patternIndex"
+                    dropdownIcon="icons8 icons8-expand-arrow" placeholder="Select Index">
+                </p-dropdown>
+            </div>
+        </div>
+
+        <!-- Index -->
+        <div class="p-grid p-justify-between ui-fluid p-align-center" *ngIf="form.value.patternIndex == 'Index'">
+            <div class="p-col-4">
+                <label>Index</label>
+            </div>
+            <div class="p-col">
+                <input type="text" pInputText formControlName="index">
+            </div>
+        </div>
+
+        <div class="p-grid p-justify-center">
+            <button type="button" pButton [label]="editMode ? 'Update':'Save'"
+                (click)="editMode ? editDataPoint() : addDataPoint()"></button>
+        </div>
+
+
+    </form>
+</p-dialog>
+
+<p-dialog [(visible)]="showEditorDialog" [modal]="true" header="Code Editor" [style]="{'width':'40vw'}"
+    [contentStyle]="{'height':'40vh'}" (onResizeEnd)="onResizeEnd()">
+    <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="code" style="height: 100%;width: 100%;"
+        *ngIf="showCodeEditor" (onInit)="onEditorInit($event)">
+    </ngx-monaco-editor>
+    <p-footer>
+        <div class="p-grid p-justify-end">
+            <button type="button" pButton label="Cancel" class="ui-button-rounded ui-button-secondary"></button>
+            <button type="button" pButton label="Save" class="ui-button-rounded" (click)="saveCode()"></button>
+        </div>
+    </p-footer>
+</p-dialog>

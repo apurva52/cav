@@ -1,0 +1,292 @@
+<div class="p-grid loader-container vertical-container" *ngIf="loading && !data">
+  <div class="p-col p-col-align-center text-center">
+    <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+  </div>
+</div>
+<div class="p-grid vertical-container" *ngIf="error">
+  <div class="p-col p-col-align-center text-center">
+    <p-message severity="error" text="{{ error.msg }}"></p-message>
+  </div>
+</div>
+<div class="performance-container" *ngIf="isShowAll">
+
+  <div #widgetHeight [ngStyle]="{
+        height: isEnabledColumnFilter
+          ? 'calc(100vh - 270px)'
+          : 'calc(100vh - 230px)'
+      }">
+    <div class="action-container" *ngIf="data">
+      <div class="p-grid p-col-12 p-justify-end p-align-center action-grid w-100-p">
+
+        <div class="icons-container p-justify-between p-align-center">
+          <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns"
+            optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+            pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+          </p-multiSelect>
+          <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" (click)="toggleFilters()"
+            pTooltip="Column Filter"></button>
+          <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+            (click)="menuDownload.toggle($event)" pTooltip="Download"></button>
+          <p-menu #menuDownload [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+        </div>
+      </div>
+
+      <ng-container>
+        <p-card class="content">
+          <p-table #resourcePerformance [resizableColumns]="true" [columns]="selectedColumns" [value]="data.data"
+            [rowHover]="true" [paginator]="true" [rows]="data.paginator.rows" [totalRecords]="data.data.length"
+            [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+            [scrollable]="true" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 250px)" selectionMode="single"
+            [(selection)]="selectedIds">
+            <ng-template pTemplate="colgroup" let-columns>
+              <colgroup>
+                <col *ngFor="let col of columns" [style.width]="col.width" />
+              </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th rowspan="2" class="columnwidth">
+                  <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th rowspan="2" class="icon-col">
+                  <div class="row-icons">
+                    <span class="icons8 icons8-combo-chart" (click)="getResourceTrendData(null,'alldomain')"></span>
+                  </div>
+                  <div class="row-icons1">
+                    <span class="icons8 icons8-combo-chart" (click)="getResourceTrendData(null,'allresource')"></span>
+                  </div>
+                </th>
+                <th rowspan="2">Name</th>
+                <th rowspan="2">Domain Name</th>
+                <th colspan="2">Count</th>
+                <th colspan="2">Avg Duration(ms)</th>
+                <th colspan="2">Avg Wait(ms)</th>
+                <th colspan="2">Avg Download(ms)</th>
+                <th colspan="2">Avg Redirection(ms)</th>
+                <th colspan="2">Avg DNS(ms)</th>
+                <th colspan="2">Avg Correction(ms)</th>
+              </tr>
+              <tr>
+                <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                  <div class="text-left">
+                    {{ col.label }}
+                    <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right" ariaLabel="Activate to sort"
+                      ariaLabelDesc="Activate to sort in descending order"
+                      ariaLabelAsc="Activate to sort in ascending order">
+                    </p-sortIcon>
+                  </div>
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row let-columns="columns ">
+              <tr>
+                <td class="text-center columnwidth">
+                  <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                </td>
+                <td class="icon-col">
+                  <div class="row-icons">
+                    <span class="icons8 icons8-combo-chart" (click)="getResourceTrendData(row,'domain')"></span>
+                  </div>
+                  <div class="row-icons1">
+                    <span class="icons8 icons8-combo-chart" (click)="getResourceTrendData(row,'resource')"></span>
+                  </div>
+                </td>
+                <td pTooltip={{row.resourceName}}>
+                  {{ row["resourceName"] }}
+                </td>
+                <td pTooltip={{row.domain}}>
+                  {{ row["domain"] }}
+                </td>
+                <td *ngFor="let col of columns" class="{{ col.classes }}" pTooltip={{row[col.valueField]}}>
+                  {{ row[col.valueField] }}
+                </td>
+              </tr>
+            </ng-template>
+            <!-----------Empty table error handling--------------------->
+            <ng-template pTemplate="emptymessage" let-columns>
+              <tr>
+                <td [attr.colspan]="columns.length + 1" class="text-center">
+                  <span *ngIf="error">Error while loading data</span>
+                  <span *ngIf="emptyTable">Empty Table</span>
+                  <span *ngIf="loading">Loading</span>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      </ng-container>
+      <br>
+      <div class="p-grid">
+        <div class="p-col-6 " *ngIf="enableChart">
+          <app-chart [data]="data.charts[0]"></app-chart>
+        </div>
+        <div class="p-col-6 ">
+          <ng-container>
+            <p-card class="content">
+              <p-table #cavissonServices [resizableColumns]="true" [columns]="data.headers1[0].cols"
+                [value]="data.datarequest" [paginator]="true" [rows]="data.paginator.rows" [rowHover]="true"
+                [responsive]="true" [scrollable]="true" scrollHeight="400px"
+                [rowsPerPageOptions]="data.paginator.rowsPerPageOptions">
+
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th rowspan="2">Content Type</th>
+                    <th colspan="2">Count</th>
+                    <th colspan="2">Count Percentage</th>
+                    <th colspan="2">Duration (ms)</th>
+                  </tr>
+                  <tr>
+                    <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                      <div class="text-left">
+                        {{ col.label }}
+                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                          ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order"
+                          ariaLabelAsc="Activate to sort in ascending order">
+                        </p-sortIcon>
+                      </div>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+
+                  <tr>
+                    <td pTooltip={{row.contentType}}>
+                      {{ row["contentType"] }}
+                    </td>
+                    <td *ngFor="let col of columns">
+                      {{ row[col.valueField] }}
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </p-card>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p-dialog [header]="'Duration 1: ' + deftime + ' Duration2 : '+deftimecmp" [(visible)]="visible"
+  class="secondary-dialog" (onHide)="resetCustomTime($event)">
+  <div class="p-col-12" style="display:flex;flex-flow: row wrap;">
+    <div class="p-col-6 no-padding">
+      <div class="p-grid">
+        <div class="p-col">
+          <div class="p-input-icon-left search-div-css">
+            <i class="icons8 icons8-calendar"></i>
+            <input pInputText class="customInput" readonly id="start-date-time" [owlDateTime]="customStartDateTime"
+              [owlDateTimeTrigger]="customStartDateTime" placeholder="04:30 PM 23/04/2020" [selectMode]="'rangeFrom'"
+              [max]="maxDate" [(ngModel)]="customTime">
+            <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+          </div>
+        </div>
+        <div class="p-col">
+          <div class="p-input-icon-left search-div-css">
+            <i class="icons8 icons8-calendar"></i>
+            <input pInputText class="customInput" readonly id="end-date-time" [owlDateTime]="customEndDateTime"
+              [owlDateTimeTrigger]="customEndDateTime" placeholder="04:30 PM 23/04/2020" [selectMode]="'rangeTo'"
+              [max]="maxDate" [(ngModel)]="customTime">
+            <owl-date-time #customEndDateTime tooltipZIndex=" 100001005"></owl-date-time>
+          </div>
+        </div>
+
+        <div class="p-col">
+          <button pButton label="Go" (click)="submit()"></button>
+          <select *ngIf="multidomain" id="valueselect"
+            style="margin-left: 5px;height: 33px;color: white;background: #337ab7;"
+            (change)="onValueChange($event.target.value)">
+            <option value="0">Duration</option>
+            <option value="1">Count</option>
+          </select>
+
+        </div>
+        <div class="p-col-12" *ngIf="customTimeError !== ''" style="color: red;">
+          {{customTimeError}}
+        </div>
+      </div>
+
+      <!--no data/ loader/ error message -->
+      <div class="p-grid">
+        <div class="p-col-12" style="text-align: center;" *ngIf="!loading && trendData && !trendData.length && !error">
+          <i class="icons8 icons8-error" style="font-size: 40px;color: orange;"></i>
+          <h5 style="margin: 0;font-size: 13.28px;">No Data Found</h5>
+        </div>
+        <div class="p-col-12" style="text-align: center;" *ngIf="loading">
+          <h5 style="font-size: 13.28px;"><i class="pi pi-spin pi-spinner"></i>Loading</h5>
+        </div>
+        <div class="p-col-12" style="text-align: center;" *ngIf="error">
+          <i class="icons8 icons8-error" style="font-size: 40px;color: red;"></i>
+          <h5 style="margin: 0;font-size: 13.28px;">Failed to get data</h5>
+        </div>
+      </div>
+
+      <div class="p-grid" *ngIf="!loading && trendData.length">
+        <div class="p-col" *ngIf="enableChart">
+          <app-chart [data]="trendChartData"></app-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-col-6 no-padding">
+      <div class="p-grid">
+        <div class="p-col">
+          <div class="p-input-icon-left search-div-css">
+            <i class="icons8 icons8-calendar"></i>
+            <input pInputText class="customInput" readonly id="start-date-time" [owlDateTime]="customStartDateTime"
+              [owlDateTimeTrigger]="customStartDateTime" placeholder="04:30 PM 23/04/2020" [selectMode]="'rangeFrom'"
+              [max]="maxDate" [(ngModel)]="customTimecmp">
+            <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+          </div>
+        </div>
+        <div class="p-col">
+          <div class="p-input-icon-left search-div-css">
+            <i class="icons8 icons8-calendar"></i>
+            <input pInputText class="customInput" readonly id="end-date-time" [owlDateTime]="customEndDateTime"
+              [owlDateTimeTrigger]="customEndDateTime" placeholder="04:30 PM 23/04/2020" [selectMode]="'rangeTo'"
+              [max]="maxDate" [(ngModel)]="customTimecmp">
+            <owl-date-time #customEndDateTime tooltipZIndex=" 100001005"></owl-date-time>
+          </div>
+        </div>
+
+        <div class="p-col">
+          <button pButton label="Go" (click)="submitcmp()"></button>
+          <select *ngIf="multidomaincmp" id="valueselectcmp"
+            style="margin-left: 5px;height: 33px;color: white;background: #337ab7;"
+            (change)="onValueChangecmp($event.target.value)">
+            <option value="0">Duration</option>
+            <option value="1">Count</option>
+          </select>
+
+        </div>
+        <div class="p-col-12" *ngIf="customTimeErrorcmp !== ''" style="color: red;">
+          {{customTimeErrorcmp}}
+        </div>
+      </div>
+
+      <!--no data/ loader/ error message -->
+      <div class="p-grid">
+        <div class="p-col-12" style="text-align: center;"
+          *ngIf="!loadingcmp && trendDatacmp && !trendDatacmp.length && !errorcmp">
+          <i class="icons8 icons8-error" style="font-size: 40px;color: orange;"></i>
+          <h5 style="margin: 0;font-size: 13.28px;">No Data Found</h5>
+        </div>
+        <div class="p-col-12" style="text-align: center;" *ngIf="loadingcmp">
+          <h5 style="font-size: 13.28px;"><i class="pi pi-spin pi-spinner"></i>Loading</h5>
+        </div>
+        <div class="p-col-12" style="text-align: center;" *ngIf="errorcmp">
+          <i class="icons8 icons8-error" style="font-size: 40px;color: red;"></i>
+          <h5 style="margin: 0;font-size: 13.28px;">Failed to get data</h5>
+        </div>
+      </div>
+
+      <div class="p-grid" *ngIf="!loadingcmp && trendDatacmp.length">
+        <div class="p-col" *ngIf="enableChart">
+          <app-chart [data]="trendChartDatacmp"></app-chart>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</p-dialog>

@@ -1,0 +1,69 @@
+<div class="h-100-vh page-container query-settings-page">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <!-- <p-messages styleClass="width-400 custommsg" closable="true"></p-messages> -->
+    <p-toast position="top-right"></p-toast>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/logs">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                QUERY SETTINGS
+            </div>
+            <div>
+                <button pButton type="button" class="ui-button ui-button-rounded" label="SAVE" (click)="saveSettings()">
+                </button>
+            </div>
+        </div>
+        
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <!-- <p-breadcrumb [model]="breadcrumb"></p-breadcrumb> -->
+        <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (inItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+    </div>
+    <div class="type-search width-250 my-10 mx-10"> 
+        <i class="pi pi-search left-icon btn-icon"></i>
+    <input type="text" pInputText placeholder="Search" (input)="dt.filterGlobal($event.target.value, 'contains')" class="w-100-p pl-25">
+    </div>
+
+        <p-card>
+            <p-table #dt [value]="QUERY_SETTINGS_TABLE.data" [globalFilterFields]="['name']" [columns]="QUERY_SETTINGS_TABLE.headers[0].cols" selectionMode="single" [(selection)]="selectedQuery" class="all-tables"> 
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns;let i = index" [pSortableColumn]="col.label">
+                            <div class="text-left">
+                                {{ col.label }}
+                            </div>
+                        </th>
+                        <th class="width-120 text-center">Action</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                    <tr [pSelectableRow]="row">
+                        <td *ngFor="let col of columns" class="{{ col.classes }}">
+                            <span [ngClass]="col.label === 'Value' && row.editable === true ? 'hide-data' : ''">{{ row[col.valueField] }}</span>
+                            <p-inputNumber *ngIf="col.label==='Value' && row.field === 'number' && row.name != 'discover:sampleSize' && row.editable" inputId="withoutgrouping" [useGrouping]="false" [(ngModel)]="row[col.valueField]" mode="decimal"></p-inputNumber>
+                            <p-inputNumber *ngIf="col.label==='Value' && row.field === 'number' && row.name == 'discover:sampleSize' && row.editable" max="15001" inputId="withoutgrouping" [useGrouping]="false" [(ngModel)]="row[col.valueField]" mode="decimal"></p-inputNumber>
+                            <input *ngIf="col.label==='Value' && row.field === 'input' && row.editable" type="text" pInputText [(ngModel)]="row[col.valueField]">
+                            <div *ngIf="row.field === 'radio' && col.label === 'Value' && row.editable === true">
+                            <p-radioButton *ngFor="let val of row.items" name="groupname" value="{{val.label}}" label="{{val.label}}" [(ngModel)]="row[col.valueField]"></p-radioButton>
+                            </div>
+                            <div  *ngIf="row.field === 'select' && col.label === 'Value' && row.editable === true">
+                            <p-dropdown [options]="row.items" [(ngModel)]="selectedOption" (onChange)="setValue(selectedOption)" optionLabel="label" StyleClass="psitionSetMenu" appendTo="body" placeholder="Select an Option"></p-dropdown>
+                            </div>
+                            
+                        </td>
+                        <td class="width-120 text-center">
+                            <button pButton class="mx-3" type="button" *ngFor="let action of row.actions; let i = index" (click)="action === 'edit' ? row.editable = true : deleteQuery()" icon="icons8 icons8-{{action}}">
+                            </button>
+                            <button pButton type="button" *ngIf="row.editable" class="mx-3" label="SAVE" (click)="row.editable = false">
+                            </button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+    
+</div>

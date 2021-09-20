@@ -1,0 +1,360 @@
+<div class="multidisk-setting-container" #widgetHeight>
+    <div class="p-col-12 panel-card pt-1">
+        <div class="p-grid p-col-12 p-justify-between">
+            <div>
+                <button pButton type="button" pTooltip="Refresh" icon="fa fa-refresh" style="width: 77px;"
+                    label="Refresh" (click)="RefreshDiskAllocation()"></button>
+            </div>
+
+            <div *ngIf='clsutermode == true'>
+                <strong>Nodes :-</strong>
+                <p-dropdown [style]="{'width':'184px'}" (onChange)="selectvalue($event)" [options]="slavenode"
+                    [(ngModel)]="nodevalue"></p-dropdown>
+            </div>
+
+        </div>
+        <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl1.toggle($event)">
+                        <a>
+                            <span
+                                [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                            </span>
+                        </a>
+                        DISK SUMMARY
+                    </div>
+                </div>
+            </p-header>
+            <p-table [value]="disksummarydata" [loading]="loader" class="scen-table" scrollable="true"
+                sortMode="multiple" [reorderableColumns]="true" [resizableColumns]="true">
+                <ng-template pTemplate="caption">
+                    <div style="text-align: right;">
+                        <i style="color :red;" class="icons8 icons8-edit-2 edit-icon"
+                            (click)="EditDiskOverloadThreshold()"
+                            pTooltip="Click Here to Edit Disk Overload Threshold "></i>&nbsp;
+                        <span style="font-weight: 600;">Disk Overload Threshold</span> &nbsp;&nbsp;
+                        <span><i class="icons8 icons8-filled-circle" style="color:yellow"></i>
+                            Major {{multidiskMajorThreshold}} %</span>&nbsp;&nbsp;
+                        <span><i class="icons8 icons8-filled-circle" style="color:red;"></i>
+                            Critical {{multidiskCriticalThreshold}} %</span>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>File System</th>
+                        <th>Mount On</th>
+                        <th>Size</th>
+                        <th>Available</th>
+                        <th>Health</th>
+                        <th>Status</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-data>
+                    <tr>
+                        <td style="font-weight: 600;" title="{{data.filename}}">{{data.filename}}</td>
+                        <td title="{{data.mount}}">
+                            {{data.mount}}
+                            <i class="icons8 icons8-copy right" [cdkCopyToClipboard]="data.mount"
+                                title="Click to copy the path."></i>
+                        </td>
+                        <td class="numberaligncolumn" title="{{data.size}}">{{data.size}}</td>
+                        <td style="text-align:right;" title="{{data.avail}}">{{data.avail}}</td>
+                        <td class="p-grid p-col-12 p-justify-center">
+                            <div class="ui-button ui-button-rounded"
+                                [ngStyle]="{'width':'63px', 'height':'27px','border':'2px solid #04270d','background':  data.status >= multidiskCriticalThreshold ? 'red':( data.status < multidiskMajorThreshold ?'#1dd81d' :'yellow')}">
+                            </div>
+                        </td>
+
+                        <td>
+                            <p-progressBar [value]="data.status"></p-progressBar>
+                        </td>
+                    </tr>
+                </ng-template>
+
+            </p-table>
+        </p-panel>
+        <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl2.toggle($event)">
+                        <a>
+                            <span
+                                [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                            </span>
+                        </a>
+                        Disk Allocation Table
+                    </div>
+                </div>
+            </p-header>
+            <div class="p-grid p-col-12 p-justify-center" *ngIf="nodata == true">
+                <strong>No Record Found</strong>
+            </div>
+            <p-treeTable *ngIf="nodata == false" [value]="files" [columns]="cols" [resizableColumns]="true"
+                (onNodeExpand)="nodeExpand()" (onNodeCollapse)="nodeCollapsed()">
+                <ng-template pTemplate="caption">
+                    <div style="text-align: right;">
+                        <span style="font-weight: 600;">Disk Overload Threshold</span> &nbsp;&nbsp;
+                        <span><i class="icons8 icons8-filled-circle" style="color:yellow"></i>
+                            Major {{multidiskMajorThreshold}} %</span>&nbsp;&nbsp;
+                        <span><i class="icons8 icons8-filled-circle" style="color:red;"></i>
+                            Critical {{multidiskCriticalThreshold}} %</span>
+                    </div>
+
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of cols ;let j = index" ttResizableColumn
+                            [ngStyle]="{'width.px':j?'':'171'}">
+                            {{col.header}}
+                        </th>
+                    </tr>
+
+                </ng-template>
+                <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                    <tr [ttRow]="rowNode" resizableColumns="true">
+                        <td *ngFor="let col of columns; let i = index">
+                            <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+                            <ng-container *ngIf="i<1">
+                                <b style="font-weight: 600;">
+                                    {{rowData[col.field]}}
+                                </b>
+                            </ng-container>
+
+                            <ng-container *ngIf="i==2">
+                                <div>{{rowData[col.field]}}
+                                    <i *ngIf="rowData.components != 'HPD' && rowData.components != 'NR_DB_UPLOAD'  && rowData.components !='NV Aggregator' &&  rowData.components != 'NVCampaignAggregate'  && rowData.components != 'DomainwiseAggregate' && rowData.components != 'NVSessEntryPgAgg' && rowData.components != 'NVTransactionAggregate' && rowData.components != 'NVPagePerformance' && rowData.components != 'NVSessionAggregate' && rowData.components != 'NVResourceAggregate' && rowData.components != 'NVPageAggregate'"
+                                        style="color :red;" class="icons8 icons8-edit-2 edit-icon"
+                                        (click)="ParrallelDisk(rowData)"
+                                        pTooltip="Click Here to Edit {{rowData.components}} Parallel Disk"></i>&nbsp;
+                                    <i *ngIf="rowData.alert == true" class="fa fa-exclamation-triangle"
+                                        style="color :red;"
+                                        pTooltip="the parallel disk is more than the disk assigned"></i>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="i==1  &&  rowData.components != 'NVCampaignAggregate' && rowData.components !='NV Aggregator' && rowData.components != 'DomainwiseAggregate' && rowData.components != 'NVSessEntryPgAgg'
+                         && rowData.components != 'NVTransactionAggregate' && rowData.components != 'NVPagePerformance' && rowData.components != 'NVSessionAggregate' && rowData.components != 'NVResourceAggregate'
+                          && rowData.components != 'NVPageAggregate'">
+                                <div class="ui-button ui-button-rounded"
+                                    [ngStyle]="{'width':'53px', 'height':'27px', 'border':'2px solid #04270d','background':  rowData.health >= multidiskCriticalThreshold ? 'red':( rowData.health < multidiskMajorThreshold ?'#1dd81d' :'yellow')}"
+                                    pTooltip="{{ rowData.health >= multidiskCriticalThreshold ? 'Health : Critical  ' +'\n' +'Most Unhealthy Disk: '+ rowData.healthname :  rowData.health < multidiskMajorThreshold ? 'Health : Normal ' +'\n' +'Most Unhealthy Disk: ' + rowData.healthname   : 'Health : Major ' +'\n'  + 'Most Unhealthy Disk: ' + rowData.healthname }}">
+                                </div>
+                            </ng-container>
+
+                            <ng-container *ngIf='i==1'>
+                                <div *ngIf=' rowData.components == "NVCampaignAggregate" || rowData.components == "NV Aggregator" || rowData.components == "DomainwiseAggregate" || rowData.components == "NVSessEntryPgAgg"
+                                       || rowData.components == "NVTransactionAggregate" || rowData.components == "NVPagePerformance" || rowData.components == "NVSessionAggregate" || rowData.components == "NVResourceAggregate"
+                                        || rowData.components == "NVPageAggregate"'>
+                                    N.A.
+                                </div>
+                            </ng-container>
+
+
+                            <ng-container *ngIf="i>2">
+                                <p-checkbox *ngIf="rowData.components == 'HPD'" [id]="'hpd_'+rowData[col.field]"
+                                    name="hpd" [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="hpdValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf=" rowData.components=='Pagedump'" [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="pagedumpValues" [disabled]="guestdisabled">
+
+                                </p-checkbox>
+
+                                <p-checkbox *ngIf="rowData.components == 'USERACTION'" [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="useractionValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+
+                                <p-checkbox *ngIf="rowData.components == 'CSV'" [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="csvValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'Feedback'" [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="feedbackValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'NR_DB_UPLOAD'"
+                                    [id]="'nr_db_upload_'+rowData[col.field]" name="nr_db_uplaod"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="nr_db_uploadValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'pagetable.csv'" [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="pagetablecsvValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'sessiontable.csv'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="sessiontablecsvValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'useractiontable.csv'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="useractiontablecsvValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'feedbacktable.csv'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="feedbacktablecsvValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'custommetricstable.csv'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="custommetricstablecsvValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'eventstable.csv'" [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="eventstablecsvValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'xrdatatable.csv'" [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="xhrdatatablecsvValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'usertimingtable.csv'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="usertimingtablecsvValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'mobileappinfotable.csv'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="mobileappinfotablecsvValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'nvcrashreporttable.csv'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="nvcrashreporttablecsvValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'nvjserrortable.csv'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="nvjserrortablecsvValues" [disabled]="guestdisabled">
+                                </p-checkbox>
+
+                                <!---PARSERSS-->
+                                <p-checkbox *ngIf="rowData.components == 'NV Aggregator'" [value]="rowData[col.field]"
+                                    [disabled]=true (onChange)=checkvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="nvaggregatorValues">
+                                </p-checkbox>
+
+                                <p-checkbox *ngIf="rowData.components == 'DomainwiseAggregate'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=parsercheckvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="nvdomainwiseaggregatevValues">
+                                </p-checkbox>
+
+                                <p-checkbox *ngIf="rowData.components == 'NVCampaignAggregate'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=parsercheckvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="nvcampaignaggregateValues">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'NVSessEntryPgAgg'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=parsercheckvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="nvsessentrypgaggValues">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'NVTransactionAggregate'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=parsercheckvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="nvtransactionaggregateValues">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'NVPagePerformance'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=parsercheckvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="nvpageperformanceValues">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'NVSessionAggregate'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=parsercheckvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="nvsessionaggregateValues">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'NVResourceAggregate'"
+                                    [value]="rowData[col.field]"
+                                    (onChange)=parsercheckvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="nvresourceaggregateValues">
+                                </p-checkbox>
+                                <p-checkbox *ngIf="rowData.components == 'NVPageAggregate'" [value]="rowData[col.field]"
+                                    (onChange)=parsercheckvalue($event,rowData[col.field],rowData.components)
+                                    [(ngModel)]="nvpageaggregateValues">
+                                </p-checkbox>
+
+                            </ng-container>
+
+                        </td>
+                    </tr>
+                </ng-template>
+
+            </p-treeTable>
+
+            <div class="alert alert-danger fade in netvision-bg text-color" *ngIf='nodata == true'>
+                <strong><i class='fa fa-warning fa-lg'></i> This setup doesn't have multiple disk.</strong>
+            </div>
+            <br>
+            <p-toolbar *ngIf='nodata == false'>
+                <div style="text-align: center;">
+                    <button pButton type="button" pTooltip="Save Disk Allocation Data" icon="fa fa-floppy-o"
+                        style="width: 63px;" id="savedisk" label="Save" (click)="saveDiskAllocation()"></button>
+                </div>
+            </p-toolbar>
+        </p-panel>
+    </div>
+</div>
+
+<!---Disk Overload Threshold Dialog-->
+<p-dialog appendTo="body" [(visible)]="diskoverloaddisplay" header="Edit Disk Overload Threshold" [responsive]="true"
+    showEffect="fade" [modal]="true" [style]="{width: '43vw'}" [resizable]="false">
+
+    <div class="ui-grid ui-grid-responsive ui-fluid" style="height: 84px;">
+        <br>
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label class="ui-grid-col-3">Major:-</label>
+                <label class="ui-grid-col-3">{{majorthreshold}}</label>
+            </div>
+            <div class="ui-grid-col-5">
+                <p-slider [(ngModel)]="majorthreshold"></p-slider>
+            </div>
+        </div>
+        <br>
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label>Critical:- {{criticalthreshold}}</label></div>
+            <div class="ui-grid-col-5">
+                <p-slider [(ngModel)]="criticalthreshold"></p-slider>
+            </div>
+        </div>
+    </div>
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" pButton icon="fa fa-check" (click)="saveDiskOverload()" label="Save"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+<!--Parallel Disk Dialog-->
+<p-dialog appendTo="body" [(visible)]="paralleldiskdisplay" [responsive]="true" showEffect="fade" [modal]="true"
+    [style]="{width: '43vw'}" [resizable]="false">
+    <p-header>
+        Edit {{pdiskheader | lowercase}} Parallel Disk
+    </p-header>
+    <div class="ui-grid ui-grid-responsive ui-fluid" style="height: 14px;">
+        <div class="ui-grid-row">
+            <div class="ui-grid-col-4"><label>Number Of parallel Disk:-</label></div>
+            <div class="ui-grid-col-5">
+                <input pInputText appNumbersOnly type="number" [min]="0" [max]="actualpdisk" [(ngModel)]="pdiskvalue" />
+            </div>
+        </div>
+    </div>
+    <div style="color: green;margin-top: 20px;">
+        *You cannot assign parrallel disk value more than {{actualpdisk}}.
+    </div>
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" pButton icon="fa fa-check" (click)="saveParallelDisk()" label="Save"></button>
+        </div>
+    </p-footer>
+
+</p-dialog>

@@ -1,0 +1,58 @@
+<p-dialog #dialog [style]="{width: '60vw'}" [baseZIndex]="100101" closeIcon="icons8-delete" class="secondary-dialog"
+    [(visible)]="visible" [draggable]="false" [resizable]="true" [modal]="true">
+    <p-header>
+        Add New Group
+    </p-header>
+    <div class="group-container">
+
+        <div class="p-col-12 p-grid">
+            <div class="p-col-3">
+                <span class="label-css">Add Into Existing Group:</span>
+            </div>
+            <div class="p-col-5" *ngIf="data">
+                <p-dropdown [options]="data.groups" [disabled] = "createNewGP" placeholder="Existing Group" [(ngModel)]="groupName" [showClear]="true"></p-dropdown>
+            </div>
+        </div>
+        <div class="p-grid">
+            <div class="p-col-1">
+                <p-checkbox name="createNewGPCheck" binary="true" (click)="groupName=''" [(ngModel)]="createNewGP"></p-checkbox>
+            </div>
+            <div class="p-col-5">
+                <span>Create New Group</span>
+            </div>
+        </div>
+        <div class="p-grid p-col-12" *ngIf="createNewGP">
+            <div class="p-col-2">
+                <span class="label-css">Group Name</span>
+            </div>
+            <div class="p-col-10">
+                <input class="w-75-p" type="text" pInputText placeholder="Enter Group Name" [(ngModel)]="groupName" />
+            </div>
+        </div>
+
+        <div class="p-col-12" *ngIf="data && createNewGP">
+
+            <p-pickList [source]="data.tierList" [target]="targetData" [showSourceControls]="false"
+                [showTargetControls]="false" sourceHeader="Available Tiers" targetHeader="Tiers to be Grouped"
+                [responsive]="true" filterBy="brand" dragdrop="true" sourceFilterPlaceholder=""
+                targetFilterPlaceholder="" [sourceStyle]="{'height':'200px'}" [targetStyle]="{'height':'200px'}">
+                <ng-template let-items pTemplate="item">
+                    <div class="ui-helper-clearfix">
+                        <div class="ui-pick-list-text">{{items}}</div>
+                    </div>
+                </ng-template>
+            </p-pickList>
+        </div>
+
+    </div>
+
+    <p-footer>
+        <div class="footer-buttons  button-row-position">
+            <button type="button" class="ui-outline-button ui-button-secondary" pButton label="CANCEL"
+                (click)="cancelDialog()">
+            </button>
+            <button type="button" class="ui-button ui-button-rounded" pButton label="SAVE" (click)="createGroup()">
+            </button>
+        </div>
+    </p-footer>
+</p-dialog>

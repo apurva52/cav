@@ -1,0 +1,332 @@
+<div *ngIf="visible && scheduleConfig" class="advanced-configuration-dialog">
+    <div class="dialog-content">
+        <div class="ui-fluid">
+            <div [ngClass]="_feature == 0? 'schedule-config':'schedule-config-maintenance'">
+                <label *ngIf="_feature == 0" class="schedule-config-title">Schedule Configuration</label>
+                <hr *ngIf="_feature == 0">
+                <div class="p-grid p-align-center">
+                    <label *ngIf="_feature == 0" class="mr-5">Activate rule on</label>
+                    <div class="width-130">
+                        <p-dropdown class="ui-dropdown-label" optionLabel="label" [options]="custom" dropdownIcon="icons8-expand-arrow" [(ngModel)]="scheduleConfig.scheduleType" placeholder="Select Schedule Type">
+                            <ng-template let-ruleScheduleType pTemplate="item">
+                                <div title="{{ruleScheduleType.label}}">{{ruleScheduleType.label}}</div>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value == 1">
+                        <label class="ml-5 mr-5">for every</label>                         
+                            <div class="width-150">
+                                <p-dropdown class="ui-dropdown-label" optionLabel="label" [options]="weekdays" dropdownIcon="icons8-expand-arrow" [(ngModel)]="scheduleConfig.weekday" placeholder="Week Day">
+                                    <ng-template let-week pTemplate="item">
+                                        <div title="{{week.label}}">{{week.label}}</div>
+                                    </ng-template>
+                                </p-dropdown>
+                            </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value == 2">
+                        <label class="ml-5 mr-5">for</label>
+                            <div class="width-100">
+                                <p-dropdown class="ui-dropdown-label" optionLabel="label" [options]="weekMonthDays" dropdownIcon="icons8-expand-arrow" [(ngModel)]="scheduleConfig.ruleScheduleWeekDayItem" placeholder="Day">
+                                    <ng-template let-week pTemplate="item">
+                                        <div title="{{week.label}}">{{week.label}}</div>
+                                    </ng-template>
+                                </p-dropdown>
+                            </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value == 2 && scheduleConfig.ruleScheduleWeekDayItem != null && (scheduleConfig.ruleScheduleWeekDayItem.label == 'Sunday' || scheduleConfig.ruleScheduleWeekDayItem.label == 'Monday' || scheduleConfig.ruleScheduleWeekDayItem.label == 'Tuesday' || scheduleConfig.ruleScheduleWeekDayItem.label == 'Wednesday' || scheduleConfig.ruleScheduleWeekDayItem.label == 'Thursday' || scheduleConfig.ruleScheduleWeekDayItem.label == 'Friday' || scheduleConfig.ruleScheduleWeekDayItem.label == 'Saturday')">
+                        <label class="ml-5 mr-5">of</label>
+                            <div class="width-100">
+                                <p-dropdown class="ui-dropdown-label" optionLabel="label" [options]="week" dropdownIcon="icons8-expand-arrow" [(ngModel)]="scheduleConfig.week" placeholder="Week">
+                                    <ng-template let-week pTemplate="item">
+                                        <div title="{{week.label}}">{{week.label}}</div>
+                                    </ng-template>
+                                </p-dropdown>
+                            </div>
+                        <label class="ml-5 mr-5">week</label>
+                    </ng-container>
+
+
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value == 2 && scheduleConfig.ruleScheduleWeekDayItem != null && (scheduleConfig.ruleScheduleWeekDayItem.label != 'Sunday' && scheduleConfig.ruleScheduleWeekDayItem.label != 'Monday' && scheduleConfig.ruleScheduleWeekDayItem.label != 'Tuesday' && scheduleConfig.ruleScheduleWeekDayItem.label != 'Wednesday' && scheduleConfig.ruleScheduleWeekDayItem.label != 'Thursday' && scheduleConfig.ruleScheduleWeekDayItem.label != 'Friday' && scheduleConfig.ruleScheduleWeekDayItem.label != 'Saturday')">
+                            <label class="mx-5">day</label>
+                    </ng-container>
+
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value == 3">
+                        <label class="ml-5 mr-5">on</label>
+                            <div class="width-100">
+                                <p-dropdown class="ui-dropdown-label mr-5" optionLabel="label" [options]="weekMonthDays" dropdownIcon="icons8-expand-arrow" [(ngModel)]="scheduleConfig.ruleScheduleMonthItem" placeholder="Day">
+                                    <ng-template let-week pTemplate="item">
+                                        <div title="{{week.label}}">{{week.label}}</div>
+                                    </ng-template>
+                                </p-dropdown>
+                            </div>
+                    </ng-container>
+                    
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value == 3 && scheduleConfig.ruleScheduleMonthItem != null && (scheduleConfig.ruleScheduleMonthItem.label != 'Sunday' && scheduleConfig.ruleScheduleMonthItem.label != 'Monday' && scheduleConfig.ruleScheduleMonthItem.label != 'Tuesday' && scheduleConfig.ruleScheduleMonthItem.label != 'Wednesday' && scheduleConfig.ruleScheduleMonthItem.label != 'Thursday' && scheduleConfig.ruleScheduleMonthItem.label != 'Friday' && scheduleConfig.ruleScheduleMonthItem.label != 'Saturday')">
+                            <label class="ml-5 mr-5">day of</label>
+                    </ng-container>
+
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value == 3 && scheduleConfig.ruleScheduleMonthItem != null && (scheduleConfig.ruleScheduleMonthItem.label == 'Sunday' || scheduleConfig.ruleScheduleMonthItem.label == 'Monday' || scheduleConfig.ruleScheduleMonthItem.label == 'Tuesday' || scheduleConfig.ruleScheduleMonthItem.label == 'Wednesday' || scheduleConfig.ruleScheduleMonthItem.label == 'Thursday' || scheduleConfig.ruleScheduleMonthItem.label == 'Friday' || scheduleConfig.ruleScheduleMonthItem.label == 'Saturday')">
+                            <label class="ml-5 mx-5">of</label>
+                            <div class="width-100">
+                                <p-dropdown class="ui-dropdown-label" optionLabel="label" [options]="week" dropdownIcon="icons8-expand-arrow" [(ngModel)]="scheduleConfig.week" placeholder="Week">
+                                    <ng-template let-week pTemplate="item">
+                                        <div title="{{week.label}}">{{week.label}}</div>
+                                    </ng-template>
+                                </p-dropdown>
+                            </div>
+                            <label class="ml-5 mx-5">week in</label>
+                    </ng-container>
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value == 3">
+                            <div class="width-100 mx-5">
+                                <p-dropdown class="ui-dropdown-label" optionLabel="label" [options]="monthList" dropdownIcon="icons8-expand-arrow" [(ngModel)]="scheduleConfig.month" placeholder="Month">
+                                    <ng-template let-month pTemplate="item">
+                                        <div title="{{month.label}}">{{month.label}}</div>
+                                    </ng-template>
+                                </p-dropdown>
+                            </div>
+                    </ng-container>
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value != 4">
+                        <label class="ml-10 mr-5">from</label>
+                        <div class="width-66">
+                            <input pInputText [selectMode]="'rangeFrom'" [owlDateTimeTrigger]="customFormTime" [owlDateTime]="customFormTime" [max]="customTimeFrameMax" [(ngModel)]="customFormDate" />
+                            <owl-date-time #customFormTime [showSecondsTimer]="true" [pickerType]="'timer'"></owl-date-time>
+                            <!-- <p-message *ngIf="invalidDate" severity="error"  text="Start date and End date should not be the same."></p-message> -->
+                        </div>
+                </ng-container>
+
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value != 4">
+                            <label class="ml-5 mr-5">for</label>
+                            <div class="width-50">
+                                <input id="input" type="number" class="w-75-p" autocomplete="off" max="23" pInputText [(ngModel)]="scheduleConfig.durationHr" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return event.charCode >= 48 || event.charCode == 46" min="0">
+                            </div>
+                            <label class="mr-5 ml-5">hours</label>
+                    </ng-container>
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value != 4">
+                        <div class="width-50 mr-5">
+                            <input id="input" type="number" class="w-75-p" autocomplete="off" max="59" pInputText [(ngModel)]="scheduleConfig.durationMt" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return event.charCode >= 48 || event.charCode == 46" min="0">
+                        </div>
+                        <label>minutes</label>
+                    </ng-container>
+
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value == 4">
+                            <label class="ml-10 mr-5">from</label>
+                            <div class="type-search width-150">
+                                <i class="icons8 icons8-calendar left-icon"></i>
+                                <input pInputText class="w-100-p" readonly id="start-date-time" [owlDateTime]="customStartDateTime" 
+                                placeholder="04:30 PM 23/04/2020" [owlDateTimeTrigger]="customStartDateTime" 
+                                (ngModelChange)="onTimeFilterCustomTimeChange()" 
+                                [selectMode]="'rangeFrom'" [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame" />
+                                <owl-date-time #customStartDateTime appendTo="body"></owl-date-time>
+                                <!-- <p-message *ngIf="invalidDate" severity="error"  text="Start date and End date should not be the same."></p-message> -->
+                            </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="scheduleConfig.scheduleType.value == 4">
+                            <label class="ml-10 mr-5">to</label>
+                            <div class="type-search width-150">
+                                <i class="icons8 icons8-calendar left-icon"></i>
+                                <input pInputText class="w-100-p" readonly id="end-date-time" 
+                                [owlDateTime]="customEndDateTime" placeholder="04:30 PM 13/06/2020" 
+                                [owlDateTimeTrigger]="customEndDateTime" 
+                                (ngModelChange)="onTimeFilterCustomTimeChange()" 
+                                [selectMode]="'rangeTo'" [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame" />
+                                <owl-date-time #customEndDateTime tooltipZIndex="100001005"></owl-date-time>
+                                <!-- <p-message *ngIf="invalidDate" severity="error" text="Start date and End date should not be the same."></p-message> -->
+                            </div>
+                    </ng-container>
+
+                    <ng-container>
+                        <div class="width-170 ml-10">
+                            <p-dropdown [options]="sessionService.timeZoneLists" filter="true" [(ngModel)]="scheduleConfig._selectedTimeZone"></p-dropdown>
+                        </div>
+                    </ng-container>
+
+                    <div *ngIf="_feature == 0" class="ml-10">
+                        <button pButton *ngIf="!isOnlyReadable" type="button" label="{{ !updateScheduleMode?'ADD': 'UPDATE'}}" class="ui-outline-button ui-button-secondary" icon="icons8 icons8-forward" iconPos="right" (click)="addUpdateScheduler(true)"></button>
+                    </div>
+                </div>
+
+
+
+                <div *ngIf="_feature == 0 && addedScheduleConfig.length != 0" class="p-grid p-col-12">
+                    <!-- <p-fieldset legend="Applied Schedule"> -->
+                        <div class="p-col-12 derived-graph-bucket">
+                            <div class="graph-details" *ngFor="let scheduler of addedScheduleConfig; let i = index" (click)="updateScheduler(i, scheduler)" [ngClass]="scheduler.updateScheduler ? 'selected' : 'graph-details'">
+                                <div *ngIf="scheduler.type == 8" class="graph-section-1">
+                                    <div class="token-index" title="{{scheduler.index}}" [ngStyle]="{ backgroundColor: scheduler.colorForGraph }">
+                                        {{scheduler.index}}
+                                    </div>Activate rule on
+                                    <div class="token" title="{{scheduler.scheduleType.label}}">
+                                        <b>{{scheduler.scheduleType.label}}&nbsp;</b>
+                                    </div>from
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.from}}&nbsp; </b>
+                                    </div>to
+                                    <div *ngIf="scheduler.type == 8" class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.to}}&nbsp; </b>
+                                    </div>
+                                    <div class="token" title="{{scheduler._selectedTimeZone.value}}">
+                                        {{scheduler._selectedTimeZone.value}}
+                                    </div>
+                                </div>
+                                <div *ngIf="scheduler.type == 0" class="graph-section-1">
+                                    <div class="token-index" title="{{scheduler.index}}" [ngStyle]="{ backgroundColor: scheduler.colorForGraph }">
+                                        {{scheduler.index}}
+                                    </div>Activate rule on
+                                    <div class="token" title="{{scheduler.scheduleType.label}}">
+                                        <b>{{scheduler.scheduleType.label}}&nbsp;</b>
+                                    </div>from
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.from}}&nbsp; </b>
+                                    </div>for
+                                    <div *ngIf="scheduler.type == 0" class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.durationHr}} &nbsp; </b>
+                                    </div>hours
+                                    <div *ngIf="scheduler.type == 0" class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.durationMt}} &nbsp; </b>
+                                    </div>minutes
+                                    <div class="token" title="{{scheduler._selectedTimeZone.value}}">
+                                        {{scheduler._selectedTimeZone.value}}
+                                    </div>
+                                </div>
+                                <div *ngIf="scheduler.type == 1" class="graph-section-1">
+                                    <div class="token-index" title="{{scheduler.index}}" [ngStyle]="{ backgroundColor: scheduler.colorForGraph }">
+                                        {{scheduler.index}}
+                                    </div>Activate rule on
+                                    <div class="token" title="{{scheduler.scheduleType.label}}">
+                                        <b>{{scheduler.scheduleType.label}}&nbsp;</b>
+                                    </div>for every
+                                    <div class="token" title="{{scheduler.weekday.label}}">
+                                        <b>{{scheduler.weekday.label}}&nbsp; </b>
+                                    </div>from
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.from}}&nbsp; </b>
+                                    </div>for
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.durationHr}} &nbsp; </b>
+                                    </div>hours
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.durationMt}} &nbsp; </b>
+                                    </div>minutes
+                                    <div class="token" title="{{scheduler._selectedTimeZone.value}}">
+                                        {{scheduler._selectedTimeZone.value}}
+                                    </div>
+                                </div>
+                                <div *ngIf="scheduler.type == 2 || scheduler.type == 4" class="graph-section-1">
+                                    <div class="token-index" title="{{scheduler.index}}" [ngStyle]="{ backgroundColor: scheduler.colorForGraph }">
+                                        {{scheduler.index}}
+                                    </div>Activate rule on
+                                    <div class="token" title="{{scheduler.scheduleType.label}}">
+                                        <b>{{scheduler.scheduleType.label}}&nbsp;</b>
+                                    </div>for
+                                    <div class="token" title="{{scheduler.weekplusday.label}}">
+                                        <b>{{scheduler.weekplusday.label}}&nbsp;</b>
+                                    </div>day from
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.from}}&nbsp; </b>
+                                    </div>for
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.durationHr}} &nbsp; </b>
+                                    </div>hours
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.durationMt}} &nbsp; </b>
+                                    </div>minutes
+                                    <div class="token" title="{{scheduler._selectedTimeZone.value}}">
+                                        {{scheduler._selectedTimeZone.value}}
+                                    </div>
+                                </div>
+                                <div *ngIf="scheduler.type == 3" class="graph-section-1">
+                                    <div class="token-index" title="{{scheduler.index}}" [ngStyle]="{ backgroundColor: scheduler.colorForGraph }">
+                                        {{scheduler.index}}
+                                    </div>Activate rule on
+                                    <div class="token" title="{{scheduler.scheduleType.label}}">
+                                        <b>{{scheduler.scheduleType.label}}&nbsp;</b>
+                                    </div>for
+                                    <div class="token" title="{{scheduler.weekplusday.label}}">
+                                        <b>{{scheduler.weekplusday.label}}&nbsp;</b>
+                                    </div>of
+                                    <div class="token" title="{{scheduler.week.label}}">
+                                        <b>{{scheduler.week.label}}&nbsp;</b>
+                                    </div>week from
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.from}}&nbsp; </b>
+                                    </div>for
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.durationHr}} &nbsp; </b>
+                                    </div>hours
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.durationMt}} &nbsp; </b>
+                                    </div>minutes
+                                    <div class="token" title="{{scheduler._selectedTimeZone.value}}">
+                                        {{scheduler._selectedTimeZone.value}}
+                                    </div>
+                                </div>
+                                <div *ngIf="scheduler.type == 5" class="graph-section-1">
+                                    <div class="token-index" title="{{scheduler.index}}" [ngStyle]="{ backgroundColor: scheduler.colorForGraph }">
+                                        {{scheduler.index}}
+                                    </div>Activate rule on
+                                    <div class="token" title="{{scheduler.scheduleType.label}}">
+                                        <b>{{scheduler.scheduleType.label}}&nbsp;</b>
+                                    </div>on
+                                    <div class="token" title="{{scheduler.weekplusdayforyear.label}}">
+                                        <b>{{scheduler.weekplusdayforyear.label}}&nbsp; </b>
+                                    </div>day of
+                                    <div class="token" title="{{scheduler.month.label}}">
+                                        <b>{{scheduler.month.label}}&nbsp; </b>
+                                    </div>from
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.from}}&nbsp; </b>
+                                    </div>for
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.durationHr}} &nbsp; </b>
+                                    </div>hours
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.durationMt}} &nbsp; </b>
+                                    </div>minutes
+                                    <div class="token" title="{{scheduler._selectedTimeZone.value}}">
+                                        {{scheduler._selectedTimeZone.value}}
+                                    </div>
+                                </div>
+                                <div *ngIf="scheduler.type == 6" class="graph-section-1">
+                                    <div class="token-index" title="{{scheduler.index}}" [ngStyle]="{ backgroundColor: scheduler.colorForGraph }">
+                                        {{scheduler.index}}
+                                    </div>Activate rule on
+                                    <div class="token" title="groupInfo">
+                                        <b>{{scheduler.scheduleType.label}}&nbsp;</b>
+                                    </div>on
+                                    <div class="token" title="{{scheduler.weekplusdayforyear.label}}">
+                                        <b>{{scheduler.weekplusdayforyear.label}}&nbsp; </b>
+                                    </div>of
+                                    <div class="token" title="{{scheduler.week.label}}">
+                                        <b>{{scheduler.week.label}} &nbsp; </b>
+                                    </div>week in
+                                    <div class="token" title="{{scheduler.month.label}}">
+                                        <b>{{scheduler.month.label}}&nbsp;</b>
+                                    </div>from
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.from}}&nbsp; </b>
+                                    </div>for
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.durationHr}} &nbsp; </b>
+                                    </div>hours
+                                    <div class="token" title="{{scheduler.from}}">
+                                        <b>{{scheduler.durationMt}} &nbsp; </b>
+                                    </div>minutes
+                                    <div class="token" title="{{scheduler._selectedTimeZone.value}}">
+                                        {{scheduler._selectedTimeZone.value}}
+                                    </div>
+                                </div>
+                                <div *ngIf="!scheduler.updateScheduler && !isOnlyReadable" class="token-icon">
+                                    <i class="icons8 icons8-delete-trash" (click)="deleteScheduler(i)"></i>
+                                </div>
+                            </div>
+                        </div>
+                    <!-- </p-fieldset> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

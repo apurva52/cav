@@ -1,0 +1,56 @@
+<div class="h-100-vh page-container home-page">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+ <!--   <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/system">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                DASHBOARD SERVICE/REQ
+            </div>
+        </div>
+    </p-toolbar> -->
+    <div id="dashboard-service-wrapper">
+        <div class="p-grid">
+            <div class="p-col-12 no-padding">
+                <div class="breadcrumbs">
+                    <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+                    <!-- <p-breadcrumb [model]="breadcrumb"></p-breadcrumb> -->
+                </div>
+            </div>
+            <div class="p-col-3 no-padding" *ngIf="!isShow && isFromFP">
+                <app-business-transaction-jacket (closeClick)="searchSummaryHide()" (selectRowEvent)="getRowData()"></app-business-transaction-jacket>
+            </div>
+            <div [ngClass]="(isShow == true || !isFromFP)?'p-col-12':'p-col-9'" class="no-padding main-table">
+                <div class="p-grid">
+                    <div class="p-grid p-justify-start p-align-center pl-10" *ngIf="!isFromFP">
+                        <button type="button" class="btn-icon mx-3"  (click)="drilldownFilter.show()" title="UI Filters"><i class ="icons8 icons8-filter" ></i></button>
+                        
+                    </div>
+                    <div class="p-col-7 filter-group">
+                            <a *ngIf="isShow && isFromFP" class="openSearch" (click)="openSearchPanel()"><i class="icons8 icons8-right" title="Show Side View"></i></a>
+                            <div class="clickable" (click)="longValue.open1()">{{selectedFilter1 | ellipsis: 60}}</div>
+                    </div>
+
+                    <div *ngIf="isFromFP" class="p-col-5 filter-button-group">
+                        <a (click)= "closeSplitView()" ><i class="icons8-delete"></i></a>
+                        <button pButton class="filter-buttons" (click)="openNetForest()">LOGS</button>
+                        <button pButton class="filter-buttons" (click)="openNVFromND()">SESSION</button>
+                        <button pButton class="filter-buttons" (click)="openED()">ED</button>
+                    </div>
+                </div>
+                <p-tabMenu class="tab-wrap" *ngIf="isFromFP" [model]="widgetReportItems" [activeItem]='activeTab'>
+                </p-tabMenu>
+                <div class="tab-content">
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-global-drilldown-filter #drilldownFilter></app-global-drilldown-filter>
+
+<app-long-value #longValue></app-long-value>

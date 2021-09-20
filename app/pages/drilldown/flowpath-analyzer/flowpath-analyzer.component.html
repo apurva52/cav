@@ -1,0 +1,192 @@
+<div class="h-100-vh wrapper">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/dashboard">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                FLOWPATH ANALYZER
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <!-- <p-breadcrumb [model]="breadcrumb"></p-breadcrumb> -->
+        <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+    </div>
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div>
+                <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+            </div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{error.msg}}"></p-message>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+    <div class="button-section">
+        <div class="p-grid">
+            <div class="p-col-12">
+                <div class="clickable" (click)="longValue.open2()">{{selectedFilterr | ellipsis: 80 }}</div>
+                <div class="button-group text-right">
+                    <span class="patternno">Number of Pattern (1-10) </span>
+                    <input #inp pInputText class="pattern" type="number" min="1" max="10" value="5" placeholder="" />
+                    <button pButton  (click)="applyPattern(inp.value)" label="Apply" class="ui-button-rounded"></button>
+                    <!-- <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                        [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                    <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button"
+                        (click)="menu.toggle($event);" pTooltip="Download"></button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="flowpath-analyzer-wrapper">
+        <div class="p-grid">
+            <div class="p-col-12 no-padding">
+                <div *ngIf="data" class="vertical-container">
+                    <div class="p-grid p-justify-start p-align-center">
+                        <div *ngFor="let panel of data.panels; let i = index" style="width: 100%;">
+                            <div id="panel-{{i+1}}" class="http-reports-panel">
+                                <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true"
+                                    [(collapsed)]="panel.collapsed"
+                                    [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                                    <p-header class="cav-panel-header pt-5">
+                                        <div class="cav-panel-content p-grid p-align-center">
+                                            <div class="panel-title" (click)="pnl.toggle($event)">
+                                                <a tabindex="{{i}}">
+                                                    <span
+                                                        [class]="pnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                                    </span>
+                                                </a>
+                                                {{panel.label}}
+                                                <span *ngIf="panel.label==='Pattern Summary'">
+                                                    (Flowpath Avg Time={{fpAvgTime}}ms, Flowpath Count={{fpTotalCount}})
+                                                </span>
+                                            </div>
+                                            <div class="p-grid p-justify-center p-align-center">
+                                            <div *ngIf="panel.label == 'Flowpath Signature'">
+                                              <p-menu appendTo="ui-icon-button" #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionFlowSign" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                              <button pButton icon="icons8 icons8-download" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                            </div>
+                                            <div *ngIf="panel.label == 'Pattern Summary'">
+                                              <p-menu appendTo="ui-icon-button" #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionPatternSum" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                              <button pButton icon="icons8 icons8-download" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                            </div>
+                                            <div *ngIf="panel.label == 'Top Methods (Total Self Time(ms) and Count per Flowpath)'">
+                                                <div class="p-grid p-justify-center p-align-center">
+                                                    <div class="ui-inputgroup-addon-flow">
+                                                        <div class="methodTiming-search-box">
+                                                            <input #searchInput type="text" [value]="" class="w-100-p" pInputText size="70" placeholder="Search" *ngIf="isShowSearch" (input)="flowpathAnalyzer.filterGlobal($event.target.value, 'contains')" class="search-box" />
+                                                            <!-- <button pButton type="button" *ngIf="isShowSearch" class="ui-icon-button ui-button-rounded clear-button" pTooltip="Clear filter" tooltipZIndex="100001005" icon="icons8 icons8-delete" (click)="clearFilters()"></button> -->
+                                                            <button pButton icon="icons8 icons8-search" (click)="isShowSearch = !isShowSearch" class="icon-button no-shadow"></button>
+                                                        </div>
+                                                    </div>     
+                                              <p-menu appendTo="ui-icon-button" #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionTopMethods" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                              <button pButton icon="icons8 icons8-download" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                            </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </p-header>
+                                    <div class="p-col-6 fpa-chart-wrapper" *ngFor="let chart of panel.charts">
+                                        <app-chart [data]="chart"></app-chart>
+                                    </div>
+
+                                    <p-table
+                                        [ngStyle]="{'display': (panel.label ==='Pattern Stats') ? 'none' : 'block'}"
+                                         #flowpathAnalyzer class="all-tables" [resizableColumns]="true"
+                                        [columns]="panel.headers" [rowHover]="true"
+                                        [rowsPerPageOptions]="panel.paginator.rowsPerPageOptions"
+                                        [value]="panel.data" [lazy]="false" [globalFilterFields]="globalFilterFields"
+                                        (onLazyLoad)="loadPagination($event,i)" [totalRecords]="panel.data.length"
+                                        [paginator]="false" [rows]="panel.paginator.rows" [showCurrentPageReport]="false"
+                                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+                                        <ng-template pTemplate="colgroup" let-columns>
+                                            <colgroup>
+                                            <col *ngFor="let col of columns">
+                                            </colgroup>
+                                            </ng-template>
+                                        <ng-template pTemplate="caption" *ngIf="panel.label==='Top Methods (Total Self time (ms) and count per flow path)'">
+                                            <div class="text-right">
+                                                <i class="pi pi-search"></i>
+                                                <input type="text" pInputText size="50" placeholder="Search"
+                                                    (input)="flowpathAnalyzer.filterGlobal($event.target.value, 'contains')"
+                                                    class="search-box">
+                                            </div>
+                                        </ng-template>
+                                        <ng-template pTemplate="header" let-columns>
+                                            <tr *ngFor="let headerRow of panel.headers">
+                                                <th *ngFor="let col of headerRow.cols" pResizableColumn [attr.colspan]="col.colspan"
+                                                   [pSortableColumn]="col.valueField" [attr.rowspan]="col.rowspan">
+                                                    {{col.label}}
+                                                    <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                    </p-sortIcon>
+                                                </th>
+                                            </tr>
+                                            <tr *ngFor="let headerRow of panel.headers">
+                                                <ng-container *ngIf="panel.tableFilter">
+                                                    <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                                        <div
+                                                            *ngIf="col.filter.isFilter === true &&col.filter.type === 'custom'">
+                                                            <input class="w-100-p"
+                                                                pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                                *ngSwitchCase="col.label" pInputText type="text"
+                                                                (input)="flowpathAnalyzer.filter($event.target.value,col.value,'custom')" />
+                                                        </div>
+                                                        <div
+                                                            *ngIf="col.filter.isFilter === true && col.filter.type === 'contains'">
+                                                            <input class="w-100-p"
+                                                                pTooltip="Will filter metric names which contains given text."
+                                                                *ngSwitchCase="col.label" pInputText type="text"
+                                                                (input)="flowpathAnalyzer.filter($event.target.value,col.valueField,'contains')" />
+                                                        </div>
+                                                    </th>
+                                                </ng-container>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-row let-columns="columns">
+                                            <tr>
+                                                <td *ngFor="let col of panel.headers[panel.headers.length - 1].cols" class="{{ col.classes }}" pTooltip={{row[col.valueField]|f_ddr:col.format}}>
+                                                    <span *ngIf="(col.label == 'FlowPath Count')" (click)="openFpReport(col.label, row)">
+                                                        <a [ngClass]="{activeLink: col.label == 'FlowPath Count'}">
+                                                            {{ row[col.valueField] | f_ddr: col.format }}
+                                                        </a>
+                                                    </span>
+                                                    <span *ngIf="(col.label !== 'FlowPath Count')">
+                                                            {{ row[col.valueField] | f_ddr: col.format }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="emptymessage" let-columns>
+                                            <tr>
+                                                <td [attr.colspan]="columns.length + 1" class="text-center">
+                                                    <span *ngIf="error">Error while loading data</span>
+                                                    <!-- <span *ngIf="emptyTable">No Data</span> -->
+                                                    <span *ngIf="loading">Loading</span>
+                                                    <span *ngIf="!empty && !loading && !error && searchInput && searchInput.nativeElement.value.length  ">Nothing
+                                                        found matching
+                                                        "{{searchInput.nativeElement.value}}"</span>
+                                                </td>
+                                            </tr>
+                                        </ng-template> 
+                                    </p-table>
+                                </p-panel>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<app-long-value #longValue></app-long-value>

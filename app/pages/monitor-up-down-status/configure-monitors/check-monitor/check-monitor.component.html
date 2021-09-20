@@ -1,0 +1,147 @@
+<div class="h-100-vh check-monitor-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/configure-monitors">
+                <span class="icons8 icons8-left toolbar-icon-color"></span>
+            </a>
+            <div class="p-col ui-toolbar-text">{{monName}}</div>
+            <div>
+                <!-- <button type="submit"  pButton class="ui-button ui-button-rounded ui-button-right" form="ngForm" (click)=saveMonConfiguration()  label="Save"></button> -->
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="content-body">
+        <form (ngSubmit)="addData()" #form="ngForm" ngNativeValidate>
+            <p-panel>
+                <p-header>
+                    <p-checkbox [binary]="true" name="isChk" [(ngModel)] = "enabled"
+                        ngDefaultControl></p-checkbox>
+                        <span class="checkbox-label">{{monType}}</span>
+                </p-header>
+        <div class="p-grid p-align-center w-100-p">
+            <div class="width-160 required-mark">{{displayMonName}}</div>
+            <div class="p-col-2">
+                <input  name="monName"  type="text" [(ngModel)]="checkMonData.name"
+                  pattern="[A-Za-z0-9_]+" required="true" pInputText ngModel class="w-100-p" />
+            </div>
+        
+            <div class="width-160 ml-30">Instance Name</div>
+            <div class="p-col-2">
+                <input  name="instance" class="w-100-p"  type="text" [(ngModel)]="checkMonData.instance"   pInputText ngModel />
+            </div>
+    
+            <div class="width-160 ml-30 required-mark">Program Name</div>
+            <div class="p-col-2">
+                <input name="checkMonProgName" class="w-100-p" type="text" pattern="^\S+( +\S+)*$" [(ngModel)]="checkMonData.checkMonProgName" required pInputText ngModel />
+            </div>
+            </div>
+    
+        
+            
+         <div class="p-grid p-align-center w-100-p">
+            <div class="width-160 required-mark">{{displayFrmEvnt}}</div>
+            <div class="p-col-2">
+            <p-dropdown name="fromEvent" [options]="executeTimeArr" [(ngModel)]="checkMonData.fromEvent" (onChange)="fromEventDropDownChange()" ngModel  dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+        
+            <div class="width-160 ml-30">Phase Name</div>
+            <div class="p-col-2">
+                <input ngModel 
+                name="phaseNames"  type="text" 
+                pattern="^[a-zA-Z][a-zA-Z0-9_-]{0,31}$" [disabled]="checkMonData.fromEvent != '3'" [(ngModel)]="checkMonData.phaseName"
+                title="Please enter valid phase name. &#013;Phase name must start with Alpha.  &#013;Allowed characters are alpha, numeric and special characters (_ - : )."
+                pInputText class="w-100-p" />
+            </div>
+    
+            <div class="width-160 ml-30">Frequency</div>
+            <div class="p-col-2">
+            <p-dropdown name="frequency" [options]="freqArr" (onChange)="checkMonData.endEvent='NA'" [(ngModel)]="checkMonData.frequency" dropdownIcon="icons8 icons8-expand-arrow"
+             [disabled]="checkMonData.fromEvent == 'NA' ||checkMonData.fromEvent == '1' || checkMonData.fromEvent == '90' "  title="Run Periodic - NetStorm will start the monitor periodically to get data. Never - NetStorm will start the monitor once at the start of Test Run." ngModel></p-dropdown>
+            </div>
+           
+        </div>
+    
+    
+        <div class="p-grid p-align-center">
+           
+        
+    
+        <div class="width-160">Periodicity (HH:MM:SS)</div>
+            <div class="p-col-2">
+                <input name="periodicity"  type="text"  pattern="^(2[0-3]|[01]?[0-9]):([0-5]?[0-9]):([0-5]?[0-9])$" [disabled]="checkMonData.fromEvent == '1' || checkMonData.fromEvent == 'NA' || checkMonData.fromEvent == '90' || checkMonData.frequency == 'NA' || checkMonData.frequency == '2'" 
+                [(ngModel)]="checkMonData.periodicity" required="true" class="w-100-p" pInputText ngModel />
+            </div>
+    
+            <div class="width-160 ml-30">{{displayEndEvnt}}</div>
+            <div class="p-col-2">
+            <p-dropdown name="endEvents" [options]="endEventArr" [disabled]="checkMonData.fromEvent == 'NA' || checkMonData.fromEvent == '1' || checkMonData.frequency == '2' || checkMonData.fromEvent == '90'" [(ngModel)]="checkMonData.endEvent" ngModel  dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+            <div class="width-160 ml-30"  *ngIf="checkMonData.endEvent!= '3' ">Count</div>
+            <div class="width-160 ml-3"  *ngIf="checkMonData.endEvent == '3' ">End Phase Name</div>
+            <div class="p-col-2">
+                <input name="checkMonProgName" *ngIf="checkMonData.endEvent != '3'" placeholder="NA" name="count" [disabled]="checkMonData.fromEvent == 'NA' || checkMonData.fromEvent == '1' || checkMonData.frequency == '2' || checkMonData.endEvent == 'NA' ||checkMonData.endEvent == '1' || checkMonData.fromEvent == '90'  || checkMonData.endEvent == 'NA'" class="w-100-p"
+                 min="1" [(ngModel)]="checkMonData.count"  title="Please enter valid count value. &#013; Max count value must be a numeral. &#013; Max count value should be greater than zero."  type="number" required="true" pInputText ngModel />
+    
+                 <input  name="endPhaseName"  *ngIf="checkMonData.endEvent == '3'" [disabled] = "checkMonData.fromEvent == 'NA' || checkMonData.fromEvent == '1' || checkMonData.fromEvent == '90'"  [(ngModel)]="checkMonData.endPhaseName" type="text" pInputText ngModel class="w-100-p" />
+            </div>
+        </div>
+        <div class="p-grid p-align-center"  *ngIf="monType === 'Batch Jobs'">
+            <div class="width-160">Success Criteria</div>
+            <div class="p-col-2">
+                <p-dropdown name="successCriteria" [options]="sucessCriteriaArr" [(ngModel)]="checkMonData.successCriteria" [style]="{'min-width': '100%'}"  dropdownIcon="icons8 icons8-expand-arrow"  appendTo="body" ngModel></p-dropdown>
+            </div>
+            <div class="width-160" *ngIf="checkMonData.successCriteria == '3'">Log File Name</div>
+            <div class="p-col-2" *ngIf="checkMonData.successCriteria == '3'">
+                <input ngModel style="width: 180px" name="logFile" [(ngModel)]="checkMonData.logFile" type="text" 
+                title="Path of Log File" required="true"
+                pInputText class="w-100-p"/>
+              </div>
+        
+              <div class="width-160" *ngIf="checkMonData.successCriteria  == '2'">
+                Search Pattern
+               </div>
+              
+               <div class="width-160" *ngIf="checkMonData.successCriteria  == '3'">
+                Search Pattern
+               </div>
+              
+              <div class="p-col-2" *ngIf="checkMonData.successCriteria  == '2' || checkMonData.successCriteria  == '3'">
+                  <input ngModel style="width: 180px" name="searchPt" [(ngModel)]="checkMonData.batchSearchPattern" type="text" 
+                  title="Enter the Search Pattern" required="true"
+                  pInputText />
+              </div>
+        
+              <div class="width-160" *ngIf="checkMonData.successCriteria == '4'">
+                Command Name
+               </div>
+              
+              <div class="p-col-2" style="margin-left: 29px" *ngIf="checkMonData.successCriteria== '4'">
+                <input ngModel style="width: 180px" name="cmdName" [(ngModel)]="checkMonData.cmdName" type="text" 
+                title="Enter the Command Name" required="true"
+                pInputText />
+              </div>
+        </div>   
+            </p-panel>
+        <app-tier-server></app-tier-server>
+    
+        <div class="p-col-12 p-grid p-justify-end p-align-end">
+            <button type="submit" pButton class="ui-button ui-button-rounded ui-button-right" style="border-radius: 15px;"  label = "{{AddEditLabel}}" title ="Add New configuration"></button>
+            <button type="submit" pButton *ngIf="AddEditLabel === 'Update'" title="Cancel Update" label="Cancel"
+            class="ui-button ui-button-rounded ui-button-right" (click)="resetUI()"></button>
+    </div> 
+                             
+    <app-configured-monitor-info [techName]="techName" [showCols]="tableInfo" (logMonData)="editData($event)"></app-configured-monitor-info>
+    
+            
+    </form>
+    <div class="loading-indicator" *ngIf="loading">
+        <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+        </p-progressSpinner>
+    </div>
+    </div>
+    
+    

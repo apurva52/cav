@@ -1,0 +1,57 @@
+<div class="ui-g">
+    <p-card style="padding: 0px; background: rgba(80, 194, 238, 0.23); ">
+        <!-- <p-card-header class="toprightheader" style="height:23px; margin-bottom: 1px;"><label style=" color: white ;font-size: 17px; margin-left: -11px;">Add Machine For Enterprise Environment</label></p-card-header> -->
+
+        <ng-template pTemplate="header">
+            <label>Add Machine For Enterprise Environment</label>
+        </ng-template>
+
+        <div class=" cosmotable" style="padding: 4px">
+            <span class="compotable">
+                <p-table class="scen-ptable" [columns]="cols" [value]="data" [(selection)]="selectedvalue"
+                    (onRowSelect)="handleClickForNode($event)" (onRowUnselect)="handleUnRowSelectForUser($event)"
+                    (onHeaderCheckboxToggle)="addUserHeaderCheckBoxClick($event)" sortField="name" [scrollable]="true"
+                    scrollHeight="70vh" sortField="name" [sortOrder]="1" [resizableColumns]="true">
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                            <col style="width: 3em;">
+                            <col style="width: 15%;">
+                            <col style="width: 25%;">
+                            <col style="width: 30%;">
+
+                        </colgroup>
+                    </ng-template>
+
+                    <ng-template pTemplate="header" let-columns>
+                        <tr class="scen-ptable-thead">
+                            <th>
+                            </th>
+                            <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+                                {{col.header}}
+                                <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                                    ariaLabelDesc="Activate to sort in descending order"
+                                    ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+                        <tr [pSelectableRow]="rowData" class="scen-ptable-tbody">
+                            <td>
+                                <p-tableCheckbox [value]="rowData" [index]="rowIndex"></p-tableCheckbox>
+                            </td>
+                            <td class="ui-resizable-column" *ngFor="let col of columns">
+                                <span title={{rowData[col.field]}}> {{rowData[col.field]}}</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </span>
+        </div>
+    </p-card>
+    <div style="width:100% ; padding-top: 7px">
+        <button class="addUserToGroup" mat-raised-button color="primary" mat-dialog-close (click)="closeDialog()"><i
+                class="fa fa-window-close" aria-hidden="true">&nbsp;&nbsp;</i>Close</button>
+        <button class="addUserToGroup" mat-raised-button color="primary" (click)=updateNodeListInGroup()
+            mat-dialog-close><i class="fa fa-floppy-o" aria-hidden="true">&nbsp;&nbsp;</i>Attach</button>
+    </div>
+</div>

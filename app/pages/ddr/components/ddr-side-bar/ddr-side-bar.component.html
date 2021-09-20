@@ -1,0 +1,664 @@
+<!--  **********  Report TYpe ***************  -->
+<div  style="overflow-x:hidden;" class="sidedbar-accordion">
+
+  <div class='ui-g'>
+    <div class="ui-g-12 p-grid p-align-center" style="height:50px">
+      <div class='ui-g-2' *ngIf="showReportField  else ns_reports" >
+        Report 
+    </div>
+    <div class='ui-g-6'>
+        <p-dropdown [options] = "reportList" [style]="{'min-width':'108%'} " dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)] = "this.commonServices.currentReport" (onChange)= "changeReport()" appendTo = "body"></p-dropdown>
+      </div>
+      <ng-template #ns_reports class='ui-g-6'>Report  {{this.commonServices.currentReport}}</ng-template>
+      <!-- ************************ apply button *********** -->
+      <div class='ui-g-3 ml-10'>
+        <button pButton type="button" label="Apply" (click)="onApply()" class="ui-button-rounded ui-button-secondary"></button>
+        <button pButton type="button" label="Reset" (click)="Reset()" style=" margin-top: 3px;" class="ui-button-rounded ui-button-secondary"></button>
+
+        <!-- <button type="button" label="Apply" pButton (click)="onApply()" style=" margin-top: -4px; height:18.7px"></button>
+        <button type="button" label="Reset" pButton (click)="Reset()" style=" margin-top: 3px; height:18.5px"></button> -->
+      </div>
+    </div>
+    <div  class ='ui-g-12' style='color:orangered; margin-top:20px'  *ngIf='selectAnyCheckBoxFlag'>{{showAnyCheckBoxErrorMessage}}</div>
+      
+    <div *ngIf = 'enableMultiDC && !this.showNSFilter'class = 'ui-g-12' style=" padding-left:16px; padding-top: 27px">
+    <div class = 'ui-g-6'>
+    
+    <p-checkbox label = "Multi DC " binary=true (onChange) = 'isMultiDcEnable()'  [(ngModel)] = "isMultiDC"></p-checkbox>
+    </div>
+    <div class = 'ui-g-6'>
+    
+    <p-dropdown [options] = 'dcList' class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" [style] = "{'min-width' :'106%' ,'margin-left': '-5px'}" placeholder="Select" [disabled] = "!isMultiDC" [(ngModel)] = "this.selectedDC" (onChange) = 'changeMultiDC()'></p-dropdown>
+      
+    </div>
+         <div class ='ui-g-12' style='color:orangered'  *ngIf='selectIsMultiDCCheckFlag'>{{showCheckBoxErrorMessage}}</div>
+    </div>
+
+
+
+
+    <!--  **********  Time Filter ***************  -->
+    <div class='ui-g-12 mt-20' style="padding-left: 16px">
+      <div class='ui-g-6'>
+        <p-checkbox value="val1" label="Time Filter" binary=true (onChange)="timeOptions()" [(ngModel)]="timeFilter"></p-checkbox>
+      </div>
+      <div class='ui-g-6' style="padding-left: 0px">
+        <p-dropdown appendTo="body" [options]="standardTime" class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" (onChange)="getPhaseOptions()"scrollHeight="188px" [disabled]="!timeFilter" [(ngModel)]="selectedTime" [style]="{'min-width':'102%'}" [panelStyle]="{maxWidth:'126px'}" placeholder="Select"></p-dropdown>
+      </div>
+    </div>
+    <div class="ui-g-12" style="margin-left: 138px">
+    <div *ngIf="selectedTime=='Specified Phase'">
+      <p-dropdown [options]="phaseTime" scrollHeight="188px" class="w-100-p"  dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="selectedPhase" [style]="{'min-width':'100%'}" placeholder="Select"></p-dropdown>
+    </div>
+  </div>
+     <div class ='ui-g-12' style='color:orangered' *ngIf='selectCheckBoxFlag'>{{showCheckBoxErrorMessage}}</div>
+    <div  *ngIf="this.selectedTime == 'Custom Time'">
+        <div class='ui-g-12' style="margin-top: -11px"> 
+          <div class='ui-g-2' style="padding-left: 9px">
+          From :
+        </div>
+      <div class='ui-g-10' style="padding-left: 34px">   
+        <p-calendar [showSeconds] = "true" [showIcon]="true" (onInput)="onStrDate($event)" dateFormat="mm/dd/yy" (onSelect)="onStrDate($event)" [monthNavigator]="true"
+          [yearNavigator]="true" yearRange="1970:2030" [showTime]="true" [(ngModel)]="strDate" placeholder="mm/dd/yy hh:mm:ss" appendTo="body"> </p-calendar>
+        </div>
+      </div>
+      <div class='ui-g-12' style="margin-top: -15px"> 
+          <div class='ui-g-2' style="padding-left: 10px">
+          To :
+        </div>
+      <div class='ui-g-10' style="padding-left: 34px"> 
+        <p-calendar [showSeconds] = "true" [showIcon]="true" (onInput)="onEndDate($event)"  dateFormat="mm/dd/yy" (onSelect)="onEndDate($event)" [monthNavigator]="true"
+          [yearNavigator]="true" yearRange="1970:2030" [showTime]="true" [(ngModel)]="endDate" placeholder="mm/dd/yy hh:mm:ss" appendTo="body"></p-calendar>
+        </div>
+      </div>
+      <div  class ='ui-g-12' style='color:orangered'  *ngIf='customTimeError'>{{customTimeErrorMessage}}</div>
+      <div  class ='ui-g-12' style='color:orangered'  *ngIf='showStartTimeError'>{{customStartTimeError}}</div>
+      <div  class ='ui-g-12' style='color:orangered'  *ngIf='showEndTimeError'>{{customEndTimeError}}</div>
+      </div>
+      <!-- change kardio bhai yae bhi test wali condition pljj
+    <div class ='ui-g-12' style="height:100px">
+    <div class ='ui-g-4'>{{this.commonServices.currentReport}} Response 
+    </div>
+    <div class ='ui-g-4'>
+        <p-dropdown [options]="ResponseTime" scrollHeight="188px"  [(ngModel)]="selectedResponse" [style]="{'width':'125px'}"  onchange="changeResponseTime()"></p-dropdown>
+    </div>
+      <div class='ui-g-4'>   
+      <input type="text" value='1000' [(ngModel)]="responseValue" >
+    </div>
+    </div> -->
+
+
+       <!--  **********  Response Time Filter for NS ***************  -->
+
+          <div class='ui-g-12 mt-8' *ngIf="this.showNSFilter">
+            <div class='ui-g-4'>
+              <p-checkbox value="val1" binary=true label="Response" (onChange)="responseCheck()" [(ngModel)]="checkedResponseTime"></p-checkbox>
+            </div>
+            <div class="ui-g-2" style="padding-left:43px">
+              <p-dropdown [options]="resCompareOptions" dropdownIcon="icons8 icons8-expand-arrow" (onChange)="responseEqualCase()" placeholder="" scrollHeight="100px" [disabled]="!checkedResponseTime"
+                [(ngModel)]="resSelectedCompareOption" [style]="{'width':'40px', 'margin-top' : '-3px' , 'margin-right': '50px'}"></p-dropdown>
+            </div>
+            <div class="ui-g-3" style="padding-left: 41px">
+              <input type="text" class="w-100-p" pInputText (keypress)="onlyNumberKey($event)" size="5" value="1000" [disabled]="!checkedResponseTime" [(ngModel)]="responseTime" placeholder="ms">
+                <div class ='ui-g-12' style='color:orangered'  *ngIf='selectResponseCheckBoxFlag1'>{{showInputFieldErrorMessage}}</div>                     </div>
+            <div class="ui-g-3" *ngIf="showingEqualResponseBox == true" style="padding-left: 178px">
+                +/- <input (keypress)="onlyNumberKey($event)" pInputText class="w-100-p" type="text" size="2" value="0" [disabled]="!checkedResponseTime" [(ngModel)]="resVariance" placeholder="ms">
+           </div>
+            <div  class ='ui-g-12' style='color:orangered' *ngIf='selectResponseCheckBoxFlag'>{{showInputFieldErrorMessage}}</div>
+          </div>
+
+    <!--  ********** Group by and order by filters ***************  -->
+
+      <div *ngIf="showGroupBy()">
+      <p-accordion >
+        <p-accordionTab header="Group By and Order By" [selected]="true">
+          <div class='ui-g-12' style="padding-left: 6px">
+            <div class='ui-g-6' style="padding-left: 0px">
+              <p-checkbox value="val1" label="GroupBy" binary=true (onChange)="getGroupBy()" [(ngModel)]="checkGroup" [disabled]="enableGroupBy()"></p-checkbox>
+            </div>
+            <div class='ui-g-6'>
+              <p-multiSelect appendTo="body" defaultLabel="Select" [options]="groupBy"  maxSelectedLabels="1" [disabled]="!checkGroup" (onChange)="getOrderBy()" [style]="{'width':'129px'}"
+                [(ngModel)]="selectedGroupBy" [panelStyle]="{maxWidth:'100px'}"></p-multiSelect>
+            </div>
+            <div  class ='ui-g-12' style='color:orangered'  *ngIf='selectGroupByCheckBoxFlag'>{{showCheckBoxErrorMessage}}</div>  
+          </div>
+          <div class='ui-g-12 ' style="padding-left: 6px">
+            <div class='ui-g-6' style="padding-left: 0px">
+              <p-checkbox value="val1" label="OrderBy" binary=true [disabled]="enableOrderBy()" (onChange)="getOrderBy()" [(ngModel)]="checkOrder"></p-checkbox>
+            </div>
+            <div class='ui-g-6' style="padding-left: 0px">
+              <p-multiSelect appendTo="body" [options]="orderBy" defaultLabel="Select"  maxSelectedLabels="1" [disabled]="!checkOrder" [style]="{'width':'136px'}" [(ngModel)]="selectedOrderBy" [panelStyle]="{maxWidth:'100px'}"></p-multiSelect>
+            </div>
+            <div  class ='ui-g-12' style='color:orangered'  *ngIf='selectOrderByCheckBoxFlag'>{{showCheckBoxErrorMessage}}</div>
+          </div>
+        </p-accordionTab>
+      </p-accordion>
+    </div> 
+
+
+<!--  ********** Pop up for exception  ***************  -->
+    <p-dialog header="Exception Filters Message "  [(visible)]="exceptionPopup" [positionTop] = "200" [responsive]="true" width="350" >
+      <div style="margin-bottom : 20px">Can not apply exception filters which are applied in group By options at same time.
+        You either have to uncheck in group by filters OR uncheck the exception filters . 
+      </div> 
+
+  </p-dialog>
+
+
+    <!--  ********** Common filters ***************  -->
+    <p-accordion>
+      <p-accordionTab header="Common Filters " [selected]="true" *ngIf="showCommonFilters">
+
+
+        <!--  **********  Tier Filter **************-->
+        <div class='ui-g-12 mt-10 mb-10 side-bar-height'>
+          <div class='ui-g-6'>
+            <p-checkbox value="val1" label="Tier" binary=true (onChange)="tierInfo()" [(ngModel)]="selectedTier"></p-checkbox>
+          </div>
+          <div class='ui-g-6'>
+            <p-multiSelect appendTo="body" class = "ddr-multiselect-all ddr-link" defaultLabel="Select" dropdownIcon="icons8 icons8-expand-arrow" [options]="tierList" maxSelectedLabels="1" [filter]=true [style]="{'width':'130px', 'white-space': 'nowrap'}"  (onChange)="setDefaultServerAppFilter()" [disabled]="!selectedTier"
+              [(ngModel)]="tierName" [panelStyle]="{maxWidth:'120px'}" ></p-multiSelect>
+          </div>
+        </div>
+        <div  class ='ui-g-12' style='color:orangered'  *ngIf='selectTierFlag'>{{showCheckBoxErrorMessage}}</div>
+        <!--  **********  Server Filter ***************  -->
+        <div class='ui-g-12 mb-10 side-bar-height'>
+          <div class='ui-g-6'>
+            <p-checkbox value="val2" label="Server" binary=true [disabled]="!(this.selectedTier == true  && this.tierName.length > 0)" (onChange)="serverInfo()" [(ngModel)]="selectedServer"></p-checkbox>
+          </div>
+          <div class='ui-g-6'>
+            <p-multiSelect appendTo="body" class = "ddr-multiselect-all ddr-link" dropdownIcon="icons8 icons8-expand-arrow" defaultLabel="Select" [options]="serverList" maxSelectedLabels="1" [filter]=true [style]="{'width':'130px', 'white-space': 'nowrap'}"  (onChange)="setDefaultAppFilter()" [disabled]="!selectedServer"
+              [(ngModel)]="serverName" [panelStyle]="{maxWidth:'140px'}" ></p-multiSelect>
+          </div>
+        </div>
+        <div  class ='ui-g-12' style='color:orangered'  *ngIf='selectServerFlag'>{{showCheckBoxErrorMessage}}</div>
+
+        <!--  **********  App Filter ***************  -->
+        <div class='ui-g-12'>
+          <div class='ui-g-6'>
+            <p-checkbox value="val3" label="Instance" binary=true [disabled]="!(this.selectedServer == true && this.serverName.length > 0)" (onChange)="appInfo()" [(ngModel)]="selectedApp"></p-checkbox>
+          </div>
+          <div class='ui-g-6'>
+            <p-multiSelect  appendTo="body" class = "ddr-multiselect-all ddr-link" dropdownIcon="icons8 icons8-expand-arrow" defaultLabel="Select" [options]="appList" maxSelectedLabels="1" [style]="{'width':'113%', 'white-space': 'nowrap'}"  (onChange)="appFilter()" [filter]=true [disabled]="!selectedApp" [(ngModel)]="appName" [panelStyle]="{maxWidth:'140px'}" ></p-multiSelect>
+          </div>
+        </div>
+        <div  class ='ui-g-12 mb-10' style='color:orangered'  *ngIf='selectAppFlag'>{{showCheckBoxErrorMessage}}</div>
+
+        <!--  **********  Flowpath instance Filter **************-->
+        <div *ngIf="this.commonServices.currentReport != 'Hotspot' && this.commonServices.currentReport != 'DB Report' && this.commonServices.currentReport != 'Exception'  && this.commonServices.currentReport != 'FlowpathGroupBy' && this.commonServices.currentReport != 'DBGroupBy' " class='ui-g-12 side-bar-height mtn-10'>
+          <div class='ui-g-6'>
+            <p-checkbox value="val1" label="Flowpath Instance" binary=true (onChange)="fpInstanceInfo()" [(ngModel)]="selectedFP"></p-checkbox>
+          </div>
+          <div class='ui-g-6'>
+            <input type="text" pInputText [style]="{'width':'113%'}" (keypress)="onlyNumberKeyAndComma($event)" size="16" value="0" [disabled]="!selectedFP" [(ngModel)]="fpInstance">
+          </div>
+        </div>
+        <div class ='ui-g-12' style='color:orangered'  *ngIf='selectfpInstanceFlag'>{{showInputFieldErrorMessage}}</div>
+
+
+        <!--  **********  Buisness Transaction (url) Filter **************-->
+        <div *ngIf="this.checkedUrl == false && this.commonServices.currentReport != 'Exception' && this.commonServices.currentReport != 'Hotspot' ">
+          <div class='ui-g-12 mt-10'>
+            <div class='ui-g-6'>
+              <div>
+                <p-checkbox value="val5" title="Business Transaction" label="BT" binary=true (onChange)="btInfo()" [(ngModel)]="checkedBuisnessTransaction"></p-checkbox>
+              </div>
+              <div *ngIf="checkedBuisnessTransaction" style="margin-top: -10px ; margin-left:93px">
+                <span class="fa fa-arrow-left" title="Previous BT" style="margin-right: 5px" *ngIf="prev" (click)="previous()"></span>
+                <span class="fa fa-arrow-right" title="Next (1000 or lesser BTs)" *ngIf="nxt" (click)="next()"></span>
+              </div>
+            </div>
+            <div class='ui-g-6'>
+              <p-dropdown  appendTo="body" class = 'sidebar-dropdown w-100-p' dropdownIcon="icons8 icons8-expand-arrow" scrollHeight="140px"  [filter]=true   [options]="BTOptions"  [style]="{'min-width':'113%', 'white-space': 'nowrap'}" [(ngModel)]="selectedBuisnessTransaction"
+                [disabled]="!checkedBuisnessTransaction" placeholder="Select" [panelStyle]="{width:'125px'}"></p-dropdown>
+            </div>
+          </div>
+          <div class='ui-g-12' style="margin-top: -14px; margin-left: 155px" *ngIf="checkedBuisnessTransaction">( {{this.btOffset + 1}} - {{this.btEndValue}} of {{this.btCount}} )</div>
+        </div>
+        <div  class ='ui-g-12' style='color:orangered' *ngIf='selectBTFlag'>{{showCheckBoxErrorMessage}}</div>
+
+          <!--  ********** BT Category*****************  -->
+          <div *ngIf="this.commonServices.currentReport != 'Hotspot' && this.commonServices.currentReport != 'Exception' && this.commonServices.currentReport != 'IP Summary'" class='ui-g-12 mtn-10' >
+            <div class='ui-g-6'>
+              <p-checkbox value="val1" label="BT Category" binary=true (onChange)="btcheck()" [(ngModel)]="selectedBT"></p-checkbox>
+            </div>
+            <div class='ui-g-6'>
+              <p-dropdown appendTo="body" class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" styleClass="ddr-myselect" [options]="BTCategory" [filter]=true [(ngModel)]="selectedBTCategory" [disabled]="!selectedBT" [style]="{'min-width':'113%'}"
+                placeholder="Select " [panelStyle]="{maxWidth:'125px'}"></p-dropdown>
+            </div>
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectBTCategoryFlag'>{{showCheckBoxErrorMessage}}</div>
+
+           <!--  ********** Integration points*****************  -->
+           <div *ngIf="this.commonServices.currentReport == 'IP Summary' " class='ui-g-12' style="height:36px" >
+            <div class='ui-g-6'>
+              <p-checkbox value="val1" label="Integration point" binary=true (onChange)="ipInfo()" [(ngModel)]="selectedIP"></p-checkbox>
+            </div>
+            <div class='ui-g-6'>
+      <p-multiSelect class = "ddr-multiselect-all ddr-link"  defaultLabel="Select" [options]="IntegrationPoint" maxSelectedLabels="1" [filter]=true [style]="{'width':'125px', 'white-space': 'nowrap'}"  [disabled]="!selectedIP"
+              [(ngModel)]="selectedIntegrationPoint" [panelStyle]="{maxWidth:'140px'}" ></p-multiSelect>
+            </div>
+          </div>
+            <div  class ='ui-g-12' style='color:orangered' *ngIf='selectIntegrationPointFlag'>{{showCheckBoxErrorMessage}}</div>	
+      </p-accordionTab>
+    </p-accordion>
+
+    <!--  ********** *************** Flowpaths Filter ***************  -->
+    <div *ngIf="this.commonServices.currentReport == 'Flowpath'">
+      <p-accordion>
+        <p-accordionTab header="Flowpath Filter" [selected]="true">
+          <!--  **********  Response Time Filter ND***************  -->
+
+          <div class='ui-g-12 mt-10'>
+            <div class='ui-g-7'>
+              <p-checkbox value="val1" binary=true label="Total Response" (onChange)="responseCheck()" [(ngModel)]="checkedResponseTime"></p-checkbox>
+            </div>
+            <div class="ui-g-3">
+              <p-dropdown [options]="resCompareOptions" class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" (onChange)="responseEqualCase()" placeholder="" scrollHeight="100px" [disabled]="!checkedResponseTime"
+                [(ngModel)]="resSelectedCompareOption" [style]="{'min-width':'100%'}"></p-dropdown>
+            </div>
+            <div class="ui-g-2" >
+              <input type="text" pInputText style="width: 46px;" (keypress)="onlyNumberKey($event)" size="5" value="0" [disabled]="!checkedResponseTime" [(ngModel)]="responseTime"
+                placeholder="ms">
+                <div  class ='ui-g-12' style='color:orangered' *ngIf='selectResponseCheckBoxFlag1'>{{showInputFieldErrorMessage}}</div>
+            </div>
+           
+            <div class="ui-g-3" *ngIf="showingEqualResponseBox == true" style="padding-left: 9px">
+              <div style="padding-left: 9px"> +/-</div>
+              <div style="padding-left: 29px; margin-top: -14px"><input (keypress)="onlyNumberKey($event)" type="text" size="2"
+                  value="0" [disabled]="!checkedResponseTime" [(ngModel)]="resVariance" placeholder="ms"></div>
+            </div>
+          </div>
+          
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectResponseCheckBoxFlag'>{{showInputFieldErrorMessage}}</div>
+    
+          <!--  **********  Method Count Filter ***************  -->
+
+          <div class="ui-g-12 mtn-8 mb-10 side-bar-height">
+            <div class="ui-g-6">
+              <p-checkbox value="val1" label="Methods (>=)" (onChange)="methodCheck()" binary=true [(ngModel)]="checkedMethodCount"></p-checkbox>
+            </div>
+            <div class="ui-g-6">
+              <input type="text" pInputText style="width: 114%;" (keypress)="onlyNumberKey($event)" size="5" value="0" [disabled]="!checkedMethodCount" [(ngModel)]="minMethods">
+            </div>
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectedminMethodsFlag'>{{showInputFieldErrorMessage}}</div>
+
+          <!--  ********** Correlation ID *****************  -->
+
+          <div class='ui-g-12 '>
+            <div class="ui-g-4">
+              <p-checkbox value="val1" label="Corr ID " (onChange)="corelationcheck()" binary=true [(ngModel)]="checkedCorrId"></p-checkbox>
+            </div>
+            <div class="ui-g-4">
+              <input type="text" pInputText size="12" class="w-100-p" value="0" [disabled]="!checkedCorrId" [(ngModel)]="corrId">
+              <div  class ='ui-g-12' style='color:orangered' *ngIf='selectedCorrIdModeFlag1'>{{showInputFieldErrorMessage}}</div>
+              <div  class ='ui-g-12' style='color:orangered' *ngIf='selectedCorrIdModeFlag'>{{showInputFieldErrorMessage}}</div>
+            </div>
+            <div class="ui-g-4">
+              <p-dropdown class="dropup w-100-p" dropdownIcon="icons8 icons8-expand-arrow"  [options]="corrIdModeOptions" [disabled]="!checkedCorrId" [(ngModel)]="selectedCorrIdMode" [style]="{'min-width':'121%'}"
+                placeholder="Select"></p-dropdown>
+              <div  class ='ui-g-12' style='color:orangered' *ngIf='selectedCorrIdModeFlag2'>{{showCheckBoxErrorMessage}}</div>
+              <div  class ='ui-g-12' style='color:orangered' *ngIf='selectedCorrIdModeFlag'>{{showCheckBoxErrorMessage}}</div>
+            </div>
+            
+            </div>
+            <div class='ui-g-12 mtn-10'>
+              <div class='ui-g-6'>
+                <p-checkbox value='val1' label='Order By' binary=true (onChange)='fpOrderCheck()' [(ngModel)]="fpOrderByCheck"></p-checkbox>
+              </div>
+              <div class='ui-g-6'>
+                <p-dropdown class="dropup w-100-p" dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width':'112%'}" [options]='fpOrderByOptions' [disabled]='!fpOrderByCheck' [(ngModel)]='selectedFpOrderBy' placeholder='Select'></p-dropdown>
+              </div>
+                <div  class ='ui-g-12' style='color:orangered' *ngIf='selectedFpOrderByFlag'>{{showInputFieldErrorMessage}}</div>
+            </div>
+          <!--  **********  Dynamic logging Filter ***************  -->
+
+          <div class="ui-g-12 mtn-15 mb-10 side-bar-height">
+            <div class="ui-g-8">
+              <p-checkbox value="val1" label="Dynamic logging" (onChange)="DLCheck()" binary=true [(ngModel)]="checkDLFlag"></p-checkbox>
+            </div>
+          </div>
+
+          <!--  **********  Request/response Filter ***************  -->
+          
+          
+          <div class="ui-g-12 mb-10 side-bar-height">
+            <div class="ui-g-6">
+              <p-checkbox value="val1" label="Req/Resp" (onChange)="ReqRespCheck()" binary=true [(ngModel)]="checkReqRespFlag"></p-checkbox>
+            </div>
+          </div>
+            
+            </p-accordionTab>
+      </p-accordion>
+    </div>
+    <!--  ********** DB request Filters*****************  -->
+    <div *ngIf="this.commonServices.currentReport == 'DB Report'" style="width:100%">
+      <p-accordion>
+        <p-accordionTab header="DB Query Filter" [selected]="true">
+          <!-- <div class='ui-g-12 side-bar-height' >
+            <div class='ui-g-6'>
+              <p-checkbox value="val1" label="Query Type" binary=true [(ngModel)]="selectedQuery"></p-checkbox>
+            </div>
+            <div class="ui-g-3">
+              <input type="text" size="4" value="0" [disabled]="!selectedQuery" [(ngModel)]="queryText">
+            </div>
+            <div class='ui-g-3'>
+              <p-dropdown [options]="queryTypeOptions" [(ngModel)]="selectedQueryType" [disabled]="!selectedQuery" [style]="{'width':'70px'}"
+                placeholder="choose"></p-dropdown>
+            </div>
+          </div> -->
+          <div class='ui-g-12 mt-10'>
+            <div class='ui-g-7'>
+               <p-checkbox value="val1" label="Top N Queries for Pie Charts" (onChange)="checkTopNQuery()" binary=true [(ngModel)]="checkNQueryforPie"></p-checkbox>
+            </div>
+            <div class='ui-g-5' style="margin-left: -19px">
+              <input type="text" class="w-100-p"  [style]="{'min-width':'133%'}" pInputText (keypress)="onlyNumberKey($event)" size="7" value="0" [disabled]="!checkNQueryforPie" [(ngModel)]="selectedTopNQuery">
+            </div>
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectCheckNQuerryFlag'>{{showInputFieldErrorMessage}}</div>
+          <div class='ui-g-12'>
+            <div class='ui-g-6'>
+              <p-checkbox label='Order By' binary=true (onChange)='dbOrderBy()' [(ngModel)]='dbOrderByCheck'></p-checkbox>
+            </div>
+            <div class='ui-g-6'>
+              <p-dropdown class="dropup w-100-p" [style]="{'min-width':'112%'}"  dropdownIcon="icons8 icons8-expand-arrow" [options]='dbOrderByOptions' [(ngModel)]='selectedDbOrderBy' [disabled]='!dbOrderByCheck' placeholder='Select'></p-dropdown>
+            </div>
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectDBOrderByCheckFlag'>{{showCheckBoxErrorMessage}}</div>
+          </p-accordionTab>
+          </p-accordion>
+    </div>
+
+     <!--  ********** Method Timing Filters*****************  -->
+    <div  *ngIf="this.commonServices.currentReport == 'Method Timing'" style="width:100%">
+      <p-accordion>
+        <p-accordionTab header='Method Timing Filter' [selected]='true'>
+          <div class='ui-g-12 ' style="height:42px">
+            <div class='ui-g-7'>
+              <p-checkbox value="val1" label="Top N Entities for Pie Charts" title='Top N Method(s) or Class or Package(s)' (onChange)="checkTopNEntity()" binary=true [(ngModel)]="checkNEntityforPie"></p-checkbox>
+            </div>
+            <div class='ui-g-5' style="margin-left: -19px">
+              <input type="text" pInputText (keypress)="onlyNumberKey($event)" class="w-100-p" [style]="{'min-width':'136%'}"  size="7" value="0" [disabled]="!checkNEntityforPie" [(ngModel)]="selectedTopNEntity">
+            </div>
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectedTopNEntityFlag'>{{showInputFieldErrorMessage}}</div>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+
+    <!--  ********** Exception Filters*****************  -->
+    <div *ngIf="this.commonServices.currentReport == 'Exception'">
+      <p-accordion>
+        <p-accordionTab header="Exception Filter" [selected]="true">
+          <div class='ui-g-12' style="height:20px">
+            <div class='ui-g-8'>
+              <p-checkbox value="val1" label="Exception Class" binary=true (onChange)="exceptionClassInfo()" [(ngModel)]="selectedExceptionClass"></p-checkbox>
+            </div>
+          </div>
+          <div class='ui-g-12 mt-10 mb-12' style="height:28px">
+            <p-dropdown appendTo="body" dropdownIcon="icons8 icons8-expand-arrow" [filter]=true [options]="exceptionClassOptions" [(ngModel)]="selectedException" [disabled]="!selectedExceptionClass" placeholder="Select "
+              [style]="{'width':'190px', 'margin-left':'21px'}" [panelStyle]="{maxWidth:'190px'}"></p-dropdown>
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectExceptionClassFlag'>{{showCheckBoxErrorMessage}}</div>
+          <div class='ui-g-12' style="height:20px">
+            <div class='ui-g-8'>
+              <p-checkbox value="val1" label="Throwing Class" binary=true (onChange)="exceptionThrowingClassInfo()" [(ngModel)]="selectedThrowingClass"></p-checkbox>
+            </div>
+          </div>
+          <div class='ui-g-12 mt-10 mb-12' style="height:28px">
+            <p-dropdown appendTo="body" dropdownIcon="icons8 icons8-expand-arrow" [filter]=true [options]="throwingClassOptions" [(ngModel)]="selectedExceptionThrowingClass" [disabled]="!selectedThrowingClass"
+              placeholder="Select " [style]="{'width':'190px', 'margin-left':'21px'}" [panelStyle]="{maxWidth:'190px'}"></p-dropdown>
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectedExceptionThrowingClassFlag'>{{showCheckBoxErrorMessage}}</div>
+
+          <div class='ui-g-12' style="height:20px">
+            <div class='ui-g-8'>
+              <p-checkbox value="val1" label="Throwing Method" binary=true (onChange)="exceptionThrowingMethodInfo()" [(ngModel)]="selectedThrowingMethod"></p-checkbox>
+            </div>
+          </div>
+          <div class='ui-g-12 mt-10 mb-12' style="height:28px">
+            <p-dropdown appendTo="body" dropdownIcon="icons8 icons8-expand-arrow" class="dropup" [filter]=true [options]="throwingMethodOptions" [(ngModel)]="selectedExceptionThrowingMethod" [disabled]="!selectedThrowingMethod"
+              placeholder="Select " [style]="{'width':'190px', 'margin-left':'21px'}" [panelStyle]="{maxWidth:'190px'}"></p-dropdown>
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectedExceptionThrowingMethodFlag'>{{showCheckBoxErrorMessage}}</div>
+          <div class='ui-g-12' style="height:20px">
+            <div class='ui-g-9'>
+              <p-checkbox value="val1" label="Cause" binary=true (onChange)="exceptionCauseInfo()" [(ngModel)]="selectedExceptionCause"></p-checkbox>
+            </div>
+          </div>
+          <div class='ui-g-12 mt-10 mb-12' style="height:28px">
+            <p-dropdown appendTo="body" dropdownIcon="icons8 icons8-expand-arrow" [filter]=true [options]="exceptionCauseOptions" [(ngModel)]="selectedExceptionCauseType" [disabled]="!selectedExceptionCause"
+              placeholder="Select " [style]="{'width':'190px', 'margin-left':'21px'}" [panelStyle]="{maxWidth:'190px'}"></p-dropdown>
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectedExceptionCauseTypeFlag'>{{showCheckBoxErrorMessage}}</div>
+          <div class='ui-g-12' style="height:20px">
+            <div class='ui-g-8'>
+              <p-checkbox value="val1" label="Exception Message" binary=true (onChange)="exceptionMessageInfo()" [(ngModel)]="selectedExceptionMessage"></p-checkbox>
+            </div>
+          </div>
+          <div class='ui-g-12 mt-10 mb-12' style="height:28px">
+            <p-dropdown appendTo="body" dropdownIcon="icons8 icons8-expand-arrow" [filter]=true [options]="exceptionMessageOptions" [(ngModel)]="selectedExceptionMessageType" [disabled]="!selectedExceptionMessage"
+              placeholder="Select " [style]="{'width':'190px', 'margin-left':'21px'}" [panelStyle]="{maxWidth:'190px'}"></p-dropdown>
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectedExceptionMessageTypeFlag'>{{showCheckBoxErrorMessage}}</div>
+          <div class='ui-g-12' style="height:20px">
+            <div class='ui-g-12'>
+              <p-checkbox value="val1" label="Stack Trace (Containing)" (onChange)="stackTraceInfo()" binary=true [(ngModel)]="selectedStackTrace"></p-checkbox>
+            </div>
+          </div>
+          <div class='ui-g-12 mt-10 mb-12' style="margin-left:22px ; height:34px">
+            <input type="text" pInputText class="w-100-p" [style]="{'width':'76%'}" size="27" value="0" [disabled]="!selectedStackTrace" [(ngModel)]="selectedStack">
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectedStackFlag'>{{showInputFieldErrorMessage}}</div>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+
+    <!--  ********** URL status*****************  -->
+    <div *ngIf="this.showNSFilter && this.commonServices.currentReport != 'Hotspot' && this.commonServices.currentReport != 'IP Summary'">
+      <p-accordion>
+        <p-accordionTab header="Request Status" [selected]="true">
+          <div class="ui-g-12 side-bar-height">
+            <div class="ui-g-6 ">
+              <p-radioButton name="group1" value="-2" (click)=urlRadioButton() label="All" [(ngModel)]="selectedUrlStatus" inputId="opt1"></p-radioButton>
+            </div>
+          </div>
+
+          <div class="ui-g-12 side-bar-height">
+            <div class="ui-g-6">
+              <p-radioButton name="group1" value="0" (click)=urlRadioButton() label="All Success" [(ngModel)]="selectedUrlStatus" inputId="opt2"></p-radioButton>
+            </div>
+          </div>
+
+          <div class="ui-g-12 side-bar-height">
+            <div class="ui-g-6">
+              <p-radioButton name="group1" value="-1" (click)=urlRadioButton() label="All Failures" [(ngModel)]="selectedUrlStatus" inputId="opt3"></p-radioButton>
+            </div>
+          </div>
+          <div class="ui-g-12 " style="height:40px">
+            <div class="ui-g-6">
+              <p-radioButton name="group1" value="4" (click)=failureType() label="Failure Types" [(ngModel)]="selectedUrlStatus" inputId="opt4"></p-radioButton>
+            </div>
+            <div class="ui-g-6" *ngIf="failure">
+              <p-multiSelect appendTo="body" dropdownIcon="icons8 icons8-expand-arrow" [options]="failureTypes" scrollHeight="100px" maxSelectedLabels="1" [style]="{'width':'126px'}" [panelStyle]="{maxWidth:'126px'}" class="multiselectUp" [(ngModel)]="selectedFailureId"></p-multiSelect>
+            </div>
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectFailureTypeFlag'>{{showCheckBoxErrorMessage}}</div>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+
+    <!-- ***********************NV Filters **************** -->
+    <div *ngIf="this.commonServices.currentReport == 'Flowpath' && this.commonServices.NVUrl != 'NA' ">
+        <p-accordion >
+          <p-accordionTab header="NV Filters" [selected]="false">
+              <div class='ui-g-12 mt-10 side-bar-height' style="height:auto">
+                  <div class='ui-g-6'>
+                    <p-checkbox value="val1" label="ND Session Id" binary=true (onChange)="nvFilters('ndSessionID')" [(ngModel)]="isCheckedSessionId"></p-checkbox>
+                  </div>
+                  <div class='ui-g-6'>
+                    <input (keypress)="onlyNumberKeyAndComma($event)" pInputText class="w-100-p" type="text" size="14" value="0" [disabled]="!isCheckedSessionId" [(ngModel)]="ndSessionId">
+                  </div>
+                    <div  class ='ui-g-12' style='color:orangered' *ngIf='ndSessionIdFlag'>{{showInputFieldErrorMessage}}</div>
+                </div>
+  
+                <div class='ui-g-12 mtn-10 side-bar-height' style="height:auto">
+                    <div class='ui-g-6'>
+                      <p-checkbox value="val1" label="NV Page Id" binary=true (onChange)="nvFilters('nvPageID')" [(ngModel)]="isCheckedPageId"></p-checkbox>
+                    </div>
+                    <div class='ui-g-6'>
+                      <input (keypress)="onlyNumberKeyAndComma($event)" pInputText class="w-100-p" type="text" size="14" value="0" [disabled]="!isCheckedPageId" [(ngModel)]="nvPageId">
+                    </div>
+                    <div  class ='ui-g-12' style='color:orangered' *ngIf='nvPageIdFlag'>{{showInputFieldErrorMessage}}</div>
+                  </div>
+                  
+                  <div *ngIf="this.commonServices.checkNVSessionId == '1'" class='ui-g-12 side-bar-height' style="height:auto">
+                      <div class='ui-g-6'>
+                        <p-checkbox value="val1" label="NV Session Id" binary=true (onChange)="nvFilters('nvSessionID')" [(ngModel)]="isCheckedNVSessionID"></p-checkbox>
+                      </div>
+                      <div class='ui-g-3'>
+                        <input (keypress)="onlyNumberKeyAndComma($event)" type="text" size="14" value="0" [disabled]="!isCheckedNVSessionID" [(ngModel)]="nvSessionId">
+                      </div>
+                        <div  class ='ui-g-12' style='color:orangered' *ngIf='nvSessionIdFlag'>{{showInputFieldErrorMessage}}</div>
+                    </div>
+  
+           </p-accordionTab>
+          </p-accordion>
+      </div>
+
+    <!-- ************************NS Filters ***************** -->
+    <div *ngIf="this.showNSFilter && this.commonServices.currentReport != 'Hotspot' && this.commonServices.currentReport != 'Exception'">
+      <p-accordion>
+        <p-accordionTab header="Script Filters" [selected]="true">
+         
+          <div class='ui-g-12' style="height:20px">
+            <div class='ui-g-6'>
+              <p-checkbox value="val1" label="Script" binary=true [(ngModel)]="checkedScript" (onChange)="validateScriptCheck()"></p-checkbox>
+            </div>
+          </div>
+          <div class='ui-g-12' style="height:28px">
+            <p-dropdown  appendTo="body" dropdownIcon="icons8 icons8-expand-arrow"  styleClass = "ns-url-dropdown" [filter]=true [options]="scriptOptions" [(ngModel)]="selectedScript" [disabled]="!checkedScript" placeholder="select"
+            (onChange)="validateScriptCheck('change')" [style]="{'width':'245px', 'margin-left':'21px'}" [panelStyle]="{maxWidth:'243px'}"></p-dropdown>
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectScriptCheckBoxFlag'>{{showCheckBoxErrorMessage}}</div>
+          <div class='ui-g-12' style="height:20px">
+            <div class='ui-g-6'>
+              <p-checkbox value="val1" label="Transaction" binary=true [(ngModel)]="checkedTransaction" (onChange)="validateTransactionCheck()" [disabled]="!checkBoxTransaction" title={{hintTransaction}}></p-checkbox>
+            </div>
+          </div>
+          <div class='ui-g-12' style="height:40px">
+            <p-dropdown appendTo="body"  dropdownIcon="icons8 icons8-expand-arrow" [filter]=true [options]="transactionOptions" [(ngModel)]="selectedTransaction" [disabled]="!checkedTransaction" placeholder="select"
+              [style]="{'width':'245px', 'margin-left':'21px'}" [panelStyle]="{maxWidth:'245px'}"></p-dropdown>
+                   
+              <div class="ui-g-6" style="margin-left:79px" *ngIf="showTransactionPagination">
+                <span class="fa fa-arrow-left" title="Previous BT" style="margin-right: 5px" *ngIf="true" (click)="previous()"></span>
+                lalalalalal
+                <span class="fa fa-arrow-right" title="Next (1000 or lesser BTs)" *ngIf="true" (click)="next()"></span>
+            </div>
+          
+            </div>
+            <div  class ='ui-g-12' style='color:orangered' *ngIf='selectTransactionCheckBoxFlag'>{{showCheckBoxErrorMessage}}</div>
+          
+          <div class='ui-g-12' style="height:20px">
+            <div class='ui-g-6'>
+              <p-checkbox value="val1" label="Page" binary=true [(ngModel)]="checkedPage" (onChange)="validatePageCheck()" [disabled]="!checkBoxPage" title={{hintPage}}></p-checkbox>
+            </div>
+          </div>
+          <div class='ui-g-12' style="height:28px">
+            <p-dropdown appendTo="body" dropdownIcon="icons8 icons8-expand-arrow" styleClass = "ns-url-dropdown" [filter]=true [options]="pageOptions" [(ngModel)]="selectedPage" [disabled]="!checkedPage" placeholder="select"
+            (onChange)="validatePageCheck('change')" [style]="{'width':'245px', 'margin-left':'21px'}" [panelStyle]="{maxWidth:'245px'}"></p-dropdown>
+                   
+            <div class="ui-g-6" style="margin-left:79px" *ngIf="showPagePagination">
+              <span class="fa fa-arrow-left" title="Previous BT" style="margin-right: 5px" *ngIf="true" (click)="previous()"></span>
+              lalalalalal
+              <span class="fa fa-arrow-right" title="Next (1000 or lesser BTs)" *ngIf="true" (click)="next()"></span>
+          </div>
+          
+          </div>
+          <div  class ='ui-g-12' style='color:orangered' *ngIf='selectPageCheckBoxFlag'>{{showCheckBoxErrorMessage}}</div>
+          <div class='ui-g-12' style="height:20px" *ngIf="(this.checkedBuisnessTransaction == false || this.commonServices.currentReport == 'Exception')">
+            <div class='ui-g-6'>
+              <p-checkbox value="val1" label="URL" binary=true [(ngModel)]="checkedUrl" (onChange)="validateUrlCheck()" [disabled]="!checkBoxUrl" title={{hintUrl}}></p-checkbox>
+            </div>
+          </div>
+          <div class='ui-g-12 ' style="height:28px" *ngIf="(this.checkedBuisnessTransaction == false || this.commonServices.currentReport == 'Exception') ">
+                <p-dropdown appendTo="body" styleClass = "ns-url-dropdown" [filter]=true  [options]="urlOptions" [(ngModel)]="selectedUrl" (onChange)="checkInfo()" [disabled]="!checkedUrl" placeholder="select"
+                  [style]="{'width':'245px', 'margin-left':'21px'}" [panelStyle]="{maxWidth:'245px'}"></p-dropdown>
+                         
+                <div class="ui-g-6" style="margin-left:79px" *ngIf="showUrlPagination">
+                    <span class="fa fa-arrow-left" title="Previous Url" style="margin-right: 5px" (click)="previousFilter('url')" 
+                    *ngIf=nxtUrl></span>
+                    ( {{this.urlOffset + 1}} - {{this.urlEndValue}} of {{this.urlFilterCount}} )
+                    <span class="fa fa-arrow-right" title="Next (100 or lesser Url)"  (click)="nextFilterData('url')"
+                    *ngIf=prevUrl></span>
+                </div>
+                
+  
+  
+  
+              
+          </div>
+               <div  class ='ui-g-12' style='color:orangered' *ngIf='selectUrlCheckBoxFlag'>{{showCheckBoxErrorMessage}}</div>
+          
+  
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+
+    <!-- ************************Other NS Filters ***************** -->
+    
+    <div *ngIf="this.showLAB && this.showNSFilter && this.commonServices.currentReport != 'Hotspot' && this.commonServices.currentReport != 'Exception'">
+     
+      <p-accordion>
+        <p-accordionTab header="User Filters" [selected]="true">
+          <div class="ui-g-12 side-bar-height">
+            <div class="ui-g-6">
+              <p-checkbox value="val1" label="Location " binary=true [(ngModel)]="checkedLocation" (onChange)="getLocationInfo()"></p-checkbox>
+            </div>
+            <div class="ui-g-6">
+              <p-dropdown [filter]=true [options]="locationOptions" dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="selectedLocation" [style]="{'width':'125px'}" [disabled]="!checkedLocation"
+                placeholder="select"></p-dropdown>
+            </div>
+          </div>
+          <div class="ui-g-12 side-bar-height">
+            <div class="ui-g-6">
+              <p-checkbox value="val1" label="Browser" binary=true [(ngModel)]="checkedBrowser" (onChange)="getBrowserInfo()"></p-checkbox>
+            </div>
+            <div class="ui-g-6">
+              <p-dropdown [filter]=true [options]="browserOptions" dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="selectedBrowser" [style]="{'width':'125px'}" [disabled]="!checkedBrowser"
+                placeholder="select"></p-dropdown>
+            </div>
+          </div>
+          <div class="ui-g-12 side-bar-height">
+            <div class="ui-g-6">
+              <p-checkbox value="val1" label="Access" binary=true [(ngModel)]="checkedAccess" (onChange)="getAccessInfo()"></p-checkbox>
+            </div>
+            <div class="ui-g-6">
+              <p-dropdown [filter]=true [options]="accessOptions" dropdownIcon="icons8 icons8-expand-arrow" [(ngModel)]="selectedAccess" [style]="{'width':'125px'}" [disabled]="!checkedAccess"
+                placeholder="select"></p-dropdown>
+            </div>
+          </div>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+                    <!--              Saved Queries                  -->
+    <div *ngIf="showSaveQuery">
+      <p-accordion>
+        <p-accordionTab header="Save Query" [selected]="true">
+          
+          <div class ='ui-g-12'>
+           Query Name   : <input type="text"  pInputText placeholder="Enter Query Name" [(ngModel)]="queryName">
+           Description    : <input type="text" pInputText placeholder="Enter Description" [(ngModel)]="addDescription"> 
+          </div>
+    <div  class ='ui-g-12' style='color:orangered'  *ngIf='showSaveError'>{{saveQueryError}}</div>
+    <div  class ='ui-g-12' style='color:orangered'  *ngIf='showQueryError'>{{QueryError}}</div>
+          <div class='ui-g-6'>
+            <button type="button" [style]="{'width':'80px'}" pButton label="Save Query" (click)="saveQuery()"></button>
+          </div>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+  </div>
+</div>
+

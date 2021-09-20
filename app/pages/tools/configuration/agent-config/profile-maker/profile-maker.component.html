@@ -1,0 +1,75 @@
+<div class="h-100-vh profile-maker-container">
+    <div class="p-grid p-col-12">
+        <p-card>
+            <div class="p-grid p-col-12 p-align-center">
+                <div class="p-col-2">
+                    <span class="label">Agent Type</span>
+                </div>
+                <div class="p-col-2">
+                    <p-dropdown [options]="options" class="customDropdown" [(ngModel)]="selectedOptions"
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+            </div>
+            <div class="p-grid p-col-12">
+                <div class="p-col-2">
+                    <span class="label">Import File</span>
+                </div>
+                <div class="p-col-2">
+                    <p-fileUpload name="myfile[]" url="./upload.php" multiple="multiple" [auto]="true"
+                        chooseLabel="Browse" chooseIcon="icons8-opened-folder">
+                    </p-fileUpload>
+                </div>
+            </div>
+            <div class="p-grid p-col-12 p-align-center">
+                <div class="p-col-2">
+                    <span class="label">Instrumentation Profile</span>
+                </div>
+                <div class="p-col-2">
+                    <p-dropdown [options]="options" class="customDropdown" [(ngModel)]="selectedOptions"
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+                <div class="p-col-6 icons-container p-justify-between p-align-center">
+                    <button pButton type="button" class="ui-button-secondary ui-button-rounded mh-10" label="VIEW"
+                        (click)="showFileData()"></button>
+                    <button pButton type="button" class="ui-button-secondary ui-button-rounded mh-10"
+                        label="CREATE"></button>
+                    <button pButton icon="icons8 icons8-edit-2" class="icon-button no-shadow" pTooltip="Edit"
+                        (click)="showTreeData()"></button>
+                    <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow"
+                        pTooltip="Delete"></button>
+                    <button pButton type="button" class="ui-button-secondary ui-button-rounded mh-10"
+                        label="CLEAR"></button>
+                    <button pButton type="button" class="ui-button-secondary ui-button-rounded mh-10"
+                        label="DETAILS"></button>
+                </div>
+            </div>
+            <div class="p-grid p-col-12 view-files" *ngIf="isShowEmpty">
+                <div class="div-text">No file selected</div>
+            </div>
+            <div class="p-grid p-col-12" *ngIf="isShowFileData">
+                <ace-editor [(text)]="jsonView" [mode]="'object'" [readOnly]="true"
+                    style="min-height: 350px; width: 100%; overflow: auto"></ace-editor>
+            </div>
+            <div class="p-grid p-col-12" *ngIf="isShowTreeData">
+                <p-tree [value]="files"></p-tree>
+            </div>
+            <p-footer>
+                <div class="p-grid p-align-center p-justify-between pv-30">
+                    <div class="">
+                        <button pButton type="button" class="ui-button-secondary ui-button-rounded mh-10"
+                            label="EXPAND ALL"></button>
+                        <button pButton type="button" class="ui-button-secondary ui-button-rounded mh-10"
+                            label="COLLAPSE ALL"></button>
+                    </div>
+                    <div class="">
+                        <span class="label mh-10">Enter File Name</span>
+                        <input type="text" class="mh-10" pInputText [(ngModel)]="url" />
+                        <button pButton type="button" class="ui-button ui-button-rounded mh-10"
+                            label="SAVE AS"></button>
+                        <button pButton type="button" class="ui-button ui-button-rounded mh-10" label="SAVE"></button>
+                    </div>
+                </div>
+            </p-footer>
+        </p-card>
+    </div>
+</div>

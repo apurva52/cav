@@ -1,0 +1,118 @@
+<div class='tabs-all'  *ngIf="agentType == 'Java' || agentType == '-'">
+    <p-tabView (onChange)="handleChange($event)">
+        <p-tabPanel header="Debug Level"*ngIf="isUserMode" [selected]="index == 0">
+            <app-debug *ngIf="index == 0" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-debug>
+        </p-tabPanel>
+        <p-tabPanel header="Monitors" *ngIf="isUserMode" [selected]="index == 1">
+            <app-monitors *ngIf="index == 1" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-monitors>
+        </p-tabPanel>
+        <p-tabPanel header="Put Delay in Method" *ngIf="adminMode" [selected]="index == 2">
+            <app-delay *ngIf="index == 2" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-delay>
+        </p-tabPanel>
+         <p-tabPanel header="Generate Exception in Method" *ngIf="adminMode"  [selected]="index == 3">
+            <app-generate-exception *ngIf="index == 3" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-generate-exception>
+        </p-tabPanel>
+        <p-tabPanel header="Custom Configuration" *ngIf="adminMode" [selected]="index == 4">
+            <app-custom-keywords *ngIf="index == 4" [saveDisable]="saveDisable" (keywordData)="saveCustomKeywordData($event)"></app-custom-keywords>
+        </p-tabPanel>
+        <p-tabPanel header="Debug Tool" *ngIf="isUserMode" [selected]="index == 5">
+            <app-debug-tool *ngIf="index == 5" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-debug-tool>
+        </p-tabPanel>
+	<p-tabPanel header="Dynamic Logging" *ngIf="isUserMode" [selected]="index == 6">
+            <app-config-dynamic-logging *ngIf="index == 6" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-config-dynamic-logging>
+        </p-tabPanel>
+  </p-tabView>
+</div>
+
+<div class='tabs-all'  *ngIf="agentType == 'NodeJS'">
+        <p-tabView (onChange)="handleChange($event)">
+            <p-tabPanel header="Debug Level"*ngIf="isUserMode" [selected]="index == 0">
+                <app-debug *ngIf="index == 0" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-debug>
+            </p-tabPanel>
+            <p-tabPanel header="Monitors" *ngIf="isUserMode" [selected]="index == 1">
+                <app-monitors *ngIf="index == 1" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-monitors>
+            </p-tabPanel>
+            <p-tabPanel header="Custom Configuration" *ngIf="adminMode" [selected]="index == 2">
+                <app-custom-keywords *ngIf="index == 2" [saveDisable]="saveDisable" (keywordData)="saveCustomKeywordData($event)"></app-custom-keywords>
+            </p-tabPanel>
+        </p-tabView>
+
+    </div>
+
+<div class='tabs-all'  *ngIf="agentType == 'Dot Net'">
+    <p-tabView (onChange)="handleChange($event)">
+        <p-tabPanel header="Monitors" *ngIf="isUserMode" [selected]="index == 0">
+            <app-monitors *ngIf="index == 0" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-monitors>
+        </p-tabPanel>
+        <p-tabPanel header="Custom Configuration" *ngIf="adminMode" [selected]="index == 1">
+            <app-custom-keywords *ngIf="index == 1" [saveDisable]="saveDisable" (keywordData)="saveCustomKeywordData($event)"></app-custom-keywords>
+        </p-tabPanel>
+        <p-tabPanel header="Debug Tool" *ngIf="isUserMode" [selected]="index == 2">
+            <app-debug-tool *ngIf="index == 2" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-debug-tool>
+        </p-tabPanel>
+    </p-tabView>
+</div>
+
+<div class='tabs-all'  *ngIf="agentType == 'Php'">
+  <p-tabView (onChange)="handleChange($event)">
+      <p-tabPanel header="Monitors" *ngIf="isUserMode" [selected]="index == 0">
+          <app-monitors *ngIf="index == 0" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-monitors>
+      </p-tabPanel>
+      <p-tabPanel header="Custom Configuration" *ngIf="adminMode" [selected]="index == 1">
+          <app-custom-keywords *ngIf="index == 1" [saveDisable]="saveDisable" (keywordData)="saveCustomKeywordData($event)"></app-custom-keywords>
+      </p-tabPanel>
+  </p-tabView>
+</div>
+
+<div class='tabs-all'  *ngIf="agentType == 'Python'">
+  <p-tabView (onChange)="handleChange($event)">
+      <p-tabPanel header="Monitors" *ngIf="isUserMode" [selected]="index == 0">
+          <app-monitors *ngIf="index == 0" [saveDisable]="saveDisable" (keywordData)="saveKeywordData($event)"></app-monitors>
+      </p-tabPanel>
+      <p-tabPanel header="Custom Configuration" *ngIf="adminMode" [selected]="index == 1">
+          <app-custom-keywords *ngIf="index == 1" [saveDisable]="saveDisable" (keywordData)="saveCustomKeywordData($event)"></app-custom-keywords>
+      </p-tabPanel>
+  </p-tabView>
+</div>
+
+<p-dialog class="secondary-dialog" header="{{dialogHeader}}" *ngIf="errDialog" [(visible)]="errDialog" modal="modal"
+  width="500" responsive="true">
+  <div style="max-height: 500px; overflow-y: auto;" *ngIf="!showLevels">
+    Runtime changes successfully applied on: 
+    <ul>
+     <li *ngFor="let err of msg">
+        <span>{{err}}</span>
+     </li>
+    </ul>
+    Error while applying Runtime changes on:
+    <ul>
+      <li *ngFor="let e of errMsg">
+         <span>{{e}}</span>
+      </li>
+     </ul>
+  </div>
+  <div *ngIf="showLevels" style="font-size: 13px;color: #111113; margin-top: 15px;">
+This profile is applied at following levels:
+<br><br>
+<b>
+  <ul>
+    <li *ngFor="let i of info">
+      <span>{{i}}</span>
+    </li>
+  </ul>
+</b>
+<br>
+Are you sure you want to send Run Time Changes ?
+<br>
+<!-- <h6 style="color: red">Saving settings will also send the RTC at the above levels</h6> -->
+  </div>
+  <footer>
+    <div class="p-grid p-align-center p-justify-end py-6 mt-6">
+      <button type="button" class="ui-button-sucess mr-6" pButton (click)="errDialog=false" *ngIf="!showLevels"  icon="icons8 icons8-checkmark" label="Ok"></button>
+      <button type="button" class="ui-button-sucess mr-6" pButton (click)="saveSettings()" *ngIf="showLevels && !isFromCustom" icon="icons8 icons8-checkmark" label="Save"></button> 
+      <button type="button" class="ui-button-sucess mr-6" pButton (click)="saveCustomSettings()" *ngIf="showLevels && isFromCustom" icon="icons8 icons8-checkmark" label="Save"></button> 
+      <button type="button" class="ui-button-sucess mr-6" pButton (click)="errDialog=false" *ngIf="showLevels" icon="icons8 icons8-delete" label="Cancel"></button>      
+    </div>
+  </footer>
+</p-dialog>
+

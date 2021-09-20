@@ -1,0 +1,112 @@
+<div class="p-grid vertical-container">
+    <!-- <div class="p-col-4 h-50">
+        <a routerLink="{{kpiURL}}">
+            <div class="box box box-stretched">
+                <div class="img-svg">
+                    <img style="width: 98.5%;" src="assets/banners/kpi.png">
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="p-col-4 h-50">
+        <a routerLink="{{endToEndURL}}">
+            <div class="box box box-stretched">
+                <div class="img-svg">
+                    <img src="assets/banners/end-to-end.png">
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="p-col-4 h-50">
+        <a routerLink="">
+            <div class="box box box-stretched">
+                <div class="img-svg">
+                    <img src="assets/banners/system-infra.png">
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="p-col-4 h-50">
+        <a routerLink="{{geoLocationURL}}">
+            <div class="box box box-stretched">
+                <div class="img-svg">
+                    <img src="assets/banners/geo-location.png">
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="p-col-4 h-50">
+        <a routerLink="/db-monitoring">
+            <div class="box box box-stretched">
+                <div class="img-svg">
+                    <img src="assets/banners/db-monitoring.png">
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="p-col-4 h-50">
+        <a routerLink="/cluster-monitor">
+            <div class="box box box-stretched">
+                <div class="img-svg">
+                    <img src="assets/banners/monitor.png">
+                </div>
+            </div>
+        </a>
+    </div>  -->
+    <!-- end to end -->
+    <span class="p-grid p-col-12 p-justify-start p-align-stretch">
+   
+        <!-- end -->
+        
+        <ng-container *ngFor="let field of data.dynamicData">
+            <ng-container *ngTemplateOutlet="tree;context:{node:field}"></ng-container>
+        </ng-container>
+        </span>
+            <ng-template #tree let-node="node">
+                <!-- charts geo,kpi,system infra,db moni -->
+                <ng-container *ngIf="node.type === 'Chart'">
+                    <div class="p-col-4" [routerLink]="[node.data.pagelink]"> 
+                        <app-chart [data]="node.data"></app-chart>
+                    </div>
+                </ng-container>
+                <!--end charts geo,kpi,system infra,db moni -->
+                <!-- monitor card -->
+                <ng-container *ngIf="node.type === 'Monitor-Card'">
+        
+                    <div class="p-col-4 monitor-card">
+        
+                        <p-card>
+                            <div class="mb-15">
+                                <span class="monitor-heading">Monitors</span>
+                                <i class="icons8 icons8-up direction" pTooltip=""></i>
+                            </div>
+                            <div class="p-grid" *ngFor="let monitorData of node.data">
+                                <div class="p-col-5">
+                                    <b>{{monitorData.label}}</b>
+                                </div>
+                                <div class="p-col-7">
+                                    {{monitorData.value}}
+                                </div>
+                            </div>
+                        </p-card>
+                    </div>
+                </ng-container>
+        <!--end monitor card -->
+
+        <ng-container *ngIf="node.type === 'end-to-end'">
+            <!-- routerLink="/end-to-end" -->
+
+            <div class="p-col-4 e2e-card" routerLink="/end-to-end">
+                <p-card class="h-100-p">
+                    <div class="mb-15">
+                        <span class="e2e-heading">End to End</span>
+                    </div>
+                    <div style="height: 180px;">
+                        <jsplumb-surface [surfaceId]="surfaceId" [toolkitId]="toolkitId" [view]="view" [renderParams]="renderParams"></jsplumb-surface>
+                    </div>
+                </p-card>
+            </div>
+        </ng-container>
+    
+    </ng-template>
+</div>

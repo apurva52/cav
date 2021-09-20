@@ -1,0 +1,100 @@
+<div class="h-100-vh wrapper">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-grid p-align-center">
+                <a routerLink="{{endToEndGraphicalURL}}">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">TIER:{{nodeName}}</div>
+            </div>
+
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div>
+                <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+            </div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{error.msg}}"></p-message>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+
+
+    <div *ngIf="data" class="end-to-end-tier-container">
+
+
+        <div class="p-grid custom-search p-col-12">
+            <div class="p-grid p-col-7">
+                <div class="p-col-3 box box box-stretched marginL">
+
+                    <div class="servers-orderlist" *ngIf="data">
+                        <p-orderList [value]="data.allServers" header="All Servers ({{serverCount}})" filter="filter" filterBy="servers">
+                            <ng-template pTemplate="item" let-rowData>
+                                <div class="ui-helper-clearfix">
+                                    <div class="list">
+                                        <span class="server-text-margin">{{rowData.servers}}</span>
+                                        <span class="percent-text" [ngStyle]="{'color': rowData.severityColor}">{{rowData.percent}}</span>
+                                    </div>
+                                </div>
+                            </ng-template>
+
+                        </p-orderList>
+
+                    </div>
+                </div>
+                <div class="p-col-3 box box box-stretched marginL">
+
+                    <div class="servers-orderlist" *ngIf="data">
+                        <p-orderList [value]="data.instances" header="Solar Perf Instances ({{instanceCount}})" filter="filter" filterBy="instances">
+                            <ng-template pTemplate="item" let-rowData>
+                                <div class="ui-helper-clearfix">
+                                    <div class="list">
+                                        <i class="icon-color-css" [ngClass]="rowData.icon"></i>
+                                        <span class="server-text-margin">{{rowData.instances}}</span>
+                                        <span class="percent-text" [ngStyle]="{'color': rowData.severityColor}">{{rowData.percent}}</span>
+                                    </div>
+                                </div>
+                            </ng-template>
+
+                        </p-orderList>
+
+                    </div>
+                </div>
+            </div>
+            <div class="p-col-5 overview-container">
+                <div class="p-col-12 overview-content">
+                    <div class="p-col-3 left">
+                        <span>Overview</span>
+                    </div>
+                    <div class="p-col-9 p-grid p-justify-end right button-margin">
+                        <button pButton type="button" class="ui-button-secondary ui-button-rounded" label="DASHBOARDS"></button>
+                        <button pButton type="button" class="ui-button-secondary ui-button-rounded" label="FLOWMAPS"></button>
+                    </div>
+                </div>
+                <div class="p-col-12" style="height: calc(100% - 140px); overflow: auto;">
+                    <div class="p-grid p-align-stretch vertical-container">
+                        <div class="p-col-12" *ngFor="let chart of data.charts">
+                            <app-chart [data]="chart"></app-chart>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

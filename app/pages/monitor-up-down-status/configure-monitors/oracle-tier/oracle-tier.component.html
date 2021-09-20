@@ -1,0 +1,114 @@
+<div class="h-100-vh oracle-container">
+
+    <div class="header">
+        <app-header></app-header>
+    </div>
+
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/configure-monitors">
+                <span class="icons8 icons8-left toolbar-icon-color"></span>
+            </a>
+            <div class="p-col ui-toolbar-text">{{techName|uppercase}} MONITORS</div>
+        </div>
+    </p-toolbar>
+     
+    <div class="p-grid p-align-center p-justify-start">
+        <div class="w-100-p">
+            <p-breadcrumb [model]="breadcrumb" class="ui-menuitem-text"></p-breadcrumb>
+        </div>
+        </div>
+    <div class="content-body">
+        <!-- <div class="path">
+            <p-breadcrumb [model]="breadcrumb" class="ui-menuitem-text"></p-breadcrumb>
+        </div> -->
+        
+
+<div class="p-grid border-1 radius6">
+    <div class="p-col-4 border-right border-1">
+      <div class="search-block">
+        <div class="type-search">
+         <i class="left-icon icons8 icons8-search"></i>
+                <input pInputText type="text" #searchInput [(ngModel)]="searchConfiguredMonitors" 
+                class="pl-20 w-100-p"  placeholder="Search" />
+            <!-- <div class="p-grid p-justify-start p-align-center p-col-3">
+                <div class="tier-label p-grid p-col p-justify-end p-align-end">Tier</div>
+
+                <p-dropdown class="" [options]="tierList" placeholder="All" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div> -->
+        </div>
+    </div>  
+
+
+    <div class="monitor-panel-container">
+
+            <div class="card-container" [ngClass]="activeIndex == i ? 'active':''" *ngFor="let data of configuredMonitorsData._conf | filter:searchConfiguredMonitors;let i = index">
+
+                <div class="tech-title">
+                    <!-- <label class="tittle font-weight-600">{{data.tdn}}</label>  -->
+                    <div class="p-grid p-align-center p-3" title="Tier">
+                        <i class="cav tier-group mr-3"></i>
+                         <span class="tittle font-weight-600">{{data.tdn}}</span> 
+                    </div>
+                </div>
+               
+                <div class="p-grid p-align-center p-justify-center">
+
+                    <div class="instance-circle my-15 mx-30 font-weight-600" [style.backgroundColor]="data.rgb">
+                        <div class="font-28">{{data.ic}}</div>
+                        <div>Instance</div>
+                    </div>
+
+                    <div class="p-grid p-align-center my-15 mx-30" >
+                   <div class="p-grid p-align-center clickable" (click)="openServer(data.tdn,data.sc)">
+                       <i class="cav servers mr-5 font-16 btn-icon"></i>
+                       <div class="mx-10 font-13 font-weight-600">Server</div>
+                   </div>
+                   <div [className]="data.tc ==0 ? '' : 'count'">{{data.sc}}</div>
+               </div>
+                </div>
+
+                <div class="p-grid p-align-center bottom-monitors">
+                    <div class="my-col p-grid p-align-center" (click)="navigateToMonitors(data.mon.mtc,data, 'All',i)">
+                        <div class="monitor-header">Monitors</div>
+                        <div [className]="data.mon.mtc == 0 ? '' : 'count'">{{data.mon.mtc}}</div>
+                    </div>
+
+                    <div class="my-col p-grid p-align-center monitor-active" (click)="navigateToMonitors(data.mon.mrc,data, 'Running',i)">
+                        <div class="p-justify-between p-grid p-align-center">
+                            <i class="icons8 icons8-clock"></i>
+                            <span class="title">Running</span>
+                        </div>
+                        <div [className]="data.mon.mrc ==0 ? '' : 'count'">{{data.mon.mrc}}</div>
+                    </div>
+
+                      <div class="my-col p-grid p-align-center monitor-failed" (click)="navigateToMonitors(data.mon.mfc,data, 'Failed',i)">
+                        <div class="p-justify-between p-grid p-align-center">
+                            <i class="icons8 icons8-error"></i>
+                            <span class="title">Failed</span>
+                        </div>
+                        <div [className]="data.mon.mfc ==0 ? '' : 'count'">{{data.mon.mfc}}</div>
+                    </div>
+                    <div class="my-col p-grid p-align-center clickable monitor-disabled" (click)="navigateToMonitors(data.mon.mdc,data, 'Disabled',i)">
+                        <div class="p-justify-between p-grid p-align-center">
+                            <i class="icons8 icons8-unavailable"></i>
+                            <span class="title">Disabled</span>
+                        </div>
+                        <div [className]="data.mon.mdc ==0 ? '' : 'count'">{{data.mon.mdc}}</div>
+                    </div>
+                </div>
+            </div>
+       
+    </div>
+
+    </div>
+    <div *ngIf= "display" class="p-col-8">
+        <app-monitors [techName] = "apiData.tName"></app-monitors>
+    </div>
+</div>
+
+
+        
+    </div>
+</div>

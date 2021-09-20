@@ -1,0 +1,696 @@
+<p-blockUI [blocked]="blockedDocument">
+    <div class="loader-container spinner" *ngIf="timebarService.loading1">
+      <i class="pi pi-spin pi-spinner"></i>
+    </div>
+  </p-blockUI>
+<p-confirmDialog class="confirmdialog" key="scheduler" header="Info" acceptLabel="Ok" rejectLabel="Cancel"
+    [(visible)]="dialogVisible">
+</p-confirmDialog>
+<div class="h-100-vh schedule-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-col-10">
+                <div class="p-grid p-align-center"> 
+                    <span (click)="routeToRptOrSch()" class="icons8 icons8-left toolbar-icon-color"></span>
+                    <div class="p-col ui-toolbar-text">ADD SCHEDULE</div>
+                </div>
+            </div>
+            <div class="p-col-2 text-right">
+                <button pButton type="button" class="ui-button ui-button-rounded" label="SAVE"
+                    (click)="saveSchedule()"></button>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+    <div class="vertical-container">
+        <div class="p-grid panel-card">
+            <div class="p-col-6 report-details">
+                <p-card>
+                    <p-header>
+                        <span class="selected-label line-height">REPORT DETAILS </span>
+                    </p-header>
+                    <div class="p-grid">
+                        <div class="p-col-2">
+                            <span class="line-height">Report Name :</span>
+                        </div>
+                        <div class="p-col-4">
+                            <input type="text" pInputText placeholder="" class="input-field-search w-100-p"
+                            pTooltip="Only letters (either case), numbers, underscores. The username must start with a letter and must be between 1 and 20 characters long (inclusive)"
+                                [(ngModel)]="taskName" tooltipPosition="top" maxlength="20"/>
+                        </div>
+                    </div>
+                    <div class="p-grid">
+                        <div class="p-col-2">
+                            <span class="line-height">Report Type :</span>
+                        </div>
+                        <div class="p-col-4">
+                            <p-dropdown [options]="data.reportType" placeholder="Report Type" optionLabel="label"
+                                [(ngModel)]="selectedReportType" (onChange)="selectMethod()">
+                            </p-dropdown>
+                        </div>
+                        <div class="p-grid"
+                            *ngIf="selectedReportType.value === 'Performance Stats' && reportVisualizeType === 'HTML'">
+                            <i class="icons8 icons8-sync-settings report-setting-icon" (click)="reportSetting()">
+                                <span class="font-report-settings pl-3">Report Settings</span>
+                            </i>
+                            <p-dialog header="Report Settings" [(visible)]="displayReportSetting" [modal]="true"
+                                [responsive]="true" [style]="styleForDialog('ReportSetting')" [minY]="70">
+                                <div class="outer-border">
+                                    <div class="changeStyleReportSetting">
+                                        <p-checkbox binary="true" [(ngModel)]="checkAnalysisSummary"
+                                            label="Analysis Summary"></p-checkbox>
+                                    </div>
+                                    <div class="changeStyleReportSetting">
+                                        <p-checkbox binary="true" [(ngModel)]="checkPerformanceSummary"
+                                            (onChange)="updateReportSetting()" label="Performance Summary"></p-checkbox>
+                                    </div>
+                                    <div class="changeStyleReportSetting">
+                                        <div class="changeStyleReportSetting">
+                                            <p-checkbox binary="true" (onChange)="updateSubReportSetting()"
+                                                label="Overview" [(ngModel)]="checkOverview"></p-checkbox>
+                                        </div>
+                                        <div class="changeStyleReportSetting">
+                                            <p-checkbox binary="true" (onChange)="updateSubReportSetting()"
+                                                label="Sessions" [(ngModel)]="checkSessions"></p-checkbox>
+                                        </div>
+                                        <div class="changeStyleReportSetting">
+                                            <p-checkbox binary="true" (onChange)="updateSubReportSetting()"
+                                                label="Transactions" [(ngModel)]="checkTransactions"></p-checkbox>
+                                        </div>
+                                        <div class="changeStyleReportSetting">
+                                            <p-checkbox binary="true" (onChange)="updateSubReportSetting()"
+                                                label="Pages" [(ngModel)]="checkPages">
+                                            </p-checkbox>
+                                        </div>
+                                        <div class="changeStyleReportSetting">
+                                            <p-checkbox binary="true" (onChange)="updateSubReportSetting()"
+                                                label="Network" [(ngModel)]="checkNetwork"></p-checkbox>
+                                        </div>
+                                        <div class="changeStyleReportSetting">
+                                            <p-checkbox binary="true" (onChange)="updateSubReportSetting()"
+                                                label="Errors" [(ngModel)]="checkErrors"></p-checkbox>
+                                        </div>
+                                    </div>
+                                    <div class="changeStyleReportSetting">
+                                        <p-checkbox binary="true" label="Metrics Summary"
+                                            [(ngModel)]="checkMetricsSummary"></p-checkbox>
+                                    </div>
+                                    <div class="changeStyleReportSetting">
+                                        <p-checkbox binary="true" label="Metrics Charts"
+                                            [(ngModel)]="checkMetricsCharts"></p-checkbox>
+                                    </div>
+                                </div>
+                                <p-footer>
+                                    <div class="p-grid p-justify-center">
+                                        <button type="button" pButton (click)="applyReportSetting()"
+                                            label="Apply"></button>
+                                        <button type="button" pButton (click)="cancelReportSetting()" label="Cancel"
+                                            class="ui-button-secondary"></button>
+                                    </div>
+                                </p-footer>
+                            </p-dialog>
+
+                        </div>
+                    </div>
+                    <div class="p-grid">
+                        <div class="p-col-2" *ngIf="selectedReportType.value !== 'Excel'">
+                            <span class="line-height">Format :</span>
+                        </div>
+                        <div class="p-col-4" *ngIf="selectedReportType.value === 'Performance Stats'">
+                            <p-dropdown [options]="drpRptViewTypeStatsList" name="rViewType" (onChange)="selectFormat()"
+                                [(ngModel)]="reportVisualizeType">
+                            </p-dropdown>
+                        </div>
+                        <div class="p-col-4" *ngIf="selectedReportType.value === 'Alert Digest Report'">
+                            <p-dropdown [options]="drpRptViewTypeList" name="rViewType"
+                                [(ngModel)]="reportVisualizeType">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <!-- <br> -->
+                    <div class="p-grid p-align-center">
+                        <div class="p-col-2"
+                            *ngIf="selectedReportType.value === 'Excel' || selectedReportType.value === 'Alert Digest Report'">
+                            <span class="line-height">Template :</span>
+                        </div>
+                        <div class="p-col-2" *ngIf="selectedReportType.value === 'Performance Stats'">
+                            <p-radioButton name="groupName" [(ngModel)]="selectedTemplate" label="Template"
+                                value="Using Template" (click)="selectTemplate()"></p-radioButton>
+                        </div>
+                        <div class="p-col-2" *ngIf="selectedReportType.value === 'Performance Stats'">
+                            <p-radioButton name="groupName" [(ngModel)]="selectedFavorite" label="Favorite"
+                                value="Using Favorite" (click)="selectFavorite()"></p-radioButton>
+                        </div>
+                        <div class="p-col-5"
+                            *ngIf="selectedReportType.value === 'Excel' || selectedReportType.value === 'Alert Digest Report'">
+                            <p-dropdown panelStyleClass="panelWidth" [(ngModel)]="selectedExcelTemplate" [options]="excelTemplateOption" optionLabel="label" filter="true" [style]="{'min-width':'250px'}" (onChange)="selectAlertDigest()">
+                            <ng-template let-item pTemplate="item">
+                                <div>
+                                    <span [pTooltip]="item.label" tooltipPosition="top">{{item.label}}</span>
+                                </div>
+                            </ng-template>
+                            <ng-template let-item pTemplate="selectedItem">
+                                <div>
+                                    <span [pTooltip]="item.label" tooltipPosition="top">{{item.label}}</span>
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                        </div>
+                        <div class="p-col-6" *ngIf="selectedReportType.value === 'Performance Stats'">
+                            <p-dropdown panelStyleClass="panelWidth" [(ngModel)]="selectedSystemTemplate" [options]="templateOptions" optionLabel="label" filter="true" [style]="{'min-width':'290px'}">
+                                <ng-template let-item pTemplate="item">
+                                    <div>
+                                        <span [pTooltip]="item.label" tooltipPosition="top">{{item.label}}</span>
+                                    </div>
+                                </ng-template>
+                                <ng-template let-item pTemplate="selectedItem">
+                                    <div>
+                                        <span [pTooltip]="item.label" tooltipPosition="top">{{item.label}}</span>
+                                    </div>
+                                </ng-template>
+                            </p-dropdown>
+                        </div>
+                        <div class="p-col-1"
+                            *ngIf="selectedReportType.value === 'Excel' || selectedReportType.value === 'Alert Digest Report'">
+                            <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                                pTooltip=""
+                                (click)="downloadTemplate(selectedExcelTemplate,selectedReportType)"></button>
+                        </div>
+                        <!-- <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow rotate"
+                                pTooltip=""></button> -->
+                            <div class="p-col-4 p-grid p-align-center "
+                                *ngIf="selectedReportType.value === 'Excel' || selectedReportType.value === 'Alert Digest Report'">
+                                <span>
+                                <p-fileUpload #schExcelUpload mode="basic" name="uploadedFiles[]" pTooltip="{{ tooltip }}" tooltipPosition="top" chooseLabel="Upload"
+                                    [url]="uploadURL" (onUpload)="afterTemplateUploadScheduler($event,schExcelUpload)"
+                                    (onSelect)="onSelectTemplateToUpload($event,schExcelUpload)" class="uploadd-ellipse1">
+                                </p-fileUpload>
+                            </span>
+                            <span pTooltip="{{ toolTipTest }}" tooltipPosition="top"
+                            *ngIf="selectedReportType.value === 'Excel' || selectedReportType.value === 'Alert Digest Report'">
+                            <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow "
+                                    (click)="deleteExcelAlertTemplate()" [disabled]="selectedExcelTemplate.label === 'AlertDigestReportWithGrouping'"></button>
+                        </span>
+                            </div>
+                           
+                    </div>
+
+
+
+                    <div class="p-grid margin-top-10p">
+                        <div class="p-col-2">
+                            <p-checkbox name="preset" label="Preset" (onChange)="onTimeFilterTypeChange()"
+                                pTooltip="Preset Options" binary="true" [(ngModel)]="preset">
+                            </p-checkbox>
+                            <!-- <span class="line-height">Preset</span> -->
+                        </div>
+                        <div class="p-col-4">
+                            <button pButton class="ui-dropdown ui-widget ui-state-default ui-corner-all inputDropdown"
+                                (click)="timePeriodMenu.toggle($event);" [disabled]="!preset">
+                                <span class="text-left p-col-10 left">
+                                    {{(tmpValue.timePeriod.selected && tmpValue.timePeriod.selected.label) || 'Select time period'}}
+                                </span>
+                                <i class="p-col-2 p-3 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+                            </button>
+                            <span *ngIf="selectedReportType.value === 'Excel'">
+                                <p-slideMenu #timePeriodMenu [model]="tmpValue.timePeriod.options"
+                                    id="time-period" [popup]="true" appendTo="body">
+                                </p-slideMenu>
+                            </span>
+                            <span *ngIf="selectedReportType.value === 'Performance Stats'">
+                                <p-slideMenu #timePeriodMenu [model]="tmpValue.timePeriod.options"
+                                    id="time-period" [popup]="true" appendTo="body">
+                                </p-slideMenu>
+                            </span>
+                            <span *ngIf="selectedReportType.value === 'Alert Digest Report'" class="changeSliderStyleAlert">
+                                <p-slideMenu #timePeriodMenu [model]="tmpValue.timePeriod.options"
+                                    id="time-period" [popup]="true" appendTo="body">
+                                </p-slideMenu>
+                            </span>
+                        </div>
+                        <div class="p-grid p-col-1 p-align-center"
+                            *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB0'">
+                            <input class="inputDropdown" pInputText min="1" max="23" type="number"
+                                [(ngModel)]="timeBack" (mouseup)="timeBackCall()" (keyup)="timeBackCall()">
+                        </div>
+                        <div class="p-grid p-col-1 p-align-center"
+                            *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB1'">
+                            <input class="inputDropdown" pInputText min="1" max="31" type="number"
+                                [(ngModel)]="timeBack" (mouseup)="timeBackCall()" (keyup)="timeBackCall()">
+                        </div>
+                        <div class="p-grid p-col-1 p-align-center"
+                            *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB2'">
+                            <input class="inputDropdown" pInputText min="1" max="48" type="number"
+                                [(ngModel)]="timeBack" (mouseup)="timeBackCall()" (keyup)="timeBackCall()">
+                        </div>
+                        <div class="p-grid p-col-1 p-align-center"
+                            *ngIf="preset && tmpValue.timePeriod.selected.id=== 'TB3'">
+                            <input class="inputDropdown" pInputText min="1" max="48" type="number"
+                                [(ngModel)]="timeBack" (mouseup)="timeBackCall()" (keyup)="timeBackCall()">
+                        </div>
+                        <div class="p-col-1"></div>
+                        <div class="p-col-5" *ngIf="selectedReportType.value === 'Excel' && aggregatedValue == true">
+                            <p-checkbox class="line-height" name="groupname" value="val" binary="true"
+                                label="Override Preset From Template" [(ngModel)]="overridePreset"></p-checkbox>
+                        </div>
+                    </div>
+                    <div class="p-grid">
+
+
+                        <div class="p-col-3">
+                            <label class="line-height">Start and End Date Time</label>
+                        </div>
+                        <div class="p-col-3">
+                            <div class="p-grid">
+                                <!-- <div class="p-input-icon-left search-div-css">
+                                    <i class="icons8 icons8-calendar"></i>
+                                    <input pInputText class="customInput" readonly id="start-date-time"
+                                        [owlDateTime]="customStartDateTime" placeholder="MM/dd/yyyy HH:mm:ss"
+                                        [owlDateTimeTrigger]="customStartDateTime"
+                                        (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'range'"
+                                        [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame" [disabled]="preset" />
+                                    <owl-date-time [showSecondsTimer]=true #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                                </div> -->
+                                <div class="p-input-icon-left search-div-css">
+                                    <input pInputText class="customInput" [owlDateTime]="customStartDateTime" placeholder="MM/dd/yyyy HH:mm:ss"
+                                        [selectMode]="'range'" [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame" [disabled]="preset" />
+                                    <span [owlDateTimeTrigger]="customStartDateTime"><i class="report-setting-icon" title="Click to open Calender."
+                                            class="icon-right icons8 icons8-calendar"></i></span>
+                                    <owl-date-time [showSecondsTimer]=true #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                        <!-- <div class="p-col-2"></div> -->
+                        <!-- <div class="p-col-5">
+                            <div class="p-grid">
+                                <label class="line-height">To</label>
+                                <div class="p-col-1"></div>
+                                <div class="p-grid">
+                                    <div class="p-input-icon-left search-div-css">
+                                        <i class="icons8 icons8-calendar"></i>
+                                        <input pInputText class="customInput" readonly id="end-date-time"
+                                            [owlDateTime]="customEndDateTime" placeholder="MM/dd/yyyy HH:mm:ss"
+                                            [owlDateTimeTrigger]="customEndDateTime"
+                                            (ngModelChange)="onTimeFilterCustomTimeChange()" [selectMode]="'rangeTo'"
+                                            [max]="customTimeFrameMax" [(ngModel)]="customTimeFrame"
+                                            [disabled]="preset" />
+                                        <owl-date-time [showSecondsTimer]=true #customEndDateTime tooltipZIndex="100001005"></owl-date-time>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div> -->
+
+                    </div>
+
+                    <div class="p-grid margin-top-10p" *ngIf="selectedReportType.value === 'Performance Stats'">
+                        <div class="p-col-2">
+                            <span class="line-height">View By</span>
+                        </div>
+                        <!-- <div class="p-col-3">
+                            <p-dropdown [options]="data.viewBy" placeholder="" optionLabel="label"></p-dropdown>
+                        </div> -->
+                        <div class="p-col-3">
+                            <button pButton class="ui-dropdown ui-widget ui-state-default ui-corner-all"
+                                (click)="viewByMenu.toggle($event)">
+                                <span class="text-left p-col-10 left">
+                                    {{(tmpValue.viewBy.selected && tmpValue.viewBy.selected.label) || 'Select view by'}}
+                                </span>
+                                <i class="p-col-2 p-3 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+                            </button>
+                            <span class="viewStuck">
+                            <p-slideMenu #viewByMenu [model]="tmpValue.viewBy.options" id="view-by"
+                                [popup]="true">
+                            </p-slideMenu>
+                        </span>
+                        </div>
+                        <div class="p-col-2"></div>
+                        <!-- <div class="p-col-1">
+                            <span class="line-height">Value</span>
+                        </div>
+                        <div class="p-col-2">
+                            <p-dropdown [options]="data.value" placeholder="" optionLabel="label"></p-dropdown>
+                        </div> -->
+                    </div>
+                    <div class="p-grid" *ngIf="selectedReportType.value === 'Performance Stats' && checkMetricsCharts">
+                        <div class="p-col-4">
+                            <p-checkbox binary="true" name="nameIncludeChart" label="Include Metrics Charts" [disabled]="reportVisualizeType === 'HTML'"
+                                [(ngModel)]="includeMetricChart">
+                            </p-checkbox>
+                        </div>
+                        <div class="p-col-4" *ngIf="includeMetricChart && checkMetricsCharts">
+                            <p-checkbox name="nameAddGraphImage" binary="true" label="Add Graph Image"
+                                [(ngModel)]="addGraphImage">
+                            </p-checkbox>
+                        </div>
+                        <div class="p-col-2" *ngIf="selectedReportType.value == 'Performance Stats' && addGraphImage && includeMetricChart && checkMetricsCharts">
+                            <span *ngIf="selectedTemplate == 'Using Template'" class="line-height">Number Of Report Set:</span>
+                            <span *ngIf="selectedFavorite == 'Using Favorite'" class="line-height">Number Of Widget:</span>
+                        </div>
+                        <div class="p-col-1" *ngIf="selectedReportType.value == 'Performance Stats' && addGraphImage && includeMetricChart && checkMetricsCharts">
+                            <!-- <p-checkbox name="nameAddGraphImage" binary="true"  label="Add Graph Image" [(ngModel)]="isAddGraphImageInSchMailBody">
+                                </p-checkbox>  -->
+                            <p-dropdown name="nameNumGraphImg" [options]="numGraphImgDropdown"
+                                [(ngModel)]="selectedNumGraphImg" label="Number of Widget">
+                            </p-dropdown>
+
+                        </div>
+                    </div>
+
+                    <div class="p-grid">
+                        <div class="p-col-12" *ngIf="selectedReportType.value === 'Excel'">
+                            <p-checkbox class="line-height" name="groupname" value="val" binary="true"
+                                label="Aggregated over the entire time period" [(ngModel)]="aggregatedValue" (onChange)="readFrmTemp()">
+                            </p-checkbox>
+                        </div>
+                        <div class="p-col-12" *ngIf="selectedReportType.value === 'Excel'">
+                            <div class="p-grid">
+                                <div class="p-col-2">
+                                    <span class="line-height">Aggregated by</span>
+                                </div>
+                                <div class="p-col-2">
+                                    <p-dropdown name="nameAggregateTimeOption" [options]="aggregateTimeDropdown"
+                                        [(ngModel)]="selectedAggregateTimeOption"
+                                        (onChange)="selectAggregateTimeOption()" [disabled]="aggregatedValue">
+                                    </p-dropdown>
+                                </div>
+
+                                <div class="p-col-2">
+                                    <p-dropdown [options]="aggregatebyDropdown" (onChange)="selectAggregatebyOption()"
+                                        [(ngModel)]="selectedAaggregateByOption" [disabled]="aggregatedValue"
+                                        optionLabel="label"></p-dropdown>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-col-12" *ngIf="selectedAggregateTimeOption == 'Week(s)' && !aggregatedValue">
+                            <p-checkbox class="line-height" name="groupname" value="val" binary="true"
+                                label="Show last week's data day-wise" [(ngModel)]="shwLstData"></p-checkbox>
+                        </div>
+                        <div class="p-col-12" *ngIf="selectedReportType.value === 'Excel'">
+                            <div class="p-grid">
+                                <div class="p-col-2">
+                                    <span class="line-height">Show report in</span>
+                                </div>
+                                <div class="p-col-2">
+                                    <p-dropdown [options]="showInDropdown" placeholder="Column"
+                                        [(ngModel)]="selectedValue" optionLabel="label" [disabled]="aggregatedValue">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-col-12">
+                            <!-- <input pInputText class="mailing-input-css" placeholder="Task Description"
+                                [(ngModel)]="taskDescription"> -->
+                                <div class="p-grid">
+                                    <div class="p-col-3">
+                                        <span>Task Description</span>
+                                    </div>
+                                    <div class="p-col-12">
+                                        <textarea rows="{{ rowsForDes }}"  class="textboxCSS w-100-p" pInputTextarea autoResize="autoResize" [(ngModel)]="taskDescription"></textarea>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+
+                </p-card>
+            </div>
+            <div class="p-col-6">
+                <div class="schedule-container-body">
+                    <p-card class="ui-card-schedule">
+                        <p-header>
+                            <span class="selected-label line-height"> SCHEDULE </span>
+                        </p-header>
+                        <p-tabView orientation="left" (onChange)="onTabChange($event)">
+                            <p-tabPanel header="Minutes" [selected]="minutesTab">
+                                <div class="p-grid weekly-div-container">
+                                    <div class="p-col-2">
+                                        <span class="line-height">Every :</span>
+                                    </div>
+                                    <div class="pl-40 p-col-6">
+                                        <div class="p-input-icon-left search-div-css">
+                                            <!-- <input type="number" placeholder=" " class="input"
+                                                [(ngModel)]="everyMinutesTxtModel" /> -->
+                                                <input type="number"  placeholder=" " class="input" min="1" max="59"
+                                                [(ngModel)]="everyMinutesTxtModel"
+                                                pInputText
+                                                 />&nbsp;Minute(s)&nbsp;
+                                            <!-- <span>Minute(s)</span> -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-grid">
+                                    <div class="p-col-3">
+                                        <span class="line-height">Expires on:</span>
+                                    </div>
+                                    <div class="p-col-6 hourly-cross">
+                                        <div class="p-input-icon-left search-div-css">
+                                            <p-calendar appendTo="body" dateFormat="mm/dd/yy" [(ngModel)]="scheduleExpiry"
+                                                [showTime]="true" (click)="fillDateTimeAccToZone()" placeholder="MM/DD/YYYY HH:MM">
+                                            </p-calendar>
+                                            
+                                            <owl-date-time #expiresOnMonthly tooltipZIndex="100001005"></owl-date-time>
+                                            <p-message *ngIf="invalidDate">
+                                            </p-message>
+                                        </div>
+                                        
+                                    </div>
+                                    <span pTooltip="Clear Expiry Time" tooltipPosition="top" (click)="clearExpireDateTime()" class="pi pi-times p-align-center p-grid"></span>
+                                </div>
+                            </p-tabPanel>
+                            <p-tabPanel header="Hourly" [selected]="hourlyTab">
+                                <div class="p-grid">
+                                    <div class="p-col-3">
+                                        <p-radioButton class="report-type" name="groupname" value="every" label="Every"
+                                            [(ngModel)]="dailyOrEvery" (click)="selectHour()">
+                                        </p-radioButton>
+                                    </div>
+                                    <div class="p-col-3">
+                                        <p-radioButton class="report-type" name="groupname" value="daily"
+                                            label="Daily At" [(ngModel)]="dailyOrEvery" (click)="selectHour()">
+                                        </p-radioButton>
+                                    </div>
+                                    <div class="p-col-2 hourly-calendar">
+                                        <p-calendar *ngIf="dailyOrEvery === 'daily'" [timeOnly]="true"  appendTo="body"
+                                            placeholder="HH:MM" (onShow)="fillTimeAccToZoneInStartTimeOfHourly()" [(ngModel)]="dailyTxtModel">
+                                        </p-calendar> 
+                                    </div>
+                                    <span *ngIf="dailyOrEvery === 'daily'" pTooltip="Clear Time" tooltipPosition="top" (click)="clearDailyAtTimeOfHourly()" class="pi pi-times p-align-center p-grid"></span>
+                                </div>
+                                <div *ngIf="dailyOrEvery !== 'daily'">
+                                    <div class="p-grid">
+                                        <div class="p-col-2">
+                                            <input pInputText type="number" class="input" min="1" max="23" [(ngModel)]="everyHourTxtModel" />
+                                        </div>
+
+                                        <div>
+                                            <span class="line-height">Hour(s)</span>
+                                        </div>
+                                        <div class="p-col-5">
+                                            <p-checkbox label="With starting offset of" [(ngModel)]="addOffset"
+                                                binary="true"></p-checkbox>
+                                        </div>
+                                        <div class="p-col-2">
+                                            <input type="number" [disabled]="!addOffset" class="input"
+                                                [(ngModel)]="everyHourOffsetModel">
+                                        </div>
+                                        <div>
+                                             <span class="line-height">Minute(s)</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-grid">
+                                        <div class="p-col-6" *ngIf="addOffset">
+                                            <p-checkbox binary="true" [(ngModel)]="addOSInPreTime"
+                                                label="Add OffSet In Preset Time">
+                                            </p-checkbox>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-grid">
+                                    <div class="p-col-3">
+                                        <span class="line-height">Expires on:</span>
+                                    </div>
+                                    <div class="p-col-6 hourly-cross">
+                                        <div class="p-input-icon-left search-div-css">
+
+                                            <p-calendar dateFormat="mm/dd/yy" [(ngModel)]="scheduleExpiry" appendTo="body" 
+                                                [showTime]="true" (onShow)="fillDateTimeAccToZone()" placeholder="MM/DD/YYYY HH:MM">
+                                            </p-calendar>
+                                            <owl-date-time #expiresOn tooltipZIndex="100001005"></owl-date-time>
+                                            <p-message *ngIf="invalidDate">
+                                            </p-message>
+                                        </div>
+                                    </div>
+                                    <span (click)="clearExpireDateTime()" pTooltip="Clear Expiry Time" tooltipPosition="top" class="pi pi-times p-align-center p-grid"></span>
+                                </div>
+                            </p-tabPanel>
+                            <p-tabPanel header="Weekly" [selected]="weeklyTab">
+                                <div class="monthly-container">
+                                    <div class="p-grid monthly-css">
+                                        <div class="p-col-12">
+                                            <p-selectButton [options]="weekDays" class="ui-button-secondary" [(ngModel)]="selectedWeek">
+                                            </p-selectButton>
+                                        </div>
+                                    </div>
+                                    <div class="p-grid">
+                                        <div class="p-col-5 spaceRmWeekly">
+                                            <div class="p-col-7 padding-bot-zero padding-top-zero"> 
+                                            <label class="pr-10">Start Time:</label>
+                                        </div>
+                                            <div class="p-grid">
+                                                <div class="p-col-6 padding-bot-zero right-margin">
+                                            <p-calendar inputStyleClass="calenderInputWidth" placeholder="HH:MM "  appendTo="body" [timeOnly]="true" 
+                                            (onShow)="fillTimeAccToZoneInStartTimeOfWeek()" [(ngModel)]="WeekStartTime"></p-calendar>
+                                        </div>
+                                        <div class="p-col-2 p-grid p-align-center ng-star-inserted padding-bot-zero">
+                                            <span (click)="clearStartTimeOfWeekly()" pTooltip="Clear Start Time" tooltipPosition="top" class="pi pi-times p-align-center p-grid"></span>
+                                        </div>
+                                    </div>
+                                    </div>
+                                        <div class="p-col-7 spaceRmWeekly">
+                                            <div class="p-col-7 padding-bot-zero padding-top-zero">
+                                            <label class="pr-10">Expires on:</label>
+                                        </div>
+                                            <div class="p-grid">
+                                                <div class="p-col-8 padding-bot-zero">
+                                            <p-calendar inputStyleClass="calenderInputWidth1" dateFormat="mm/dd/yy" [(ngModel)]="scheduleExpiry"  appendTo="body"
+                                                    [showTime]="true" (onShow)="fillDateTimeAccToZone()" placeholder="MM/DD/YYYY HH:MM">
+                                            </p-calendar>
+                                        </div>
+                                            <!-- <owl-date-time #expiresOnWeekly tooltipZIndex="100001005">
+                                            </owl-date-time>
+                                            <p-message *ngIf="invalidDate">
+                                            </p-message> -->
+                                            <div class="p-col-2 p-grid p-align-center ng-star-inserted padding-bot-zero">
+                                            <span (click)="clearExpireDateTime()" pTooltip="Clear Expiry Time" tooltipPosition="top" class="pi pi-times p-align-center p-grid"></span>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </p-tabPanel>
+                            <p-tabPanel header="Monthly" [selected]="monthlyTab">
+                                <div class="p-grid" >
+                                    <div class="p-col-5">
+                                        <label>Day :</label>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="text" pInputText placeholder=" " class="inputDay"
+                                        [(ngModel)]="mDayModel" (keypress)="validateQty($event)" />
+                                    </div>
+                                    <div class="p-col-7">
+                                        <label class="line-height pr-10">Every :</label>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="text" pInputText placeholder="" class="inputDay"
+                                            (keypress)="validateQty($event)" [(ngModel)]="mMonthModel" />&nbsp;
+                                            <label>Month(s)</label>
+                                    </div>
+                                </div>
+                                <div class="p-grid">
+                                    <div class="p-col-4 ">
+                                        <label class="line-height pr-10">Start Time:</label>&nbsp;
+                                    </div>
+                                    <div class="p-col-3 monthly-cross">
+                                        <p-calendar inputStyleClass="calenderInputWidth" placeholder="  HH:MM"  appendTo="body" [timeOnly]="true" 
+                                        (onShow)="fillTimeAccToZoneInStartTimeOfMonth()" [(ngModel)]="monthlyStartTime"></p-calendar>
+                                    </div>
+                                    <div class="p-col-4 " (click)="clearStartTimeOfMonthly()" pTooltip="Clear Start Time" tooltipPosition="top" class="pi pi-times p-align-center p-grid"></div>
+                                </div>
+                                <div class="p-grid">
+                                    <div class="p-col-4">
+                                        <label class="line-height pr-10">Expires on:</label>
+                                    </div>
+                                    <div class="p-col-5 monthly-cross1">
+                                        <p-calendar dateFormat="mm/dd/yy" inputStyleClass="calenderInputWidth1" [(ngModel)]="scheduleExpiry" appendTo="body" 
+                                        [showTime]="true" (click)="fillDateTimeAccToZone()" placeholder="MM/DD/YYYY HH:MM">
+                                        </p-calendar>
+                                        <owl-date-time #expiresOnMonthly tooltipZIndex="100001005"></owl-date-time>
+                                        <p-message *ngIf="invalidDate">
+                                        </p-message>
+                                       
+                                    </div>
+                                    <span (click)="clearExpireDateTime()" pTooltip="Clear Expiry Time" tooltipPosition="top" class="pi pi-times p-align-center p-grid"></span>
+                                </div>
+                            </p-tabPanel>
+                        </p-tabView>
+                    </p-card>
+                </div>
+                <div class="mailing-info-content">
+                    <p-card class="margin-top-10p ui-card-schedule">
+                        <p-header>
+                            <span class="selected-label line-height"> MAILING INFO </span>
+                        </p-header>
+
+                        <div class="p-grid">
+                            <div class="p-col-12 p-align-center">
+                                <div class="p-grid">
+                                    <div class="p-col-2">
+                                        <label class="line-height text-center">To:</label>
+                                    </div>
+                                    <div class="p-col-10">
+                                        <input pInputText class="mailing-input-css" 
+                                        pTooltip="Add more than one recipient separated by (;). abc@gmail.com;xyz@gmail.com...."
+                                        tooltipPosition="top"
+                                            [(ngModel)]="txtMailTo">
+                                    </div>
+                                </div>
+                                <div class="p-grid">
+                                    <div class="p-col-2">
+                                        <label class="line-height text-center">Subject:</label>
+                                    </div>
+                                    <div class="p-col-10">
+                                        <input pInputText class="mailing-input-css" [(ngModel)]="txtMailSubject"
+                                            >
+                                    </div>
+                                </div>
+                                <div class="p-grid body-content">
+                                    <div class="p-col-2">
+                                        <label class="line-height text-center">Body:</label>
+                                    </div>
+                                    <div class="p-col-10">
+                                        <textarea class="mailing-textarea-css" [(ngModel)]="txtMailBody" [rows]="5"
+                                            [cols]="30" pInputTextarea autoResize="autoResize"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- In progress -->
+
+                        <div class="button-container">
+                            <div class="p-col-12 button-div">
+                                <span class="line-height">
+                                    HINTS
+                                </span>
+
+                            </div>
+                            <div class="p-grid filter-group">
+                                <p-button label="ReportName =$reportname" iconPos="left"
+                                    (click)="fillMailBody('ReportName = $reportname')">
+                                </p-button>
+
+                                <p-button label="StartDate =$sddate" iconPos="left"
+                                    (click)="fillMailBody('StartDate = $sddate')"></p-button>
+
+                            </div>
+                            <div class="p-grid filter-group">
+                                <p-button label="EndDate =$eddate" iconPos="left"
+                                    (click)="fillMailBody('EndDate = $eddate')"></p-button>
+                                <p-button label="GenerationDateTime =$genDatetime"
+                                    iconPos="left" (click)="fillMailBody('GenerationDateTime = $genDateTime')">
+                                </p-button>
+                            </div>
+                        </div>
+                    </p-card>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,81 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+    <div class="ddr-box">
+        <!-- COMMON TOOLBAR -->
+        <div class="ddr-toolbar">
+            <p-toolbar>
+                <div class='ui-toolbar-group-left'>
+                    <label class='headerInfo'>
+                        <b>Filter Criteria : </b>
+                    </label>
+                    <label class='headerInfo'>{{filter}}</label>
+                </div>
+            </p-toolbar>
+        </div>
+
+
+
+            <p-accordion [multiple]="true" class="ddr-accordion">
+                    <p-accordionTab header="URL Session Summary" [selected]="true">
+                        <p-toolbar>
+                            <div class="ui-toolbar-group-right" style="text-align: right">
+                                    <p-multiSelect title="Show/Hide columns" [options]="columnOptions"  class="dashboard-lowerPanel-multiSelect ddr-multiselect-down" (onChange)="showHideColumn($event)"
+                                    [(ngModel)]="visibleCols"></p-multiSelect>
+                                <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o fa"></button>
+                                <button pButton type="button" title={{toggleFilterTitle}} icon="fa fa-bars" (click)="toggleColumnFilter()"></button>
+                                <input #gb type="text" pInputText size="15" placeholder="Global Filter">
+                            </div>
+                        </p-toolbar>
+                    <p-dataTable class="scen-table" [value]="urlSessionSummaryData" selectionMode="single" [globalFilter]="gb" scrollHeight="400px"
+                    [style]="{'height':'340px','font-size':'12px'}" resizableColumns="true" reorderableColumns="true">
+
+                        
+                    <div *ngFor="let col of cols">
+                        <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable" [filter] = "col.filter" (sortFunction)="sortColumnsOnCustom($event, urlSummaryData)"
+                            [style]="{'width': '80px','text-align': col.align,'color': col.color}">
+                            <ng-template *ngIf="(col.field == 'tried')" let-col let-node="rowData" pTemplate type="body">
+                                <div *ngIf="node[col.field] == '0'">{{formatter(node[col.field])}}</div>
+                                <div class="ddr-table-right" *ngIf="node[col.field] != '0'" title="View URL Instance Report" (click)=urlInstanceReport(node)>
+                                    {{formatter(node[col.field])}} </div>
+                            </ng-template>
+                            <ng-template *ngIf="(col.field == 'success') " let-col let-node="rowData" pTemplate type="body">
+                                <div *ngIf="node[col.field] == '0'">{{formatter(node[col.field])}}</div>
+                                <div class="ddr-table-right" *ngIf="node[col.field] != '0'" title="View URL Instance Report" (click)=urlInstanceReport(node,true)>
+                                   {{formatter(node[col.field])}} </div>
+                            </ng-template>
+                            <ng-template *ngIf="(col.field == 'avgaverage')" let-col let-node="rowData" pTemplate type="body">
+                                <div class="ddr-table-right" pTooltip={{(node[col.field])}}(HH.MM.SS.ms) tooltipPosition="top" (click)=componentDetails(node)>
+                                    {{node[col.field]}} </div>
+                            </ng-template>
+                            <ng-template *ngIf="(col.field == 'fail')" let-col let-node="rowData" pTemplate type="body">
+                                <div *ngIf="node[col.field] == '0'">{{formatter(node[col.field])}}</div>
+                                <div class="ddr-table-right" *ngIf="node[col.field] != '0'" title="View URL Failure Report" (click)=failure(node)>
+                                    {{formatter(node[col.field])}} </div>
+                            </ng-template>
+                            <ng-template *ngIf="(col.field == 'avgmin') || (col.field == 'avgmax') || (col.field == 'avgmedian') ||(col.field == 'avgeighty') || (col.field == 'avgninety') || (col.field == 'avgninetyFive') || (col.field == 'avgninetyNine')"
+                                let-col let-node="rowData" pTemplate type="body">
+                                <div pTooltip={{(node[col.field])}}(HH.MM.SS.ms) tooltipPosition="top">
+                                    {{node[col.field]}} </div>
+                            </ng-template>
+                            <ng-template *ngIf="(col.field == 'scriptName')" let-col let-node="rowData" pTemplate type="body">
+                                <div class="ddr-table-right" title = "Download Script" (click)=openSessionName(node[col.field])>
+                                    {{node[col.field]}} </div>
+                            </ng-template>
+                        </p-column>
+                    </div>
+
+                    </p-dataTable>
+          </p-accordionTab>
+                </p-accordion>
+        </div>
+    <p-dialog class="ddr-dialog"   appendTo="body" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true" [height]="120" [width]="600" > 
+        <p-header>
+            <i class="fa fa-info-circle" style="color:red"></i>
+            <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+        </p-header>  
+        <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+        <p-footer>
+        <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait" style="height: 25px;"></button>
+        <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" [disabled]="isCancelQuerydata" label="Cancel" style="height: 25px;"></button>
+        </p-footer>
+    </p-dialog>

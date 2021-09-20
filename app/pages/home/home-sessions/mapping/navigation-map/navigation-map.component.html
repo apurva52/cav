@@ -1,0 +1,173 @@
+<div id="pop-record-command" class="poprecordcommand" style="visibility:hidden;font-size:150%;position:absolute;top:20px;right:50%;;z-index: 999999;background: black;color: white;padding: 10px;"> Press <b>Ctrl-shift-5</b> to start recording </div>
+<div class="naviagtion-map-container h-100-p">
+    <div class="p-grid h-100-p">
+        <div class="p-col-9 h-100-p">
+            <div class="video-widget">
+                <div id="load" class="loader" [style.height]="'100%'" [style.width]="'100%'" [style.top]='""' [class.hide]='busy==false' [class.show]='busy==true'
+            [style.opacity]='"0.2"' [style.position]='"absolute"' [ngStyle]="{'z-index': 100}">
+                  <div class="spinner"></div>
+                </div>
+                <div id="parentiframe" style="margin: auto;transform-origin: 0px 0px;" [style.width]="'100%;'" [style.height]="'100%'" [style.transform]="iframe_transform" [style.left]="iframe_left" [style.position]="iframe_position">
+                    <canvas [ngStyle]="canvas_style" [ngClass]="applyTemplate ? 'canvasdevices' : 'pagedumpcanvas'" #replaycanvas id="replaycanvas"></canvas>
+                    <iframe src="/netvision/reports/loadingPageDump.html" id="replayIframe" #replayIframe [ngClass]="applyTemplate ? templateCls : ''" frameborder="0" class="custom-size" [width]="'100%'" [height]="'100%'"></iframe>
+                </div>
+
+              
+                <!-- <div class="controls">
+                    <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-skip-to-start"
+                        (click)="previous(selectedIndex)" pTooltip="Previous"></button>
+                    <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-rewind-2"
+                        (click)="skip(-10)" pTooltip="Rewind"></button>
+                    <button pButton type="button" class="ui-button player-controls" icon={{playIcon}} (click)="playPause()"
+                        pTooltip={{playLabel}}></button>
+                    <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-fast-forward-2"
+                        (click)="skip(10)" pTooltip="Forward"></button>
+                    <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-end"
+                        (click)="next(selectedIndex)" pTooltip="Next"></button>
+                    <progress id='progress-bar' value="0" max="100"></progress>
+                    <div class="video-playback-time">
+                        <label id="timer" for="progress" role="timer"></label>
+                    </div>
+                    <button pButton type="button" class="ui-button player-controls" icon={{volumeIcon}} pTooltip={{volumeLabel}}
+                        (click)="setVolume()"></button>
+                    <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-share"
+                        pTooltip="Share"></button>
+                    <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-settings"
+                        pTooltip="Settings" (click)="toggleSettingPanel()"></button>
+                    <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-expand"
+                        pTooltip="Fullscreen" (click)="expandScreen()"></button>
+                    <div class="setting-panel" *ngIf="isShow">
+                        <ul>
+                            <li>
+                                <p-colorPicker [(ngModel)]="color"></p-colorPicker>
+                                <span class="mh-10">Replay Color</span>
+                            </li>
+                            <li>
+                                <p-colorPicker [(ngModel)]="color"></p-colorPicker>
+                                <span class="mh-10">Replay Previous Color</span>
+                            </li>
+                            <li>
+                                <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues"
+                                    label="Simulated Page load delay"></p-checkbox>
+                            </li>
+                            <li>
+                                <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues"
+                                    label="Replay Unexpected mutation"></p-checkbox>
+                            </li>
+                            <li>
+                                <div class="text-bold pv-5">Progress Bar Mode</div>
+                                <p-radioButton name="progress-mode" value="count" label="Count" class="mh-10"
+                                    [(ngModel)]="progressMode"></p-radioButton>
+                                <p-radioButton name="progress-mode" value="time" label="Time" class="mh-10"
+                                    [(ngModel)]="progressMode"></p-radioButton>
+                            </li>
+                            <li>
+                                <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues"
+                                    label="Show Silent user action count"></p-checkbox>
+                            </li>
+                            <li>
+                                <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues"
+                                    label="Replay auto fill silently"></p-checkbox>
+                            </li>
+                            <li>
+                                <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues"
+                                    label="Skip failed snapshot"></p-checkbox>
+                            </li>
+                            <li>
+                                <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" label="Show mouse move">
+                                </p-checkbox>
+                            </li>
+                            <li>
+                                <div class="text-bold pv-5">Replay Speed</div>
+                                <div class="pv-5">
+                                    <p-radioButton name="replay-speed" value="actual" label="Actual" class="mh-10"
+                                        [(ngModel)]="replaySpeed"></p-radioButton>
+                                    <p-radioButton name="replay-speed" value="slower" label="Slower" class="mh-10"
+                                        [(ngModel)]="replaySpeed"></p-radioButton>
+                                </div>
+                                <div class="pv-5">
+                                    <p-radioButton name="replay-speed" value="faster" label="Faster" class="mh-10"
+                                        [(ngModel)]="replaySpeed"></p-radioButton>
+                                    <p-radioButton name="replay-speed" value="advanced" label="Advanced" class="mh-10"
+                                        [(ngModel)]="replaySpeed"></p-radioButton>
+                                </div>
+                            </li>
+                            <li><i class="icons8 icons8-cursor"></i><span class="text-bold mh-10">Select Pointer Icon</span>
+                            </li>
+                            <li><i class="icons8 icons8-speaker"></i><span class="text-bold mh-10"
+                                    (click)="menu.toggle($event)">Voice Edit</span></li>
+                            <p-menu #menu appendTo="body" [popup]="true" [model]="items"></p-menu>
+                        </ul>
+                    </div>
+                </div> -->
+            </div>       
+        </div>
+        <div class="p-col-3 right-section no-padding">
+            <!-- <div class="p-grid p-justify-between p-align-center headings">
+                <span></span>
+                <span></span>
+                <span>
+                    <button pButton label="Actions" class="ui-button ui-button-rounded results"
+                        (click)="menu.toggle($event)"></button>
+                    <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                        [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu> 
+                </span>
+            </div> -->
+            <div class="p-grid p-justify-between p-align-center headings" style="padding: 0px;float: right;">
+                <button pButton icon="icons8 icons8-edit-2" class="icon-button no-shadow"
+                   (click)="mapConfig.open()" pTooltip="Edit Configurations"></button>
+            </div>
+            <div  id="heatmapiddiv" style="height: 340px;overflow-y: auto;">
+                <ul>
+
+                </ul>
+            </div>
+            
+            <!-- <div class="business-orderlist" *ngIf="data">               
+                <div class="playlist">
+                    <ul>
+                        <li class="video-item-wrapper" *ngFor="let video of data; let i = index"  
+                        [ngClass]="{'active': selectedVideo == video}" (click)="selectedIndex = i; listClick($event, video)">
+                            <div class="poster">
+                                <img src={{video.img}} />
+                                <div class="overlay"></div>
+                                <i class="icons8-material-filled"></i>
+                            </div> 
+                            <div class="video-name">{{video.name}}</div>
+                        </li>
+                    </ul>
+                </div>
+            </div> -->
+            <div class="attributes">
+                <p>Element Attributes</p>
+                <div class="attribute-elements" id="elementinfo">
+                    <ul id="elementinformation">
+                        <li><strong>Element name:</strong><span id="ename"> </span></li>
+                        <li><strong>Element Type:</strong><span id="etype"> </span></li>
+                        <li><strong>Xpath:</strong><span id="xpathorid"> </span></li>
+                    </ul>
+                    <!-- <p>Tag Name : DIV</p>
+                    <p>Attribute List :</p>
+                    <p>Style : </p> -->
+                    <div class="p-grid p-justify-between">
+                        <button pButton label="Source Code" id="srcid" (click)='showViewSource()'
+                            class="ui-button-secondary ui-button-rounded ui-button-info"></button>
+                    </div>
+                </div>
+            </div>
+            <div id="setting">
+                <p-accordion>
+                    <p-accordionTab header="Transparency Setting">
+                        <p-slider [(ngModel)]="Tranparency" class="custom-range" id="Tranparency" class="w-100-p" (onChange)="setTransparencyLevel()"></p-slider>
+                    </p-accordionTab>
+                </p-accordion>
+            </div>
+        </div>
+    </div>
+</div>
+<p-dialog id='dial100' appendTo="body" header="Page Source" [contentStyle]="{'overflow-':'scroll','max-height': '60vh','max-width':'170vh'}" [(visible)]="displaySource">
+    <div>{{extraHTML1}}</div><br>
+    <div id='highdiv' style='background:yellow;'>{{selectectedHTML}}</div><br>
+    <div>{{extraHTML1}}</div>
+</p-dialog>
+<app-mapping-configuration #mapConfig [map]="'navigationmap'" [activePageindex]="currentpageindex" [pages]="pages" [session]="selectedSession"></app-mapping-configuration>

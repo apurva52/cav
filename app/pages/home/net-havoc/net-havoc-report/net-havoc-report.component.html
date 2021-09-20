@@ -1,0 +1,149 @@
+<div class="h-100-vh net-havoc-report-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-grid p-align-center">
+                <a (click)="goBack()">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">REPORT</div>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+    </div>
+
+    <div class="vertical-container">
+        <div class="p-grid p-col-12">
+            <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title" (click)="pnl1.toggle($event)">
+                            <a><span
+                                    [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                </span></a>
+                            Havoc Report
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content" #widget [ngStyle]="{'height': 'calc(100vh - 229px)'}">
+                    <div class="p-grid">
+                        <div [ngClass]="!isShow ?'p-col-12':'p-col-9'">
+                            <div class="action-buttons" *ngIf="data">
+                                <div class="search-section">
+                                    <div class="pr-10">
+                                        <i class="dashboard icons8 icons8-search"></i>
+                                        <div class="p-align-center">
+                                            <input type="text" [value]="" pInputText size="50" placeholder="Search"
+                                                (input)="havocReport.filterGlobal($event.target.value,'contains')" class="search-box" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="icons-container">
+                                    <p-multiSelect [options]="data.options" [showHeader]="false"  [(ngModel)]="selectedOption" optionLabel="label" dropdownIcon="icons8 icons8-expand-arrow" [panelStyle]="{minWidth: '200px'}">
+                                    </p-multiSelect>
+                                    <button pButton icon="icons8 icons8-installing-updates"
+                                        class="icon-button no-shadow" (click)="menu.toggle($event);"
+                                        pTooltip="Download"></button>
+                                    <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                                        [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" appendTo="body">
+                                    </p-menu>
+                                    <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow"
+                                        pTooltip="Delete"></button>
+                                    <p-multiSelect [options]="cols" class="columnSelect" name="multiSelect" [(ngModel)]="selectedColumns" optionLabel="label"  dropdownIcon='icons8 icons8-columns' pTooltip="Toggle Columns" [panelStyle]="{minWidth: '200px'}">
+                                        </p-multiSelect>
+                                    <button pButton icon="icons8 icons8-back" class="icon-button no-shadow" *ngIf="!isShow"
+                                    (click)="openSidePanel()"></button>
+                                </div>
+                            </div>
+                            <p-card class="content-body">
+                                <p-treeTable #havocReport [value]="data.havocReportTable.data" [columns]="selectedColumns"
+                                    [paginator]="true" [totalRecords]="totalRecords"  [rows]="data.havocReportTable.paginator.rows"
+                                    [loading]="loading" [scrollable]="true" [(first)]="data.havocReportTable.paginator.first"
+                                    [rowsPerPageOptions]="data.havocReportTable.paginator.rowsPerPageOptions"
+                                    scrollHeight="calc({{widget.offsetHeight}}px - 150px)"
+                                    [showCurrentPageReport]="true"
+                                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                                     class="all-tables" [globalFilterFields]="globalFilterFields">
+                                    <ng-template pTemplate="colgroup" let-columns>
+                                        <colgroup>
+                                            <col *ngFor="let col of columns" [style.width]="col.width">
+                                        </colgroup>
+                                    </ng-template>
+                                    <ng-template pTemplate="header" let-columns>
+                                        <tr>
+                                            <th *ngFor="let col of columns" [ttSortableColumn]="col.valueField">
+                                                {{col.label}}
+                                                <p-treeTableSortIcon [field]="col.valueField"></p-treeTableSortIcon>
+                                            </th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-rowNode let-rowData="rowData"
+                                        let-columns="columns">
+                                        <tr>
+                                            <td *ngFor="let col of columns; let i = index">
+                                                <div class="treeTableTextDiv">
+                                                    <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0">
+                                                    </p-treeTableToggler>
+                                                    <span class="treeTableText" [title]="rowData[col.valueField]">
+                                                        <i class={{rowData.icon}}></i>
+                                                        {{rowData[col.valueField] == undefined ? '-' :
+                                                        rowData[col.valueField] }}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td >
+                                                <i class="icons8 icons8-user table-icon"></i>
+                                                <i class="icons8 icons8-delete-trash table-icon"></i>
+                                                <i class="icons8 icons8-futures table-icon"></i>                                                
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                </p-treeTable>
+                            </p-card>
+                        </div>
+                        <div class="p-col-3 bg-gray" *ngIf="isShow">
+                            <div class="sidepanel-header p-grid p-col-12 p-justify-end">
+                                <i class="icons8 icons8-delete" (click)="closeSidePanel()"></i>
+                            </div>
+
+                            <p-carousel [value]="data.havocDistributionCharts" [numVisible]="1" [responsiveOptions]="responsiveOptions" [numScroll]="3" [circular]="true">
+                                <ng-template let-graph pTemplate="item">                                 
+                                    <div class="p-col-12 no-padding" *ngFor="let chart of data.havocDistributionCharts">
+                                        <app-chart [data]="chart"></app-chart>
+                                    </div>
+                                </ng-template>
+                            </p-carousel>
+                            
+                            <div class="p-grid p-align-stretch p-justify-center visual-chart-container">
+                                <div class="p-col-12 no-padding" *ngFor = "let chart of data.havocStateCharts">
+                                      <app-chart [data]="chart"></app-chart>    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p-panel>
+        </div>
+        <div class="p-grid p-col-12">
+            <p-panel #pnl2 expandIcon="" collapseIcon="" [toggleable]="true">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title" (click)="pnl2.toggle($event)">
+                            <a><span
+                                    [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span></a>
+                            Scenario Report
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content">
+                    content here
+                </div>
+            </p-panel>
+        </div>
+    </div>
+</div>

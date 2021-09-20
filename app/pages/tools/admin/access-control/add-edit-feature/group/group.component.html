@@ -1,0 +1,75 @@
+<div class="p-grid container">
+    <div class="p-col-4 list-section">
+        <app-group-table [groupListFromContainer]="totalData" ></app-group-table>
+    </div>
+    <div class="p-col-8 profile-section">
+
+        <div class="p-grid p-justify-between p-align-center header-section">
+            <div class="name">
+                GROUP1
+            </div>
+            <div class="form-cta">
+
+                <button pButton class="ui-outline-button ui-button-secondary" disabled="!toShowGroupButton" type="button" label="IMPORT LDAP GROUPS" routerLink=""></button>
+
+                <button  pButton class="ui-outline-button ui-button-secondary" disabled="!toShowGroupButton" type="button" label="DELETE" routerLink=""></button>
+                <button pButton class="ui-button ui-button-rounded ui-button-right" type="button" label="SAVE" (click)="saveGroup()"></button>
+                <a pButton icon="icons8 icons8-delete pl-5" class="ui-icon-button" pTooltip="Delete" routerLink="/access-control/home"></a>
+            </div>
+        </div>
+
+        <div class="profile-container">
+            <div class="form-setion">
+                <div class="title p-col-6">Details</div>
+                <div>
+                    <div class="p-grid p-justify-between p-align-center">
+                        <div class="p-grid p-col-6">
+                            <div class="p-col-3">
+                                Name
+                            </div>
+                            <div class="p-col-9">
+                                <input  [(ngModel)]="groupName" type="text" pInputText />
+                            </div>
+                        </div>
+
+                        <div class="p-grid p-col-6">
+                            <div class="p-col-3">
+                                Group Email
+                            </div>
+                            <div class="p-col-9">
+                                <input  [(ngModel)]="groupEmail" type="text" pInputText />
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="p-grid p-col-9">
+                            <div class="p-col-2">
+                                Description
+                            </div>
+
+                            <div class="p-col-10">
+                                <input  [(ngModel)]="groupDescription" type="text" pInputText />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-grid p-col-12 p-justify-start p-align-center form-checkbox">
+                        <p-checkbox [(ngModel)]="nativeGroup" [binary]="true"></p-checkbox>
+                        <div class="p-5">Native</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="p-grid p-justify-between p-align-start table-section">
+                <div class="p-col-6">
+                    <app-user-table [setUserTableData]="userCapabilityData" >   </app-user-table>
+                </div>
+                <div class="p-col-6">
+                    <app-capability-table [setCapabilityTable]="userCapabilityData" > </app-capability-table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

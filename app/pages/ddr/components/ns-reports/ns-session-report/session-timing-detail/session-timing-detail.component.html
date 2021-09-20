@@ -1,0 +1,166 @@
+<!--component html goes here -->
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+<div class="ddr-box">
+    <p-toolbar>
+        <div class="ui-toolbar-group-left">
+            <label class="headerInfo">{{filterCriteria}}</label>
+        </div>
+        <div class="ui-toolbar-group-right">
+            <span title="Download PDF Report">
+                <img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")'
+                    src='./images/iconPDF.gif'>
+            </span>
+            <span title="Download Word Report">
+                <img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")'
+                    src='./images/iconWord.gif'>
+            </span>
+            <span title="Download Excel Report">
+                <img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")'
+                    src='./images/iconExcel.gif'>
+            </span>
+        </div>
+    </p-toolbar>
+    <div style="overflow:auto;max-height:85vh">
+        <p-accordion class="ddr-accordion" [multiple]="true">
+            <div>
+
+                <p-accordionTab header="{{reportType}} Detail Stats" [selected]="true">
+                    <label>
+                        <b>Selected {{reportType}}:</b>&nbsp;{{scriptName}} </label>
+                    <span>
+                        <br>
+                        <label>
+                            <b>{{reportType}} Start Time (HH:MM:SS.ms):</b>&nbsp;{{msToTimeFormate(startTime)}} </label>&nbsp;
+                        &nbsp;
+                        <label>
+                            <b>Response Time:</b>&nbsp;{{respTime}} (Seconds) </label>
+                        &nbsp;
+                        <label>
+                            <b>Status:</b>&nbsp;{{status}} </label>
+                        &nbsp;
+                        <label>
+                            <b>Total Bytes:</b>&nbsp;{{totalBytes}} </label>
+                    </span>
+                    <table border=1>
+                        <tr bgcolor='#f3f8fc'>
+                            <td colspan='2'>&nbsp;</td>
+                        </tr>
+                        <tr *ngFor="let d of chartData">
+                            <td *ngIf="(d.objName.startsWith('Page'))" nowrap bgcolor='#f3f8fc' title='{{d.objName}}' align='right'>
+                                {{d.objName}}
+                            </td>
+                            <td *ngIf="(d.objName.startsWith('Page'))" bgcolor='#ffffff' style='width:920px'>
+                                <img class="dotclear" *ngIf="strinToNum(d.startPix) > 0" src='./images/dotclear.gif' border='0' height='10' width='{{d.startPix}}'>
+                                <img class="img-0" title='{{showToolTip("Page Download Time",d.objName,d.intvalSec)}}' src='./images/0.gif' border='0' height='10'
+                                    width='{{d.intvalPix}}'>
+                            </td>
+
+                            <td *ngIf="(d.objName.startsWith('Conn'))" nowrap bgcolor='#f3f8fc' title='{{d.objName}}' align='right'>
+                                {{d.instance}}: {{truncateUrl(d.object,42)}}
+                            </td>
+                            <td *ngIf="(d.objName.startsWith('Conn'))" bgcolor='#f3f8fc' style='width:920px'>
+                                <img class="dotclear" *ngIf="strinToNum(d.startPix) > 0" src='./images/dotclear.gif' border='0' height='10' width='{{d.startPix}}'>
+                                <img class="img-6" title='{{showToolTip("DNS Lookup Time",d.objName,d.dnsLookupSec)}}' *ngIf="strinToNum(d.dnsLookupSec) > 0"
+                                    src='./images/6.gif' border='0' height='10' width='{{d.dnsLookupPix}}'>
+                                <img class="img-1" title='{{showToolTip("Connect Time",d.objName,d.connectSec)}}' *ngIf="strinToNum(d.connecPix) > 0" src='./images/1.gif'
+                                    border='0' height='10' width='{{d.connecPix}}'>
+                                <img class="img-2" title='{{showToolTip("SSL Time",d.objName,d.sslSec)}}' *ngIf="strinToNum(d.sslPix) > 0" src='./images/2.gif'
+                                    border='0' height='10' width='{{d.sslPix}}'>
+                                <img class="img-3" title='{{showToolTip("Request Sent Time",d.objName,d.writeSec)}}' *ngIf="strinToNum(d.writePix) > 0" src='./images/3.gif'
+                                    border='0' height='10' width='{{d.writePix}}'>
+                                <img class="img-4" title='{{showToolTip("First Byte Time",d.objName,d.firstSec)}}' *ngIf="strinToNum(d.firstPix) > 0" src='./images/4.gif'
+                                    border='0' height='10' width='{{d.firstPix}}'>
+                                <img class="img-5" title='{{showToolTip("Content Download",d.objName,d.contentSec)}}' *ngIf="strinToNum(d.contentPix) > 0"
+                                    src='./images/5.gif' border='0' height='10' width='{{d.contentPix}}'>
+                            </td>
+                        </tr>
+                        <tr bgcolor='#f3f8fc'>
+                            <td>&nbsp;</td>
+                            <td style="border:0px">
+                                <table border='0' cellpadding='0' cellspacing='0' class='black-0'>
+                                    <tr>
+                                        <td *ngFor="let i of scaleData">
+                                            <!-- <img src='./images/dotclear.gif' height='2' width='59'> -->
+                                            <img src='./images/pixel_black.gif' border='0' height='2' width='1'>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td *ngFor="let index of scaleData" align='right'>{{index}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td align='center' colspan='10'>seconds</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr bgcolor='#ffffff'>
+                            <td></td>
+                            <td align='left'>
+                                <table border='0' cellpadding='0' cellspacing='5' class='black-1'>
+                                    <tr>
+                                        <td>
+                                            <img src='./images/0.gif' border='0' height='10' width='10'>&nbsp;Page Download Time&nbsp;&nbsp;&nbsp;</td>
+                                        <td>
+                                            <img src='./images/6.gif' border='0' height='10' width='10'>&nbsp;DNS Lookup Time&nbsp;&nbsp;&nbsp;</td>
+                                        <td>
+                                            <img src='./images/1.gif' border='0' height='10' width='10'>&nbsp;Connect Time&nbsp;&nbsp;&nbsp;</td>
+                                        <td>
+                                            <img src='./images/2.gif' border='0' height='10' width='10'>&nbsp;SSL Time&nbsp;&nbsp;&nbsp;</td>
+                                        <td>
+                                            <img src='./images/3.gif' border='0' height='10' width='10'>&nbsp;Request Sent Time&nbsp;&nbsp;&nbsp;</td>
+                                        <td>
+                                            <img src='./images/4.gif' border='0' height='10' width='10'>&nbsp;First Byte Time&nbsp;&nbsp;&nbsp;</td>
+                                        <td>
+                                            <img src='./images/5.gif' border='0' height='10' width='10'>&nbsp;Content Download</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </p-accordionTab>
+            </div>
+            <!-- <p-accordion class="ddr-accordion" [multiple]="true"> -->
+            <p-accordionTab header="{{reportType}} Response Time Data" [selected]="true">
+                <div style="overflow:auto">
+                    <p-dataTable class="scen-table" [value]="tableData" resizableColumns="true" [rows]="10" [paginator]="true" [pageLinks]="3"
+                        [rowsPerPageOptions]="[10,20,30,40,50]">
+                        <div *ngFor="let col of cols1">
+                            <p-column [field]="col.field" [header]="col.header" [style]="{'width': col.width + '%','text-align':col.align}" [sortable]="col.sortable"
+                                (sortFunction)="customsortOnColumns($event,tableData)">
+                                <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field != 'action')"><span [title]="node[col.field]">{{ node[col.field] }} </span> </ng-template>
+                                <ng-template let-col let-node="rowData" pTemplate type="body" *ngIf="(col.field == 'action')">
+                                    <div *ngIf="ndKeyValue">
+                                    <span *ngIf="(node.fpSignature == '1' && convertIntoNumber(node.flowpath) > 0)">
+                                        <img class="img-8" title='View FlowPath: {{node.flowpath}}' src='./images/SequenceIcon.png' (click)="openFlowpathReport(node)">
+                                    </span>
+                                    <span *ngIf="(node.fpSignature == '1' && convertIntoNumber(node.flowpath) > 0 && pdKeyValue ) ">
+                                    <img class="img-8" title='Show Page Dump for Session associated with flowpath instance {{node.flowpath}}' src='./images/imgPageDump.png' (click)="ViewPageDump(node)">
+                                    </span>
+                                  </div>
+                                  <div *ngIf="( !(ndKeyValue) || !(node.fpSignature == '1' && convertIntoNumber(node.flowpath) > 0))" >
+                                        <span *ngIf="node.instance.startsWith('Conn') &&  pdKeyValue">
+                                                <img class="img-8" title='Show Page Dump for page {{node.pageName}}' src='./images/imgPageDump.png' (click)="ViewPageDump(node)">
+                                        </span>
+                                  </div>
+                                </ng-template>
+                            </p-column>
+                        </div>
+                    </p-dataTable>
+                </div>
+            </p-accordionTab>
+        </p-accordion>
+    </div>
+</div>
+
+<p-dialog class="ddr-dialog"   appendTo="body" [(visible)]="isCancelQuery" modal="modal" [resizable]='false'[responsive]="true" [height]="120" [width]="600" > 
+        <p-header>
+            <i class="fa fa-info-circle" style="color:red"></i>
+            <span>&nbsp;&nbsp;&nbsp;Query load process</span>
+        </p-header>  
+      <span style="font-size:14px">{{this.commonService.cancelationMessage}} </span>
+      <p-footer>
+        <button type="button" pButton icon="fa fa-clock-o " (click)="waitQuery();" label="Wait" style="height: 25px;"></button>
+        <button type="button" pButton icon="fa fa-times" (click)="onCancelQuery();" label="Cancel" style="height: 25px;"></button>
+        </p-footer>
+    </p-dialog>

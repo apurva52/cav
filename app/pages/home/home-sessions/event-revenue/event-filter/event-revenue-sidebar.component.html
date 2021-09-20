@@ -1,0 +1,103 @@
+<div id="ribbon" style="margin-top: 10px;">
+    <!-- <i class="pi pi-filter pi-lg p-2" aria-hidden="true" ></i> -->
+    <!-- <button type="button" pButton class="ui-button-info" id='timeFilterCriteria' label="{{getTimeHtml()}}" (click)='showTimeFilter=true' icon="pi pi-clock fnt-11" ></button> -->
+
+    <span class="ui-button-info" id='timeFilterCriteria' (click)='showTimeFilter=true' style="border: solid 1px; padding: 5px;background-color: #113255; color: white;">
+     <i class="pi pi-clock fnt-13" style=" vertical-align: middle; font-size: 16px;    margin-right: 5px;"></i>{{getTimeHtml()}}
+    </span>
+    <span id='filterCriteria' style='color:white;'  [innerHtml]='getFilterHtml(0)' [title]='getFilterHtml(1)' >
+        </span>
+
+        
+    <!-- <button type="button" pButton title='Reset Filter(s)' *ngIf="getFilterHtml(0) != ''" (click)='resetFilters()' icon="fa fa-undo fnt-11"></button> -->
+
+ </div>
+<div class="jarviswidget_time jarviswidget-sortable bg-white box-shadow" id="wid-id-2" role="widget" [class.hide]="showTimeFilter==false" [class.show]="showTimeFilter==true">
+<header role="heading" class="panel-header p-3" style="background-color: #f4f4f4;height: 3em;">
+        <span><i class='pi pi-clock pi-lg'></i><strong> Time Filter</strong></span>
+        <span class="jarviswidget-loader"><i class="pi pi-refresh pi-spin"></i></span>
+        <span class="jarviswidget-ctrls" role="menu" style="margin: 0 0 0 25em;">
+        <a class="button-icon jarviswidget-delete-btn" (click)='showTimeFilter=false' rel="tooltip" title="cancel" data-placement="bottom" data-original-title="Delete"><i class="pi pi-times text-white"></i></a></span>
+</header>
+<div role="content">
+        <div class="widget-body p-3 pull-left w-100" style="height: 8em;">
+
+
+
+   <!--  for last options -->
+
+    <div [attr.id]="showlast" [class.hide]="showlast== false" [class.show]="showlast==true">
+    <button type="button" pButton (click)='getSessionsForTimeFilter("15 Minutes")' label="15 Minutes"></button>
+    <button type="button" pButton (click)='getSessionsForTimeFilter("1 Hour")' label="1 Hour"></button>
+    <button type="button" pButton (click)='getSessionsForTimeFilter("4 Hours")' label="4 Hours"></button>
+    <button type="button" pButton (click)='getSessionsForTimeFilter("12 Hours")' label="12 Hours"></button>
+    <button type="button" pButton (click)='getSessionsForTimeFilter("1 Day")' label="1 Day"></button>
+    <button type="button" pButton (click)='getSessionsForTimeFilter("1 Week")' label="1 Week"></button>
+    <button type="button" pButton (click)='getSessionsForTimeFilter("1 Month")' label="1 Month"></button>
+    </div>
+        <br>
+
+    <!--  for specified  -->
+
+<div>
+ <div class="col-md-12 my-2" style='padding:unset' >
+    <label>
+        From:
+       <input [owlDateTimeTrigger]="dt12" [owlDateTime]="dt12" placeholder="
+       {{stime}}"
+       [(ngModel)]="startTime" [max]='maxDate'
+       [selectMode]="'rangeFrom'"  readonlyInput>
+       <owl-date-time #dt12></owl-date-time>
+   </label>
+   <label>
+    To:
+   <input [owlDateTimeTrigger]="dt13" [owlDateTime]="dt13"
+   [(ngModel)]="endTime"  [max]='maxDate'  placeholder="{{etime}}"
+   [selectMode]="'rangeTo'"  readonlyInput>
+   <owl-date-time #dt13></owl-date-time>
+</label>
+
+
+  <!--<label>From</label>
+          <p-calendar  showTime="showTime"   hourFormat="24" [(ngModel)]="startTime" [maxDate]='maxDate' hour='00' minute='00' (click)="showCalendar()" readonlyInput></p-calendar>
+           <label>&nbsp;&nbsp; To</label>
+          <p-calendar  showTime="showTime"   hourFormat="24"  [(ngModel)]="endTime" [maxDate]='maxDate'  hour='23' minute='59' (click)="showCalendar()" readonlyInput></p-calendar>-->
+
+<div>
+
+</div>
+</div>
+<div class="col-md-2 filterdonbtn">
+        <button type="button" pButton icon="pi pi-check" class="ui-button-info" style="background-color: #113255;border: 2px solid #113255;" (click)='getSessionsForTimeFilter(null)' label="Done" ></button>
+</div>
+   </div>
+  </div>
+   </div>
+</div>
+
+
+   <!--<p-accordion [class.hide]="showTimeFilter==false" [class.show]="showTimeFilter==true">
+    <p-accordionTab header="TIME FILTER">
+        <div>
+            <label>
+                 From:
+                <input [owlDateTimeTrigger]="dt12" [owlDateTime]="dt12"
+                [(ngModel)]="startTime"
+                [selectMode]="'rangeFrom'" (click)="showCalendar()" readonlyInput>
+                <owl-date-time #dt12></owl-date-time>
+            </label>
+            
+            <label>
+                 To:
+                <input [owlDateTimeTrigger]="dt13" [owlDateTime]="dt13"
+                [(ngModel)]="endTime"    
+                [selectMode]="'rangeTo'" (click)="showCalendar()" readonlyInput>
+                <owl-date-time #dt13></owl-date-time>
+            </label>
+            
+        </div>
+        <div class="sidebar-footer">
+        <button pButton type="submit" label="Save" class="ui-button-rounded ui-button-right" (click)='getSessionsForTimeFilter(null)'></button>
+        </div>
+    </p-accordionTab>
+   </p-accordion>-->

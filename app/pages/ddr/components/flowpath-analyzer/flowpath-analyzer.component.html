@@ -1,0 +1,359 @@
+<!-- <p-blockUI [blocked]="(loading1 || loading)"></p-blockUI>
+<img *ngIf="(loading1 || loading)" class="loadingIcon1" src="./images/loading.gif" /> -->
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+  <div class="p-col p-col-align-center text-center">
+      <div><i class="pi pi-spin pi-spinner font-25"></i> <span class="font-25">Loading</span></div>
+  </div>
+</div>
+
+<div class="ddruiscroll" [ngStyle]="{'height': screenHeight + 67 +'px'}" style="overflow:auto;">
+  <div class="ddr-box">
+    <!-- COMMON TOOLBAR -->
+    <div class="ddr-toolbar">
+      <div class="p-grid p-justify-between p-align-center ui-table-header">
+        <div>
+          <span title="{{completeTier}}">{{filterTierName}}</span>
+          <span>{{filterCriteria}}</span>
+          <div *ngIf="showWarning">
+            <button pButton type="button" icon="fa fa-exclamation-triangle"></button>
+            <label>
+              <b>Showing for top 10000 Flowpath(s).</b>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label style="margin-right: 10px;">
+            <b>Number of Pattern</b>
+          </label>
+          <label>
+            <input type="text" pInputText value="5" (keypress)="onlyNumberKey($event)" [(ngModel)]="noOfpattern"
+              style="height: 26px;width:40px; margin-left: 4px; margin-right: 5px;">
+          </label>
+          <label>
+          
+            <button pButton type="button" label="Apply" (click)="applyPattern()" class="ui-button-rounded ui-button-secondary mx-5"></button>
+
+          </label>
+
+          <button pButton icon="icons8 icons8-doc" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReports("word")'
+          pTooltip="Download as Word Report"></button>
+          <button pButton icon="icons8 icons8-spreadsheet-file" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReports("excel")'
+          pTooltip="Download as Excel Report"></button>
+          <button pButton icon="icons8 icons8-pdf-2" tooltipPosition="left" placeholder="Left"   class="btn-icon mx-3" (click)='downloadReports("pdf")'
+          pTooltip="Download as PDF Report"></button>
+
+        
+           
+          </div>
+       
+      </div>
+    
+      <!-- DDR UI SCROLL -->
+      <div class="ddruiscroll" style="overflow:auto; height: calc(100vh -125px);">
+        <div class="ui-g-12">
+          <div style="overflow:auto">
+            <p-accordion [multiple]="true" class="ddr-accordion">
+              <p-accordionTab header="Pattern Stats" [selected]="false">
+                <div class="ui-g">
+                  <p-card class="ui-g-6">
+                    <div class="ddr-graphpanel">
+                      <highcharts-chart [Highcharts]="highcharts" [options]="options" (click)="clickHandler($event)">
+                      </highcharts-chart>
+                    </div>
+                  </p-card>
+
+                  <p-card class="ui-g-6">
+                    <div class="ddr-graphpanel">
+                      <highcharts-chart [Highcharts]="highcharts" [options]="options1">
+                      </highcharts-chart>
+                    </div>
+                  </p-card>
+                </div>
+              </p-accordionTab>
+              <p-accordionTab header="Flowpath Signature" [selected]="true">
+                <div style="overflow:auto">
+
+                  <p-table class="all-tables" [value]="signatureData" selectionMode="single" scrollHeight="180px"
+                    [style]="{'font-size':'12px'}" sortField={{defaultfield2}} resizableColumns="true"
+                    reorderableColumns="true" (onSort)="sortEvent($event)"
+                    (sortFunction)="sortColumnsOnCustomSig($event,signatureData)">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <ng-container *ngFor="let col of colsForSignature">
+                          <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action" pResizableColumn pReorderableColumn [pSortableColumn]="col.field">
+                            <span>{{col.header}}
+                              <p-sortIcon *ngIf="col.action" [field]="col.field" ariaLabel="Activate to sort"
+                                ariaLabelDesc="Activate to sort in descending order"
+                                ariaLabelAsc="Activate to sort in ascending order">
+                              </p-sortIcon>
+                            </span>
+                          </th>
+                        </ng-container>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-node>
+                      <tr>
+                        <ng-container *ngFor="let col of colsForSignature">
+                          <td *ngIf="col.action">
+                            <span *ngIf="col.field == 'signature'">
+                              <span>{{node[col.field]}}</span>
+                            </span>
+                            <span *ngIf="col.field == 'fpCount'">
+                              <span><a class="activeLink right"
+                                (click)="openFPSignatureReport(node)">{{node[col.field]}}</a></span>
+                            </span>
+                            <span *ngIf="col.field == 'avg'">
+                              <span class="right">{{avgFormatter(node[col.field])}}</span>
+                            </span>
+                            <span *ngIf="(col.field == 'max') || (col.field == 'min')">
+                              <span class="right">{{avgFormatter(node[col.field])}}</span>
+                            </span>
+                          </td>
+                        </ng-container>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                      <tr>
+                          <td [attr.colspan]="colsForSignature.length" class="text-center">
+                              <span>No Records Found</span>
+                          </td>
+                      </tr>
+                  </ng-template>
+                  </p-table>
+
+                  <!-- <p-dataTable class="ddr-table" [value]="signatureData" selectionMode="single" scrollHeight="180px"
+                    [style]="{'font-size':'12px'}" sortField={{defaultfield2}} resizableColumns="true"
+                    reorderableColumns="true" (onSort)="sortEvent($event)">
+                    <div *ngFor="let col of colsForSignature">
+                      <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable"
+                        (sortFunction)="sortColumnsOnCustomSig($event,signatureData)"
+                        [style]="{'width': col.width+'px','text-align': col.align,'color': col.color}">
+                        <ng-template let-col let-node="rowData" *ngIf="col.field == 'fpCount'" pTemplate type="body">
+                          <span class="ddr-table-right" (click)="openFPSignatureReport(node)">{{node[col.field]}}</span>
+                        </ng-template>
+                        <ng-template let-col let-node="rowData" *ngIf="col.field == 'avg'" pTemplate type="body">
+                          <span>{{avgFormatter(node[col.field])}}</span>
+                        </ng-template>
+                        <ng-template let-col let-node="rowData" *ngIf="(col.field == 'max') || (col.field == 'min')"
+                          pTemplate type="body">
+                          <span>{{avgFormatter(node[col.field])}}</span>
+                        </ng-template>
+                      </p-column>
+                    </div>
+                  </p-dataTable> -->
+                </div>
+              </p-accordionTab>
+
+              <p-accordionTab header="Pattern Summary {{patternHeader}}" [selected]="true">
+                <!-- <p-toolbar>
+              <div  class="ui-toolbar-group-right" style="text-align: right">
+                  <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+                  <input #gb type="text" pInputText size="30" placeholder="Search">
+              </div>
+          </p-toolbar> -->
+                <div style="overflow:auto">
+
+                  <p-table class="all-tables" [value]="patternData" selectionMode="single" scrollHeight="180px"
+                    [style]="{'font-size':'12px'}" sortField={{defaultfield1}} resizableColumns="true"
+                    reorderableColumns="true" (onSort)="sortEvent($event)"
+                    (sortFunction)="sortColumnsOnCustom($event,patternData)" [customSort]="true">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <ng-container *ngFor="let col of colsForPattern">
+                          <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action" pResizableColumn pReorderableColumn [pSortableColumn]="col.field">
+                            <span>{{col.header}}
+                              <p-sortIcon *ngIf="col.action" [field]="col.field" ariaLabel="Activate to sort"
+                                ariaLabelDesc="Activate to sort in descending order"
+                                ariaLabelAsc="Activate to sort in ascending order">
+                              </p-sortIcon>
+                            </span>
+                          </th>
+                        </ng-container>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-node>
+                      <tr>
+                        <ng-container *ngFor="let col of colsForPattern">
+                          <td *ngIf="col.action">
+                            <span *ngIf="col.field == 'fpCount'">
+                              <span class="right"><a class="activeLink" (click)="openFPReport(node)">{{node[col.field]}}</a></span>
+                            </span>
+                            <span class="right" *ngIf="col.field == 'avgTime'">
+                              <span>{{avgFormatter(node[col.field])}}</span>
+                            </span>
+                            <span *ngIf="col.field == 'pattern'">
+                              <span>{{(node[col.field])}}</span>
+                            </span>
+                            <span *ngIf="col.field == 'topContributor'" title="{{node[col.field]}}">
+                              <span>{{(node[col.field])}}</span>
+                            </span>
+                            <span class="right" *ngIf="!(col.field == 'fpCount' || col.field == 'avgTime' || col.field == 'pattern' || col.field == 'topContributor')">
+                              <span>{{(node[col.field])}}</span>
+                            </span>
+                          </td>
+                        </ng-container>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                      <tr>
+                          <td [attr.colspan]="colsForPattern.length" class="text-center">
+                              <span>No Records Found</span>
+                          </td>
+                      </tr>
+                  </ng-template>
+                  </p-table>
+
+                  <!-- <p-dataTable class="ddr-table" [value]="patternData" selectionMode="single" scrollHeight="180px"
+                    [style]="{'font-size':'12px'}" sortField={{defaultfield1}} resizableColumns="true"
+                    reorderableColumns="true" (onSort)="sortEvent($event)">
+                    <div *ngFor="let col of colsForPattern">
+                      <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable"
+                        (sortFunction)="sortColumnsOnCustom($event,patternData)"
+                        [style]="{'width': col.width+'px','text-align': col.align,'color': col.color}">
+                        <ng-template let-col let-node="rowData" *ngIf="col.field == 'fpCount'" pTemplate type="body">
+                          <span class="ddr-table-right" (click)="openFPReport(node)">{{node[col.field]}}</span>
+                        </ng-template>
+                        <ng-template let-col let-node="rowData" *ngIf="col.field == 'avgTime'" pTemplate type="body">
+                          <span>{{avgFormatter(node[col.field])}}</span>
+                        </ng-template>
+                        <ng-template let-col let-node="rowData" pTemplate type="header" *ngIf="col.field == 'count'">
+                          <span pTooltip="Count of Top method per flowpath" tooltipPosition="left">
+                            {{node[col.field]}}</span>
+                        </ng-template>
+                      </p-column>
+                    </div>
+                  </p-dataTable> -->
+                </div>
+              </p-accordionTab>
+              <p-accordionTab header="Top Methods (Total Self Time(ms) and Count per Flowpath)" [selected]="true">
+               
+                  <div class="p-grid p-align-center p-justify-end py-5">
+                    <i class="icons8 icons8-search font-18 mx-5" style="color:#1D5290;"></i>
+                    <input pInputText type="text" placeholder="Search keyword"
+                      (input)="tableref.filterGlobal($event.target.value, 'contains')" />
+                  </div>
+              
+                <div style="overflow:auto">
+
+                  <p-table class="all-tables" #tableref [value]="topMethodData" selectionMode="single"
+                    scrollHeight="180px" [style]="{'font-size':'12px'}" resizableColumns="true"
+                    reorderableColumns="true" (onSort)="sortEvent($event)" [columns]="mergeArr"
+                    (sortFunction)="sortColumnsOnCustom2($event,topMethodData)" [customSort]="true">
+                    <ng-template pTemplate="colgroup" let-columns>
+                      <colgroup>
+                        <col *ngFor="let col of columns">
+                      </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th rowspan="3" pResizableColumn>Package</th>
+                        <th rowspan="3">Method Name</th>
+                      </tr>
+                      <tr>
+                        <ng-container *ngFor="let col of colsForTopMethods">
+                          <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action" colspan="2">
+                            <span>{{col.header}}
+                            </span>
+                          </th>
+                        </ng-container>
+                      </tr>
+                      <tr>
+                        <ng-container *ngFor="let col of colsForTimeNCount">
+                          <th style="text-overflow: inherit; white-space:normal;" *ngIf="col.action" [pSortableColumn]="col.field">
+                            <span>{{col.header}}
+                              <p-sortIcon *ngIf="col.action" [field]="col.field" ariaLabel="Activate to sort"
+                                ariaLabelDesc="Activate to sort in descending order"
+                                ariaLabelAsc="Activate to sort in ascending order">
+                              </p-sortIcon>
+                            </span>
+                          </th>
+                        </ng-container>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-node>
+                      <tr>
+                        <ng-container *ngFor="let col of mergeArr">
+                          <td *ngIf="col.action">
+                            <span *ngIf="col.field == 'package'">
+                              <div class="ddr-table-left"><a class="activeLink" title="{{node[col.field]}}">{{node[col.field]}}</a></div>
+                            </span>
+                            <span *ngIf="col.field == 'classWithMethod'">
+                              <div class="ddr-table-left"><a class="activeLink" title="{{node[col.field]}}">{{node[col.field]}}</a></div>
+                            </span>
+                            <span *ngIf="(col.field != 'package' && col.field != 'classWithMethod')">
+                              <div class="text-right" title="{{node[col.field]}}">{{node[col.field]}}</div>
+                            </span>
+                          </td>
+                        </ng-container>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                      <tr>
+                          <td [attr.colspan]="mergeArr.length" class="text-center">
+                              <span>No Records Found</span>
+                          </td>
+                      </tr>
+                  </ng-template> 
+                  </p-table>
+
+
+                  <!-- <p-dataTable class="ddr-table" #tableref [value]="topMethodData" selectionMode="single"
+                    [globalFilter]="gb" scrollHeight="180px" [style]="{'font-size':'12px'}" resizableColumns="true"
+                    reorderableColumns="true" (onSort)="sortEvent($event)">
+                    <p-headerColumnGroup>
+                      <p-row>
+                        <p-column field="package" header="Package" rowspan="3"></p-column>
+                        <p-column field="classWithMethod" header="Method Name" rowspan="3"></p-column>
+                      </p-row>
+                      <p-row>
+                        <div *ngFor="let col of colsForTopMethods">
+                          <p-column *ngIf="col.action" [field]="col.field" [header]="col.header"
+                            [sortable]="col.sortable" (sortFunction)="sortColumnsOnCustom2($event,topMethodData)"
+                            [colspan]="col.colspan"
+                            [style]="{'width': col.width+'px','text-align': col.align,'color': col.color}">
+                          </p-column>
+                        </div>
+                      </p-row>
+                      <p-row>
+                        <div *ngFor="let col of colsForTimeNCount">
+                          <p-column [field]="col.field" [header]="col.header" [sortable]="col.sortable"
+                            (sortFunction)="sortColumnsOnCustom2($event,topMethodData)"
+                            [style]="{'width': col.width+'px','text-align': col.align,'color': col.color}"></p-column>
+                        </div>
+                      </p-row>
+                    </p-headerColumnGroup>
+                    <div *ngFor="let col of mergeArr">
+                      <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable"
+                        (sortFunction)="sortColumnsOnCustom2($event,topMethodData)" [colspan]="col.colspan"
+                        [style]="{'width': col.width+'px','text-align': col.align,'color': col.color}">
+                        <ng-template let-col let-node="rowData" *ngIf="col.field == 'package'" pTemplate="body">
+                          <div class="ddr-table-left" title="{{node[col.field]}}">{{node[col.field]}}</div>
+                        </ng-template>
+                        <ng-template let-col let-node="rowData" *ngIf="col.field == 'classWithMethod'" pTemplate="body">
+                          <div class="ddr-table-left" title="{{node[col.field]}}">{{node[col.field]}}</div>
+                        </ng-template>
+                      </p-column>
+                    </div>
+                  </p-dataTable> -->
+                </div>
+              </p-accordionTab>
+            </p-accordion>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p-dialog class="scenmodal  Ddr-popup-footer" [(visible)]="displayPopUp" [responsive]='true' [resizable]='false'
+    [positionTop]='140' width="500" minHeight='300' [style]="{'max-height':'500px'}">
+    <p-header>{{infoHeader}}</p-header>
+    <div>
+      <table width="500" height="150" cellspacing="0">
+        <tbody>
+          <tr>
+            <td style="border: 0px solid grey;font-size:10pt;text-align:center;">{{strInfoMessage}}.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </p-dialog>
+</div>

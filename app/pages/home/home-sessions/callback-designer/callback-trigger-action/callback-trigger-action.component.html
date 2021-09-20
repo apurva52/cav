@@ -1,0 +1,195 @@
+<p-card [header]="state ? state.text:'No State Selected'">
+    <p-tabView>
+        <p-tabPanel header="TRIGGERS" rightIcon="icons8 icons8-add">
+            <ng-template pTemplate="header">
+                TRIGGERS
+                <span class="icons8 icons8-add ml-5" pTooltip="Add Trigger" (click)="openTriggerDialog()"></span>
+            </ng-template>
+
+            <h4 *ngIf="state && !triggers.length">No Triggers Found.</h4>
+
+            <div class="p-grid  p-justify-between p-align-center " *ngFor="let trigger of triggers">
+                <div class="p-col-8 textElipse" [pTooltip]="trigger.label + '('+ trigger.value.type +')'">
+                    {{trigger.label + '('+ trigger.value.type +')'}}
+                </div>
+                <button pButton icon="icons8 icons8-edit" class="icon-button no-shadow"
+                    [pTooltip]="'Edit ' + trigger.label" (click)="openTriggerDialog(trigger.value)"></button>
+                <button pButton icon="icons8 icons8-delete-trash" class="icon-button no-shadow"
+                    [pTooltip]="'Delete ' + trigger.label" (click)="deleteTrigger(trigger.value)"></button>
+            </div>
+        </p-tabPanel>
+        <p-tabPanel header="ACTIONS" rightIcon="icons8 icons8-add">
+            <ng-template pTemplate="header">
+                ACTIONS
+                <span class="icons8 icons8-add ml-5" pTooltip="Add Action" (click)="openActionDialog()"></span>
+            </ng-template>
+
+            <h4 *ngIf="state && !actions.length">No Actions Found.</h4>
+
+            <div class="p-grid p-justify-between p-align-center" *ngFor="let action of actions">
+                <div class="p-col-8" [pTooltip]="action.label">
+                    {{action.label}}
+                </div>
+                <button pButton icon="icons8 icons8-edit" class="icon-button no-shadow" pTooltip="Edit Action"
+                    (click)="openActionDialog(action.value)"></button>
+                <button pButton icon="icons8 icons8-flow-chart" class="icon-button no-shadow"
+                    pTooltip="Create Flow Chart" (click)="openFlowChart(action.value, $event)"></button>
+            </div>
+        </p-tabPanel>
+    </p-tabView>
+</p-card>
+
+
+<!-- Trigger Dialog -->
+<p-dialog [header]=" (edit_trigger ? 'Edit ': 'Add ') + 'Trigger'" appendTo="body" [(visible)]="triggerDialog"
+    [modal]="true" [style]="{width:'30vw'}" [contentStyle]="{overflow:'visible'}" [transitionOptions]="'0ms'"
+    (onHide)="onTriggerDialogClose()">
+    <form [formGroup]="triggerForm">
+
+        <!-- State -->
+        <div class="p-grid p-justify-between ui-fluid">
+            <div class="p-col-4">
+                <label>State</label>
+            </div>
+            <div class="p-col">
+                <input type="text" pInputText formControlName="stateId" />
+            </div>
+        </div>
+        <!-- Trigger Name -->
+        <div class="p-grid p-justify-between ui-fluid">
+            <div class="p-col-4">
+                <label>Trigger Name</label>
+            </div>
+            <div class="p-col">
+                <input type="text" pInputText formControlName="name" />
+            </div>
+        </div>
+        <!-- Trigger Type -->
+        <div class="p-grid p-justify-between ui-fluid">
+            <div class="p-col-4">Trigger Type</div>
+            <div class="p-col">
+                <p-dropdown [options]="triggerTypes" formControlName="type" placeholder="Select Trigger"
+                    dropdownIcon="icons8 icons8-expand-arrow" (onChange)="onTriggerChange($event.value)">
+                </p-dropdown>
+
+                <p-message severity="error" text="Trigger type is required."
+                    *ngIf="submitted && !triggerForm.get('type').valid"></p-message>
+            </div>
+        </div>
+        <!-- domSelector -->
+        <div class="p-grid p-justify-between ui-fluid" *ngIf="triggerForm.get('domSelector')">
+            <div class="p-col-4">
+                <label>DOM Selector</label>
+            </div>
+            <div class="p-col">
+                <input pInputText type="text" formControlName="domSelector" />
+
+                <p-message severity="error" text="DOM Selector is required."
+                    *ngIf="submitted && !triggerForm.get('domSelector').valid">
+                </p-message>
+
+            </div>
+        </div>
+
+        <!-- urlPattern -->
+        <div class="p-grid p-justify-between ui-fluid" *ngIf="triggerForm.get('urlPattern')">
+            <div class="p-col-4">
+                <label>URL Pattern</label>
+            </div>
+            <div class="p-col">
+                <input pInputText type="text" formControlName="urlPattern" />
+
+                <p-message severity="error" text="URL Pattern is required."
+                    *ngIf="submitted && !triggerForm.get('urlPattern').valid">
+                </p-message>
+            </div>
+        </div>
+
+        <!-- Checkpoint -->
+        <div class="p-grid p-justify-between ui-fluid" *ngIf="triggerForm.get('checkpoint')">
+            <div class="p-col-4">
+                <label>CheckPoint</label>
+            </div>
+            <div class="p-col">
+                <div class="ui-inputgroup p-nogutter">
+                    <div class="p-col-10 mr-5">
+                        <p-dropdown [options]="checkpoints" [formControl]="triggerForm.get('checkpoint')"
+                            placeholder="Select Checkpoint" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-col-2">
+                        <button type="button" pButton icon="icons8 icons8-add" (click)="openCheckpoint = true"
+                            pTooltip="Add Checkpoint"></button>
+                    </div>
+
+                </div>
+
+                <p-message severity="error" text="Checkpoint is required."
+                    *ngIf="submitted && !triggerForm.get('checkpoint').valid">
+                </p-message>
+
+            </div>
+        </div>
+
+        <!-- timeOut -->
+        <div class="p-grid p-justify-between ui-fluid" *ngIf="triggerForm.get('timeOut')">
+            <div class="p-col-4">
+                <label>Time Out</label>
+            </div>
+            <div class="p-col">
+                <p-inputNumber formControlName="timeOut" [min]="0" suffix=" ms" placeholder="0 ms"></p-inputNumber>
+
+
+                <p-message severity="error" text="TimeOut is required."
+                    *ngIf="submitted && !triggerForm.get('timeOut').valid">
+                </p-message>
+
+            </div>
+        </div>
+
+        <!-- Save/Update Button -->
+        <div class="p-grid p-justify-center">
+            <button type="button" pButton [label]="edit_trigger ? 'Update':'Save'"
+                (click)="edit_trigger ? editTrigger() : addTrigger()"></button>
+        </div>
+    </form>
+</p-dialog>
+
+<!-- Action Dialog -->
+<p-dialog [header]="(edit_action ?'Edit ' : 'Add ') +  'Action'" appendTo="body" [(visible)]="actionDialog"
+    [modal]="true" [style]="{width:'30vw'}" [contentStyle]="{overflow:'visible'}" [transitionOptions]="'0ms'"
+    (onHide)="onActionDialogClose()">
+    <form [formGroup]="actionForm">
+        <!-- Trigger -->
+        <div class="p-grid p-justify-between ui-fluid">
+            <div class="p-col-4">
+                <label>Trigger</label>
+            </div>
+            <div class="p-col">
+                <p-dropdown [options]="triggers" formControlName="trigger" placeholder="Select Trigger"
+                    dropdownIcon="icons8 icons8-expand-arrow" appendTo="body">
+                </p-dropdown>
+
+                <p-message severity="error" text="Trigger is required."
+                    *ngIf="submitted && !actionForm.get('trigger').valid">
+                </p-message>
+            </div>
+        </div>
+        <!-- Action Name -->
+        <div class="p-grid p-justify-between ui-fluid">
+            <div class="p-col-4">
+                <label>Action Name</label>
+            </div>
+            <div class="p-col">
+                <input pInputText type="text" formControlName="action" />
+            </div>
+        </div>
+        <!-- Save/Update Button -->
+        <div class="p-grid p-justify-center">
+            <button type="button" pButton [label]="edit_action ? 'Update':'Save'"
+                (click)="edit_action ? editAction() : addAction()"></button>
+        </div>
+    </form>
+</p-dialog>
+
+<app-check-point [notFromCallbackDesigner]="false" *ngIf="openCheckpoint"></app-check-point>

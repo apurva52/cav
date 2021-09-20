@@ -1,0 +1,38 @@
+ 
+<div class="h-100-vh system-settings-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-col-12">
+                <div class="p-grid p-align-center">
+                    <a routerLink="/home/dashboard">
+                        <i class="icons8 icons8-left toolbar-icon-color"></i>
+                    </a>
+                    <div class="p-col ui-toolbar-text">SYSTEM SETTINGS</div>
+		      <button pButton type="button" pTooltip="Refresh" icon="icons8 icons8-synchronize" label="Refresh" (click)="Refresh()"
+                        class="btn-success ui-button-rounded mh-5"></button>
+                    <button pButton type="button" icon="fa fa-check" class="btn-success ui-button-rounded"
+                        id="pendingapply" [pTooltip]="titlecontent" label="Apply" (click)="Activate()">
+                        <div class="badge">{{badge}}</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </p-toolbar>
+
+    
+    <div class="p-grid p-col-12 edit-ux">
+         <app-dynamic-form  (result)="getResult($event)" [panelPosition]="sidePanelPosition"
+    [btnStyle]="btnstyle" [metadataMap]="dynamicmetadata" [jsonData]="jsonFile" [readOnly]=readonly></app-dynamic-form>
+
+    </div>
+    <div class="loading-indicator" *ngIf="busy">
+            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" >
+            </p-progressSpinner>
+        </div>
+    </div>
+<p-confirmDialog  header="Confirmation" maskStyleClass="ui-dialog-mask ui-widget-overlay ui-dialog-visible ui-dialog-mask-scrollblocker"></p-confirmDialog>
+<p-toast></p-toast>
+

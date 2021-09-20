@@ -1,0 +1,153 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="999" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false" [style]="{width: '40vw'}" (onHide)="updatedCancel()">
+    <p-header>
+
+        <div class="compare-data-title" *ngIf="!showFields">
+            <div>
+                Add Custom Data
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+        <div class="compare-data-title" *ngIf="showFields">
+            <div>
+                Edit Custom Data
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+
+    <div class="dialog-content">
+        <div class="p-grid p-align-center">
+            <div class="p-col-4">
+                <span>Name</span>
+            </div>
+            <div class="p-col-8" *ngIf="!showFields">
+                <input class="w-100-p" [(ngModel)]="name" type="text" placeholder="Enter name" pInputText />
+            </div> 
+            <div class="p-col-8" *ngIf="showFields">
+                <input class="w-100-p" [(ngModel)]="updatename" type="text" placeholder="Enter Custom name" pInputText />
+            </div>
+        </div>
+
+      <div class="p-grid p-align-center">
+            <div class="p-col-4">
+                <span>Type</span>
+            </div>
+            <div class="p-col-8" *ngIf="!showFields">
+                <p-dropdown (onChange) = "graphChange()" [options]="type" [(ngModel)]="Type" dropdownIcon="icons8-expand-arrow" [baseZIndex]="10001" appendTo="body">
+                </p-dropdown>
+            </div> 
+            <div class="p-col-8" *ngIf="showFields">
+                <p-dropdown (onChange) = "updategraphChange()" [options]="type" [(ngModel)]="updateType" dropdownIcon="icons8-expand-arrow" [baseZIndex]="10001" appendTo="body">
+                </p-dropdown>
+            </div>
+        </div>  
+        <div *ngIf="showFields">
+        <div *ngIf = 'updateType == "1" || updateType == "2"'>
+      <div class="p-grid p-align-center">
+            <div class="p-col-4">
+                <span>Trend Graph</span>
+            </div>
+            
+            <div class="p-col-8" *ngIf="showFields">
+                <p-dropdown (click) = "updategrapFlag()" [options]="trendgraph" [(ngModel)]="updateTrendgraph"  dropdownIcon="icons8-expand-arrow" [baseZIndex]="10001" appendTo="body">
+                </p-dropdown>
+            </div>
+        </div> 
+        </div> 
+        <div *ngIf = 'updateTrendflag == true'>
+          <div class="p-grid p-align-center">
+                <div class="p-col-4">
+                    <span>Graph Mode:</span>
+                </div>
+                
+                <div class="p-col-8" *ngIf="showFields">
+                   
+                    <p-multiSelect [options]="rate" [(ngModel)]="Rates"></p-multiSelect>
+                </div>
+            </div>
+        </div>  
+    </div> 
+    <div *ngIf="!showFields">
+        <div *ngIf = 'Type == "1" || Type == "2"'>
+          <div class="p-grid p-align-center">
+                <div class="p-col-4">
+                    <span>Trend Graph</span>
+                </div>
+               
+                <div class="p-col-8" *ngIf="showFields">
+                    <p-dropdown (click) = "grapFlag()" [options]="trendgraph" [(ngModel)]="Trendgraph"
+                        dropdownIcon="icons8-expand-arrow" [baseZIndex]="10001" appendTo="body">
+                    </p-dropdown>
+                </div>
+            </div>
+        </div>
+        <div *ngIf='Trendflag == true'>
+          <div class="p-grid p-align-center">
+                <div class="p-col-4">
+                    <span>Graph Mode:</span>
+                </div>
+               
+                <div class="p-col-8" *ngIf="showFields">
+                   
+                    <p-multiSelect   [options]="rate" [(ngModel)]="Rate"></p-multiSelect>
+                </div>
+            </div>
+        </div>
+    </div>
+
+      <div class="p-grid p-align-center">
+            <div class="p-col-4">
+                <span>Description</span>
+            </div>
+            <div class="p-col-8" *ngIf="showFields">
+                <textarea class="w-100-p" [(ngModel)]="updatedescription" type="text" placeholder="Enter Description" pInputText></textarea>
+            </div> 
+            <div class="p-col-8" *ngIf="!showFields">
+                <textarea class="w-100-p" [(ngModel)]="description" type="text" placeholder="Enter Description"
+                    pInputText></textarea>
+            </div>
+        </div>
+      <div class="p-grid p-align-center">
+            <div class="p-col-4">
+                <span>Encryption</span>
+            </div>
+            <div class="p-col-8" *ngIf="showFields">
+                <p-dropdown dropdownIcon="icons8-expand-arrow" [options]="encryption" [(ngModel)]="updateencryptflag" [disabled]="udisableEncryptionDropdown" [baseZIndex]="10001" appendTo="body">
+                </p-dropdown>
+            </div> 
+            <div class="p-col-8" *ngIf="!showFields" >
+                <p-dropdown dropdownIcon="icons8-expand-arrow" [options]="encryption" [(ngModel)]="encryptflag"
+                    [disabled]="udisableEncryptionDropdown" [baseZIndex]="10001" appendTo="body">
+                </p-dropdown>
+            </div>
+        </div>
+      <div class="p-grid p-align-center">
+            <div class="p-col-4">
+                <span>Channel</span>
+            </div>
+            <div class="p-col-8" *ngIf="showFields" >
+                <p-dropdown   [options]="nchannel" [baseZIndex]="10001" appendTo="body" [(ngModel)]="updatechannel" dropdownIcon="icons8-expand-arrow" [baseZIndex]="10001" appendTo="body">
+                </p-dropdown>
+            </div> 
+            <div class="p-col-8"*ngIf="!showFields" >
+                <p-dropdown [options]="nchannel" [(ngModel)]="channel" dropdownIcon="icons8-expand-arrow" [baseZIndex]="10001" appendTo="body" placeholder="select channel" [baseZIndex]="10001" appendTo="body">
+                </p-dropdown>
+            </div>
+        </div>
+
+    </div>
+    <p-footer right>
+        <div class="p-col-12 right" *ngIf="!showFields">
+            <button pButton type="submit" label="Cancel" class="ui-button-rounded ui-button-secondary" (click)="closeDialog()"></button>
+            <button pButton type="submit" label="Add" class="ui-button-rounded" (click)="SaveAdd()" ></button>
+        </div>
+        <div class="p-col-12 right" *ngIf="showFields">
+            <button pButton type="submit" label="Cancel" class="ui-button-rounded ui-button-secondary" (click)="closeDialog()"></button>
+            <button pButton type="submit" label="Update" class="ui-button-rounded"  (click)="Save()" ></button>
+        </div>
+    </p-footer>
+</p-dialog>

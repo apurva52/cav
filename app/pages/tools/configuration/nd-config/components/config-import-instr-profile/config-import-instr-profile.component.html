@@ -1,0 +1,228 @@
+<div class="ui-g ndegui-mainbox">
+    <div class="ui-g-12">
+        <div class="ui-g-5">
+            <div class="ui-g-4 label">
+                <label>Agent Type</label>
+            </div>
+            <div class="ui-g-4">
+                <p-dropdown [options]="agent" name="agent" [style]="{'width':'100%'}" [(ngModel)]="selectedAgent" placeholder="--Select--" (ngModelChange)="getAgentSpecificFiles($event)" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+	 	<!-- <select class="ui-dropdown ui-inputtext ui-placeholder ui-corner-all ui-dropdown-label ui-widget ui-widget-content ui-corner-bottom ui-corner-right ui-corner-left" #select [ngModel]="selectedAgent" (ngModelChange)="select.value = onChange($event)" (ngModelChange)="getAgentSpecificFiles($event)" style="width: 100%; height: 100%;" > 
+                    <option value="">--Select--</option>
+                    <option value="Dot Net">Dot Net</option> 
+                    <option value="Java">Java</option> 
+                    <option value="NodeJS">NodeJS</option>
+                    <option value="Php">Php</option> 
+                    <option value="Python">Python</option> 
+                </select>	 -->
+            </div>
+        </div>
+        <div class="ui-g-7" style="text-align: right">
+            <i class="icons8 icons8-help" title="Help" (click)="sendHelpNotification()"></i>
+        </div>
+    </div>
+    <div class="ui-g-12">
+        <div class="ui-g-5">
+            <div class="ui-g-4 label">
+                <label>Import file</label>
+            </div>
+            <div class="ui-g-4">
+                <button pButton type="button" title="Browse" label="Browse" (click)="openFileManager()" [disabled]="isInstrPerm || selectedAgent != 'Java'"  icon="icons8 icons8-opened-folder"></button>
+
+            </div>
+        </div>
+    </div>
+    <div class="ui-g-12">
+        <div class="ui-g-10">
+            <div class="ui-g-2 label p-align-center">
+                <label>Instrumentation Profile</label>
+            </div>
+            <div class="ui-g-2">
+                <p-dropdown [options]="profileList" name="dropdown" [disabled]="selectedAgent==''" [style]="{'width':'100%'}" [(ngModel)]="selectedFile" placeholder="--Select--" filter="filter" class="instrprofmaker autosearchfield" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+            <div class="ui-g-1 ml-24" *ngIf="selectedAgent!=''">
+                <button pButton type="button" class="buttons" label="View" icon="icons8 icons8-eye" (click)="showSelectedFileData()" title="View selected file"></button>
+            </div>
+            <div class="ui-g-1 mx-15" *ngIf="selectedAgent=='Java' || selectedAgent=='NodeJS'">
+                <button pButton type="button" label="Create" icon="icons8 icons8-plus-math" [disabled]="isInstrPerm" (click)="createInstrumentationFile()" title="Create"></button>
+            </div>
+            <div class="ui-g-1 ml-14" *ngIf="selectedAgent=='Java' || selectedAgent=='NodeJS'">
+                <button pButton type="button" label="Edit" icon="icons8 icons8-edit" [disabled]="isInstrPerm" (click)="editSelectedFile()" title="Edit Selected File"></button>
+            </div>
+            <div class="ui-g-1 mx-9" *ngIf="selectedAgent=='Java' || selectedAgent=='NodeJS'">
+                <button pButton type="button" label="Delete" icon="icons8 icons8-trash" [disabled]="isInstrPerm" (click)="deleteSelectedFile()" title="Delete Selected File"></button>
+            </div>
+            <div class="ui-g-1 mx-15" *ngIf="selectedAgent!=''">
+                <button pButton type="button" label="Clear" icon=" icons8 icons8-no-edit" (click)="clearWindow()" title="Clear all data from window"></button>
+            </div>
+            <div class="ui-g-1 ml-5" *ngIf="selectedAgent!=''">
+                <button pButton type="button" label="Details" icon="icons8 icons8-document" (click)="openDetails()" title="Show where selected instrumentation profile is used"></button>
+            </div>
+        </div>
+    </div>
+    <div class="ui-g-12">
+        <div *ngIf="!editFile && !createInstrumentation && !viewInstrumentation">
+            <p-panel>
+                <div class="config_textarea instrprofileview instrprofiletxtarea" id="xmlContentDiv" #createPanel>
+                    <pre style="margin: 0px 0px">No file selected</pre>
+                </div>
+            </p-panel>
+        </div>
+
+        <div *ngIf="!editFile && !createInstrumentation && viewInstrumentation" class="instrprofileheaderhght">
+            <p-panel header="View File">
+                <div class="ui-panel-contents">
+                <!--<textarea pInputTextarea class="config_textarea" [(ngModel)]="xmlFormat" disabled></textarea>-->
+                <div class="config_textarea instrprofileview instrprofiletxtarea" id="xmlContentDiv" #createPanel>
+                    <pre style="margin: 0px 0px"><code class="codeClass" [innerHtml]="xmlFormat"></code></pre>
+                </div>
+            </div>
+            </p-panel>
+        </div>
+        <div *ngIf="editFile && !createInstrumentation" class="instrprofscroll instrprofileheaderhght">
+            <p-panel header="{{selectedAgent === 'Java' ? 'Edit XML' : 'Edit JSON'}}">
+                <div class="ui-panel-contents">
+                <div class="ui-g-12 instrprofiletxtarea">
+                    <p-tree [value]="parsedData" selectionMode="single" [(selection)]="selectedNode" [contextMenu]="cm" (onNodeContextMenuSelect)="nodeSelect($event, false)" [style]="{'width':'300px'}"></p-tree>
+                </div>
+            </div>
+                <div class="ui-g-12 mt-12">
+                    <button pButton type="button" class="ui-button-sucess mr-6" label="Expand all" icon="icons8 icons8-enlarge" (click)="expandAll(false)"></button>
+                    <button pButton type="button" class="ui-button-sucess mr-6" label="Collapse all" icon="icons8 icons8-compress" (click)="collapseAll(false)"></button>
+                    <button pButton *ngIf="selectedAgent=='Java'" type="button" pButton class="ui-button-rounded  px-10" title="Save" [disabled]="isInstrPerm" (click)="saveModifiedXMLNodes(false)" label="Save" style="float: right;"></button>
+                    <button pButton *ngIf="selectedAgent=='NodeJS'" type="button" pButton class="ui-button-rounded  px-10" title="Save" [disabled]="isInstrPerm" (click)="saveModifiedNodeJSNodes(false)" label="Save" style="float: right;"></button>
+                    <button pButton type="button" class="ui-button-rounded  px-10" title="Save As" icon="icons8 icons8-save" [disabled]="isInstrPerm" (click)="saveEditedFileNameAs()" label="Save As" style="float: right;"></button>
+                    <span style="float: right; padding-right: 5px">Enter File Name <input type="text" pInputText
+                            (keydown.dot)="$event.preventDefault()" [(ngModel)]="saveEditedFileAs" /></span>
+                </div>
+           
+                <p-contextMenu class="configContextMenu" #cm [model]="TreeMenu"></p-contextMenu>
+            </p-panel>
+        </div>
+        <div *ngIf="createInstrumentation" #createPanel class="instrprofscroll instrprofileheaderhght">
+            <p-panel header="{{selectedAgent === 'Java' ? 'Create XML' : 'Create JSON'}}">
+                <div class="ui-panel-contents">
+                <div class="ui-g-12 instrprofiletxtarea">
+                    <p-tree [value]="createData" selectionMode="single" [(selection)]="selectedNode" [contextMenu]="cm" (onNodeContextMenuSelect)="nodeSelect($event, true)" [style]="{'height':'250px','width':'98.5%'}"></p-tree>
+                </div>
+                </div>
+                
+                <div class="ui-g-12 mt-12">
+                    <button pButton type="button" class="ui-button-sucess mr-6" label="Expand all" icon="icons8 icons8-enlarge" (click)="expandAll(true)"></button>
+                    <button pButton type="button" class="ui-button-sucess mr-6" label="Collapse all" icon="icons8 icons8-compress" (click)="collapseAll(true)"></button>
+                    <button pButton *ngIf="selectedAgent=='Java'" type="button" pButton class="ui-button-rounded  px-10" title="Save" (click)="saveModifiedXMLNodes(true)" label="Save" style="float: right;"></button>
+                    <button pButton *ngIf="selectedAgent=='NodeJS'" type="button" pButton class="ui-button-rounded  px-10" title="Save" (click)="saveModifiedNodeJSNodes(true)" label="Save" style="float: right;"></button>
+                    <span style="float: right; padding-right: 5px">Enter File Name <input type="text" pInputText
+                            (keydown.dot)="$event.preventDefault()" [(ngModel)]="saveFileName" /></span>
+                </div> 
+                <p-contextMenu appendTo="body" class="configContextMenu positionSetMenu" #cm [model]="TreeMenu"></p-contextMenu>
+        
+            </p-panel>
+        </div>
+    </div>
+</div>
+
+<!--Dialog to open file explorer dialog -->
+<!--<p-dialog class="profile-dialog browseTopCss ui-widget-header browser-color" header="File Manager" *ngIf="openFileExplorerDialog" [(visible)]="openFileExplorerDialog" modal="modal" width="650" responsive="true" [resizable]="false"> -->
+    <!-- This will look for this component in the ProductUI at this path -
+         ..\ProductUI\gui\src\app\modules\file-explorer\components\config-nd-file-explorer\-->
+
+    <!-- <app-config-nd-file-explorer></app-config-nd-file-explorer> -->
+<!--</p-dialog> -->
+<!-- Adding Node Dialog -->
+<p-dialog class="secondary-dialog foterDialog" [header]="addDialogHeader" [(visible)]="addNodeDialog" [style]="{'width':'450px'}" [resizable]="false">
+    
+        <div class="p-grid p-col-12 p-align-center">
+            <div class="p-col-5" style="padding-top:5px">
+                Enter {{nodeTitle}}
+            </div>
+            <div class="p-col-7">
+                <input type="text" pInputText [(ngModel)]="nodeLabel" autofocus />
+            </div>
+        </div>
+	<!--	<div class="ui-grid-row" *ngIf="nodeTitle == 'Method Name'">
+            <div class="ui-grid-col-4" style="padding-top:5px">
+                <p-checkbox name="enableMethodLevel" binary="true" [(ngModel)]="enableMethodLevel" label="Enable Method Level"></p-checkbox>
+            </div>
+        </div>
+        <div class="ui-grid-row" *ngIf='enableMethodLevel'>
+            <div class="ui-grid-col-4" style="padding-top:5px">
+                Level
+            </div>
+            <div class="ui-grid-col-3">
+                <p-dropdown [options]="levels" name="level" [style]="{'width':'100%'}" [(ngModel)]="selectedLevel" placeholder="--Select--"></p-dropdown>
+            </div>
+        </div> -->
+        <div class="p-grid p-align-center p-justify-end p-5 mt-15">
+          <button class="ui-button-rounded ui-button-secondary px-15 mx-6" id="disabled-btn" type="button" (click)="cancelAddingNode()" pButton label="Cancel"></button>
+          <button class="ui-button-rounded px-15" id="disabled-btn" type="button" (click)="addNodeToTreeForUI()" pButton label="OK"></button>
+          </div>
+    
+</p-dialog>
+
+
+<!-- Adding NodeJS Dialog -->
+<p-dialog class="secondary-dialog foterDialog" [style]="{'width':'500px'}" header="{{isEditModuleInfo ? 'Edit Module Details' : 'Add Module Details'}}" *ngIf="openNodeJSDialog" [(visible)]="openNodeJSDialog" modal="modal" width="300" responsive="true" [resizable]="false">
+    
+        <div class="p-grid p-col-12 p-align-center">
+            <div class="p-col-4" style="padding-top:5px">
+                Module Name
+            </div>
+            <div class="p-col-8">
+                <input type="text" name="moduleName" pInputText [(ngModel)]="instrDialogDetail.moduleName" autofocus />
+            </div>
+        </div>
+        <div class="p-grid p-col-12 p-align-center">
+            <div class="p-col-4" style="margin-top: 4px">
+                Instrumentation
+            </div>
+            <div class="p-col-6">
+                <p-inputSwitch class="config-toggle" [(ngModel)]="instrDialogDetail.isInstrument"></p-inputSwitch>
+            </div>
+        </div>
+
+        <div class="p-grid p-align-center p-justify-end p-5 mt-15">
+            <button pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" id="disabled-btn" type="button" (click)="cancelAddingNode()" pButton label="Cancel"></button>
+            <button class="ui-button-rounded px-15" id="disabled-btn" type="button" (click)="addNodeToTreeForUI()" pButton label="OK"></button>
+            </div>
+    
+</p-dialog>
+
+<p-dialog class="profile-dialog" header="Confirmation Message" *ngIf="isConferMationAgentSelected" [(visible)]="isConferMationAgentSelected" responsive="true" modal=true width="500" [resizable]="true">
+    <div>
+        <label>You don't have the access for Browse, Select atleast one agent.</label>
+    </div>
+    <footer>
+        <div class="p-grid p-align-center p-justify-end py-5">
+            <button type="button" pButton icon="icons8 icons8-delete" (click)="isConferMationAgentSelected=false" label="OK"></button>
+        </div>
+    </footer>
+</p-dialog>
+
+<!-- Dialog to show selected instr profile info -->
+<p-dialog class="secondary-dialog" header="Instrumentation profile details" *ngIf="openDetailsDialog" [(visible)]="openDetailsDialog" responsive="true" modal=true width="500" [resizable]="true">
+    <ul>
+        <li *ngFor="let e of details">
+            <span>{{e}}</span>
+        </li>
+    </ul>
+    <footer>
+        <div class="p-grid p-align-center p-justify-end py-5">
+            <button type="button" pButton icon="icons8 icons8-delete" (click)="openDetailsDialog=false" label="OK"></button>
+        </div>
+    </footer>
+</p-dialog>
+
+<!-- Dialog to open RTC information -->
+<p-dialog class="secondary-dialog" header="Runtime changes information" *ngIf="openRTCInfoDialog" [(visible)]="openRTCInfoDialog" responsive="true" modal=true width="400" [resizable]="true">
+    <ul>
+        <li *ngFor="let e of rtcMsg">
+            <span>{{e}}</span>
+        </li>
+    </ul>
+    <footer>
+        <div class="p-grid p-align-center p-justify-end py-5">
+            <button type="button" pButton icon="icons8 icons8-delete" (click)="openRTCInfoDialog=false" label="OK"></button>
+        </div>
+    </footer>
+</p-dialog>
+<app-file-manager #fileManager (eventBind)="getPath($event)"></app-file-manager>

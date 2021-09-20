@@ -1,0 +1,202 @@
+<div class="p-grid loader-container vertical-container" *ngIf="loading && !data">
+  <div class="p-col p-col-align-center text-center">
+    <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+  </div>
+</div>
+<div class="p-grid vertical-container" *ngIf="error">
+  <div class="p-col p-col-align-center text-center">
+    <p-message severity="error" text="{{ error.msg }}"></p-message>
+  </div>
+</div>
+<div class="domain-performance-container">
+
+  <div #widgetHeight [ngStyle]="{
+        height: isEnabledColumnFilter
+          ? 'calc(100vh - 270px)'
+          : 'calc(100vh - 230px)'
+      }">
+    <div class="action-container" *ngIf="data">
+
+      <ng-container>
+        <div>
+          <span class="icons8 icons8-combo-chart" title="Domain Trend" (click)="getDomainTrendData(slicedData,'all')"></span>
+          Minimum Request Count
+          <input id="selectcount" type="text" style="width: 40px; height: 20px;" value="50"
+            class="ng-untouched ng-pristine ng-valid" [(ngModel)]="limitCInput" (blur)="onPctBlur(ds.value)">%
+          Top &nbsp; &nbsp;
+          <input id="selecttophost" type="text" style="width: 40px; height: 20px" value="50"
+            class="ng-untouched ng-pristine ng-valid" [(ngModel)]="limitInput" (blur)="onBlurMethod(ds.value)"
+            class="mr-3">
+          <select id="domainselect" style="height: 20px" (change)="onChange($event.target.value)" #ds>
+            <option value="0">Average Duration</option>
+            <option value="1">Average Wait</option>
+            <option value="2">Average Download</option>
+          </select>
+        </div>
+
+        <div class="p-col-12 no-padding" *ngIf="enableChart">
+          <app-chart [data]=" data.charts[1]"></app-chart>
+        </div>
+        <div class="p-col-12 no-padding" *ngIf="enableChart">
+          <app-chart [data]=" data.charts[0]"></app-chart>
+        </div>
+        <br>
+        <p-card class="content">
+          <p-table #resourcePerformance [resizableColumns]="true" [columns]="selectedColumns" [value]="data.data"
+            [rowHover]="true" [paginator]="true" [rows]="data.paginator.rows" [totalRecords]="data.data.length"
+            [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+            [scrollable]="true" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 250px)" selectionMode="single"
+            [(selection)]="selectedIds">
+            <ng-template pTemplate="colgroup" let-columns>
+              <colgroup>
+                <col *ngFor="let col of columns" [style.width]="col.width" />
+              </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th class="columnwidth">
+                  <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th class="icon-col">
+                  <div class="row-icons">
+                    <span class="icons8 icons8-combo-chart" title="Domain Trend"(click)="getDomainTrendData(null,'all')"></span>
+                  </div>
+                </th>
+                <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField">
+                  <div class="text-left">
+                    {{ col.label }}
+                    <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right" ariaLabel="Activate to sort"
+                      ariaLabelDesc="Activate to sort in descending order"
+                      ariaLabelAsc="Activate to sort in ascending order">
+                    </p-sortIcon>
+                  </div>
+                </th>
+              </tr>
+              <tr *ngFor="let headerRow of data.headers">
+                <ng-container *ngIf="isEnabledColumnFilter">
+                  <th class="columnwidth"></th>
+                  <th class="icon-col"></th>
+                  <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                    <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'custom'
+                        ">
+                      <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                        pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                resourcePerformance.filter(
+                              $event.target.value,
+                              col.valueField,
+                              'custom'
+                            )
+                          " />
+                    </div>
+                    <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'contains'
+                        ">
+                      <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                        pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label"
+                        pInputText type="text" (input)="
+                            resourcePerformance.filter(
+                              $event.target.value,
+                              col.valueField,
+                              'contains'
+                            )
+                          " />
+                    </div>
+                  </th>
+                </ng-container>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row let-columns="columns ">
+              <tr>
+                <td class="text-center columnwidth">
+                  <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                </td>
+                <td class="icon-col">
+                  <div class="row-icons">
+                    <span class="icons8 icons8-combo-chart" (click)="getDomainTrendData(row,'single')"></span>
+                  </div>
+                </td>
+                <td *ngFor="let col of columns" class="{{ col.classes }}" pTooltip={{row[col.valueField]}}>
+                  {{ row[col.valueField] }}
+                </td>
+              </tr>
+            </ng-template>
+            <!-----------Empty table error handling--------------------->
+            <ng-template pTemplate="emptymessage" let-columns>
+              <tr>
+                <td [attr.colspan]="columns.length + 1" class="text-center">
+                  <span *ngIf="error">Error while loading data</span>
+                  <span *ngIf="emptyTable">Empty Table</span>
+                  <span *ngIf="loading">Loading</span>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      </ng-container>
+    </div>
+  </div>
+</div>
+<p-dialog [header]="'Duration: ' + deftime" [(visible)]="visible" class="secondary-dialog"
+  (onHide)="resetCustomTime($event)">
+
+  <div class="p-grid">
+    <div class="p-col">
+      <div class="p-input-icon-left search-div-css">
+        <i class="icons8 icons8-calendar"></i>
+        <input pInputText class="customInput" readonly id="start-date-time" [owlDateTime]="customStartDateTime"
+          [owlDateTimeTrigger]="customStartDateTime" placeholder="04:30 PM 23/04/2020" [selectMode]="'rangeFrom'"
+          [max]="maxDate" [(ngModel)]="customTime">
+        <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+      </div>
+    </div>
+    <div class="p-col">
+      <div class="p-input-icon-left search-div-css">
+        <i class="icons8 icons8-calendar"></i>
+        <input pInputText class="customInput" readonly id="end-date-time" [owlDateTime]="customEndDateTime"
+          [owlDateTimeTrigger]="customEndDateTime" placeholder="04:30 PM 23/04/2020" [selectMode]="'rangeTo'"
+          [max]="maxDate" [(ngModel)]="customTime">
+        <owl-date-time #customEndDateTime tooltipZIndex=" 100001005"></owl-date-time>
+      </div>
+    </div>
+
+    <div class="p-col">
+      <button pButton label="Go" (click)="submit()"></button>
+      <select *ngIf="multidomain" id="valueselect"
+        style="margin-left: 5px;height: 33px;color: white;background: #337ab7;"
+        (change)="onValueChange($event.target.value)">
+        <option value="0">Duration</option>
+        <option value="1">Count</option>
+      </select>
+
+    </div>
+    <div class="p-col-12" *ngIf="customTimeError !== ''" style="color: red;">
+      {{customTimeError}}
+    </div>
+  </div>
+
+  <!--no data/ loader/ error message -->
+  <div class="p-grid">
+    <div class="p-col-12" style="text-align: center;" *ngIf="!loading && trendData && !trendData.length && !error">
+      <i class="icons8 icons8-error" style="font-size: 40px;color: orange;"></i>
+      <h5 style="margin: 0;font-size: 13.28px;">No Data Found</h5>
+    </div>
+    <div class="p-col-12" style="text-align: center;" *ngIf="loading">
+      <h5 style="font-size: 13.28px;"><i class="pi pi-spin pi-spinner"></i>Loading</h5>
+    </div>
+    <div class="p-col-12" style="text-align: center;" *ngIf="error">
+      <i class="icons8 icons8-error" style="font-size: 40px;color: red;"></i>
+      <h5 style="margin: 0;font-size: 13.28px;">Failed to get data</h5>
+    </div>
+  </div>
+
+  <div class="p-grid" *ngIf="!loading && trendData.length">
+    <div class="p-col" *ngIf="enableChart">
+      <app-chart [data]="trendChartData"></app-chart>
+    </div>
+  </div>
+</p-dialog>

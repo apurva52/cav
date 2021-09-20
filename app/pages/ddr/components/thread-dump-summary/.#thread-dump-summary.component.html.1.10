@@ -1,0 +1,148 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+<!--pre style="font-size: 14px;white-space: pre-wrap;"> Thread Dump taken Times:<b> {{threadDumpTimes}} </b><br/--> 
+<!--b>threads found in <b>{{threadDumpSummaryInfo.length}} </b--> 
+  <!--/pre-->
+  <p>
+  <b>Total Thread Dumps: </b> {{threadDumpSummaryInfo.length}}<br/><br/>
+   <p-accordion [multiple]="true" class="ddr-accordion">
+    <p-accordionTab [selected]="true">
+      <p-header>
+  <b>Total Threads:</b> <b>{{totalThreadInfo.length}}</b> 
+      </p-header>
+    <div *ngIf="showThreadDetails== 1">
+     <p-toolbar>Thread(s) Detail </p-toolbar>
+      <div style="overflow:auto">
+      <p-dataTable class="ddr-table" [value]="totalThreadInfo" scrollwidth="40px" scrollHeight="340px" [style]="{'font-size':'12px','max-height':'65vh','height':'auto'}" resizableColumns="true" reorderableColumns="true" [rows]="5" [paginator]="true" [pageLinks]="3"  [rowsPerPageOptions]="[5,10,20,30,40,50]">
+        <p-column field="threadName" header="Thread Name" [sortable]="true" [style]="{'width':'60px','text-align':'left'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover"><span>{{node[col.field]}}</span></a>
+          </ng-template>
+        </p-column>
+        <p-column field="threadId" header="Thread ID" [sortable]="true" [style]="{'width':'60px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+        <p-column field="nativeId" header="Native Id" [sortable]="true" [style]="{'width':'40px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+         <p-column field="threadCount" header="Count" [sortable]="true" [style]="{'width':'50px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+      </p-dataTable>
+      </div>
+             </div>  
+    </p-accordionTab>
+   <!--pre style="font-size: 14px;white-space: pre-wrap;" *ngIf="hotStackArr.length>0" ><span style="color:red;">Total <b>{{hotStackArr.length}}</b> major<a style="cursor:pointer;color:blue;" (click)=showHotstacks();> hotstacks</a> found where number of threads each {{hotstackThreadCount}}.</span></pre>
+      <pre style="font-size: 14px;white-space: pre-wrap;" *ngIf="hotStackArr.length==0" ><span style="color:green;">Total 0 hotstack found where number of threads each {{hotstackThreadCount}}.</span></pre-->
+      <p-accordionTab >
+        <p-header>
+      <div><label><b>Hotstacks:</b></label> {{hotStackArr.length}}</div>
+        </p-header>
+       <div *ngIf="showHotstack == 1">
+              <p-toolbar>Hotstacks w.r.t top  <input type="text" pInputText [(ngModel)]="hotstackTopFrames" style="width:50px;"/>
+    frames <button pButton type="button" title="Apply Top Frames" icon="fa-check" iconPos="right" (click)="getTopFramedHotstackForSummary()"></button></p-toolbar>
+         <p-tree [value]="hotstackTree">
+    <ng-template let-node pTemplate="hotstack">
+        <div class="ui-g">
+             <div id="stack_text">
+      <pre>{{threadDumpInfoObject[node.label].hotstack}}</pre>
+    </div>
+            <p-dataTable class="ddr-table" [value]="threadDumpInfoObject[node.label].threadDumpInfo" scrollwidth="40px" scrollHeight="340px" [style]="{'font-size':'12px','max-height':'65vh','height':'auto','max-width':'1200px', 'width':'auto'}" resizableColumns="true" reorderableColumns="true" [rows]="5" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[5,10,20,30,40,50,100]">
+        <p-column field="threadName" header="Thread Name" [sortable]="true" [style]="{'width':'60px','text-align':'left'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover"><span>{{node[col.field]}}</span></a>
+          </ng-template>
+        </p-column>
+        <p-column field="priority" header="Thread Priority" [sortable]="true" [style]="{'width':'40px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+        <p-column field="threadState" header="State" [sortable]="true" [style]="{'width':'50px','text-align':'left'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+        <p-column field="threadId" header="Thread ID" [sortable]="true" [style]="{'width':'60px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+        <p-column field="nativeId" header="Native Id" [sortable]="true" [style]="{'width':'40px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+      </p-dataTable>
+         </div>
+    </ng-template>
+</p-tree>
+    </div>
+      </p-accordionTab>
+    <!--pre style="font-size: 14px;white-space: pre-wrap;" *ngIf="deadlockArr.length>0"><span style="color:red;">There are <b>{{deadlockArr.length}}</b> major <a style="cursor:pointer;color:blue;" (click)=showDeadocks();>deadlocks</a> found.</span></pre>
+     <pre style="font-size: 14px;white-space: pre-wrap;" *ngIf="deadlockArr.length==0"><span style="color:green;">There is no deadlock found.</span></pre-->
+      <p-accordionTab *ngIf="deadlockArr.length !=0">
+        <p-header>
+       <div><label><b>Deadlocks: </b></label> {{deadlockArr.length}}</div>
+        </p-header>
+      <div *ngIf="showDeadlock== 1">
+     <p-toolbar>Deadlocks Info </p-toolbar>
+         <p-tree [value]="deadlockTree">
+    <ng-template let-node pTemplate="deadlock">
+            <p-dataTable class="ddr-table" [value]="deadlockArr[node.label].deadlockInfo" scrollwidth="40px" scrollHeight="340px" [style]="{'font-size':'12px','max-height':'65vh','height':'auto','max-width':'1200px', 'width':'auto'}" resizableColumns="true" reorderableColumns="true" [rows]="5" [paginator]="true" [pageLinks]="3">
+        <p-column field="threadName" header="Thread Name" [sortable]="true" [style]="{'width':'50px','text-align':'left'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover"><span>{{node[col.field]}}</span></a>
+          </ng-template>
+        </p-column>
+        <p-column field="waitingObject" header="WaitingObject" [sortable]="true" [style]="{'width':'50px','text-align':'right'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+        <p-column field="lockedObject" header="LockedObject" [sortable]="true" [style]="{'width':'50px','text-align':'left'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+         <p-column field="lockedheldBy" header="Lock held By" [sortable]="true" [style]="{'width':'50px','text-align':'left'}">
+          <ng-template let-col let-node="rowData" pTemplate type="body">
+            <a pTooltip="{{node[col.field]}}" tooltipPosition="bottom" tooltipEvent="hover">{{node[col.field]}}</a>
+          </ng-template>
+        </p-column>
+      </p-dataTable>
+    </ng-template>
+</p-tree>
+          </div> 
+          </p-accordionTab>
+    <!--pre style="font-size: 14px;white-space: pre-wrap;">Each threads with respective to dumps and their status are explained <a style="cursor:pointer;color:blue;" (click)="showStatistics();">here</a> </pre-->
+     <p-accordionTab [selected]=true>
+       <p-header>Thread(s) Statistics [ Count: {{statisticsTDData.length}}]
+       </p-header>
+            <div *ngIf="showOption== 0">
+            <p-dataTable class="ddr-table" [value]="statisticsTDData" scrollwidth="40px"
+            scrollHeight="340px" [style]="{'font-size':'12px','max-height':'65vh','height':'auto'}" resizableColumns="true" reorderableColumns="true"
+            [rows]="5" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[5,10,20,30,40,50,100]">
+            <p-column *ngFor="let col of grpTableHeaderList" [field]="col.field" [header]="col.header" [sortable]=true>
+                <ng-template let-col let-node="rowData" pTemplate type="body">
+                    <div style="color:blue; text-align: left !important;cursor: pointer !important;" *ngIf="(!(col.field == 'threadName') && !(node[col.field] == '-')) else others" (click)="statisticsThreadDumpData(node,col.field)">
+                        {{node[col.field]}} 
+                    </div>
+                    <ng-template #others style="color:black; text-align: left !important;">
+                        {{node[col.field]}}
+                    </ng-template>
+                </ng-template>
+            </p-column>
+          </p-dataTable>
+           <div>
+            <pre> {{threadData}} </pre>
+            </div>
+            </div>
+             </p-accordionTab>
+            </p-accordion>

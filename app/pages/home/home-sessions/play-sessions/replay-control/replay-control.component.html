@@ -1,0 +1,183 @@
+<div class="controls" id="controlbar">
+    <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-skip-to-start"
+         pTooltip="First Page" [disabled]="disablefirst ? true : false" (click)="showFirstPage($event)"></button>
+    <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-rewind-2"
+         pTooltip="Previous" [disabled]="disableprev ? true : false" (click)="showPrevReplay($event)"></button>
+    <button  type="button" class="ui-button player-controls" 
+        pTooltip={{playLabel}} #playreplayid id="playreplayid" [disabled]="disbaleplay ? true : false" (click)="replaySwitcherHandler($event)"> <i [class]="playIcon"></i></button>
+    <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-fast-forward-2"
+        pTooltip="Next" [disabled]="disablenext ? true : false" (click)="showNextReplay($event)"></button>
+    <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-end"
+         pTooltip="Last Page" [disabled]="disablelast ? true : false" (click)="showLastPage($event)"></button>
+    <progress id='progress-bar' [value]="progressbarwidth" max="100" ></progress>
+    <div class="video-playback-time">
+        <label id="timer" for="progress" role="timer">{{progressbarwidth}}%</label>
+    </div>
+    <button pButton type="button" id="speaker" class="ui-button player-controls" icon={{volumeIcon}} pTooltip={{volumeLabel}} (click)="audiofn($event)"
+        ></button>
+        <!--Commenting until functioning properly-->
+    <!-- <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-share" (click)="myShareFunction($event)"
+        pTooltip="Share"></button> -->
+    <button id="settings" pButton type="button" class="ui-button player-controls" icon="icons8 icons8-settings"
+        pTooltip="Settings" (click)="toggleSettingPanel()"></button>
+    <button pButton type="button" class="ui-button player-controls" icon="icons8 icons8-expand"
+        pTooltip={{fullscreenTT}} (click)="expandFull($event)"></button>
+    <div class="setting-panel" *ngIf="isShow">
+        <ul>
+            <li>
+                <p-colorPicker [(ngModel)]="color1"></p-colorPicker>
+                <span class="mh-10">Replay Color</span>
+            </li>
+            <li>
+                <p-colorPicker [(ngModel)]="color2"></p-colorPicker>
+                <span class="mh-10">Replay Previous Color</span>
+            </li>
+            <li>
+                <p-checkbox name="groupname" [(ngModel)]="val1" [binary]="true"
+                    label="Simulated Page load delay"></p-checkbox>
+            </li>
+            <li>
+                <p-checkbox name="groupname" [(ngModel)]="val2" [binary]="true"
+                    label="Replay Unexpected mutation"></p-checkbox>
+            </li>
+            <li>
+                <div class="text-bold pv-5">Progress Bar Mode</div>
+                <p-radioButton name="progress-mode" label="Count" class="mh-10"
+                [value]="count_mode" [(ngModel)]="progressbarmode" checked></p-radioButton>
+                <p-radioButton name="progress-mode" label="Time" class="mh-10"
+                [value]="time_mode" [(ngModel)]="progressbarmode"></p-radioButton>
+            </li>
+            <li>
+                <p-checkbox name="groupname" [binary]="true" [(ngModel)]="val3"
+                    label="Show Silent user action count"></p-checkbox>
+            </li>
+            <li>
+                <p-checkbox name="groupname" [binary]="true" [(ngModel)]="val4"
+                    label="Replay auto fill silently"></p-checkbox>
+            </li>
+            <li>
+                <p-checkbox name="groupname" [binary]="true" [(ngModel)]="val5"
+                    label="Skip failed snapshot"></p-checkbox>
+            </li>
+            <li>
+                <p-checkbox name="groupname" [binary]="true" [(ngModel)]="val6" label="Show mouse move">
+                </p-checkbox>
+            </li>
+            <li>
+                <div class="text-bold pv-5">Replay Speed</div>
+                <div class="pv-5">
+                    <p-radioButton name="speed" class="mh-5"
+                         id="ractual" [value]="actual" label="Actual" [(ngModel)]="rspeed" checked></p-radioButton>
+                    <p-radioButton name="speed" class=""
+                         id="rtwice" [value]="twice" label="Slower" [(ngModel)]="rspeed"></p-radioButton>
+                </div>
+                <div class="pv-5">
+                    <p-radioButton name="speed" class="mh-5"
+                    id="rfourTimes" [value]="fourTimes" label="Faster" [(ngModel)]="rspeed"></p-radioButton>
+                    <p-radioButton name="speed" class=""
+                    id="rAdvanced" [value]="radvanc" label="Advanced" [(ngModel)]="rspeed" (onClick)="handleAdvanced($event)"></p-radioButton>
+                    <!--to show what is selected in advanced speed -->
+                    <p style="margin: 0px;display: inline;" *ngIf="radvspeed !=null && radvspeed !=undefined && rspeed== 4">
+                        <b>{{'('+radvspeed +'x)'}}</b> </p>
+                    <p style="margin: 0px;display: inline;" *ngIf="radvspeed ==null && sliderspeed !=null && sliderspeed !=undefined && rspeed== 1">
+                        <b>{{'('+ sliderspeed +'sec)'}}</b> </p>
+                </div>
+            </li>
+            <li (click)="SelectPointer($event)"><i class="icons8 icons8-cursor"></i><span class="text-bold mh-10">Select Pointer Icon</span>
+            </li>
+            <li (click)="voiceSelection()"><i class="icons8 icons8-speaker"></i><span class="text-bold mh-10">Voice Edit</span></li>
+           <!-- <p-menu #menu appendTo="body" [popup]="true" [model]="items"></p-menu>-->
+        </ul>
+    </div>
+    <!--Replay Speed advanced options-->
+    <div class="setting-panel" *ngIf="advancedDropDown" style="width:150px;">
+        <ul>
+            <li>
+                <i class="pi pi-fw pi-chevron-left" (click)="backtoPopUp($event)"> </i>
+                <p style="text-decoration: underline;cursor:pointer;padding-left: 15px;" (click)="openCustom($event)"><b>Custom</b></p>
+            </li>
+            <li><p-radioButton class="mh-10" name="advspeed" id="rAdvanced" [value]="'0.25'" label=" 0.25x" [(ngModel)]="radvspeed" (onClick)="handleAdvancedspeed($event)"></p-radioButton></li>
+            <li><p-radioButton class="mh-10" name="advspeed" id="rAdvanced" [value]="'0.5'" label=" 0.5x" [(ngModel)]="radvspeed" (onClick)="handleAdvancedspeed($event)"></p-radioButton></li>
+            <li><p-radioButton class="mh-10" name="advspeed" id="rAdvanced" [value]="'0.75'" label=" 0.75x" [(ngModel)]="radvspeed" (onClick)="handleAdvancedspeed($event)"></p-radioButton></li>
+            <li><p-radioButton class="mh-10" name="advspeed" id="rAdvanced" [value]="'1'" label="Normal" [(ngModel)]="radvspeed" (onClick)="handleAdvancedspeed($event)"></p-radioButton></li>
+            <li><p-radioButton class="mh-10" name="advspeed" id="rAdvanced" [value]="'1.25'" label=" 1.25x" [(ngModel)]="radvspeed" (onClick)="handleAdvancedspeed($event)"></p-radioButton></li>
+            <li><p-radioButton class="mh-10" name="advspeed" id="rAdvanced" [value]="'1.5'" label=" 1.5x" [(ngModel)]="radvspeed" (onClick)="handleAdvancedspeed($event)"></p-radioButton></li>
+            <li><p-radioButton class="mh-10" name="advspeed" id="rAdvanced" [value]="'1.75'" label=" 1.75x" [(ngModel)]="radvspeed" (onClick)="handleAdvancedspeed($event)"></p-radioButton></li>
+            <li><p-radioButton class="mh-10" name="advspeed" id="rAdvanced" [value]="'2'" label="2.0x" [(ngModel)]="radvspeed" (onClick)="handleAdvancedspeed($event)"></p-radioButton></li>
+        </ul>
+    </div>
+    <!--Custom speed option-->
+    <div class="setting-panel" [ngClass]="customspeed ? 'showBox' : 'hideBox'">
+        <ul>
+            <li style="display: flex;justify-content: space-between;">
+                <i class="pi pi-fw pi-chevron-left" (click)="backtoSpeed($event)"> </i>
+                <p style="margin-top: 1px;">Fixed Rate</p>
+            </li>
+            <li>
+                <p-slider [(ngModel)]="sliderspeed" [min]="1" [max]="60" class="w-100-p" (onChange)="handleCustomspeed($event)"></p-slider>
+            </li>
+            <li *ngIf="sliderspeed !=null && sliderspeed!=undefined">
+                <b>{{sliderspeed +"sec"}} </b>
+            </li>
+        </ul>
+    </div>
+    <!--Replay Pointer Icon options-->
+    <div class="setting-panel" *ngIf="pointerDropDown" style="width:150px;">
+        <ul>
+            <li><p-radioButton name="pointero" id="pointero" [value]="'las-hand-rock'" label="Pointer 1" [(ngModel)]="pointerclass" (onClick)="HandlePointerval($event)"></p-radioButton><i class="las-hand-rock btn-icon mx-3" style="vertical-align: middle;"></i></li>
+            <li><p-radioButton name="pointero" id="pointero" [value]="'las-hand-pointer'" label="Pointer 2" [(ngModel)]="pointerclass" (onClick)="HandlePointerval($event)"></p-radioButton><i class="las-hand-pointer btn-icon mx-3" style="vertical-align: middle;"></i></li>
+            <li><p-radioButton name="pointero" id="pointero" [value]="'las-mouse-pointer-solid'" label="Pointer 3" [(ngModel)]="pointerclass" (onClick)="HandlePointerval($event)"></p-radioButton><i class="las-mouse-pointer-solid btn-icon mx-3" style="vertical-align: middle;"></i></li>
+            <li><p-radioButton name="pointero" id="pointero" [value]="'las-location-arrow-solid'" label="Pointer 4" [(ngModel)]="pointerclass" (onClick)="HandlePointerval($event)"></p-radioButton><i class="las-location-arrow-solid btn-icon mx-3" style="vertical-align: middle;"></i></li>
+            <li><p-radioButton name="pointero" id="pointero" [value]="'las-hourglass'" label="Pointer 5" [(ngModel)]="pointerclass" (onClick)="HandlePointerval($event)"></p-radioButton><i class="las-hourglass btn-icon mx-3" style="vertical-align: middle;"></i></li>
+            <li><p-radioButton name="pointero" id="pointero" [value]="'las-square'" label="Pointer 6" [(ngModel)]="pointerclass" (onClick)="HandlePointerval($event)"></p-radioButton><i class="las-square btn-icon mx-3" style="vertical-align: middle;"></i></li>
+            <li><p-radioButton name="pointero" id="pointero" [value]="'las-ban-solid'" label="Pointer 7" [(ngModel)]="pointerclass" (onClick)="HandlePointerval($event)"></p-radioButton><i class="las-ban-solid btn-icon mx-3" style="vertical-align: middle;"></i></li>
+            <li><p-radioButton name="pointero" id="pointero" [value]="'las-crosshairs-solid'" label="Pointer 8" [(ngModel)]="pointerclass" (onClick)="HandlePointerval($event)"></p-radioButton><i class="las-crosshairs-solid btn-icon mx-3" style="vertical-align: middle;"></i></li>
+            <li><p-radioButton name="pointero" id="pointero" [value]="'las-plus-solid'" label="Pointer 9" [(ngModel)]="pointerclass" (onClick)="HandlePointerval($event)"></p-radioButton><i class="las-plus-solid btn-icon mx-3" style="vertical-align: middle;"></i></li>
+            
+        </ul>
+    </div>
+    <!--Voice Dropdown-->
+    <div class="setting-panel" [ngClass]="voiceDropDown ? 'showBox' : 'hideBox'" style="width:150px;">
+        <ul>
+            <li *ngFor="let voice of voices;index as i; ">
+                <p style="cursor:pointer" (click)="setVoice(i,voice)"> <i *ngIf="voice.name==voiceSelected" class="pi pi-check"></i> <b>{{voice.name}}</b></p>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- <div class="bg-2 shadow4lg cav-p-2 videosettings" style="width: max-content;height:max-content;" [ngClass]="voiceDropDown ? 'showBox' : 'hideBox'">
+    <ul class="cav-m-0 cav-p-0" style="list-style: none;">
+        <li *ngFor="let voice of voices;index as i; ">
+            <p style="cursor:pointer" (click)="setVoice(i,voice)"> <i *ngIf="voice.name==voiceSelected" class="pi pi-check"></i> <b>{{voice.name}}</b></p>
+        </li>
+    </ul>
+</div> -->
+
+
+
+<!--Old replay control Start-->
+
+
+<!-- <p-dialog [(visible)]="rshare" [dismissableMask]="true" onHide="hidepopup()">
+    Replay Share link is copied successfully.This Link is valid for 7 days only.
+</p-dialog> -->
+
+<!--Old replay Control End-->
+
+
+<!--
+<p-tieredMenu [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" #menu [model]="items" [popup]="true"></p-tieredMenu>
+-->
+
+<!--
+<p-tieredMenu [appendTo]="body"  #menu [model]="items" [baseZIndex]="10000" [style]="{'font-size': '13px'}">
+  <ng-template let-node pTemplate="default">
+    <span *ngIf="node.id === 'rc'" class="drag" [attr.jtk-node-type]="'Replay Color'"
+      title="Replay Color" [attr.jtk-width]="180" [attr.jtk-height]="70">{{node.label}}</span>
+    <span *ngIf="node.id === 'folder'">{{node.label}}</span>
+    <span *ngIf="node.data.api" class="action-api drag" [attr.api]="node.data.id" [attr.jtk-node-type]="'action'"
+      title="Drag to add action api" [attr.jtk-width]="180" [attr.jtk-height]="70">{{node.label}}</span>
+  </ng-template> 
+</p-tieredMenu>
+-->

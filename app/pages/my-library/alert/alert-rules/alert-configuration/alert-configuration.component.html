@@ -1,0 +1,1079 @@
+<div class="h-100-vh alert-config-container">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <div class="p-col-8">
+                <div class="p-grid p-align-center">
+                    <!-- <a [routerLink]="viewMode? '/my-library/alert':'/alert-rules'">
+                        <i class="icons8 icons8-left toolbar-icon-color"></i>
+                    </a> -->
+                    <div class="p-col ui-toolbar-text">Alert Rule Configuration</div>
+                </div>
+            </div>
+            <div class="p-col-4 text-right">
+                <button pButton type="button" icon="pi pi-times" class="ui-button ui-button-rounded ui-button-secondary" label="Cancel" id="disabled-btn" routerLink="{{viewMode ? '/my-library/alert': '/alert-rules'}}"></button>
+                <button *ngIf="!viewMode && !isOnlyReadable" pButton type="button" icon="pi pi-check" class="ui-button ui-button-rounded" label="{{updateRleMode?'Update': 'Apply'}}" (click)="applyRuleWithAction()"></button>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (inItemClick)="breadcrumb.handleBreadcrumbClick($event)" ></p-breadcrumb>
+    </div>
+    <div class="vertical-container overflow">
+        <div class="p-col-12 panel-card">
+            <p-panel  styleClass="mb-10" #pnl1a expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title p-grid p-align-center" (click)="pnl1a.toggle($event)">
+                            <a><span class="font-20" [class]="pnl1a.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span></a>
+                            Rule Information
+                        </div>
+                        <div class="p-grid p-justify-center p-align-center">
+                            <button type="button" class="btn-icon" pTooltip="Help"><i class="icons8 icons8-help"></i></button>
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content px-5 py-15">
+                    <div class="p-grid p-align-start">
+                        <div class="width-170 p-8">Rule type</div>
+                        <div class="mr-30">
+                            <p-radioButton name="multipleCondition" value="0" [disabled]='callFromActiveAlert' label="SIMPLE" class="mr-20 font-weight-500"  [(ngModel)]="attributes.conditionType"></p-radioButton>
+                            <p class="ml-25  opc7">Configure single condition on single metric</p>
+                        </div>
+                        <div class="mr-30">
+                            <p-radioButton name="multipleCondition" value="1" [disabled]='callFromActiveAlert' label="COMPOSITE" class="mr-20 font-weight-500"  [(ngModel)]="attributes.conditionType"></p-radioButton>
+                            <p class="ml-25 opc7">Configure multiple conditions on multiple metrics</p>
+                        </div>
+                    </div>
+                </div>
+                </p-panel>
+                <p-panel  styleClass="mb-10" #pnl2 expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                    <p-header class="cav-panel-header pt-5">
+                        <div class="cav-panel-content p-grid p-align-center">
+                            <div class="panel-title p-grid p-align-center" (click)="pnl2.toggle($event)">
+                                <a><span class="font-20" [class]="pnl2.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span></a>
+                                Select Metric Expression
+                            </div>
+                            <div class="p-grid p-justify-center p-align-center">
+                                <button type="button" class="btn-icon" pTooltip="Help"><i class="icons8 icons8-help"></i></button>
+                            </div>
+                        </div>
+                    </p-header>
+                    <div class="content">
+                        <div *ngIf="generatedChart" [hidden]="generatedChart.highchart.series.length == 0 ? true:false" class="generated-graph">
+                            <app-chart [setChart]="generatedChart" [data]="generatedChart"></app-chart>
+                        </div>
+                        <div class="p-grid p-col-12">
+                            <div class="p-col-2">
+                                <div class="p-col-12 p-grid p-align-center">
+                                    <span class="label">Metric group</span>
+                                </div>
+                                <div class="group-name" class="p-col-12 p-grid p-align-center">
+                                    <p-dropdown [options]="groupList" [style]="{'width': '80%'}" [disabled]='callFromActiveAlert' [(ngModel)]="groupName" optionLabel="label" [filter]="true" filterBy="label" placeholder="Select Metric group" dropdownIcon="icons8 icons8-expand-arrow" (onChange)="changedGroupName(null)"></p-dropdown>
+                                </div>
+                            </div>
+                            <div class="p-col-2">
+                                <div class="p-col-12 p-grid p-align-center">
+                                    <span class="label">Metric name</span>
+                                </div>
+                                <div class="graph-name" class="p-col-12 p-grid p-align-center">
+                                    <p-dropdown [options]="graphList" [disabled]='callFromActiveAlert' class="metric-dropdown" [style]="{'width':'65%'}" [(ngModel)]="graphName" [filter]="true" filterBy="label" optionLabel="label" placeholder="Select Metric name" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                            </div>
+                            <div class="p-col-2">
+                                <div class="p-col-12 p-grid p-align-center">
+                                    <span class="label">Metric attribute</span>
+                                </div>
+                                <div class="graph-name" class="p-col-12 p-grid p-align-center">
+                                    <p-dropdown [options]="metricAttributeList" [disabled]='callFromActiveAlert' [(ngModel)]="metricAttribute" optionLabel="label" placeholder="Select Metric attribute" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                            </div>
+                            <div class="p-col-3">
+                                <div class="p-col-12 p-grid p-align-center">
+                                    <span class="label">Select Subjects</span>
+                                </div>
+                                <div class="p-col-12 p-grid p-align-center">
+                                    <p-radioButton name="all" value="All" label="All" [disabled]='callFromActiveAlert' [(ngModel)]="indices" class="mr-20" >
+                                    </p-radioButton>
+                                    <p-radioButton name="specified" value="Specified" label="Specified" [disabled]='callFromActiveAlert' class="mr-20" [(ngModel)]="indices"></p-radioButton>
+                                    <button pButton label="Select" class="ui-outline-button ui-button-secondary" dropdownIcon="icons8-expand-arrow" [disabled]="indices == 'All' || callFromActiveAlert" (click)="openDerivedIndecesWindow(dmIndices)"></button>
+                                </div>
+                            </div>
+                            <div class="p-col-1"></div>
+                            <div class="p-col-2 p-grid p-align-end p-justify-end">
+                                <button pButton type="button" [disabled]="(!updateGraphMode && attributes.conditionType == 0 && addedGraph.length == 1) || isOnlyReadable" label="{{ !updateGraphMode?'ADD': 'UPDATE'}} METRICS" class="ui-outline-button ui-button-secondary-green" icon="icons8 icons8-forward" iconPos="right" (click)="addUpdateGraph()"></button>
+                            </div>
+                        </div>
+                        <div class="p-grid p-col-12">
+                            <div class="p-col-12 derived-graph-bucket">
+                                <div class="graph-details" *ngFor="let graph of addedGraph; let i = index" (click)="selectGraph(i, graph)" [ngClass]="graph.updateGraph ? 'selected' : 'graph-details'">
+                                    <div class="graph-section-1">
+                                        <div class="token-index" [ngStyle]="{ backgroundColor: graph.colorForGraph }" title="{{ graph.expression }}">
+                                            {{ graph.index }}
+                                        </div>
+                                        <div class="token" title="{{ graph.metricGroup }}">
+                                            <b>Metric Group: &nbsp;</b> {{ graph.metricGroup }}
+                                        </div>
+                                        <div class="token" title="{{ graph.metricName }}">
+                                            <b>Metric Name:&nbsp; </b> {{ graph.metricName }}
+                                        </div>
+                                        <div class="token" title="{{ graph.attribute.label }}">
+                                           {{ graph.attribute.label }}
+                                        </div>
+                                        <div class="token elipseText auto" title={{graph.indices}}><b>Specified Subjects: &nbsp;</b>{{
+                                            graph.indices }}
+                                        </div>
+                                    </div>
+                                    <div class="token-icon mx-5">
+                                        <button type="button" class="btn-icon mx-3" (click)="openGeneratedChart(i, graph)" title="{{graph.updateGraph ? 'Close' : 'Open'}} Graph"><i class="icons8 icons8-futures"></i></button>
+                                        <button type="button" class="btn-icon mx-3" [disabled]='callFromActiveAlert || isOnlyReadable || isOnlyReadable' (click)="deleteGraph(i)" title="Delete"><i class="icons8 icons8-delete-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="singleSubMetrics" [ngClass]="singleSubMetrics? 'p-grid p-col-12 p-align-center' : ''">
+                            <div class="p-grid p-col-2 p-align-center">
+                             Generate Alert on <i class="icons8 icons8-help mx-3"></i>
+                            </div>
+                            <div class="p-grid p-col-3 p-align-center">
+                                <p-radioButton name="applyon" value="0" [disabled]='callFromActiveAlert' label="Individual Subject Level" class="mr-20" [(ngModel)]="attributes.level"></p-radioButton>
+                                <p-radioButton [disabled] = "addedGraph.length == 0 || callFromActiveAlert" name="applyon" value="1" label="Group Level" class="mr-20" [(ngModel)]="attributes.level"></p-radioButton>
+                            </div>
+                            <div class="p-field p-col-2 p-align-center derived-graph-bucket group-content" *ngIf="attributes.level == 1">
+                                <p-dropdown [disabled] = "addedGraph.length == 0 || callFromActiveAlert || isOnlyReadable" [options]="totalHierarchyList" placeholder="Select indices level" class="custom-min-width" dropdownIcon="icons8 icons8-expand-arrow" optionLabel="label" [(ngModel)]="groups" (onChange)="updateGroup()" ></p-dropdown>
+                                <div *ngIf="groups" class="graph-details insSelected">
+                                    {{groups.value}}
+                                </div>
+                            </div>
+                            <!-- <div class="p-field p-col-2">
+                                <p-dropdown [options]="options" class="custom-min-width" placeholder="Server > Tier" optionLabel="label" [showClear]="true" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                            </div>
+                            <div class="p-field p-col-2">
+                                <p-dropdown [options]="options" class="custom-min-width" placeholder="Tier" optionLabel="label" [showClear]="true" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                            </div>
+                            <div class="p-field p-col-2">
+                                <p-dropdown [options]="options" class="custom-min-width" placeholder="Instance" optionLabel="label" [showClear]="true" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                            </div> -->
+                        </div>
+                    </div>
+                </p-panel>
+                <p-panel styleClass="mb-10" #pnl3 expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                    <p-header class="cav-panel-header pt-5">
+                        <div class="cav-panel-content p-grid p-align-center">
+                            <div class="panel-title p-grid p-align-center" (click)="pnl3.toggle($event)">
+                                <a><span class="font-20" [class]="pnl3.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'"></span></a>
+                                Set Alert Condition
+                            </div>
+                            <div class="p-grid p-justify-center p-align-center">
+                                <button type="button" ptooltip="Help" class="btn-icon"><i class="icons8 icons8-help"></i></button>
+                            </div>
+                        </div>
+                    </p-header>
+                    <div *ngIf="attributes.conditionType == 0">
+                        <div class="content my-5">
+                            <div class="p-grid p-col-12 p-align-center">
+                                <div class="width-150 p-5">Condition Type</div>
+                                <div class="mx-12">
+                                    <p-dropdown [options]="conditionTypeList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="condition.type" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+                            </div>
+                            <div class="p-grid p-col-12 p-align-start threshold">
+                                <div class="width-150 p-5 mt-13">Trigger when</div>
+                                <div class="p-grid p-align-center p-col-10">
+                                    <div class="m-6" *ngIf="condition.type == 1">
+                                        <p-dropdown [options]="changeList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="changeType.change" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                    </div>
+                                    <div class="p-6" *ngIf="condition.type === 1">in</div>
+                                    <div class="m-6"  *ngIf="condition.type == 0">
+                                        <p-dropdown [options]="dataTypeListThreshold" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="thresholdType.dataType" [style]="{'min-width':'130px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                    </div>
+                                    <div class="m-6" *ngIf="condition.type == 1">
+                                        <p-dropdown [options]="dataTypeListThreshold" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="changeType.dataType" [style]="{'min-width':'120px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                    </div>
+                                    <div class="m-6" *ngIf="condition.type === 2">
+                                        <p-dropdown [options]="dataTypeListAnomaly" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="anomalyType.dataType" [style]="{'min-width':'130px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                    </div>
+                                    <div class="m-6" *ngIf="condition.type === 3">
+                                        <p-dropdown [options]="dataTypeListAnomaly" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="outliersType.dataType" [style]="{'min-width':'130px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                    </div>
+                                    <div class="m-6" *ngIf="condition.type === 4">
+                                        <p-dropdown [options]="dataTypeListThreshold" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="forcastType.dataType" [style]="{'min-width':'130px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                    </div>
+                                    <div class="p-grid p-align-center" *ngIf="condition.type == 0 || condition.type == 1 || condition.type === 2 || condition.type === 3">
+                                        <div class="p-6">value of the metric</div>
+                                        <div class="mx-6">
+                                            <p-dropdown [options]="metricList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="condition.mName" [style]="{'min-width':'50px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        </div>
+                                        <div class="p-6" *ngIf="condition.type != 3">during last</div>
+                                        <div class="p-6" *ngIf="condition.type == 3">for a subject is outlier during last</div>
+                                        <div *ngIf="condition.type == 0" class="mx-6">
+                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="width-70" autocomplete="off" pInputText [(ngModel)]="thresholdType.timeWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(this.value == 0) this.value = ''" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) && event.charCode <= 57" min="1">
+                                        </div>
+                                        <div *ngIf="condition.type == 1" class="mx-6">
+                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="width-70" autocomplete="off" pInputText [(ngModel)]="changeType.timeWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(this.value == 0) this.value = ''" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="1">
+                                        </div>
+                                        <div *ngIf="condition.type == 2" class="mx-6">
+                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="width-70" autocomplete="off" pInputText [(ngModel)]="anomalyType.timeWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(this.value == 0) this.value = ''" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="1">
+                                        </div>
+                                        <div *ngIf="condition.type == 3" class="mx-6">
+                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="width-70" autocomplete="off" pInputText [(ngModel)]="outliersType.timeWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(this.value == 0) this.value = ''" maxlength="4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="1">
+                                        </div>
+                                        <div *ngIf="condition.type == 0" class="mx-6">
+                                            <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="thresholdType.twUnit" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        </div>
+                                        <div *ngIf="condition.type == 1" class="mx-6">
+                                            <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="changeType.twUnit" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        </div>
+                                        <div *ngIf="condition.type == 2" class="mx-6">
+                                            <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="anomalyType.twUnit" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        </div>
+                                        <div *ngIf="condition.type == 3" class="mx-6">
+                                            <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="outliersType.twUnit" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        </div>
+                                        <div class="p-6" *ngIf="condition.type != 3">is</div>
+                                        <div class="p-6" *ngIf="condition.type == 3">out of subjects at the same hierarchy</div>
+                                        <div class="p-grid p-align-center" *ngIf="condition.type == 0 || condition.type == 1">
+                                            <div *ngIf="condition.type == 0" class="mx-6">
+                                                <p-dropdown [options]="operatorList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="thresholdType.operator" [style]="{'min-width':'140px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                            </div>
+                                            <div *ngIf="condition.type == 1" class="mx-6">
+                                                <p-dropdown [options]="operatorList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="changeType.operator" [style]="{'min-width':'140px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                            </div>
+                                            <div class="p-6">the threshold </div>
+                                        </div>
+                                        <div class="p-grid p-align-center" *ngIf="condition.type === 2">
+                                            <div class="mx-6">
+                                                <p-dropdown [options]="operatorListAnomaly" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="anomalyType.operator" [style]="{'min-width':'140px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                            </div>
+                                            <div class="p-6">the bounds</div>
+                                        </div>
+                                    </div>
+                                    <div class="p-grid p-align-center" *ngIf="condition.type === 4">
+                                        <div class="p-6">forecasted value of the metric</div>
+                                        <div class="mx-6">
+                                            <p-dropdown [options]="metricList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="condition.mName" [style]="{'min-width':'50px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        </div>
+                                        <div class="p-6">is</div>
+                                        <div class="mx-6">
+                                            <p-dropdown [options]="operatorList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="forcastType.operator"  [style]="{'min-width':'140px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        </div>
+                                        <div class="p-6">the threshold in next </div>
+                                        <div class="mx-6">
+                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" class="width-70" pInputText [(ngModel)]="forcastType.trendWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(this.value == 0) this.value = ''" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="1">
+                                        </div>
+                                        <div class="mx-6">
+                                            <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="forcastType.trendWindowUnit" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        </div>
+                                    </div>
+                                    <div class="p-grid p-align-center" *ngIf="condition.type === 1">
+                                        <span>compared to average of all samples during same time interval</span>
+                                        <div class="mx-6">
+                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" class="width-70" pInputText [(ngModel)]="changeType.pastWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(this.value == 0) this.value = ''" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="1">
+                                        </div>
+                                        <div class="mx-6">
+                                            <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="changeType.pwUnit" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        </div>
+                                        <div class="p-6">before</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-grid p-justify-end m-5">
+                                <button type="button" class="btn-link btn-link-green" (click)="advance=!advance"><i class="icons8 icons8-settings"></i> Advance</button>
+                            </div>
+                            <!-- ----------------advance option----------------------------------- -->
+                            <div class="advance mx-5">
+                                <div class="py-20" *ngIf="advance">
+                                    <div class="p-grid p-align-center p-col-12"  *ngIf="condition.type == 0 && thresholdType.dataType == 5">
+                                        <label class="p-offset-150 p-5">Evaluate value of the metric {{condition.mName}} during last {{thresholdType.timeWindow}} minutes using</label>
+                                        <p-dropdown class="mx-6" [options]="pctType" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="thresholdType.pctType" [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <input id="input" type="number" autocomplete="off" [disabled]='callFromActiveAlert || isOnlyReadable' class="width-60" pInputText [(ngModel)]="thresholdType.pct" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "3" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                        <label class="mx-5">% Samples</label>
+                                    </div>
+                                    <div class="p-grid p-align-center p-col-12" *ngIf="condition.type == 1 && changeType.dataType == 5">
+                                        <label class="p-offset-150 p-5">Evaluate value of the metric {{condition.mName}} during last {{changeType.timeWindow}} minutes using</label>
+                                        <p-dropdown class="mx-6" [options]="pctType" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="changeType.pctType" [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <input id="input" type="number" autocomplete="off" [disabled]='callFromActiveAlert || isOnlyReadable' class="width-60" pInputText [(ngModel)]="changeType.pct" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "3" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                        <label class="mx-5">% Samples</label>
+                                    </div>
+                                    <div class="p-grid p-align-center p-col-12" *ngIf="condition.type == 2 && anomalyType.dataType == 5">
+                                      <label class="p-offset-150 p-5">Evaluate value of the metric {{condition.mName}} during last {{anomalyType.timeWindow}} {{anomalyType.twUnit == 0 ? 'minutes' : anomalyType.twUnit == 1 ? 'hours' : anomalyType.twUnit == 2 ? 'day' : anomalyType.twUnit == 3 ? 'week' : anomalyType.twUnit == 4 ? 'months' : ''}} using</label>
+                                      <p-dropdown class="mx-6" [options]="pctType" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="anomalyType.pctType" [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                      <input id="input" type="number" class="width-60" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" pInputText [(ngModel)]="anomalyType.pct" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "3" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                      <label class="mx-5">% Samples</label>
+                                    </div>
+                                    <div class="p-grid p-align-center p-col-12" *ngIf="condition.type == 3 && outliersType.dataType == 5">
+                                      <label class="p-offset-150 p-5">Evaluate value of the metric {{condition.mName}} during last {{outliersType.timeWindow}} {{outliersType.twUnit == 0 ? 'minutes' : outliersType.twUnit == 1 ? 'hours' : outliersType.twUnit == 2 ? 'day' : outliersType.twUnit == 3 ? 'week' : outliersType.twUnit == 4 ? 'months' : ''}} using</label>
+                                      <p-dropdown class="mx-6" [options]="pctType" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="outliersType.pctType" [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                      <input id="input" type="number" class="width-60" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" pInputText [(ngModel)]="outliersType.pct" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "3" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                      <label class="mx-5">% Samples</label>
+                                    </div>
+                                    <div class="p-grid p-align-center p-col-12" *ngIf="condition.type === 4">
+                                        <label class="p-offset-150 p-5">Evaluate average forecasted value of the metric {{condition.mName}} based on</label>
+                                        <div class="mx-6">
+                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" class="width-70" pInputText [(ngModel)]="forcastType.timeWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="4" onkeypress="return (event.charCode >= 49 && event.charCode <= 57) || event.charCode == 46" min="1">
+                                        </div>
+                                        <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="forcastType.twUnit" [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <label class="mx-5">trend</label>
+                                        <label *ngIf="forcastType.dataType == 5" class="mx-5">using</label>
+                                        <p-dropdown *ngIf="forcastType.dataType == 5" [options]="pctType" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="forcastType.pctType" [style]="{'min-width':'80px'}"
+                                            dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <div *ngIf="forcastType.dataType == 5" class="mx-6">
+                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" value="5" class="width-60" pInputText [(ngModel)]="forcastType.pct"
+                                                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                                maxlength="3" onkeypress="return event.charCode >= 48 && event.charCode <= 57" min="0">
+                                        </div>
+                                        <label *ngIf="forcastType.dataType == 5" class="mx-6">% samples</label>
+                                    </div>
+                                    <div *ngIf="condition.type == 0" class="p-grid p-align-center p-col-12">
+                                        <label *ngIf="thresholdType.windowType == 0" class="p-offset-150 p-5">Check condition every one minute</label>
+                                        <label *ngIf="thresholdType.windowType == 1" class="p-offset-150 p-5">Check condition every {{thresholdType.timeWindow}} {{thresholdType.twUnit == 0 ? 'minutes' : thresholdType.twUnit == 1 ? 'hours' : thresholdType.twUnit == 2 ? 'day' : thresholdType.twUnit == 3 ? 'week' : thresholdType.twUnit == 4 ? 'months' : ''}}</label>
+                                        <p-dropdown class="mx-6" [options]="checkCondition" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="thresholdType.windowType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <label class="mx-5">{{thresholdType.timeWindow}} {{thresholdType.twUnit == 0 ? 'minutes' : thresholdType.twUnit == 1 ? 'hours' : thresholdType.twUnit == 2 ? 'day' : thresholdType.twUnit == 3 ? 'week' : thresholdType.twUnit == 4 ? 'months' : ''}} interval</label>
+                                    </div>
+                                    <div *ngIf="condition.type == 1" class="p-grid p-align-center p-col-12">
+                                        <label *ngIf="changeType.windowType == 0" class="p-offset-150 p-5">Check condition every one minute</label>
+                                        <label *ngIf="changeType.windowType == 1" class="p-offset-150 p-5">Check condition every {{changeType.timeWindow}} {{changeType.twUnit == 0 ? 'minutes' : changeType.twUnit == 1 ? 'hours' : changeType.twUnit == 2 ? 'day' : changeType.twUnit == 3 ? 'week' : changeType.twUnit == 4 ? 'months' : ''}}</label>
+                                        <p-dropdown class="mx-6" [options]="checkCondition" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="changeType.windowType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <label class="mx-5">{{changeType.timeWindow}} {{changeType.twUnit == 0 ? 'minutes' : changeType.twUnit == 1 ? 'hours' : changeType.twUnit == 2 ? 'day' : changeType.twUnit == 3 ? 'week' : changeType.twUnit == 4 ? 'months' : ''}} interval</label>
+                                    </div>
+                                    <div *ngIf="condition.type == 2" class="p-grid p-align-center p-col-12">
+                                        <label *ngIf="anomalyType.windowType == 0" class="p-offset-150 p-5">Check condition every one minute</label>
+                                        <label *ngIf="anomalyType.windowType == 1" class="p-offset-150 p-5">Check condition every {{anomalyType.timeWindow}} {{anomalyType.twUnit == 0 ? 'minutes' : anomalyType.twUnit == 1 ? 'hours' : anomalyType.twUnit == 2 ? 'day' : anomalyType.twUnit == 3 ? 'week' : anomalyType.twUnit == 4 ? 'months' : ''}}</label>
+                                        <p-dropdown class="mx-6" [options]="checkCondition" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="anomalyType.windowType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <label class="mx-5">{{anomalyType.timeWindow}} {{anomalyType.twUnit == 0 ? 'minutes' : anomalyType.twUnit == 1 ? 'hours' : anomalyType.twUnit == 2 ? 'day' : anomalyType.twUnit == 3 ? 'week' : anomalyType.twUnit == 4 ? 'months' : ''}} interval</label>
+                                    </div>
+                                    <div *ngIf="condition.type == 3" class="p-grid p-align-center p-col-12">
+                                        <label *ngIf="outliersType.windowType == 0" class="p-offset-150 p-5">Check condition every one minute</label>
+                                        <label *ngIf="outliersType.windowType == 1" class="p-offset-150 p-5">Check condition every {{outliersType.timeWindow}} {{outliersType.twUnit == 0 ? 'minutes' : outliersType.twUnit == 1 ? 'hours' : outliersType.twUnit == 2 ? 'day' : outliersType.twUnit == 3 ? 'week' : outliersType.twUnit == 4 ? 'months' : ''}}</label>
+                                        <p-dropdown class="mx-6" [options]="checkOutlier" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="outliersType.windowType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <label class="mx-5">{{outliersType.timeWindow}} {{outliersType.twUnit == 0 ? 'minutes' : outliersType.twUnit == 1 ? 'hours' : outliersType.twUnit == 2 ? 'day' : outliersType.twUnit == 38 ? 'week' : outliersType.twUnit == 4 ? 'months' : ''}} interval</label>
+                                    </div>
+                                    <div *ngIf="condition.type == 4" class="p-grid p-align-center p-col-12">
+                                        <label *ngIf="forcastType.windowType == 0" class="p-offset-150 p-5">Check condition every one minute</label>
+                                        <label *ngIf="forcastType.windowType == 1" class="p-offset-150 p-5">Check condition every {{forcastType.timeWindow}} {{forcastType.twUnit == 0 ? 'minutes' : forcastType.twUnit == 1 ? 'hours' : forcastType.twUnit == 2 ? 'day' : forcastType.twUnit == 3 ? 'week' : forcastType.twUnit == 4 ? 'months' : ''}}</label>
+                                        <p-dropdown class="mx-6" [options]="checkCondition" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="forcastType.windowType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <label class="mx-5">{{forcastType.timeWindow}} {{forcastType.twUnit == 0 ? 'minutes' : forcastType.twUnit == 1 ? 'hours' : forcastType.twUnit == 2 ? 'day' : forcastType.twUnit == 38 ? 'week' : forcastType.twUnit == 4 ? 'months' : ''}} interval</label>
+                                    </div>
+                                    <div class="p-grid p-align-center p-col-12" *ngIf="condition.type == 2 || condition.type == 3 || condition.type == 4">
+                                        <label class="p-offset-150 p-5 width-60">Severity</label>
+                                        <p-dropdown class="mx-6" [options]="severityList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="anomalyAndForcastSeverity" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                    </div>
+                                    <div class="p-grid p-align-center p-col-12" *ngIf="condition.type == 4">
+                                        <label class="p-offset-150 p-5 width-60">Apply</label>
+                                        <p-dropdown class="mx-6" [options]="forecastModel" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="forcastType.forecastModel" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <label class="mx-5">model to make a</label>
+                                        <p-dropdown [options]="forecastType" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="forcastType.forecastType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <label class="mx-5">forecast</label>
+                                    </div>
+                                    <div class="p-grid p-align-center p-col-12" *ngIf="condition.type === 2">
+                                        <label class="p-offset-150 p-5 width-60">Use</label>
+                                        <p-dropdown class="mx-6" [options]="useTheta" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="anomalyType.algoType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <label class="mx-5">algorithm to detect anomalies</label>
+                                        <div class="mx-6">
+                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" class="width-80" pInputText [(ngModel)]="anomalyType.deviation" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "3" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                        </div>
+                                        <label>deviations from the predicted data.</label>
+                                    </div>
+                                    <div class="p-grid p-align-center p-col-12" *ngIf="condition.type === 3">
+                                        <label class="p-offset-150 p-5">Use</label>
+                                        <p-dropdown class="mx-6" [options]="useMad" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="outliersType.algoType" [style]="{'min-width':'130px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                        <label class="mx-5">algorithm with tolerance</label>
+                                        <p-dropdown class="mx-6" [options]="tolerance" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="outliersType.tolerance" [style]="{'min-width':'70px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- <div *ngIf="condition.type == 0 || condition.type == 1" class="content pt-15">
+                                <div class="p-grid p-align-start">
+                                    <div class="width-162 p-5">&nbsp;</div>
+                                    <div class="mr-30">
+                                        <p-radioButton name="multipleCondition" value="0" [disabled]='callFromActiveAlert || isOnlyReadable' label="% of Subjects affected" class="mr-20 font-weight-500"  [(ngModel)]="attributes.conditionType"></p-radioButton>
+                                    </div>
+                                    <div class="mr-30">
+                                        <p-radioButton name="multipleCondition" value="1" [disabled]='callFromActiveAlert || isOnlyReadable' label="Count of Subjects affected" class="mr-20 font-weight-500"  [(ngModel)]="attributes.conditionType"></p-radioButton>
+                                    </div>
+                                </div>
+                            </div> -->
+                            <div *ngIf="condition.type == 0 || condition.type == 1" class="p-grid p-align-center w-100-p px-5 thro_brdb">
+                                <div class="width-150 p-5">&nbsp;</div>
+                                <div class="p-col-2">
+                                    <label>Critical</label>
+                                </div>
+                                <div *ngIf="rSeverityLevel >= 1" class="p-col-2">
+                                    <label>Major</label>
+                                </div>
+                                <div *ngIf="rSeverityLevel == 2" class="p-col-2">
+                                    <label>Minor</label>
+                                </div>
+                            </div>
+                            <div *ngIf="condition.type == 4" class="p-grid p-align-center w-100-p px-5 thro_brdb mt-15">
+                                <div class="width-150 p-5">&nbsp;</div>
+                                <div *ngIf="anomalyAndForcastSeverity == 3" class="p-col-2">
+                                    <label>Critical</label>
+                                </div>
+                                <div *ngIf="anomalyAndForcastSeverity == 2"></div>
+                                <div *ngIf="anomalyAndForcastSeverity == 2" class="p-col-2">
+                                    <label>Major</label>
+                                </div>
+                                <div *ngIf="anomalyAndForcastSeverity == 1" ></div>
+                                <div *ngIf="anomalyAndForcastSeverity == 1"></div>
+                                <div *ngIf="anomalyAndForcastSeverity == 1" class="p-col-2">
+                                    <label>Minor</label>
+                                </div>
+                            </div>
+                            <div *ngIf="condition.type == 0" class="p-grid p-align-center w-100-p px-5">
+                                <div class="width-150 p-5 mr-5">Threshold</div>
+                                <div class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="criticalThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0" >
+                                </div>
+                                <div *ngIf="rSeverityLevel >= 1" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="majorThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                                <div *ngIf="rSeverityLevel == 2" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="minorThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                            </div>
+                            <div *ngIf="condition.type == 1" class="p-grid p-align-center w-100-p px-5">
+                                <div class="width-150 p-5 mr-5">Threshold</div>
+                                <div class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="criticalChangeTypeThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                                <div *ngIf="rSeverityLevel >= 1" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="majorChangeTypeThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                                <div *ngIf="rSeverityLevel == 2" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="minorChangeTypeThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                            </div>
+                            <div *ngIf="condition.type == 4" class="p-grid p-align-center w-100-p px-5">
+                                <div class="width-150 p-5 mr-5">Threshold</div>
+                                <div *ngIf="anomalyAndForcastSeverity == 3" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="forcastType.fThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                                <div *ngIf="anomalyAndForcastSeverity == 2" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="forcastType.fThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                                <div *ngIf="anomalyAndForcastSeverity == 1" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="forcastType.fThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                            </div>
+                            <div *ngIf="condition.type == 0" class="p-grid p-align-center w-100-p px-5">
+                                <div class="width-150 p-5 mr-5">Recovery Threshold</div>
+                                <div class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="criticalRecovery" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                                <div *ngIf="rSeverityLevel >= 1" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="majorRecovery" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                                <div *ngIf="rSeverityLevel == 2" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="minorRecovery" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                            </div>
+                            <div *ngIf="condition.type == 1" class="p-grid p-align-center w-100-p px-5">
+                                <div class="width-150 p-5 mr-5">Recovery Thereshold</div>
+                                <div class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="criticalChangeTypeRecovery" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                                <div *ngIf="rSeverityLevel >= 1" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="majorChangeTypeRecovery" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                                <div *ngIf="rSeverityLevel == 2" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="minorChangeTypeRecovery" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                            </div>
+                            <div *ngIf="condition.type == 4" class="p-grid p-align-center w-100-p px-5">
+                                <div class="width-150 p-5 mr-5">Recovery Thereshold</div>
+                                <div *ngIf="anomalyAndForcastSeverity == 3" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="forcastType.frThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                                <div *ngIf="anomalyAndForcastSeverity == 2" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="forcastType.frThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                                <div *ngIf="anomalyAndForcastSeverity == 1" class="p-col-2">
+                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-75-p" autocomplete="off" pInputText [(ngModel)]="forcastType.frThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="14" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                </div>
+                            </div>
+                            <!-- --------------------------end advance option----------------------->
+                        </div>
+                    </div>
+                    <div *ngIf="attributes.conditionType == 1" class="repeatPanel">
+                        <div *ngFor="let panel of severityPanel.panels; let panelIdx = index" class="w-100-p">
+                            <div *ngIf="panelIdx <= rSeverityLevel" id="panel-{{panelIdx+1}}" class="http-reports-panel">
+                                <p-panel class="my-panel" #pnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="panel.collapsed" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                                    <p-header class="cav-panel-header pt-5" [ngStyle]="{'border-color': panel.color}">
+                                        <div class="cav-panel-content" >
+                                            <div class="panel-title" (click)="pnl.toggle($event)">
+                                                <a tabindex="{{panelIdx}}">
+                                                    <span class="font-13" [class]="pnl.collapsed ? 'pi pi-chevron-right' : 'pi pi-chevron-down'"></span>
+                                                </a>
+                                                {{panel.label}}
+                                            </div>
+                                        </div>
+                                    </p-header>
+                                    <div class="content">
+                                        <div class="p-grid p-col-12 p-align-center">
+                                            <div class="width-150 p-5">Condition Type</div>
+                                            <div class="mx-12">
+                                                <p-dropdown [options]="conditionTypeList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.condition.type" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                            </div>
+                                        </div>
+                                            <div class="content my-5">
+                                                <div class="p-grid p-col-12 p-align-start threshold">
+                                                    <div class="width-150 p-5 mt-13">Trigger when</div>
+                                                    <div class="p-grid p-align-center p-col-10">
+                                                    <div class="m-6" *ngIf="panel.condition.type == 1">
+                                                        <p-dropdown [options]="changeList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.changeType.change" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    </div>
+                                                    <div class="p-6" *ngIf="panel.condition.type == 1">in</div>
+                                                    <div class="m-6"  *ngIf="panel.condition.type == 0">
+                                                        <p-dropdown [options]="dataTypeListThreshold" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.thresholdType.dataType" [style]="{'min-width':'120px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    </div>
+                                                    <div class="m-6" *ngIf="panel.condition.type == 1">
+                                                        <p-dropdown [options]="dataTypeListThreshold" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.changeType.dataType" [style]="{'min-width':'120px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    </div>
+                                                    <div class="m-6" *ngIf="panel.condition.type == 2">
+                                                        <p-dropdown [options]="dataTypeListAnomaly" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.anomalyType.dataType" [style]="{'min-width':'120px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    </div>
+                                                    <div class="m-6" *ngIf="panel.condition.type == 3">
+                                                        <p-dropdown [options]="dataTypeListAnomaly" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.outliersType.dataType" [style]="{'min-width':'120px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    </div>
+                                                    <div class="m-6" *ngIf="panel.condition.type == 4">
+                                                        <p-dropdown [options]="dataTypeListThreshold" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.forcastType.dataType" [style]="{'min-width':'120px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    </div>
+                                                    <!-- *ngIf="thresoldType === 'Forecast'" -->
+                                                    <div class="p-grid p-align-center" *ngIf="panel.condition.type == 0 || panel.condition.type == 1 || panel.condition.type == 2 || panel.condition.type == 3">
+                                                        <div class="p-6">value of the metric</div>
+                                                        <div class="mx-6">
+                                                            <p-dropdown [options]="metricList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.condition.mName"  [style]="{'min-width':'50px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                        </div>
+                                                        <div class="p-6" *ngIf="panel.condition.type != 3">during last</div>
+                                                        <div class="p-6" *ngIf="panel.condition.type == 3">for a subject is outlier during last</div>
+                                                        <div *ngIf="panel.condition.type == 0" class="mx-6">
+                                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="width-70" autocomplete="off" pInputText [(ngModel)]="panel.thresholdType.timeWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="1">
+                                                        </div>
+                                                        <div *ngIf="panel.condition.type == 1" class="mx-6">
+                                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="width-70" autocomplete="off" pInputText [(ngModel)]="panel.changeType.timeWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="1">
+                                                        </div>
+                                                        <div *ngIf="panel.condition.type == 2" class="mx-6">
+                                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="width-70" autocomplete="off" pInputText [(ngModel)]="panel.anomalyType.timeWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="1">
+                                                        </div>
+                                                        <div *ngIf="panel.condition.type == 3" class="mx-6">
+                                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' class="width-70" autocomplete="off" pInputText [(ngModel)]="panel.outliersType.timeWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="1">
+                                                        </div>
+                                                        <div *ngIf="panel.condition.type == 0" class="mx-6">
+                                                            <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.thresholdType.twUnit" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                        </div>
+                                                        <div *ngIf="panel.condition.type == 1" class="mx-6">
+                                                            <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.changeType.twUnit" [style]="{'min-width':'92px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                        </div>
+                                                        <div *ngIf="panel.condition.type == 2" class="mx-6">
+                                                            <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.anomalyType.twUnit" [style]="{'min-width':'92px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                        </div>
+                                                        <div *ngIf="panel.condition.type == 3" class="mx-6">
+                                                            <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.outliersType.twUnit" [style]="{'min-width':'92px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                        </div>
+                                                        <div class="p-6" *ngIf="panel.condition.type != 3">is</div>
+                                                        <div class="p-6" *ngIf="panel.condition.type == 3">out of subjects at the same hierarchy</div>
+                                                        <div class="p-grid p-align-center" *ngIf="panel.condition.type == 0 || panel.condition.type == 1">
+                                                            <div *ngIf="panel.condition.type == 0" class="mx-6">
+                                                                <p-dropdown [options]="operatorList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.thresholdType.operator" [style]="{'min-width':'140px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                            </div>
+                                                            <div *ngIf="panel.condition.type == 1" class="mx-6">
+                                                                <p-dropdown [options]="operatorList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.changeType.operator" [style]="{'min-width':'140px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                            </div>
+                                                            <div class="p-6">the threshold </div>
+                                                            <div *ngIf="panel.condition.type == 0" class="mx-6">
+                                                                <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" value="85" class="width-65" pInputText [(ngModel)]="panel.thresholdType.fThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                                            </div>
+                                                            <div *ngIf="panel.condition.type == 1" class="mx-6">
+                                                                <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" value="85" class="width-65" pInputText [(ngModel)]="panel.changeType.fThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                                            </div>
+                                                        </div>
+                                                        <div class="p-grid p-align-center" *ngIf="panel.condition.type == 2">
+                                                            <div class="mx-6">
+                                                                <p-dropdown [options]="operatorListAnomaly" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.anomalyType.operator" [style]="{'min-width':'140px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                            </div>
+                                                            <div class="p-6">the bounds</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="p-grid p-align-center" *ngIf="panel.condition.type == 4">
+                                                        <div class="p-6">forecasted value of the metric</div>
+                                                        <div class="mx-6">
+                                                            <p-dropdown [options]="metricList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.condition.mName" [style]="{'min-width':'50px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                        </div>
+                                                        <div class="mx-6">
+                                                            <p-dropdown [options]="operatorList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.forcastType.operator" [style]="{'min-width':'140px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                        </div>
+                                                        <div class="p-6">the threshold </div>
+                                                        <div class="mx-6">
+                                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" value="85" class="width-65" pInputText [(ngModel)]="panel.forcastType.fThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                                        </div>
+                                                        <div class="p-6">in next </div>
+                                                        <div class="mx-6">
+                                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" class="width-70" pInputText [(ngModel)]="panel.forcastType.trendWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="1">
+                                                        </div>
+                                                        <div class="mx-6">
+                                                            <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.forcastType.trendWindowUnit" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                        </div>
+                                                    </div>
+                                                    <div class="p-grid p-align-center" *ngIf="panel.condition.type == 1">
+                                                        <span>compared to average of all samples during same time interval</span>
+                                                        <div class="mx-6">
+                                                            <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" class="width-70" value="5" pInputText [(ngModel)]="panel.changeType.pastWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="1">
+                                                        </div>
+                                                        <div class="mx-6">
+                                                            <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.changeType.pwUnit" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                        </div>
+                                                        <div class="p-6">before</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="p-grid p-justify-end m-5">
+                                                <button type="button" class="btn-link btn-link-green" (click)="advance=!advance"><i class="icons8 icons8-settings"></i> Advance</button>
+                                            </div>
+                                            <!-- ----------------advance option----------------------------------- -->
+                                            <div class="advance mx-5">
+                                                <div class="py-20" *ngIf="advance">
+                                                <div class="p-grid p-align-center p-col-12" *ngIf="panel.condition.type == 0 && panel.thresholdType.dataType == 5">
+                                                    <label class="p-offset-150 p-5">Evaluate value of the metric {{panel.condition.mName}} during last {{panel.thresholdType.timeWindow}} {{panel.thresholdType.twUnit == 0 ? 'minutes' : panel.thresholdType.twUnit == 1 ? 'hours' : panel.thresholdType.twUnit == 2 ? 'day' : panel.thresholdType.twUnit == 3 ? 'week' : panel.thresholdType.twUnit == 4 ? 'months' : ''}} using</label>
+                                                    <p-dropdown class="mx-6" [options]="pctType" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.thresholdType.pctType" [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" class="width-60" pInputText [(ngModel)]="panel.thresholdType.pct" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "3" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                                    <label class="mx-5">% Samples</label>
+                                                </div>
+                                                <div class="p-grid p-align-center p-col-12" *ngIf="panel.condition.type == 1 && panel.changeType.dataType == 5">
+                                                    <label class="p-offset-150 p-5">Evaluate value of the metric {{panel.condition.mName}} during last {{panel.changeType.timeWindow}} {{panel.changeType.twUnit == 0 ? 'minutes' : panel.changeType.twUnit == 1 ? 'hours' : panel.changeType.twUnit == 2 ? 'day' : panel.changeType.twUnit == 3 ? 'week' : panel.changeType.twUnit == 4 ? 'months' : ''}} using</label>
+                                                    <p-dropdown class="mx-6" [options]="pctType" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.changeType.pctType" [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" class="width-60" pInputText [(ngModel)]="panel.changeType.pct" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "3" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                                    <label class="mx-5">% Samples</label>
+                                                </div>
+                                                <div class="p-grid p-align-center p-col-12" *ngIf="panel.condition.type == 2 && panel.anomalyType.dataType == 5">
+                                                    <label class="p-offset-150 p-5">Evaluate value of the metric {{panel.condition.mName}} during last {{panel.anomalyType.timeWindow}} {{panel.anomalyType.twUnit == 0 ? 'minutes' : panel.anomalyType.twUnit == 1 ? 'hours' : panel.anomalyType.twUnit == 2 ? 'day' : panel.anomalyType.twUnit == 3 ? 'week' : panel.anomalyType.twUnit == 4 ? 'months' : ''}} using</label>
+                                                    <p-dropdown class="mx-6" [options]="pctType" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.anomalyType.pctType" [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" class="width-60" pInputText [(ngModel)]="panel.anomalyType.pct" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "3" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                                    <label class="mx-5">% Samples</label>
+                                                </div>
+                                                <div class="p-grid p-align-center p-col-12" *ngIf="panel.condition.type == 3 && panel.outliersType.dataType == 5">
+                                                    <label class="p-offset-150 p-5">Evaluate value of the metric {{panel.condition.mName}} during last {{panel.outliersType.timeWindow}} {{panel.outliersType.twUnit == 0 ? 'minutes' : panel.outliersType.twUnit == 1 ? 'hours' : panel.outliersType.twUnit == 2 ? 'day' : panel.outliersType.twUnit == 3 ? 'week' : panel.outliersType.twUnit == 4 ? 'months' : ''}} using</label>
+                                                    <p-dropdown class="mx-6" [options]="pctType" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.outliersType.pctType" [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" class="width-60" pInputText [(ngModel)]="panel.outliersType.pct" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "3" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                                    <label class="mx-5">% Samples</label>
+                                                </div>
+                                                <div class="p-grid p-align-center p-col-12" *ngIf="panel.condition.type == 4">
+                                                    <label class="p-offset-150 p-5">Evaluate {{panel.forcastType.dataType != 5 ? 'average': ''}} forecasted value of the metric {{panel.condition.mName}} based on</label>
+                                                    <div class="mx-6">
+                                                        <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" value="5" class="width-70" pInputText [(ngModel)]="panel.forcastType.timeWindow" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "3" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                                    </div>
+                                                    <p-dropdown [options]="timeWindowUnitList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.forcastType.twUnit" [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <label class="mx-5">trend {{panel.forcastType.dataType == 5 ? 'using': ''}}</label>
+                                                    <p-dropdown *ngIf="panel.forcastType.dataType == 5" class="mx-6" [disabled]='callFromActiveAlert || isOnlyReadable' [options]="pctType" [(ngModel)]="panel.anomalyType.pctType" [style]="{'min-width':'80px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <input *ngIf="panel.forcastType.dataType == 5" id="input" type="number" class="width-60" pInputText [(ngModel)]="panel.anomalyType.pct" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "3" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                                    <label *ngIf="panel.forcastType.dataType == 5" class="mx-5">% Samples</label>
+                                                </div>
+                                                <div *ngIf="panel.condition.type == 0" class="p-grid p-align-center p-col-12">
+                                                    <label *ngIf="panel.thresholdType.windowType == 0" class="p-offset-150 p-5">Check condition every one minute</label>
+                                                    <label *ngIf="panel.thresholdType.windowType == 1" class="p-offset-150 p-5">Check condition every {{panel.thresholdType.timeWindow}} {{panel.thresholdType.twUnit == 0 ? 'minutes' : panel.thresholdType.twUnit == 1 ? 'hours' : panel.thresholdType.twUnit == 2 ? 'day' : panel.thresholdType.twUnit == 3 ? 'week' : panel.thresholdType.twUnit == 4 ? 'months' : ''}}</label>
+                                                    <p-dropdown class="mx-6" [options]="checkCondition" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.thresholdType.windowType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <label class="mx-5">{{panel.thresholdType.timeWindow}} {{panel.thresholdType.twUnit == 0 ? 'minutes' : panel.thresholdType.twUnit == 1 ? 'hours' : panel.thresholdType.twUnit == 2 ? 'day' : panel.thresholdType.twUnit == 3 ? 'week' : panel.thresholdType.twUnit == 4 ? 'months' : ''}} interval</label>
+                                                </div>
+                                                <div *ngIf="panel.condition.type == 1" class="p-grid p-align-center p-col-12">
+                                                    <label *ngIf="panel.changeType.windowType == 0" class="p-offset-150 p-5">Check condition every one minute</label>
+                                                    <label *ngIf="panel.changeType.windowType == 1" class="p-offset-150 p-5">Check condition every {{panel.changeType.timeWindow}} {{panel.changeType.twUnit == 0 ? 'minutes' : panel.changeType.twUnit == 1 ? 'hours' : panel.changeType.twUnit == 2 ? 'day' : panel.changeType.twUnit == 3 ? 'week' : panel.changeType.twUnit == 4 ? 'months' : ''}}</label>
+                                                    <p-dropdown class="mx-6" [options]="checkCondition" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.changeType.windowType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <label class="mx-5">{{panel.changeType.timeWindow}} {{panel.changeType.twUnit == 0 ? 'minutes' : panel.changeType.twUnit == 1 ? 'hours' : panel.changeType.twUnit == 2 ? 'day' : panel.changeType.twUnit == 3 ? 'week' : panel.changeType.twUnit == 4 ? 'months' : ''}} interval</label>
+                                                </div>
+                                                <div *ngIf="panel.condition.type == 2" class="p-grid p-align-center p-col-12">
+                                                    <label *ngIf="panel.anomalyType.windowType == 0" class="p-offset-150 p-5">Check condition every one minute</label>
+                                                    <label *ngIf="panel.anomalyType.windowType == 1" class="p-offset-150 p-5">Check condition every {{panel.anomalyType.timeWindow}} {{panel.anomalyType.twUnit == 0 ? 'minutes' : panel.anomalyType.twUnit == 1 ? 'hours' : panel.anomalyType.twUnit == 2 ? 'day' : panel.anomalyType.twUnit == 3 ? 'week' : panel.anomalyType.twUnit == 4 ? 'months' : ''}}</label>
+                                                    <p-dropdown class="mx-6" [options]="checkCondition" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.anomalyType.windowType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <label class="mx-5">{{panel.anomalyType.timeWindow}} {{panel.anomalyType.twUnit == 0 ? 'minutes' : panel.anomalyType.twUnit == 1 ? 'hours' : panel.anomalyType.twUnit == 2 ? 'day' : panel.anomalyType.twUnit == 3 ? 'week' : panel.anomalyType.twUnit == 4 ? 'months' : ''}} interval</label>
+                                                </div>
+                                                <div *ngIf="panel.condition.type == 3" class="p-grid p-align-center p-col-12">
+                                                    <label *ngIf="panel.outliersType.windowType == 0" class="p-offset-150 p-5">Check condition every {{panel.outliersType.timeWindow}} {{panel.outliersType.twUnit == 0 ? 'minutes' : panel.outliersType.twUnit == 1 ? 'hours' : panel.outliersType.twUnit == 2 ? 'day' : panel.outliersType.twUnit == 3 ? 'week' : panel.outliersType.twUnit == 4 ? 'months' : ''}}</label>
+                                                    <label *ngIf="panel.outliersType.windowType == 1" class="p-offset-150 p-5">Check condition every {{panel.outliersType.timeWindow}} {{panel.outliersType.twUnit == 0 ? 'minutes' : panel.outliersType.twUnit == 1 ? 'hours' : panel.outliersType.twUnit == 2 ? 'day' : panel.outliersType.twUnit == 3 ? 'week' : panel.outliersType.twUnit == 4 ? 'months' : ''}}</label>
+                                                    <p-dropdown class="mx-6" [options]="checkOutlier" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.outliersType.windowType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <label class="mx-5">{{panel.outliersType.timeWindow}} {{panel.outliersType.twUnit == 0 ? 'minutes' : panel.outliersType.twUnit == 1 ? 'hours' : panel.outliersType.twUnit == 2 ? 'day' : panel.outliersType.twUnit == 38 ? 'week' : panel.outliersType.twUnit == 4 ? 'months' : ''}} interval</label>
+                                                </div>
+                                                <div *ngIf="panel.condition.type == 4" class="p-grid p-align-center p-col-12">
+                                                    <label *ngIf="panel.forcastType.windowType == 0" class="p-offset-150 p-5">Check condition every one minute</label>
+                                                    <label *ngIf="panel.forcastType.windowType == 1" class="p-offset-150 p-5">Check condition every {{panel.forcastType.timeWindow}} {{panel.forcastType.twUnit == 0 ? 'minutes' : panel.forcastType.twUnit == 1 ? 'hours' : panel.forcastType.twUnit == 2 ? 'day' : panel.forcastType.twUnit == 3 ? 'week' : panel.forcastType.twUnit == 4 ? 'months' : ''}}</label>
+                                                    <p-dropdown class="mx-6" [options]="checkCondition" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.forcastType.windowType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <label class="mx-5">{{panel.forcastType.timeWindow}} {{panel.forcastType.twUnit == 0 ? 'minutes' : panel.forcastType.twUnit == 1 ? 'hours' : panel.forcastType.twUnit == 2 ? 'day' : panel.forcastType.twUnit == 38 ? 'week' : panel.forcastType.twUnit == 4 ? 'months' : ''}} interval</label>
+                                                </div>
+                                                <div class="p-grid p-align-center p-col-12" *ngIf="panel.condition.type == 4">
+                                                    <label class="p-offset-150 p-5 width-60">Apply</label>
+                                                    <p-dropdown class="mx-6" [options]="forecastModel" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.forcastType.forecastModel" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <label class="mx-5">model to make a</label>
+                                                    <p-dropdown [options]="forecastType" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.forcastType.forecastType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <label class="mx-5">forecast</label>
+                                                </div>
+                                                <div class="p-grid p-align-center p-col-12" *ngIf="panel.condition.type == 2">
+                                                    <label class="p-offset-150 p-5 width-60">Use</label>
+                                                    <p-dropdown class="mx-6" [options]="useTheta" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.anomalyType.algoType" [style]="{'min-width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <label class="mx-5">algorithm to detect anomalies</label>
+                                                    <div class="mx-6">
+                                                        <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" value="2" class="width-80" pInputText [(ngModel)]="panel.anomalyType.deviation" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                                    </div>
+                                                    <label>deviations from the predicted data.</label>
+                                                </div>
+                                                <div class="p-grid p-align-center p-col-12" *ngIf="panel.condition.type == 3">
+                                                    <label class="p-offset-150 p-5">Use</label>
+                                                    <p-dropdown class="mx-6" [options]="useMad" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.outliersType.algoType" [style]="{'min-width':'130px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                    <label class="mx-5">algorithm with tolerance</label>
+                                                    <p-dropdown class="mx-6" [options]="tolerance" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.outliersType.tolerance" [style]="{'min-width':'70px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="p-grid p-align-center p-col-12 my-5">
+                                            <div *ngIf="panel.condition.type == 0 || panel.condition.type == 1 || panel.condition.type == 4"class="p-offset-150 p-10">Recovery Threshold</div>
+                                            <div *ngIf="panel.condition.type == 0" class="mx-6">
+                                                <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" value="85" class="width-100" pInputText [(ngModel)]="panel.thresholdType.frThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                            </div>
+                                            <div *ngIf="panel.condition.type == 1" class="mx-6">
+                                                <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" value="85" class="width-100" pInputText [(ngModel)]="panel.changeType.frThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength = "4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                            </div>
+                                            <div *ngIf="panel.condition.type == 4" class="mx-6">
+                                                <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" value="85" class="width-100" pInputText [(ngModel)]="panel.forcastType.frThreshold" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="4" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" min="0">
+                                            </div>
+                                        </div>
+                                        <!-- --------------------------end advance option----------------------->
+                                    </div>
+                                    <hr class="hrLine mx-5">
+                                    <div class="p-grid p-justify-end px-10 py-5">
+                                        <button pButton [disabled]="isOnlyReadable" type="button" *ngIf="panelIdx == '0'" label="{{!severityPanel.panels[panelIdx].updateCodition?'ADD': 'UPDATE'}} CONDITION" class="ui-button-rounded ui-button-secondary-green" (click)="addUpdateMultiCodition(null, panel,panelIdx)"></button>                                        
+                                        <button pButton [disabled]="isOnlyReadable" type="button" *ngIf="panelIdx == '1'" label="{{!severityPanel.panels[panelIdx].updateCodition?'ADD': 'UPDATE'}} CONDITION" class="ui-button-rounded ui-button-secondary-green" (click)="addUpdateMultiCodition(null, panel,panelIdx)"></button>
+                                        <button pButton [disabled]="isOnlyReadable" type="button" *ngIf="panelIdx == '2'" label="{{!severityPanel.panels[panelIdx].updateCodition?'ADD': 'UPDATE'}} CONDITION" class="ui-button-rounded ui-button-secondary-green" (click)="addUpdateMultiCodition(null, panel,panelIdx)"></button>                                    </div>
+                                    <div class="p-grid p-col-12">
+                                        <div class="derived-graph-bucket">
+                                            <div class="graph-details" *ngFor="let graph of panel.state; let i = index" (click)="selectMultiCodition(panelIdx, i, graph)" [ngClass]="graph.updateCodition ? 'selected' : 'graph-details'">
+                                                <div class="graph-section-1">
+                                                    <div class="token-index" [ngStyle]="{ backgroundColor: graph.colorForGraph }" title="{{ graph.expression }}">
+                                                        {{ graph.index }}
+                                                    </div>
+                                                    <div class="varible-text w-100-p">
+                                                        <span *ngIf="graph.condition.value == 0">Trigger when <strong> {{graph.dataType.label}} </strong> value of the metric <strong> {{graph.metric}} </strong> during <strong> last {{graph.timeWindow}} {{graph.twUnit.label}} </strong> is <strong>{{graph.operator.label}}</strong> the threshold <strong> {{graph.fThreshold}} </strong> <span *ngIf="graph.dataType.value == 5">Evaluate value of metric {{graph.metric}} during last {{graph.timeWindow}} {{graph.twUnit.label}} using <span *ngIf="graph.pctType.value == 0"><strong>last</strong></span><span *ngIf="graph.pctType.value == 1"><strong>any</strong></span> {{graph.pct}}% Samples </span>check condition every <span *ngIf="graph.windowType.value == 0">one minute <strong>over rolling</strong></span><span *ngIf="graph.windowType.value == 1">{{graph.timeWindow}} {{graph.twUnit.label}} <strong>over fixed</strong></span> {{graph.timeWindow}} {{graph.twUnit.label}} interval<span *ngIf="graph.frThreshold == null?false:true"> with recovery threshold as <strong> {{graph.frThreshold}} </strong></span></span>
+                                                        <span *ngIf="graph.condition.value == 1">Trigger when <strong> {{graph.change.label}}</strong> in <strong> {{graph.dataType.label}} </strong> value of the metric <strong> {{graph.metric}} </strong> during <strong> last {{graph.timeWindow}} {{graph.twUnit.label}} </strong> is <strong>{{graph.operator.label}}</strong> the threshold <strong> {{graph.fThreshold}} </strong> compared to average of all samples during same time interval <strong> {{graph.pastWindow}} </strong> <strong> {{graph.pwUnit.label}} </strong> before <span *ngIf="graph.dataType.value == 5">Evaluate value of metric {{graph.metric}} during last {{graph.timeWindow}}
+                                                            {{graph.twUnit.label}} using <span *ngIf="graph.pctType.value == 0"><strong>last</strong></span><span
+                                                                *ngIf="graph.pctType.value == 1"><strong>any</strong></span> {{graph.pct}}% Samples </span>check condition every
+                                                        <span *ngIf="graph.windowType.value == 0">one minute <strong>over rolling</strong></span><span
+                                                            *ngIf="graph.windowType.value == 1">{{graph.timeWindow}} {{graph.twUnit.label}} <strong>over fixed</strong></span>
+                                                        {{graph.timeWindow}} {{graph.twUnit.label}} interval<span *ngIf="graph.frThreshold == null?false:true"> with recovery
+                                                            threshold as <strong> {{graph.frThreshold}} </strong></span></span>
+                                                        <span *ngIf="graph.condition.value == 2">Trigger when <strong> {{graph.dataType.label}} </strong> value of the metric <strong> {{graph.metric}} </strong> during <strong> last {{graph.timeWindow}} {{graph.twUnit.label}} </strong> is <strong>{{graph.operator.label}}</strong> the bounds <span *ngIf="graph.dataType.value == 5">Evaluate value of metric {{graph.metric}} during last {{graph.timeWindow}}
+                                                            {{graph.twUnit.label}} using <span *ngIf="graph.pctType.value == 0"><strong>last</strong></span><span
+                                                                *ngIf="graph.pctType.value == 1"><strong>any</strong></span> {{graph.pct}}% Samples </span>check condition every
+                                                        <span *ngIf="graph.windowType.value == 0">one minute <strong>over rolling</strong></span><span
+                                                            *ngIf="graph.windowType.value == 1">{{graph.timeWindow}} {{graph.twUnit.label}} <strong>over fixed</strong></span>
+                                                        {{graph.timeWindow}} {{graph.twUnit.label}} interval Use <strong>{{graph.algoType.label}}</strong> algorithm to detect anomalies <strong>{{graph.deviation}}</strong> deviations from the predicted data.</span>
+                                                        <span *ngIf="graph.condition.value == 3">Trigger when <strong> {{graph.dataType.label}} </strong> value of the metric <strong> {{graph.metric}} </strong> for a subject is outlier during last <strong> {{graph.timeWindow}} {{graph.twUnit.label}} </strong>out of subjects at the same hierarchy <span *ngIf="graph.dataType.value == 5">Evaluate value of metric {{graph.metric}} during last {{graph.timeWindow}}
+                                                            {{graph.twUnit.label}} using <span *ngIf="graph.pctType.value == 0"><strong>last</strong></span><span
+                                                                *ngIf="graph.pctType.value == 1"><strong>any</strong></span> {{graph.pct}}% Samples </span>check condition every
+                                                        {{graph.timeWindow}} {{graph.twUnit.label}} <strong>over fixed</strong>
+                                                        {{graph.timeWindow}} {{graph.twUnit.label}} interval Use <strong>{{graph.algoType.label}}</strong> algorithm with tolerance <strong>{{graph.tolerance}}</strong></span>
+                                                        <span *ngIf="graph.condition.value == 4">Trigger when <strong> {{graph.dataType.label}} </strong> forecasted value of
+                                                            the metric <strong> {{graph.metric}} </strong> is <strong>{{graph.operator.label}}</strong> the threshold <strong> {{graph.fThreshold}} </strong> in next
+                                                            <strong> last {{graph.timeWindow}} {{graph.twUnit.label}}</strong> Evaluate average forecasted value of the metric
+                                                            {{graph.metric}} based on <strong> {{graph.trendWindow}} {{graph.trendWindowUnit.label}} </strong> trend <span
+                                                                *ngIf="graph.dataType.value == 5"> using <span
+                                                                    *ngIf="graph.pctType.value == 0"><strong>last</strong></span><span
+                                                                    *ngIf="graph.pctType.value == 1"><strong>any</strong></span> {{graph.pct}}% Samples </span> check condition
+                                                            every
+                                                            <span *ngIf="graph.windowType.value == 0">one minute <strong>over rolling</strong></span><span
+                                                                *ngIf="graph.windowType.value == 1">{{graph.timeWindow}} {{graph.twUnit.label}} <strong>over
+                                                                    fixed</strong></span>
+                                                            {{graph.timeWindow}} {{graph.twUnit.label}} interval Apply <strong>{{graph.forecastModel.label}}</strong> model to
+                                                            make a <strong>{{graph.forecastType.label}}</strong> forecast <span *ngIf="graph.frThreshold == null?false:true"> with recovery threshold as <strong> {{graph.frThreshold}} </strong></span></span>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn-icon mx-3" [disabled]='callFromActiveAlert || isOnlyReadable' (click)="addCondInConditionExp(panelIdx, graph.index)" title="Add Condition in condition expression"><i class="las-chevron-circle-down-solid"></i></button>
+                                                <div *ngIf="!graph.updateCodition" class="token-icon mx-5">
+                                                    <!-- <button type="button" class="btn-icon mx-3" (click)="deleteMultiCondition(panelIdx,i)" title="Delete Condition">
+                                                        <i class="icons8 icons8-copy"></i>
+                                                    </button>  -->
+                                                    <button type="button" class="btn-icon mx-3" [disabled]='callFromActiveAlert || isOnlyReadable' (click)="deleteMultiCondition(panelIdx,i)" title="Delete Condition"><i class="icons8 icons8-delete-trash"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="severity-operation-block mt-20">
+                                        <div class="p-grid p-col-12 p-align-center">
+
+                                            <div class="p-field p-col-6 font-16 color-5">
+                                                <!-- C1 <span class="oprator">&&</span> C2 -->
+                                                <p-chips #sevConditionExpId class="chipclass" [inputStyle]="{'font-size': '8px'}" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="panel.severity.condition" onkeypress="return false" ></p-chips>
+                                            </div>
+                                            <div class="p-grid p-col-6 p-justify-end">
+                                                <button pButton pRipple type="button" class="bdr-5 ui-button-rounded ui-button-secondary" [disabled]='callFromActiveAlert || isOnlyReadable' pTooltip="Clear condition expression" icon="icons8 icons8-delete-trash" (click)="clearConditionExp(panelIdx)"></button>
+                                                <button type="button" pButton class="bdr-5 ui-button-rounded ui-button-secondary" [disabled]='callFromActiveAlert || isOnlyReadable' label="&&" (click)="addOperatorInConditionExp(panelIdx, '&&')"></button>
+                                                <button type="button" pButton class="bdr-5 ui-button-rounded ui-button-secondary" [disabled]='callFromActiveAlert || isOnlyReadable' label="||" (click)="addOperatorInConditionExp(panelIdx, '||')"></button>
+                                                <button type="button" pButton class="bdr-5 ui-button-rounded ui-button-secondary" [disabled]='callFromActiveAlert || isOnlyReadable' label="(" (click)="addOperatorInConditionExp(panelIdx, '(')"></button>
+                                                <button type="button" pButton class="bdr-5 ui-button-rounded ui-button-secondary" [disabled]='callFromActiveAlert || isOnlyReadable' label=")" (click)="addOperatorInConditionExp(panelIdx, ')')"></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-panel>
+                        </div>
+                    </div>
+                </div>
+            </p-panel>
+            <p-panel styleClass="mb-10" #pnl1 expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title p-grid p-align-center" (click)="pnl1.toggle($event)">
+                            <a>
+                                <span class="font-20" [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                        </span>
+                            </a>
+                            Alert Action
+                        </div>
+                        <div class="p-grid p-justify-center p-align-center">
+                            <button type="button" ptooltip="Help" class="btn-icon"><i class="icons8 icons8-help"></i></button>
+                        </div>
+                    </div>
+                </p-header>
+
+                <div class="content p-grid p-col-12">
+                    <div class="p-grid p-align-center w-100-p px-5">
+                        <div class="width-150 ml-5">Actions</div>
+                        <div class="p-col-8">
+                            <p-multiSelect [options]="alertRuleService.actionsList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="actionName" defaultLabel="Select Actions" optionLabel="name" class="multi-select-tag" [style]="{'width': '100%'}" display="chip" (onChange)="onActionNameChange($event)"></p-multiSelect>
+                            <!-- <p-dropdown [options]="alertRuleService.actionsList" [(ngModel)]="actionName" defaultLabel="Select Action" optionLabel="name" [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown> -->
+                        </div>
+                        <div>
+                            <!-- (click)="addActionDialog.open()" -->
+                            <button pButton type="button" [disabled]='callFromActiveAlert' class="ui-button ui-button-rounded" label="ADD ACTION" (click)="openActionDialog()" pTooltip="Add action"></button>
+                        </div>
+                    </div>
+                    <div class="p-grid p-align-center w-100-p px-5">
+                        <div class="width-150 ml-5">Send Notification to</div>
+                        <div class="p-col-8">
+                            <p-chips [(ngModel)]="attributes.mailIds" [disabled]='callFromActiveAlert || isOnlyReadable' class="input-chips" separator="," (onAdd)="mailAdd($event)"></p-chips>
+                        </div>
+
+                    </div>
+                    <div class="p-grid p-align-center w-100-p px-5">
+                        <div class="width-150 ml-5">Forward Alert to</div>
+                        <div class="p-col-8">
+                            <!-- <p-dropdown  [options]="alertRuleService.extensionsList" [(ngModel)]="attributes.extensions" placeholder="Big Pannda" [style]="{'max-width':'40%'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown> -->
+                            <p-multiSelect [options]="alertRuleService.extensionsList" [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="attributes.extensions" defaultLabel="Select Extensions" class="multi-select-tag" [style]="{'width': '100%'}">
+                                <ng-template let-extension pTemplate="selectedItems">
+                                    <span *ngFor="let val of extension" class="ui-multiselected-item-token ui-corner-all" style="padding-left: 5px;" pTooltip="{{11 | actionType: val}}">
+                                        <img src="{{imagePath}}{{val}}.png" style="width:18px;vertical-align:middle;margin-right:.5em"/>
+                                        <span>{{11 | actionType: val}}</span>
+                                    </span>
+                                    <span *ngIf="!extension || extension.length === 0" class="ui-multiselected-empty-token ui-corner-all">Select Extensions</span>
+                                </ng-template>
+                                <ng-template let-extension pTemplate="item">
+                                    <div style="font-size:14px;display: contents;margin-top:4px"><img src="{{imagePath}}{{extension.value}}.png" style="width:20px;display:inline-block;vertical-align:middle" /> {{extension.label}}</div>
+                                </ng-template>
+                            </p-multiSelect>
+                        </div>
+
+                    </div>
+                </div>
+
+<!-- (addActionData)="updateActionTable($event)" #addActionDialog -->
+<div class="p-20 add-action-bg" *ngIf="showAddAction">
+  <div class="add-actionBg" >
+    <div class="compare-data-title">
+      <div> Add Action </div>
+      <div class="action-buttons">
+       <i class="icons8 icons8-delete" (click)="closeActionDialog()"></i>
+      </div>
+    </div>
+  </div>
+  <app-add-action #addActions [fromRule]="true" [action]="action" [actionList]="alertRuleService.actionsList" (addActionData)="updateExtensions($event)"></app-add-action>
+</div>
+</p-panel>
+
+
+
+            <p-panel styleClass="mb-10" #pnl5 expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title p-grid p-align-center" (click)="pnl5.toggle($event)">
+                            <a>
+                                <span [class]="pnl5.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                        </span>
+                            </a>
+                            Alert Description
+                        </div>
+                        <div class="p-grid p-justify-center p-align-center">
+                            <button type="button" ptooltip="Help" class="btn-icon"><i class="icons8 icons8-help"></i></button>
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content">
+                    <div class="p-grid w-100-p px-5 p-align-center">
+                        <div class="width-150 p-5">Alert Message</div>
+                        <div class="p-col-8">
+                            <input type="text" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-100-p" pInputText [(ngModel)]="attributes.message" placeholder="Alert Message" />
+                        </div>
+                    </div>
+
+                     <div class="p-grid w-100-p px-5 p-align-center">
+                        <div class="width-150 p-5">Alert Description</div>
+                        <div class="p-col-8">
+                            <input type="text" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-100-p" pInputText [(ngModel)]="attributes.description" placeholder="Alert Description" />
+                        </div>
+                    </div>
+
+                    <div class="p-grid w-100-p px-5">
+                        <div class="width-150 px-5 py-10">Recommendation</div>
+                        <div class="p-col-8">
+                            <textarea rows="5" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-100-p" pInputTextarea [(ngModel)]="attributes.recommendation" placeholder="Recommendation"></textarea>
+                            <!-- <input type="text" class="w-100-p" pInputText [(ngModel)]="attributes.recommendation" placeholder="Recommendation" /> -->
+                        </div>
+                    </div>
+                </div>
+            </p-panel>
+
+
+            <p-panel styleClass="mb-10" #pnl4 expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title p-grid p-align-center" (click)="pnl4.toggle($event)">
+                            <a>
+                                <span [class]="pnl4.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                        </span>
+                            </a>
+                           Advance Settings
+                        </div>
+                        <div class="p-grid p-justify-center p-align-center">
+                            <button type="button" ptooltip="Help" class="btn-icon"><i class="icons8 icons8-help"></i></button>
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content">
+
+                    <div class="p-grid p-align-center p-col-12">
+                        <div class="p-5 mbn-3">
+                            <p-inputSwitch [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="attributes.chkStatus"></p-inputSwitch>
+                        </div>
+                        <div>
+                            Notify again, if alert remains in the same severity for more than
+                        </div>
+                        <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" class="width-60 mx-5" pInputText [(ngModel)]="chkStatusTime" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" min="0">
+                      <label>
+                          minutes
+                      </label>
+                      <i class="icons8 icons8-help"></i>
+                    </div>
+
+                    <div class="p-grid p-align-center p-col-12">
+                        <div class="p-5 mbn-3">
+                            <p-inputSwitch [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="attributes.skipSamples"></p-inputSwitch>
+                        </div>
+                        <div>
+                            Apply rule after
+                        </div>
+                        <input id="input" type="number" [disabled]='callFromActiveAlert || isOnlyReadable' autocomplete="off" class="width-60 mx-5" pInputText [(ngModel)]="attributes.applyRuleAfter" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" min="0">
+                      <label>
+                          minutes on new discovery of subject
+                      </label>
+                      <i class="icons8 icons8-help"></i>
+                    </div>
+                    <div class="p-grid p-align-center p-col-12">
+                        <div class="p-5 mbn-3">
+                            <p-inputSwitch [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="attributes.genAlertForNaN"></p-inputSwitch>
+                        </div>
+                        <div>
+                            Generate warning alert when no data available for any subject
+                        </div>
+                        <i class="icons8 icons8-help"></i>
+                    </div>
+                    <div class="p-grid p-align-center p-col-12">
+                        <div class="p-5 mbn-3">
+                            <p-inputSwitch [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="isTagTheRule" (click)="clearTagForRule()"></p-inputSwitch>
+                        </div>
+                        <div class="ml-5 mr-5">
+                            Applicable tags on this rule are
+                        </div>
+                        <div class="p-grid p-justify-end">
+                            <p-multiSelect [options]="tags" defaultLabel="Select Tags" optionLabel="name" [disabled]='callFromActiveAlert || isOnlyReadable || !isTagTheRule' [(ngModel)]="attributes.tags" class="multi-select-tag" [style]="{'width': '100%'}" display="chip"></p-multiSelect>
+                        </div>
+                        <!-- <div class="p-grid p-align-end p-justify-end ml-5">
+                            <input id="input" type="text" [disabled]='callFromActiveAlert || isOnlyReadable || !isTagTheRule' autocomplete="off" class="width-100 mx-5" pInputText [(ngModel)]="tagToAdd">
+                            <button pButton type="button" [disabled]="callFromActiveAlert || isOnlyReadable || !isTagTheRule" label="ADD TAGS" class="ui-outline-button ui-button-secondary-green" icon="icons8 icons8-forward" iconPos="right" (click)="addNewTag()"></button>
+                        </div> -->
+                    </div>
+                    <div class="p-grid p-align-center p-col-12">
+                        <div class="p-5 mbn-3">
+                            <p-inputSwitch [disabled]='callFromActiveAlert' [(ngModel)]="attributes.schedule" (click)="openAdvancedConfig(false)"></p-inputSwitch>
+                        </div>
+                        <div>
+                           Configure Rule Schedule
+                        </div>
+                      <i class="icons8 icons8-time-machine mx-5 btn-icon"></i>
+                      <i class="icons8 icons8-help"></i>
+                    </div>
+                </div>
+                <app-advanced-configuration #advancedConfig [alertConfigurationComponent]=this></app-advanced-configuration>
+            </p-panel>
+
+            <div class="p-grid p-align-center p-col-12 my-5">
+                <div class="p-5 width-150">Save with Rule Name</div>
+                <div class="p-col-4">
+                    <input type="text" [disabled]='callFromActiveAlert || isOnlyReadable' class="w-100-p" pInputText [(ngModel)]="rules.name"
+                    placeholder="High CPU Utilization" />
+                </div>
+
+                <div class="ml-20">
+                  Enable
+                  </div>
+                <div class="p-5 mbn-3">
+                    <p-inputSwitch [disabled]='callFromActiveAlert || isOnlyReadable' [(ngModel)]="attributes.enable"></p-inputSwitch>
+                </div>
+
+            </div>
+
+
+
+
+
+
+            <!-- <p-panel styleClass="mb-10" #pnl4 expandIcon="" collapseIcon="" [toggleable]="true" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                <p-header class="cav-panel-header pt-5">
+                    <div class="cav-panel-content p-grid p-align-center">
+                        <div class="panel-title p-grid p-align-center" (click)="pnl4.toggle($event)">
+                            <a>
+                                <span [class]="pnl4.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                        </span>
+                            </a>
+                            Send Notification
+                        </div>
+                        <div class="p-grid p-justify-center p-align-center">
+                            <button type="button" ptooltip="Help" class="btn-icon"><i class="icons8 icons8-help"></i></button>
+                        </div>
+                    </div>
+                </p-header>
+                <div class="content">
+                    <div class="p-grid p-col-12 p-align-center">
+                        <div class="width-150 p-5">Notify via Actions</div>
+                        <div class="p-col-6">
+                            <p-multiSelect [options]="alertRuleService.actionsList" [(ngModel)]="actionName" defaultLabel="Select Action" optionLabel="name" class="multi-select-tag" [style]="{'width': '100%'}"
+                            display="chip" (onChange)="onActionNameChange($event)" dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                        </div>
+                        <div class="p-col-2">
+                            <button pButton type="button" class="ui-button ui-button-rounded ui-button-secondary" label="Add Action" (click)="addActionDialog.open()"></button>
+                        </div>
+                    </div>
+
+                     <div class="p-grid p-col-12 p-align-center">
+                        <div class="width-150 p-5">Enter Email</div>
+                        <div class="p-grid p-col-6">
+                            <input [disabled]="!isEmailFromRule" type="text" class="w-100-p" pInputText [(ngModel)]="emailId" placeholder="team.member@cavisson.com" />
+                        </div>
+                    </div>
+                </div>
+            </p-panel> -->
+
+
+        </div>
+    </div>
+</div>
+<!-- <app-add-action (addActionData)="updateActionTable($event)" #addActionDialog></app-add-action> -->
+<!-- <app-advanced-configuration #advancedConfig [alertConfigurationComponent]=this></app-advanced-configuration> -->
+<app-derived-metric-indices #dmIndices [alertConfigurationComponent]=this></app-derived-metric-indices>

@@ -1,0 +1,224 @@
+<div class="multidisk-setting-container" #widgetHeight>
+    <div class="p-col-12 panel-card">
+        <p-panel #pnl1 expandIcon="" collapseIcon="" [toggleable]="true">
+            <p-header class="cav-panel-header pt-5">
+                <div class="cav-panel-content p-grid p-align-center">
+                    <div class="panel-title" (click)="pnl1.toggle($event)">
+                        <a>
+                            <span
+                                [class]="pnl1.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                            </span>
+                        </a>
+                        DISK SUMMARY
+                    </div>
+                </div>
+            </p-header>
+            <p-table [reorderableColumns]="true" [loading]="loading" [responsive]="true" [value]="parserresponse"
+                sortMode="single" class="scen-table" [resizableColumns]="true">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th rowspan="3" [ngStyle]="{'width.px':'55'}" pResizableColumn>Actions
+                        </th>
+                        <th rowspan="3" [ngStyle]="{'width.px':'151'}" pResizableColumn pSortableColumn="name">Parser
+                            Name
+                            <p-sortIcon field="name"></p-sortIcon>
+                        </th>
+                        <th rowspan="3" pResizableColumn> Enable</th>
+                        <th rowspan="3" pResizableColumn SortableColumn="runAt">Schedule At
+                            <p-sortIcon field="runAt"></p-sortIcon>
+                        </th>
+                        <th rowspan="3" pResizableColumn pSortableColumn="progressInterval"> Progress Interval (Sec)
+                            <p-sortIcon field="progressInterval"></p-sortIcon>
+                        </th>
+                        <th style="text-align: center;" rowspan="3" pResizableColumn>Process Old Data</th>
+                        <th style="text-align: center;" colspan="3">Multi Level Aggregation</th>
+                    </tr>
+                    <tr>
+                        <th [ngStyle]="{'width.px':'259'}" pSortableColumn="mlaDayProgressInterval">Day
+                            <p-sortIcon field="mlaDayProgressInterval"></p-sortIcon>
+                        </th>
+                        <th [ngStyle]="{'width.px':'259'}" pSortableColumn="mlaWeekProgressInterval">Week
+                            <p-sortIcon field="mlaWeekProgressInterval"></p-sortIcon>
+                        </th>
+                        <th [ngStyle]="{'width.px':'259'}" pSortableColumn="mlaMonthProgressInterval">Month
+                            <p-sortIcon field="mlaMonthProgressInterval"></p-sortIcon>
+                        </th>
+
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-data>
+                    <tr>
+                        <td> <i style="color :red;" class="icons8 icons8-edit-2 edit-icon"
+                                pTooltip="Click Here to Edit Parser Setting" (click)="rowdata(data)"></i></td>
+                        <td title="{{data.name}}">{{data.name}}</td>
+                        <td [ngStyle]="{'text-align':'center'}"><i *ngIf="data.enable == 1 || data.enable == 2" style="color: green;" class="pi pi-check"
+                                title="Enable"></i>
+                            <i *ngIf="data.enable == 0" style="color :red;" class="pi pi-times" title="Disable"></i>
+                        </td>
+                        <td>
+                            <span title="Online" *ngIf="data.runAt == null;else elseR">Online</span>
+                            <ng-template #elseR>
+                                <span pTooltip="{{data.hr}}">{{data.hr}}</span>
+                            </ng-template>
+                        </td>
+                        <td class="numberaligncolumn" title="{{data.progressInterval}}">{{data.progressInterval}} s</td>
+                        <td [ngStyle]="{'text-align':'center'}"><i *ngIf="data.processOldData == 1 " style="color: green;" class="pi pi-check"
+                                title="Enable"></i>
+                            <i *ngIf="data.processOldData == 0" style="color :red;" class="pi pi-times"
+                                title="Disable"></i>
+                        </td>
+
+                        <td class="numberaligncolumn">
+                            <span title="{{data.mlaDayProgressInterval}} sec"
+                                *ngIf="data.mlaDayEnable == 1;else elseT">{{data.mlaDayProgressInterval}} s</span>
+                            <ng-template #elseT>
+                                <span title="-">-</span>
+                            </ng-template>
+                        </td>
+
+                        <td class="numberaligncolumn">
+                            <span title="{{data.mlaWeekProgressInterval}} sec"
+                                *ngIf="data.mlaWeekEnable == 1;else elseW">{{data.mlaWeekProgressInterval}} s</span>
+                            <ng-template #elseW>
+                                <span title="-">-</span>
+                            </ng-template>
+                        </td>
+
+                        <td class="numberaligncolumn">
+                            <span title="{{data.mlaMonthProgressInterval}} sec"
+                                *ngIf="data.mlaMonthEnable == 1;else elseM">{{data.mlaMonthProgressInterval}} s</span>
+                            <ng-template #elseM>
+                                <span title="-">-</span>
+                            </ng-template>
+                        </td>
+                    </tr>
+
+                </ng-template>
+
+            </p-table>
+
+        </p-panel>
+    </div>
+</div>
+
+
+<p-dialog [(visible)]="parserdialogue" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true"
+    class="secondary-dialog" [draggable]="false" [style]="{width: '55vw'}">
+    <p-header>
+        <div class="compare-data-title">
+            <div>
+                Edit {{parsername}} Parser Setting
+            </div>
+
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+    <div class="dialog-content">
+        <div class="ui-grid ui-grid-responsive ui-fluid" style="height: 314px;">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Enable</label></div>
+                <div class="ui-grid-col-5">
+                    <p-inputSwitch [(ngModel)]="enabletoggle"></p-inputSwitch>
+                </div>
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Schedule At</label></div>
+                <div class="ui-grid-col-5">
+                    <p-dropdown [options]="cronoptions" (onChange)="cronoptinchanged($event)"
+                        [(ngModel)]="cronoptionvalue">
+                    </p-dropdown>
+                </div>
+
+            </div>
+            <br *ngIf="crongen == true">
+            <div *ngIf="crongen == true" class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Cron String</label></div>
+                <div class="ui-grid-col-5">
+                    <input id="disabled-input" type="text" size="30" title="{{inputtile}}" pInputText
+                        [(ngModel)]="cronExpression" style="width: 112px;cursor: no-drop;" disabled />&nbsp;
+                    <i style="color: blue;" class="fa fa-pencil" (click)="showDialogToEditCronEx()"
+                        pTooltip="Click Here to open Cron Generator"></i>
+                </div>
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Progress Interval</label></div>
+                <div class="ui-grid-col-5">
+                    <input pInputText appNumbersOnly type="number" style="width: 112px;" [min]="60" [max]="604800"
+                        [(ngModel)]="progresintervalvalue" />
+                    &nbsp;
+                    <label>(sec)</label>
+                </div>
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label>Process Old Data</label></div>
+                <div class="ui-grid-col-5">
+                    <p-checkbox value="check" [(ngModel)]="processolddatavalue"></p-checkbox>
+                </div>
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-4"><label style="text-decoration: underline;font-size: larger;">Multi Level
+                        Aggregation</label></div>
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-2" style="margin-left: 36px;"><label>Day</label></div>
+                <div class="ui-grid-col-2">
+                    <p-checkbox value="check" (onChange)="dcheckvalue($event)" [(ngModel)]="dayvalue"></p-checkbox>
+                </div>
+                <div class="ui-grid-col-6">
+                    <label>Progress Interval</label>&nbsp;&nbsp;
+                    <input [disabled]="ddisable" pInputText appNumbersOnly type="number" [min]="60" [max]="604800"
+                        style="width: 118px;height: 18px;" [(ngModel)]="dayprogresintervalvalue" />
+                    &nbsp;
+                    <label>(sec)</label>
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-2" style="margin-left: 36px;"><label>Week</label></div>
+                <div class="ui-grid-col-2">
+                    <p-checkbox value="check" (onChange)="wcheckvalue($event)" [(ngModel)]="weekvalue"></p-checkbox>
+                </div>
+                <div class="ui-grid-col-6">
+                    <label>Progress Interval</label>&nbsp;&nbsp;
+                    <input [disabled]="wdisable" pInputText appNumbersOnly type="number" [min]="60" [max]="604800"
+                        style="width: 118px;height: 18px;" [(ngModel)]="weekprogresintervalvalue" />
+                    &nbsp;
+                    <label>(sec)</label>
+                </div>
+
+            </div>
+            <br>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-2" style="margin-left: 36px;"><label>Month</label></div>
+                <div class="ui-grid-col-2">
+                    <p-checkbox value="check" (onChange)="mcheckvalue($event)" [(ngModel)]="monthvalue"></p-checkbox>
+                </div>
+                <div class="ui-grid-col-6">
+                    <label>Progress Interval</label>&nbsp;&nbsp;
+                    <input [disabled]="mdisable" pInputText appNumbersOnly type="number" [min]="60" [max]="604800"
+                        style="width: 118px;height: 18px;" [(ngModel)]="monthprogresintervalvalue" />
+                    &nbsp;
+                    <label>(sec)</label>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <p-footer>
+        <div style="text-align: center;">
+            <button type="button" pButton icon="fa fa-check" (click)="saveParserSetting()" label="Update"></button>
+        </div>
+    </p-footer>
+
+</p-dialog>
+<p-toast></p-toast>

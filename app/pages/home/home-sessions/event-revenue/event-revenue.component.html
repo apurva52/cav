@@ -1,0 +1,129 @@
+<div>
+    
+<p-dialog [(visible)]="displayFlag" header="Event Impact Card" appendTo= "body" [modal]="true" [closable]="true" [maximizable]="true" [resizable]="false" [closeOnEscape]="true" [style]="{width: '650px', height: '500px'}" [contentStyle]="{'overflow':'auto', height: '500px'}" (onHide)="close()">
+  <app-loader [busy]='loader == true' [opacity]='"0.7"'  [w]="'600px'" [h]="'285px'"></app-loader>
+  
+  <app-event-revenue-sidebar (getData)='getData($event)' [timeFltrData]='deftime'></app-event-revenue-sidebar>
+
+    <br>
+  
+
+     <div *ngIf="loader == false && data_available == false">
+        <span><b> No Data available </b></span>
+      </div>
+
+      
+     
+    <div *ngIf="data_available == true" [style]="{width: '570px', height: '500px' }" >
+        
+       
+            <div class="row row_style" >
+              <div *ngIf="impdata[0]['event'] != null && impdata[0]['event'] != undefined && impdata[0]['event'] != ''" style="float: left;">
+                <span style="font-weight: bold;">Event: </span>{{impdata[0]['event']}}
+              </div>
+              <div *ngIf="impdata[4]['channel'].name != '' && impdata[4]['channel'].name != null && impdata[4]['channel'].name != undefined">
+                <span style="font-weight: bold;">&nbsp; Channel: </span>{{impdata[4]['channel'].name}}
+              </div>
+            </div>
+            <br>
+        
+        
+         
+            <!--revenue Loss-->
+            
+            
+            <div style="height: 100px;width: 600px;display: flex;justify-content: center;" >
+                <p-card  [style]="{'width': '16rem','height':'6em', 'margin-right': '3em', 'float': 'left',
+                'padding': '11px','font-size':'14px','border-style':'none ridge double ridge'}">
+                  <span>Est. Revenue Loss</span> &nbsp;&nbsp;<i class="pi pi-info-circle" aria-hidden="true" title="It is estimated revenue loss in $ due to the event."></i> <br><br>
+                  <p>
+                    ${{rLoss}} &nbsp;&nbsp;
+                  </p>
+               
+              </p-card>
+             
+          
+              <!--Conversion Rate-->
+              
+                <p-card  [style]="{'width': '16rem','height':'6em', 'margin-bottom': '2em', 'float': 'right',
+                'padding': '11px','font-size':'14px','border-style':'none ridge double ridge'}">
+                  <span>Est. Conversion Rate</span> &nbsp;&nbsp;<i class="pi pi-info-circle" aria-hidden="true" title="Est. conversion rate is the Conversion rate if the event was not there."></i> <br><br>
+                  <p>
+                    {{convRate}}% &nbsp;&nbsp;
+                    <span *ngIf="convRateDiff > 0" style="font-size: 11px;"><i class="fa fa-sort-up"></i> {{convRateDiff}}  <i class="pi pi-info-circle" aria-hidden="true" title="It is the %diff from the actual conversion rate."></i></span>
+                    <span *ngIf="convRateDiff < 0 || convRateDiff == 0" style="font-size: 11px;"><i class="fa fa-sort-up"></i> 0.00  <i class="pi pi-info-circle" aria-hidden="true" title="It is the %diff from the actual conversion rate."></i></span>
+                  </p>
+                </p-card>
+              </div>
+
+            
+
+              <div style="height: 100px;width: 600px;display: flex;justify-content: center;">
+              <p-card  [style]="{'width': '11rem','height':'6em', 'margin-right': '1em',
+              'margin-left': '0em', 'float': 'left',
+              'padding': '11px','font-size':'14px','border-style':'none ridge double ridge'}">
+               
+               
+                  <span> Impacted Session</span> <i class="pi pi-info-circle" aria-hidden="true" title="Total number of Session on which the given event has triggered"></i> <br><br>
+                   <p>
+                     {{impactedSess}} 
+                   </p>
+                 
+                   </p-card>
+                   <p-card  [style]="{'width': '11rem','height':'6em', 'margin-right': '1em',
+                   'margin-left': '0em', 'float': 'left',
+              'padding': '11px','font-size':'14px','border-style':'none ridge double ridge'}">
+                    <span>Impacted Pages </span><i class="pi pi-info-circle" aria-hidden="true" title="Total number of page views on which the given event has triggered"></i> <br><br>
+                    
+                    <p>
+                      {{impactedPage}}
+                    </p>
+                  
+                 </p-card>
+                 <p-card  [style]="{'width': '11.5rem','height':'6em', 'margin-right': '0em',
+                 'margin-left': '0em', 'float': 'left',
+                 'padding': '11px','font-size':'14px','border-style':'none ridge double ridge'}">
+                  <span> Est. Bounce Rate </span>
+                 
+                    <i class="pi pi-info-circle" aria-hidden="true" title="It is the est. bounce rate if the event was not there"></i> <br><br>
+                  
+                  <p>
+                    {{bounceRate}}% &nbsp;&nbsp;
+                    <span *ngIf="bounceRateDiff > 0" style="font-size: 11px;"><i class="fa fa-sort-up"></i> {{bounceRateDiff}} <i class="pi pi-info-circle" aria-hidden="true" title="It is the %diff from the actual bounce rate."></i></span>
+                    <span *ngIf="bounceRateDiff < 0 || bounceRateDiff == 0" style="font-size: 11px;"><i class="pi pi-info-circle"></i> 0.00 <i class="pi pi-info-circle" aria-hidden="true" title="It is the %diff from the actual bounce rate."></i></span>
+                  </p>
+                
+              </p-card>
+              </div>
+               <!--event impact table-->
+               
+               <div [style]="{'text-align': 'center','font-weight': '600','font-size': '12px','border-style':'none none none none','height':'25px','margin-top':'1.5em'}"><span>Event Impact Page Table</span>
+                </div>
+             <div [style]="{'height':'100px'}">
+              <p-table #eventrevenue [value]="data.data" id="tabledetail" [columns]="selectedColumns" >
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                      <th *ngFor="let col of columns; let i = index" [style.width]="col.width">
+                        {{ col.label }} <i class="pi pi-info-circle" aria-hidden="true" title="{{col.label}}"></i>
+                        
+                      </th>
+                    
+                  </tr>
+              </ng-template>
+                 <ng-template pTemplate="body" let-row let-columns="columns" let-i="rowIndex">
+                  <tr>
+                      <td *ngFor="let col of columns" class="{{ col.classes }}" >
+                        <div>{{ row[col.valueField] }}
+                        </div>
+                        </td>
+                  </tr>
+              </ng-template>
+               <!-----------Empty table error handling--------------------->
+               
+            </p-table>
+             </div>
+             
+             
+    </div>
+</p-dialog>
+</div>

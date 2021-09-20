@@ -1,0 +1,37 @@
+
+<div class="p-grid p-justify-between">
+    <!-- <div>
+        <h3>DB Servers List</h3>
+    </div> -->
+    
+    
+</div>
+<div class="p-grid">
+    <div>
+        <p-tieredMenu #menu [model]="dbMonService.dbmsList" [popup]="true" (click)="toggle($event)"></p-tieredMenu>
+        <button pButton class="w-25-p ui-button ui-button-secondary mh-3" (click)="menu.toggle($event)">
+            <span class="text-left p-col-10 left">{{selectedDbms}}</span>
+            <i class="p-col-2 icons8 icons8-expand-arrow slidemenu-icon right"></i>
+        </button>
+    </div>
+    <div class="p-justify-end ml-10">
+        <button pButton type="button" label="Refresh" class="ui-button-rounded ui-button-info" title="Reload DB Server List" [(ngModel)]="dbMonService.isSelectedDB" (click)="refresh($event)"></button>
+        <!-- <p-menu #downloadMenu [popup]="true" styleClass="widget-menu" [model]="syncOptions"
+            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu> -->
+    </div>
+</div>
+<div class="p-grid order-list-block">
+    <!-- <div class="text-right ph-5">
+        <button pButton type="button" class="ui-button clear-button" pTooltip="Clear filter" label="CLEAR"></button>
+    </div> -->
+    <p-orderList [value]="dbMonService.orderList" [(selection)]="selectedDataSources" (onSelectionChange)="onDataSourceChange($event)" header="" filterBy="label" filterPlaceholder="Search DB Server">
+        <ng-template pTemplate="item" let-rowData>
+            <div class="ui-helper-clearfix">
+                <div class="list">
+                    <span class="arrow-icon"><i class="{{rowData.icon}}"></i></span>
+                    <span class="report-name">{{rowData.label}}</span>
+                </div>
+            </div>
+        </ng-template>
+    </p-orderList>
+</div>

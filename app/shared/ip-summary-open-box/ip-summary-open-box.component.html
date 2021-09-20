@@ -1,0 +1,130 @@
+
+<div class="ip-summary-open-box">
+    <p-tabView>
+        <p-tabPanel header="GENERAL SETTINGS" *ngIf="showTabs && showTabs['one']">
+            <div class="main-content">
+            <div class="p-field p-col-12">
+                <label class="control-label">Business Transaction</label>
+                <input class="control-input" type="text" pInputText placeholder="" name="bs" />
+            </div>
+            <div class="p-field p-col-12">
+                <label class="control-label">Session Name</label>
+                <input class="control-input" type="text" pInputText placeholder="" name="sessionName" />
+            </div>
+            <div class="p-field p-col-12">
+                <label class="control-label">Session Duration (in seconds)</label>
+                <input class="control-input" type="text" pInputText placeholder="" name="sessionDuration" />
+            </div>
+            <br>
+            <div class="p-field p-col-12">
+                <div class="p-col-12 no-padding">
+                    <label>Completion Mode</label>
+                </div>
+                <div class="p-field-radiobutton">
+                    <div class="radiobutton">
+                        <p-radioButton name="cmode" value="download" inputId="download"></p-radioButton>
+                        <label for="download">No Download</label>
+                    </div>
+                    <div class="radiobutton">
+                        <p-radioButton name="cmode" value="session" inputId="session"></p-radioButton>
+                        <label for="session">Download files after session</label>
+                    </div>
+                    <div class="radiobutton">
+                        <p-radioButton name="cmode" value="apply" inputId="apply"></p-radioButton>
+                        <label for="apply">Download and apply</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-field p-col-12">
+                <br>
+                <label>Apply Mode</label>
+                <div class="p-field-radiobutton">
+                    <div class="radiobutton">
+                        <p-radioButton name="amode" value="download" inputId="instance"></p-radioButton>
+                        <label for="instance">Apply on Instance</label>
+                    </div>
+                    <div class="radiobutton">
+                        <p-radioButton name="amode" value="session" inputId="save"></p-radioButton>
+                        <label for="save">Apply on Instance and save</label>
+                    </div>
+                    <div class="radiobutton">
+                        <p-radioButton name="amode" value="apply" inputId="downloadApply"></p-radioButton>
+                        <label for="downloadApply">Download and apply</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <div class="fixed-footer">
+                <div class="p-col-12 form-buttons">
+                    <button pButton type="submit" label="START" class="ui-button-rounded"></button>
+                    <button pButton type="reset" label="RESET TO DEFAULT"
+                        class="ui-outline-button ui-button-secondary"></button>
+                    <button pButton type="button" label="CANCEL" class="ui-outline-button ui-button-secondary"></button>
+                </div>
+            </div>
+        </p-tabPanel>
+        <p-tabPanel header="ADVANCED SETTINGS" *ngIf="showTabs && showTabs['two']">
+            <div class="main-content">
+            <div class="p-field p-col-12">
+                <p-accordion [multiple]="true">
+                    <p-accordionTab header="General Setting" [selected]="false">
+                        Content
+                    </p-accordionTab>
+                    <p-accordionTab header="Advanced Setting" [selected]="true">
+                        <div class="p-col-12 section">
+                            Maximum stack depth to identify idle threads
+                            <input class="adv-input" type="text" pInputText placeholder="" name="sessionDuration" />
+                        </div>
+                        <div class="p-col-12 section">
+                            Sample interval
+                            <input class="adv-input" type="text" pInputText placeholder="" name="sessionDuration" />
+                        </div>
+                        <div class="p-col-12 section">
+                            Trace level
+                            <input class="adv-input" type="text" pInputText placeholder="" name="sessionDuration" />
+                        </div>
+                        <div class="p-col-12 section">
+                            Number of thread samples to instrument methods
+                            <input class="adv-input" type="text" pInputText placeholder="" name="sessionDuration" />
+                        </div>
+                        <div class="p-col-12 section">
+                            Percentage of executing methods in thread samples(s) to be instrumented 
+                            <input class="adv-input" type="text" pInputText placeholder="" name="sessionDuration" />
+                        </div>
+                        <div class="p-col-12 section">
+                            Percentage of executing methods in flowpath to be un-instrumented
+                            <input class="adv-input" type="text" pInputText placeholder="" name="sessionDuration" />
+                        </div>
+                        <div class="p-col-12 section">
+                            Maximum methods(s) to be considered for auto instrumentation
+                            <input class="adv-input" type="text" pInputText placeholder="" name="sessionDuration" />
+                        </div>
+                        <div class="p-col-12 section">
+                            Maximum average execution time of method for instrumentation(in ms)
+                            <input class="adv-input" type="text" pInputText placeholder="" name="sessionDuration" />
+                        </div>
+                        <div class="p-col-12 section">
+                            Weight-age of methods in stack traces having Exception/Integration point calls
+                            <input class="adv-input" type="text" pInputText placeholder="" name="sessionDuration" />
+                        </div>
+                        <div class="p-col-12 section">
+                            Concurrent Auto Instrumentation threshold
+                            <input class="adv-input" type="text" pInputText placeholder="" name="sessionDuration" />
+                        </div>
+                    </p-accordionTab>
+                </p-accordion>
+
+            </div>
+        </div>
+        <div class="fixed-footer">
+            <div class="p-col-12 form-buttons">
+                <button pButton type="submit" label="START" class="ui-button-rounded"></button>
+                <button pButton type="reset" label="RESET TO DEFAULT"
+                    class="ui-outline-button ui-button-secondary"></button>
+                <button pButton type="button" label="CANCEL" class="ui-outline-button ui-button-secondary"></button>
+            </div>
+        </div>
+        </p-tabPanel>
+    </p-tabView>
+</div>

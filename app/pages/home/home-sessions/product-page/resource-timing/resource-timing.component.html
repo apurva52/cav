@@ -1,0 +1,48 @@
+<div class="template-container">
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading">
+      <div class="p-col p-col-align-center text-center">
+        <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+      </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+      <div class="p-col p-col-align-center text-center">
+        <p-message severity="error" text="{{ error.msg }}"></p-message>
+      </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+      <div class="p-col p-col-align-center text-center">
+        <p-message severity="normal" text="No Data"></p-message>
+      </div>
+    </div>
+</div>
+
+<div class="resource-timing-container" *ngIf="resourceTimingData != null">
+    <div class="p-grid p-col-12 top-block">
+        <p-radioButton name="groupname" value="bottleneck" class="mh-10" label="Bottlenecks"
+            [(ngModel)]="selectedValue"></p-radioButton>
+        <p-radioButton name="groupname" value="waterfall" class="mh-10" label="Waterfall" [(ngModel)]="selectedValue">
+        </p-radioButton>
+        <p-radioButton name="groupname" value="distribution" class="mh-10" label="Distribution"
+            [(ngModel)]="selectedValue" (onClick)="getDistributionData()"></p-radioButton>
+        <p-radioButton name="groupname" value="domainActivity" class="mh-10" label="Domain Level Activity"
+            [(ngModel)]="selectedValue" (onClick)="getDomainActivity()"></p-radioButton>
+    </div>
+    <div *ngIf="selectedValue == 'bottleneck'">
+        <app-bottleneck [resourceTimingData]="resourceTimingData" [page]="page"></app-bottleneck>
+    </div>
+    <div *ngIf="selectedValue == 'waterfall'">
+        <app-waterfall [resourceTimingData]="resourceTimingData" [page]="page" [userTimingData]="userTimingData">
+        </app-waterfall>
+    </div>
+    <div *ngIf="selectedValue == 'distribution'">
+        <app-distribution [resourceTimingData]="resourceTimingData" [hostData]="hostData" [hostRawData]="hostRawData"
+            [page]="page" [contentData]="contentData" [contentPieData]="contentPieData"
+            [contentTableData]="contentTableData" [hostTableData]="hostTableData">
+        </app-distribution>
+    </div>
+    <div *ngIf="selectedValue == 'domainActivity'">
+        <app-domain-activity [resourceTimingData]="resourceTimingData" [page]="page"
+            [domainActivityData]="domainActivityData" [domaindata]="domainNames" [seriesdata]="seriesInfo">
+        </app-domain-activity>
+    </div>
+</div>

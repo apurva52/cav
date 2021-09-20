@@ -1,0 +1,68 @@
+<!-- login page -->
+<div class="login-page">
+<div class="page-container">
+    <!-- logo -->
+    <!-- <img class="logo" alt="Cavisson Logo" src="assets/banners/cavisson-logo-blue.svg"> -->
+    <!-- logo -->
+    <!-- login fields -->
+    <div class="outer-container">
+        <img class="logo" alt="Cavisson Logo" src="assets/banners/cavisson-logo-blue.svg">
+
+        <div class="login-card" *ngIf="!sessionService.isSSO()">
+            <form [formGroup]="form" (ngSubmit)="login()">
+                <div class="mb-20">
+                    <div class="ui-inputgroup">
+                        <input [disabled]="saasEnabled && !UserNameLoginForSaas" type="text" #username class="w-100-p input-lg" pInputText placeholder="Username"
+                            formControlName="username">
+                    </div>
+                    <p-message
+                        *ngIf="form.controls.username.invalid && form.controls.username.dirty && form.controls.username.errors.required"
+                        severity="error" text="Username is required."></p-message>
+                    <p-message
+                        *ngIf="form.controls.username.invalid && form.controls.username.dirty && form.controls.username.errors.email &&  saasEnabled"
+                        severity="error" text="SAAS Username is invalid."></p-message>
+                </div>
+                <div class="mv-20" *ngIf="(saasEnabled && !UserNameLoginForSaas) || !saasEnabled">
+                    <div class="ui-inputgroup">
+                        <input type="password" class="w-100-p input-lg" pInputText placeholder="Password"
+                            formControlName="password">
+                    </div>
+
+                    <p-message
+                        *ngIf="form.controls.password.invalid && form.controls.password.dirty && form.controls.password.errors.required"
+                        severity="error" text="Password is required."></p-message>
+
+                </div>
+
+                <div class="text-center button-row">
+                    <button *ngIf="(!loading && ((saasEnabled && !UserNameLoginForSaas) || !saasEnabled))" pButton type="submit"
+                        [disabled]="loading || form.controls.username.invalid || form.controls.password.invalid"
+                        label="SIGN IN" class="ph-20 bg-action ui-button-rounded">
+                    </button>
+                    <button *ngIf="loading" pButton icon="pi pi-spin pi-spinner" type="submit"
+                        [disabled]="loading || form.controls.username.invalid || form.controls.password.invalid"
+                        label="Logging In..." class="ph-20 bg-action ui-button-rounded">
+                    </button>
+                    <button *ngIf="!loading && saasEnabled && UserNameLoginForSaas" pButton type="submit"
+                        [disabled]="form.controls.username.invalid"
+                        label="Next" class="ph-20 bg-action ui-button-rounded">
+                    </button>
+                </div>
+
+                <div *ngIf="form.errors" class="errors">
+                    <p-message *ngIf="form.errors && form.errors.serviceError" severity="error"
+                        text="{{form.errors.serviceError}}"></p-message>
+                </div>
+
+                <!-- <p class="text-center mt-30">
+                    <span class="text-muted">Forget your password?</span>  
+                    <button type="button" class="btn-icon ml-3"> Reset password</button>
+                </p> -->
+            </form>
+
+        </div>
+
+    </div>
+    <!-- login fields -->
+</div>
+</div>

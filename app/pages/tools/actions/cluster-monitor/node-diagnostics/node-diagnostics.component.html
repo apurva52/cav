@@ -1,0 +1,445 @@
+<div class="h-100-vh cluster-wrapper">
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <a routerLink="/node-info">
+        <i class="icons8 icons8-left toolbar-icon-color"></i>
+      </a>
+      <div class="p-col ui-toolbar-text">NODE DIAGNOSTICS</div>
+    </div>
+  </p-toolbar>
+  <div class="breadcrumbs">
+    <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+  </div>
+  <div class="content-body">
+    <div class="p-grid">
+      <div class="p-col-12">
+        <div class="p-grid">
+          <div class="p-col-5">
+            <div class="search-section">
+              <div class="ui-inputgroup w-60-p">
+                <span class="ui-inputgroup-addon">
+                  <i class="icons8 icons8-search"></i>
+                </span>
+                <input
+                  type="text"
+                  #searchInput
+                  pInputText
+                  placeholder="Search"
+                  class="w-80-p"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="p-col-7">
+            <div class="action-buttons">
+              <div class="routing-buttons">
+                <button
+                  pButton
+                  label="Indices"
+                  class="ui-outline-button ui-button-secondary"
+                  [routerLink]="['/cluster-node-info/node-indices']"
+                ></button>
+                <button
+                  pButton
+                  label="Query"
+                  class="ui-outline-button ui-button-secondary"
+                  [routerLink]="['/cluster-node-info/node-query']"
+                ></button>
+                <button
+                  pButton
+                  label="Mapping"
+                  class="ui-outline-button ui-button-secondary"
+                  [routerLink]="['/cluster-node-info/node-mapping']"
+                ></button>
+                <button
+                  pButton
+                  label="Rest API"
+                  class="ui-outline-button ui-button-secondary"
+                  [routerLink]="['/cluster-node-info/node-rest-api']"
+                ></button>
+              </div>
+              <div>
+                <p-dropdown
+                  [options]="nodeInfo"
+                  placeholder="Node Information"
+                  dropdownIcon="icons8-expand-arrow"
+                ></p-dropdown>
+              </div>
+              <div class="action-icons">
+                <button
+                  pButton
+                  icon="icons8 icons8-settings"
+                  class="ui-icon-button icon-button no-shadow"
+                  pTooltip="Edit Settings"
+                  (click)="nodeEditSetting.show()"
+                ></button>
+                <button
+                  pButton
+                  icon="icons8 icons8-synchronize"
+                  class="ui-icon-button icon-button no-shadow"
+                  pTooltip="Reload"
+                ></button>
+                <button
+                  pButton
+                  icon="icons8 icons8-flow-chart"
+                  class="ui-icon-button icon-button no-shadow"
+                  pTooltip="Cluster Diagram"
+                  [routerLink]="['/cluster-diagram']"
+                ></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-col-12">
+        <div class="statistics-panel">
+          <p-panel
+            #statsPnl
+            expandIcon=""
+            collapseIcon=""
+            [toggleable]="true"
+            [(collapsed)]="statsPnl.collapsed"
+            [ngClass]="statsPnl.collapsed ? 'collapsed' : 'uncollapsed'"
+          >
+            <p-header class="cav-panel-header pt-5">
+              <div class="panel-title" (click)="statsPnl.toggle($event)">
+                <span
+                  [class]="
+                    statsPnl.collapsed
+                      ? 'icons8 icons8-expand-arrow'
+                      : 'icons8 icons8-collapse-arrow'
+                  "
+                >
+                </span>
+                Summary
+              </div>
+            </p-header>
+            <div class="p-grid">
+              <div
+                class="p-col-2"
+                *ngFor="let c of nodeData.nodeDiagnosticsStats"
+              >
+                <div
+                  class="statistics-card"
+                  [style.border]="'2px solid ' + c.severityColor"
+                >
+                  <label for="value" class="value"
+                    ><b>{{ c.value }}</b></label
+                  >
+                  <label for="label" class="label">{{ c.label }}</label>
+                </div>
+              </div>
+            </div>
+          </p-panel>
+        </div>
+        <div class="p-grid nested-grid ph-0">
+          <div class="p-col-4">
+            <div class="p-grid ph-0">
+              <div class="p-col-12 ph-0">
+                <div class="summary-panel">
+                  <p-panel
+                    #summaryPnl
+                    expandIcon=""
+                    collapseIcon=""
+                    [toggleable]="true"
+                    [(collapsed)]="summaryPnl.collapsed"
+                    [ngClass]="
+                      summaryPnl.collapsed ? 'collapsed' : 'uncollapsed'
+                    "
+                  >
+                    <p-header class="cav-panel-header pt-5">
+                      <div
+                        class="panel-title"
+                        (click)="summaryPnl.toggle($event)"
+                      >
+                        <span
+                          [class]="
+                            summaryPnl.collapsed
+                              ? 'icons8 icons8-expand-arrow'
+                              : 'icons8 icons8-collapse-arrow'
+                          "
+                        >
+                        </span>
+                        Summary
+                      </div>
+                    </p-header>
+                    <div
+                      class="p-grid p-align-stretch p-justify-center work-in-progress"
+                    >
+                      <div class="p-col-12">
+                        <p-table
+                          class="health-table"
+                          [columns]="nodeData.nodeSummary.headers[0].cols"
+                          [value]="nodeData.nodeSummary.data"
+                          [scrollable]="true"
+                          scrollHeight="230px"
+                        >
+                          <ng-template
+                            pTemplate="body"
+                            let-row
+                            let-columns="columns"
+                          >
+                            <tr
+                              *ngFor="
+                                let headerRow of nodeData.nodeSummary.headers
+                              "
+                            >
+                              <td
+                                *ngFor="
+                                  let col of headerRow.cols;
+                                  let i = index
+                                "
+                              >
+                                <svg
+                                  *ngIf="col.statusField && row.stats"
+                                  height="10"
+                                  width="10"
+                                  class="status text-left"
+                                >
+                                  <circle cx="5" cy="5" r="5" fill="#707070" />
+                                </svg>
+                                {{ row[col.valueField] }}
+                              </td>
+                            </tr>
+                          </ng-template>
+                        </p-table>
+                      </div>
+                    </div>
+                  </p-panel>
+                </div>
+              </div>
+              <div class="p-col-12 ph-0">
+                <div class="health-panel">
+                  <p-panel
+                    #memoryPnl
+                    expandIcon=""
+                    collapseIcon=""
+                    [toggleable]="true"
+                    [(collapsed)]="memoryPnl.collapsed"
+                    [ngClass]="
+                      memoryPnl.collapsed ? 'collapsed' : 'uncollapsed'
+                    "
+                  >
+                    <p-header class="cav-panel-header pt-5">
+                      <div
+                        class="panel-title"
+                        (click)="memoryPnl.toggle($event)"
+                      >
+                        <span
+                          [class]="
+                            memoryPnl.collapsed
+                              ? 'icons8 icons8-expand-arrow'
+                              : 'icons8 icons8-collapse-arrow'
+                          "
+                        >
+                        </span>
+                        Memory
+                      </div>
+                    </p-header>
+                    <div
+                      class="p-grid p-align-stretch p-justify-center work-in-progress"
+                    >
+                      <div class="p-col-12">
+                        <p-table
+                          class="health-table"
+                          [columns]="nodeData.nodeMemory.headers[0].cols"
+                          [value]="nodeData.nodeMemory.data"
+                          [scrollable]="true"
+                          scrollHeight="273px"
+                        >
+                          <ng-template
+                            pTemplate="body"
+                            let-row
+                            let-columns="columns"
+                          >
+                            <tr
+                              *ngFor="
+                                let headerRow of nodeData.nodeMemory.headers
+                              "
+                            >
+                              <td
+                                *ngFor="
+                                  let col of headerRow.cols;
+                                  let i = index
+                                "
+                              >
+                                <svg
+                                  *ngIf="col.statusField && row.stats"
+                                  height="10"
+                                  width="10"
+                                  class="status text-left"
+                                >
+                                  <circle cx="5" cy="5" r="5" fill="#707070" />
+                                </svg>
+                                {{ row[col.valueField] }}
+                              </td>
+                            </tr>
+                          </ng-template>
+                        </p-table>
+                      </div>
+                    </div>
+                  </p-panel>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="p-col-8">
+            <div class="p-grid ph-0">
+              <div class="p-col-6">
+                <div class="health-panel">
+                  <p-panel
+                    #filesystemPnl
+                    expandIcon=""
+                    collapseIcon=""
+                    [toggleable]="true"
+                    [(collapsed)]="filesystemPnl.collapsed"
+                    [ngClass]="
+                      filesystemPnl.collapsed ? 'collapsed' : 'uncollapsed'
+                    "
+                  >
+                    <p-header class="cav-panel-header pt-5">
+                      <div
+                        class="panel-title"
+                        (click)="filesystemPnl.toggle($event)"
+                      >
+                        <span
+                          [class]="
+                            filesystemPnl.collapsed
+                              ? 'icons8 icons8-expand-arrow'
+                              : 'icons8 icons8-collapse-arrow'
+                          "
+                        ></span>
+                        File System
+                      </div>
+                    </p-header>
+                    <div
+                      class="p-grid p-align-stretch p-justify-center work-in-progress"
+                    >
+                      <div class="p-col-12">
+                        <p-table
+                          class="health-table"
+                          [columns]="nodeData.nodeFileSystem.headers[0].cols"
+                          [value]="nodeData.nodeFileSystem.data"
+                          [scrollable]="true"
+                          scrollHeight="273px"
+                        >
+                          <ng-template
+                            pTemplate="body"
+                            let-row
+                            let-columns="columns"
+                          >
+                            <tr
+                              *ngFor="
+                                let headerRow of nodeData.nodeFileSystem.headers
+                              "
+                            >
+                              <td
+                                *ngFor="
+                                  let col of headerRow.cols;
+                                  let i = index
+                                "
+                              >
+                                <svg
+                                  *ngIf="col.statusField && row.stats"
+                                  height="10"
+                                  width="10"
+                                  class="status text-left"
+                                >
+                                  <circle cx="5" cy="5" r="5" fill="#707070" />
+                                </svg>
+                                {{ row[col.valueField] }}
+                              </td>
+                            </tr>
+                          </ng-template>
+                        </p-table>
+                      </div>
+                    </div>
+                  </p-panel>
+                </div>
+              </div>
+              <div class="p-col-6 pr-0">
+                <div class="health-panel">
+                  <p-panel
+                    #indexActivityPnl
+                    expandIcon=""
+                    collapseIcon=""
+                    [toggleable]="true"
+                    [(collapsed)]="indexActivityPnl.collapsed"
+                    [ngClass]="
+                      indexActivityPnl.collapsed ? 'collapsed' : 'uncollapsed'
+                    "
+                  >
+                    <p-header class="cav-panel-header pt-5">
+                      <div
+                        class="panel-title"
+                        (click)="indexActivityPnl.toggle($event)"
+                      >
+                        <span
+                          [class]="
+                            indexActivityPnl.collapsed
+                              ? 'icons8 icons8-expand-arrow'
+                              : 'icons8 icons8-collapse-arrow'
+                          "
+                        >
+                        </span>
+                        Index Activity
+                      </div>
+                    </p-header>
+                    <div
+                      class="p-grid p-align-stretch p-justify-center work-in-progress"
+                    >
+                      <div class="p-col-12">
+                        <p-table
+                          class="health-table"
+                          [columns]="nodeData.nodeIndexActivity.headers[0].cols"
+                          [value]="nodeData.nodeIndexActivity.data"
+                          [scrollable]="true"
+                          scrollHeight="273px"
+                        >
+                          <ng-template
+                            pTemplate="body"
+                            let-row
+                            let-columns="columns"
+                          >
+                            <tr
+                              *ngFor="
+                                let headerRow of nodeData.nodeIndexActivity
+                                  .headers
+                              "
+                            >
+                              <td
+                                *ngFor="
+                                  let col of headerRow.cols;
+                                  let i = index
+                                "
+                              >
+                                <svg
+                                  *ngIf="col.statusField && row.stats"
+                                  height="10"
+                                  width="10"
+                                  class="status text-left"
+                                >
+                                  <circle cx="5" cy="5" r="5" fill="#707070" />
+                                </svg>
+                                {{ row[col.valueField] }}
+                              </td>
+                            </tr>
+                          </ng-template>
+                        </p-table>
+                      </div>
+                    </div>
+                  </p-panel>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-node-edit-settings #nodeEditSetting></app-node-edit-settings>

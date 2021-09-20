@@ -1,0 +1,409 @@
+<!-- <p-growl [value]="msgs" life="3000"></p-growl> -->
+
+
+    <p-dialog class="secondary-dialog foterDialog" header="Create Task" [(visible)]="display" modal="modal" [style]="{width: '450px'}"
+        *ngIf="display==true">
+        <app-create-run-cmd-task [runCmdObjToCreateTask]="runCmdObjToCreateTask"
+            (displayChange)="displayTaskWindow($event);" (displayMsg)="showAlertMsg($event)"></app-create-run-cmd-task>
+    </p-dialog>
+
+<!--Dialogue component ends-->
+
+    <!--Dialogue component for create task Gui-->
+    <p-dialog class="secondary-dialog" header="Scheduler Management" [(visible)]="displaySchedulerMgmt" modal="modal"
+    [style]="{width: '1000px'}">
+        <scheduler-management [reportType]=reportType [schMgmt]=displaySchedulerMgmt></scheduler-management>
+        <p-footer>
+            <button type="button" class="ui-button-secondary" pButton icon="icons8 icons8-delete" (click)="displaySchedulerMgmt=false"
+                label="Close" title="Close"></button>
+        </p-footer>
+    </p-dialog>
+    <!--Dialogue component ends-->
+
+
+
+<!--<p-blockUI [blocked]="blocked"></p-blockUI>-->
+<!-- <div class="blockedUI" *ngIf="blocked">
+    <img class="loadingIcon" src="images/ajax-loader.gif" />
+</div> -->
+<!-- *ngIf="blocked" -->
+
+    <div class="pageLoading font-16" *ngIf="blocked">
+            <i class="pi pi-spin pi-spinner"></i> <span>Loading</span>
+    </div>
+
+<div class="pageScroll">
+<div class="mx-10">
+    <!--Panel 1 -->
+    <p-panel header="Run Command on Server" styleClass="mb-10">
+        <div class="p-grid p-align-center w-100-p">
+            <div class="p-col-3 p-grid p-align-center">
+                <label class="width-120">Tier Name</label>
+                <p-dropdown #dd1 [options]="tiers" [(ngModel)]="selectedTier" [filter]="true"
+                    filterBy="label,value.name" (onChange)="getServer(selectedTier)" (click)="clearFilter(dd1)"
+                    title="{{selectedTier}}" [style]="{'min-width':'170px','height': '24px'}"
+                    dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+            </div>
+
+            <div class="p-col-3 p-grid p-align-center">
+                <label class="mr-5">Server Name</label>
+                <p-multiSelect [options]="servers" defaultLabel="--Select Server--" [(ngModel)]="selectedServer"
+                    title="{{selectedServer}}" [filter]="true" filterBy="label,value.name" resetFilterOnHide="true"
+                    [disabled]="selectedTier == undefined  && !vectorFromWebDash"
+                    [style]="{'min-width':'170px', 'width':'170px',  'height': '24px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+            </div>
+            <div class="p-col-3 p-grid p-align-center">
+                <label class="mr-5">Group Name</label>
+                <p-dropdown #dd3 [options]="grpName" [(ngModel)]="selectedGrp" title="{{groupNameTooltip}}"
+                    (onChange)="getCmdList()" [filter]="true" filterBy="label,value.name"
+                    [disabled]="selectedServer == undefined || selectedServer.length == 0" (click)="clearFilter(dd3)"
+                    [style]="{'min-width':'170px','height': '24px'}" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+            <div class="p-col-3 p-grid p-align-center">
+                <label class="mr-5">Command Name</label>
+                <p-dropdown #dd [options]="cmdList" [(ngModel)]="selectedCmd" title="{{commandNameToolTip}}"
+                    (onChange)="showSelectedCmdGUI(selectedCmd)" [filter]="true" filterBy="label,value.name"
+                    [disabled]="selectedServer == undefined ||selectedServer.length == 0" (click)="clearFilter(dd)"
+                    [style]="{'min-width':'170px', 'height': '24px'}" dropdownIcon="icons8 icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+        </div>
+
+
+            <div *ngIf="hideDynamicCommponent == true" class="p-grid w-100-p p-align-center p-5">
+                <ng-container #dynamicCmp *ngFor="let item of cmdArr; let i = index">
+
+                    <label class="minWidth140" *ngIf="item.type == 'label' && i > 0">{{item.label}}</label>
+                    <label class="width-120" *ngIf="item.type == 'label' && i == 0">{{item.label}}</label>
+                    <input class="width-170 mr-10" type="text" *ngIf="item.type == 'textbox'" pInputText [(ngModel)]="item.modal" title="{{item.modal}}" />
+                    <!--<p-textbox *ngIf="item.type == 'textbox'" [(ngModel)]="item.modal" class="spanClass2" ></p-textbox>-->
+                    <p-checkbox class="mr-10" id={{item.id}} [(ngModel)]="item.modal"
+                        label="{{item.label}}" binary="true" *ngIf="item.type == 'checkbox'"></p-checkbox>
+                    <!--<input type="checkbox" id={{item.id}} value={{item.defaultValue}} class="spanClass2" *ngIf="item.type == 'checkbox'"/>-->
+                    <!-- <p-spinner [min]="0" [max]="100" size="4"  [(ngModel)]="item.modal" (keypress)="eventHandler($event)" *ngIf="item.type == 'spinner'" class="cav-my-1 cav-px-2 spinnerCss"></p-spinner> -->
+                    <input type="number" min='0' max='100' (keypress)="eventHandler($event)" [(ngModel)]="item.modal"
+                        class="width-170 mr-10" *ngIf="item.type == 'spinner'" pInputText />
+
+                    <span *ngIf="item.type == 'listbox'" class="body1Div">
+                        <p-dropdown class="spanClass2" [options]="item.options" [(ngModel)]="item.modal"
+                            (click)="showSelectedCmdGUI(item.modal)" [style]="{'min-width':'170px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                    </span>
+                    <span *ngIf="item.type == 'radiobutton'">
+                        <span *ngFor="let item1 of item.components">
+                            <p-radioButton name="item.groupName" [attr.id]="item1.id" [label]="item1.item"
+                                [value]="item1.arg" [(ngModel)]="item.modal">
+                            </p-radioButton>
+                        </span>
+                    </span>
+                </ng-container>
+            </div>
+
+        <!--<input type="number" value="4"  min="0" max="100" [(ngModel)]="numberRunCmd" id="IterationSpinnerID" style="display:none;">-->
+    </p-panel>
+</div>
+    <!--Panel 2 panel for Repeat Option. This panel is only for admin user-->
+<div class="mx-5 mb-10">
+    <div class="p-grid flexnowrap">
+    <div class="flexfull" *ngIf="isAdminUser == 'true'">
+        <p-card [style]="{height: '75px'}">
+            <h3 class="mb-5 mt-3 font-weight-700 font-10">Repeat Option</h3>
+
+            <div class="p-grid p-align-center w-100-p">
+
+                <p-checkbox class="ml-5" name="groupname" value="val1" [(ngModel)]="selectedValues"  height = "15px" label="Repeat Command For">
+                </p-checkbox>
+
+                    <!-- <p-spinner [min]="1" size="4" (keypress)="eventHandler($event)" onPaste="return false" [disabled]=" selectedValues == false" [(ngModel)]="numberRunCmd"></p-spinner> -->
+                    <input type="number" min='1' (keypress)="eventHandler($event)" [(ngModel)]="numberRunCmd"
+                        class="width-90 mx-10"  height = "20px" pInputText />
+
+                <span class="ml-30">Time on interval (sec)</span>
+
+                    <!-- <p-spinner [min]="0" size="4" onPaste="return false" [disabled]=" selectedValues == false" [(ngModel)]="intervalRunCmd"></p-spinner> -->
+                    <input type="number" min='0' height = "20px" [(ngModel)]="intervalRunCmd"  class="width-90 mx-10" pInputText />
+
+            </div>
+        </p-card>
+    </div>
+    <div class="flexfull">
+        <p-card [style]="{height: '75px'}">
+            <h3 class="mb-5 mt-3 font-weight-700 font-12">Filter Option</h3>
+            <div class="p-grid p-align-center w-100-p">
+
+                <div class="p-col-3">
+                    <input id="in" class="w-100-p" type="text" size="30" pInputText [(ngModel)]="text" placeholder="Search..." />
+                </div>
+                <div class="p-col-3">
+                    <p-dropdown [options]="filter" [(ngModel)]="selectedFilter"
+                    [style]="{'min-width':'100%'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                </div>
+                <div class="p-col-2">
+                    <!-- <p-spinner [min]="0" size="4" onPaste="return false" (keypress)="eventHandler($event)" [disabled]="selectedFilter == undefined" [(ngModel)]="headOrTailNum"></p-spinner> -->
+                    <input type="number" min='0' [(ngModel)]="headOrTailNum" (keypress)="eventHandler($event)"
+                    class="w-100-p" [disabled]="selectedFilter == undefined" pInputText />
+                </div>
+                <div class="p-col-4">
+                    <p-checkbox [(ngModel)]="saveOutputOnServer" height = "18px" label="Save Output on Server" binary="true">
+                    </p-checkbox>
+                </div>
+
+        </div>
+        </p-card>
+    </div>
+</div>
+</div>
+
+
+
+
+    <!-- <p-panel *ngIf="isAdminUser == 'true'" header="Repeat Option" styleClass="mb-10 toggler-panel" [toggleable]="true"
+        [collapsed]="false">
+
+    </p-panel> -->
+
+    <!--Panel 3 Filter Option -->
+    <!-- <p-panel header="Filter Option"  styleClass="mb-10 toggler-panel" [toggleable]="true">
+
+    </p-panel> -->
+
+    <!--Panel 4 -->
+    <div class="panelOutputClass mx-5" id="mainOutputDiv">
+        <div id="outputHeaderDiv" class="p-grid p-align-center w-100-p p-justify-between">
+            <label class="font-weight-600 ml-5">Command Output</label>
+            <div  class="p-grid p-align-center">
+                <button type="button" class="btn-icon" title="Maximize output panel" (click)="goFullScreen()" *ngIf="toggle && viewDataFilter == 'Text'">
+                    <i  class="icons8 icons8-enlarge" ></i>
+                </button>
+
+                <button type="button" class="btn-icon mx-3"  title="Maximize output table" *ngIf="toggle && viewDataFilter == 'Tabular'"
+                (click)="goFullScreenTableView()" >
+                    <i class="icons8 icons8-table"></i>
+                </button>
+
+
+                <!--  <i *ngIf="!toggle && viewDataFilter == 'Text'" [attr.id]="'outputTextArea_' + i" class="material-icons" style="color:#fff;cursor:pointer;float:right" (click)="goFullScreen()"><i class="material-icons">fullscreen_exit</i></i>
+          <i *ngIf="!toggle && viewDataFilter == 'Tabular'" [attr.id]="'runCmdTableView_' + i " class="material-icons" style="color:#fff;cursor:pointer;float:right" (click)="goFullScreenTableView()"><i class="material-icons">fullscreen_exit</i></i>-->
+                <!-- <i *ngIf="!toggle && viewDataFilter == 'Text'" [attr.id]="'outputTextArea_' + i" class="icons8 icons8-edit-2" style="color:#fff;cursor:pointer;float:right" (click)="goFullScreen()">fullscreen_exit</i>
+          <i *ngIf="!toggle && viewDataFilter == 'Tabular'" [attr.id]="'runCmdTableView_' + i " class="icons8 icons8-table" style="color:#fff;cursor:pointer;float:right" (click)="goFullScreenTableView()">fullscreen_exit</i> -->
+
+          <button type="button" class="btn-icon mx-3" title="Minimize output panel" *ngIf="!toggle && viewDataFilter == 'Text'" (click)="goFullScreen()">
+              <i class="icons8 icons8-enlarge"></i></button>
+
+          <button type="button" class="btn-icon mx-3" title="Minimize output table" *ngIf="!toggle && viewDataFilter == 'Tabular'" (click)="goFullScreenTableView()">
+                <i  class="icons8 icons8-table"></i>
+              </button>
+
+              <button type="button" class="btn-icon  mx-3" title="Delete command output" *ngIf="this.serverTabs.length > 0" (click)="deleteTabs()">
+                <i class="icons8 icons8-trash"></i>
+              </button>
+
+          </div>
+        </div>
+        <div class="panel4Div" id="outputMainBodyDiv" style="overflow:unset">
+            <p-tabView *ngIf="serverDisplName.length != 0" (onChange)="handleOutputTabChange($event)"
+                [controlClose]="true" (onClose)="handleTabClose($event)">
+                <p-tabPanel  *ngFor="let item of serverTabs; let i = index" [header]="item.name"
+                    [closable]="true" [selected]=item.isSelected>
+
+                        <div class="p-grid p-align-center">
+                            <div class="p-col-2">
+                                <b>Server Name:</b> {{item.name}}
+                            </div>
+                            <div class="p-col-2">
+                                <b>Command Name: </b> <span title={{commandName[i]}}> {{item.trimCmdName}}</span>
+                            </div>
+                            <div class="p-col-2">
+                                <b>Server Time:</b>{{serverTime[i]}} {{timeZone}}
+                            </div>
+                            <div class="p-col-2">
+                                <b>View Type:</b>
+
+                                    <p-dropdown class="mx-5" [options]="viewData" [(ngModel)]="viewDataFilter"
+                                        [style]="{'min-width':'100px', 'width':'100px'}" (onChange)="outputViewMode(viewDataFilter,'','')" dropdownIcon="icons8 icons8-expand-arrow">
+                                    </p-dropdown>
+
+                            </div>
+
+                            <div class="p-col-2" *ngIf="viewDataFilter == 'Tabular'">
+                            <b>Delimeter:</b>
+                                <p-dropdown class="mx-5" [options]="delimeter" [(ngModel)]="viewDataDelimeterFilter"
+                                    (onChange)="showOutputByDelimeter(viewDataDelimeterFilter)"
+                                    [style]="{'min-width':'100px', 'width':'100px'}" dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+
+
+                            </div>
+
+
+
+                            <div class="p-col-2">
+
+                                    <button type="button" class="btn-icon mx-3" (click)="graphParameters()"
+                                        *ngIf="viewDataFilter == 'Tabular'"  title="View Graph">
+                                        <i class="icons8 icons8-eye"></i>
+                                    </button>
+                                    <!-- <a class="showCursor" (click)="graphParameters()"><i class="icons8 icons8-eye"
+                                            aria-hidden="true" title="View Graph"></i></a> -->
+
+
+                                <button  *ngIf='item.viewType == "Text"' type="button" class="btn-icon mx-3"
+                                (click)="saveTextAsFile(cmdResult[i])" title="Download">
+                                    <i class="icons8 icons8-download"></i>
+                                </button>
+
+                                <!-- <span class="setleft">
+                                    <a (click)="saveTextAsFile(cmdResult[i])"><i class="icons8 icons8-plus-math"
+                                            aria-hidden="true" title="Download"></i></a>
+                                </span> -->
+
+                                <button *ngIf='item.viewType == "Tabular"' type="button" class="btn-icon mx-3" (click)="downloadFile('xls')"  title="Download excel file">
+                                    <i class="icons8 icons8-spreadsheet-file"></i>
+                                </button>
+
+                            </div>
+                            <!-- <div style="margin-right : 11px">
+
+                                <a (click)="downloadFile('xls')">
+                                    <i
+                                        *ngIf='item.viewType == "Tabular"' class="icons8 icons8-search-property"
+                                        aria-hidden="true" title="Download excel file"></i></a></div> -->
+                        </div>
+
+
+
+                    <textarea class="CmdOutputClass" dir="auto" *ngIf='item.viewType == "Text" && isAdminUser == "true"'
+                        pInputTextarea class="w-100-p textageaHeight" readonly
+                        [attr.id]="'outputTextArea_' + i">{{cmdResult[i]}}</textarea>
+                    <textarea class="CmdOutputClass" *ngIf='item.viewType == "Text" && isAdminUser == "false" '
+                        pInputTextarea  class="w-100-p textageaHeight" readonly
+                        [attr.id]="'outputTextArea_' + i">{{cmdResult[i]}}</textarea>
+
+                    <p-table class="all-tables" [columns]="outputCols"
+                        [ngClass]="tabularViewFlag ? 'half' : 'full'"
+                        *ngIf='item.viewType == "Tabular" && isAdminUser == "false" ' [expandedRowKeys]="expandedItems"
+                        readonly [attr.id]="'runCmdTableView_' + i " [lazy]="true" [rows]="tableRows" [paginator]="true"
+                        [totalRecords]="totalRecords" (onLazyLoad)="loadLazy($event)" [value]="mainTabularData"
+                        [scrollable]="true" scrollHeight="130px" resizableColumns="true"
+                        [rowsPerPageOptions]="[10,15,20]">
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th *ngFor="let col of columns" title="{{col.header}}">{{ col.header }}</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-rowData let-columns="columns">
+                            <tr>
+                                <td *ngFor="let col of columns" title="{{rowData[col.field]}}">{{rowData[col.field]}}
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+
+                    <!-- <p-dataTable>
+                        <p-column *ngFor="let col of outputCols" [field]="col.field" [header]="col.header">
+                        <ng-template let-col let-row="rowData" pTemplate="body">
+                        <span title="{{row[col.field]}}">{{row[col.field]}}</span>
+                        </ng-template>
+                        </p-column>
+                    </p-dataTable> -->
+
+                    <p-table class="all-tables" [columns]="outputCols"
+                        [ngClass]="tabularViewFlag ? 'half' : 'full'"
+                        *ngIf='item.viewType == "Tabular" && isAdminUser == "true" ' [expandedRowKeys]="expandedItems"
+                        readonly [attr.id]="'runCmdTableView_' + i" [lazy]="true" [rows]="tableRows" [paginator]="true"
+                        [totalRecords]="totalRecords" (onLazyLoad)="loadLazy($event)" [value]="mainTabularData"
+                        [scrollable]="true" scrollHeight="130px" resizableColumns="true"
+                        [rowsPerPageOptions]="[10,15,20]">
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th *ngFor="let col of columns" title="{{col.header}}">{{ col.header }}</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-rowData let-columns="columns">
+                            <tr>
+                                <td *ngFor="let col of columns" title="{{rowData[col.field]}}">{{rowData[col.field]}}
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+
+                    <!-- <p-dataTable class="runCmd-table-view" [ngClass]="tabularViewFlag ? 'half' : 'full'" *ngIf='item.viewType == "Tabular" && isAdminUser == "true" ' [expandableRows]="true" [expandedRows]="expandedItems" readonly [attr.id]="'runCmdTableView_' + i" [lazy]="true" [rows]="tableRows" [paginator]="true" [totalRecords]="totalRecords" (onLazyLoad)="loadLazy($event)" [value]="mainTabularData" [scrollable]="true" scrollHeight="130px" resizableColumns="true" [rowsPerPageOptions]= "[10,15,20]">
+                    <p-column *ngFor="let col of outputCols" [field]="col.field" [header]="col.header">
+			        <ng-template let-col let-row="rowData" pTemplate="body">
+   			        <span title="{{row[col.field]}}">{{row[col.field]}}</span>
+			        </ng-template>
+                    </p-column>
+                    </p-dataTable> -->
+
+                </p-tabPanel>
+            </p-tabView>
+        </div>
+    </div>
+</div>
+<!-- Action Buttons  -->
+<div class="p-grid p-align-center p-justify-center">
+
+    <button class="mx-3" pButton icon="icons8 icons8-synchronize" label="Refresh" (click)="refreshInfo()"></button>
+    <button class="mx-3" pButton icon="icons8 icons8-run-command" label="Run"  (click)="runCommand(false)" title="Run Command"></button>
+    <button *ngIf="isAdminUser == 'true'" class="mx-3" pButton icon="icons8 icons8-edit-2" label="Edit / View" (click)="editMode()" title="View or Add/Edit Command"></button>
+    <button class="mx-3" pButton icon="icons8 icons8-calendar" label="Create Task" (click)="openCreateTaskWindow()"></button>
+    <button class="mx-3" pButton icon="icons8 icons8-tune" label="Scheduler Management" (click)="openSchedulerMgmtkWindow()"></button>
+
+</div>
+
+
+
+
+<!--dialog module for Graph Parameters in Run Command for Data-->
+<p-dialog header="Graph Parameters" modal="modal" [(visible)]="isShowRunCommand" class="secondary-dialog"
+[resizable]="false" [style]="{width: '500px'}" [baseZIndex]="997">
+
+
+
+        <div class="p-grid p-align-center">
+
+            <label class="p-col-4">X-Axis </label>
+            <div class="p-col-8">
+                <p-dropdown [(ngModel)]="xAxisIndex" [options]="graphIndexValues" appendTo="body" [baseZIndex]="1000"
+                dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width' : '100%'}"></p-dropdown>
+            </div>
+
+            <label class="p-col-4">Y-Axis </label>
+            <div class="p-col-8">
+                <p-dropdown [(ngModel)]="yAxisIndex" [options]="graphIndexValues" appendTo="body" [baseZIndex]="1000"
+                dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width' : '100%'}"></p-dropdown>
+            </div>
+
+            <ng-container *ngIf="maxIndex > 2">
+                <label class="p-col-4">Graph Basis </label>
+                <div class="p-col-8">
+                    <p-dropdown [(ngModel)]="graphBasisIndex" [options]="graphIndexValues" appendTo="body" [baseZIndex]="1000"
+                    dropdownIcon="icons8 icons8-expand-arrow" [style]="{'min-width' : '100%'}"></p-dropdown>
+                </div>
+            </ng-container>
+
+            <label class="p-col-4" *ngIf="maxIndex != 0">
+                <!-- Max Index: {{maxIndex}} -->
+            </label>
+            <div class="p-col-8">
+                <p-checkbox [(ngModel)]="isShowTotal" label="View Total Index"></p-checkbox>
+            </div>
+
+            <!-- <div class="url-div ui-g-12"> -->
+
+            <!-- </div> -->
+
+
+
+        </div>
+
+
+
+    <p-footer>
+
+        <div class="p-grid p-align-center p-justify-end my-5">
+            <button type="button" pButton class="mx-6" icon="icons8 icons8-checkmark" (click)="getRunCommandGraphData()" label="OK"></button>
+            <button type="button" pButton class="ui-button-secondary" icon="icons8 icons8-delete" (click)="isShowRunCommand=false" label="Cancel"></button>
+        </div>
+    </p-footer>
+
+</p-dialog>

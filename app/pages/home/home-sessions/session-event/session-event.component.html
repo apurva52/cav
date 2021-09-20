@@ -1,0 +1,233 @@
+<div class="p-grid h-100-vh session-event-container">
+    <div class="sectionwidth w-100-p">
+        <div class="header ">
+            <app-header></app-header>
+        </div>
+        <p-toolbar class="ui-secondary-toolbar ">
+            <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+                <a routerLink="/home/home-sessions">
+                    <i class="icons8 icons8-left toolbar-icon-color"></i>
+                </a>
+                <div class="p-col ui-toolbar-text">Session Event</div>
+            </div>
+        </p-toolbar>
+
+        <div class="p-grid p-nogutter">
+            <div class="p-col-12">
+                <div class="breadcrumbs">
+                    <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async"
+                        (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="!data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+
+    <div *ngIf="data">
+        <div class="action-container">
+            <div class="p-grid p-justify-between p-align-center action-grid w-100-p">
+                <div class="global-search-block">
+                    <div>
+                        <i class="icons8 icons8-filter left filter-icon clickable" (click)="eventaggFilter.open()"></i>
+                    </div>
+                    <div class="p-input-icon-left search-div-css">
+                        <i class="icons8 icons8-search"></i>
+                        <input #searchInput pInputText type="text" class="input-field-search"
+                            (input)="session.filterGlobal($event.target.value, 'contains')" placeholder="Search" />
+                        <!-- <p-multiSelect [options]="multiOptions" [(ngModel)]="selectedCars2" defaultLabel="Select a City"
+                              optionLabel="name" display="chip"></p-multiSelect> -->
+                    </div>
+                </div>
+                <div class="icons-container p-justify-between p-align-center">
+
+                    <button pButton icon="icons8 icons8-search-property" class="btn-icon mx-3" (click)="toggleFilters()"
+                        pTooltip="Column Filter"></button>
+                    <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns"
+                        optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                        pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }" styleClass="dropdown-panel-left">
+                    </p-multiSelect>
+                    <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                        [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                    <button pButton icon="icons8 icons8-installing-updates" class="btn-icon mx-3"
+                        (click)="menu.toggle($event)" pTooltip="Download"></button>
+
+                    <button pButton icon="icons8 icons8-futures" class="btn-icon mx-3" pTooltip="Event Trend"
+                        (click)="toggleSessionTrend()"></button>
+                    <!-- <button pButton icon="icons8 icons8-export" class="btn-icon mx-3" pTooltip="export event" (click)="exportExcel()"></button> -->
+                </div>
+            </div>
+
+            <ng-container>
+
+                <!-- Event Trend -->
+                <div class="content-body mb-10" *ngIf="showtrend">
+                    <p-header>
+                        <div class="p-grid p-justify-between p-align-center w-100-p my-5">
+                            <div class="font-weight-700">Event Trend</div>
+
+                            <p-dropdown [options]="cbuckets" [(ngModel)]="granularity"
+                                dropdownIcon="icons8-expand-arrow" (onChange)="updateBucket()">
+                            </p-dropdown>
+
+                        </div>
+                    </p-header>
+
+                    <div class="p-col-11 p-col-align-center text-center" *ngIf="trendloading">
+                        <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+                    </div>
+
+                    <app-chart [data]="eventTrendData" *ngIf="trendLoaded"></app-chart>
+
+                </div>
+
+
+
+
+                <div #widgetHeight [ngStyle]="{
+                      height: isEnabledColumnFilter
+                        ? 'calc(100vh - 215px)'
+                        : 'calc(100vh - 172px)'
+                    }">
+                    <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                        Select column to show
+                    </div>
+                    <div class="content-body">
+                        <p-table #session [value]="data.data" [columns]="selectedColumns" [showCurrentPageReport]="true"
+                            [rowHover]="true" [(selection)]="selectedRow" selectionMode="single" class="all-tables"
+                            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                            [paginator]="true" [totalRecords]="totalRecords" [responsive]="true"
+                            [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [rows]="data.paginator.rows"
+                            [scrollable]="true" [globalFilterFields]="globalFilterFields"
+                            exportFilename="EventAggReport" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 91px)"
+                            [resizableColumns]="true">
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                    <col *ngFor="let col of columns" [style.width]="col.width" />
+                                </colgroup>
+                            </ng-template>
+                            <ng-template pTemplate="header" let-columns>
+                                <tr>
+                                    <th [ngStyle]="{ 'width': '3px', 'heigth':'15px', 'padding':'0px'}"></th>
+                                    <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.field">
+                                        <div class="text-left">
+                                            {{ col.label }}
+                                            <p-sortIcon *ngIf="col.isSort" [field]="col.field" class="right"
+                                                ariaLabel="Activate to sort"
+                                                ariaLabelDesc="Activate to sort in descending order"
+                                                ariaLabelAsc="Activate to sort in ascending order">
+                                            </p-sortIcon>
+                                        </div>
+                                    </th>
+
+                                </tr>
+                                <tr *ngFor="let headerRow of data.headers">
+                                    <ng-container *ngIf="isEnabledColumnFilter">
+                                        <th [ngStyle]="{ 'width': '3px', 'heigth':'15px', 'padding':'0px'}"></th>
+                                        <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                            <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'custom'
+                        ">
+                                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                    pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                    *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                      session.filter(
+                              $event.target.value,
+                              col.field,
+                              'custom'
+                            )
+                          " />
+                                            </div>
+                                            <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'contains'
+                        ">
+                                                <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                    pTooltip="Will filter metric names which contains given text."
+                                                    *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                      session.filter(
+                              $event.target.value,
+                              col.field,
+                              'contains'
+                            )
+                          " />
+                                            </div>
+                                        </th>
+                                        <th></th>
+                                    </ng-container>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-row let-columns="columns">
+                                <tr [pSelectableRow]="row" (click)="menuOptions.toggle($event)">
+                                    <p-menu class="menu-item" #menuOptions [popup]="true" [model]="linkOptions"
+                                        appendTo="body"></p-menu>
+                                    <td
+                                        [ngStyle]="{'backgroundColor': row.severityColor, 'width': '3px', 'height':'15px', 'padding':'0px'}">
+                                    </td>
+                                    <td *ngFor="let col of columns" class="{{ col.classes }}"
+                                        (click)="openDialog($event)">{{row[col.field]}}
+                                    </td>
+                                </tr>
+                            </ng-template>
+
+                            <!-----------Empty table error handling--------------------->
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td [attr.colspan]="columns.length + 1" class="text-center">
+                                        <span *ngIf="error">Error while loading data</span>
+                                        <span *ngIf="emptyTable">Empty Table</span>
+                                        <span *ngIf="loading">Loading</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
+<!--If event data has pattern , event data in above table will be clickable , and will have link class, clicking on that will open a new table in dialog-->
+<p-dialog id="dialog" [(visible)]="dialogFlag" [style]="{'width': '700'}" header="Event Data in Detail">
+    <div *ngIf="attrData != null && attrData.length >0">
+        <p-table [value]="attrData" [paginator]="true" [rows]="10" #dt [resizableColumns]="true"
+            exportFilename="eventDataDetail" sortMode="single">
+            <p-header>
+                <div class="ui-helper-clearfix">
+                    <button type="button" pButton icon="fa-file-o" iconPos="left" label="Export"
+                        (click)="dt.exportCSV()" style="float:right;background:#91aabb;margin: 5px;"></button>
+                </div>
+            </p-header>
+            <!--<p-column field="eventdata"  header="Event Data" [style]="{'width':'500px'}" [sortable]="true">-->
+            <ng-template let-d="rowData" pTemplate="header">
+                <span [title]="'Event Data'">Event Data</span>
+            </ng-template>
+            <ng-template let-col let-data="rowData" pTemplate="body">
+                <span id="eventAgg">{{data[col.field]}}</span>
+            </ng-template>
+            <!-- </p-column>-->
+            <!-- <p-column field="count" header="Count" [style]="{'width':'100px'}" [sortable]="true">-->
+            <ng-template let-col let-data="rowData" pTemplate="body">
+                <a style='text-align:left'>{{data[col.field]}}</a>
+            </ng-template>
+            <!--  </p-column> -->
+        </p-table>
+    </div>
+</p-dialog>
+
+<app-eventagg-filter-sidebar #eventaggFilter (getData)="applyFilter($event)"></app-eventagg-filter-sidebar>

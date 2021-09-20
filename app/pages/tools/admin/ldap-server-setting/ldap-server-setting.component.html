@@ -1,0 +1,68 @@
+<span class="ldap-server-setting">
+    <p-dialog header="LDAP Server Settings" [(visible)]="showLdapModel" class="secondary-dialog"
+        [style]="{width: '40vw'}" [modal]="true" [baseZIndex]="10000100011" [draggable]="false" [resizable]="false"
+        closeIcon="icons8 icons8-delete">
+
+        <div class="dialog-content">
+            <div class="ui-fluid">
+                <div class="p-field p-grid">
+                    <label for="hostport" class="p-col-12 p-md-2">Host:Port</label>
+                    <div class="p-col-12 p-md-8">
+                        <input id="hostport" value="val1" type="text" placeholder="Enter Port"
+                            [(ngModel)]="selectedHostPort" class="w-100-p" [disabled]="disableFields" pInputText />
+                    </div>
+                </div>
+                <div class="p-field p-grid">
+                    <label for="basedomain" class="p-col-12 p-md-2">Base Domain</label>
+                    <div class="p-col-12 p-md-8">
+                        <input id="basedomain" type="text" placeholder="Enter Base Domain"
+                            [(ngModel)]="selectedBaseDomain" [disabled]="disableFields" class="w-100-p" pInputText />
+                    </div>
+                </div>
+                <div class="p-grid">
+                    <div class="p-col-12">
+                        <p-checkbox binary="true" label="Enable user authentication" [(ngModel)]="enableUserAuth" [disabled]="disableFields">
+                        </p-checkbox>
+                    </div>
+                </div>
+                <div class="p-field p-grid">
+                    <label for="blinddomain" class="p-col-12 p-md-2">Bind Domain</label>
+                    <div class="p-col-12 p-md-8">
+                        <input id="binddomain" type="text" placeholder="Enter Bind Domain"
+                            [disabled]="!enableUserAuth|| disableFields" [(ngModel)]="selectedBindDomain" class="w-100-p"
+                            pInputText title="A Bind Domain is binded to  LDAP to give you permissions to do whatever you're trying to do.
+                            Example :uid=cav_id1,ou=Internal,ou=People."/>
+                    </div>
+                </div>
+                <div class="p-field p-grid">
+                    <label for="pass" class="p-col-12 p-md-2">Password</label>
+                    <div class="p-col-12 p-md-8">
+                        <input type="password" placeholder="Enter Password" [disabled]=" !enableUserAuth || disableFields"
+                            [(ngModel)]="selectedPassword" class="w-100-p" pPassword title="It is the field for password of bind domain where specific user wants to perform some operations."/>
+                    </div>
+                </div>
+                <div class="p-grid">
+                    <div class="p-col-12">
+                        <p-checkbox binary="true" value="val2" label="Enable communication over secure protocol"
+                            [(ngModel)]="enableSSl" [disabled]="disableFields"></p-checkbox>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p-footer>
+            <div class="p-col-12 form-buttons right">
+
+                <button pButton type="submit" label="Edit" class="ui-button-rounded btn-display"
+                    (click)="editData()" *ngIf="disableFields" ></button>
+                <button pButton type="submit" label="Save" class="ui-button-rounded btn-display"
+                    (click)="updateLDAPData()" *ngIf="!disableFields"></button>
+                <button pButton type="submit" label="Close" class="ui-button-rounded ui-button-secondary close-btn"
+                    (click)="close()"></button>
+            </div>
+        </p-footer>
+        <div id="centerpoint">
+            <p-confirmDialog styleClass="centerpointAd" key="LDAP" header="Error" acceptLabel="Ok" rejectLabel="Cancel"
+                ></p-confirmDialog>
+        </div>
+    </p-dialog>
+</span>

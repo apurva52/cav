@@ -1,0 +1,141 @@
+<!-- <div class="p-grid p-col-12 p-justify-start">
+    <p-checkbox [binary]="true" name="executeRemote" [(ngModel)]="item['executeRemote']"
+        label="Execute remotely">
+    </p-checkbox>
+</div>
+
+    <div class="p-grid w-100-p p-align-center">
+
+        <div class="width-120">Remote Tier</div>
+        <div class="p-col-2">
+            <p-dropdown name="rmT" (onChange)="onTierChange(item['rT'])" [options]="tierList" [disabled] ="!item['executeRemote']"
+                [(ngModel)]="item['rT']" filter="true" placeholder="--Select Tier--" dropdownIcon="icons8 icons8-expand-arrow"
+                [style]="{'min-width':'100%'}">
+            </p-dropdown>
+            </div>
+            <div class="p-col-2">
+            <input pInputText type="text" class="w-100-p" name="customTier" [(ngModel)]="item['cT']" 
+                [disabled]="item['rT'] != 'ct' || !item['executeRemote']" placeholder="Custom Tier" required>
+
+        </div>
+
+
+        <div class="width-120 text-right">{{rServerLabel}}</div>
+         <div class="p-col-2">
+            <p-dropdown name="rmS" [options]="serverList" [(ngModel)]="remServerVal" filter="true"
+                [disabled]="item['rT'] == '' || !item['executeRemote']" (onChange)="getServerIP(remServerVal)"
+                placeholder="--Select Server--" dropdownIcon="icons8 icons8-expand-arrow"  [style]="{'min-width':'100%'}"> 
+            </p-dropdown>
+            </div>
+            <div class="p-col-2">
+        <input pInputText type="text" name="customServer" [(ngModel)]="item['host']" class="w-100-p"
+            [disabled]="!item['executeRemote'] || remServerVal != 'ct'" placeholder="{{rServerPlaceHolder}}"
+             required>
+        </div>
+   
+
+
+
+
+        <div class="width-120" *ngIf="showRmServer">Display Name</div>
+        <div class="p-col-2" *ngIf="showRmServer">
+            <input type="text" name="nd" pInputText [disabled]="!item['executeRemote'] || item['rT'] == ''"
+            [(ngModel)]="item['rSDpName']">
+        </div>
+ 
+    </div>
+
+
+    <div class="p-grid w-100-p p-align-center">
+  
+        <div class="width-120">Port</div>
+        <div class="p-col-2">
+            <input type="number" name="port" class="w-100-p" pInputText [(ngModel)]="item['port']" [disabled] ="!item['executeRemote']"/>
+        </div>
+    
+        <div class="width-120 text-right">UserName</div>
+        <div class="p-col-2">
+            <input type="text" name="usr" class="w-100-p" pInputText [(ngModel)]="item['user']" [disabled] ="!item['executeRemote']"/>
+        </div>
+    
+</div>
+
+<div class="p-grid w-100-p p-align-center">
+    <div class="width-120 p-align-center p-grid">
+        <p-radioButton class="radio-button" name="1" [value]="0" [(ngModel)]="item['auth']" [disabled] ="!item['executeRemote']"></p-radioButton>
+        <div class="p-5">Password</div>    
+    </div>
+
+       
+        <div class="p-col-2">
+            <input type="password" pInputText class="w-100-p" [(ngModel)]="item['pwd']" name="pwd"
+                [disabled]="!item['executeRemote'] || (item['executeRemote'] && item['auth'] == '1')" />
+        </div>
+    
+</div>
+
+<div class="p-grid w-100-p p-align-center">
+    <div class="width-120 p-align-center p-grid">
+        <p-radioButton name="2" [value]="1" [(ngModel)]="item['auth']" [disabled] ="!item['executeRemote']"></p-radioButton>
+        <div class="p-5">Passphrase</div>   
+    </div>
+
+     
+       <div class="p-col-2">
+            <input type="text" class="w-100-p" pInputText [(ngModel)]="item['passphrase']" name="pssPhr"
+                [disabled]="!item['executeRemote'] || (item['executeRemote'] && item['auth'] == '0')" />
+        </div>
+    
+
+    
+        <div class="width-120 text-right"> Public Key</div>
+        <div class="p-col-2">
+            <input type="text" class="w-100-p" pInputText [(ngModel)]="item['pubKey']" name="pubKey"
+                [disabled]="!item['executeRemote'] || (item['executeRemote'] && item['auth'] == '0')" />
+        </div>
+   
+
+  
+        <div class="width-120 text-right">Private Key</div>
+        <div class="p-col-2">
+            <input type="text" class="w-100-p" pInputText [(ngModel)]="item['prvKey']" name="privateKey"
+                [disabled]="!item['executeRemote'] || (item['executeRemote'] && item['auth'] == '0')" />
+        </div>
+    
+</div>
+
+<p-fieldset legend="Proxy Settings" [toggleable]="true">
+    <div class="p-grid w-100-p p-align-center">
+        <div class="p-grid p-col-3 p-align-center">
+            <div class="input-label">Proxy Host</div>
+            <div>
+                <input type="text" pInputText [disabled]="!item['executeRemote']" name="pH"
+                    [(ngModel)]="item['pHost']">
+            </div>
+        </div>
+
+        <div class="p-grid p-col-3 p-align-center">
+            <div class="input-label">Proxy Port</div>
+            <div>
+                <input type="number" pInputText [disabled]="!item['executeRemote']" min="1" max="65535"
+                    style="width: 100px;" name="pPort" [(ngModel)]="item['pPort']">
+            </div>
+        </div> 
+
+        <div class="p-grid p-col-3 p-align-center">
+            <div class="input-label">Proxy Username</div>
+            <div>
+                <input type="text" pInputText [disabled]="!item['executeRemote']" name="pUname"
+                    [(ngModel)]="item['pUser']">
+            </div>
+        </div>
+
+        <div class="p-grid p-col-3 p-align-center">
+            <div class="input-label">Proxy Password</div>
+            <div>
+                <input type="password" pInputText [disabled]="!item['executeRemote']" name="pPwd"
+                    [(ngModel)]="item['proxyPwd']">
+            </div>
+        </div>
+    </div>
+</p-fieldset> -->

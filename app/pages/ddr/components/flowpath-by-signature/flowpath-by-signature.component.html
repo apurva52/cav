@@ -1,0 +1,113 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+
+<div class="ddr-box">
+    <p-toolbar>
+        <!--<div class="reportInfo">
+            <label class="headerInfo"><b>{{reportHeader}}</b></label>
+        </div>-->
+
+        <div class="group-left">
+            <!--<label class="headerInfo"><b>Filter criteria : </b></label>-->
+            <label class="headerInfo">{{headerInfo}}</label>
+        </div>
+        <div class="group-right">
+            <label (click)="showTimeDialog()" title="Apply Filter" class="fa fa-cog"></label>
+            <span *ngIf="showDownLoadReportIcon" title="Download Word Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")' src='./images/iconWord.gif'></span>
+            <span *ngIf="showDownLoadReportIcon" title="Download Excel Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")' src='./images/iconExcel.gif'></span>
+           <span *ngIf="showDownLoadReportIcon" title="Download PDF Report"><img border='0' width='13' height='15' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")' src='./images/iconPDF.gif'></span>
+
+        </div>
+    </p-toolbar>
+
+    <p-dialog class="ddr-dialog" [(visible)]="loader" [width]="500" [height]="75" [closable]="false" [resizable]="false" modal="modal" [responsive]="true">
+        <div *ngIf="loader">
+            <p-progressBar [value]="value"></p-progressBar>
+        </div>
+    </p-dialog>
+    <p-dialog class="ddr-dialog" header="Time Filter" [(visible)]="display" [closable]="false" [width]="500" [height]="200" [resizable]="false" modal="modal" [responsive]="true">
+        <div *ngIf="display">
+            <div class="ui-g-12">
+                <div class="ui-g-4">
+                    <p-radioButton name="group2" value="custom" (click)="standFunction()" label="Custom Time" [(ngModel)]="custom"></p-radioButton>
+                </div>
+            </div>
+            <div *ngIf="custselect">
+                <div class="ui-g-12">
+                    <div class="ui-g-6">
+                        From :
+                        <p-calendar [showIcon]="true" readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" (onSelect)="onStrDate($event)" [monthNavigator]="true" [yearNavigator]="true" yearRange="1970:2030" [showTime]="true" [(ngModel)]="strDate"></p-calendar>
+                    </div>
+                    <div class="ui-g-6">
+                        To :
+                        <p-calendar [showIcon]="true" readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" (onSelect)="onEndDate($event)" [monthNavigator]="true" [yearNavigator]="true" yearRange="1970:2030" [showTime]="true" [(ngModel)]="endDate"></p-calendar>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui-g-12">
+                <div class="ui-g-4">
+                    <p-radioButton name="group2" (click)="custFunction()" value="standard" label="Standard Time" [(ngModel)]="standard"></p-radioButton>
+                </div>
+                <div class="ui-g-6" *ngIf="standselect">
+                    <p-dropdown [options]="standardTime" scrollHeight="100px" [(ngModel)]="selectedTime" [style]="{'width':'150px', 'position':'fixed'}" placeholder="Select Time"></p-dropdown>
+                </div>
+            </div>
+        </div>
+        <p-footer>
+            <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+                <p style="color : red;text-align:left">{{msg}}</p>
+                <button type="button" pButton icon="fa-check" (click)="applyFilter()" label="Apply"></button>
+                <button type="button" pButton icon="fa-close" (click)="close()" label="Cancel"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+
+
+    <p-accordion class="ddr-accordion" (onClose)="closeFPDetailTab()" (onOpen)="openFPDetailTab()">
+        <p-accordionTab header="Flowpath Details" [selected]="true">
+            <p-toolbar>
+                <div class="ui-toolbar-group-right" style="text-align: right">
+                    <p-multiSelect title="Show/Hide columns" [options]="columnOptions" class="dashboard-lowerPanel-multiSelect ddr-multiselect-down"
+                    (onChange)="showHideColumn($event)" [(ngModel)]="visibleCols"></p-multiSelect>
+                    <button pButton type="button" title="Show/Hide columns" icon="fa-check-square-o fa"></button>
+                    <i class="fa fa-search" style="margin:0 0 0 0;"></i>
+                    <input #gb type="text" pInputText size="50" style="width: 30% !important;" placeholder="Search">
+                </div>
+            </p-toolbar>
+
+
+            <p-dataTable class="scen-table" [value]="flowpathData" [globalFilter]="gb" selectionMode="single" resizableColumns="true" [style]="{'height':'401px','font-size':'12px'}">
+                <div *ngFor = "let col of cols">
+                    <p-column *ngIf = "col.action" [field] = "col.field" [header] = "col.header" [sortable] = "col.sortable" (sortFunction)="sortColumnsOnCustom($event,flowpathData)" [style]="{'width':col.width+'px','color':col.color,'text-align':col.align}">
+                        <ng-template let-node="rowData" *ngIf="col.field == 'action'" pTemplate="body">
+                            <button type="button" pButton title="Method Timing" (click)="openMethodTiming(node)" icon="fa-meetup"></button>
+                            <button type="button" pButton title="DB Report" (click)="openDBReports(node)" icon="fa-database "></button>
+                        </ng-template>
+                        <ng-template let-col let-node="rowData" *ngIf="col.field == 'flowpathCount'" pTemplate="body">
+                            <div style="color:blue;cursor: pointer;" *ngIf="node[col.field] != 0" (click)="openFlowPathCount(node)">
+                                {{node[col.field]}}
+                            </div>
+                            <div style="color: black" *ngIf="node[col.field] == 0">
+                                {{node[col.field]}}
+                            </div>
+                        </ng-template>
+
+                    </p-column>
+                </div>
+            </p-dataTable>
+
+
+            <div> {{fpOffset+1}} - {{fpOffset+fpLimit}} of {{fpTotalCount}} </div>
+            <p-paginator rows="50" [totalRecords]="fpTotalCount" [rowsPerPageOptions]="[50,100,400,700,1000,4000,7000,10000]" pageLinkSize="3" (onPageChange)="paginate($event)"></p-paginator>
+
+        </p-accordionTab>
+    </p-accordion>
+</div>
+
+<!-- <div class="section" *ngIf="showDownLoadReportIcon">
+    <label style="font-size: 12px;padding-left: 6px;">Download Reports as: </label>
+    <span title="PDF Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")' src='./images/iconPDF.gif'></span>
+    <span title="Word Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")' src='./images/iconWord.gif'></span>
+    <span title="Excel Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")' src='./images/iconExcel.gif'></span>
+</div> -->

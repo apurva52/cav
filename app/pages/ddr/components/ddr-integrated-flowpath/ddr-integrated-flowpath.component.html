@@ -1,0 +1,295 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+<img *ngIf="loading" class="loadingIcon1" src="./images/loading.gif" />
+<div class="ddruiscroll" [ngStyle]="{'height': screenHeight + 60 +'px'}" style="overflow:auto;">
+  <p-accordion (onOpen)="onTabOpen($event)" class="accordHeader">
+    <p-accordionTab header="Flowpath" [selected]='commonService.openFlowpath'>
+      <div class="ddr-box">
+        <!-- COMMON TOOLBAR -->
+        <div class="ddr-toolbar">
+          <p-toolbar>
+            <div class="reportInfo">
+              <label class="headerInfo"><b>{{reportHeader}}</b></label>
+            </div>
+
+            <div class="group-left">
+              <label class="headerInfo"><b>Filter criteria : </b></label>
+              <label class="headerInfo">{{headerInfo}}</label>
+            </div>
+            <div class="group-right">
+              <label class="fa fa-files-o" [cbContent]=copyFlowpathLink [ngxClipboard]="" title="Copy Flowpath Link" alt="" (cbOnSuccess)=showNotification()></label>
+              <label (click)="showDialog()" title="Apply Filter" class="fa fa-cog" *ngIf="fromHsFlag !=='true'"></label>
+            </div>
+          </p-toolbar>
+        </div>
+        <!-- COMMON BOX SCROLLLBAR -->
+        <div class="ddruiscroll" [ngStyle]="{'height': screenHeight+'px'}" style="overflow:auto;">
+          <p-dialog class="ddr-dialog" [(visible)]="loader" [width]="500" [height]="75" [closable]="false" [resizable]="false" modal="modal"
+            [responsive]="true">
+            <div *ngIf="loader">
+              <p-progressBar [value]="value"></p-progressBar>
+            </div>
+          </p-dialog>
+
+
+          <p-dialog class="ddr-dialog" header="Filters" [(visible)]="display" [closable]="false" [width]="500" [height]="400" [resizable]="false"
+            modal="modal" [responsive]="true">
+            <div *ngIf="display">
+              <div class="ui-g-12">
+                <div class="ui-g-12">
+                  <p-checkbox (click)="timefiltersFunction()" label="Time Filters"></p-checkbox>
+                </div>
+                <div class="ui-g-12" *ngIf="timefilter">
+                  <div class="ui-g-12">
+                    <div class="ui-g-4">
+                      <p-radioButton name="group2" value="custom" (click)="standFunction()" label="Custom Time" [(ngModel)]="custom"></p-radioButton>
+                    </div>
+
+                    <div *ngIf="custselect">
+                      <div class="ui-g-12">
+                        <div class="ui-g-6">
+                          From :
+                          <p-calendar [showIcon]="true" readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" (onSelect)="onStrDate($event)" [monthNavigator]="true"
+                            [yearNavigator]="true" yearRange="1970:2030" [showTime]="true" [(ngModel)]="strDate"></p-calendar>
+                        </div>
+                        <div class="ui-g-6">
+                          To :
+                          <p-calendar [showIcon]="true" readonlyInput="true" appendTo="body" dateFormat="mm/dd/yy" (onSelect)="onEndDate($event)" [monthNavigator]="true"
+                            [yearNavigator]="true" yearRange="1970:2030" [showTime]="true" [(ngModel)]="endDate"></p-calendar>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="ui-g-12">
+                    <div class="ui-g-4">
+                      <p-radioButton name="group2" (click)="custFunction()" value="standard" label="Standard Time" [(ngModel)]="standard"></p-radioButton>
+                    </div>
+                    <div *ngIf="standselect">
+                      <p-dropdown [options]="standardTime" scrollHeight="100px" [(ngModel)]="selectedTime" [style]="{'width':'115px'}" placeholder="Select Time"></p-dropdown>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="ui-g-12">
+                <div class="ui-g-4">
+                  <p-checkbox name="group2" (click)="methFunction()" label="Method Count (>=)  "></p-checkbox>
+                </div>
+                <div class="ui-g-4" *ngIf="methselect">
+                  <input type="text" size="5" value="0" [(ngModel)]="minMethods">
+                </div>
+              </div>
+
+              <div class="ui-g-12">
+                <div class="ui-g-4">
+                  <p-checkbox name="group2" (click)="respFunction()" label="Response Time"></p-checkbox>
+                </div>
+                <div class="ui-g-4" *ngIf="respselect">
+                  <p-dropdown [options]="respdrop" scrollHeight="100px" [(ngModel)]="selectedResponse" [style]="{'width':'115px', 'position':'fixed'}"
+                    placeholder="Select Oprn"></p-dropdown>
+                </div>
+                <div class="ui-g-4" *ngIf="selectedResponse && respselect">
+                  <input type="text" size="5" value="0" [(ngModel)]="responseTime">
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <p-footer>
+              <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+                <p style="color : red;text-align:left">{{msg}}</p>
+                <button type="button" pButton icon="fa-check" (click)="applyFilter()" label="Apply"></button>
+                <button type="button" pButton icon="fa-close" (click)="close()" label="Cancel"></button>
+              </div>
+            </p-footer>
+          </p-dialog>
+
+
+          <!-- <div class="ui-g-12">
+  <p-accordion class="ddr-accordion" *ngIf="fpSignatureFlag == false" (onOpen)="openFPStatsTab()" (onClose)="closeFPStatsTab()">
+    <p-accordionTab header="Flowpath Stats" [selected]="selectedTab">
+      <div class="ui-g">
+        <div class="ui-g-6">
+          <div class="ddr-graphpanel" *ngIf="showChart; else pieChart">
+            <chart [options]="options" (click)="clickHandler($event)"></chart>
+          </div>
+          <ng-template #pieChart>No Pie Chart found based on current Filter Settings.</ng-template>
+        </div>
+        <div class="ui-g-6">
+          <div  class="ddr-graphpanel" *ngIf="showBarChart; else barChart">
+            <chart [options]="barChartOptions"></chart>
+          </div>
+          <ng-template #barChart>No RespTime Time Graph found based on current Filter Settings or Data length is less than 5</ng-template>
+        </div>
+      </div>
+    </p-accordionTab>
+  </p-accordion>
+</div> -->
+
+          <div class="ui-g-12">
+            <!-- <p-accordion class="ddr-accordion" (onClose)="closeFPDetailTab()" (onOpen)="openFPDetailTab()"> 
+    <p-accordionTab header="Flowpath Details" [selected]="!selectedTab"> -->
+            <p-toolbar>
+              <div class="ui-toolbar-group-right" style="text-align: right">
+                <p-multiSelect title="Show/Hide columns" [options]="columnOptions" *ngIf="optionsButton" class="dashboard-lowerPanel-multiSelect ddr-multiselect-down" (onChange)="showHideColumn($event)" [(ngModel)]="visibleCols"></p-multiSelect>
+                <button pButton type="button" *ngIf="optionsButton" title="Show/Hide columns" icon="fa fa-bars"></button>
+                <!-- <button pButton type="button" title={{toggleFilterTitle}} icon="fa fa-filter" (click)="toggleColumnFilter()"></button>  -->
+                <img src="./images/showall.png" *ngIf="showAllOption" style="height:21px; width:21px;float:right;cursor:pointer;" title="Show all data"
+                  icon="fa-refresh" (click)="showAllData()">
+                <!-- <i class="fa fa-search" style="margin:0 0 0 0;"></i> -->
+                <input #gb type="text" pInputText size="50" style="width: 50% !important;" placeholder="Global Filter" icon="fa-search">
+              </div>
+            </p-toolbar>
+            <div style="overflow:auto">
+              <p-dataTable class="scen-table" [value]="flowpathData" sortField="fpDuration" sortOrder="-1" [globalFilter]="gb" *ngIf="(tableOptions == true && fpSignatureFlag == false) || signatureToFP == true"
+                selectionMode="single" scrollHeight="340px" [style]="{'height':'419px','font-size':'12px'}" resizableColumns="true"
+                reorderableColumns="true">
+                <div *ngFor="let col of cols">
+                  <p-column *ngIf="col.action" [field]="col.field" [header]="col.header" [sortable]="col.sortable" [sortable]="true" [filter]="col.filter"
+                    [filterMatchMode]='contains' (sortFunction)="sortColumnsOnCustom($event,flowpathData)" [style]="{'width':'100px'}">
+
+                    <ng-template let-col let-node="rowData" pTemplate type="body">
+                      <div style="text-align: left ;cursor: pointer;color:blue;" title="Open ED" *ngIf="(col.field == 'tierName')" (click)="openED(node)">
+                        {{node[col.field]}}</div>
+                      <div style="color:blue; text-align: left;cursor: pointer ;" title="View Flowpath Details" *ngIf="(col.field == 'urlName')"
+                        (click)="openMethodCallingTree(node)">
+                        {{node[col.field]}} </div>
+
+                      <div style="color:blue; text-align: left;cursor: pointer ;" title="View Http Report" *ngIf="(col.field == 'urlQueryParamStr')"
+                        (click)="openHttpReport(node)">
+                        {{node[col.field]}} </div>
+                      <div style="text-align: right;" *ngIf="(col.field == 'dbCallCounts' && node[col.field] == '0')">
+                        {{node[col.field]}} </div>
+                      <div style="color:blue; text-align: right;cursor: pointer ;" title="View DB Report" *ngIf="(col.field == 'dbCallCounts' && !(node[col.field] == '0'))"
+                        (click)="openDBReports(node, 'fpByresponse')">
+                        {{node[col.field]}} </div>
+
+                      <div style="color:blue; text-align: right ;cursor: pointer ;" title="View MethodTiming Report" *ngIf="(col.field == 'fpDuration')"
+                        (click)="openMethodTiming(node, 'fpByResponse')">
+                        {{node[col.field]}} </div>
+                      <div style="color: blue;cursor: pointer ;" title="View Hotspot Report" *ngIf="(col.field == 'btCatagory')" (click)="openHotspotReport(node)">
+                        {{node[col.field]}} </div>
+                      <div style="text-align: right ;cursor: pointer;color:blue;" title="View Transaction FlowMap" *ngIf="(col.field == 'callOutCount')"
+                        (click)="navigateToTransactionFlow(node,col)">
+                        {{node[col.field]}}</div>
+                      <div style="text-align: right;" *ngIf="(col.field == 'totalError' && node[col.field] == '0')">
+                        {{node[col.field]}} </div>
+                      <div style="color:blue; text-align: right;cursor: pointer ;" title="View Exception Report" *ngIf="(col.field == 'totalError' && !(node[col.field] == '0'))"
+                        (click)="openExceptionReport(node)">
+                        {{node[col.field]}} </div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'flowpathInstance')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'statusCode')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'methodsCount')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'btCpuTime')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'waitTime')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'syncTime')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'iotime')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'suspensiontime')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'storeId')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'terminalId')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'nvSessionId')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'jmsCallOut')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'coherenceCallOut')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'nvPageId')">{{node[col.field]}}</div>
+                      <div style="text-align: right ;" *ngIf="(col.field == 'ndSessionId')">{{node[col.field]}}</div>
+                      <div *ngIf="!(col.field == 'dbCallCounts') && !(col.field == 'tierName') && !(col.field == 'urlQueryParamStr') && !(col.field == 'urlName') 
+              && !(col.field == 'flowpathInstance') && !(col.field == 'statusCode') && !(col.field == 'fpDuration') && !(col.field == 'callOutCount') && !(col.field == 'totalError')
+            && !(col.field == 'methodsCount') && !(col.field == 'ndSessionId') && !(col.field == 'nvPageId') && !(col.field == 'coherenceCallOut')&& !(col.field == 'jmsCallOut') 
+            && !(col.field == 'nvSessionId') && !(col.field == 'terminalId') && !(col.field == 'storeId') && !(col.field == 'suspensiontime') 
+            && !(col.field == 'iotime') && !(col.field == 'syncTime') && !(col.field == 'waitTime') && !(col.field == 'btCpuTime') && !(col.field == 'btCatagory')">{{node[col.field]}} </div>
+                    </ng-template>
+                  </p-column>
+                </div>
+              </p-dataTable>
+              <p-dataTable class="scen-table" [value]="flowpathData" [globalFilter]="gb" *ngIf="tableOptions == false" selectionMode="single"
+                scrollHeight="340px" [style]="{'height':'340px','font-size':'12px'}" resizableColumns="true" reorderableColumns="true">
+                <p-column field="urlName" header="Business Transaction" [sortable]="true" [style]="{'text-align':'left'}">
+                  <ng-template pTemplate="header">
+                    <a pTooltip="Business Transaction" tooltipPosition="bottom" tooltipEvent="hover">Business Transaction</a>
+                  </ng-template>
+                </p-column>
+                <p-column field="fpCount" header="FlowPath Count" sortable="custom" (sortFunction)="sortColumnsOnCustom($event, flowpathData)"
+                  [style]="{'text-align':'right'}">
+                  <ng-template let-col let-node="rowData" pTemplate="body">
+                    <a *ngIf="node[col.field] != 0" style="color:blue;cursor:pointer;" (click)="openFlowPathCount(node, 'grpByBT')"><span>{{node[col.field]}}</span></a>
+                    <a *ngIf="node[col.field] == 0"><span>{{node[col.field]}}</span></a>
+                  </ng-template>
+                  <ng-template pTemplate="header">
+                    <a pTooltip="FlowPath Count" tooltipPosition="bottom" tooltipEvent="hover">FlowPath Count</a>
+                  </ng-template>
+                </p-column>
+              </p-dataTable>
+              <div *ngIf='paginationFlag'>
+                <div> {{fpOffset+1}} - {{fpOffset+fpLimit}} of {{fpTotalCount}} </div>
+                <p-paginator rows={{commonService.rowspaerpage}} [totalRecords]="fpTotalCount" [rowsPerPageOptions]="[50,100,200,400]" pageLinkSize="3"
+                  (onPageChange)="paginate($event)"></p-paginator>
+              </div>
+            </div>
+            <!-- </p-accordionTab>
+  </p-accordion> -->
+          </div>
+        </div>
+        <div class="section" *ngIf="showDownLoadReportIcon">
+          <label style="font-size: 12px;padding-left: 6px;">Download Reports as: </label>
+          <span title="PDF Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("pdf")' src='./images/iconPDF.gif'></span>
+          <span title="Word Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("word")' src='./images/iconWord.gif'></span>
+          <span title="Excel Report"><img border='0' width='13' height='14' style='margin-bottom: -3px; cursor:pointer' (click)='downloadReports("excel")' src='./images/iconExcel.gif'></span>
+        </div>
+      </div>
+
+      <p-growl [(value)]="msgs"></p-growl>
+
+      <p-dialog class="scenmodal  Ddr-popup-footer" [(visible)]="displayPopUp" [responsive]='true' [resizable]='false' [positionTop]='140'
+        [width]="500" [minHeight]='300' [style]="{'max-height':'500px'}">
+        <p-header>HotSpot Thread Details</p-header>
+        <div>
+          <table width="500" height="150" cellspacing="0">
+            <tbody>
+              <tr>
+                <td style="border: 0px solid grey;font-size:10pt;text-align:center;">No Hotspots found based on current Filter Settings.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </p-dialog>
+    </p-accordionTab>
+    <p-accordionTab *ngIf='commonService.showTransactionFlowmap' [selected]="commonService.openFlowMapTab" header="Transaction FlowMap">
+      <app-ddr-transaction-flowmap></app-ddr-transaction-flowmap>
+    </p-accordionTab>
+    <p-accordionTab *ngIf='commonService.showMethodCallingTree' [selected]="commonService.openMethodCallingTreeTab" header="Method Calling Tree">
+      <methodcallingtree></methodcallingtree>
+    </p-accordionTab>
+    <p-accordionTab *ngIf='commonService.showHotspot' [selected]="commonService.openHotspotTab" header="Hotspot Report">
+      <app-hotspot></app-hotspot>
+    </p-accordionTab>
+    <p-accordionTab *ngIf='commonService.showMethodTiming' [selected]="commonService.openMethodTimingTab" header="Method Timing">
+      <methodtiming></methodtiming>
+    </p-accordionTab>
+    <p-accordionTab *ngIf='commonService.showHttp' [selected]="commonService.openHttpTab" header="HTTP Rport">
+      <http-req-resp></http-req-resp>
+    </p-accordionTab>
+    <p-accordionTab *ngIf='commonService.showDbreport' [selected]="commonService.openDbTab" header="DB Report">
+      <app-queries></app-queries>
+    </p-accordionTab>
+    <p-accordionTab *ngIf='commonService.showExceptionReport' [selected]="commonService.openExceptionTab" header="Exception Report">
+      <exception-report></exception-report>
+    </p-accordionTab>
+
+    <!-- <p-accordionTab showMethodTiming *ngIf='commonService.showTransactionFlowmap'  header="Transaction FlowMap">
+  <app-ddr-transaction-flowmap></app-ddr-transaction-flowmap>
+</p-accordionTab>
+<p-accordionTab *ngIf='commonService.showTransactionFlowmap'  header="Transaction FlowMap">
+  <app-ddr-transaction-flowmap></app-ddr-transaction-flowmap>
+</p-accordionTab>
+<p-accordionTab *ngIf='commonService.showTransactionFlowmap'  header="Transaction FlowMap">
+  <app-ddr-transaction-flowmap></app-ddr-transaction-flowmap>
+</p-accordionTab>
+<p-accordionTab *ngIf='commonService.showTransactionFlowmap'  header="Transaction FlowMap">
+  <app-ddr-transaction-flowmap></app-ddr-transaction-flowmap>
+</p-accordionTab> -->
+  </p-accordion>
+</div>

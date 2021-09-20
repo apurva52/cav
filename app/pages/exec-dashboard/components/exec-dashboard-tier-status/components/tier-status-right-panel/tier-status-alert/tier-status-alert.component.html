@@ -1,0 +1,161 @@
+<div class="ts-alert-main mtn-8 py-15">
+  <div class="ts-serverity">
+    <label class="font-weight-700" (click) = "allAlertCount > 0 ? _rightPanelService.getDataForAlerts('All Alert',getSelectedDC() ) : false">Alerts</label>
+    <div class="ts-alert-top">
+      <div class="p-grid p-align-center p-justify-between my-3">
+
+        <div class="ts-alerts ts-alert-min">
+          <!-- <label class = "ts-alert-values">{{tsAlertData.normal}}</label> -->
+        </div>
+        <div class="ts-alerts ts-alert-maj">
+          <!-- <label class = "ts-alert-values">{{tsAlertData.major}}</label> -->
+        </div>
+        <div class="ts-alerts ts-alert-crit">
+          <!-- <label class = "ts-alert-values">{{tsAlertData.critical}}</label> -->
+        </div>
+      
+      
+    </div>
+
+      <div class="p-grid p-align-center p-justify-between my-3">
+        <div class="dotted-class">
+          <i class="material-icons ts-min-alert-dot"></i>
+          <label class = "alertValues" (click) = "tsAlertData.normal > 0 ? _rightPanelService.getDataForAlerts('Minor',getSelectedDC() ) : false">Minor</label>  
+          <label class = "ts-alert-values mx-3">{{tsAlertData.normal}}</label>
+        </div>
+        <div class="dotted-class">
+          <i class="material-icons ts-maj-alert-dot"></i>
+          <label class = "alertValues" (click) = "tsAlertData.major > 0 ? _rightPanelService.getDataForAlerts('Major',getSelectedDC() ) : false">Major</label>
+          <label class = "ts-alert-values mx-3">{{tsAlertData.major}}</label> 
+        </div>
+        <div class="dotted-class">
+          <i class="material-icons ts-crit-alert-dot"></i>
+          <label class = "alertValues" (click) = "tsAlertData.critical > 0 ? _rightPanelService.getDataForAlerts('Critical',getSelectedDC() ) : false">Critical</label>
+          <label class = "ts-alert-values mx-3">{{tsAlertData.critical}}</label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- dialogbox for alerts -->
+
+<p-dialog [modal]="true" [style]="{width: '80vw'}" class="secondary-dialog foterDialog" (onHide)="resetSubscription()"  header="Alert Details-{{_rightPanelService.$alertLabel}}" [(visible)]="_rightPanelService.$alertWindow" [width]="980">
+  <div *ngIf="_selectedDCArr.length > 1 && _rightPanelService.$alertWindow">
+    <p-tabView class="scenTab"
+      (onChange)="_rightPanelService.getDataForAlerts(_rightPanelService.$alertLabel,_selectedDCArr[$event.index]);  disableAlert.capacity ? getBehavioral() : getDataForCapacity()">
+      <p-tabPanel class="ts-alert-Panel" header="{{dc}}" *ngFor="let dc of _selectedDCArr"></p-tabPanel>
+    </p-tabView>
+  </div>
+  <p-panel>
+    <p-header>
+      <button pButton type="button" (click)="getDataForCapacity()"
+        [ngClass]="disableAlert.capacity?'disableBtn':'enableBtn'" label="Capacity"></button>
+    </p-header>
+    <div class="ui-grid-row">
+        <p-table [value]="alertArr" [rows]="10" [paginator]="true" [pageLinks]="3" class="all-tables" paginatorDropdownAppendTo="body"
+        [rowsPerPageOptions]="[20,40,100,200]" scrollable="true" scrollHeight="250px">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col style="width:6.5%">
+            <col style="width:14.5%">
+            <col style="width:14.5%">
+            <col style="width:13.5%">
+            <col style="width:13.5%">
+            <col style="width:12.5%">
+            <col style="width:12.5%">
+            <col style="width:12.5%">
+           </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Icon</th>
+                <th>Rule Name</th>
+                <th>Alert Message </th>
+                <th>Time </th>
+                <th>Alert Time(ago)</th>
+                <th>Tier</th>
+                <th>Server</th>
+                <th>Instance</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData>
+          <tr>
+              <td>
+                  <img src="../dashboard/images/{{rowData.icon}}">
+              </td>
+              <td>
+                  <span class="lblAlertTable" title="{{rowData.ruleName}}">{{rowData.ruleName}}</span>
+              </td>
+              <td>
+                  <span class="lblAlertTable" title="{{rowData.alertMessage}}">{{rowData.alertMessage}}</span>
+              </td>
+              <td>
+                  <span class="lblAlertTable" title="{{rowData.alertTime}}">{{rowData.alertTime}}</span>
+              </td>
+              <td>
+                  <span class="lblAlertTable" title="{{rowData.timeAgo}}">{{rowData.timeAgo}}</span>
+              </td>
+              <td>
+                  <span class="lblAlertTable" title="{{rowData.tier}}">{{rowData.tier}}</span>
+              </td>
+              <td>
+                  <span class="lblAlertTable" title="{{rowData.server}}">{{rowData.server}}</span>
+              </td>
+              <td>
+                  <span class="lblAlertTable" title="{{rowData.instance}}">{{rowData.instance}}</span>
+              </td>
+          </tr>
+        </ng-template>
+        </p-table>
+
+      <!-- <p-dataTable [value]="alertArr" [rows]="10" [paginator]="true" [pageLinks]="3"
+        [rowsPerPageOptions]="[20,40,100,200]" class="scen-table sysTable" scrollable="true" scrollHeight="250px">
+        <p-column field="icon" header="" [style]="{'text-align': 'center', 'width': '0.5%'}">
+          <ng-template let-rowData="rowData" pTemplate="body">
+            <img src="../dashboard/images/{{rowData.icon}}" style="width:16px;">
+          </ng-template>
+        </p-column>
+        <p-column field="dc" header="Data Center"  [style]="{'text-align': 'left', 'width': '1%'}"></p-column>
+        <p-column field="ruleName" header="Rule Name" [style]="{'text-align': 'left', 'width': '2%'}">
+          <ng-template let-rowData="rowData" pTemplate="body">
+            <span class="lblAlertTable" title="{{rowData.ruleName}}">{{rowData.ruleName}}</span>
+          </ng-template>
+        </p-column>
+        <p-column field="alertMessage" header="Alert Message" [style]="{'text-align': 'left', 'width': '2.5%'}">
+          <ng-template let-rowData="rowData" pTemplate="body">
+            <span class="lblAlertTable" title="{{rowData.alertMessage}}">{{rowData.alertMessage}}</span>
+          </ng-template>
+        </p-column>
+        <p-column field="alertTime" header="Time" [style]="{'text-align': 'right', 'width': '1.5%'}">
+          <ng-template let-rowData="rowData" pTemplate="body">
+            <span class="lblAlertTable" title="{{rowData.alertTime}}">{{rowData.alertTime}}</span>
+          </ng-template>
+        </p-column>
+        <p-column field="timeAgo" header="Alert Time(ago)" [style]="{'text-align': 'right', 'width': '1.5%'}">
+          <ng-template let-rowData="rowData" pTemplate="body">
+            <span class="lblAlertTable" title="{{rowData.timeAgo}}">{{Number.parseInt(rowData.timeAgo) | alertTimeAgo}}</span>
+          </ng-template>
+        </p-column>
+        <p-column field="tier" header="Tier" [style]="{'text-align': 'left', 'width': '1.5%'}">
+          <ng-template let-rowData="rowData" pTemplate="body">
+            <span class="lblAlertTable" title="{{rowData.tier}}">{{rowData.tier}}</span>
+          </ng-template>
+        </p-column>
+        <p-column field="server" header="Server" [style]="{'text-align': 'left', 'width': '1.5%'}">
+          <ng-template let-rowData="rowData" pTemplate="body">
+            <span class="lblAlertTable" title="{{rowData.server}}">{{rowData.server}}</span>
+          </ng-template>
+        </p-column>
+        <p-column field="instance" header="Instance" [style]="{'text-align': 'left', 'width': '1.5%'}">
+          <ng-template let-rowData="rowData" pTemplate="body">
+            <span class="lblAlertTable" title="{{rowData.instance}}">{{rowData.instance}}</span>
+          </ng-template>
+        </p-column>
+        <p-column field="alertValue" header="Alert Value" [style]="{'text-align': 'right', 'width': '1%'}"></p-column>
+        <p-column field="threshold" header="Threshold" [style]="{'text-align': 'right', 'width': '1%'}"></p-column>
+        <p-column field="bname" header="Baseline"  [style]="{'text-align': 'left', 'width': '1%'}"></p-column>
+      </p-dataTable> -->
+    </div>
+  </p-panel>
+</p-dialog>

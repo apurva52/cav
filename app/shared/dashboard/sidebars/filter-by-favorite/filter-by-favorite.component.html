@@ -1,0 +1,82 @@
+<p-sidebar #sidebar [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000" blockScroll="true" appendTo="body"
+    [styleClass]="classes">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <div>
+                <i class="icons8 icons8-synchronize"></i>
+                <span>Filter By Favorite</span>
+            </div>
+            <div class="action-icons">
+                <i class="icons8-delete sidebar-icon" (click)="hide()"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-content">
+        <div class="p-col-12">
+            <span class="span-css">Find the current widgets indices with the following indices</span>
+        </div>
+
+        <div *ngFor="let data of totalData let i=index" class="p-field p-grid">
+          <label for="description" class="p-col-12 p-md-4">{{data.metadata}}</label>
+          <div class="p-col-12 p-md-8">
+
+            <p-dropdown [options]="data.vectorList" [(ngModel)]="selecteditem[i]" placeholder="Select Item"
+              dropdownIcon="icons8-expand-arrow" (onChange)="OnHierarchyChange($event, i, data.metadata)" required="true"></p-dropdown>
+
+              <!-- <p-multiSelect class="icon-button no-shadow drop-down"  [(ngModel)]="selecteditem[i]" [options]="data.vectorList"
+              optionLabel="label"  dropdownIcon="icons8 icons8-expand-arrow" [defaultLabel]="'Select Item'"
+              (onChange)="OnHierarchyChange($event, i, data.metadata)"
+              [panelStyle]="{ minWidth: '200px'}">
+              </p-multiSelect> -->
+
+              <div *ngIf="selecteditem" class="p-col-12 p-md-12 ph-0">
+
+                 <!-- Selected Hierarchy : {{selecteditem.value}} -->
+
+              </div>
+
+
+            <div *ngIf="data.isPatterBox" class="p-col-12 p-md-12 ph-0">
+              <input type="text" [(ngModel)]="data.value" pInputText />
+            </div>
+          </div>
+        </div>
+
+    <!-- </div> -->
+    <!-- <div class="button-position p-grid p-justify-center">
+        <button pButton type="submit" label="APPLY"  class="ui-button-rounded " (click)="applyFilters()"></button>
+    </div> -->
+    <button pButton type="add" label="ADD" class="ui-button-rounded" (click) = "addToTable()"[disabled]="tagList.length == 0 ? true : false"></button>
+
+    <div class="p-col-12">
+      <span class="span-css"> Actions in this Session</span>
+    </div>
+
+    <p-card>
+      <div *ngIf="data">
+        <p-orderList [value]="data" [(selection)]="selectedRow" header="">
+          <ng-template pTemplate="item" let-rowData>
+            <div class="ui-helper-clearfix">
+              <div class="list">
+
+                <span class="flowpathInstance">{{rowData}}</span>
+              </div>
+            </div>
+          </ng-template>
+        </p-orderList>
+      </div>
+    </p-card>
+
+  </div>
+
+    <div class="button-position p-grid p-col-12 p-align-center">
+      <div class="button-div">
+        <button pButton type="reset" label="RESET" class="ui-outline-button ui-button-secondary" (click) = "resetFilters()"></button>
+        <button pButton type="submit" label="Apply" class="ui-button-rounded" (click) = "applyFilters()" [disabled]="data.length == 0"></button>
+
+      </div>
+      </div>
+
+
+</p-sidebar>

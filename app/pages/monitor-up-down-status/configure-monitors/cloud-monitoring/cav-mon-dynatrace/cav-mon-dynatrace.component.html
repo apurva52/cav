@@ -1,0 +1,213 @@
+<div class="header">
+  <app-header></app-header>
+</div>
+
+<p-toolbar class="ui-secondary-toolbar">
+  <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+    <a class = "clickable" (click) = "navToPreviousPage()">
+      <span class="icons8 icons8-left toolbar-icon-color"></span>
+    </a>
+    <div class="p-col ui-toolbar-text">Configure DynaTrace Monitors</div>
+  </div>
+</p-toolbar>
+
+<div class="viewportHeight">
+<p-tabView class="tabWauto">
+  <p-tabPanel header="Configuration">
+    <div class="hlthChkSettingsTab" style="height: 416px;">
+      <form (ngSubmit)="addData()" #form="ngForm" ngNativeValidate>
+        <div class="p-grid p-align-center">
+          <div class="ui-g-2 required-mark">Account Name</div>
+          <div class="ui-g-4">
+            <input name="aName" type="text" pInputText [(ngModel)]="formData.aNKey" class="w-100-p" required
+              placeholder="Account Name" ngModel />
+          </div>
+          <div class="ui-g-2 pl-40 required-mark">Dynatrace APM URL</div>
+          <div class="ui-g-4">
+            <input name="dyna" type="text" pInputText [(ngModel)]="formData.api" class="w-100-p"
+              placeholder="http(s)://<id>.live.Dynatrace.com" ngModel required />
+          </div>
+
+          <div class="ui-g-2 required-mark">Token</div>
+          <div class="ui-g-4">
+            <input name="apiKey" type="text" pInputText [(ngModel)]="formData.token" class="w-100-p" placeholder="Token"
+              ngModel required />
+          </div>
+
+        </div>
+
+        <div class="buttonCont mb-10">
+          <button type="submit" pButton class="ui-button ui-button-rounded ui-button-right p-align-center" *ngIf="!isFromEdit"
+            label="Add"></button>
+          <button type="submit" pButton class="ui-button ui-button-rounded ui-button-right" *ngIf="isFromEdit"
+            label="Update"></button>
+          <button type="button" pButton class="ui-button ui-button-rounded ui-button-right" (click)="closeConfiguration()"
+            *ngIf="isFromEdit" label="Cancel"></button>
+        </div>
+
+        <div class="">
+
+          <!-- <p-dataTable [value]="dynatraceConfigDTO" class="monitor-ui-table" [rows]="10"
+              [paginator]="dynatraceConfigDTO?.length >10" [pageLinks]="3">
+              <p-column [style]="{'width':'21px'}" header="#">
+                <ng-template pTemplate let-data="rowData" type="body" let-rowIndex="rowIndex">
+                  <span style="float:right">{{rowIndex+1}}
+                  </span>
+                </ng-template>
+              </p-column>
+              <p-column [style]="{'width':'300px'}" field="aNKey" header="Account Name"></p-column>
+              <p-column [style]="{'width':'300px'}" field="api" header="Dynatrace APM URL"></p-column>
+              <p-column [style]="{'width':'350px'}" field="token" header="Token"></p-column>
+              <p-column [style]="{'width':'100px'}" class="col-overflow" header="Actions">
+                <ng-template pTemplate let-data="rowData" let-rowIndex="rowIndex" type="body">
+                  <span style="margin-left: 18px;">
+                    <i class="fa fa-trash-o disabled" (click)="deleteSpecificConfig(data)"
+                      style="color: #f12a2a;cursor:pointer; margin-left: 10px" title="Delete Configured Profile"></i>
+                    <i class="fa fa-pencil" (click)="editData(data,rowIndex)"
+                      style="color: #2572b5;cursor:pointer; margin-left: 10px"></i>
+                  </span>
+                </ng-template>
+              </p-column>
+            </p-dataTable> -->
+
+          <p-table [columns]="cols" [value]="dynatraceConfigDTO" class="all-tables" [rows]="7"
+            [paginator]="dynatraceConfigDTO?.length >7" [pageLinks]="3">
+
+            <ng-template pTemplate="colgroup" let-columns>
+              <colgroup>
+                <col style="width:30px">
+                <col style="width:30%">
+                <col style="width:30%">
+                <col style="width:30%">
+                <col style="width:10%">
+              </colgroup>
+            </ng-template>
+
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th style="width:25px">
+                  #
+                </th>
+                <th *ngFor="let col of columns">
+                  {{col.header}}
+                </th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+              <tr>
+                <td class="text-center columnwidth">
+                  <span style="float:right">{{rowIndex+1}}
+                  </span>
+                </td>
+                <td *ngFor="let col of columns">
+                  {{rowData[col.field]}}
+                </td>
+                <!-- <td>{{product.met}}</td>
+                      <td>{{product.cKey}}</td> -->
+                <td class="text-center">
+                  <button type="button" class="btn-icon m-2" title="Delete Configured Profile"
+                    (click)="deleteSpecificConfig(rowData)">
+                    <i class="icons8 icons8-trash red-fg disabled"></i>
+                  </button>
+                  <button type="button" class="btn-icon m-2" title="Edit Configured Profile" (click)="editData(rowData)">
+                    <i class="icons8 icons8-edit"></i>
+                  </button>
+                </td>
+
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+              <tr>
+                <td [attr.colspan]="columns.length + 2" class="noRecords" style="text-align: center">No records found.
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+
+
+
+        </div>
+      </form>
+    </div>
+  </p-tabPanel>
+
+  <p-tabPanel header="Monitor(s)">
+    <div class="hlthChkSettingsTab">
+
+      <div class="buttonCont my-10">
+        <button pButton class="toolbarIcon" *ngIf="!isShowFilter" type="button" icon="icons8 icons8-search"
+          (click)="showFilter()" title="Show Filter"></button>
+        <button pButton class="toolbarIcon" *ngIf="isShowFilter" type="button" icon="icons8 icons8-search"
+          (click)="showFilter()" title="Hide Filter"></button>
+      </div>
+      <div class="ui-g mt-20">
+        <p-table #searchable [value]="cloudMonitorData" class="all-tables" [paginator]="cloudMonitorData?.length > 20"
+          [rows]="20" [pageLinks]="3">
+          <ng-template pTemplate="colgroup" let-columns>
+            <col style="width: 40px;">
+            <col style="width: auto;">
+          </ng-template>
+          <ng-template pTemplate="header">
+            <tr class="scen-ptable-thead">
+              <th rowspan="2"></th>
+              <th>
+                Monitor Name
+              </th>
+            </tr>
+            <tr *ngIf="isShowFilter">
+              <th [ngSwitch]="'monName'">
+                <input class="w-100-p" pInputText type="text"
+                  (input)="searchable.filter($event.target.value, 'monName', 'contains')">
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
+            <tr class="scen-ptable-tbody">
+              <td>
+                <span>
+                  <p-checkbox name="chk" binary=true (click)="onCheckBoxChange(rowData)" [(ngModel)]="rowData.enabled">
+                  </p-checkbox>
+                </span>
+              </td>
+              <td>
+                <span title="Click to view Metric Information"> <a class="clickable"
+                    (click)="advanceSettings(rowData)">{{rowData.monName}}</a></span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td [attr.colspan]="2" class="noRecords" style="text-align: center">No records found.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+    <div class="buttonCont mt-10">
+      <button pButton type="button" class="ui-button ui-button-rounded ui-button-right" *ngIf="runTimeMode != 3"
+        [disabled]="modeStatus || dynatraceConfigDTO.length == 0 || userRole == 'guest'" (click)="saveData()"
+        label="Save" title="Save"></button>
+      <button pButton type="button" *ngIf="runTimeMode == 3" class="ui-button ui-button-rounded ui-button-right" (click)="saveData()"
+        [disabled]="modeStatus || dynatraceConfigDTO.length == 0 || userRole == 'guest'"
+        title="Saves the Configuration(s) at runtime" label="Save & Apply"></button>
+
+    </div>
+  </p-tabPanel>
+  <p-confirmDialog class="confirmdialog" #cd [style]="{width: '50vw'}" [baseZIndex]="100000000011">
+    <p-footer>
+      <button type="button" class="ui-button ui-button-rounded ui-button-right" pButton icon="pi pi-check"
+        label={{acceptLable}} (click)="cd.accept()"></button>
+      <button type="button" class="ui-button ui-button-rounded ui-button-secondary" pButton icon="pi pi-times"
+        label="No" (click)="cd.reject()" *ngIf="rejectVisible"></button>
+    </p-footer>
+  </p-confirmDialog>
+  <div class="loading-indicator" *ngIf="loading">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+    </p-progressSpinner>
+  </div>
+</p-tabView>
+</div>
+<div *ngIf = "display">
+  <app-mon-stats [display] = "display" [item]="gdfDetail" (displayChange)="onDialogClose($event)"></app-mon-stats>
+</div>

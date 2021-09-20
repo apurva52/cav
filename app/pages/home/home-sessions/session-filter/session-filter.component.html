@@ -1,0 +1,569 @@
+<p-sidebar #sidebar [styleClass]="classes" [(visible)]="visible" [showCloseIcon]="false" baseZIndex="10000"
+    blockScroll="true" styleClass="time-filter" [baseZIndex]="100">
+    <div class="sidebar-header">
+        <div class="sidebar-title p-grid p-justify-between">
+            <div>
+                <i class="icons8 icons8-clock"></i>
+                <span>Session Filter</span>
+            </div>
+            <i class="icons8-delete icons8 clickable" (click)="closeClick()"></i>
+        </div>
+    </div>
+
+    <p-toast></p-toast>
+
+    <form [formGroup]="myForm" (ngSubmit)="onSubmit(myForm.value)" *ngIf="!reloading">
+        <div class="sidebar-content">
+            <p-tabView>
+                <p-tabPanel header="General">
+                    <div class="first-tab">
+                        <!-- Last filter -->
+                        <div class="p-grid p-align-center my-5">
+                            <div class="p-col-4">
+                                <p-radioButton name="timefilter" label="Last" value="true" formControlName="_timefilter"
+                                    (click)="triggerfilter()"></p-radioButton>
+                            </div>
+                            <!--
+                            <select formControlName="lastval" (change)="onSelectMethodLast($event.target.value)" [attr.disabled]="myForm.controls['_timefilter'].value != 'true' ? '': null" class="w-100-p"> 
+                                <option *ngFor="let item of duration" value = {{item.label}}>{{item.label}}</option>
+                            </select>-->
+
+                            <div class="p-col-8">
+                                <p-dropdown [options]="duration" placeholder="1 Hour" class="w-100-p"
+                                    [disabled]="myForm.controls['_timefilter'].value != 'true' ? '': null"
+                                    dropdownIcon="icons8 icons8-expand-arrow" formControlName="lastval"
+                                    (onChange)="onSelectMethodLast($event.value)"></p-dropdown>
+                            </div>
+
+                            <div class="p-col-12">
+                                <p-radioButton name="timefilter" label="custom" value="Custom" formControlName="_timefilter"
+                                    (click)="triggerfilter()"></p-radioButton>
+                            </div>
+
+                        </div>
+
+                        <!--Duration Filter-->
+                      
+                        <div formGroupName="timeFilter">
+                            <div class="p-grid p-justify-between p-align-center">
+                                <label class="p-col-4">Starts At</label>
+                                <div class="p-col-8">
+                                    <div class="type-search">
+                                        <i class="icons8 icons8-calendar left-icon"></i>
+                                    <input pInputText class="w-100-p" readonly id="start-date-time"
+                                        [owlDateTime]="customStartDateTime" placeholder=""
+                                        [owlDateTimeTrigger]="customStartDateTime"
+                                        (ngModelChange)="onTimeFilterCustomTimeChange(true)" [selectMode]="'rangeFrom'"
+                                        [max]="customTimeFrameMax" formControlName="_customTimeFrameStart"
+                                        [disabled]="myForm.controls['_timefilter'].value == 'true' ? true: null">
+                                    <owl-date-time #customStartDateTime tooltipZIndex="100001005"></owl-date-time>
+                                    <p-message *ngIf="invalidDate" severity="error"
+                                        text="Start date and End date should not be the same.">
+                                    </p-message>
+                                    </div>
+                                </div>
+
+                                <label class="p-col-4">Ends At</label>
+                                <div class="p-col-8">
+                                    <div class="type-search">
+                                        <i class="icons8 icons8-calendar left-icon"></i>
+                                    <input pInputText class="w-100-p" readonly id="start-date-time"
+                                        [owlDateTime]="customEndDateTime" placeholder=""
+                                        [owlDateTimeTrigger]="customEndDateTime"
+                                        (ngModelChange)="onTimeFilterCustomTimeChange(false)" [selectMode]="'rangeTo'"
+                                        [max]="customTimeFrameMax" formControlName="_customTimeFrameEnd"
+                                        [disabled]="myForm.controls['_timefilter'].value == 'true' ? true: null">
+                                    <owl-date-time #customEndDateTime tooltipZIndex="100001005"></owl-date-time>
+                                    <p-message *ngIf="invalidDate" severity="error"
+                                        text="Start date and End date should not be the same.">
+                                    </p-message>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <!--
+                    <select formControlName="channel" class="w-100-p">
+                        <option value=null>Select Channel</option>
+                        <option *ngFor="let item of channel_opts" value={{item.id}}>{{item.name}}</option>
+                    </select>-->
+
+                            <p-dropdown [options]="channel_opts" placeholder="Select Channel" class="w-100-p"
+                                dropdownIcon="icons8 icons8-expand-arrow" formControlName="channel"></p-dropdown>
+                        </div>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <!--
+                    <select formControlName="platform" (change)="setPlatformVersion($event.target.value)" class="w-100-p">
+                        <option value=null>Select OS</option>
+                        <option *ngFor="let item of os" value={{item}}>{{item}}</option>
+                    </select>-->
+
+                            <p-dropdown [options]="os" placeholder="Select OS" class="w-100-p"
+                                dropdownIcon="icons8 icons8-expand-arrow" formControlName="platform"
+                                (onChange)="setPlatformVersion($event.value)"></p-dropdown>
+
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <!--
+                    <select formControlName="platformversion" class="w-100-p">
+                        <option value=null>Select OS Version</option>
+                        <option *ngFor="let item of osversion" value={{item}}>{{item}}</option>
+                    </select>-->
+
+                            <p-dropdown [options]="osversion" placeholder="Select OS Version" class="w-100-p"
+                                dropdownIcon="icons8 icons8-expand-arrow" formControlName="platformversion">
+                            </p-dropdown>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <!--
+                    <select formControlName="location" class="w-100-p">
+                        <option value=null>Select Location</option>
+                        <option *ngFor="let item of location_opts" value={{item.value}}>{{item.label}}</option>
+                    </select>-->
+
+                            <p-dropdown [options]="location_opts" placeholder="Select Location" class="w-100-p"
+                                dropdownIcon="icons8 icons8-expand-arrow" formControlName="location"></p-dropdown>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-multiSelect [options]="usersegmentoption" [style]="{'width':'310px'}" defaultLabel='Select User Segment'
+                                formControlName="userSegment" dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                            <!--
+                    <p-dropdown [options]="usersegmentoption" placeholder="Select User Segment" optionLabel="label"
+                        class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow" formControlName="userSegment"></p-dropdown>
+                        -->
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <!--
+                    <select formControlName="browser" class="w-100-p">
+                        <option value=null>Select Browser</option>
+                        <option *ngFor="let item of browser_opts" value={{item.value}}>{{item.label}}</option>
+                    </select>-->
+
+                            <p-dropdown [options]="browser_opts" placeholder="Select Browser" class="w-100-p"
+                                dropdownIcon="icons8 icons8-expand-arrow" formControlName="browser"></p-dropdown>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <!--
+                    <select formControlName="connectionType" class="w-100-p">
+                        <option value=null>Select Connection Type</option>
+                        <option *ngFor="let item of connection_opts" value={{item.value}}>{{item.label}}</option>
+                    </select>-->
+
+                            <p-dropdown [options]="connection_opts" placeholder="Select Connection Type" class="w-100-p"
+                                dropdownIcon="icons8 icons8-expand-arrow" formControlName="connectionType"></p-dropdown>
+                        </div>
+
+                        <div class="p-col-12 text-center p-align-center">
+                            <p-selectButton [options]="device" [multiple]="true" formControlName="device">
+                            </p-selectButton>
+                        </div>
+
+                        <!-- Duration Start-->
+
+                        <p-fieldset legend="Duration Filter">
+                            <div class="p-grid p-col-12 p-nogutter p-col-nogutter">
+                                <div class="p-col">
+                                    <p-radioButton name="_duration" value='count' (click)="checkSelected($event)"
+                                        formControlName=_duration label="Page Count"></p-radioButton>
+                                </div>
+                                <div class="p-col">
+                                    <p-radioButton name="_duration" (click)="checkSelected($event.target.value)"
+                                        formControlName=_duration value='time' label="Time"></p-radioButton>
+                                </div>
+                            </div>
+
+                            <div class="p-grid p-col-12 ui-fluid p-col-nogutter"
+                                *ngIf="myForm.controls['_duration'].value == 'count'">
+                                <div class="p-col">
+                                    <p-dropdown [options]="OPERATOR_OPTS" dropdownIcon="icons8 icons8-expand-arrow"
+                                        formControlName="_pageopr" class="w-50-p"></p-dropdown>
+                                </div>
+                                <!--
+                    <select formControlName="_pageopr" >
+                        <option value="<=">&lt;=</option>
+                        <option value="=">=</option>
+                        <option value=">=">&gt;=</option>
+                    </select>-->
+
+                                <div class="p-col">
+                                    <input type="text" pInputText placeholder="Page Count" min=0
+                                        formControlName="_pageCountInfo" />
+                                </div>
+                            </div>
+
+                            <div class="p-grid p-col-12 ui-fluid p-nogutter"
+                                *ngIf="myForm.controls['_duration'].value != 'count'">
+                                <!--
+                    <select formControlName="_sessoptr">
+                            <option value="<=">&lt;=</option>
+                            <option value="=">=</option>
+                            <option value=">=">&gt;=</option>
+                    </select>-->
+                                <div class="p-col">
+                                    <p-dropdown [options]="OPERATOR_OPTS" dropdownIcon="icons8 icons8-expand-arrow"
+                                        formControlName="_sessoptr" class="w-50-p"></p-dropdown>
+                                </div>
+                                <div class="p-col">
+                                    <input type="number" pInputText
+                                        style="margin-left:10px !important;margin-top:-1px;width:50px" min=0 max=23
+                                        placeholder='HH' formControlName="hh" />
+                                </div>
+                                <div class="p-col">
+                                    <input type="number" pInputText
+                                        style="margin-left:4px !important;margin-top:-1px;width:50px" min=0 max=59
+                                        placeholder='MM' formControlName="mm" />
+                                </div>
+                                <div class="p-col">
+                                    <input type="number" pInputText
+                                        style="margin-left:4px !important;margin-top:-1px;width:50px" min=0 max=59
+                                        placeholder='SS' formControlName="ss" />
+                                </div>
+                            </div>
+                        </p-fieldset>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <input type="text" pInputText placeholder="Login ID" id="loginid" formControlName="loginId"
+                                aria-describedby="loginid-help" class="input-field-search w-100-p" />
+                            <small id="loginid-help" class="p-error"
+                                *ngIf="myForm.controls['loginId'].hasError('pattern')">Only valid loginid
+                                allowed.</small>
+                        </div>
+
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <input type="text" pInputText placeholder="Client IP" formControlName="clientIp"
+                                id="clientip" aria-describedby="clientip-help" class="input-field-search w-100-p" />
+                            <small id="clientip-help" class="p-error"
+                                *ngIf="myForm.controls['clientIp'].hasError('pattern')"> Only valid client Ip
+                                allowed</small>
+                        </div>
+
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-dropdown [options]="showstoreOption" placeholder="Select Store ID" dropdownIcon="icons8 icons8-expand-arrow"
+                                formControlName="storeId" [filter]="true" filterBy="label" class="w-100-p"
+                                (onChange)="selectTerminal($event.value)"></p-dropdown>
+                        </div>
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-dropdown [options]="terminal" placeholder="Select Terminal ID"
+                                formControlName="terminalId" class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow">
+                            </p-dropdown>
+                        </div>
+
+                        <p-fieldset legend="Events">
+                            <div class="p-grid p-col-12 p-align-center p-col-nogutter">
+                                <div class="p-col-12">
+                                    <p-radioButton name="with" label="Session(s) with Events" value="SessionwithEvents"
+                                        formControlName="sessInfo" (click)='resetInfo()'></p-radioButton>
+                                </div>
+                                <!--
+                                <div class="p-col-12">
+                                    <p-radioButton name="with" label="Struggling Session(s)" value="strugglingsession"
+                                        formControlName="sessInfo" (click)='resetInfo()'></p-radioButton>
+                                </div>-->
+                            </div>
+
+                            <div class="p-col-12  p-align-center p-col-nogutter ui-fluid">
+                                <!--
+                    <p-dropdown [options]="event_opts" [(ngModel)]="event_inp" placeholder="Select Event" optionLabel="label" class="w-100-p"
+                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>-->
+                                <p-multiSelect [options]="events" (onChange)=eventData() dropdownIcon="icons8 icons8-expand-arrow"
+                                    [disabled]="myForm.controls['sessInfo'].value !== 'SessionwithEvents'"
+                                    defaultLabel='Select Any Events' formControlName="selectedEvent"></p-multiSelect>
+                            </div>
+                        </p-fieldset>
+
+
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-checkbox class="line-height" name="groupname" value="SessionwithReplay"
+                                formControlName="replaysession" label="Replay Session(s)"></p-checkbox>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-checkbox class="line-height" name="groupname" value="true"
+                                formControlName="sessionWithNd" label="Sessions(s) with ND">
+                            </p-checkbox>
+                        </div>
+                        <!--<div class="p-grid p-col-12 p-justify-between p-align-center">
+                    <p-checkbox class="line-height" name="groupname" value="val" label="Rollover Mode"></p-checkbox>
+                </div>-->
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-checkbox class="line-height" name="groupname" value="true"
+                                formControlName="crashSessions" label="Session(s) with App Crash">
+                            </p-checkbox>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-checkbox class="line-height" name="groupname" value="true" formControlName="botSessions"
+                                label="BOT Session(s)"></p-checkbox>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <label>Secure Client Authentication</label>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-checkbox class="line-height" name="groupname" value="true" formControlName="notAuth"
+                                label="Not Authorized"></p-checkbox>
+                        </div>
+                        <div class="p-grid p-col-12 p-justify-between p-align-center">
+                            <p-checkbox class="line-height" name="groupname" value="true" formControlName="authFailed"
+                                label="Authenticatted Failed">
+                            </p-checkbox>
+                        </div>
+
+                    </div>
+                </p-tabPanel>
+                <p-tabPanel header="Advanced">
+                    <div>
+                        <p-accordion [multiple]="true">
+                            <p-accordionTab  header="Attribute">
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <!--<select formControlName="entryPage" class="w-100-p">
+                                <option value=null>Select Entry Page</option>
+                                <option *ngFor="let item of page_opts" value={{item.id}}> {{item.name}}</option>
+                            </select>-->
+                                    <p-dropdown [options]="page_opts" placeholder="Select Entry Page"
+                                        formControlName="entryPage" class="w-100-p"
+                                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <!--<select formControlName="exitPage" class="w-100-p">
+                                <option value=null>Select Exit Page</option>
+                                <option *ngFor="let item of page_opts" value={{item.id}}>{{item.name}}</option>
+                            </select>-->
+
+                                    <p-dropdown [options]="page_opts" placeholder="Select Exit Page"
+                                        formControlName="exitPage" class="w-100-p"
+                                        dropdownIcon="icons8 icons8-expand-arrow"></p-dropdown>
+                                </div>
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <input type="text" placeholder="PAGE URL" pInputText formControlName="pageUrl"
+                                        class="w-100-p" />
+                                </div>
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <input type="text" placeholder="REFERRER URL" pInputText
+                                        formControlName="referrerUrl" class="w-100-p" />
+                                </div>
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <p-multiSelect [options]="pages" defaultLabel='Select Containing Page(s)    '
+                                        formControlName="containingPage" class="w-100-p"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                                </div>
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <p-multiSelect [options]="pages" defaultLabel='Select Not Containing Page(s)    '
+                                        formControlName="notContainingPage" class="w-100-p"  dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                                </div>
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <!--<select formControlName="_ltopt" style='height:30px !important;width:125px !important;padding:unset !important;' >
+                                <option value="<=">Less Than Equals To</option>
+                                <option value="=">Equals To</option>
+                                <option value=">=">Greater Than Equals To</option>
+                               </select>-->
+
+                                    <p-dropdown [options]="OPERATOR_OPTS2" dropdownIcon="icons8 icons8-expand-arrow"
+                                        formControlName="_ltopt" class="w-60-p"></p-dropdown>
+
+                                    <input type="number" formControlName="_loadTime" placeholder="PageLoadTime(ms)"
+                                        title="PAGE LOAD TIME(ms)" min=0 pInputText
+                                        style="margin-top:0px;width:110px !important;" />
+                                    <!--Why is this needed ? <input type="text" formControlName="pageLoadTime"  pInputText style="display:none;width:40px !important;" >-->
+                                </div>
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <!--<select style='height:30px !important;width:125px !important;padding:unset !important;' formControlName="_domopt">
+                                <option value="<=">Less Than Equals To</option>
+                                <option value="=">Equals To</option>
+                                <option value=">=">Greater Than Equals To</option>
+                               </select>-->
+                                    <p-dropdown [options]="OPERATOR_OPTS2" dropdownIcon="icons8 icons8-expand-arrow"
+                                        formControlName="_domopt" class="w-60-p"></p-dropdown>
+                                    <input type="number" formControlName="_completedomtime"
+                                        placeholder="DomComplete(ms)" title="DOM LOAD TIME(ms)" min=0 pInputText
+                                        style="margin-top:0px;width:110px !important" />
+                                </div>
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <!--<select style='height:30px !important;width:125px !important;padding:unset !important;' formControlName="_otor" >
+                                <option value="<=">Less Than Equals To</option>
+                                <option value="=">Equals To</option>
+                                <option value=">=">Greater Than Equal To</option>
+                               </select>-->
+                                    <p-dropdown [options]="OPERATOR_OPTS2" dropdownIcon="icons8 icons8-expand-arrow"
+                                        formControlName="_otor" class="w-60-p"></p-dropdown>
+                                    <input type="number" pInputText formControlName="_ototal" placeholder="Order Total"
+                                        title="Order Total" min=0 style="margin-top:-1px;width:110px !important" />
+                                </div>
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <!--<select style='height:30px !important;width:125px !important;padding:unset !important;' formControlName="_orderopr">
+                                <option value="<=">Less Than Equals To</option>
+                                <option value="=">Equals To</option>
+                                <option value=">=">Greater Than Equals To</option>
+                               </select>-->
+                                    <p-dropdown [options]="OPERATOR_OPTS2" dropdownIcon="icons8 icons8-expand-arrow"
+                                        formControlName="_orderopr" class="w-60-p"></p-dropdown>
+                                    <input type="number" formControlName="_ocount" placeholder="Order Count"
+                                        title="Order Count" min=0 pInputText
+                                        style="margin-top:-1px;width:110px !important" />
+                                </div>
+                            </p-accordionTab>
+
+                            <p-accordionTab header="Business Process">
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <!--<select formControlName="bpName" (change)="setBPExitPage($event.target.value)" class="w-100-p">
+                                <option value=null>Select Business Process</option>
+                                <option *ngFor="let item of bp_opts" value={{item.id}}>{{item.name}}</option>
+                            </select>-->
+
+                                    <p-dropdown [options]="bp_opts" placeholder="Select Business Process"
+                                        class="w-100-p" dropdownIcon="icons8 icons8-expand-arrow"
+                                        formControlName="bpName" (onChange)="setBPExitPage($event.value)"></p-dropdown>
+                                </div>
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <p-radioButton name="bptype" label="Completed BP" value="false"
+                                        formControlName="_bptype"></p-radioButton>
+                                    <p-radioButton name="bptype" label="Abondoned BP" value="true"
+                                        formControlName="_bptype"></p-radioButton>
+                                </div>
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <p-multiSelect defaultLabel='Select BPExit Page' [options]="bparray"
+                                        formControlName="bpExitPage" class="w-100-p"
+                                        dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                                </div>
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <p-multiSelect defaultLabel='BP ExitPage Events' [options]="events"
+                                        formControlName="bpExitPageEvents" class="w-100-p"
+                                        dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                                </div>
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <p-multiSelect [options]="events" defaultLabel='Transit Events'
+                                        formControlName="transit" class="w-100-p"
+                                        dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                                </div>
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <p-multiSelect defaultLabel='Select SessionExitPage' [options]="pages"
+                                        formControlName="sessionExitPage" class="w-100-p"
+                                        dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                                </div>
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <p-multiSelect [options]="events" defaultLabel='Session ExitPage Events'
+                                        formControlName="sessionExitPageEvent" class="w-100-p"
+                                        dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                                </div>
+                            </p-accordionTab>
+
+                            <p-accordionTab>
+                                <p-header>
+                                    <span>Custom</span>
+                                </p-header>
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <div *ngFor="let customarr of customarray ">
+                                        <p-button
+                                            [label]="customarr.label + ' ' +  customarr.operator + ' ' + customarr.value">
+                                            <i class="pi pi-times" (click)='removeCustom(customarr)'></i>
+                                        </p-button>
+                                    </div>
+                                </div>
+
+                                <p-fieldset legend="Add Custom Metric Filter">
+                                    <!--<select (change)='onSelectCustom($event.target.value)' formControlName="_customName" class="w-100-p">
+                                <option value=null>Select Custom</option>
+                                <option *ngFor="let item of custom_opts" value={{item.id}}> {{item.name}}</option>
+                             </select>-->
+
+                                    <div class="p-col-12">
+                                        <p-dropdown [options]="custom_opts" placeholder="Select Custom" class="w-100-p"
+                                            dropdownIcon="icons8 icons8-expand-arrow" formControlName="_customName"
+                                            (onChange)="onSelectCustom($event.value)">
+                                        </p-dropdown>
+                                    </div>
+                                    <div class="p-col-12">
+                                        <p-dropdown [options]="custopr" placeholder="Select Operator" class="w-100-p"
+                                            dropdownIcon="icons8 icons8-expand-arrow" formControlName="_customOpr">
+                                        </p-dropdown>
+                                    </div>
+                                    <div class="p-col-12">
+                                        <input type="text" placeholder="Custom Value" pInputText
+                                            formControlName="_customTxt" class="w-100-p" />
+                                    </div>
+                                    <div class="p-col-12">
+                                        <p-dropdown [options]="CM_CONDS" placeholder="Select Mode" class="w-100-p"
+                                            dropdownIcon="icons8 icons8-expand-arrow"
+                                            formControlName="_customCondition">
+                                        </p-dropdown>
+                                    </div>
+
+
+                                    <!--<select formControlName="_customOpr" class="w-100-p">  
+                                <option value=null>Selecto Operator</option>
+                                <option *ngFor="let opr of custopr" value= {{opr.value}}>{{opr.name}}</option>
+                             </select>-->
+
+
+
+
+                                    <!--<select formControlName="_customCondition" class="w-50-p">
+                                <option value="And">And</option>
+                                <option value="OR">OR</option>
+                             </select>-->
+
+                                    <div class="p-grid p-justify-center">
+                                        <p-button type="button" label="Add"
+                                            (click)="setCustomValue(null)"></p-button>
+                                    </div>
+                                </p-fieldset>
+
+                            </p-accordionTab>
+                            <p-accordionTab>
+                                <p-header>
+                                    <span>Store</span>
+                                </p-header>
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <input type="text" pInputText placeholder="ASSOCIATE ID"
+                                        formControlName="associateId" />
+                                </div>
+
+                                <div class="p-grid p-col-12 p-justify-between p-align-center">
+                                    <input type="text" pInputText placeholder="TRANSACTION ID"
+                                        formControlName="transactionId" />
+                                </div>
+                            </p-accordionTab>
+                            <p-accordionTab>
+                                <p-header>
+                                    <span>Event Data</span>
+                                </p-header>
+                                <div class="p-grid p-col-12 p-justify-between p-align-center" (click)="eventMsg()">
+                                    <input type="text" pInputText placeholder="Enter Event Data"
+                                        formControlName="eventDataControl" />
+                                </div>
+                            </p-accordionTab>
+                        </p-accordion>
+                        <!--
+                <div class="action-buttons">
+                    <button pButton type="reset" label="RESET" class="ui-outline-button ui-button-secondary"></button>
+                    <button pButton type="submit" label="APPLY" class="ui-button-rounded ui-button-right"></button>
+                </div>
+                -->
+                    </div>
+                </p-tabPanel>
+            </p-tabView>
+
+        </div>
+ 
+
+            <div class="p-grid p-justify-center my-5">
+                <button pButton type="reset" label="RESET" class="ui-outline-button ui-button-secondary px-15 mx-6"
+                    (click)="resetbutton()"></button>
+                <button pButton type="submit" label="APPLY" class="ui-button-rounded px-15"></button>
+            </div>
+
+    </form>
+</p-sidebar>

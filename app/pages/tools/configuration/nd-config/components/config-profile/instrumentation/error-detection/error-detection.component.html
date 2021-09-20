@@ -1,0 +1,193 @@
+<p-header class="p-grid p-justify-between">
+    <span class="configui-float-css mt-6">
+        <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="isProfilePerm" [disabled]="isProfilePerm"></p-checkbox>
+        <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="!isProfilePerm" [disabled]="saveDisable"></p-checkbox>
+        Enable Error Rules
+    </span>
+    <span class="configui-float">
+        <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+        <button pButton type="button" class="ui-button-sucess mr-6" title="Add an error detection" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-plus-math"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6" title="Add an error detection" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openAddErrorDetectionDialog()" icon="icons8 icons8-plus-math"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6" title="Edit an error detection" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-edit"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6" title="Edit an error detection" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openEditErrorDetectionDialog()" icon="icons8 icons8-edit"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6" title="Delete an error detection" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-trash"></button>
+        <button pButton type="button" class="ui-button-sucess mr-6" title="Delete an error detection"  *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteErrorDetection()" icon="icons8 icons8-trash"></button>
+        <button type="submit" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  label="Save"></button>
+        <button type="submit" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveErrorDetectionOnFile()" label="Save"></button>
+    </span>
+</p-header>
+<p-table [columns]="cols" [style]="{'margin-top': '10px'}" class="nde-ui all-tables" [value]="errorDetectionData" [(selection)]="selectedErrorDetection" [rows]="12" [paginator]="errorDetectionData?.length > 12" [pageLinks]="3">
+    <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+            <col style="width:7%">
+            <col style="width:20%">
+            <col style="width:20%">
+            <col style="width:20%">
+            <col style="width:20%">
+            <col style="width:20%">
+            
+        </colgroup>
+
+
+    </ng-template>
+    
+    
+    <!-- <ng-template pTemplate="header">
+        <tr>
+            <th>
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th>Name</th>
+            <th>Status code from</th>
+            <th>Status code to</th>
+            <th>Enable</th>
+            <th>Description</th>
+        </tr>
+    </ng-template> -->
+    <ng-template class="tableCss config-ui" pTemplate="header" let-columns>
+        <tr>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                <span class="width-20" *ngIf="col.field =='checkbox'"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></span>
+                <span *ngIf="col.field !='checkbox'">
+                    {{col.header}}
+                    <p-sortIcon [field]="col.field"></p-sortIcon>
+                </span>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-errorDetection>
+        <tr>
+            <td class="text-center">
+                <p-tableCheckbox [value]="errorDetection"></p-tableCheckbox>
+            </td>
+            <td><span title="{{errorDetection.ruleName}}">{{errorDetection.ruleName}}</span></td>
+            <td><span title="{{errorDetection.errorFrom}}" class="timpStamp-float-css">{{errorDetection.errorFrom}}</span></td>
+            <td><span title="{{errorDetection.errorTo}}" class="timpStamp-float-css">{{errorDetection.errorTo}}</span></td>
+            <td><span title="{{errorDetection.enabled}}">{{errorDetection.enabled}}</span></td>
+            <td><span title="{{errorDetection.ruleDesc}}">{{errorDetection.ruleDesc}}</span></td>
+        </tr>
+    </ng-template>
+</p-table>
+<!--<p-dataTable class="nde-ui" [value]="errorDetectionData" [(selection)]="selectedErrorDetection" [rows]="12" [paginator]="errorDetectionData?.length > 12" [pageLinks]="3">
+
+    <p-header>
+        <span class="configui-float-css">
+                    <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="isProfilePerm" [disabled]="isProfilePerm"></p-checkbox>
+                    <p-checkbox name="groupname" value="val1" [(ngModel)]="selectedValues" binary="true" *ngIf="!isProfilePerm" [disabled]="saveDisable"></p-checkbox>
+                </span>
+        <span class="configui-float-css">Enable Error Rules </span>
+        <span class="configui-float">
+		    <i class="fa fa-question-circle" title="Help" (click)="sendHelpNotification()"></i>
+                    <button pButton type="button" title="Add an error detection" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-plus"></button>
+                    <button pButton type="button" title="Add an error detection" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openAddErrorDetectionDialog()" icon="fa fa-plus"></button>
+                    <button pButton type="button" title="Edit an error detection" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-pencil"></button>
+                    <button pButton type="button" title="Edit an error detection" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openEditErrorDetectionDialog()" icon="fa fa-pencil"></button>
+                    <button pButton type="button" class="ui-button-danger" title="Delete an error detection" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-trash"></button>
+                    <button pButton type="button" class="ui-button-danger" title="Delete an error detection"  *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="deleteErrorDetection()" icon="fa fa-trash"></button>
+                    <button type="submit" pButton icon="fa fa-check" *ngIf="isProfilePerm" [disabled]="isProfilePerm"  label="Save"></button>
+                    <button type="submit" pButton icon="fa fa-check" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="saveErrorDetectionOnFile()" label="Save"></button>
+                </span>
+    </p-header>
+    <p-column [style]="{'width':'2%'}" selectionMode="multiple"></p-column>
+    <p-column class="tableCss" field="ruleName" header="Name" [sortable]="true" [style]="{'width':'30%'}">
+        <ng-template let-col let-errorDetection="rowData" pTemplate>
+            <span title="{{errorDetection[col.field]}}">{{errorDetection[col.field]}}</span>
+        </ng-template>
+    </p-column>
+    <p-column class="tableCss" field="errorFrom" header="Status code from" [sortable]="true" [style]="{'width':'15%'}">
+        <ng-template let-col let-errorDetection="rowData" pTemplate>
+            <span title="{{errorDetection[col.field]}}" class="timpStamp-float-css">{{errorDetection[col.field]}}</span>
+        </ng-template>
+    </p-column>
+    <p-column class="tableCss" field="errorTo" header="Status code to" [sortable]="true" [style]="{'width':'15%'}">
+        <ng-template let-col let-errorDetection="rowData" pTemplate>
+            <span title="{{errorDetection[col.field]}}" class="timpStamp-float-css">{{errorDetection[col.field]}}</span>
+        </ng-template>
+    </p-column>
+    <p-column field="enabled" header="Enabled" [style]="{'text-align': 'center','width':'10%'}">
+        <ng-template let-col let-errorDetection="rowData" pTemplate>-->
+            <!--<mat-slide-toggle class="toggle-space" onLabel="ON" offLabel="OFF" [(ngModel)]="errorDetection[col.field]"></mat-slide-toggle>-->
+<!--            <span title="{{errorDetection[col.field]}}">{{errorDetection[col.field]}}</span>
+        </ng-template>
+    </p-column>
+    <p-column class="tableCss" field="ruleDesc" header="Description" [sortable]="true" [style]="{'width':'30%'}">
+        <ng-template let-col let-errorDetection="rowData" pTemplate>
+            <span title="{{errorDetection[col.field]}}">{{errorDetection[col.field]}}</span>
+        </ng-template>
+    </p-column>
+</p-dataTable>-->
+
+<!-- Download reports as PDF,Excel and Word File  -->
+<div class="p-grid p-align-center">
+    <label class="mr-5">Download Reports as: </label>
+    <button pButton class="icon-button no-shadow" pTooltip="Download Word file" tooltipPosition="top" icon="icons8 icons8-doc" (click)='downloadReports("WordFile")'></button>
+    <button pButton class="icon-button no-shadow" pTooltip="Download Excel file" tooltipPosition="top" icon="icons8 icons8-spreadsheet-file"  (click)='downloadReports("ExcelFile")'></button>
+    <button pButton class="icon-button no-shadow" pTooltip="Download PDF file" tooltipPosition="top" icon="icons8 icons8-pdf-2" (click)='downloadReports("PDFFile")'></button>
+</div>
+<!--Dialog for Error  Detection-->
+
+<p-dialog class="secondary-dialog" [style]="{width: '50vw'}" header="{{isNewErrorDetection ? 'Add Error Detection' : 'Edit Error Detection'}}" *ngIf="addEditErrorDetectionDialog" [(visible)]="addEditErrorDetectionDialog" modal="modal" width="500" responsive="true" [resizable]="false">
+    <form (ngSubmit)="saveErrorDetection()" #groupForm="ngForm" ngNativeValidate>
+        <div class="ui-g mt-15">
+            <div class="ui-g-4 ml-6">
+                <label>Rule name</label>
+            </div>
+            <div class="ui-g-6">
+                <input name="ruleName" type="text" size="45" class="configUI-error w-100-p" pInputText [(ngModel)]="errorDetectionDetail.ruleName" title="Please enter valid rule name. &#013;Rule name is of maximum 32 characters.  &#013;First character must be Alpha.  &#013;Other characters are Alpha, Numeric, Dash or Underscore"
+                    autofocus required pattern="^[a-zA-Z][a-zA-Z0-9_-]{0,31}$" ngModel />
+            </div>
+        </div>
+
+        <div class="ui-g-12">
+            <div class="ui-g-4">
+                <label>Status code</label>
+            </div>
+
+            <div class="ui-g-3">
+                from: <input name="errorfrom" type="number" class="configui-error-css-1" #from (input)="checkFrom(from,to)" min="400" max="504" [(ngModel)]="errorDetectionDetail.errorFrom" pInputText required ngModel/>
+            </div>
+            <div class="ui-g-3">
+                to: <input name="errorto" type="number" class="configui-error-css-1" #to (input)="checkTo(from,to)" min="401" max="505" [(ngModel)]="errorDetectionDetail.errorTo" pInputText required ngModel/>
+            </div>
+        </div>
+
+        <!--<div class="ui-g">
+                    <div class="ui-g-4">
+                        <label>From Status Code</label>
+                    </div>
+                    <div class="ui-g-8">
+                        <input name="errorFrom" type="number" style="min-width: 69%;text-align: right;" max="99999" pInputText [(ngModel)]="errorDetectionDetail.errorFrom" required ngModel />
+                    </div>
+                </div>
+                <div class="ui-g">
+                    <div class="ui-g-4">
+                        <label>To Status Code</label>
+                    </div>
+                    <div class="ui-g-8">
+                        <input name="errorTo" type="number" style="min-width: 69%;text-align: right;" max="99999" pInputText [(ngModel)]="errorDetectionDetail.errorTo" required ngModel />
+                    </div>
+                </div>-->
+        <div class="ui-g-12 config-ui">
+            <div class="ui-g-4">
+                <label>Enable</label>
+            </div>
+            <div class="ui-g-1">
+                <p-inputSwitch [(ngModel)]="errorDetectionDetail.enabled" name="enabled" class="configui-error-css-2"></p-inputSwitch>
+            </div>
+        </div>
+        <div class="ui-g-12">
+            <div class="ui-g-4">
+                <label>Description</label>
+            </div>
+            <div class="ui-g-8">
+                <textarea name="ruleDesc" rows="2" cols="45" class="configUI-error w-100-p" style="width: 80%;" pInputTextarea [(ngModel)]="errorDetectionDetail.ruleDesc" ngModel></textarea>
+            </div>
+        </div>
+        <footer style="float: right; display: block;">
+            <div class="p-grid p-align-center p-justify-end py-5">
+                <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="addEditErrorDetectionDialog=false" label="Cancel"></button>
+                <button type="submit" pButton class="ui-button-rounded px-10" label="Save"></button>
+            </div>
+        </footer>
+    </form>
+</p-dialog>

@@ -1,0 +1,91 @@
+<div class="mb-10">  
+    <p-table class="all-tables" [value]="tableCompData.data" [(selection)]="selectedJson" [rows]="5" [paginator]="tableCompData?.length >5"
+        [pageLinks]="3" [columns]="columnData" [scrollable]="true" scrollHeight="250px">
+        <ng-template pTemplate="caption">
+<div class="p-grid p-align-center p-justify-between">
+<div class="font-weignt-600" [ngClass]="tableCompData['validationObj']['defRequired'] ? 'required-mark' : ''">{{headerForTable}}</div>
+    <div>
+        <button pButton type="button" title="Add" (click)="openAddDialog()"  class="mx-3 ui-button ui-button-rounded ui-button-right"
+            [disabled]="disabled">Add</button>
+        <button pButton type="button" title="Edit" (click)="openEditDialog()"  class="mx-3  ui-button ui-button-rounded ui-button-right"
+            [disabled]="disabled">Edit</button>
+        <button pButton type="button" title="Delete"  class="mx-3 ui-button ui-button-rounded ui-button-right ui-button-danger" (click)="deleteData()"
+             [disabled]="disabled">Delete</button>
+    </div>
+</div>
+
+
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th class="columnwidth">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+    
+                <ng-container *ngFor="let col of columns">
+                    <ng-container *ngIf="col.type != 'Note'">
+                        <th  class="text-center" pResizableColumn>
+                            <!-- <div *ngIf="col.type != 'Note'"> -->
+                                {{ col.label }}
+                            <!-- </div> -->
+                        </th>
+                    </ng-container>
+                </ng-container>
+                <!-- <th *ngFor="let col of columns" class="text-center" pResizableColumn>
+                    <div *ngIf="col.type != 'Note'">
+                        {{ col.label }}
+                    </div>
+                </th> -->
+    
+            </tr>
+        </ng-template>
+    
+        <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+            <tr>
+                <td class="text-center columnwidth">
+                    <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                </td>
+                <ng-container *ngFor="let col of columns">
+                    <ng-container *ngIf="col.type != 'Note'">
+                        <td>
+                            {{ row[col.label] }}
+                        </td>
+                    </ng-container>
+                </ng-container>
+                <!-- <td *ngFor="let col of columns; let i = index">
+                    {{ row[col.label] }}
+                </td> -->
+            </tr>
+        </ng-template>
+
+                    <!-----------Empty table error handling--------------------->
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                <span>No records found</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+    </p-table>
+</div>
+    
+    
+    <!--Dialog for add/Edit funtionality-->
+    <p-dialog class="secondary-dialog foterDialog" header="{{dialogHeaderForTable}}" *ngIf="addEditDialog" 
+    [(visible)]="addEditDialog" modal="modal" 
+        responsive="true" [style]="{'width':'380px'}"> 
+        <form (ngSubmit)="saveData()" #groupForm="ngForm" ngNativeValidate>
+            <div class="filepath">
+                <ng-container *ngFor="let item of columnData">
+                    <ng-container *ngTemplateOutlet="tableTemplate;context:{node:item}">
+                    </ng-container>
+                </ng-container>
+            </div>
+            <footer>
+                <div class="p-grid p-justify-end my-10 mr-25">
+                <button type="button" pButton class="mx-6 ui-button-rounded ui-button-secondary" (click)="addEditDialog = false;" label="Cancel"></button>
+                <button type="submit" pButton class="ui-button-rounded" label="Save"></button>
+            </div>
+            </footer>
+        </form>
+    </p-dialog>

@@ -1,0 +1,352 @@
+<div class='tabs-all'>
+    <p-tabView (onChange)="handleChange($event)">
+        <p-tabPanel header="Agent Settings" [selected]="index == 0">
+            <div id=top-div>
+                <p-header class="p-grid p-justify-between p-align-center">
+                    <span class="configui-float-css ">User Configured Agent Setting(s) List
+          </span>
+                    <span class="configui-float">
+          <i class="icons8 icons8-help" title="Help" (click)="sendHelpNotification()"></i>
+          <button pButton type="button" class="ui-button-sucess mb-6" title="Add Settings" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-plus-math"></button>
+          <button pButton type="button" class="ui-button-sucess mb-6" title="Add Settings" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openUserBCIDialog()"
+            icon="icons8 icons8-plus-math"></button>
+          <button pButton type="button" class="ui-button-sucess mb-6" title="Edit Settings" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-edit"></button>
+          <button pButton type="button" class="ui-button-sucess mb-6" title="Edit Settings" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openEditAgentDialog()" icon="icons8 icons8-edit"></button>
+          <button pButton type="button" class="ui-button-sucess mb-6" title="Delete Settings" *ngIf="isProfilePerm" [disabled]="isProfilePerm"
+            icon="icons8 icons8-trash"></button>
+          <button pButton type="button" class="ui-button-sucess mb-6" title="Delete Settings" *ngIf="!isProfilePerm" [disabled]="saveDisable"
+            (click)="deleteUserKeywords()" icon="icons8 icons8-trash"></button>
+
+           </span>
+                </p-header>
+                <p-table [columns]="column" class="nde-ui config-ui all-tables" [value]="usrConfiguredKeyList" [(selection)]="selectedUsrConfKeyList">
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                            <col style="width:5%">
+                            <col style="width:20%">
+                            <col style="width:20%">
+                            <col style="width:20%">
+                            <col style="width:20%">
+                        </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th>
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+			    <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                                {{col.header}}
+                                <span *ngIf="col.field !=''">
+                                <p-sortIcon [field]="col.field"></p-sortIcon>
+                                </span>
+                            </th>
+                           <!-- <th>Name</th>
+                            <th>Default Value</th>
+                            <th>Supported Agent(s)</th>
+                            <th>Description</th> -->
+                        </tr>
+                    </ng-template>
+                    <ng-template class="tableCss config-ui" pTemplate="body" let-customKeywordsData>
+                        <tr>
+                            <td class="text-center">
+                                <p-tableCheckbox [value]="customKeywordsData"></p-tableCheckbox>
+                            </td>
+                            <td class="tableCss" title="{{customKeywordsData.keyName}}">{{customKeywordsData.keyName}}</td>
+                            <td class="tableCss" title="{{customKeywordsData.defaultValue}}">{{customKeywordsData.defaultValue}}</td>
+                            <td>
+                                <span title="Java" *ngIf="customKeywordsData['agentMode'] == '1' || customKeywordsData['agentMode'] == '3' || customKeywordsData['agentMode'] == '5' || customKeywordsData['agentMode'] == '7' || customKeywordsData['agentMode'] == '9' || customKeywordsData['agentMode'] == '11' || customKeywordsData['agentMode'] == '13' || customKeywordsData['agentMode'] == '15' || customKeywordsData['agentMode'] == '17' || customKeywordsData['agentMode'] == '19' || customKeywordsData['agentMode'] == '21' || customKeywordsData['agentMode'] == '23' || customKeywordsData['agentMode'] == '25' || customKeywordsData['agentMode'] == '31'">
+                                    <i class="icons8 icons8-java" style="color: #e91224;"></i>
+                                  </span>
+                                  <span title="NodeJS" *ngIf="customKeywordsData['agentMode'] == '2' || customKeywordsData['agentMode'] == '3' || customKeywordsData['agentMode'] == '6' || customKeywordsData['agentMode'] == '7' || customKeywordsData['agentMode'] == '10' || customKeywordsData['agentMode'] == '11' || customKeywordsData['agentMode'] == '14' || customKeywordsData['agentMode'] == '15' || customKeywordsData['agentMode'] == '18' || customKeywordsData['agentMode'] == '19' || customKeywordsData['agentMode'] == '22' || customKeywordsData['agentMode'] == '23' || customKeywordsData['agentMode'] == '26' || customKeywordsData['agentMode'] == '31'">
+                                    <i class="icons8 icons8-node-js" style="color: mediumseagreen;"></i>
+                                  </span>
+                                  <span title="Dot Net" *ngIf="customKeywordsData['agentMode'] == '4' || customKeywordsData['agentMode'] == '5' || customKeywordsData['agentMode'] == '6' || customKeywordsData['agentMode'] == '7' || customKeywordsData['agentMode'] == '12' || customKeywordsData['agentMode'] == '13' || customKeywordsData['agentMode'] == '14' || customKeywordsData['agentMode'] == '15' || customKeywordsData['agentMode'] == '20' || customKeywordsData['agentMode'] == '21' || customKeywordsData['agentMode'] == '22' || customKeywordsData['agentMode'] == '23' || customKeywordsData['agentMode'] == '28' || customKeywordsData['agentMode'] == '31'">
+                                    <i class="icons8 icons8-database" style="color: #007ad9;"></i>
+                                  </span>
+                                  <span title="Php" *ngIf="customKeywordsData['agentMode'] == '8' || customKeywordsData['agentMode'] == '9' || customKeywordsData['agentMode'] == '10' || customKeywordsData['agentMode'] == '11' || customKeywordsData['agentMode'] == '12' || customKeywordsData['agentMode'] == '13' || customKeywordsData['agentMode'] == '14' || customKeywordsData['agentMode'] == '15' || customKeywordsData['agentMode'] == '24' || customKeywordsData['agentMode'] == '25' || customKeywordsData['agentMode'] == '26' || customKeywordsData['agentMode'] == '27' || customKeywordsData['agentMode'] == '28' || customKeywordsData['agentMode'] == '31'">
+                                    <i class="icons8 icons8-php-logo" style="color: #000;"></i>
+                                  </span>
+                                  <span title="Python" *ngIf="customKeywordsData['agentMode'] == '16' || customKeywordsData['agentMode'] == '17' || customKeywordsData['agentMode'] == '18' || customKeywordsData['agentMode'] == '19' || customKeywordsData['agentMode'] == '20' || customKeywordsData['agentMode'] == '21' || customKeywordsData['agentMode'] == '22' || customKeywordsData['agentMode'] == '23' || customKeywordsData['agentMode'] == '24' || customKeywordsData['agentMode'] == '25' || customKeywordsData['agentMode'] == '26' || customKeywordsData['agentMode'] == '27' || customKeywordsData['agentMode'] == '28' || customKeywordsData['agentMode'] == '31'">
+                                    <i class="icons8 icons8-python" style="color: #116fbf;"></i>
+                                  </span> 
+                            </td>
+                            <td class="tableCss" title="{{customKeywordsData.desc}}">{{customKeywordsData.desc}}</td>
+                            
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+            <!-- Dialog for user configured keywords-->
+            <p-dialog class="secondary-dialog"  [style]="{width: '50vw'}" header="{{isNewUserDialog ? 'Add Settings' : 'Edit Settings'}}" *ngIf="userDialog" [(visible)]="userDialog" modal="modal" width="550" responsive="true" [resizable]="false">
+                <form (ngSubmit)="saveUserKeywords()" #groupForm="ngForm" ngNativeValidate>
+                    <div class="ui-g-12">
+                        <div class="ui-g-2 mt-5">
+                            <label>Name</label>
+                        </div>
+                        <div class="ui-g-4">
+                            <input name="keyName" class="w-100-p" type="text" [disabled]="!isNewUserDialog" pInputText [(ngModel)]="usrConfiguredKeyDetail.keyName" (keydown.space)="$event.preventDefault()" required ngModel/>
+                        </div>
+
+                        <div class="ui-g-2 mt-5">Agent</div>
+                        <div class="ui-g-4">
+                            <input name="agentMode" type="text" class='hidden-validator' [(ngModel)]="agentMode" pInputText required ngModel/>
+                            <p-multiSelect name="agentMode" class="multiselectdropReqResp user_conf_setngs  nde-ui" [style]="{'min-width': '100%'}" [options]="agentList" [(ngModel)]="agentMode" dropdownIcon="icons8 icons8-expand-arrow"></p-multiSelect>
+                        </div>
+
+                        </div>
+                        
+
+                    <div class="ui-g-12 ui-g p-align-center">
+                        <div class="ui-g-2 mt-5">Type</div>
+                        <div class="ui-g-4">
+                            <input name="kmdId" type="text" class='hidden-validator' pInputText [(ngModel)]="usrConfiguredKeyDetail.kmdId" required ngModel/>
+                            <p-dropdown name="kmdId" dropdownIcon="icons8 icons8-expand-arrow" [options]="keywordTypeList" class="w-100-p" [(ngModel)]="usrConfiguredKeyDetail.kmdId" placeholder="--Select--"></p-dropdown>
+                        </div>
+                        <div class="ui-g-2 mt-5">Default Value</div>
+                        <div class="ui-g-4" *ngIf="usrConfiguredKeyDetail.kmdId != 2 && usrConfiguredKeyDetail.kmdId != 3 && usrConfiguredKeyDetail.kmdId != 4">
+                            <input name="defaultValue" class="w-100-p" [disabled]="usrConfiguredKeyDetail.kmdId == undefined || usrConfiguredKeyDetail.kmdId == 6" type="text" pInputText [(ngModel)]="usrConfiguredKeyDetail.defaultValue" (keydown.space)="$event.preventDeicons8ult()" required ngModel class="w-100-p"/>
+                        </div>
+                        <div class="ui-g-4" *ngIf="usrConfiguredKeyDetail.kmdId == 2 || usrConfiguredKeyDetail.kmdId == 3 || usrConfiguredKeyDetail.kmdId == 4">
+                            <input name="defaultValue" #defaultVal [disabled]="usrConfiguredKeyDetail.kmdId == undefined" type="number" pInputText [(ngModel)]="usrConfiguredKeyDetail.defaultValue" (keydown.space)="$event.preventDefault()" required
+                                ngModel/>
+                        </div>
+                    </div>
+
+                    <div class="ui-g-12">
+                        <div class="ui-g-2 mt-5">
+                            <label>Min Value</label>
+                        </div>
+                        <div class="ui-g-4">
+                            <input name="min" class="w-100-p" #min (input)="checkMin(min,max)" [disabled]="usrConfiguredKeyDetail.kmdId != 2 && usrConfiguredKeyDetail.kmdId != 3 && usrConfiguredKeyDetail.kmdId != 4" type="number" pInputText [(ngModel)]="usrConfiguredKeyDetail.min" required
+                                ngModel/>
+                        </div>
+                        <div class="ui-g-2 mt-5">
+                            <label>Max Value</label>
+                        </div>
+                        <div class="ui-g-4">
+                            <input name="max" class="w-100-p" #max (input)="checkMax(min,max)" type="number" [disabled]="usrConfiguredKeyDetail.kmdId != 2 && usrConfiguredKeyDetail.kmdId != 3 && usrConfiguredKeyDetail.kmdId != 4" pInputText [(ngModel)]="usrConfiguredKeyDetail.max"
+                                required ngModel/>
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-2 mt-5">
+                            <label>Description</label>
+                        </div>
+                        <div class="ui-g-10">
+                            <textarea name="Desc" rows="2" cols="63" class="w-100-p" pInputTextarea [(ngModel)]="usrConfiguredKeyDetail.desc" ngModel></textarea>
+                        </div>
+                
+                </div>
+                    
+                    <footer style="float: right; display: block;">
+                        <div class="p-grid p-align-center p-justify-end py-5">
+                            <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-delete" (click)="userDialog=false" label="Cancel"></button>
+                            <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-checkmark" label="Save"></button>
+                        </div>
+                    </footer>
+                </form>
+            </p-dialog>
+        </p-tabPanel>
+        <p-tabPanel header="NDC Settings" [selected]="index == 1">
+            <div id=top-div>
+                <p-header class="p-grid p-justify-between p-align-center">
+                    <span class="configui-float-css">User Configured NDC Setting(s) List
+                    </span>
+                    <span class="configui-float">
+                        <i class="icons8 icons8-help" title="Help" (click)="sendNDCHelpNotification()"></i>
+                        <button pButton type="button" class="ui-button-sucess mb-6" title="Add Settings" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-plus-math"></button>
+                        <button pButton type="button" class="ui-button-sucess mb-6" title="Add Settings" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openUserNDCDialog()"
+                            icon="icons8 icons8-plus-math"></button>
+                        <button pButton type="button" class="ui-button-sucess mb-6" title="Edit Settings" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="icons8 icons8-edit"></button>
+                        <button pButton type="button" class="ui-button-sucess mb-6" title="Edit Settings" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openEditNDCDialog()" icon="icons8 icons8-edit"></button>
+                        <button pButton type="button" class="ui-button-sucess mb-6" title="Delete Settings" *ngIf="isProfilePerm" [disabled]="isProfilePerm"
+                            icon="icons8 icons8-trash"></button>
+                        <button pButton type="button" class="ui-button-sucess mb-6" title="Delete Settings" *ngIf="!isProfilePerm" [disabled]="saveDisable"
+                            (click)="deleteNDCKeywords()" icon="icons8 icons8-trash"></button>
+                    </span>
+                </p-header>
+                <p-table [columns]="cols" class="nde-ui config-ui all-tables" [value]="usrConfiguredNDCKeyList" [(selection)]="selectedUsrConfNDCKeyList">
+                   
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                            <col style="width:5%">
+                            <col style="width:20%">
+                            <col style="width:20%">
+                            <col style="width:20%">
+                            
+                        </colgroup>
+                
+                
+                    </ng-template>
+                   
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th >
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+			    <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                                {{col.header}}
+                                <span *ngIf="col.field !=''">
+                                <p-sortIcon [field]="col.field"></p-sortIcon>
+                                </span>
+                            </th>
+                           <!-- <th>Name</th>
+                            <th>Default Value</th>
+                            <th>Type</th>
+                            <th>Description</th>-->
+                        </tr>
+                    </ng-template>
+                    <ng-template class="tableCss config-ui" pTemplate="body" let-customKeywordsData>
+                        <tr>
+                            <td class="text-center">
+                                <p-tableCheckbox [value]="customKeywordsData"></p-tableCheckbox>
+                            </td>
+                            <td class="tableCss" title="{{customKeywordsData.keyName}}">{{customKeywordsData.keyName}}</td>
+                            <td class="tableCss" title="{{customKeywordsData.defaultValue}}">{{customKeywordsData.defaultValue}}</td>
+                            <td class="tableCss" title="{{customKeywordsData.type|typeLabel}}">{{customKeywordsData.type|typeLabel}}</td>
+                            <td class="tableCss" title="{{customKeywordsData.desc}}">{{customKeywordsData.desc}}</td>
+                            
+                        </tr>
+                    </ng-template>
+                </p-table>
+                <!-- <p-dataTable class="nde-ui config-ui" [value]="usrConfiguredNDCKeyList" [(selection)]="selectedUsrConfNDCKeyList">
+                    <p-header>
+                        <span class="configui-float-css">User Configured NDC Setting(s) List
+            </span>
+                        <span class="configui-float">
+              <i class="fa fa-question-circle" title="Help" (click)="sendNDCHelpNotification()"></i>
+              <button pButton type="button" title="Add Settings" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-plus"></button>
+              <button pButton type="button" title="Add Settings" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openUserNDCDialog()"
+                icon="fa fa-plus"></button>
+              <button pButton type="button" title="Edit Settings" *ngIf="isProfilePerm" [disabled]="isProfilePerm" icon="fa fa-pencil"></button>
+              <button pButton type="button" title="Edit Settings" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="openEditNDCDialog()" icon="fa fa-pencil"></button>
+              <button pButton type="button" class="ui-button-danger" title="Delete Settings" *ngIf="isProfilePerm" [disabled]="isProfilePerm"
+                icon="fa fa-trash"></button>
+              <button pButton type="button" class="ui-button-danger" title="Delete Settings" *ngIf="!isProfilePerm" [disabled]="saveDisable"
+                (click)="deleteNDCKeywords()" icon="fa fa-trash"></button>
+
+            </span>
+                    </p-header>
+                    <p-column [style]="{'width':'2%'}" selectionMode="multiple"></p-column>
+                    <p-column class="tableCss" field="keyName" header="Name" [sortable]="true">
+                        <ng-template let-col let-customKeywordsData="rowData" pTemplate>
+                            <span title="{{customKeywordsData[col.field]}}">{{customKeywordsData[col.field]}}</span>
+                        </ng-template>
+                    </p-column>
+                    <p-column class="tableCss" field="defaultValue" header="Default Value" [sortable]="true">
+                        <ng-template let-col let-customKeywordsData="rowData" pTemplate>
+                            <span title="{{customKeywordsData[col.field]}}">{{customKeywordsData[col.field]}}</span>
+                        </ng-template>
+                    </p-column>
+                    <p-column class="tableCss" field="type" header="Type" [sortable]="true">
+                        <ng-template let-col let-customKeywordsData="rowData" pTemplate>
+                            <span title="{{customKeywordsData[col.field]|typeLabel}}">{{customKeywordsData[col.field]|typeLabel}}</span>
+                        </ng-template>
+                    </p-column>
+                    <p-column class="tableCss" field="desc" header="Description" [sortable]="true">
+                        <ng-template let-col let-customKeywordsData="rowData" pTemplate>
+                            <span title="{{customKeywordsData[col.field]}}">{{customKeywordsData[col.field]}}</span>
+                        </ng-template>
+                    </p-column>
+
+                </p-dataTable> -->
+            </div>
+            <!-- Dialog for user configured keywords-->
+            <p-dialog class="secondary-dialog"  [style]="{width: '50vw'}" header="{{isNewUserNDCDialog ? 'Add Settings' : 'Edit Settings'}}" *ngIf="userNDCDialog" [(visible)]="userNDCDialog" modal="modal" width="550" responsive="true" [resizable]="false">
+                <form (ngSubmit)="saveNDCKeywords()" #groupForm="ngForm" ngNativeValidate>
+                    <div class="ui-g-12 p-align-center">
+                        <div class="ui-g-2 mt-5">
+                            <label>Name</label>
+                        </div>
+                        <div class="ui-g-10">
+                            <input name="ndckeyName" class="w-100-p" [disabled]="!isNewUserNDCDialog" pInputText [(ngModel)]="usrConfiguredNDCKeyDetail.keyName" (keydown.space)="$event.preventDefault()" required ngModel/>
+                        </div>
+                        </div>
+                        
+                    <div class="ui-g-12 p-align-center">
+                        <div class="ui-g-2 mt-5">
+                            <label>Type</label>
+                        </div>
+                        <div class="ui-g-4">
+                            <input name="ndcType" type="text" class='hidden-validator' pInputText [(ngModel)]="usrConfiguredNDCKeyDetail.type" required ngModel/>
+                            <p-dropdown name="ndcType" dropdownIcon="icons8 icons8-expand-arrow" [options]="ndcType" [style]="{'min-width':'100%'}" [(ngModel)]="usrConfiguredNDCKeyDetail.type" placeholder="--Select--" appendTo="body"></p-dropdown>
+                        </div>
+                        <div class="ui-g-2 mt-5">
+                            <label>Default Value</label>
+                        </div>
+                        
+                    <div class="ui-g-4">
+                            <input name="defaultValue" class="w-100-p" type="text" pInputText [(ngModel)]="usrConfiguredNDCKeyDetail.defaultValue" required ngModel/>
+                        </div>
+                    </div>
+
+                    <div class="ui-g-12 p-align-center">
+                        <div class="ui-g-2 mt-5">
+                            <label>Min Value</label>
+                        </div>
+                        <div class="ui-g-4">
+                            <input name="min" class="w-100-p" type="text" pInputText [(ngModel)]="usrConfiguredNDCKeyDetail.min" ngModel/>
+                        </div>
+                        <div class="ui-g-2 mt-5">
+                            <label>Max Value</label>
+                        </div>
+                    
+                        <div class="ui-g-4">
+                            <input name="max" class="w-100-p" type="text" pInputText [(ngModel)]="usrConfiguredNDCKeyDetail.max" ngModel/>
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-2 mt-5">
+                            <label>Description</label>
+                        </div>
+                        <div class="ui-g-10">
+                            <textarea name="Desc" rows="2" cols="63" class="w-100-p" pInputTextarea [(ngModel)]="usrConfiguredNDCKeyDetail.desc" ngModel></textarea>
+                        </div>
+               
+
+                </div>
+                    
+                    <footer style="float: right; display: block;">
+                        <div class="p-grid p-align-center p-justify-end py-5">
+                            <button type="button" pButton class="ui-button-rounded ui-button-secondary mx-6 px-10" (click)="userNDCDialog=false" label="Cancel"></button>
+                            <button type="submit" pButton class="ui-button-rounded px-10" label="Save"></button>
+                        </div>
+                    </footer>
+                </form>
+            </p-dialog>
+        </p-tabPanel>
+<!-- Global Settings Tab -->
+    <p-tabPanel header="Settings" [selected]="index == 2">
+        <form (ngSubmit)="saveGlobalSettingsData()" #groupForm="ngForm" ngNativeValidate>
+            <div class="tabsincontent">
+                <div class="header p-grid p-justify-between p-align-center">Settings
+                    <div class="pull-right my-6">
+                   <i class="icons8 icons8-help mx-6" title="Help" (click)="globalSettingsHelp()"></i>
+                        <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize"  *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Reset to Default"></button>
+                        <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize"  *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Reset"></button>
+                        <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+
+                        <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetGlobalSettingsToDefault()" label="Reset to Default"></button>
+                        <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetGlobalSettingsData()" label="Reset"></button>
+                        <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" label="Save"></button> 
+                    </div>
+                </div>
+                
+                <p-panel class="hideheader">
+                    <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid configui-hideheader">
+                        <div class="ui-g-12 p-align-center">   
+                                <div class="ui-g-2 mt-6" style="width:11%">
+                                    <label>RTC Time Out (sec)</label>
+                                </div>
+
+                                <div class="ui-g-1">
+                                    <input name="rtcTimeOut" type="number" step=1 pInputText min=5 max=300  [ngModel]="globalSettingsObj['rtcTimeOut']?.keyValue" (ngModelChange)="globalSettingsObj['rtcTimeOut'].keyValue = $event" required autofocus ngModel />
+                                </div>
+                        </div>
+                    </div>
+                </p-panel>
+            </div>
+        </form>
+    </p-tabPanel>
+    </p-tabView>
+</div>

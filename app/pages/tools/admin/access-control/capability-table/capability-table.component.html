@@ -1,0 +1,76 @@
+<div class="content-card">
+    <div class="content-header p-grid p-justify-between p-align-center pl-5 pr-5">
+        <div class="title">CAPABILITIES</div>
+        <div class="p-justify-end p-align-center">
+            <span class="p-grid p-justify-center p-align-center" *ngIf="!showEdit">
+                <i class="icons8 icons8-synchronize sync-icon"></i>
+                <button pButton class="ui-button ui-button-rounded ui-button-right" type="button" label="ADD" routerLink="/access-control/capability"></button>
+            </span>
+            <button pButton class="ui-outline-button ui-button-secondary" type="button" label="ADD/REMOVE" (click)="addRemoveCapabilities.show()" *ngIf="showAddRemoveButton"></button>
+        </div>
+    </div>
+    <div class="content-list">
+        <p-table class="all-tables" #dt1 [resizableColumns]="true" [columns]="selectedColumns" [value]="data" [rowHover]="true" [responsive]="true" [scrollable]="true" [scrollHeight]="showEdit?'calc(100vh - 520px)' : 'calc(100vh - 250px)'" [globalFilterFields]="['name']">
+            <ng-template pTemplate="caption">
+                <div class="p-grid p-justify-between p-align-center">
+
+                    <div class="p-input-icon-left search-div-css">
+                        <i class="icons8 icons8-search"></i>
+                        <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="" class="input-field-search" />
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width">
+                </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns" [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.isSort && col.valueField" pResizableColumn>
+                        <div class="left">
+                            {{ col.label }}
+                        </div>
+                        <div *ngIf="col.isSort" class="right">
+                            <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                            </p-sortIcon>
+                        </div>
+                    </th>
+                    <th *ngIf="showEdit">
+
+                    </th>
+                </tr>
+
+            </ng-template>
+            <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex" let-rowData="rowData">
+
+                <tr [pSelectableRow]="row" (click)="editCapability(row)">
+                    <td *ngFor="let col of columns" class="{{ col.classes }}">
+                        <div *ngIf="col.rowColorField" class="row-color" [ngStyle]="{'backgroundColor': row.rowBgColorField}"></div>
+                        {{ row[col.valueField] }}
+                        <i *ngIf="col.iconField && row.icon" [ngClass]="row.icon"></i>
+                    </td>
+                    <td *ngIf="showEdit">
+                        <div class="p-grid p-justify-start capability-table-edit-icon">
+                            <button pButton icon="icons8 icons8-edit-2 pr-5" class="ui-icon-button p-col-1" pTooltip="Edit" (click)="editCapability(row)"></button>
+
+                        </div>
+                    </td>
+                </tr>
+
+            </ng-template>
+            <!-----------Empty table error handling--------------------->
+            <!-- <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.coldiv]="columns.length + 1" class="text-center">
+        
+                        <span *ngIf="empty">Empty Table</span>
+                        <span *ngIf="loading">Loading</span>
+                    </td>
+                </tr>
+            </ng-template> -->
+        </p-table>
+    </div>
+</div>
+
+<app-add-remove-capabilities #addRemoveCapabilities></app-add-remove-capabilities>

@@ -1,0 +1,144 @@
+<div class="add-action-dialog">
+    <p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false" [style]="{width: '80vw'}">
+        <p-header>
+            <div class="compare-data-title">
+                <div> Add BUSSINESS TRANSACTION PATTERN</div>
+                <div class="action-buttons">
+                    <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+                </div>
+            </div>
+        </p-header>
+
+        <div class="dialog-content">
+            <div class="p-col-12 no-padding main-table">
+                <p-tabMenu [model]="widgetReportItems" [activeItem]='activeTab'>
+                </p-tabMenu>
+                <div class="tab-content">
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+            <div class="dailog-padding">
+                <div class="p-grid">
+                    <div class="p-col-2">
+                        <span class="line-height">Business Transaction Name</span>
+                    </div>
+                    <div class="p-col-4">
+                        <input class="w-100-p" type="text" placeholder="" pInputText />
+                    </div>
+
+                    <div class="p-col-4 divspacing">
+                        <p-checkbox name="groupname" value="val1"></p-checkbox>
+
+                        <span class="line-height ml-5">Excluded this Business Transaction</span>
+                    </div>
+                </div>
+
+                <div class="p-grid">
+                    <div class="p-col-2">
+                        <span class="line-height">URL Pattern</span>
+                    </div>
+                    <div class="p-col-4">
+                        <input class="w-100-p" type="text" placeholder="" pInputText />
+                    </div>
+                    <div class="p-col-3">
+                        <p-dropdown label="custom" [options]="allEvent" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-col-2">
+                        <p-checkbox name="groupname" value="val1"></p-checkbox>
+
+                        <span class="line-height ml-5">Asynchronous Transaction</span>
+                    </div>
+                </div>
+                <div class="p-grid">
+                    <div class="p-col-4">
+                        <p-checkbox name="groupname" value="val1"></p-checkbox>
+                        <span class="line-height ml-5">Select Dyanamic Http Request Properties</span>
+                    </div>
+                </div>
+
+                <div class="p-grid">
+                    <div class="p-col-2">
+                        <span class="line-height">Request Parameter Key</span>
+                    </div>
+                    <div class="p-col-4">
+                        <input class="w-100-p" type="text" placeholder="" pInputText />
+                    </div>
+                    <div class="p-col-1 divspacing">
+                        <span class="line-height">value</span>
+                    </div>
+                    <div class="p-col-4">
+                        <input class="w-100-p" type="text" placeholder="Enter value" pInputText />
+                    </div>
+                </div>
+                <div class="p-grid">
+                    <div class="p-col-2">
+                        <span class="line-height">Response Parameter Key</span>
+                    </div>
+                    <div class="p-col-4">
+                        <input class="w-100-p" type="text" placeholder="" pInputText />
+                    </div>
+                    <div class="p-col-1 divspacing">
+                        <span class="line-height">value</span>
+                    </div>
+                    <div class="p-col-4">
+                        <input class="w-100-p" type="text" placeholder="Enter value" pInputText />
+                    </div>
+                </div>
+                <div class="p-grid">
+                    <div class="p-col-2">
+                        <span class="line-height">HTTP Method Type</span>
+                    </div>
+                    <div class="p-col-4">
+                        <p-dropdown label="custom" [options]="allEvent" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                </div>
+                <div class="p-grid">
+                    <div class="p-col-7">
+                        <span class="line-height">Transaction Response time Threshold value slow
+                    <input class="inputspace" size="15" type="text" placeholder="3000" pInputText />ms very slow
+                    <input class="inputspace" size="15" type="text" placeholder="5000" pInputText />ms</span>
+                    </div>
+                    <div class="p-col-2">
+                        <span class="line-height">Apply Globle threshold value(s)</span>
+                        <p-inputSwitch class="swtichspace"></p-inputSwitch>
+                    </div>
+
+
+                </div>
+                <div class="p-grid">
+                    <div class="p-col-2">
+                        <span class="line-height">HTTP Body Capture</span>
+                    </div>
+                    <div class="p-col-4">
+                        <p-dropdown label="custom" [options]="allEvent" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                    <div class="p-col-2">
+                        <span class="line-height">Threshold counter</span>
+                    </div>
+                    <div class="p-col-4">
+                        <input class="w-100-p" type="text" placeholder="50" pInputText />
+                    </div>
+
+                </div>
+                <div class="p-grid">
+                    <div class="p-col-2">
+                        <span class="line-height">Method Instrument Level</span>
+                    </div>
+                    <div class="p-col-2">
+                        <p-dropdown label="custom" [options]="allEvent" dropdownIcon="icons8 icons8-expand-arrow">
+                        </p-dropdown>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p-footer>
+            <div class="p-col-12 form-buttons right">
+                <button pButton type="button" label="Cancel" class="ui-button-rounded ui-button-secondary" (click)="closeDialog()"></button>
+                <button pButton type="submit" label="Save" class="ui-button-rounded"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+</div>

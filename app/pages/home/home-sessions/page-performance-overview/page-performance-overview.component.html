@@ -1,0 +1,28 @@
+<div class="h-100-vh page-performance-overview-container" >
+  <div class="header" *ngIf="pageoverviewflag">
+    <app-header></app-header>
+  </div>
+  <p-toolbar class="ui-secondary-toolbar" *ngIf="pageoverviewflag">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+      <a routerLink="/home/home-sessions">
+        <i class="icons8 icons8-left toolbar-icon-color"></i>
+      </a>
+      <div class="p-col ui-toolbar-text">PAGE PERFORMANCE OVERVIEW</div>
+    </div>
+  </p-toolbar>
+  <div class="content-body" id="reports" >
+    <div class="p-grid">
+      <div class="p-col-12 no-padding">
+        <div class="breadcrumbs" *ngIf="pageoverviewflag">
+          <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+        </div>
+      </div>
+      <div class="p-col-12 no-padding main-table" >
+        <p-tabMenu [model]="items" *ngIf="pageoverviewflag"></p-tabMenu>
+        <div class="content-body">
+          <router-outlet  ></router-outlet>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

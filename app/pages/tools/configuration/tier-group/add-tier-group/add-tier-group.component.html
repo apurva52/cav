@@ -1,0 +1,51 @@
+<p-dialog [(visible)]="visible" [closable]="false" [baseZIndex]="10000100011" [resizable]="true" [modal]="true" class="secondary-dialog" [draggable]="false" [style]="{width: '40vw'}">
+    <p-header>
+        <div class="compare-data-title">
+            <div>
+                Add Tier Group
+            </div>
+            <div class="action-buttons">
+                <i class="icons8 icons8-delete" (click)="closeDialog()"></i>
+            </div>
+        </div>
+    </p-header>
+
+    <div class="dialog-content">
+        <div class="p-grid">
+
+            <div class="p-col-5">
+                <span class="line-height">Group Name</span>
+            </div>
+            <div class="p-col-7">
+                <input class="w-100-p" type="text" placeholder="Enter name" pInputText />
+            </div>
+        </div>
+
+        <div class="p-grid">
+            <div class="p-col-5">
+                <span class="line-height">GroupName For</span>
+            </div>
+            <div class="p-col-7">
+                <p-dropdown [options]="allState" dropdownIcon="icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+        </div>
+
+        <div class="p-grid">
+            <div class="p-col-5">
+                <span class="line-height">Type</span>
+            </div>
+            <div class="p-col-7">
+                <p-dropdown [options]="allEvent" dropdownIcon="icons8-expand-arrow">
+                </p-dropdown>
+            </div>
+        </div>
+    </div>
+
+    <p-footer>
+        <div class="p-col-12 form-buttons right">
+            <button pButton type="submit" label="Cancel" class="ui-outline-button ui-button-secondary"></button>
+            <button pButton type="submit" label="Add" class="ui-button-rounded"></button>
+        </div>
+    </p-footer>
+</p-dialog>

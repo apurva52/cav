@@ -1,0 +1,20 @@
+<div id="pop-record-command" class="poprecordcommand" style="visibility:hidden;font-size:150%;position:absolute;top:20px;right:50%;;z-index: 999999;background: black;color: white;padding: 10px;"> Press <b>Ctrl-shift-5</b> to start recording </div>
+<div class="scroll-map-container">
+    <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+        <div class="icons-container" title="Edit Configurations">
+             <button pButton icon="icons8 icons8-edit-2" class="icon-button no-shadow"
+                (click)="mappingConfigurationSidebar.open()" pTooltip="Edit Configurations"></button>
+        </div>
+        <div id="load" class="loader" [style.height]="'100%'" [style.width]="'100%'" [style.top]='"0"' [class.hide]='busy==false' [class.show]='busy==true'
+            [style.opacity]='"0.2"' [style.position]='"absolute"' [ngStyle]="{'z-index': 100}">
+          <div class="spinner"></div>
+        </div>
+        <div id="parentiframe" style="margin: auto;transform-origin: 0px 0px;" [style.width]="iframe_width" [style.height]="iframe_height" [style.transform]="iframe_transform" [style.left]="iframe_left" [style.top]="'6.5%'" [style.position]="iframe_position">
+            <canvas [ngStyle]="canvas_style" [ngClass]="applyTemplate ? 'canvasdevices' : 'pagedumpcanvas'" #replaycanvas id="replaycanvas"></canvas>
+            <iframe src="/netvision/reports/loadingPageDump.html" id="replayIframe" #replayIframe [ngClass]="applyTemplate ? templateCls : ''" frameborder="0" class="custom-size"  [width]="iframe_width" [height]="iframe_height"></iframe>
+        </div>
+    </div>
+</div>
+
+<app-mapping-configuration #mappingConfigurationSidebar [map]="'scrollmap'" [activePageindex]="currentpageindex" [pages]="pages" [session]="selectedSession"
+[showDates] = "showDates" [suggestions] ="suggestions" [parser_failed]="parser_failed"></app-mapping-configuration>

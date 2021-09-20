@@ -1,0 +1,56 @@
+<div class="kpi-channel-table" *ngIf="data">
+  <!--section title -->
+  <div class="p-grid p-justify-between p-align-center pv-10">
+    <div class="p-col ui-section-title">
+      <span>
+        COMPARE REVENUE AND ORDERS
+      </span>
+
+    </div>
+    <div>
+      <span class="mh-10">
+        <button pButton type="button" class="ui-button-rounded" icon="icons8 icons8-expand-arrow" iconPos="right" label="ADD DURATION"
+          (click)="durationsmenu.toggle($event)"></button>
+        <p-menu #durationsmenu popup="true" [model]="durationOptions" class="float-right"></p-menu>
+      </span>
+    </div>
+  </div>
+  <!-- section title -->
+  <!-- table -->
+
+  <div class="revenue-order-grid p-grid p-justify-between p-align-stretch vertical-container">
+
+    <div class="p-col-fixed channel-header">
+      <div class="p-grid outer-wrapper">
+        <p-card>
+          <p-table [columns]="data.orderRevenue.channels.headers" [value]="data.orderRevenue.channels.data">
+            <ng-template pTemplate="header" let-rows>
+              <tr *ngFor="let row of rows">
+                <th *ngFor="let col of row.cols" [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan"
+                  class="{{col.classes}}">
+                  Channels
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td *ngFor="let col of row.cols" [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan"
+                  class="{{col.classes}}">
+                  <i *ngIf="col.icon" class="{{col.icon}}"></i>
+                  {{col.label}}
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      </div>
+    </div>
+
+    <div class="p-col table-wrapper">
+      <div class="p-grid outer-wrapper">
+        <ng-template #revenueTableContainer></ng-template>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,398 @@
+<div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !datahotspot">
+    <div class="p-col p-col-align-center text-center">
+        <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+    </div>
+</div>
+
+<div class="p-grid vertical-container" *ngIf="error">
+    <div class="p-col p-col-align-center text-center">
+        <p-message severity="error" text="{{ error.msg }}"></p-message>
+    </div>
+</div>
+
+<div class="p-grid vertical-container" *ngIf="empty">
+    <div class="p-col p-col-align-center text-center">
+        <p-message severity="normal" text="No Data"></p-message>
+    </div>
+</div>
+<div *ngIf="datahotspot" class="h-100-vh vertical-container">
+    <div class="w-100-p">
+        <div>
+            <div class="hotspot-panel">
+                <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="pnl.collapsed"
+                    [ngClass]="pnl.collapsed ? 'collapsed' : 'uncollapsed'">
+                    <p-header class="cav-panel-header pt-5">
+                        <div class="panel-title" (click)="pnl.toggle($event)">
+                            <span
+                                [class]="pnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                            </span> Threads HotSpots Stats
+                        </div>
+                    </p-header>
+                    <div class="p-grid p-align-stretch p-justify-center work-in-progress">
+                        <div class="p-col-6" *ngFor="let chart of datahotspot.panels[0].charts; let indexOfelement=index;">
+                            <app-chart [data]="chart" (click)="clickHandler($event,indexOfelement)"></app-chart>
+                        </div>
+
+                    </div>
+                </p-panel>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="datahotspot">
+        <div class="p-grid p-justify-start p-align-center">
+            <div *ngFor="let panel of datahotspot.panels; let i = index" class="w-100-p">
+                <div>
+                    <div id="panel-{{i+1}}" class="hotspot-panel">
+                        <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="panel.collapsed"
+                            [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                            <p-header class="cav-panel-header pt-5">
+                                <div class="cav-panel-content p-grid p-align-center">
+                                    <div class="panel-title" (click)="pnl.toggle($event)">
+                                        <a tabindex="{{i}}">
+                                            <span
+                                                [class]="pnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                            </span>
+                                        </a>
+                                        {{panel.label}}{{hotspotCount}}
+                                    </div>
+                                    <div class="p-grid p-justify-center p-align-center">
+                                        <div class="ui-inputgroup-addon-flow">
+                                            <div class="hotspot-search-box">
+                                                <input #searchInput type="text" [value]="" class="w-100-p" pInputText size="50" placeholder="Search" *ngIf="isShowSearch" (input)="hotspot.filterGlobal($event.target.value, 'contains')" class="search-box" />
+                                                <button pButton icon="icons8 icons8-search" (click)="isShowSearch = !isShowSearch" class="icon-button no-shadow"></button>
+                                            </div>
+                                        </div>
+                                        <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionsHotspot" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                        <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                        <button pButton *ngIf = "refreshTable" icon="icons8 icons8-synchronize" class="ui-icon-button" (click)="refreshData()" pTooltip="Show all data"></button>
+                                        <button pButton icon="icons8 icons8-search-property" class="ui-icon-button" pTooltip="Toggle Filter" [tooltipZIndex]="100000" (click)="panel.tableFilter = !panel.tableFilter">
+                                        </button>
+                                        <p-multiSelect class = 'ml-20' [options]="cols" name="multiSelect" [(ngModel)]="selectedColumns"
+                                            optionLabel="label" [displaySelectedLabel]="false" 
+                                            dropdownIcon='icons8 icons8-columns' pTooltip="Toggle Columns"
+                                            [panelStyle]="{minWidth: '200px'}">
+                                        </p-multiSelect>
+                                        <button *ngIf="panel.menuOption" pButton icon="icons8 icons8-menu-vertical"
+                                            class="ui-icon-button" (click)="menuitems.toggle($event);"
+                                            pTooltip="Menu"></button>
+                                        <p-menu #menuitems [popup]="true" styleClass="widget-menu" [model]="menu"
+                                            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                    </div>
+                                </div>
+                                <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                                    Select column to show
+                                </div>
+                            </p-header>
+                            <p-table #hotspot class="all-tables" [resizableColumns]="true" [columns]="selectedColumns"
+                                [rowsPerPageOptions]="panel.paginator.rowsPerPageOptions" [value]="hotspotData" [paginator]="showPaginationHsSum"
+                                [totalRecords]="panel.data.length" [rows]="panel.paginator.rows" [showCurrentPageReport]="showPaginationHsSum"
+                                [globalFilterFields]="globalFilterFields" (sortFunction)="sortColumnsOnCustom($event)" [customSort]="true"
+                                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+                                <ng-template pTemplate="colgroup" let-columns>
+                                    <colgroup>
+                                        <col *ngFor="let col of columns">
+                                    </colgroup>
+                                </ng-template>
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                        <th *ngFor="let col of columns" pResizableColumn [attr.colspan]="col.colspan"
+                                            [attr.rowspan]="col.rowspan" [pSortableColumn]="col.valueField" pTooltip={{col.label}}>
+                                            <div class="elipseText"> {{ col.label }} </div>
+                                                <!-- </div>
+                                            <div *ngFor="let p of hotspotData[i].sort" class="float-right"> -->
+                                                <!-- p == col.valueField -->
+                                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField"
+                                                    ariaLabel="Activate to sort"
+                                                    ariaLabelDesc="Activate to sort in descending order"
+                                                    ariaLabelAsc="Activate to sort in ascending order">
+                                                </p-sortIcon>
+
+                                        </th>
+                                    </tr>
+                                    <tr *ngFor="let headerRow of panel.headers">
+                                        <ng-container *ngIf="panel.tableFilter">
+                                            <th *ngIf="isCheckbox" class="columnwidth"></th>
+                                            <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                                <div *ngIf="
+                                                col.filter.isFilter === true &&
+                                                col.filter.type === 'custom'
+                                              ">
+                                                    <input class="w-100-p"
+                                                        pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                        hotspot.filter(
+                                                    $event.target.value,
+                                                    col.valueField,
+                                                    'custom'
+                                                  )
+                                                " />
+                                                </div>
+                                                <div *ngIf="
+                                                col.filter.isFilter === true &&
+                                                col.filter.type === 'contain'
+                                              ">
+                                                    <input class="w-100-p"
+                                                        pTooltip="Will filter metric names which contains given text."
+                                                        *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                        hotspot.filter(
+                                                    $event.target.value,
+                                                    col.valueField,
+                                                    'contains'
+                                                  )
+                                                " />
+                                                </div>
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+                                    <tr [pReorderableRow]="index">
+                                        <td *ngFor="let col of columns let i = index" class="{{ col.classes }}" pTooltip={{rowData[col.valueField]|f_ddr:col.format}}>
+                                            <span>
+                                                <a [ngClass]="{
+                                                activeLink: col.label == 'Thread ID'
+                                              }" (click)="getColumnData(rowData,col.label)">
+                                                    {{ rowData[col.valueField] | f_ddr: col.format }}
+                                                </a>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                                <!-----------Empty table error handling--------------------->
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.colspan]="columns.length + 1" class="text-center">
+                                            <span *ngIf="error">Error while loading data</span>
+                                            <span *ngIf="empty">Empty Table</span>
+                                            <span *ngIf="loading">Loading</span>
+                                            <span *ngIf="!empty && !loading && !error && searchInput && searchInput.nativeElement.value.length  ">Nothing
+                                                found matching
+                                                "{{searchInput.nativeElement.value}}"</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </p-panel>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="datastacktrace">
+        <div class="p-grid p-justify-start p-align-center">
+            <div *ngFor="let panel of datastacktrace.panels; let i = index" class="w-100-p">
+                <div>
+                    <div id="panel-{{i+1}}" class="hotspot-panel">
+                        <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="panel.collapsed"
+                            [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                            <p-header class="cav-panel-header pt-5">
+                                <div class="cav-panel-content p-grid p-align-center">
+                                    <div class="panel-title" (click)="pnl.toggle($event)">
+                                        <a tabindex="{{i}}">
+                                            <span
+                                                [class]="pnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                            </span>
+                                        </a>
+                                        {{panel.label}}<label title = "{{headerFilterToolTip}}">{{headerFilter}}</label>
+                                    </div>
+                                    <div class="p-grid p-justify-center p-align-center">
+                                        <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionsStackTrace" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                        <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                        <!-- <button pButton icon="icons8 icons8-search-property" class="ui-icon-button" pTooltip="Toggle Filter" [tooltipZIndex]="100000" (click)="panel.tableFilter = !panel.tableFilter">
+                                        </button> -->
+                                        <p-multiSelect class = 'ml-20' [options]="stCols" name="multiSelect" [(ngModel)]="stackTraceselectedColumns"
+                                            optionLabel="label" [displaySelectedLabel]="false" 
+                                            dropdownIcon='icons8 icons8-columns' pTooltip="Toggle Columns"
+                                            [panelStyle]="{minWidth: '200px'}">
+                                        </p-multiSelect>
+                                        <button pButton *ngIf="mergeFlag" icon="icons8 icons8-settings" class="ui-icon-button" pTooltip="MergeStackTrace" (click)="mergestacktraceload()"></button>
+                                        <!-- toggleFilters() -->
+                                        <!-- panel.tableFilter = !panel.tableFilter -->
+
+                                        <button *ngIf="panel.menuOption" pButton icon="icons8 icons8-menu-vertical"
+                                            class="ui-icon-button" (click)="menuitems.toggle($event);"
+                                            pTooltip="Menu"></button>
+                                        <p-menu #menuitems [popup]="true" styleClass="widget-menu" [model]="menu"
+                                            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                    </div>
+                                </div>
+                            </p-header>
+                            <p-treeTable #stacktrace class="all-tables" [columns]="panel.headers" [value]="stackData"
+                                [columns]="panel.headers">
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr *ngFor="let headerRow of panel.headers">
+                                        <th *ngFor="let col of headerRow.cols" [ttSortableColumn]="false" pTooltip={{col.label}}>
+                                                {{ col.label }}
+                                                <!-- <p-treeTableSortIcon *ngIf="col.isSort" class="right"
+                                                    [field]="col.valueField"></p-treeTableSortIcon> -->
+                                            <!-- <div *ngIf="col.isSort" class="float-right">
+                                        <p-treeTableSortIcon [field]="col.field"></p-treeTableSortIcon>
+                                    </div> -->
+
+                                        </th>
+                                    </tr>
+                                    <tr *ngFor="let headerRow of panel.headers">
+                                        <ng-container *ngIf="panel.tableFilter">
+                                            <th *ngIf="isCheckbox" class="columnwidth"></th>
+                                            <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                                <div *ngIf="
+                                                col.filter.isFilter === true &&
+                                                col.filter.type === 'custom'
+                                              ">
+                                                    <input class="w-100-p" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                    stacktrace.filter(
+                                                    $event.target.value,
+                                                    col.valueField,
+                                                    'custom'
+                                                  )
+                                                " />
+                                                </div>
+                                                <div *ngIf="
+                                                col.filter.isFilter === true &&
+                                                col.filter.type === 'contain'
+                                              ">
+                                                    <input class="w-100-p" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                    stacktrace.filter(
+                                                    $event.target.value,
+                                                    col.valueField,
+                                                    'contain'
+                                                  )
+                                                " />
+                                                </div>
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                                    <tr *ngFor="let headerRow of columns;">
+                                        <td *ngFor="let col of headerRow.cols; let i = index" class="{{ col.classes }}" pTooltip={{rowData[col.valueField]}}>
+                                            <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+                                            {{rowData[col.valueField]}}
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                            <span *ngIf="error">Error while loading data</span>
+                                            <span *ngIf="empty">Empty Table</span>
+                                            <span *ngIf="loading">Loading</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-treeTable>
+                        </p-panel>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="dataipcalls">
+        <div class="p-grid p-justify-start p-align-center">
+            <div *ngFor="let panel of dataipcalls.panels; let i = index" class="w-100-p">
+                <div>
+                    <div id="panel-{{i+1}}" class="hotspot-panel">
+                        <p-panel #pnl expandIcon="" collapseIcon="" [toggleable]="true" [(collapsed)]="panel.collapsed" [ngClass]="panel.collapsed ? 'collapsed' : 'uncollapsed'">
+                            <p-header class="cav-panel-header pt-5">
+                                <div class="cav-panel-content p-grid p-align-center">
+                                    <div class="panel-title" (click)="pnl.toggle($event)">
+                                        <a tabindex="{{i}}">
+                                            <span
+                                                [class]="pnl.collapsed ? 'icons8 icons8-expand-arrow' : 'icons8 icons8-collapse-arrow'">
+                                            </span>
+                                        </a>
+                                        {{panel.label}}<label title = "{{headerFilterToolTip}}">{{headerFilter}}</label>  
+                                    </div>
+                                    <div class="p-grid p-justify-center p-align-center">
+                                        <div class="ui-inputgroup-addon-flow">
+                                            <div class="ipcalls-search-box">
+                                                <input #searchIpInput type="text" [value]="" class="w-100-p" pInputText size="50" placeholder="Search" *ngIf="isIpShowSearch" (input)="ipcalls.filterGlobal($event.target.value, 'contains')" class="search-box" />
+                                                <button pButton icon="icons8 icons8-search" (click)="isIpShowSearch = !isIpShowSearch" class="icon-button no-shadow"></button>
+                                            </div>
+                                        </div>
+                                        <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptionsIPCalls" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                                        <button pButton icon="icons8 icons8-installing-updates" class="ui-icon-button" (click)="menu.toggle($event);" pTooltip="Download"></button>
+                                        <button pButton icon="icons8 icons8-search-property" class="ui-icon-button" pTooltip="Toggle Filter" [tooltipZIndex]="100000" (click)="panel.tableFilter = !panel.tableFilter">
+                                        </button>
+                                    </div>
+                                </div>
+                            </p-header>
+                            <p-table #ipcalls class="all-tables" [resizableColumns]="true" columnResizeMode="expand" [columns]="panel.headers" [rowsPerPageOptions]="panel.paginator.rowsPerPageOptions" [value]="ipCallsData" [paginator]="showPaginationIpCall" [totalRecords]="panel.data.length"
+                                [rows]="panel.paginator.rows" [globalFilterFields]="ipglobalFilterFields" (sortFunction)="sortColumnsOnCustom($event)" [customSort]="true" [showCurrentPageReport]="showPaginationIpCall" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+                                <ng-template pTemplate="header" let-columns>
+                                    <tr *ngFor="let headerRow of panel.headers">
+                                        <th *ngFor="let col of headerRow.cols" pResizableColumn [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan" [pSortableColumn]="col.valueField" pTooltip={{col.label}}>
+                                            <div class="elipseText"> {{ col.label }} </div>
+                                                <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="text-right" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                                </p-sortIcon>
+                                        </th>
+                                    </tr>
+                                    <tr *ngFor="let headerRow of panel.headers">
+                                        <ng-container *ngIf="panel.tableFilter">
+                                            <th *ngIf="isCheckbox" class="columnwidth"></th>
+                                            <th *ngFor="let col of headerRow.cols" [ngSwitch]="col.label">
+                                                <div *ngIf="
+                                                col.filter.isFilter === true &&
+                                                col.filter.type === 'custom'
+                                              ">
+                                                    <input class="w-100-p" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                    ipcalls.filter(
+                                                    $event.target.value,
+                                                    col.value,
+                                                    'custom'
+                                                  )
+                                                " />
+                                                </div>
+                                                <div *ngIf="
+                                                col.filter.isFilter === true &&
+                                                col.filter.type === 'contain'
+                                              ">
+                                                    <input class="w-100-p" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                    ipcalls.filter(
+                                                    $event.target.value,
+                                                    col.valueField,
+                                                    'contains'
+                                                  )
+                                                " />
+                                                </div>
+                                            </th>
+                                        </ng-container>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row let-columns="columns">
+                                    <tr *ngFor="let headerRow of panel.headers" class="pointer">
+                                        <td *ngFor="let col of headerRow.cols; let i = index" pTooltip={{row[col.valueField]|f_ddr:col.format}}>
+                                            <span *ngIf="col.label == 'Type'">
+                                                <a class="activeLink" (click)="tableBox.showBasicDialogOpen()">
+                                                    {{ row[col.valueField] | f_ddr: col.format }}
+                                                </a>
+                                            </span>
+                                            <span *ngIf="!(col.label == 'Type' )">
+                                                {{ row[col.valueField] | f_ddr: col.format }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage" let-columns>
+                                    <tr>
+                                        <td [attr.colspan]="columns.length + 1" class="text-center">
+                                            <span *ngIf="error">Error while loading data</span>
+                                            <span *ngIf="empty">Empty Table</span>
+                                            <span *ngIf="loading">Loading</span>
+                                            <span *ngIf="!empty && !loading && !error && searchIpInput && searchIpInput.nativeElement.value.length  ">Nothing
+                                                found matching
+                                                "{{searchIpInput.nativeElement.value}}"</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </p-panel>
+                    </div>
+                </div>
+            </div>
+        </div>                   
+    </div>
+
+    <app-table-box #tableBox [aggIpInfo]="aggIpInfo"></app-table-box>
+    
+</div>

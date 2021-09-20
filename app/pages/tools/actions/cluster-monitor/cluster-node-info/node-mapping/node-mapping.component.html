@@ -1,0 +1,392 @@
+<div class="mapping-wrapper h-100-vh" *ngIf="data">
+  <div class="p-grid">
+    <div class="p-col-12">
+      <div class="search-section">
+        <div class="action-buttons">
+          <button
+            pButton
+            icon="icons8 icons8-installing-updates"
+            class="ui-icon-button icon-button no-shadow"
+            pTooltip="Download" (click)="menu.toggle($event);"
+          ></button>
+          <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+          [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" appendTo="body"></p-menu>
+        </div>
+      </div>
+    </div>
+    <div class="p-col-12">
+      <div class="p-grid">
+        <div class="p-col-6" style="height: calc(100vh - 230px)">
+          <p-card>
+            <p-header>
+              <div class="card-header">
+                <div class="title">Mapping Type</div>
+                <div class="card-action-buttons">
+                  <i
+                    *ngIf="data.mapTypeData.tableFilter"
+                    pButton
+                    icon="icons8 icons8-search-property"
+                    class="icon-button no-shadow"
+                    pTooltip="Column Filter"
+                    [tooltipZIndex]="100000"
+                    (click)="
+                      isShowMapTypeColumnFilter = !isShowMapTypeColumnFilter
+                    "
+                  ></i>
+                  <p-multiSelect
+                    class="icon-button no-shadow"
+                    [(ngModel)]="selectedMapTypeColumns"
+                    [options]="mapTypeCols"
+                    optionLabel="label"
+                    [displaySelectedLabel]="false"
+                    dropdownIcon="icons8 icons8-columns"
+                    pTooltip="Toggle Columns"
+                    [panelStyle]="{ minWidth: '200px' }"
+                  >
+                  </p-multiSelect>
+                </div>
+              </div>
+            </p-header>
+            <div
+              #mapTypeWidgetHight
+              class="mapping-table"
+              [ngStyle]="{
+                height: isShowMapTypeColumnFilter
+                  ? 'calc(100vh - 326px)'
+                  : 'calc(100vh - 283px)'
+              }"
+            >
+              <p-table
+                #mapType
+                [columns]="selectedMapTypeColumns"
+                [value]="data.mapTypeData.data"
+                [rowHover]="true"
+                [paginator]="true"
+                [rows]="data.mapTypeData.paginator.rows"
+                [totalRecords]="data.mapTypeData.data.length"
+                [rowsPerPageOptions]="
+                  data.mapTypeData.paginator.rowsPerPageOptions
+                "
+                [(first)]="data.mapTypeData.paginator.first"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [responsive]="true"
+                [scrollable]="true"
+                selectionMode="multiple"
+                scrollHeight="calc({{
+                  mapTypeWidgetHight.offsetHeight
+                }}px - 110px)"
+              >
+              <ng-template pTemplate="colgroup" let-columns>
+                    <colgroup>
+                        <col *ngFor="let col of columns" [style.width]="col.width">
+                    </colgroup>
+              </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                  <tr *ngFor="let headerRow of data.mapTypeData.headers">
+                    <th
+                      *ngFor="let col of columns"
+                      [attr.coldiv]="col.coldiv"
+                      [attr.rowdiv]="col.rowdiv"
+                      [pSortableColumn]="col.isSort && col.valueField"
+                      class="text-left"
+                    >
+                      <div class="left">
+                        {{ col.label }}
+                      </div>
+                      <div *ngIf="col.isSort" class="right">
+                        <p-sortIcon
+                          *ngIf="col.isSort"
+                          [field]="col.valueField"
+                          class="text-right"
+                          ariaLabel="Activate to sort"
+                          ariaLabelDesc="Activate to sort in descending order"
+                          ariaLabelAsc="Activate to sort in ascending order"
+                        >
+                        </p-sortIcon>
+                      </div>
+                    </th>
+                  </tr>
+
+                  <tr *ngFor="let headerRow of data.mapTypeData.headers">
+                    <ng-container *ngIf="isShowMapTypeColumnFilter">
+                      <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                        <div
+                          *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'custom'
+                          "
+                        >
+                          <input
+                            class="w-100-p"
+                            pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                            *ngSwitchCase="col.label"
+                            pInputText
+                            type="text"
+                            (input)="
+                              mapType.filter(
+                                $event.target.value,
+                                col.value,
+                                'custom'
+                              )
+                            "
+                          />
+                        </div>
+                        <div
+                          *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'contains'
+                          "
+                        >
+                          <input
+                            class="w-100-p"
+                            pTooltip="Will filter metric names which contains given text."
+                            *ngSwitchCase="col.label"
+                            pInputText
+                            type="text"
+                            (input)="
+                              mapType.filter(
+                                $event.target.value,
+                                col.valueField,
+                                'contains'
+                              )
+                            "
+                          />
+                        </div>
+                      </th>
+                    </ng-container>
+                  </tr>
+                </ng-template>
+
+                <ng-template
+                  pTemplate="body"
+                  let-row
+                  let-columns="columns"
+                  let-rowIndex="rowIndex"
+                >
+                  <tr [pSelectableRow]="row">
+                    <td
+                      *ngFor="let col of columns; let i = index"
+                      class="{{ col.classes }}"
+                    >
+                      <span>
+                        <a>
+                          {{ row[col.valueField] }}
+                        </a>
+                      </span>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage" let-columns>
+                  <tr>
+                    <td class="text-center">
+                      <span *ngIf="error">Error while loading data</span>
+                      <span *ngIf="emptyTable">No Data</span>
+                      <span *ngIf="loading">Loading</span>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </p-card>
+        </div>
+        <div class="p-col-6" style="height: calc(100vh - 230px)">
+          <p-card>
+            <p-header>
+              <div class="card-header">
+                <div class="title">Type Information</div>
+                <div class="card-action-buttons">
+                  <button
+                    pButton
+                    label="DELETE MAPPING"
+                    class="ui-outline-button ui-button-secondary"
+                  ></button>
+                  <i
+                    *ngIf="data.mapInfoData.tableFilter"
+                    pButton
+                    icon="icons8 icons8-search-property"
+                    class="icon-button no-shadow"
+                    pTooltip="Column Filter"
+                    [tooltipZIndex]="100000"
+                    (click)="isShowColumnFilter = !isShowColumnFilter"
+                  ></i>
+                  <p-multiSelect
+                    class="icon-button no-shadow"
+                    [(ngModel)]="selectedColumns"
+                    [options]="cols"
+                    optionLabel="label"
+                    [displaySelectedLabel]="false"
+                    dropdownIcon="icons8 icons8-columns"
+                    pTooltip="Toggle Columns"
+                    [panelStyle]="{ minWidth: '200px' }"
+                  >
+                  </p-multiSelect>
+                </div>
+              </div>
+            </p-header>
+            <div
+              #mapInfoWidgetHight
+              class="mapping-table"
+              [ngStyle]="{
+                height: isShowColumnFilter
+                  ? 'calc(100vh - 326px)'
+                  : 'calc(100vh - 283px)'
+              }"
+            >
+              <p-table
+                #mapInfo
+                [columns]="selectedColumns"
+                [value]="data.mapInfoData.data"
+                [rowHover]="true"
+                [paginator]="true"
+                [rows]="data.mapInfoData.paginator.rows"
+                [totalRecords]="data.mapInfoData.data.length"
+                [rowsPerPageOptions]="
+                  data.mapInfoData.paginator.rowsPerPageOptions
+                "
+                [(first)]="data.mapInfoData.paginator.first"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [responsive]="true"
+                [scrollable]="true"
+                selectionMode="multiple"
+                scrollHeight="calc({{
+                  mapInfoWidgetHight.offsetHeight
+                }}px - 110px)"
+              >
+                <ng-template pTemplate="colgroup" let-columns>
+                      <colgroup>
+                          <col *ngFor="let col of columns" [style.width]="col.width">
+                      </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                  <tr *ngFor="let headerRow of data.mapInfoData.headers">
+                    <th class="table-icon-field"></th>
+                    <th
+                      *ngFor="let col of columns"
+                      [attr.coldiv]="col.coldiv"
+                      [attr.rowdiv]="col.rowdiv"
+                      [ngStyle]="{
+                        'width.px':
+                          col.label === 'Httpstatuscode' ? '150' : '125'
+                      }"
+                      [pSortableColumn]="col.isSort && col.valueField"
+                      class="text-left"
+                    >
+                      <div class="left">
+                        {{ col.label }}
+                      </div>
+                      <div *ngIf="col.isSort" class="right">
+                        <p-sortIcon
+                          *ngIf="col.isSort"
+                          [field]="col.valueField"
+                          class="text-right"
+                          ariaLabel="Activate to sort"
+                          ariaLabelDesc="Activate to sort in descending order"
+                          ariaLabelAsc="Activate to sort in ascending order"
+                        >
+                        </p-sortIcon>
+                      </div>
+                    </th>
+                  </tr>
+
+                  <tr *ngFor="let headerRow of data.mapInfoData.headers">
+                    <ng-container *ngIf="isShowColumnFilter">
+                      <th class="table-icon-field"></th>
+                      <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                        <div
+                          *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'custom'
+                          "
+                        >
+                          <input
+                            class="w-100-p"
+                            pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                            *ngSwitchCase="col.label"
+                            pInputText
+                            type="text"
+                            (input)="
+                              mapInfo.filter(
+                                $event.target.value,
+                                col.value,
+                                'custom'
+                              )
+                            "
+                          />
+                        </div>
+                        <div
+                          *ngIf="
+                            col.filter.isFilter === true &&
+                            col.filter.type === 'contains'
+                          "
+                        >
+                          <input
+                            class="w-100-p"
+                            pTooltip="Will filter metric names which contains given text."
+                            *ngSwitchCase="col.label"
+                            pInputText
+                            type="text"
+                            (input)="
+                              mapInfo.filter(
+                                $event.target.value,
+                                col.valueField,
+                                'contains'
+                              )
+                            "
+                          />
+                        </div>
+                      </th>
+                    </ng-container>
+                  </tr>
+                </ng-template>
+
+                <ng-template
+                  pTemplate="body"
+                  let-row
+                  let-columns="columns"
+                  let-rowIndex="rowIndex"
+                >
+                  <tr
+                    [pSelectableRow]="row"
+                    [ngStyle]="{
+                      backgroundColor: row.rowBgColor,
+                      borderLeft: '5px solid' + row.severityBgColorField
+                    }"
+                  >
+                    <td class="text-center table-icon-field">
+                      <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                    </td>
+                    <td
+                      [ngStyle]="{
+                        'width.px':
+                          col.label === 'Httpstatuscode' ? '150' : '125'
+                      }"
+                      *ngFor="let col of columns; let i = index"
+                      class="{{ col.classes }}"
+                    >
+                      <span>
+                        <a>
+                          {{ row[col.valueField] }}
+                        </a>
+                      </span>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage" let-columns>
+                  <tr>
+                    <td class="text-center">
+                      <span *ngIf="error">Error while loading data</span>
+                      <span *ngIf="emptyTable">No Data</span>
+                      <span *ngIf="loading">Loading</span>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,65 @@
+<div #galleryView class="selected-widget-container">
+    <ng-container *ngIf="selectedWidgetWidget && selectedWidgetWidget.type === 'GRAPH'">
+        <app-graph [widget]="selectedWidgetWidget" [layout]="this" visible="1"></app-graph>
+    </ng-container>
+    <ng-container *ngIf="selectedWidgetWidget && selectedWidgetWidget.type === 'DATA'">
+        <app-data [widget]="selectedWidgetWidget" [layout]="this" visible="1"></app-data>
+    </ng-container>
+    <ng-container *ngIf="selectedWidgetWidget && selectedWidgetWidget.type === 'TABULAR'">
+        <app-tabular [widget]="selectedWidgetWidget" [layout]="this" visible="1"></app-tabular>
+    </ng-container>
+    <ng-container *ngIf="selectedWidgetWidget && selectedWidgetWidget.type === 'SYSTEM_HEALTH'">
+        <app-system-health [widget]="selectedWidgetWidget" [layout]="this" visible="1"></app-system-health>
+    </ng-container>
+    <ng-container *ngIf="selectedWidgetWidget && selectedWidgetWidget.type === 'LABEL'">
+        <app-label [widget]="selectedWidgetWidget" [layout]="this" visible="1"></app-label>
+    </ng-container>
+    <ng-container *ngIf="selectedWidgetWidget && selectedWidgetWidget.type === 'GROUP'">
+        <app-group [widget]="selectedWidgetWidget" [layout]="this" visible="1"></app-group>
+    </ng-container>
+    <ng-container *ngIf="selectedWidgetWidget && selectedWidgetWidget.type === 'IMAGE'">
+        <app-image [widget]="selectedWidgetWidget" [layout]="this" visible="1"></app-image>
+    </ng-container>
+    <ng-container *ngIf="selectedWidgetWidget && selectedWidgetWidget.type === 'FILE'">
+        <app-file-import [widget]="selectedWidgetWidget" [layout]="this" visible="1"> </app-file-import>
+    </ng-container>
+</div>
+<p-carousel [value]="dashboard.favDetailCtx.widgets" [numVisible]="6" [responsiveOptions]="responsiveSettings" 
+styleClass="custom-carousel" [numScroll]="5">
+    <ng-template let-widget pTemplate="item">
+        <div (click)="openWidget(widget, false)" class="clickable"
+            [ngClass]="{'selected': selectedWidgetWidget ? selectedWidgetWidget.id === widget.id : false}">
+            <div class="item-content">
+                <div class="widget-thumbnail">
+                    <!-- <img src="assets/icons/{{widget.type.toLocaleLowerCase()}}.svg"
+                        alt="{{widget.type.toLocaleLowerCase()}}"> -->
+                        <ng-container *ngIf="widget && widget.type === 'GRAPH'">
+                            <app-graph [widget]="widget" [layout]="this" visible="selectedWidgetWidget.id === widget.id ? 1: 0" [visiblityMenu]="false"></app-graph>
+                        </ng-container>
+                        <ng-container *ngIf="widget && widget.type === 'DATA'">
+                            <app-data [widget]="widget" [layout]="this" visible="selectedWidgetWidget.id === widget.id ? 1: 0" [visiblityMenu]="false"></app-data>
+                        </ng-container>
+                        <ng-container *ngIf="widget && widget.type === 'TABULAR'">
+                            <app-tabular [widget]="widget" [layout]="this" visible="selectedWidgetWidget.id === widget.id ? 1: 0" [visiblityMenu]="false"></app-tabular>
+                        </ng-container>
+                        <ng-container *ngIf="widget && widget.type === 'SYSTEM_HEALTH'">
+                            <app-system-health [widget]="widget" [layout]="this" visible="selectedWidgetWidget.id === widget.id ? 1: 0" [visiblityMenu]="false"></app-system-health>
+                        </ng-container>
+                        <ng-container *ngIf="widget && widget.type === 'LABEL'">
+                            <app-label [widget]="widget" [layout]="this" visible="selectedWidgetWidget.id === widget.id ? 1: 0" [visiblityMenu]="false"></app-label>
+                        </ng-container>
+                        <ng-container *ngIf="widget && widget.type === 'GROUP'">
+                            <app-group [widget]="widget" [layout]="this" visible="selectedWidgetWidget.id === widget.id ? 1: 0" [visiblityMenu]="false"></app-group>
+                        </ng-container>
+                        <ng-container *ngIf="widget && widget.type === 'IMAGE'">
+                            <app-image [widget]="widget" [layout]="this" visible="selectedWidgetWidget.id === widget.id ? 1: 0" [visiblityMenu]="false"></app-image>
+                        </ng-container>
+                        <ng-container *ngIf="widget && widget.type === 'FILE'">
+                            <app-file-import [widget]="widget" [layout]="this" visible="selectedWidgetWidget.id === widget.id ? 1: 0" [visiblityMenu]="false"> </app-file-import>
+                        </ng-container>
+                </div>
+            </div>
+            <!-- <div class="item-title">{{widget.name}}</div> -->
+        </div>
+    </ng-template>
+</p-carousel>

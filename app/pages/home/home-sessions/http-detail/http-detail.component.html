@@ -1,0 +1,374 @@
+<div class="p-grid http-detail-container">
+    <div class="sectionwidth">
+      <div class="header ">
+          <app-header></app-header>
+      </div>
+      <p-toolbar class="ui-secondary-toolbar ">
+          <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+              <a routerLink="/http-filter">
+                  <i class="icons8 icons8-left toolbar-icon-color"></i>
+              </a>
+              <div class="p-col ui-toolbar-text">HTTP Detail</div>
+          </div>
+      </p-toolbar>
+      <div class="p-col-12 no-padding">
+        <div class="breadcrumbs">
+            <p-breadcrumb [model]="breadcrumb.getBreadcrumbMenu() | async" (onItemClick)="breadcrumb.handleBreadcrumbClick($event)"></p-breadcrumb>
+        </div>
+    </div>
+    </div>
+      <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="!data">
+          <div class="p-col p-col-align-center text-center" *ngIf="loading">
+              <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+          </div>
+      </div>
+      <div class="p-grid vertical-container" *ngIf="error">
+          <div class="p-col p-col-align-center text-center">
+              <p-message severity="error" text="{{ error.msg }}"></p-message>
+          </div>
+      </div>
+  
+
+
+      <div *ngIf="data">
+          <div class="action-container p-grid">
+              <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                  <div class="global-search-block">
+                      <div>
+                          <i class="icons8 icons8-filter left filter-icon clickable" (click)="httpDetail.open()" pTooltip="Click here to Open Http Filter"></i>
+                      </div>
+                      <div class="p-input-icon-left search-div-css">
+                          <i class="icons8 icons8-search" (click)="applySmartSearchFilter($event)"></i>
+                          <p-autoComplete class="input-field-search" [(ngModel)]="smartSearchInput" [suggestions]="suggestions"
+                            (completeMethod)="findSuggestions($event)" field="value" [size]="30" placeholder="smart search filter"
+                            [minLength]="1"  dropdownIcon="icons8 icons8-expand-arrow"
+                            [multiple]="true" (onSelect)="smartSearchItemAdded($event)"
+                            (onUnselect)="smartSearchItemRemoved($event)" (onKeyUp)="handleKeyUpInSmartSearch($event)">
+                            <ng-template let-suggestion pTemplate="item">
+                                <ng-template [ngIf]="suggestion.filterName != 'Header'" [ngIfElse]="headerBlock">
+                                    <b>{{suggestion.value}}</b>
+                                    {{suggestion.separator}}
+                                    <b class="text-info">{{suggestion.filterName}}
+                                    </b>
+                                </ng-template>
+                                <ng-template #headerBlock>
+                                    <!--TODO: proper css.-->
+                                    <b>{{suggestion.value}}</b>
+                                </ng-template>
+                            </ng-template>
+                        </p-autoComplete>
+                      </div>
+                  </div>
+                  
+                  <div class="icons-container p-justify-between p-align-center">
+                      <button pButton type="button" class="ui-button-secondary ui-button-rounded btn-margin"
+                          (click)="analyticsMenu.toggle($event)" label="ANALYTICS" *ngIf="scatter"></button>
+                      <p-menu #analyticsMenu [popup]="true" styleClass="widget-menu" [model]="analyticsOptions"
+                          [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                      <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow"
+                          (click)="toggleFilters()" pTooltip="Column Filter" *ngIf="scatter"></button>
+                      <p-multiSelect class="icon-button no-shadow" [options]="cols" [(ngModel)]="selectedColumns"
+                          optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns"
+                          pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }" *ngIf="scatter">
+                      </p-multiSelect>
+                      <p-menu #menu [popup]="true" styleClass="widget-menu" [model]="downloadOptions"
+                          [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                      <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow"
+                          (click)="menu.toggle($event)" pTooltip="Download" *ngIf="scatter"></button>
+                        <!--scatter and table option-->
+                      <button (click)='changeMode(false)' pButton icon="pi pi-table" class="icon-button no-shadow" pTooltip="Tabular View" ></button>
+                      <button (click)='changeMode(true)' pButton icon="icons8 icons8-futures" class="icon-button no-shadow" pTooltip="Scatter Map" ></button>
+                      &nbsp; &nbsp;
+                      <div style="float: right;">
+                      <p-checkbox  label="Calls with ND Data" [(ngModel)]="sessionWithND" (onChange)="handlingNDSessions($event)" binary="true"></p-checkbox>
+                      </div>
+
+                  </div>
+              </div>
+  
+
+
+              <ng-container>
+                    <!--
+                        Scatter map exp 
+                    -->
+                 <!--   <div *ngIf = "httpFilterMode == true" id= "expAA" class="map-content w-100-p">
+                        <div class="p-col p-col-align-center text-center" *ngIf="!ready">
+                                <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+                        </div>
+                        <app-chart *ngIf="ready" [data]="mapdata.chartMap"></app-chart>
+                    </div>
+
+                --> 
+                
+                <p-card class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p http-detail-map" *ngIf="httpFilterMode">
+                    <p-header>
+                        <div class="p-grid">
+                            <div class="p-col-2">
+                                <span class='btn btn-default' style='font-size:10px;float:left;' #percentiletarget><i class='pi pi-clock-o'></i> {{scatterstartTime}} - {{scatterendTime}}</span>
+                            </div>
+                            
+                      
+                           
+                            <div class="p-col -2">
+                                Http Scatter Map on {{currentPerformanceMetric}}
+                            </div>
+                            <div class="p-col-4">
+                                Max Http Response Time (Sec)
+                                <input style="width:40px;padding:0px;" class="page-view-input" type='text' value='120'   [(ngModel)]="outlier">
+                                <button (click)='outlierChange()' style='height:22px;' class="btn mx-1 dropdown-toggle btn-xs btn-default" ><i class="pi pi-check" aria-hidden="true"></i></button>
+                                <!--<button class="btn dropdown-toggle btn-xs btn-default mx-1" data-toggle="dropdown" aria-expanded="false">
+                                    {{currentPerformanceMetric}} &nbsp; <i class="pi pi-caret-down"></i>
+                                </button>
+                                <ul class="dropdown-menu pull-right">
+                                    <li>
+                                      <a (click)='updateMetric("HttpResponsetime",trends.httpResponsetime)'  >HttpResponsetime</a>
+                                    </li>
+                                </ul>-->
+                            </div>
+                            <div class="p-col-2">
+                                <p-dropdown [options]="metricoptions" [(ngModel)]="currentPerformanceMetric" [style]="{'width':'150px'}">
+                                    <ng-template let-item pTemplate="selectedItem">
+                                       <span style="vertical-align:middle" id="a">{{item.label}}</span>
+                                   </ng-template>
+                                </p-dropdown>
+                            </div>
+                               
+                            <div class="p-col-2">
+                        <p-dropdown [options]="buckets" [(ngModel)]="bucket" dropdownIcon="icons8-expand-arrow" (onChange)="updateBucket($event)">
+                        </p-dropdown>
+                            </div>
+     
+                            <div class="p-col-12" *ngIf="customTimeError !== ''" style="color: red;">
+                              {{customTimeError}}
+                            </div>
+                          </div>
+                    </p-header>
+                    
+                    <div class="p-col-11 p-col-align-center text-center" *ngIf="!ready">
+                        <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+                    </div>
+                    
+                        <app-chart [data]="mapdata.chartMap" *ngIf="ready"></app-chart>  
+                        <p-footer> 
+                            <div class="p-align-right"   style ="height: 42px">  
+                                
+                              
+                            <p-paginator (onPageChange)="updateOffsetScatter($event)" [rows]="1" [totalRecords]="offsetWindow.length">
+                            </p-paginator>  
+                             
+                            </div>
+                        </p-footer> 
+                        
+                    
+                </p-card>   
+
+                
+                                       
+                
+                
+                <br>
+
+                  <div *ngIf = "httpFilterMode == false" #widgetHeight [ngStyle]="{
+                      height: isEnabledColumnFilter
+                        ? 'calc(100vh - 215px)'
+                        : 'calc(100vh - 172px)'
+                    }">
+                      <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+                          Select column to show
+                      </div>
+                      <div>
+                          <p-table #session [value]="groupData" [columns]="selectedColumns" [showCurrentPageReport]="!countLoading && totalRecords && !loading"
+                              [rowHover]="true" [(selection)]="selectedRow" selectionMode="single"
+                              (onRowSelect)="handleRowSelection($event)"
+                              class="all-tables"
+                              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [first] = "first"
+                              [paginator]="true" [lazy]="true" (onLazyLoad)="loadPagination($event)" [totalRecords]="totalRecords" [responsive]="true"
+                              [rowsPerPageOptions]="data.paginator.rowsPerPageOptions" [rows]="rows"
+                              [scrollable]="true" scrollHeight="calc({{widgetHeight.offsetHeight}}px - 91px)" [globalFilterFields]="globalFilterFields"
+                              [resizableColumns]="true" dataKey="index" [loading]="loading">
+                              <ng-template pTemplate="colgroup" let-columns>
+                                  <colgroup>
+                                      <col *ngFor="let col of columns" [style.width]="col.width" />
+                                  </colgroup>
+                              </ng-template>
+                              <ng-template pTemplate="header" let-columns>
+                                  <tr>
+                                      <th [ngStyle]="{ 'width': '15px', 'heigth':'3px', 'padding':'0px'}" pResizableColumn></th>
+                                      <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.valueField" pResizableColumn>
+                                          <div class="text-left">
+                                              <!--{{ col.label }}-->
+                                              <span title="{{ col.label }}">{{ col.label }}</span>
+                                              <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" class="right"
+                                                  ariaLabel="Activate to sort"
+                                                  ariaLabelDesc="Activate to sort in descending order"
+                                                  ariaLabelAsc="Activate to sort in ascending order">
+                                              </p-sortIcon>
+                                          </div>
+                                      </th>
+                                   
+                                  </tr>
+                                  <tr *ngFor="let headerRow of data.headers">
+                                      <ng-container *ngIf="isEnabledColumnFilter">
+                                          <th [ngStyle]="{ 'width': '3px', 'heigth':'15px', 'padding':'0px'}"></th>
+                                          <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                              <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'custom'
+                        ">
+                                                  <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                      pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='."
+                                                      *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                      session.filter(
+                              $event.target.value,
+                              col.valueField,
+                              'custom'
+                            )
+                          " />
+                                              </div>
+                                              <div *ngIf="
+                          col.filter.isFilter === true &&
+                          col.filter.type === 'contains'
+                        ">
+                                                  <input class="w-100-p" [tooltipZIndex]="tooltipzindex"
+                                                      pTooltip="Will filter metric names which contains given text."
+                                                      *ngSwitchCase="col.label" pInputText type="text" (input)="
+                                                      session.filter(
+                              $event.target.value,
+                              col.valueField,
+                              'contains'
+                            )
+                          " />
+                                              </div>
+                                          </th>
+                                      </ng-container>
+                                  </tr>
+                              </ng-template>
+                              <ng-template pTemplate="body" let-row let-expanded="expanded" let-columns="columns">
+                                  <tr [pSelectableRow]="row" (click)="openMenu(menuOptions,$event,row)">
+                                    
+                                      <p-menu class="menu-item" #menuOptions [popup]="true" [model]="linkOptions" appendTo="body"></p-menu>
+                                    <td [ngStyle]="{ 'width': '15px', 'heigth':'15px', 'padding':'0px'}" (click)="$event.stopPropagation();$event.preventDefault();">
+                                        <a href="#" [pRowToggler]="row">
+                                            <i [ngClass]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i>
+                                        </a>
+                                    </td>
+                                     <!-- <td
+                                          [ngStyle]="{'backgroundColor': row.severityColor, 'width': '3px', 'height':'15px', 'padding':'0px'}">
+                                      </td> --> 
+                                      <td *ngFor="let col of columns" class="{{ col.classes }}">
+                                        <span *ngIf='col.valueField == "action"'>
+                                            <!--DDR TO ND-->
+                                            <i class='icons8 icons8-flow-chart btn-icon mx-3' *ngIf="row['flowpathinstance'] != null && row['flowpathinstance'] != '-1' && row['flowpathinstance'] != '0'"
+                                            title="View Flow Path Report" id='SequenceDiagram'></i>
+                                        </span>
+                                        <span *ngIf='col.valueField == "location"'>
+                                            <!-- <img title="{{(row.location.state ? (row.location.state + ','): '')}} {{row.location.country}}" [src]="row.location.icon" style='height:14px;width:14px;' > -->
+                                            <i class="las-map-marker-solid"></i>{{(row.location.state ? (row.location.state + ','): '')}} {{row.location.country}}
+                                        </span>
+                                         <!-- os template -->
+                                         <span class="p-grid p-align-center" *ngIf='col.valueField == "os"' title={{row.os.name}}>
+                                            {{row.os}}
+                                        </span>
+                                        <span *ngIf='col.valueField == "devicetype"' title={{row.devicetype.name}}>
+                                            <i [class]='row.devicetype.font'></i>&nbsp;{{row.devicetype.name}}
+                                        </span>
+                                        <!-- browser template if browser is  iphone app-->
+                                        <span class="p-grid p-align-center" *ngIf='col.valueField == "browser"'>
+                                            <img title="{{row.browser.name}}" [src]="row.browser.icon" class="mr-3"
+                                                style='height:16px;width:16px;'> {{row.browser.name}}
+                                        </span>
+
+                                       
+                                        <span *ngIf='col.valueField == "mobileCarrier"' title={{row.mobileCarrier.name}} >{{row.mobileCarrier.name}}</span>
+                                         <!-- store template 
+                                         <span *ngIf='col.valueField == "store"'
+                                         title={{row.store.name}}>{{(row.store.name == '' ||
+                                         row.store.name == '-1') ? '-' : row.store.name }}</span>-->
+
+                                         <span *ngIf='col.valueField == "store"' title={{row.store._storenameforfilter}}>{{(row.store.id == '' || row.store.id == '-1') ? '-' : row.store.id }}</span>
+
+                                     <!-- terminal template -->
+                                     <span *ngIf='col.valueField == "terminalid"'
+                                         title={{row.terminalid}}>{{(row.terminalid == '' || row.terminalid == '-1')
+                                         ? '-' : row.terminalid }}</span>
+                                     <span *ngIf='col.valueField == "bytestransferred"' style='float:right;' title={{row.bytestransferred}}>{{(row.bytestransferred == '' || row.bytestransferred == '-1') ? '-' : row.bytestransferred }}</span>
+                                        <span *ngIf='col.valueField != "location" && col.valueField !="devicetype" && col.valueField !="browser" && col.valueField !="store" && col.valueField !="terminalid" && col.valueField !="mobileCarrier" && col.valueField != "os" && col.valueField != "bytestransferred"' title={{row[col.valueField]}} >{{ row[col.valueField] }}</span>
+                                      </td>
+                                     
+                                  </tr>
+                              </ng-template>
+                              <!--row expansion-->
+                              <ng-template  let-item let-columns="columns" pTemplate="rowexpansion"   style='background:white;'>
+                                <tr>
+                                    <td [attr.colspan]="columns.length + 1">
+                                        <span><b> URL &nbsp;: </b></span>&nbsp; <span class = "url-wrap"> {{item.data.url}}{{item.data.query}}</span>
+                                    </td>
+                                </tr>
+                                <tr class="httpdetail" style='background:white;'>
+                                 <td [attr.colspan]="columns.length + 1">
+                                    <p-tabView class="h-100-p w-100-p">
+                                        <p-tabPanel header="Timing" *ngIf="item.timings != undefined && item.timings != null">
+                                            <div [id]="'timingli' + item.index" class="tab-pane fade in active" *ngIf="item.timings != null">
+                                                <ul style="padding-left:1%">
+                                                 <li *ngFor="let q of objectKeys(item.timings)">
+                                                  <ng-container *ngIf="item['timings'][q].indexOf('NaN') == -1">
+                                                   <b>{{q}}</b>&nbsp;:&nbsp;{{item["timings"][q]}}
+                                                  </ng-container>
+                                                 </li>
+                             
+                                                </ul>
+                                            </div>
+                                        </p-tabPanel>
+                                        <p-tabPanel header="Header" *ngIf="item.data.headers != undefined">
+                                            <div [id]="'headerli' + item.index" class="tab-pane fade in ">
+                                                <ul style="padding-left:1%">
+                                                 <li *ngFor="let h of item.data.headers">
+                                                  <ng-container *ngIf="h !=''">
+                                                   <b>{{h.split(":")[0]}}</b>&nbsp;:&nbsp;{{h.split(":")[1]}}
+                                                  </ng-container>
+                                                 </li>
+                                                </ul>
+                                               </div>
+                                        </p-tabPanel>
+                                        <p-tabPanel header="Response" *ngIf="item.data.responseText != undefined">
+                                            <div [id]="'responseli' + item.index"  class="tab-pane fade in">{{item.data.responseText}}</div>
+                                        </p-tabPanel>
+                                        <p-tabPanel header="Post Data" *ngIf="item.data.postData != undefined">
+                                            <div [id]="'postli' + item.index" class="tab-pane fade in ">{{item.data.postData}}</div>
+                                        </p-tabPanel>
+                                        <p-tabPanel header="Parameters" *ngIf="item.data.query != undefined &&  item.data.query.length > 0">
+                                            <div [id]="'paramli' + item.index"  class="tab-pane fade in " >
+                                                {{item.data.query}}
+                                            </div>
+                                        </p-tabPanel>
+                                        
+                                    </p-tabView>
+                                 </td>
+                                </tr> 
+                              </ng-template>
+                      
+                              <!-----------Empty table error handling--------------------->
+                              <ng-template pTemplate="emptymessage" let-columns>
+                                  <tr>
+                                      <td [attr.colspan]="columns.length + 1" class="text-center">
+                                          <span *ngIf="error">Error while loading data</span>
+                                          <span *ngIf="empty">Empty Table</span>
+                                          <span *ngIf="loading">Loading</span>
+                                      </td>
+                                  </tr>
+                              </ng-template>
+                              <ng-template pTemplate="paginatorright" let-state>
+                                <p-progressSpinner *ngIf="loading || countLoading" [style]="{width: '20px', height: '20px', paddingLeft: '50px'}">
+                                </p-progressSpinner>
+                            </ng-template>
+                          </p-table>
+                        </div>
+                  </div>
+              </ng-container>
+          </div>
+      </div>
+  </div>
+  
+  <app-http-filter-sidebar #httpDetail (getData)="applyFilter()" [part]="'http-detail'"></app-http-filter-sidebar>
+  <p-toast></p-toast>

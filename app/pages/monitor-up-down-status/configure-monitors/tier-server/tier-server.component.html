@@ -1,0 +1,85 @@
+<div class = "p-col-12 p-grid p-justify-end p-align-end">
+</div>
+<div class="p-grid p-justify-start p-align-center server-filter-container">
+    <div class="p-grid p-justify-start p-align-center w-90-p server-filters"
+        *ngFor="let data of serverFilter;let i = index">
+        <div class=" p-grid p-justify-start p-align-center">
+            <div class="input-label width-100 ml-10 required-mark">Tier</div>
+            <div class="flexAuto">
+                <p-dropdown class="" [options]="tierList" placeholder="-- Select Tier --"
+                    dropdownIcon="icons8 icons8-expand-arrow" name="tier_{{data.id}}"
+                    [(ngModel)]="data.tier" (onChange)="onTierChange(data)"
+                    [style]="{'min-width':'170px'}" [filter]="true" resetFilterOnHide="true">
+                </p-dropdown>
+            </div>
+        </div>
+
+        <div class=" p-grid p-justify-start p-align-center p-col-8">
+            <div class=" p-grid p-justify-start p-align-center" *ngIf="data.tier !== 'ALLtier'">
+                <div class="input-label width-100 text-right mr-20 required-mark">Server</div>
+                <div class="flexAuto">
+                    <p-dropdown name="actualServer_{{data.id}}" [options]="serverOptionList"
+                        placeholder="-- Select Server --" dropdownIcon="icons8 icons8-expand-arrow"
+                        [(ngModel)]="data.actualServer" (onChange)="onServerChange(data)"
+                        [style]="{'min-width':'170px'}">
+                    </p-dropdown>
+                </div>
+            </div>
+            <div *ngIf="data.actualServer === 'specified' && data.tier !== 'ALLtier'" class="flexAuto">
+                
+                <p-multiSelect class="ml-10" [options]="data.serverList" name="server_{{data.id}}"
+                    ngDefaultControl [(ngModel)]="data.server" defaultLabel="--Select Server--" [style]="{'max-width':'450px'}"
+                    dropdownIcon="icons8 icons8-expand-arrow" appendTo="body" resetFilterOnHide="true"
+                    >
+                    <ng-template let-serverList pTemplate="selectedItems">
+                        <div *ngFor="let val of serverList" class="ui-multiselected-item-token ui-corner-all">
+                            <span>{{val}}</span>
+                        </div>
+                        <span *ngIf="!data.server || data.server.length === 0" class="ui-multiselected-empty-token ui-corner-all">--Select Server--</span>
+                    </ng-template>
+                </p-multiSelect>
+            </div>
+
+            <div class=" p-grid p-justify-start p-align-center" *ngIf="data.actualServer === -1 && data.tier !== 'ALLtier'">
+                <div class="input-label width-100 text-right mr-20">Exclude Server</div>
+                <div class="flexAuto">
+                    <p-multiSelect [options]="data.exServerList" name="exServer_{{data.id}}"
+                        ngDefaultControl [(ngModel)]="data.exServer" filter="true" appendTo="body" resetFilterOnHide="true"
+                        defaultLabel="Choose Exlude Server list" [style]="{'min-width':'170px'}"
+                        dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-multiSelect>
+                </div>
+            </div>
+
+            <div class=" p-grid p-justify-start p-align-center" *ngIf="data.tier === 'ALLtier'">
+                <div class="input-label width-100 ml-20">Exclude Tier</div>
+                <div class="flexAuto">
+                    <p-multiSelect [options]="exTierList" name="exTier_{{data.id}}" ngDefaultControl
+                        [(ngModel)]="data.exTier" defaultLabel="Choose Tier list" filter="true" appendTo="body" resetFilterOnHide="true"
+                        [style]="{'min-width':'170px'}" dropdownIcon="icons8 icons8-expand-arrow">
+                    </p-multiSelect>
+                </div>
+            </div>
+
+            <span>
+                <button type="button" class="btn-icon mx-3" *ngIf="i !== 0"
+                (click)="serverFilter.splice(i, 1)">
+                    <i class="icons8 icons8-trash delete-icon" title="Remove Tier-Server"></i>
+                </button>
+            </span>
+
+        </div>
+    </div>
+    <div class="p-col-1 text-right">
+        <button type="button" class="btn-icon" (click)="addServerFilter()">
+            <i class="icon8 icons8-add font-24" title="Add Agent Tier-Server"></i>
+        </button>
+     
+    </div>
+
+    <div class="loading-indicator" *ngIf="loading">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+    </p-progressSpinner>
+</div>
+</div>
+

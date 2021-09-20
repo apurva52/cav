@@ -1,0 +1,204 @@
+<div class="transaction-trend-container h-100-vh">
+    <div class="p-grid loader-container vertical-container h-100-vh" *ngIf="loading && !data">
+        <div class="p-col p-col-align-center text-center">
+            <div><i class="pi pi-spin pi-spinner"></i> <span>Loading</span></div>
+        </div>
+    </div>
+
+    <div class="p-grid vertical-container" *ngIf="error">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="error" text="{{ error.msg }}"></p-message>
+        </div>
+    </div>
+
+    <div class="p-grid vertical-container" *ngIf="empty">
+        <div class="p-col p-col-align-center text-center">
+            <p-message severity="normal" text="No Data"></p-message>
+        </div>
+    </div>
+
+    <div #widgetHeight *ngIf="data" class="mh-10" [ngStyle]="{
+      height: isEnabledColumnFilter
+        ? 'calc(100vh - 213px)'
+        : 'calc(100vh - 165px)'
+    }">
+        <div class="p-col-12">
+            <div class="p-grid">
+                <div class="p-col-5 filter-group">
+                    <div class="filter-icon-css" (click)="drilldownFilter.show()">
+                        <i class="icons8 icons8-filter"></i>
+                    </div>
+                    <div class="p-col-4 clickable" (click)="longValue.open()">
+                        {{ selectedFilter | ellipsis: 30 }}
+                    </div>
+
+                    <div class="p-col-1 pl-0 transaction-trend-search-box">
+                        <input type="text" [value]="" class="w-100-p" pInputText size="50" placeholder="Search" *ngIf="isShowSearch" (input)="
+                transactionTrendData.filterGlobal(
+                  $event.target.value,
+                  'contains'
+                )
+              " class="search-box" />
+                    </div>
+                    <!-- <div class="text-right ph-5" *ngIf="isShowSearch">
+                        <button pButton type="button" class="ui-icon-button ui-button-rounded clear-button" pTooltip="Clear filter" tooltipZIndex="100001005" icon="icons8 icons8-delete" (click)="clearFilters()"></button>
+                    </div> -->
+                </div>
+
+                <div class="p-col-7 alert-group">
+                    <p-checkbox name="groupname" value="val1" label="Compare for selected last 1 hour with previous" [(ngModel)]="autoplayEnabled">
+                    </p-checkbox>
+
+                    <p-slideMenu #menu [model]="options" [popup]="true" (click)="onClickMenu($event)">
+                    </p-slideMenu>
+                    <button pButton class="w-25-p ui-button ui-button-custom mh-10" (click)="menu.toggle($event)">
+            <span class="text-left p-col-10 left">
+              {{ selectedItem || "Specified Time" }}
+            </span>
+            <i class="p-col-2 icons8-expand-arrow slidemenu-icon right"></i>
+          </button>
+
+                    <button pButton type="button" class="ui-outline-button ui-button-secondary mh-5" label="Apply"></button>
+
+                    <button pButton icon="icons8 icons8-search" (click)="isShowSearch = !isShowSearch" class="icon-button no-shadow"></button>
+                    <p-multiSelect [options]="cols" class="icon-button no-shadow" [(ngModel)]="selectedColumns" optionLabel="label" [displaySelectedLabel]="false" dropdownIcon="icons8 icons8-columns" pTooltip="Toggle Columns" [panelStyle]="{ minWidth: '200px' }">
+                    </p-multiSelect>
+                    <button pButton icon="icons8 icons8-search-property" class="icon-button no-shadow" (click)="toggleFilters()" pTooltip="Column Filter"></button>
+
+                    <button pButton icon="icons8 icons8-installing-updates" class="icon-button no-shadow" (click)="menu3.toggle($event)" pTooltip="Download"></button>
+                    <p-menu #menu3 [popup]="true" styleClass="widget-menu" [model]="downloadOptions" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'"></p-menu>
+                </div>
+            </div>
+        </div>
+        <div class="empty-table-message" *ngIf="selectedColumns.length === 0">
+            Select column to show
+        </div>
+
+        <div class="p-grid">
+            <div class="transaction-trend-table">
+               
+                    <p-table #transactionTrendData class="all-tables" [columns]="selectedColumns" [value]="trendData" [rowHover]="true" [paginator]="true" [resizableColumns]="true" [rows]="data.tableData.paginator.rows" [showCurrentPageReport]="true" selectionMode="single" [rowsPerPageOptions]="data.tableData.paginator.rowsPerPageOptions"
+                        [lazy]="true" [loading]="loading" (onLazyLoad)="loadPagination($event)" [(first)]="data.tableData.paginator.first" [totalRecords]="totalRecords" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                        [responsive]="true" [(selection)]="selectedRow" [globalFilterFields]="data.tableData.search.fields" [scrollable]="true" scrollHeight="calc({{ widgetHeight.offsetHeight }}px - 180px)" [customSort]="true"
+                        >
+                        <ng-template pTemplate="colgroup" let-columns>
+                            <colgroup>
+                                <col *ngFor="let col of columns" [style.width]="col.width">
+                            </colgroup>
+                        </ng-template>
+                        <ng-template pTemplate="header" let-columns>
+                            <tr >
+                                <th [style]="{ width: '50px' }"> Action</th>
+                                <th *ngFor="let col of columns" pResizableColumn [attr.coldiv]="col.coldiv" [attr.rowdiv]="col.rowdiv" [pSortableColumn]="col.valueField" 
+                                [ngStyle]="{'width.px': col.label === 'Business Transaction' ? '200' : '150'}">
+                                    <div class="elipseText">
+                                        {{ col.label }}
+                                        <p-sortIcon *ngIf="col.isSort" [field]="col.valueField" ariaLabel="Activate to sort"
+                                            ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                                        </p-sortIcon>
+                                    </div>
+                                </th>
+                            </tr>
+                            <tr *ngFor="let headerRow of data.tableData.headers">
+                                <ng-container *ngIf="isEnabledColumnFilter">
+                                    <th *ngFor="let col of columns" [ngSwitch]="col.label">
+                                        <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'custom'
+                      ">
+                                            <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Use operators(>,<,=>,=<,= and -(treat as in between)) to use filter.If no operator is used then it will act as '>='." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                          transactionTrendData.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'custom'
+                          )
+                        " />
+                                        </div>
+                                        <div *ngIf="
+                        col.filter.isFilter === true &&
+                        col.filter.type === 'contains'
+                      ">
+                                            <input class="w-100-p" [tooltipZIndex]="tooltipzindex" pTooltip="Will filter metric names which contains given text." *ngSwitchCase="col.label" pInputText type="text" (input)="
+                          transactionTrendData.filter(
+                            $event.target.value,
+                            col.valueField,
+                            'contains'
+                          )
+                        " />
+                                        </div>
+                                    </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+                        <!-- <ng-template pTemplate="frozenheader">
+                            <tr>
+                                <th>...</th>
+                            </tr>
+                            <tr class="filterTr" *ngIf="isEnabledColumnFilter">
+                                <th></th>
+                            </tr>
+                        </ng-template> -->
+
+                        <ng-template pTemplate="body" let-row let-columns="columns" let-rowIndex="rowIndex">
+                            <tr [pSelectableRow]="row" [ngStyle]="{
+                  backgroundColor: row.rowBgColor,
+                  borderLeft: '5px solid' + row.severityBgColorField
+                }" >
+                <td [style]="{ width: '50px' }" class="text-center">
+                
+                    <i class="icons8 icons8-menu-vertical" (click)="menu1.toggle($event)"></i>
+                    <p-menu class="menu-item" #menu1 [popup]="true" [model]="items1" appendTo="body"></p-menu>
+                </td>
+                <td *ngFor="let col of columns; let i = index" class="{{ col.classes }}"
+                    [ngStyle]="{'width.px': col.label === 'Business Transaction' ? '200' : '150'}">
+                    <span>
+                        <a [ngClass]="{ activeLink: 
+                                                col.label == 'Overall Count' || 
+                                                col.label == 'Slow Count' || 
+                                                col.label == 'Error Count' || 
+                                                col.label == 'Normal Count' || 
+                                                col.label == 'Very Slow Count'}" 
+                            [pTooltip] = "col.valueField === 'totalCount' || col.valueField === 'slowCount' || col.valueField === 'errorCount' || col.valueField ==='normalCount' || col.valueField ==='vslowCount' ? 'View Flowpth Report' : [row[col.valueField]|f_ddr:col.format]" >
+                            <p-menu class="menu-item" #menu1 [popup]="true" [model]="items1" appendTo="body"></p-menu>
+                            {{ row[col.valueField] | f_ddr: col.format }}
+                        </a>
+                    </span>
+                </td>
+                            </tr>
+                        </ng-template>
+                        <!-- <ng-template pTemplate="frozenbody" let-row>
+                            <tr>
+                                <td>
+                                    <i class="icons8 icons8-menu-vertical" (click)="menu1.toggle($event)"></i>
+                                    <p-menu class="menu-item" #menu1 [popup]="true" [model]="items1" appendTo="body"></p-menu>
+                                </td>
+                            </tr>
+                        </ng-template> -->
+                        <!-----------Empty table error handling--------------------->
+                        <ng-template pTemplate="emptymessage" let-columns>
+                            <tr>
+                                <td [attr.coldiv]="columns.length + 1" class="text-center">
+                                    <span *ngIf="error">Error while loading data</span>
+                                    <span *ngIf="emptyTable">Empty Table</span>
+                                    <span *ngIf="loading">Loading</span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                
+            </div>
+            <div class="box box box-stretched marginL">
+                <div class="img-svg">
+                    <cdk-virtual-scroll-viewport class="example-viewport" itemSize="60">
+                        <app-chart [data]="chart" *ngFor="let chart of data.charts"></app-chart>
+                    </cdk-virtual-scroll-viewport>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-drilldown-filter #drilldownFilter></app-drilldown-filter>
+<app-specified-time #specifiedTime></app-specified-time>
+
+<app-long-value #longValue></app-long-value>

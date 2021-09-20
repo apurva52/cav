@@ -1,0 +1,305 @@
+<!-- <p-toast></p-toast> -->
+<div class="header">
+    <app-header></app-header>
+</div>
+<p-toolbar class="ui-secondary-toolbar">
+    <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a routerLink="/home/dashboard">
+            <i class="icons8 icons8-left" style="color: #fff;"></i>
+        </a>
+        <div class="p-col ui-toolbar-text">TIER ASSIGNMENT RULE</div>
+        <i class="icons8 icons8-info" style="color: #fff;"></i>
+        <div class="p-col-1">
+            <button pButton type="button" label="Save" [disabled]="selectedTopology == undefined" (click)="saveTierAssignRuleFile()" class="ui-button-rounded mr-6"></button>
+           
+        </div>
+    </div>
+</p-toolbar>
+<div class="configui-progressbar">
+    <!-- <mat-progress-bar *ngIf="isProgressBar" mode="indeterminate" [color]="color"></mat-progress-bar> -->
+    <p-progressBar *ngIf="isProgressBar" mode="indeterminate" [style]="{'height' : '5px'}"></p-progressBar>
+</div>
+<div class="main-container py-12">
+    <!-- <div class="bg-3 cav-d-flex cav-justify-content-between cav-align-items-center cav-fnt-14">
+        <div class="cav-p-2"><i class="icon-metrices"></i> Tier Assignment Rule</div>
+    </div> -->
+    <div class="p-grid p-justify-between p-align-center">
+        <div class="p-col-5">
+            <label class="width110">Topology</label>
+            <p-dropdown name="topologyList" class="my-select" [options]="topologyList" [(ngModel)]="selectedTopology"
+                (onChange)="getTierServerAndTierAssignRules()" dropdownIcon="icons8 icons8-expand-arrow" placeholder="--Select Topology--"
+                [style]="{'width':'200px'}"></p-dropdown>
+        </div>
+        <!-- <div class="p-col-1">
+            <button pButton type="button" label="Save" [disabled]="selectedTopology == undefined" (click)="saveTierAssignRuleFile()" class="ui-button-rounded mr-6"></button>
+           
+        </div> -->
+    </div>
+
+
+    <form (ngSubmit)="saveTierAssignRule()" #groupForm="ngForm" ngNativeValidate>
+    <div class="cav-px-2 cav-py-3 bg-2 shadow4" *ngIf="selectedTopology != undefined">
+
+
+        <!-- <div class="p-grid p-justify-between p-align-center">
+            <div class="p-col-3">
+                <label class="width110">Rule Name</label>
+                <input type="text" class="input-gui" name="ruleName" [(ngModel)]="ruleName" style="width: 100px;" pInputText>
+                  
+            </div>
+
+                <div class="p-col-5">
+                    <input name="isToggleEnable" [(ngModel)]="isToggleEnable" type="checkbox" checked>
+                    <div class="state">
+                        <label>Apply always</label>
+                    </div>
+                    <p-inputSwitch name="isToggleEnable" [(ngModel)]="isToggleEnable"></p-inputSwitch> <label> Apply always</label>
+                </div>
+           
+            <div>
+		<button type="submit" pButton icon="icons8-plus-math" label="Add"></button>
+            </div>
+        </div> -->
+
+
+        <div class="p-grid p-justify-start p-align-center">
+            <div class="p-col-3">
+                <label class="width110">Rule Name</label>
+                <input type="text" class="input-gui" name="ruleName" [(ngModel)]="ruleName" style="width: 200px;" pInputText>
+            </div>
+            <div class="p-col-1">
+                <p-inputSwitch name="isToggleEnable" [(ngModel)]="isToggleEnable"> </p-inputSwitch> 
+                </div>
+                <div class="p-col-7 mln-80 mtn-3">
+                   <span class="mtn-3"> Apply always</span>
+                    </div>
+            <div class="p-col-1 ml-80">
+                <button pButton type="submit" label="Add" [disabled]="selectedTopology == undefined" (click)="saveTierAssignRuleFile()" class="ui-button-rounded ui-button-secondary mr-6"></button>
+               
+            </div>
+        </div>
+
+        <div class="p-grid p-justify-start p-align-center">
+            <div class="p-col-3">
+                <label class="width110">Tier Name</label>
+                <p-dropdown class="my-select" name="tierList" [options]="tierList" [(ngModel)]="selectedTier"
+                    [disabled]="isEnableCustomTierName" dropdownIcon="icons8 icons8-expand-arrow" placeholder="--Select Tier--" [style]="{'width':'200px'}">
+                </p-dropdown>
+                </div>
+                <div class="p-col-1">
+                    <input type="checkbox" name="isEnableCustomTierName" [(ngModel)]="isEnableCustomTierName" />
+                    
+                </div>
+                <div class="p-col-2 mln-80">
+                    <div class="state p-success">
+                        <i class=icons8 icons8-checked></i>
+                        <label>Add Custom Tier Name</label>
+                    </div>
+                </div>
+                <div>
+                <input type="text" class="input-gui" name="customTierName" [(ngModel)]="customTierName"
+                    style="width: 215px;" [disabled]="!isEnableCustomTierName" pInputText>
+            </div>
+        </div>
+        <div class="p-grid p-justify-start p-align-center">
+            <div class="p-col-3">
+                <label class="width110">Rule Type</label>
+                <p-dropdown class="my-select" name="selectedRuleType" [options]="ruleTypeList"
+                    [(ngModel)]="selectedRuleType" dropdownIcon="icons8 icons8-expand-arrow" (onChange)="blankServerFields()" placeholder="--Select Rule Type--"
+                    [style]="{'width':'200px'}"></p-dropdown>
+            </div>
+        </div>
+        
+        <div class="p-grid p-justify-start p-align-center" *ngIf="selectedRuleType == 'List'">
+            <div class="p-col-3">
+            <label class="width110">Rule Definition</label>
+            
+                <p-multiSelect class="my-select" name="selectedServerList" [options]="serverList"
+                    [(ngModel)]="selectedServerList" dropdownIcon="icons8 icons8-expand-arrow" placeholder="--Select Server(s)--" [style]="{'min-width':'200px'}"
+                    appendTo="body" ngModel class="multiselectPanel multiTier">
+                </p-multiSelect>
+                </div>
+            
+           
+                <div class="p-col-1">
+                <input type="checkbox" name="isEnableCustomServerName" [(ngModel)]="isEnableCustomServerName" />
+                    
+                </div>
+
+                <div class="p-col-2 mln-80">
+                    <div class="state p-success">
+                        
+                        <label>Add Custom Server Name</label>
+                    </div>
+                    </div>
+                <div class="p-col-2 mln-5">
+                    <!-- <p-chips name="customServerName" [(ngModel)]="customServerName" [style]="{'width':'350px'}" ngModel
+                    [disabled]="!isEnableCustomServerName" class="input-chips"></p-chips> -->
+                    <p-chips class="input-chips" [disabled]="!isEnableCustomServerName" [(ngModel)]="customServerName" name="customServerName" ngModel required=""></p-chips>
+                  
+                 </div>
+           
+        </div>
+
+        <div class="p-grid p-justify-start p-align-center" *ngIf="selectedRuleType == 'Pattern'">
+            <div class="p-col-3">
+            <label class="width110">Rule Definition</label>
+            <input name="serverPattern" type="text" class="input-gui" [(ngModel)]="serverPattern" style="width: 200px;" pInputText>
+            </div>
+        </div>
+
+        <div class="p-grid p-justify-start p-align-center" *ngIf="selectedRuleType == 'IPRange'">
+            <div class="p-col-5">
+            <label class="width110">Rule Definition</label>
+            <input name="serverIPRange" type="text"
+                pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+                class="input-gui" [(ngModel)]="serverIPRange" placeholder="0.0.0.0" style="width: 200px;" pInputText>
+            <label style="margin-left: 35px; margin-right: 8px">Subnet Mask </label>
+            <input type="number" name="subnetMask" [(ngModel)]="subnetMask" min="1" max="32" class="my-spiner" size="7" pInputText />
+        </div>
+        </div>
+
+    </div>
+    </form>
+
+    <div class="cav-p-2" *ngIf="selectedTopology != undefined">
+        <div class="p-grid p-justify-end p-align-center px-6">
+            <div>
+                
+                
+                <button pButton icon="icons8 icons8-search" (click)="showHideColumnFilter()" title="{{isRuleFilters ? 'Show Filters' : 'Hide Filters'}}" class="ui-button-secondary mr-5"></button>
+            
+            </div>
+        </div>
+
+
+        <div class="config-ui-table-margin" style="padding: 10px">
+        <p-table #tt class="table-gui table-conf-gui-paginator all-tables" [value]="tierAssignRuleInfo" [rows]="7" [paginator]="tierAssignRuleInfo?.length > 7" [pageLinks]="3">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col style="width:5%">
+                   
+                </colgroup>
+            </ng-template>
+            <ng-template class="tableCss config-ui" pTemplate="header">
+                <tr>
+                    <th>Status</th>
+                    <th>Rule Name</th>
+                    <th>Tier Name</th>
+                    <th>Rule Definition</th>
+                    <th>Rule Type</th>
+                    <th>User Name</th>
+                    <th>Action</th>
+                    
+                </tr>
+                <tr *ngIf="isEnableColumnFilter">
+                    <th>
+                        <!-- <span><input pInputText type="text" (input)="tt.filter($event.target.value, 'status', 'contains')"></span> -->
+                    </th>
+                    <th>
+                        <span><input pInputText type="text" (input)="tt.filter($event.target.value, 'ruleName', 'contains')"></span>
+                    </th>
+                    <th>
+                        <span><input pInputText type="text" (input)="tt.filter($event.target.value, 'tierName', 'contains')"></span>
+                    </th>
+                    <th>
+                        <span><input pInputText type="text" (input)="tt.filter($event.target.value, 'serverName', 'contains')"></span>
+                    </th>
+                    <th>
+                        <span><input pInputText type="text" (input)="tt.filter($event.target.value, 'ruleType', 'contains')"></span>
+                    </th>
+                    <th>
+                        <span><input pInputText type="text" (input)="tt.filter($event.target.value, 'userName', 'contains')"></span>
+                    </th>
+                    <th>
+                        <span><input pInputText type="text" (input)="tt.filter($event.target.value, 'action', 'contains')"></span>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template class="tableCss config-ui" pTemplate="body" let-tierRow>
+                <tr>
+                   
+                    <td class="tableCss" title="{{tierRow.status}}">
+                        <i class="icons8-checked" style="color: green; font-size: 15px"
+                        title="Enabled" *ngIf="tierRow.status == true"></i>
+                    <i class="icons8-delete" style="color: red; font-size: 15px"
+                        title="Disabled" *ngIf="tierRow.status == false"></i>
+                    </td>
+
+                    <td class="tableCss" title="{{tierRow.ruleName}}">{{tierRow.ruleName}}</td>
+                    <td class="tableCss" title="{{tierRow.tierName}}">{{tierRow.tierName}}</td>
+                    <td class="tableCss" title="{{tierRow.serverName}}">{{tierRow.serverName}}</td>
+                    <td class="tableCss" title="{{tierRow.ruleType}}">{{tierRow.ruleType}}</td>
+                    <td class="tableCss" title="{{tierRow.userName}}">{{tierRow.userName}}</td>
+                    <td class="tableCss" title="{{tierRow.action}}">{{tierRow.action}}
+                        <span *ngIf="tierRow[ruleName] != ''">
+                            <i (click)="editTierAssignRule(tierRow)" title="Edit" class="icons8-edit"></i>
+                            <i (click)="deleteTierAssignRule(tierRow)" title="Delete" class="icons8-trash"></i>
+                        </span>
+                    </td>
+                   
+                 </tr>
+            </ng-template>
+        </p-table>
+</div>
+        <!-- <p-dataTable class="table-gui table-conf-gui-paginator" [value]="tierAssignRuleInfo" [rows]="7" -->
+            <!-- [paginator]="tierAssignRuleInfo?.length > 7" [pageLinks]="3"> -->
+            <!-- <p-column field="status" header="Status" [style]="{'width':'5%', 'text-align': 'center'}">
+                <ng-template let-col let-tierRow="rowData" pTemplate>
+                    <i class="fa fa-check-circle icon_size" style="color: green; font-size: 15px"
+                        title="Enabled" *ngIf="tierRow[col.field] == true"></i>
+                    <i class="fa fa-times-circle icon_size" style="color: red; font-size: 15px"
+                        title="Disabled" *ngIf="tierRow[col.field] == false"></i>
+                </ng-template>
+            </p-column> -->
+            <!-- <p-column field="ruleName" header="Rule Name"
+                [filter]="isEnableColumnFilter" [style]="{'width':'15%'}">
+                <ng-template let-col let-tierRow="rowData" pTemplate>
+                    <span title="{{tierRow[col.field]}}">{{tierRow[col.field]}}</span>
+                </ng-template>
+            </p-column> -->
+
+            <!-- <p-column field="tierName" header="Tier Name"
+                [filter]="isEnableColumnFilter" [style]="{'width':'15%'}">
+                <ng-template let-col let-tierRow="rowData" pTemplate>
+                    <span title="{{tierRow[col.field]}}">{{tierRow[col.field]}}</span>
+                </ng-template>
+            </p-column> -->
+            <!-- <p-column field="serverName" header="Rule Definition"
+                [filter]="isEnableColumnFilter" [style]="{'width':'30%'}">
+                <ng-template let-col let-tierRow="rowData" pTemplate>
+                    <span title="{{tierRow[col.field]}}">{{tierRow[col.field]}}</span>
+                </ng-template>
+            </p-column> -->
+            <!-- <p-column field="ruleType" header="Rule Type"
+                [filter]="isEnableColumnFilter" [style]="{'width':'8%'}">
+                <ng-template let-col let-tierRow="rowData" pTemplate>
+                    <span title="{{tierRow[col.field]}}">{{tierRow[col.field]}}</span>
+                </ng-template>
+            </p-column> -->
+            <!-- <p-column field="userName" header="User Name"
+                [filter]="isEnableColumnFilter" [style]="{'width':'8%'}">
+                <ng-template let-col let-tierRow="rowData" pTemplate>
+                    <span title="{{tierRow[col.field]}}">{{tierRow[col.field]}}</span>
+                </ng-template>
+            </p-column> -->
+            <!-- <p-column field="action" header="Action" [style]="{'text-align': 'center','width':'6%'}">
+                <ng-template let-col let-tierRow="rowData" pTemplate>
+                    <span *ngIf="tierRow[ruleName] != ''">
+                        <i (click)="editTierAssignRule(tierRow)" title="Edit" class="fa fa-pencil cav-fnt-14 cav-mx-1"></i>
+                        <i (click)="deleteTierAssignRule(tierRow)" title="Delete" class="fa fa-trash-o cav-fnt-14 cav-mx-1"></i>
+                    </span>
+                </ng-template>
+            </p-column> -->
+        <!-- </p-dataTable> -->
+    </div>
+</div>
+
+<p-confirmDialog width="425" #cd header="Confirmation" class="confirmdialog secondary-dialog">
+    <p-footer>
+        <div class="p-grid p-justify-end sevbtn py-10">
+        <button pButton type="button" label="No" class="ui-button-rounded" (click)="cd.reject()"></button>
+        <button pButton type="button" label="Yes" class="ui-button-rounded ui-button-secondary" (click)="cd.accept()"></button>
+    </div>
+    </p-footer>
+</p-confirmDialog>

@@ -1,0 +1,203 @@
+<form *ngIf="hotspot" (ngSubmit)="saveKeywordData()" #form="ngForm" ngNativeValidate>
+    <div class="tabsincontent">
+        <div class="p-grid p-justify-between">
+        <div class="header mt-6">Settings</div>
+            <div class="pull-right pb-6">
+                <i class="icons8 icons8-help mx-6" title="Help" (click)="sendHelpNotification()"></i>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordsDataToDefault()" label="Reset to Default"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="!isProfilePerm" [disabled]="saveDisable" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="button" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-synchronize" *ngIf="isProfilePerm" [disabled]="isProfilePerm" (click)="resetKeywordData()" label="Undo All"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="isProfilePerm" [disabled]="isProfilePerm" label="Save"></button>
+                <button type="submit" class="ui-button-sucess mr-6" pButton icon="icons8 icons8-save" *ngIf="!isProfilePerm" [disabled]="saveDisable" label="Save"></button>
+
+            </div>
+        </div>
+        
+        <p-panel class="hideheader">
+            <div class="ui-panel-contents">
+            <div style="margin: 5px 0px;" class="flowpathheader-accordion" *ngIf="agentType == 'Java' || agentType == '-'">
+                <p-fieldset legend="Hotspot Detection" [toggleable]="true">
+                   
+                    <div class="ui-g p-grid p-align-center">
+                        <div class="ui-g-2">
+                            <label>Thread Sampling Interval</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="The provided value defines the frequency interval for collecting thread samples"></i>
+                        </div>
+                        <div class="ui-g-2">
+                            <input name="sampleInterval" type="number" class="configui-hotspot-css" title="Set this to 0 if you don't need this feature" pInputText [(ngModel)]="hotspot.ASSampleInterval.value" min={{hotspot.ASSampleInterval.min}} max={{hotspot.ASSampleInterval.max}}
+                                required ngModel /> (ms)
+                        </div>
+                        <div class="ui-g-4" style="margin-left: -50px;margin-top: 2px;width: 28%;">
+                            <label>Consecutive matching samples to mark as Hotspot</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="No. of consecutive thread samples having same stack trace"></i>
+                        </div>
+                        <div class="ui-g-1">
+                            <input name="matchCount" type="number" class="configui-hotspot-css" pInputText [(ngModel)]="hotspot.ASThresholdMatchCount.value" min={{hotspot.ASThresholdMatchCount.min}} max={{hotspot.ASThresholdMatchCount.max}} required ngModel/>
+                        </div>
+                        <div class="ui-g-4">
+                            Compare top <input name="comparingDepth" type="number" style="margin-left: 4px;margin-right: 4px;" class="configui-hotspot-css" pInputText [(ngModel)]="hotspot.ASStackComparingDepth.value" min={{hotspot.ASStackComparingDepth.min}}
+                                max={{hotspot.ASStackComparingDepth.max}} required ngModel /> stack frames of same thread
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Compare top <{{hotspot.ASStackComparingDepth.value}}> stack frames of same thread in consecutive matching samples"></i>
+                        </div>
+                    
+                    </div>
+
+
+                    <div class="ui-g-12 p-grid p-align-center">
+                        <!--<div class="ui-g-4">
+                                        <label>Compare top frames</label>
+                                    </div>
+                                    <div class="ui-g-2">
+                                        <input name="comparingDepth" type="number" style="width: 50%" pInputText [(ngModel)]="hotspot.ASStackComparingDepth.value" min={{hotspot.ASStackComparingDepth.min}} max={{hotspot.ASStackComparingDepth.max}} required ngModel />
+                                    </div>-->
+
+                        <div class="ui-g-6">
+                            <p-checkbox name="ASMethodHotspots" [(ngModel)]="hotspot.ASMethodHotspots.value" binary="true" ngModel label=" Enable Method Hotspot sensor"></p-checkbox>
+                        </div>
+                        <div class="ui-g-6">
+                            <p-checkbox name="enableASTransactionHotspot" binary="true" [(ngModel)]="hotspot.enableASTransactionHotspot.value" label=" Transaction based HotSpot(s)"></p-checkbox>
+                        </div>
+                    </div>
+                    <div class="ui-g-12 p-grid p-align-center">
+                        <div class="ui-g-4 configui-hotspot-css-2" style="width:36%">
+                            <label>Maximum Stack depth difference in consecutive matching samples</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="To consider a method as a Hotspot,search stuck methods in consecutive thread samples whose stack depth difference is not more than the specified value"></i>
+                        </div>
+                        <div class="ui-g-1">
+                            <input name="maxStackSizeDiff" disabled="{{!hotspot.ASMethodHotspots.value}}" type="number" class="configui-hotspot-css" pInputText [(ngModel)]="hotspot.maxStackSizeDiff.value" min={{hotspot.maxStackSizeDiff.min}} max={{hotspot.maxStackSizeDiff.max}}
+                                required ngModel/>
+                        </div>
+                        <div class="ui-g-4" style="width:21%; margin-left: 82px">
+                            <label>Max threads for Transaction hotspot(s)</label>
+                            <!--  <i class="fa fa-info-circle" aria-hidden="true" title=""></i>  -->
+                        </div>
+                        <div class="ui-g-1">
+                            <input name="maxThreadsforTransactionHostspot" disabled="{{!hotspot.enableASTransactionHotspot.value}}" type="number" class="configui-hotspot-css" pInputText [(ngModel)]="hotspot.maxThreadsforTransactionHostspot.value" min={{hotspot.maxThreadsforTransactionHostspot.min}}
+                                max={{hotspot.maxThreadsforTransactionHostspot.max}} required ngModel/>
+                        </div>
+                    </div>
+                </p-fieldset>
+            </div>
+
+            <div style="margin: 5px 0px" class="flowpathheader-accordion" *ngIf="agentType == 'Java' || agentType == '-'">
+                <p-fieldset legend="Filter" [toggleable]="true" [collapsed]="true">
+                    <div class="ui-g-12 p-grid p-align-center">
+                        <div class="ui-g-3">
+                            <label>Minimum Hotspot Thread Depth</label>
+                        </div>
+                        <div class="ui-g-2">
+                            <input name="depthDebug" type="number" class="configui-hotspot-css" pInputText [(ngModel)]="hotspot.ASDepthFilter.value" min={{hotspot.ASDepthFilter.min}} max={{hotspot.ASDepthFilter.max}} required ngModel />
+                        </div>
+                    </div>
+
+                    <div class="ui-g-12 p-grid p-align-center">
+                    <div class="ui-g-3">
+                            <label>Thread names to be included in Hotspot</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Consider only provided thread names for Hotspot detection from all threads of Application"></i>
+                            
+                            <!--p-checkbox name="ExceptionChk" [(ngModel)]="includedExceptionChk" binary="true" ngModel label="Thread names to be included in hotspot"></p-checkbox-->
+                        </div>
+                        <div class="ui-g-4">
+                            
+                        <p-chips class="input-chips" [(ngModel)]="includedException" name="includedException" ngModel required></p-chips>
+                        </div>
+                        <!--div class="ui-g-12 configui-hotspot-css-2">
+                            <p-chips [(ngModel)]="includedException" name="includedException" ngModel required></p-chips>
+                        </div-->
+                        <div class="ui-g-12 p-grid p-align-center"></div>
+                        <div class="ui-g-3">
+                            <label>Thread names to be excluded in Hotspot</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Do not consider provided thread names for Hotspot detection"></i>
+                            <!--p-checkbox name="ExceptionChk" [(ngModel)]="excludedExceptionChk" binary="true" ngModel ></p-checkbox-->
+                        </div>
+                        <div class="ui-g-4 configui-hotspot-css-2">
+                            <p-chips  class="input-chips" [(ngModel)]="excludedException" name="excludedExcepion" ngModel required></p-chips>
+                        </div>
+                    </div>
+                </p-fieldset>
+            </div>
+            
+            <div *ngIf="agentType == 'NodeJS'" style="margin: 5px 0px" class="flowpathheader-accordion">
+                <p-fieldset legend="Hotspot Detection" [toggleable]="true">
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <label>Thread Sampling Interval</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="The provided value defines the frequency interval for collecting thread samples"></i>
+                        </div>
+                        <div class="ui-g-2">
+                            <input name="sampleInterval" type="number" class="configui-hotspot-css" title="Set this to 0 if you don't need this feature" pInputText [(ngModel)]="hotspot.ASSampleInterval.value" min={{hotspot.ASSampleInterval.min}} max={{hotspot.ASSampleInterval.max}}
+                                required ngModel /> (ms)
+                        </div>
+                        <div class="ui-g-4">
+                            <label>Consecutive matching samples to mark as Hotspot</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="No. of consecutive thread samples having same stack trace"></i>
+                        </div>
+                        <div class="ui-g-2">
+                            <input name="matchCount" type="number" class="configui-hotspot-css" pInputText [(ngModel)]="hotspot.ASThresholdMatchCount.value" min={{hotspot.ASThresholdMatchCount.min}} max={{hotspot.ASThresholdMatchCount.max}} required ngModel/>
+                        </div>
+                    </div>
+                </p-fieldset>
+            </div>
+
+            <div style="margin: 5px 0px" class="flowpathheader-accordion" *ngIf="agentType == 'NodeJS'">
+                <p-fieldset legend="Capture Long Stack Trace" [toggleable]="true" [collapsed]="true">
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <label>Long Stack Type</label>
+                        </div>
+                        <div class="ui-g-3">
+                            <p-dropdown [options]="stackType" dropdownIcon="icons8 icons8-expand-arrow" name="stackType" [style]="{'width':'40%'}" [(ngModel)]="selectedStack" (ngModelChange)="getEventSelected($event)"></p-dropdown>
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <label>Maximum Stack Depth</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Consider only provided maximum stack depth"></i>
+                        </div>
+                        <div class="ui-g-5 configui-hotspot-css-2">
+                            <input name="maxStackDepth" type="number" [disabled]="selectedStack == 'Disable'" class="configui-hotspot-css" pInputText [(ngModel)]="maxStackDepth" min={{hotspot.enableHSLongStack.min}} max=100 required/>
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-3">
+                            <label>Events to be excluded in Hotspot</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Do not consider provided event names for Hotspot detection"></i>
+                        </div>
+                        <div class="ui-g-5 configui-hotspot-css-2">
+                            <p-chips class="input-chips" [(ngModel)]="excludedEvent" [disabled]="selectedStack == 'Disable'" name="excludedEvent" ngModel required></p-chips>
+                        </div>
+                    </div>
+                </p-fieldset>
+            </div>
+
+            <div *ngIf="agentType == 'Dot Net'" style="margin: 5px 0px" class="flowpathheader-accordion">
+                <p-fieldset legend="Hotspot Detection" [toggleable]="true">
+                    <div class="ui-g-12">
+                        <div class="ui-g-2">
+                            <label>Thread Sampling Interval</label>
+                            <i class="icons8 icons8-info" aria-hidden="true" title="The provided value defines the frequency interval for collecting thread samples"></i>
+                        </div>
+                        <div class="ui-g-2">
+                            <input name="sampleInterval" type="number" class="configui-hotspot-css" title="Set this to 0 if you don't need this feature" pInputText [(ngModel)]="hotspot.ASSampleInterval.value" min={{hotspot.ASSampleInterval.min}} max={{hotspot.ASSampleInterval.max}}
+                                required ngModel /> (ms)
+                        </div>
+                        <div class="ui-g-5">
+                            <label>Consecutive matching samples to mark as Hotspot</label>
+                            <i class="ficons8 icons8-info" aria-hidden="true" title="No. of consecutive thread samples having same stack trace"></i>
+                        </div>
+                        <div class="ui-g-1">
+                            <input name="matchCount" type="number" class="configui-hotspot-css" pInputText [(ngModel)]="hotspot.ASThresholdMatchCount.value" min={{hotspot.ASThresholdMatchCount.min}} max={{hotspot.ASThresholdMatchCount.max}} required ngModel/>
+                        </div>
+                        <div class="ui-g-4">
+                            Compare top <input name="comparingDepth" type="number" class="configui-hotspot-css" pInputText [(ngModel)]="hotspot.ASStackComparingDepth.value" min={{hotspot.ASStackComparingDepth.min}} max={{hotspot.ASStackComparingDepth.max}}
+                                required ngModel /> stack frames of same thread
+                            <i class="icons8 icons8-info" aria-hidden="true" title="Compare top <{{hotspot.ASStackComparingDepth.value}}> stack frames of same thread in consecutive matching samples"></i>
+                        </div>
+                    </div>
+                </p-fieldset>
+            </div>
+        </div>
+        </p-panel>
+    </div>
+</form>

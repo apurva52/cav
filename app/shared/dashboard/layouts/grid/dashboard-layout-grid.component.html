@@ -1,0 +1,29 @@
+<gridster *ngIf="config" [options]="config">
+    <gridster-item [item]="widget.layout || defaultWidgetLayout" #gi
+        *ngFor="let widget of dashboard.favDetailCtx.widgets; let index = index">
+        <ng-container *ngIf="widget && widget.type === 'GRAPH'">
+            <app-graph [widget]="widget" [layout]="this" [gridContainer]="gi"></app-graph>
+        </ng-container>
+        <ng-container *ngIf="widget && widget.type === 'DATA'">
+            <app-data [widget]="widget" [layout]="this" [gridContainer]="gi"></app-data>
+        </ng-container>
+        <ng-container *ngIf="widget && widget.type === 'TABULAR'">
+            <app-tabular [widget]="widget" [layout]="this" [gridContainer]="gi"></app-tabular>
+        </ng-container>
+        <ng-container *ngIf="widget && widget.type === 'SYSTEM_HEALTH'">
+            <app-system-health [widget]="widget" [layout]="this" [gridContainer]="gi"></app-system-health>
+        </ng-container>
+        <ng-container *ngIf="widget && widget.type === 'LABEL'">
+            <app-label [widget]="widget" [layout]="this" [gridContainer]="gi"></app-label>
+        </ng-container>
+        <ng-container *ngIf="widget && widget.type === 'GROUP'">
+            <app-group [widget]="widget" [layout]="this" [gridContainer]="gi"></app-group>
+        </ng-container>
+        <ng-container *ngIf="widget && widget.type === 'IMAGE'">
+            <app-image [widget]="widget" [layout]="this" [gridContainer]="gi"></app-image>
+        </ng-container>
+        <ng-container *ngIf="widget && widget.type === 'FILE'">
+            <app-file-import [widget]="widget" [layout]="this" [gridContainer]="gi"></app-file-import>
+        </ng-container>
+    </gridster-item>
+</gridster>

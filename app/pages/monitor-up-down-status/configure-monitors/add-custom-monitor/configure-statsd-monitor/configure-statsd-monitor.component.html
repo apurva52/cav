@@ -1,0 +1,56 @@
+
+  <div class="header">
+    <app-header></app-header>
+  </div>
+  
+     
+      
+     <p-toolbar class="ui-secondary-toolbar">
+      <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+        <a routerLink="/custom-monitors/availCustMon/statsd">
+              <span class="icons8 icons8-left toolbar-icon-color"></span>
+          </a>
+          <div class="p-col ui-toolbar-text">Configure Statsd Monitors</div>
+          <div>
+              <button pButton class="ui-button ui-button-rounded ui-button-right" form="ngForm" label="Save"></button>
+          </div>
+      </div>
+  </p-toolbar>
+
+  
+    
+      <div class="content-body">
+        <form class="monitor-ui-form" (ngSubmit)="saveMonitorsConfigurationData()" id="ngForm" ngNativeValidate>
+          <app-metric-group-info [item]="statsdMonDTO "></app-metric-group-info>
+   <div class="p-grid p-align-center w-100-p">
+  
+        <!-- for identifier -->
+          <div class="width-120 required-mark">Identifier</div>
+          <div class="p-col-3">
+            <input type="text" class="w-100-p ui-inputtext ui-corner-all ui-state-default ui-widget" name="id" placeholder="Enter Identifier"
+              [(ngModel)]="statsdMonDTO.idnt" autofocus maxlength="64" required>
+          
+            </div>
+            <div class="">
+              ex:- vault, airflow, android etc.
+            </div>
+        </div>
+  
+        <app-metric-hierarchy [showMetHierCols]="arrMetricHier" (tableData)="metricTableData($event)"
+          [item]="statsdMonDTO ">
+        </app-metric-hierarchy>
+  
+        <app-metric-configuration [showMetConfCols]="arrMetricConf" (mConfTableData)="metricConfTableData($event)"
+          [item]="statsdMonDTO "></app-metric-configuration>
+  
+        <app-advance-settings [item]="statsdMonDTO "></app-advance-settings>
+        </form>
+
+      <div class="loading-indicator" *ngIf="loading">
+        <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration=".5s">
+        </p-progressSpinner>
+    </div>
+      </div>
+    
+
+  

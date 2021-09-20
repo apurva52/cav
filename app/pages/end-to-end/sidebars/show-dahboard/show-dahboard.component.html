@@ -1,0 +1,25 @@
+<p-sidebar #sidebar [(visible)]="visible" position="right" baseZIndex="10000" blockScroll="true" appendTo="body"
+  styleClass="node-action-sidebar" [showCloseIcon]="false" [baseZIndex]="100" *ngIf="data">
+  <div class="sidebar-header">
+    <div class="sidebar-title">
+      <span>Tier : {{solarNodeData.nodeName}}</span>
+      <i class="icons8-delete close-icon-css" (click)="hide()"></i>
+      <app-node-action-menu [Graphical]="Graphical" [solarNodeData]="solarNodeData"></app-node-action-menu>
+    </div>
+  </div>
+
+  <div class="sidebar-content ui-fluid h-100-p">
+    <div class="dashboard-container">
+      <div class="action-header">
+        <button pButton icon="icons8 icons8-left" class="ui-icon-button" (click)="hide()"></button>
+        <label class="header-label" for="">Dashboard</label>
+      </div>
+
+      <div class="p-grid" style="height: calc(100vh - 70px); overflow: auto">
+        <div class="p-col-12" *ngFor="let chart of data.charts">
+          <app-chart [data]="chart"></app-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+</p-sidebar>

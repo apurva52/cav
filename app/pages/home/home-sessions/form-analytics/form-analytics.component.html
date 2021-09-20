@@ -1,0 +1,49 @@
+<div class="sql-activity-conatiner">
+    <div class="header">
+        <app-header></app-header>
+    </div>
+    <p-toolbar class="ui-secondary-toolbar">
+        <div class="p-grid p-justify-between p-align-center pl-5 pr-5">
+            <a routerLink="/home/home-sessions">
+                <i class="icons8 icons8-left toolbar-icon-color"></i>
+            </a>
+            <div class="p-col ui-toolbar-text">
+                Form Analytics Reports
+            </div>
+             <div class="p-col text-right elipseText" *ngIf="filterLabel != ''">
+                <i class="icons8 icons8-filter ph-5" style="cursor: pointer;" title="View Applied Filters"
+                    (click)="formfiltercriteria.show()"></i>
+                <span [attr.title]="filterLabel">{{filterLabel}}</span>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="breadcrumbs">
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
+ </div>
+    <div class="p-grid p-col-12">
+        
+        <div class="p-col-2 border-right" *ngIf="isShow">
+            <div class="sidepanel-header p-grid p-col-12 p-justify-end">
+                <i class="icons8 icons8-delete" (click)="closeSidePanel()"></i>
+            </div>
+            <div class="vertical-tabs-menu">
+                <p-tabMenu [model]="items"></p-tabMenu>
+            </div>
+        </div>
+        <div [ngClass]="!isShow ?'p-col-12':'p-col-10'">
+            <p-card>
+                <div class="action-container">
+                    <div class="p-grid p-col-12 p-justify-between p-align-center action-grid w-100-p">
+                        <button pButton icon="icons8 icons8-left" class="icon-button no-shadow" *ngIf="!isShow" (click)="openSidePanel()"></button>
+                    </div>
+                </div>
+                <div class="content">
+                    <router-outlet></router-outlet>
+                </div>
+            </p-card>
+        </div>
+    </div>
+</div>
+
+
+<app-form-analytics-filter #formfiltercriteria (filterChange)="applyFilter($event)"></app-form-analytics-filter>
